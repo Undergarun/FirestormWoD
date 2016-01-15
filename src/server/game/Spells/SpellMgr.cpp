@@ -5928,6 +5928,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 124915:///< Chaos Wave
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 break;
+            case 77535: ///< Blood Shield
             case 127802: ///< Touch of The Grave (trigger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;

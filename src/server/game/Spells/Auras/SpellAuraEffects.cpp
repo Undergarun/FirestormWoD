@@ -1239,7 +1239,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
 uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 {
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS) || m_spellInfo->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         return p_Amount;
 
     float l_Minval = (float)p_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
