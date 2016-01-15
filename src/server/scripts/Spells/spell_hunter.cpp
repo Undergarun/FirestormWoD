@@ -1389,28 +1389,24 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_glaive_toss_damage_SpellScript);
 
-            uint64 mainTargetGUID;
+            uint64 mainTargetGUID = 0;
 
-            bool Load()
+            void CorrectRange(std::list<WorldObject*>& p_Targets)
             {
-                mainTargetGUID = 0;
-                return true;
-            }
-
-            void CorrectDamageRange(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                std::list<Unit*> targetList;
-                float radius = 50.0f;
-
-                JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(GetCaster(), GetCaster(), radius);
-                JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(GetCaster(), targetList, u_check);
-                GetCaster()->VisitNearbyObject(radius, searcher);
-
-                for (auto itr : targetList)
+                if (GetSpellInfo()->Id == 121414)
                 {
-                    if (itr->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA))
+                    p_Targets.clear();
+                    return;
+                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_OriginalCaster = GetOriginalCaster();
+                Unit* l_MainTarget = nullptr;
+
+                for (auto itr : p_Targets)
+                {
+                    Unit* l_Target = itr->ToUnit();
+
+                    if (l_Target && l_Target->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_OriginalCaster->GetGUID()))
                     {
                         mainTargetGUID = itr->GetGUID();
                         break;
@@ -1418,74 +1414,51 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
                 }
 
                 if (!mainTargetGUID)
-                    return;
+                    mainTargetGUID = l_OriginalCaster->GetGUID();
 
-                Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
-                if (!target)
-                    return;
+                l_MainTarget = ObjectAccessor::FindUnit(mainTargetGUID);
 
-                targets.push_back(target);
-
-                for (auto itr : targetList)
-                    if (itr->IsInBetween(GetCaster(), target, 5.0f))
-                        targets.push_back(itr);
-            }
-
-            void CorrectSnareRange(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                std::list<Unit*> targetList;
-                float radius = 50.0f;
-
-                JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(GetCaster(), GetCaster(), radius);
-                JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(GetCaster(), targetList, u_check);
-                GetCaster()->VisitNearbyObject(radius, searcher);
-
-                for (auto itr : targetList)
+                if (l_MainTarget == nullptr)
                 {
-                    if (itr->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA))
-                    {
-                        mainTargetGUID = itr->GetGUID();
-                        break;
-                    }
+                    p_Targets.clear();
+                    return;
                 }
 
-                if (!mainTargetGUID)
-                    return;
+                p_Targets.remove_if([this, l_Caster, l_MainTarget](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsWithinLOSInMap(l_Caster))
+                        return true;
 
-                if (!mainTargetGUID)
-                    return;
+                    if (p_Object->ToUnit() && !l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
+                        return true;
 
-                Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
-                if (!target)
-                    return;
+                    if (p_Object->GetGUID() == l_MainTarget->GetGUID())
+                        return false;
 
-                targets.push_back(target);
-
-                for (auto itr : targetList)
-                    if (itr->IsInBetween(GetCaster(), target, 5.0f))
-                        targets.push_back(itr);
+                    if (p_Object->IsInElipse(l_Caster, l_MainTarget, 7.0f, 4.0f))
+                        return false;
+                    return true;
+                });
             }
 
             void OnDamage()
             {
-                if (!mainTargetGUID)
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (!mainTargetGUID || l_Target == nullptr)
                     return;
 
-                Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
-                if (!target)
-                    return;
+                Unit* l_MainTarget = ObjectAccessor::FindUnit(mainTargetGUID);
 
-                if (GetHitUnit())
-                    if (GetHitUnit() == target)
-                        SetHitDamage(GetHitDamage() * 4);
+                if (l_MainTarget != nullptr && l_MainTarget->GetGUID() == l_Target->GetGUID())
+                    SetHitDamage(GetHitDamage() * 4);
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectDamageRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectSnareRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_hun_glaive_toss_damage_SpellScript::OnDamage);
             }
         };
@@ -1508,47 +1481,53 @@ class spell_hun_glaive_toss_missile: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
+                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Caster = GetCaster();
+                Unit* l_OriginalCaster = GetOriginalCaster();
+
+                if (l_Target != nullptr)
                 {
-                    if (Player* plr = GetCaster()->ToPlayer())
-                        plr->CastSpell(plr, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-                    else if (GetOriginalCaster())
-                    {
-                        if (Player* caster = GetOriginalCaster()->ToPlayer())
-                            caster->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-                    }
-                }
-                else
-                {
-                    if (Player* plr = GetCaster()->ToPlayer())
-                        plr->CastSpell(plr, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-                    else if (GetOriginalCaster())
-                    {
-                        if (Player* caster = GetOriginalCaster()->ToPlayer())
-                            caster->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-                    }
+                    if (l_Caster->GetGUID() == GetOriginalCaster()->GetGUID())
+                        l_Caster->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_Target);
+                    else
+                        l_OriginalCaster->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_Caster);
                 }
 
-                if (Unit* target = GetExplTargetUnit())
-                    if (GetCaster() == GetOriginalCaster())
-                        GetCaster()->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, target);
+                if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
+                {
+                    if (l_OriginalCaster != nullptr)
+                        l_OriginalCaster->CastSpell(l_OriginalCaster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                    else
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                }
+                if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_LEFT)
+                {
+                    if (l_OriginalCaster != nullptr)
+                        l_OriginalCaster->CastSpell(l_OriginalCaster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                    else
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                }
             }
 
             void HandleOnHit()
             {
+                Unit* l_Caster = GetCaster();
+
                 if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
                 {
-                    if (Unit* caster = GetCaster())
-                        if (Unit* target = GetHitUnit())
-                            if (caster == GetOriginalCaster())
-                                target->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_LEFT, true, NULL, NULLAURA_EFFECT, caster->GetGUID());
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster == GetOriginalCaster())
+                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_LEFT, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    }
                 }
                 else
                 {
-                    if (Unit* caster = GetCaster())
-                        if (Unit* target = GetHitUnit())
-                            if (caster == GetOriginalCaster())
-                                target->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_RIGHT, true, NULL, NULLAURA_EFFECT, caster->GetGUID());
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster == GetOriginalCaster())
+                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_RIGHT, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    }
                 }
             }
 

@@ -643,7 +643,6 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, DK_SPELL_SOUL_REAPER_HASTE, true);
                 else if (removeMode == AURA_REMOVE_BY_EXPIRE && GetTarget()->GetHealthPct() < (float)l_HealthPctMax)
                 {
-                    sLog->outError(LOG_FILTER_GENERAL, "----> ENTRE 3");
                     l_Caster->CastSpell(GetTarget(), DK_SPELL_SOUL_REAPER_DAMAGE, true);
 
                     /// When Soul Reaper deals its bonus damage to a target, you gain 5 stacks of Shadow Infusion.

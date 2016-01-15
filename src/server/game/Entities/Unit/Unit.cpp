@@ -19865,7 +19865,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         if (kingOfTheJungle)
                             l_KingOfTheJungleModel = 43765;
                         else
-                            return 29408;
+                            l_BaseCatModel = 29408;
                     }
                     default: // original - Dark Blue
                     {
