@@ -3028,7 +3028,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_UnitList.size() > 1)
                 {
-                    l_UnitList.remove(p_Target);
                     l_UnitList.sort(JadeCore::HealthPctOrderPred());
                     l_UnitList.resize(1);
                 }
