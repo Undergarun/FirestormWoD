@@ -808,33 +808,12 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     l_BattleRequest->RequestType    = PETBATTLE_TYPE_PVE;
     l_BattleRequest->OpponentGuid   = l_OpponentGuid;
 
-    // Player can't be already in battle
-    if (m_Player->_petBattleId)
+    eBattlePetRequests l_CanEnterResult = sPetBattleSystem->CanPlayerEnterInPetBattle(m_Player, l_BattleRequest);
+    if (l_CanEnterResult != PETBATTLE_REQUEST_OK)
     {
-        SendPetBattleRequestFailed(PETBATTLE_REQUEST_IN_BATTLE);
+        SendPetBattleRequestFailed(l_CanEnterResult);
         sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
         return;
-    }
-
-    // Player can't be in combat
-    if (m_Player->isInCombat())
-    {
-        SendPetBattleRequestFailed(PETBATTLE_REQUEST_NOT_WHILE_IN_COMBAT);
-        sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
-        return;
-    }
-
-    // Check positions
-    for (size_t l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; ++l_CurrentTeamID)
-    {
-        if (m_Player->GetMap()->getObjectHitPos(m_Player->GetPhaseMask(),l_BattleRequest->PetBattleCenterPosition[0],        l_BattleRequest->PetBattleCenterPosition[1],        l_BattleRequest->PetBattleCenterPosition[2],
-                                                                        l_BattleRequest->TeamPosition[l_CurrentTeamID][0],  l_BattleRequest->TeamPosition[l_CurrentTeamID][1],  l_BattleRequest->TeamPosition[l_CurrentTeamID][2],
-                                                                        l_BattleRequest->TeamPosition[l_CurrentTeamID][0],  l_BattleRequest->TeamPosition[l_CurrentTeamID][1],  l_BattleRequest->TeamPosition[l_CurrentTeamID][2], 0.0f))
-        {
-            SendPetBattleRequestFailed(PETBATTLE_REQUEST_NOT_HERE_UNEVEN_GROUND);
-            sPetBattleSystem->RemoveRequest(l_BattleRequest->RequesterGuid);
-            return;
-        }
     }
 
     // Wild should be for PetBattle and Player able to interact with it

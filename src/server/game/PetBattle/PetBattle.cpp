@@ -1921,6 +1921,7 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
 /// Forfeit an battle
 void PetBattleSystem::ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid)
 {
@@ -1939,4 +1940,87 @@ void PetBattleSystem::ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid)
         return;
 
     l_Battle->Finish(!l_ForfeiterTeamID, true);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Can player enter in a pet battle
+eBattlePetRequests PetBattleSystem::CanPlayerEnterInPetBattle(Player* p_Player, PetBattleRequest* p_Request)
+{
+    if (!p_Player || !p_Player->IsInWorld())
+        return PETBATTLE_REQUEST_CREATE_FAILED;
+
+    if (p_Player->isDead())
+        return PETBATTLE_REQUEST_NOT_WHILE_DEAD;
+
+    // Player can't be already in battle
+    if (p_Player->_petBattleId)
+        return PETBATTLE_REQUEST_IN_BATTLE;
+
+    if (IS_PLAYER_GUID(p_Request->OpponentGuid))
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(p_Request->OpponentGuid))
+        {
+            if (l_Player->_petBattleId)
+                return PETBATTLE_REQUEST_IN_BATTLE;
+        }
+    }
+    else if (IS_CREATURE_GUID(p_Request->OpponentGuid))
+    {
+        if (!p_Player->GetNPCIfCanInteractWith(p_Request->OpponentGuid, 0))
+            return PETBATTLE_REQUEST_TARGET_INVALID;
+    }
+
+    // Player can't be in combat
+    if (p_Player->isInCombat())
+        return PETBATTLE_REQUEST_NOT_WHILE_IN_COMBAT;
+
+    // Check positions
+    for (size_t l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; ++l_CurrentTeamID)
+    {
+        if (p_Player->GetMap()->getObjectHitPos(p_Player->GetPhaseMask(), p_Request->PetBattleCenterPosition[0], p_Request->PetBattleCenterPosition[1], p_Request->PetBattleCenterPosition[2],
+                                                                          p_Request->TeamPosition[l_CurrentTeamID][0], p_Request->TeamPosition[l_CurrentTeamID][1], p_Request->TeamPosition[l_CurrentTeamID][2],
+                                                                          p_Request->TeamPosition[l_CurrentTeamID][0], p_Request->TeamPosition[l_CurrentTeamID][1], p_Request->TeamPosition[l_CurrentTeamID][2], 0.0f))
+        {
+            return PETBATTLE_REQUEST_NOT_HERE_UNEVEN_GROUND;
+        }
+    }
+
+    uint32 l_OpponentTeamID = PETBATTLE_PVE_TEAM_ID;
+
+    if (p_Request->RequestType != PETBATTLE_TYPE_PVE)
+        l_OpponentTeamID = (p_Request->OpponentGuid == p_Player->GetGUID()) ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
+
+    if (p_Player->IsWithinDist3d(p_Request->TeamPosition[l_OpponentTeamID][0], p_Request->TeamPosition[l_OpponentTeamID][1], p_Request->TeamPosition[l_OpponentTeamID][2], INTERACTION_DISTANCE))
+        return PETBATTLE_REQUEST_TARGET_OUT_OF_RANGE;
+
+    if (!p_Player->IsWithinLOS(p_Request->TeamPosition[l_OpponentTeamID][0], p_Request->TeamPosition[l_OpponentTeamID][1], p_Request->TeamPosition[l_OpponentTeamID][2]))
+        return PETBATTLE_REQUEST_NOT_HERE_OBSTRUCTED;
+
+    // Load player pets
+    BattlePet::Ptr * l_PetSlots = p_Player->GetBattlePetCombatTeam();
+    size_t l_PlayerPetCount = 0;
+    size_t l_PlayerDeadPetCount = 0;
+
+    for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
+    {
+        if (!l_PetSlots[l_CurrentPetSlot])
+            continue;
+
+        if (l_PlayerPetCount >= MAX_PETBATTLE_SLOTS || l_PlayerPetCount >= p_Player->GetUnlockedPetBattleSlot())
+            break;
+
+        if (l_PetSlots[l_CurrentPetSlot]->Health < 1)
+            l_PlayerDeadPetCount++;
+
+        ++l_PlayerPetCount;
+    }
+
+    if (!l_PlayerPetCount)
+        return PETBATTLE_REQUEST_NO_PETS_IN_SLOT;
+
+    if (l_PlayerPetCount == l_PlayerDeadPetCount)
+        return PETBATTLE_REQUEST_ALL_PETS_DEAD;
+
+    return PETBATTLE_REQUEST_OK;
 }

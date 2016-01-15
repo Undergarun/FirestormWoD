@@ -113,7 +113,10 @@ enum eBattlePetRequests
     PETBATTLE_REQUEST_ALL_PETS_DEAD          = 15,
     PETBATTLE_REQUEST_NO_PETS_IN_SLOT        = 16,
     PETBATTLE_REQUEST_NO_ACCOUNT_LOCK        = 17,
-    PETBATTLE_REQUEST_WILD_PET_TAPPED        = 18
+    PETBATTLE_REQUEST_WILD_PET_TAPPED        = 18,
+
+    /// Custom value
+    PETBATTLE_REQUEST_OK                     = 0xFF
 };
 
 enum BattlePetState
@@ -735,9 +738,12 @@ class PetBattleSystem
         /// Forfeit an battle
         void ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid);
 
+        /// Can player enter in a pet battle
+        eBattlePetRequests CanPlayerEnterInPetBattle(Player* p_Player, PetBattleRequest* p_Request);
+
     private:
         uint32                              m_MaxPetBattleID;       ///< Global battle unique id
-        std::map<uint64, PetBattle*>        m_PetBattles;          ///< All running battles
+        std::map<uint64, PetBattle*>        m_PetBattles;           ///< All running battles
         std::map<uint64, PetBattleRequest*> m_Requests;             ///< All pending battles request
 
         IntervalTimer                               m_DeleteUpdateTimer;        ///< Deletion queue update timer
