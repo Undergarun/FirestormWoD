@@ -6807,7 +6807,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158221: ///< Hurricane Strike (damage)
                 spellInfo->SetDurationIndex(39); ///< 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 152118: ///< Clarity of Will
                 spellInfo->InterruptFlags = 0x0000000F;
