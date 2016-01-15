@@ -112,7 +112,7 @@ namespace MS { namespace Garrison
             /// Add mission
             bool AddMission(uint32 p_MissionRecID);
             /// Player have mission
-            bool HaveMission(uint32 p_MissionRecID) const;
+            bool HasMission(uint32 p_MissionRecID) const;
             /// Start mission
             void StartMission(uint32 p_MissionRecID, std::vector<uint64> p_Followers);
             /// Send mission start failed packet
@@ -149,9 +149,13 @@ namespace MS { namespace Garrison
             /// Get follower
             GarrisonFollower* GetFollower(uint32 p_FollowerID);
             /// Get activated followers count
-            uint32 GetActivatedFollowerCount() const;
+            uint32 GetActiveFollowerCount(uint32 p_FollowerType) const;
             /// Get num follower activation remaining
             uint32 GetNumFollowerActivationsRemaining() const;
+            /// Returns error message of upgrade attempt
+            SpellCastResult CanUpgradeItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo) const;
+            /// Upgrades follower with spell
+            void UpgradeFollowerItemLevelWith(uint32 p_FollowerID, SpellInfo const* p_SpellInfo);
             /// Check if any followers has ability in parameter
             bool HasFollowerAbility(uint32 p_AbilityID) const;
 
@@ -203,6 +207,8 @@ namespace MS { namespace Garrison
             std::vector<uint64> GetBuildingCreaturesByBuildingType(BuildingType::Type p_Type);
             /// Get Garrison ID
             uint32 GetGarrisonID() { return m_ID; };
+            /// Get Garrison Level
+            uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints() const;
@@ -216,6 +222,81 @@ namespace MS { namespace Garrison
 
             /// Get work orders
             std::vector<GarrisonWorkOrder>& GetWorkOrders();
+
+            /// Update mission distribution
+            void UpdateMissionDistribution(bool p_Force = false, uint32 p_ForcedCount = 0);
+
+            /// Renames the specified follower
+            bool RenameFollower(uint32 p_DatabaseID, std::string p_FollowerName);
+
+            /// Removes the follower
+            bool RemoveFollower(uint32 p_DatabaseID, bool p_Force = false);
+
+            /// Gets the follower count of specified type
+            uint32 GetTotalFollowerCount(uint32 p_Type);
+
+            /// Sends a packet to owner
+            void SendPacketToOwner(WorldPacket* p_Data);
+
+            /// Checks if ship has crew
+            bool HasCrewAbility(GarrisonFollower const& p_Follower) const;
+
+            /// Generates follower ability (crew) for the specified shit
+            uint32 GenerateCrewAbilityIdForShip(GarrisonFollower const& p_Follower);
+
+            /// Generate random NPC Ability
+            uint32 GenerateRandomAbility();
+
+            /// Generate random trait
+            uint32 GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities);
+
+            /// Reroll Follower Abilities
+            void GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset = true, bool p_Abilities = true, bool p_Traits = true, bool p_Update = false);
+
+            /// Reroll Follower Abilities
+            void GenerateFollowerAbilities(uint32 p_FollowerID, bool p_Reset = true, bool p_Abilities = true, bool p_Traits = true, bool p_Update = false);
+
+            /// Generates the followers list
+            std::list<std::string> GenerateFollowerTextList(uint32 l_Type);
+
+            /// Levelup follower
+            bool LevelUpFollower(uint32 p_DatabaseID);
+
+            /// Returns all the  abilities with the same type
+            uint32 CountFollowerAbilitiesByType(uint32 p_FollowerID, uint32 p_Type) const;
+
+            /// Returns error message of the attempt
+            SpellCastResult CanLearnTrait(uint32 p_FollowerID, uint32 p_Slot, SpellInfo const* p_SpellInfo, uint32 p_EffIndex) const;
+
+            /// Learns the specific trait
+            void LearnFollowerTrait(uint32 p_FollowerID, uint32 p_Slot, SpellInfo const* p_SpellInfo, uint32 p_EffIndex);
+
+            /// Returns the cap of the specified follower type
+            uint32 GetFollowerSoftCap(uint32 p_FollowerType) const;
+
+            /// Returns if the mission with specified follower type can be started after soft cap
+            bool CanMissionBeStartedAfterSoftCap(uint32 p_FollowerType) const;
+
+            /// Returns if the specific follower type can be renamed
+            bool CanRenameFollowerType(uint32 p_FollowerType) const;
+
+            /// Returns max follower item level that can be achieved by the specific follower type
+            uint32 GetMaxFollowerItemLevel(uint32 p_FollowerType) const;
+
+            /// Returns if player has shipyard or not
+            bool HasShipyard() const;
+
+            /// Returns the shipyard level
+            uint32 GetShipyardLevel() const;
+
+            /// Returns mapId of shipyard
+            uint32 GetShipyardMapId() const;
+
+            /// Get shipyard terain swap
+            void GetShipyardTerainSwaps(std::set<uint32> & p_TerrainSwaps) const;
+
+            /// Create shipyard by spell
+            bool CreateShipyardBySpell();
 
         public:
             /// Replace garrison script
@@ -247,8 +328,6 @@ namespace MS { namespace Garrison
             void UpdateFollowers();
             /// Update cache
             void UpdateCache();
-            /// Update mission distribution
-            void UpdateMissionDistribution();
             /// Update garrison ability
             void UpdateGarrisonAbility();
             /// Update work order
@@ -283,8 +362,6 @@ namespace MS { namespace Garrison
             std::map<uint32, uint64>                m_PlotsWorkOrderGob;
             std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
             std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
-
-            uint32 m_Stat_MaxActiveFollower;
 
             Interfaces::GarrisonSite * m_GarrisonScript;
 

@@ -75,6 +75,7 @@ enum PaladinSpells
     PALADIN_SPELL_TOWER_OF_RADIANCE_ENERGIZE    = 88852,
     PALADIN_SPELL_BEACON_OF_LIGHT               = 53563,
     PALADIN_SPELL_BEACON_OF_FAITH               = 156910,
+    PALADIN_SPELL_SELFLESS_HEALER_VISUAL        = 128863,
     PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
     PALADIN_SPELL_SELFLESS_HEALER               = 85804,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
@@ -868,7 +869,7 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_seal_of_insight_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnSelfHeal, EFFECT_0, SPELL_EFFECT_HEAL);
                 OnEffectLaunch += SpellEffectFn(spell_pal_seal_of_insight_SpellScript::OnRaidHeal, EFFECT_1, SPELL_EFFECT_HEAL);
             }
@@ -1156,7 +1157,9 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 
                 /// 1.1 + 1.1^2 + ... + 1.1^9 + 1.1^9 * 5 = 26.727163056
                 /// 1 / 26,727163056 = 0.0374151195, which is the factor to get from the whole spells SP scaling to the base scaling of the 0th tick
-                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000) * 0.0374151195;
+                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
+                if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
+                    l_BaseValue *= 0.0374151195f;
 
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
 
@@ -1773,6 +1776,80 @@ class spell_pal_judgment: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Empowered Seals - 152263
+/// Call by Turalyons Justice - 156987, Uthers Insight - 156988, Liadrins Righteousness - 156989, Maraads Truth - 156990
+class spell_pal_empowered_seals : public SpellScriptLoader
+{
+    public:
+        spell_pal_empowered_seals() : SpellScriptLoader("spell_pal_empowered_seals") { }
+
+        enum eSpells
+        {
+            TuralyonsJustice        = 156987,
+            UthersInsight           = 156988,
+            LiadrinsRighteousness   = 156989,
+            MaraadsTruth            = 156990,
+            EmpowredSealsVisual     = 172319
+        };
+
+        class spell_pal_empowered_seals_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_empowered_seals_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->CastSpell(l_Target, eSpells::EmpowredSealsVisual, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                bool m_HasStillAura = false;
+
+                for (uint32 l_I = eSpells::TuralyonsJustice; l_I <= eSpells::MaraadsTruth; ++l_I)
+                {
+                    if (l_Target->HasAura(l_I))
+                        m_HasStillAura = true;
+                }
+                if (!m_HasStillAura)
+                    l_Target->RemoveAura(eSpells::EmpowredSealsVisual);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::TuralyonsJustice:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::UthersInsight:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::LiadrinsRighteousness:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                case eSpells::MaraadsTruth:
+                    OnEffectApply += AuraEffectApplyFn(spell_pal_empowered_seals_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_pal_empowered_seals_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_empowered_seals_AuraScript();
+        }
+};
+
 /// Ardent Defender - 31850
 class spell_pal_ardent_defender: public SpellScriptLoader
 {
@@ -2133,7 +2210,9 @@ class spell_pal_eternal_flame : public SpellScriptLoader
                 T17Holy2P   = 165438,
                 T17Holy4P   = 167697,
                 LawfulWords = 166780,
-                LightsFavor = 166781
+                LightsFavor = 166781,
+                WoDPvPHoly4PBonusAura   = 180766,
+                WoDPvPHoly4PBonus       = 180767,
             };
 
             int32 m_PowerUsed = 0;
@@ -2224,6 +2303,17 @@ class spell_pal_eternal_flame : public SpellScriptLoader
 
                                 l_Aura->GetEffect(0)->ChangeAmount(l_Aura->GetEffect(0)->GetAmount() * m_PowerUsed);
                                 l_Aura->SetNeedClientUpdateForTargets();
+                            }
+                        }
+
+                        if (l_Caster->HasAura(eSpells::WoDPvPHoly4PBonusAura))
+                        {
+                            l_Caster->CastSpell(l_Target, eSpells::WoDPvPHoly4PBonus, true);
+
+                            if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly4PBonusAura))
+                            {
+                                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
+                                    l_Aura->GetEffect(EFFECT_0)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * -m_PowerUsed);
                             }
                         }
                     }
@@ -2473,6 +2563,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
 /// Beacon of Faith - 156910
 class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
@@ -2485,10 +2576,15 @@ class spell_pal_beacon_of_faith: public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                if (Unit* l_Target = GetExplTargetUnit())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
                 if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
                     return SPELL_FAILED_BAD_TARGETS;
+                    
                 return SPELL_CAST_OK;
             }
 
@@ -2786,6 +2882,10 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
                     return;
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
+
+                if (AuraPtr l_SelflessHealer = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                    if (l_SelflessHealer->GetStackAmount() == 3)
+                        l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_VISUAL, true);
             }
 
             void Register()
@@ -3422,6 +3522,39 @@ class spell_pal_t17_protection_4p : public SpellScriptLoader
         }
 };
 
+/// Glyph of the Consecrator - 159556
+class spell_pal_glyph_of_the_consecration : public SpellScriptLoader
+{
+    public:
+        spell_pal_glyph_of_the_consecration() : SpellScriptLoader("spell_pal_glyph_of_the_consecration") { }
+
+        class spell_pal_glyph_of_the_consecration_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_glyph_of_the_consecration_AuraScript);
+
+            enum eSpells
+            {
+                ConsecrationDamage = 159561
+            };
+
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::ConsecrationDamage, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_glyph_of_the_consecration_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_glyph_of_the_consecration_AuraScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -3458,8 +3591,48 @@ class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
         }
 };
 
+/// Grand Crusader - 85416
+/// Crusader Strike - 35395, Hammer of the Righteous - 53595
+class spell_pal_grand_crusader : public SpellScriptLoader
+{
+public:
+    spell_pal_grand_crusader() : SpellScriptLoader("spell_pal_grand_crusader") { }
+
+    class spell_pal_grand_crusader_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_grand_crusader_SpellScript);
+
+        enum eSpells
+        {
+            GrandCrusaderEffect = 85416,
+        };
+
+        void HandleAfterCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
+                    if (roll_chance_i(30))
+                        l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+            }
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_pal_grand_crusader_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pal_grand_crusader_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_empowered_seals();
+    new spell_pal_glyph_of_the_consecration();
     new spell_pal_beacon_of_light();
     new spell_pal_beacon_of_light_proc();
     new spell_pal_glyph_of_flash_of_light();
@@ -3522,6 +3695,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avenging_wrath();
     new spell_pal_avengers_shield();
     new spell_pal_t17_protection_4p();
+    new spell_pal_grand_crusader();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();

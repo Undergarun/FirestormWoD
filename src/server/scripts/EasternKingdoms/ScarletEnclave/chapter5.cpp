@@ -159,7 +159,6 @@ enum mograine
     NPC_KOLTIRA_DEATHWEAVER           = 29199,
     NPC_ORBAZ_BLOODBANE               = 29204, // this guy fleed
     NPC_THASSARIAN                    = 29200, // he also does SPELL_THE_LIGHT_OF_DAWN 53658
-    SPELL_BLOOD_STRIKE1               = 52374,
     SPELL_DEATH_GRIP                  = 49576,
     SPELL_ICY_TOUCH2                  = 52372,
     SPELL_PLAGUE_STRIKE1              = 50668,
@@ -622,7 +621,7 @@ public:
                     JumpToNextStep(2000);
                     break;
                 case 8:
-                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_UNEQUIP));
+                    me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, uint32(EQUIP_UNEQUIP));
                     if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
                         me->CastSpell(temp, SPELL_ASHBRINGER, true);
                     DoScriptText(EMOTE_LIGHT_OF_DAWN14, me);
@@ -1142,7 +1141,7 @@ public:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
                             {
                                 temp->SetStandState(UNIT_STAND_STATE_STAND);
-                                temp->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_HIGHLORD_TIRION_FORDRING));
+                                temp->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, uint32(EQUIP_HIGHLORD_TIRION_FORDRING));
                                 temp->CastSpell(temp, SPELL_REBIRTH_OF_THE_ASHBRINGER, false);
                             }
                             JumpToNextStep(1000);
@@ -1439,7 +1438,7 @@ public:
                         if (Unit* temp = me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING, LightofDawnLoc[0].x, LightofDawnLoc[0].y, LightofDawnLoc[0].z, 1.528f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000))
                         {
                             temp->setFaction(me->getFaction());
-                            temp->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_UNEQUIP));
+                            temp->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 0, uint32(EQUIP_UNEQUIP));
                             DoScriptText(SAY_LIGHT_OF_DAWN25, temp);
                             uiTirionGUID = temp->GetGUID();
                         }

@@ -665,9 +665,9 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
     bool l_HasTransportTime3    = false;
     bool l_HasSpline            = false;
 
-    MovementStatusElements* p_Sequence = GetMovementStatusElementsSequence(p_Data.GetOpcode());
+    MovementStatusElements* l_Sequence = GetMovementStatusElementsSequence(p_Data.GetOpcode());
 
-    if (p_Sequence == NULL)
+    if (l_Sequence == nullptr)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::ReadMovementInfo: No movement sequence found for opcode 0x%04X", uint32(p_Data.GetOpcode()));
         return;
@@ -678,7 +678,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
 
     for (uint32 l_I = 0; l_I < MSE_COUNT; ++l_I)
     {
-        MovementStatusElements l_Element = p_Sequence[l_I];
+        MovementStatusElements l_Element = l_Sequence[l_I];
 
         if (l_Element == MSEEnd)
             break;
@@ -694,7 +694,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
                 break;
 
             case MSEMovementFlags2:
-                p_MovementInformation->flags2 = p_Data.ReadBits(15);
+                p_MovementInformation->flags2 = p_Data.ReadBits(16);
                 break;
 
             case MSETimestamp:
@@ -989,7 +989,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
                 break;
 
             case MSEMovementFlags2:
-                p_Data.WriteBits(p_MovementInformation->flags2, 15);
+                p_Data.WriteBits(p_MovementInformation->flags2, 16);
                 break;
 
             case MSETimestamp:

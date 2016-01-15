@@ -668,6 +668,12 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GUILD_CHALLENGE,
     //////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Premades
+    //////////////////////////////////////////////////////////////////////////
+    CHAR_SEL_PREMADES,
+    CHAR_UPD_PREMADE_SUCESS,
+
     CHAR_SEL_DAILY_LOOT_COOLDOWNS,
     CHAR_INS_DAILY_LOOT_COOLDOWNS,
 
@@ -676,6 +682,10 @@ enum CharacterDatabaseStatements
 
     CHAR_SEL_WORLD_STATES,
     CHAR_REP_WORLD_STATES,
+    CHAR_UPD_WORLD_STATE,
+    CHAR_DEL_WORLD_STATE_DATA,
+
+    CHAR_UPD_XP_RATE,
 
     MAX_CHARACTERDATABASE_STATEMENTS
 };

@@ -89,8 +89,6 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 else
                     p_FactionID = eDatas::FactionFriend;
             }
-
-            void UpdateAI(uint32 const p_Diff) { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -116,8 +114,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
         enum Spells
         {
-            FingersOfFrost          = 126084,
-            FingersOfFrostVisual    = 44544,
+            FingersOfFrostVisual    = 126084,
+            FingersOfFrost          = 44544,
             FrozenOrbVisual         = 123605,
             SelfSnare90Pct          = 82736,
             TargetSnareAndDamage    = 84721,
@@ -202,8 +200,9 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                                 /// Frozen Orb gives one stack of FoF on first hit
                                 if (Unit* l_Owner = me->GetOwner())
                                 {
-                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
-                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
+                                    if (l_Owner->HasAura(Spells::FingersOfFrost))
+                                        l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true); ///< Fingers of frost visual
+                                    l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);  ///< Fingers of frost proc
                                 }
                                 break;
                             }
@@ -465,7 +464,7 @@ class spell_npc_sha_capacitor_totem : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
@@ -562,7 +561,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
                 m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
@@ -574,13 +573,13 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                 {
                     if (Unit* l_Owner = me->GetOwner())
                     {
-                        Unit* l_OwnerTarget = nullptr;
-                        if (Player* l_Player = l_Owner->ToPlayer())
-                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget)
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
@@ -621,7 +620,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 class spell_npc_sha_fire_elemental : public CreatureScript
 {
     public:
-        spell_npc_sha_fire_elemental() : CreatureScript("spell_npc_sha_fire_elemental") { }
+        spell_npc_sha_fire_elemental() : CreatureScript("npc_fire_elemental") { }
 
         struct spell_npc_sha_fire_elementalAI : public ScriptedAI
         {
@@ -656,16 +655,16 @@ class spell_npc_sha_fire_elemental : public CreatureScript
             {
                 if (!UpdateVictim())
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* l_Owner = me->GetOwner())
                     {
-                        Unit* ownerTarget = NULL;
-                        if (Player* plr = owner->ToPlayer())
-                            ownerTarget = plr->GetSelectedUnit();
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
                         else
-                            ownerTarget = owner->getVictim();
+                            l_OwnerTarget = l_Owner->getVictim();
 
-                        if (ownerTarget)
-                            AttackStart(ownerTarget);
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
+                            AttackStart(l_OwnerTarget);
                     }
 
                     return;
@@ -734,16 +733,16 @@ class spell_npc_sha_earth_elemental : public CreatureScript
             {
                 if (!UpdateVictim())
                 {
-                    if (Unit* owner = me->GetOwner())
+                    if (Unit* l_Owner = me->GetOwner())
                     {
-                        Unit* ownerTarget = NULL;
-                        if (Player* plr = owner->ToPlayer())
-                            ownerTarget = plr->GetSelectedUnit();
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
                         else
-                            ownerTarget = owner->getVictim();
+                            l_OwnerTarget = l_Owner->getVictim();
 
-                        if (ownerTarget)
-                            AttackStart(ownerTarget);
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
+                            AttackStart(l_OwnerTarget);
                     }
 
                     return;
@@ -796,7 +795,7 @@ class spell_npc_sha_feral_spirit : public CreatureScript
 
             uint32 m_WindFuryCooldown;
 
-            void Reset()
+            void Reset() override
             {
                 if (Unit* l_Owner = me->GetOwner())
                 {
@@ -812,7 +811,7 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                 me->CastSpell(me, eSpells::SpiritHunt, true);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* p_Attacker) override
             {
                 me->CastSpell(p_Attacker, eSpells::SpiritLeap, true);
             }
@@ -833,7 +832,7 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (m_WindFuryCooldown > 0 && m_WindFuryCooldown > p_Diff)
                     m_WindFuryCooldown -= p_Diff;
@@ -869,33 +868,32 @@ class spell_npc_sha_feral_spirit : public CreatureScript
 
 class spell_npc_sha_healing_rain : public CreatureScript
 {
-public:
-    spell_npc_sha_healing_rain() : CreatureScript("spell_npc_sha_healing_rain") { }
+    public:
+        spell_npc_sha_healing_rain() : CreatureScript("spell_npc_sha_healing_rain") { }
 
-    struct spell_npc_sha_healing_rainAI : public CreatureAI
-    {
-
-        enum eSpells : uint32
+        struct spell_npc_sha_healing_rainAI : public CreatureAI
         {
-            HealingRainVisual = 147490
+            enum eSpells : uint32
+            {
+                HealingRainVisual = 147490
+            };
+
+            spell_npc_sha_healing_rainAI(Creature* p_Creature) : CreatureAI(p_Creature)
+            {
+                me->CastSpell(me, eSpells::HealingRainVisual, true);
+            }
+
+            void UpdateAI(uint32 const /*p_Diff*/)
+            {
+                if (!me->HasAura(eSpells::HealingRainVisual))
+                    me->DespawnOrUnsummon();
+            }
         };
 
-        spell_npc_sha_healing_rainAI(Creature* p_Creature) : CreatureAI(p_Creature)
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            me->CastSpell(me, eSpells::HealingRainVisual, true);
+            return new spell_npc_sha_healing_rainAI(p_Creature);
         }
-
-        void UpdateAI(uint32 const p_Diff)
-        {
-            if (!me->HasAura(eSpells::HealingRainVisual))
-                me->DespawnOrUnsummon();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const
-    {
-        return new spell_npc_sha_healing_rainAI(p_Creature);
-    }
 };
 
 /// Ravager - 76168
@@ -932,24 +930,22 @@ class spell_npc_warr_ravager : public CreatureScript
                     if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
                     {
                         /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Proto->ItemId);
+                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, l_Item->GetTemplate()->ItemId);
                     }
 
                     if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
                     {
                         /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Proto->ItemId);
+                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(EItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, l_Proto->ItemId);
                         else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Item->GetTemplate()->ItemId);
+                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS + 2, l_Item->GetTemplate()->ItemId);
                     }
                 }
             }
-
-            void UpdateAI(uint32 const p_Diff) { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const
@@ -1008,7 +1004,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->SetReactState(REACT_HELPER);
             }
 
-            void UpdateAI(const uint32 p_Diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* l_Owner = me->GetOwner())
                 {
@@ -1054,6 +1050,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
 /// Doomguard - 78158
 class spell_npc_warl_doomguard: public CreatureScript
 {
@@ -1071,10 +1068,11 @@ class spell_npc_warl_doomguard: public CreatureScript
 
             void Reset()
             {
+                me->SetPower(Powers::POWER_ENERGY, me->GetMaxPower(Powers::POWER_ENERGY));
                 me->SetReactState(REACT_HELPER);
             }
 
-            void UpdateAI(const uint32 p_Diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* l_Owner = me->GetOwner())
                 {
@@ -1132,8 +1130,9 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
                 me->CastSpell(me, eGatewaySpells::PortalVisual, true);
 
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, eGatewaySpells::GatewayInteract);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void OnSpellClick(Unit* p_Clicker)
@@ -1143,6 +1142,10 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
 
                 // Demonic Gateway cooldown marker
                 if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
+                    return;
+
+                /// Can't use gates in control
+                if (p_Clicker->isFeared() || p_Clicker->isInStun() || p_Clicker->isConfused())
                     return;
 
                 Unit* l_Owner = me->GetOwner();
@@ -1167,6 +1170,12 @@ class spell_npc_warl_demonic_gateway_purple : public CreatureScript
                 for (auto itr : l_GreenGates)
                 {
                     p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
+
+                    Unit* l_CurrentGateOwner = itr->GetOwner();
+
+                    /// Can't teleport to other players Gates
+                    if (l_CurrentGateOwner && l_Owner != l_CurrentGateOwner)
+                        continue;
 
                     // Init dest coordinates
                     float x, y, z;
@@ -1215,6 +1224,10 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
                     return;
 
+                /// Can't use gates in control
+                if (p_Clicker->isFeared() || p_Clicker->isInStun() || p_Clicker->isConfused())
+                    return;
+
                 Unit* l_Owner = me->GetOwner();
                 if (!l_Owner || !l_Owner->ToPlayer())
                     return;
@@ -1236,6 +1249,12 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 l_PurpleGates.sort(JadeCore::DistanceCompareOrderPred(me));
                 for (auto itr : l_PurpleGates)
                 {
+                    Unit* l_CurrentGateOwner = itr->GetOwner();
+
+                    /// Can't teleport to other players Gates
+                    if (l_CurrentGateOwner && l_Owner != l_CurrentGateOwner)
+                        continue;
+
                     p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
 
                     // Init dest coordinates
@@ -1288,7 +1307,7 @@ class spell_npc_warl_inner_demon : public CreatureScript
                     l_Owner->CastSpell(me, eSpells::InnerDemonAura, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.Reset();
 
@@ -1358,7 +1377,7 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
                 me->SetReactState(REACT_HELPER);
             }
 
-            void UpdateAI(const uint32 p_Diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 Unit* l_Target = nullptr;
 
@@ -1395,7 +1414,7 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
 
                 if (l_Target == nullptr)
                     return;
-                
+
                 if (!me->IsValidAssistTarget(l_Target))
                     return;
 

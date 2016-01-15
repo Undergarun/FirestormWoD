@@ -23,7 +23,7 @@ namespace MS { namespace Garrison { namespace Sites
 {
     /// Constructor
     InstanceMapScript_GarrisonAllianceLevel1::InstanceMapScript_GarrisonAllianceLevel1()
-        : InstanceMapScript("instance_Garrison_A1", MapIDs::MAP_GARRISON_ALLIANCE_LEVEL_1)
+        : InstanceMapScript("instance_Garrison_A1", MapIDs::MapGarrisonAllianceLevel1)
     {
 
     }
@@ -164,8 +164,8 @@ namespace MS { namespace Garrison { namespace Sites
         if (!l_Entry)
             return;
 
-        p_Owner->AddMovieDelayedTeleport(l_Entry->CreationMovie, l_Entry->MapID, 1759.94f, 184.86f, 71.50f, 0.57f);
-        p_Owner->SendMovieStart(l_Entry->CreationMovie);
+        p_Owner->AddMovieDelayedTeleport(l_Entry->MovieID, l_Entry->MapID, 1759.94f, 184.86f, 71.50f, 0.57f);
+        p_Owner->SendMovieStart(l_Entry->MovieID);
         p_Owner->CompleteQuest(Quests::Alliance_BiggerIsBetter);
     }
 

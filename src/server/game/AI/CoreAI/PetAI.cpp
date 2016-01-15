@@ -158,7 +158,11 @@ void PetAI::UpdateAI(const uint32 diff)
                         continue;
 
                     // Check if we're in combat or commanded to attack
-                    if (!me->isInCombat() && !me->GetCharmInfo()->IsCommandAttack())
+                    if (!me->isInCombat() && !me->GetCharmInfo()->IsCommandAttack() && spellInfo->Id != 89808)
+                        continue;
+
+                    /// Special case for Singe Magic of warlock pet Imp
+                    if (spellInfo->Id == 89808 && owner && !owner->HasAuraType(SPELL_AURA_MOD_SILENCE))
                         continue;
                 }
 

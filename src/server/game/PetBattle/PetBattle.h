@@ -95,24 +95,25 @@ enum eBattlePetFlags
 
 enum eBattlePetRequests
 {
-    PETBATTLE_REQUEST_FAILED                            = 0,
-    PETBATTLE_REQUEST_NOT_HERE                          = 1,
-    PETBATTLE_REQUEST_NOT_DURING_FLYING                 = 2,
-    PETBATTLE_REQUEST_GROUND_NOT_ENOUGHT_SMOOTH         = 3,
-    PETBATTLE_REQUEST_AREA_NOT_CLEAR                    = 4,
-    PETBATTLE_REQUEST_ALREADY_IN_COMBAT                 = 5,
-    PETBATTLE_REQUEST_DEATH                             = 6,
-    PETBATTLE_REQUEST_SEATED                            = 7,
-    PETBATTLE_REQUEST_NOT_VALID_TARGET                  = 8,
-    PETBATTLE_REQUEST_TOO_FAR                           = 9,
-    PETBATTLE_REQUEST_INVALID_TARGET                    = 10,
-    PETBATTLE_REQUEST_NEED_TO_BE_TRAINER                = 11,
-    PETBATTLE_REQUEST_DECLINED                          = 12,
-    PETBATTLE_REQUEST_ALREADY_IN_PETBATTLE              = 13,
-    PETBATTLE_REQUEST_PET_ALL_DEAD                      = 14,
-    PETBATTLE_REQUEST_NEED_PET_IN_SLOTS                 = 15,
-    PETBATTLE_REQUEST_CODEX_LOCKED_BY_AN_ANOTHER_USER   = 16,
-    PETBATTLE_REQUEST_TARGET_IN_A_BATTLEPET             = 17
+    PETBATTLE_REQUEST_CREATE_FAILED          = 0,
+    PETBATTLE_REQUEST_NOT_HERE               = 1,
+    PETBATTLE_REQUEST_NOT_HERE_ON_TRANSPORT  = 2,
+    PETBATTLE_REQUEST_NOT_HERE_UNEVEN_GROUND = 3,
+    PETBATTLE_REQUEST_NOT_HERE_OBSTRUCTED    = 4,
+    PETBATTLE_REQUEST_NOT_WHILE_IN_COMBAT    = 5,
+    PETBATTLE_REQUEST_NOT_WHILE_DEAD         = 6,
+    PETBATTLE_REQUEST_NOT_WHILE_FLYING       = 7,
+    PETBATTLE_REQUEST_TARGET_INVALID         = 8,
+    PETBATTLE_REQUEST_TARGET_OUT_OF_RANGE    = 9,
+    PETBATTLE_REQUEST_TARGET_NOT_CAPTURABLE  = 10,
+    PETBATTLE_REQUEST_NOT_A_TRAINER          = 11,
+    PETBATTLE_REQUEST_DECLINED               = 12,
+    PETBATTLE_REQUEST_IN_BATTLE              = 13,
+    PETBATTLE_REQUEST_INVALID_LOADOUT        = 14,
+    PETBATTLE_REQUEST_ALL_PETS_DEAD          = 15,
+    PETBATTLE_REQUEST_NO_PETS_IN_SLOT        = 16,
+    PETBATTLE_REQUEST_NO_ACCOUNT_LOCK        = 17,
+    PETBATTLE_REQUEST_WILD_PET_TAPPED        = 18
 };
 
 enum BattlePetState
@@ -373,14 +374,14 @@ class BattlePetInstance : public BattlePet
 /// Pet battle event type
 enum PetBattleEventType
 {
-    PETBATTLE_EVENT_UPDATE_TRIGGER          = 0,
-    PETBATTLE_EVENT_UPDATE_SPEED            = 1,
-    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 2,
-    PETBATTLE_EVENT_UPDATE_FRONTPET         = 3,
+    PETBATTLE_EVENT_UPDATE_FRONTPET         = 0,
+    PETBATTLE_EVENT_UPDATE_NPC_EMOTE        = 1,
+    PETBATTLE_EVENT_UPDATE_BUFF             = 2,
+    PETBATTLE_EVENT_UPDATE_SPEED            = 3,
     PETBATTLE_EVENT_UPDATE_HEALTH           = 4,
-    PETBATTLE_EVENT_UPDATE_BUFF             = 5,
-    PETBATTLE_EVENT_UPDATE_STATE            = 6,
-    PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE   = 7
+    PETBATTLE_EVENT_UPDATE_ABILITY_CHANGE   = 5,
+    PETBATTLE_EVENT_UPDATE_TRIGGER          = 6,
+    PETBATTLE_EVENT_UPDATE_STATE            = 7
 };
 
 /// Pet battle event
@@ -473,6 +474,8 @@ struct PetBattleEvent
 
     /// Make an health update
     PetBattleEvent& UpdateHealth(int8 p_TargetPetID, int32 p_Health);
+    /// Make an max health update
+    PetBattleEvent& UpdateMaxHealth(int8 p_TargetPetID, int32 p_MaxHealth);
     /// Make an state update
     PetBattleEvent& UpdateState(int8 p_TargetPetID, uint32 p_StateID, int32 p_Value);
     /// Make an front pet change

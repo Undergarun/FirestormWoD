@@ -175,20 +175,6 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
 
     gSentBytes += pkt->size() + 3;
 
-   // TODO : Find the compress flag
-   // Empty buffer used in case packet should be compressed
-   /*WorldPacket buff;
-   if (m_Session && pkt->size() > 0x400)
-   {
-   buff.Compress(m_Session->GetCompressionStream(), pkt);
-   pkt = &buff;
-   }*/
-
-    // Remove log for latency
-    if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
-         sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
-
-#   ifdef WIN32
     if (sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
     {
         switch (pct.GetOpcode())
@@ -205,7 +191,6 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
                 printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
         }
     }
-#   endif
 
     sScriptMgr->OnPacketSend(this, *pkt);
 
@@ -519,13 +504,11 @@ int WorldSocket::handle_input_header (void)
         header.cmd = value & 0x1FFF;
         header.size = ((value & ~(uint32)0x1FFF) >> 13);
 
-#       ifdef WIN32
         if (sWorld->getBoolConfig(CONFIG_LOG_PACKETS))
         {
             std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
             printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
         }
-#       endif
 
         if (header.size > 10236)
         {
@@ -802,11 +785,10 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
-
     /// Remove log for latency
-    std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
-    if (opcode != CMSG_MOVE_START_FORWARD)
-        sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
+    ///std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
+    ///if (opcode != CMSG_MOVE_START_FORWARD)
+    ///    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
 
     try
     {
@@ -825,12 +807,12 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession(*new_pct);
             }
-            /*case CMSG_KEEP_ALIVE:
+            case CMSG_KEEP_ALIVE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
-            }*/
+            }
             case CMSG_LOG_DISCONNECT:
             {
                 new_pct->rfinish(); // contains uint32 disconnectReason;
@@ -1151,8 +1133,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
         return -1;
     }
 
-    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13
-    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags FROM account  WHERE id = %u", l_AccountID);
+    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13             14
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags, custom_flags FROM account  WHERE id = %u", l_AccountID);
 
     /// Stop if the account is not found
     if (!l_Result)
@@ -1172,6 +1154,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     uint32 l_ServerExpansion    = sWorld->getIntConfig(CONFIG_EXPANSION);
     uint32 l_JoinDateTimestamp  = l_Fields[12].GetUInt32();
     uint32 l_ServiceFlags       = l_Fields[13].GetUInt32();
+    uint32 l_CustomFlags        = l_Fields[14].GetUInt32();
 
     if (l_AccountExpansion > l_ServerExpansion)
         l_AccountExpansion = l_ServerExpansion;
@@ -1302,7 +1285,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     LoginDatabase.PExecute("UPDATE account SET last_ip = '%s' WHERE username = '%s'", l_SessionIP.c_str(), l_EscapedAccountName.c_str());
 
     /// NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime, l_ServiceFlags), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime, l_ServiceFlags, l_CustomFlags), -1);
 
     m_Crypt.Init(&l_SessionKey);
 
@@ -1311,6 +1294,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     m_Session->ReadAddonsInfo(l_AddonsCompressedData);
     m_Session->SetClientBuild(l_ClientBuild);
     m_Session->SetAccountJoinDate(l_JoinDateTimestamp);
+    m_Session->LoadPremades();
 
     /// Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))

@@ -85,6 +85,7 @@
 #include "PlayerDump.h"
 #include "TransportMgr.h"
 #include "BattlepayMgr.h"
+#include <ctime>
 
 uint32 gOnlineGameMaster = 0;
 #include "GarrisonShipmentManager.hpp"
@@ -152,6 +153,74 @@ World::World()
     m_TransactionCallbacksBuffer       = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
     m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
     m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+
+    m_LastBuild.valid = false;
+    #ifdef _WIN32
+    TCHAR l_FileName[MAX_PATH];
+    if (GetModuleFileName(nullptr, l_FileName, MAX_PATH) != 0)
+    {
+        HANDLE l_FileHandle = CreateFile(l_FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
+        if (l_FileHandle != INVALID_HANDLE_VALUE)
+        {
+            FILETIME l_LastWrite;
+            if (GetFileTime(l_FileHandle, nullptr, nullptr, &l_LastWrite))
+            {
+                SYSTEMTIME l_UtcTime;
+                FileTimeToSystemTime(&l_LastWrite, &l_UtcTime);
+
+                m_LastBuild.valid = true;
+                m_LastBuild.year = l_UtcTime.wYear;
+                m_LastBuild.month = l_UtcTime.wMonth;
+                m_LastBuild.day = l_UtcTime.wDay;
+                m_LastBuild.hour = l_UtcTime.wHour;
+                m_LastBuild.minute = l_UtcTime.wMinute;
+            }
+
+            CloseHandle(l_FileHandle);
+        }
+    }
+    #else
+    char l_FileName[PATH_MAX+1];
+    ssize_t l_Len = ::readlink("/proc/self/exe", l_FileName, PATH_MAX);
+    if (l_Len != -1)
+    {
+        l_FileName[l_Len] = 0;
+
+        struct stat l_StatResult;
+        if (stat(l_FileName, &l_StatResult) == 0)
+        {
+            struct tm l_UtcTime;
+            if (gmtime_r(&l_StatResult.st_mtime, &l_UtcTime))
+            {
+                m_LastBuild.valid  = true;
+                m_LastBuild.year   = l_UtcTime.tm_year + 1900;
+                m_LastBuild.month  = l_UtcTime.tm_mon + 1;
+                m_LastBuild.day    = l_UtcTime.tm_mday;
+                m_LastBuild.hour   = l_UtcTime.tm_hour;
+                m_LastBuild.minute = l_UtcTime.tm_min;
+            }
+        }
+    }
+    #endif
+
+    if (m_LastBuild.valid)
+    {
+        std::size_t const l_TimeBufferSize = 100;
+
+        char timeBuffer[l_TimeBufferSize];
+        int l_Written = snprintf(timeBuffer, l_TimeBufferSize, "%d-%02d-%02d at %02d:%02d (GMT)", m_LastBuild.year, m_LastBuild.month, m_LastBuild.day, m_LastBuild.hour, m_LastBuild.minute);
+
+        /// In case anyone would like to change the buffer
+        if (l_Written >= l_TimeBufferSize)
+        {
+            sLog->outAshran("Time buffer is too small (%d required, %z provided), last core build string will be truncated.", l_Written + 1, l_TimeBufferSize);
+            l_Written = l_TimeBufferSize - 1;
+        }
+
+        m_LastBuild.timeStr.assign(timeBuffer, l_Written);
+    }
+    else
+        m_LastBuild.timeStr = "Failed to query last build info";
 }
 
 /// World destructor
@@ -210,36 +279,9 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
-void World::SetMotd(const std::string& motd)
+MotdText const& World::GetMotd() const
 {
-    m_motd = motd;
-
-    sScriptMgr->OnMotdChange(m_motd);
-}
-
-const char* World::GetMotd() const
-{
-    return m_motd.c_str();
-}
-
-const uint32 World::GetMotdLineCount() const
-{
-    std::string::size_type pos, nextpos;
-    uint32 linecount = 0;
-    pos = 0;
-
-    while ((nextpos = m_motd.find('@', pos)) != std::string::npos)
-    {
-        if (nextpos != pos)
-            ++linecount;
-
-        pos = nextpos+1;
-    }
-
-    if (pos < m_motd.length())
-        ++linecount;
-
-    return linecount;
+    return m_Motd;
 }
 
 /// Find a session by its id
@@ -463,7 +505,6 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(ConfigMgr::GetIntDefault("PlayerLimit", 100));
-    SetMotd(ConfigMgr::GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = ConfigMgr::GetBoolDefault("AllowTickets", true);
@@ -1143,7 +1184,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PVP_ITEM_LEVEL_MAX]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Max", 690);
     m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
 
-    m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 19865);
+    m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 20726);
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     /// BattlePay configs
@@ -1459,6 +1500,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_SPELLOG_FLAGS] = ConfigMgr::GetIntDefault("SpellLog.Flags", SPELLLOG_OUTPUT_FLAG_PLAYER);
 
+    sReporter->SetActiveState(ConfigMgr::GetBoolDefault("Reporting.Enabled", false));
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
@@ -1477,6 +1520,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize config settings
     LoadConfigSettings();
+
+    ///- Load Motd from database
+    LoadDBMotd();
 
     ///- Initialize Allowed Security Level
     LoadDBAllowedSecurityLevel();
@@ -2258,7 +2304,9 @@ void World::LoadAutobroadcasts()
 
     m_Autobroadcasts.clear();
 
-    QueryResult result = CharacterDatabase.Query("SELECT text FROM autobroadcast");
+    std::string l_Query = "SELECT Text, TextFR, TextES, TextRU FROM autobroadcast WHERE Expension IN(-1, 5) AND RealmID IN(-1, " + std::to_string(g_RealmID) + ")";
+
+    QueryResult result = LoginDatabase.Query(l_Query.c_str());
 
     if (!result)
     {
@@ -2273,16 +2321,20 @@ void World::LoadAutobroadcasts()
     {
 
         Field* fields = result->Fetch();
-        std::string message = fields[0].GetString();
 
-        m_Autobroadcasts.push_back(message);
+        AutoBroadcastText l_AutobrodCastText;
+        l_AutobrodCastText.Text   = fields[0].GetString();
+        l_AutobrodCastText.TextFR = fields[1].GetString();
+        l_AutobrodCastText.TextES = fields[2].GetString();
+        l_AutobrodCastText.TextRU = fields[3].GetString();
+
+        m_Autobroadcasts.push_back(l_AutobrodCastText);
 
         ++count;
     }
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 /// Update the World !
@@ -2297,7 +2349,7 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
+            LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u, lastupdate=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), std::time(nullptr), g_RealmID);
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2315,7 +2367,7 @@ void World::Update(uint32 diff)
         m_serverDelaySum = 0;
         m_serverUpdateCount = 0;
         
-        LoginDatabase.PExecute("UPDATE realmlist set delay=%u where id=%u", delay, g_RealmID);
+        LoginDatabase.PExecute("UPDATE realmlist set delay=%u, lastupdate=%u where id=%u", delay, std::time(nullptr), g_RealmID);
         m_serverDelayTimer -= m_int_configs[CONFIG_INTERVAL_LOG_UPDATE];
     }
     else
@@ -2500,6 +2552,8 @@ void World::Update(uint32 diff)
 
     SetRecordDiff(RECORD_DIFF_CALLBACK, getMSTime() - diffTime);
     RecordTimeDiff("ProcessQueryCallbacks");
+
+    sLFGListMgr->Update(diff);
 
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
@@ -3151,36 +3205,45 @@ void World::SendAutoBroadcast()
     if (m_Autobroadcasts.empty())
         return;
 
-    std::string msg;
+    AutoBroadcastText l_AutobroadcastText;
+    l_AutobroadcastText = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
 
-    msg = JadeCore::Containers::SelectRandomContainerElement(m_Autobroadcasts);
-
-    uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
-
-    if (abcenter == 0)
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-    else if (abcenter == 1)
+    SessionMap::const_iterator itr;
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        l_Data.WriteBits(msg.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(msg);
-        sWorld->SendGlobalMessage(&l_Data);
+        if (itr->second &&
+            itr->second->GetPlayer() &&
+            itr->second->GetPlayer()->IsInWorld())
+        {
+            std::string l_AutoBrodcast = "";
+
+            switch (itr->second->GetSessionDbLocaleIndex())
+            {
+                case LocaleConstant::LOCALE_frFR:
+                    l_AutoBrodcast = l_AutobroadcastText.TextFR;
+                    break;
+                case LocaleConstant::LOCALE_esMX:
+                case LocaleConstant::LOCALE_esES:
+                    l_AutoBrodcast = l_AutobroadcastText.TextES;
+                    break;
+                case LocaleConstant::LOCALE_ruRU:
+                    l_AutoBrodcast = l_AutobroadcastText.TextRU;
+                    break;
+                default:
+                    l_AutoBrodcast = l_AutobroadcastText.Text;
+                    break;
+            }
+
+            if (l_AutoBrodcast.empty())
+                continue;
+
+            std::string l_AnnounceFormat = "|cffffff00[|c00077766Autobroadcast|cffffff00]: |cFFF222FF" + l_AutoBrodcast + "|r";
+
+            WorldPacket l_Data;
+            ChatHandler::FillMessageData(&l_Data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, l_AnnounceFormat.c_str(), NULL);
+            itr->second->SendPacket(&l_Data);
+        }
     }
-
-    else if (abcenter == 2)
-    {
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        l_Data.WriteBits(msg.length(), 12);
-        l_Data.FlushBits();
-        l_Data.WriteString(msg);
-        sWorld->SendGlobalMessage(&l_Data);
-    }
-
-    sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)
@@ -3464,6 +3527,28 @@ void World::ResetBossLooted()
         if (l_Iter->second->GetPlayer())
             l_Iter->second->GetPlayer()->ResetBossLooted();
     }
+}
+
+void World::LoadDBMotd()
+{
+    QueryResult l_Result = LoginDatabase.PQuery("SELECT Text, TextFR, TextES, TextRU FROM motd WHERE RealmID = '%d'", g_RealmID);
+    if (l_Result)
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        MotdText l_Motd;
+        l_Motd.Text   = l_Fields[0].GetString();
+        l_Motd.TextFR = l_Fields[1].GetString();
+        l_Motd.TextES = l_Fields[2].GetString();
+        l_Motd.TextRU = l_Fields[3].GetString();
+
+        SetDBMotd(l_Motd);
+    }
+}
+
+void World::SetDBMotd(MotdText p_MotdText)
+{
+    m_Motd = p_MotdText;
 }
 
 void World::LoadDBAllowedSecurityLevel()

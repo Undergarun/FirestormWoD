@@ -76,8 +76,8 @@ enum PermissionTypes
 
 enum LootItemType
 {
-    LOOT_ITEM_TYPE_CURRENCY = 2, // Guessed ????
-    LOOT_ITEM_TYPE_ITEM     = 3,
+    LOOT_ITEM_TYPE_CURRENCY = 0, // Guessed ????
+    LOOT_ITEM_TYPE_ITEM     = 2,
 };
 
 enum LootType
@@ -95,34 +95,21 @@ enum LootType
     LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
 };
 
-enum LootItemUiType
-{
-    //                                  = 0,
-    LOOT_ITEM_UI_NORMAL                 = 1,
-    LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
-    LOOT_ITEM_UI_MASTER                 = 3,
-    LOOT_ITEM_UI_ROLL                   = 4,
-    //                                  = 5,
-    LOOT_ITEM_UI_ROLL_PENDING           = 6,
-    LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 7
-};
-
 enum LootListItemType
 {
-    //                                  = 0,
-    LOOT_LIST_ITEM                      = 1,
+    LOOT_LIST_ITEM                      = 0,
+    LOOT_LIST_CURRENCY                  = 1,
     LOOT_LIST_TRACKING_QUEST            = 2,
-    LOOT_LIST_CURRENCY                  = 3
 };
 
 // type of Loot Item in Loot View
 enum LootSlotType
 {
-    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
-    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_ALLOW_LOOT   = 4,                        // player can loot the item.
+    LOOT_SLOT_TYPE_ROLL_ONGOING = 7,                        // roll is ongoing. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 6,                        // item can only be distributed by group loot master.
     LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 4,                        // ignore binding confirmation and etc, for single player looting
+    LOOT_SLOT_TYPE_OWNER        = 5                         // ignore binding confirmation and etc, for single player looting
 };
 
 class Player;
@@ -433,7 +420,7 @@ struct Loot
 
     void NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter = 0);
     void NotifyQuestItemRemoved(uint8 questIndex);
-    void NotifyMoneyRemoved(bool p_IsAoE = false);
+    void NotifyMoneyRemoved();
     void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
     bool IsLooter(uint64 GUID) { return PlayersLooting.find(GUID) != PlayersLooting.end(); }

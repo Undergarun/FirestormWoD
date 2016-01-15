@@ -175,7 +175,7 @@ void Channel::UpdateChatLocaleFiltering(Player* p_Player)
     if (m_Players.find(p_Player->GetGUID()) == m_Players.end())
         return;
 
-    if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+    if (p_Player->GetSession()->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
         m_Players[p_Player->GetGUID()].LocaleFilter = 0xFFFFFFFF;
     else
         m_Players[p_Player->GetGUID()].LocaleFilter = 1 << (p_Player->GetSession()->GetSessionDbLocaleIndex() + 1);
@@ -236,7 +236,7 @@ void Channel::Join(uint64 p, const char *pass)
     pinfo.flags = MEMBER_FLAG_NONE;
     pinfo.LocaleFilter = 0xFFFFFFFF;
 
-    if ((IsWorld() || IsConstant()) && !player->GetSession()->HasServiceFlags(ServiceFlags::NoChatLocaleFiltering))
+    if ((IsWorld() || IsConstant()) && player && player->GetSession() && !player->GetSession()->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
     {
         pinfo.LocaleFilter = 1 << (player->GetSession()->GetSessionDbLocaleIndex() + 1);
     }
@@ -638,7 +638,7 @@ void Channel::List(Player * p_Player)
         l_Data.WriteBits(GetName().length(), 7);                ///< Channel name length
         l_Data.FlushBits();
 
-        l_Data << uint8(GetFlags());                            ///< Channel flags
+        l_Data << uint32(GetFlags());                           ///< Channel flags
         l_Data << uint32(l_MemberCount);                        ///< Member count
         l_Data.WriteString(GetName());                          ///< Channel name
 
@@ -856,6 +856,9 @@ void Channel::SendToAll(WorldPacket* data, uint64 p, uint64 p_SenderGUID)
 {
     uint32 l_SenderLocaleMask = 0;
 
+    if (!l_SenderLocaleMask)
+        l_SenderLocaleMask = 0xFFFFFFFF;
+
     if ((IsWorld() || IsConstant()) && p_SenderGUID && m_Players.find(p_SenderGUID) != m_Players.end())
     {
         if (Player* l_Player = ObjectAccessor::FindPlayer(p_SenderGUID))
@@ -963,7 +966,7 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
     p_Data->WriteBits(l_UnkString.length(), 10);///< ChannelWelcomeMsg
     p_Data->FlushBits();
-    *p_Data << uint8(GetFlags());               ///< Channel Flags
+    *p_Data << uint32(GetFlags());              ///< Channel Flags
     *p_Data << uint32(GetChannelId());          ///< Channel ID
     *p_Data << uint64(0);                       ///< InstanceID
     p_Data->WriteString(GetName());             ///< Channel Name

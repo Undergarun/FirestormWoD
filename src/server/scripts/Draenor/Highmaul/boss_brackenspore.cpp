@@ -165,7 +165,7 @@ class boss_brackenspore : public CreatureScript
                 me->SetPower(Powers::POWER_RAGE, 0);
                 me->SetMaxPower(Powers::POWER_RAGE, 500);
 
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
                 me->RemoveAura(eSpells::EnergyRegen);
 
@@ -397,27 +397,6 @@ class boss_brackenspore : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
-
-                    if (IsLFR())
-                    {
-                        Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
-                        if (l_PlayerList.isEmpty())
-                            return;
-
-                        for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
-                        {
-                            if (Player* l_Player = l_Itr->getSource())
-                            {
-                                uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
-                                if (!me || l_Player->IsAtGroupRewardDistance(me))
-                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
-                            }
-                        }
-
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
 
                 ResetPlayersPower(me);

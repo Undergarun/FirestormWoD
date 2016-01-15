@@ -13,6 +13,7 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "GarrisonNPC.hpp"
 
 namespace MS { namespace Garrison 
 {
@@ -20,12 +21,24 @@ namespace MS { namespace Garrison
     /// Garrison map ids
     enum MapIDs
     {
-        MAP_GARRISON_HORDE_LEVEL_1      = 1152,
-        MAP_GARRISON_HORDE_LEVEL_2      = 1330,
-        MAP_GARRISON_HORDE_LEVEL_3      = 1153,
-        MAP_GARRISON_ALLIANCE_LEVEL_1   = 1158,
-        MAP_GARRISON_ALLIANCE_LEVEL_2   = 1331,
-        MAP_GARRISON_ALLIANCE_LEVEL_3   = 1159
+        MapGarrisonHordeLevel1      = 1152,
+        MapGarrisonHordeLevel2      = 1330,
+        MapGarrisonHordeLevel3      = 1153,
+        MapGarrisonHordeShipyard    = 1474,
+        MapGarrisonAllianceLevel1   = 1158,
+        MapGarrisonAllianceLevel2   = 1331,
+        MapGarrisonAllianceLevel3   = 1159,
+        MapGarrisonAllianceShipyard = 1473
+    };
+
+    enum GarrisonPhases
+    {
+        PhaseMagePortalFrostfireRidge = 0x00000008,
+        PhaseMagePortalSpiresOfArak   = 0x00000010,
+        PhaseMagePortalTalador        = 0x00000020,
+        PhaseMagePortalNagrand        = 0x00000040,
+        PhaseMagePortalShadowmoon     = 0x00000080,
+        PhaseMagePortalGorgrond       = 0x00000100,
     };
 
     /// Instance data common IDs
@@ -51,7 +64,8 @@ namespace MS { namespace Garrison
         SpellArming                            = 167920,
         SpellIronTrap                          = 180609,
         SpellApprenticeLogging                 = 167911,
-        SpellSummonStump                       = 170079
+        SpellSummonStump                       = 170079,
+        SpellGarrisonPortal                    = 182464
     };
 
     enum DisplayIDs
@@ -89,6 +103,8 @@ namespace MS { namespace Garrison
             Alliance_TurningTimberIntoProfit            = 36192,
             /// Lunar Fall Excavation
             Alliance_ThingsAreNotGorenOurWay            = 34192,
+            /// Mage Tower
+            Alliance_PortablePortals                    = 38354,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -114,7 +130,9 @@ namespace MS { namespace Garrison
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775
+            Horde_MissionProbable                       = 34775,
+            /// Spirit Lodge
+            Horde_PortablePortals                       = 38351
         };
     }   ///< namespace Quests
 
@@ -155,6 +173,543 @@ namespace MS { namespace Garrison
         NpcHordeMiner                                   = 79837
     };
 
+    namespace StablesData
+    {
+        /// Sequence position structure
+        struct SequencePosition
+        {
+            /// Position
+            float X, Y, Z, O;
+        };
+
+        std::vector<G3D::Vector3> const g_CreaturesJumps =
+        {
+            /// meadowstomper - 86852
+            { 3419.6072f, 4388.9111f, 228.3024f },
+            { 3323.6699f, 4510.6533f, 180.0031f },
+            { 3322.0098f, 4475.1860f, 169.4178f },
+            /// snarler - 86851
+            { 2572.6372f, 6142.9878f, 80.2156f },
+            { 2515.4197f, 6132.1719f, 80.0046f },
+            { 2483.2539f, 6104.6841f, 83.2874f },
+            { 2576.8103f, 5949.7192f, 80.4125f },
+            { 2642.7153f, 5938.2900f, 84.2296f },
+            { 2641.6606f, 5977.7524f, 82.7445f },
+            { 2611.9395f, 6015.2808f, 78.9488f },
+            /// silverpelt - 86801
+            { 1511.6106f, -1065.3923f, 12.7051f },
+            { 1470.9410f, -1051.7019f, -4.3017f }
+        };
+
+        static const uint64 g_PendingQuestFlag  = 0x40000000;
+        static const uint32 g_LassoAllianceAura = 173686;
+        static const uint32 g_LassoHordeAura    = 174070;
+
+        enum TrainingMountsAuras
+        {
+            RockstuckTrainingMountAura     = 174221, ///< Boar Quests
+            MeadowstomperTrainingMountAura = 174219, ///< Elekk Quests
+            IcehoofTrainingMountAura       = 174218, ///< Clefthoof Quests
+            SnarlerTrainingMountAura       = 174216, ///< Wolf Quests
+            RiverwallowTrainingMountAura   = 174220, ///< Riverbeast Quests
+            SilverpeltTrainingMountAura    = 174222  ///< Talbuk Quests
+        };
+
+        /// Get from Mount.db2 with spellIDs used as questline rewards
+        enum MountDisplayIDs
+        {
+            DisplayTrainedRocktusk      = 59735,
+            DisplayTrainedIcehoof       = 59320,
+            DisplayTrainedMeadowstomper = 59340,
+            DisplayTrainedSnarler       = 59757,
+            DisplayTrainedRiverwallow   = 59743,
+            DisplayTrainedSilverpelt    = 59365
+        };
+
+        enum eKillCredits
+        {
+            ElekkKillCredit          = 87009,
+            TalbukKillCredit         = 87007,
+            WolfKillCredit           = 87008,
+            RiverbeasttKillCredit    = 87010,
+            ClefthoofKillCredit      = 87011,
+            BoarKillCredit           = 87013
+        };
+
+        namespace Alliance
+        {
+            static const std::vector<SequencePosition> g_AllianceCreaturesPos =
+            {
+                { 12.5372f,  5.8878f, 0.6798f, 1.5558f },
+                {  6.3883f,  6.2564f, 0.6798f, 1.5715f },
+                {  5.5064f, -6.1384f, 0.6720f, 4.6228f },
+                { 16.4277f, -6.5664f, 0.6734f, 1.8818f },
+                { -6.6953f,  2.0611f, 0.6462f, 0.3447f } ///< This one is for second QuestGiver, else is for mounts
+            };
+
+            namespace FannyQuestGiver
+            {
+                //////////////////////////
+                //////////////////////////
+                
+                enum ElekkQuests
+                {
+                    /// Initial Quest
+                    QuestEntanglingAnElekk = 36915,
+                    /// Progression Quests
+                    ElekkTrainingQuest1    = 37015,
+                    ElekkTrainingQuest2    = 37016,
+                    ElekkTrainingQuest3    = 37017,
+                    ElekkTrainingQuest4    = 37018,
+                    ElekkTrainingQuest5    = 37019,
+                    ElekkTrainingQuest6    = 37020,
+                    ElekkTrainingQuest7    = 37021
+                };
+
+                static const std::vector<uint32> g_ElekkQuests =
+                {
+                    ElekkTrainingQuest1,
+                    ElekkTrainingQuest2,
+                    ElekkTrainingQuest3,
+                    ElekkTrainingQuest4,
+                    ElekkTrainingQuest5,
+                    ElekkTrainingQuest6,
+                    ElekkTrainingQuest7
+                };
+
+                enum ClefthoofQuests
+                {
+                    /// Initial Quest
+                    QuestCapturingAClefthoof  = 36916,
+                    /// Progression Quests
+                    ClefthoofTrainingQuest1   = 36983,
+                    ClefthoofTrainingQuest2   = 36984,
+                    ClefthoofTrainingQuest3   = 36985,
+                    ClefthoofTrainingQuest4   = 36986,
+                    ClefthoofTrainingQuest5   = 36987,
+                    ClefthoofTrainingQuest6   = 36988,
+                    ClefthoofTrainingQuest7   = 36989,
+                    ClefthoofTrainingQuest8   = 36990,
+                    ClefthoofTrainingQuest9   = 36991,
+                    ClefthoofTrainingQuest10  = 36992,
+                    ClefthoofTrainingQuest11  = 36993,
+                    ClefthoofTrainingQuest12  = 36994
+                };
+
+                static const std::vector<uint32> g_ClefthoofQuests =
+                {
+                    ClefthoofTrainingQuest1,
+                    ClefthoofTrainingQuest2,
+                    ClefthoofTrainingQuest3,
+                    ClefthoofTrainingQuest4,
+                    ClefthoofTrainingQuest5,
+                    ClefthoofTrainingQuest6,
+                    ClefthoofTrainingQuest7,
+                    ClefthoofTrainingQuest8,
+                    ClefthoofTrainingQuest9,
+                    ClefthoofTrainingQuest10,
+                    ClefthoofTrainingQuest11,
+                    ClefthoofTrainingQuest12
+                };
+
+                enum BoarQuests
+                {
+                    /// Initial Quest
+                    QuestBestingABoar   = 36913,
+                    /// Progression Quests
+                    BoarTrainingQuest1  = 36995,
+                    BoarTrainingQuest2  = 36996,
+                    BoarTrainingQuest3  = 36997,
+                    BoarTrainingQuest4  = 36998,
+                    BoarTrainingQuest5  = 36999,
+                    BoarTrainingQuest6  = 37000,
+                    BoarTrainingQuest7  = 37001,
+                    BoarTrainingQuest8  = 37002,
+                    BoarTrainingQuest9  = 37003,
+                    BoarTrainingQuest10 = 37004
+                };
+
+                static const std::vector<uint32> g_BoarQuests =
+                {
+                    BoarTrainingQuest1,
+                    BoarTrainingQuest2,
+                    BoarTrainingQuest3,
+                    BoarTrainingQuest4,
+                    BoarTrainingQuest5,
+                    BoarTrainingQuest6,
+                    BoarTrainingQuest7,
+                    BoarTrainingQuest8,
+                    BoarTrainingQuest9,
+                    BoarTrainingQuest10
+                };
+            }
+
+            namespace KeeganQuestGiver
+            {
+                enum WolfQuests
+                {
+                    /// Initial Quest
+                    QuestWanglingAWolf = 36914,
+                    /// Progression Quests
+                    WolfTrainingQuest1 = 37022,
+                    WolfTrainingQuest2 = 37023,
+                    WolfTrainingQuest3 = 37024,
+                    WolfTrainingQuest4 = 37025,
+                    WolfTrainingQuest5 = 37026,
+                    WolfTrainingQuest6 = 37027,
+                    WolfTrainingQuest7 = 37028
+                };
+
+                static const std::vector<uint32> g_WolfQuests =
+                {
+                    WolfTrainingQuest1,
+                    WolfTrainingQuest2,
+                    WolfTrainingQuest3,
+                    WolfTrainingQuest4,
+                    WolfTrainingQuest5,
+                    WolfTrainingQuest6,
+                    WolfTrainingQuest7
+                };
+
+                enum RiverbeastQuests
+                {
+                    /// Initial Quest
+                    QuestRequisitionARiverbeast = 36918,
+                    /// Progression Quests
+                    RiverbeastTrainingQuest1    = 37005,
+                    RiverbeastTrainingQuest2    = 37006,
+                    RiverbeastTrainingQuest3    = 37007,
+                    RiverbeastTrainingQuest4    = 37008,
+                    RiverbeastTrainingQuest5    = 37009,
+                    RiverbeastTrainingQuest6    = 37010,
+                    RiverbeastTrainingQuest7    = 37011,
+                    RiverbeastTrainingQuest8    = 37012,
+                    RiverbeastTrainingQuest9    = 37013
+                };
+
+                static const std::vector<uint32> g_RiverbeastQuests =
+                {
+                    RiverbeastTrainingQuest1,
+                    RiverbeastTrainingQuest2,
+                    RiverbeastTrainingQuest3,
+                    RiverbeastTrainingQuest4,
+                    RiverbeastTrainingQuest5,
+                    RiverbeastTrainingQuest6,
+                    RiverbeastTrainingQuest7,
+                    RiverbeastTrainingQuest8,
+                    RiverbeastTrainingQuest9
+                };
+                enum TalbukQuests
+                {
+                    /// Initial Quest
+                    QuestTamingATalbuk    = 36911,
+                    /// Progression Quests
+                    TalbukTrainingQuest1  = 36971,
+                    TalbukTrainingQuest2  = 36972,
+                    TalbukTrainingQuest3  = 36973,
+                    TalbukTrainingQuest4  = 36974,
+                    TalbukTrainingQuest5  = 36975,
+                    TalbukTrainingQuest6  = 36976,
+                    TalbukTrainingQuest7  = 36977,
+                    TalbukTrainingQuest8  = 36978,
+                    TalbukTrainingQuest9  = 36979,
+                    TalbukTrainingQuest10 = 36980,
+                    TalbukTrainingQuest11 = 36981,
+                    TalbukTrainingQuest12 = 36982
+                };
+
+                static const std::vector<uint32> g_TalbukQuests =
+                {
+                    TalbukTrainingQuest1,
+                    TalbukTrainingQuest2,
+                    TalbukTrainingQuest3,
+                    TalbukTrainingQuest4,
+                    TalbukTrainingQuest5,
+                    TalbukTrainingQuest6,
+                    TalbukTrainingQuest7,
+                    TalbukTrainingQuest8,
+                    TalbukTrainingQuest9,
+                    TalbukTrainingQuest10,
+                    TalbukTrainingQuest11,
+                    TalbukTrainingQuest12
+                };
+            }
+        }
+
+        namespace Horde
+        {
+            static const std::vector<SequencePosition> g_HordeCreaturesPos =
+            {
+                { 10.8978f,  6.2676f, 0.4298f, 2.1677f },
+                {  6.9427f,  4.4816f, 0.4298f, 1.8300f },
+                {  7.3520f, -6.3004f, 0.4294f, 4.4899f },
+                { 15.7939f, -5.6128f, 0.4465f, 1.7449f },
+                { -3.5501f, -0.0913f, 0.4295f, 0.0799f } ///< This one is for second QuestGiver, else is for mounts
+            };
+
+            namespace SagePalunaQuestGiver
+            {
+                enum WolfQuests
+                {
+                    /// Initial Quest
+                    QuestWanglingAWolf = 36950,
+                    /// Progression Quests
+                    WolfTrainingQuest1 = 37105,
+                    WolfTrainingQuest2 = 37106,
+                    WolfTrainingQuest3 = 37107,
+                    WolfTrainingQuest4 = 37108,
+                    WolfTrainingQuest5 = 37109,
+                    WolfTrainingQuest6 = 37110,
+                    WolfTrainingQuest7 = 37111
+                };
+
+                static const std::vector<uint32> g_WolfQuests =
+                {
+                    WolfTrainingQuest1,
+                    WolfTrainingQuest2,
+                    WolfTrainingQuest3,
+                    WolfTrainingQuest4,
+                    WolfTrainingQuest5,
+                    WolfTrainingQuest6,
+                    WolfTrainingQuest7
+                };
+
+                enum RiverbeastQuests
+                {
+                    /// Initial Quest
+                    QuestRequisitionARiverbeast = 36945,
+                    /// Progression Quests
+                    RiverbeastTrainingQuest1    = 37071,
+                    RiverbeastTrainingQuest2    = 37072,
+                    RiverbeastTrainingQuest3    = 37073,
+                    RiverbeastTrainingQuest4    = 37074,
+                    RiverbeastTrainingQuest5    = 37075,
+                    RiverbeastTrainingQuest6    = 37076,
+                    RiverbeastTrainingQuest7    = 37077,
+                    RiverbeastTrainingQuest8    = 37078,
+                    RiverbeastTrainingQuest9    = 37079
+                };
+
+                static const std::vector<uint32> g_RiverbeastQuests =
+                {
+                    RiverbeastTrainingQuest1,
+                    RiverbeastTrainingQuest2,
+                    RiverbeastTrainingQuest3,
+                    RiverbeastTrainingQuest4,
+                    RiverbeastTrainingQuest5,
+                    RiverbeastTrainingQuest6,
+                    RiverbeastTrainingQuest7,
+                    RiverbeastTrainingQuest8,
+                    RiverbeastTrainingQuest9
+                };
+                enum TalbukQuests
+                {
+                    /// Initial Quest
+                    QuestTamingATalbuk = 36917,
+                    /// Progression Quests
+                    TalbukTrainingQuest1  = 37093,
+                    TalbukTrainingQuest2  = 37094,
+                    TalbukTrainingQuest3  = 37095,
+                    TalbukTrainingQuest4  = 37096,
+                    TalbukTrainingQuest5  = 37097,
+                    TalbukTrainingQuest6  = 37098,
+                    TalbukTrainingQuest7  = 37099,
+                    TalbukTrainingQuest8  = 37100,
+                    TalbukTrainingQuest9  = 37101,
+                    TalbukTrainingQuest10 = 37102,
+                    TalbukTrainingQuest11 = 37103,
+                    TalbukTrainingQuest12 = 37104
+                };
+
+                static const std::vector<uint32> g_TalbukQuests =
+                {
+                    TalbukTrainingQuest1,
+                    TalbukTrainingQuest2,
+                    TalbukTrainingQuest3,
+                    TalbukTrainingQuest4,
+                    TalbukTrainingQuest5,
+                    TalbukTrainingQuest6,
+                    TalbukTrainingQuest7,
+                    TalbukTrainingQuest8,
+                    TalbukTrainingQuest9,
+                    TalbukTrainingQuest10,
+                    TalbukTrainingQuest11,
+                    TalbukTrainingQuest12
+                };
+            }
+
+            namespace TormakQuestGiver
+            {
+                enum ElekkQuests
+                {
+                    /// Initial Quest
+                    QuestEntanglingAnElekk = 36946,
+                    /// Progression Quests
+                    ElekkTrainingQuest1    = 37063,
+                    ElekkTrainingQuest2    = 37064,
+                    ElekkTrainingQuest3    = 37065,
+                    ElekkTrainingQuest4    = 37066,
+                    ElekkTrainingQuest5    = 37067,
+                    ElekkTrainingQuest6    = 37068,
+                    ElekkTrainingQuest7    = 37069
+                };
+
+                static const std::vector<uint32> g_ElekkQuests =
+                {
+                    ElekkTrainingQuest1,
+                    ElekkTrainingQuest2,
+                    ElekkTrainingQuest3,
+                    ElekkTrainingQuest4,
+                    ElekkTrainingQuest5,
+                    ElekkTrainingQuest6,
+                    ElekkTrainingQuest7
+                };
+
+                enum ClefthoofQuests
+                {
+                    /// Initial Quest
+                    QuestCapturingAClefthoof  = 36912,
+                    /// Progression Quests
+                    ClefthoofTrainingQuest1   = 37048,
+                    ClefthoofTrainingQuest2   = 37049,
+                    ClefthoofTrainingQuest3   = 37050,
+                    ClefthoofTrainingQuest4   = 37051,
+                    ClefthoofTrainingQuest5   = 37052,
+                    ClefthoofTrainingQuest6   = 37053,
+                    ClefthoofTrainingQuest7   = 37054,
+                    ClefthoofTrainingQuest8   = 37055,
+                    ClefthoofTrainingQuest9   = 37056,
+                    ClefthoofTrainingQuest10  = 37057,
+                    ClefthoofTrainingQuest11  = 37058,
+                    ClefthoofTrainingQuest12  = 37059
+                };
+
+                static const std::vector<uint32> g_ClefthoofQuests =
+                {
+                    ClefthoofTrainingQuest1,
+                    ClefthoofTrainingQuest2,
+                    ClefthoofTrainingQuest3,
+                    ClefthoofTrainingQuest4,
+                    ClefthoofTrainingQuest5,
+                    ClefthoofTrainingQuest6,
+                    ClefthoofTrainingQuest7,
+                    ClefthoofTrainingQuest8,
+                    ClefthoofTrainingQuest9,
+                    ClefthoofTrainingQuest10,
+                    ClefthoofTrainingQuest11,
+                    ClefthoofTrainingQuest12
+                };
+
+                enum BoarQuests
+                {
+                    /// Initial Quest
+                    QuestBestingABoar   = 36944,
+                    /// Progression Quests
+                    BoarTrainingQuest1  = 37032,
+                    BoarTrainingQuest2  = 37033,
+                    BoarTrainingQuest3  = 37034,
+                    BoarTrainingQuest4  = 37035,
+                    BoarTrainingQuest5  = 37036,
+                    BoarTrainingQuest6  = 37037,
+                    BoarTrainingQuest7  = 37038,
+                    BoarTrainingQuest8  = 37039,
+                    BoarTrainingQuest9  = 37040,
+                    BoarTrainingQuest10 = 37041
+                };
+
+                static const std::vector<uint32> g_BoarQuests =
+                {
+                    BoarTrainingQuest1,
+                    BoarTrainingQuest2,
+                    BoarTrainingQuest3,
+                    BoarTrainingQuest4,
+                    BoarTrainingQuest5,
+                    BoarTrainingQuest6,
+                    BoarTrainingQuest7,
+                    BoarTrainingQuest8,
+                    BoarTrainingQuest9,
+                    BoarTrainingQuest10
+                };
+            }
+        }
+    }
+
+    namespace GarrisonPortals
+    {
+        enum DraenorZones : uint16
+        {
+            /// TODO : Handle Tanaan Jungle in build > 6.2
+            ZoneFrostfireRidge    = 6720,
+            ZoneSpiresOfArak      = 6722,
+            ZoneTalador           = 6662,
+            ZoneNagrand           = 6755,
+            ZoneShadowmoon        = 6719,
+            ZoneGorgrond          = 6721
+        };
+
+        /// Those quests are used to handle portals phasing in Garrison and in Draenor
+        enum PortalsQuests
+        {
+            QuestFrostfireRidge = 36904,
+            QuestSpiresOfArak   = 36885,
+            QuestTalador        = 36905,
+            QuestNagrand        = 36906,
+            QuestShadowmoon     = 36903,
+            QuestGorgrond       = 36886,
+            QuestTanaanJungle   = 39497
+        };
+
+        /// EffectForcePlayerInteraction, triggers a spell which completes associated quest
+        enum ActivationSpells
+        {
+            FrostfireRidgeActivationSpell = 173817,
+            SpiresOfArakActivationSpell   = 173554,
+            TaladorActivationSpell        = 173806,
+            NagrandActivationSpell        = 173809,
+            ShadowmoonActivationSpell     = 173821,
+            GorgrondActivationSpell       = 173504
+        };
+
+        /// EffectForcePlayerInteraction, triggers a spell which removes the associated quest from questlog,
+        /// being incomplete or even rewarded
+        enum DeactivationSpells
+        {
+            FrostfireRidgeDeactivationSpell = 173815,
+            SpiresOfArakDeactivationSpell   = 173550,
+            TaladorDeactivationSpell        = 173646,
+            NagrandDeactivationSpell        = 173811,
+            ShadowmoonDeactivationSpell     = 173819,
+            GorgrondDeactivationSpell       = 173493
+        };
+
+        enum WorldGobs
+        {
+            FrostfireRidgeWorldGob   = 236911,
+            SpiresOfArakWorldGob     = 236774,
+            TaladorWorldGob          = 236906,
+            NagrandWorldGob          = 236910,
+            ShadowmoonValleyWorldGob = 236912,
+            GorgrondWorldGob         = 236765
+        };
+
+        enum GarrisonGobs
+        {
+            /// Most of IDs are custom here, have them all would mean sniff them all and loose much time to farm stones on retail...
+            FrostfireRidgeBuildingGob  = 236024,
+            GorgrondBuildingGob        = 500003,
+            NagrandBuildingGob         = 500004,
+            ShadowmoonBuildingGob      = 500005,
+            SpiresOfArakBuildingGob    = 500006,
+            TaladorBuildingGob         = 500007
+        };
+
+        enum DraenorPortalPhases
+        {
+            WorldPhaseDeactivatedPortal = 0x80000000,
+            WorldPhaseActivatedPortal   = 0x40000000
+        };
+    }
+
     enum GameObjects
     {
         GobStump                = 234568,
@@ -162,7 +717,6 @@ namespace MS { namespace Garrison
         GobRichBlackrockDeposit = 232543,
         GobTrueIronDeposit      = 232544,
         GobRichTrueIronDeposit  = 232545
-
     };
 
     /// NPC texts id
@@ -214,6 +768,7 @@ namespace MS { namespace Garrison
         ItemTimber                              = 114781,
         ItemTimberSample                        = 114827,
         ItemGarrisonResources                   = 114677,
+        ItemSecondGarrisonResources             = 118111,
         ItemMine                                = 116055,
         ItemBlackrockOre                        = 109118,
         ItemTrueIronOre                         = 109119
@@ -241,7 +796,9 @@ namespace MS { namespace Garrison
     enum ObjectIDs
     {
         TimberWorkOrderAlly  = 37548,
-        TimberWorkOrderHorde = 37487
+        TimberWorkOrderHorde = 37487,
+        FirstMageTowerSpiritLodgeObjectID = 91574,
+        MageTowerQuestActivateOgreWaygate = 39133
     };
 
     /// Garrison creation coords
@@ -380,12 +937,6 @@ namespace MS { namespace Garrison
                 82452
             };
         }
-
-        enum ProductionTypes
-        {
-            TypeFur     = 1,
-            TypeLeather = 2
-        };
 
         enum ShipmentIDS
         {

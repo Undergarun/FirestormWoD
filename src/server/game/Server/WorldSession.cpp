@@ -46,6 +46,7 @@
 #include "WardenWin.h"
 #include "WardenMac.h"
 #include "GarrisonMgr.hpp"
+#include "AccountMgr.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -92,7 +93,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags) :
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags) :
 m_muteTime(mute_time), m_timeOutTime(0),
 m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
 _ispremium(ispremium), m_PremiumType(premiumType), m_VoteRemainingTime(p_VoteRemainingTime), m_VoteTimePassed(0), m_VoteSyncTimer(VOTE_SYNC_TIMER), _logoutTime(0), m_inQueue(false),
@@ -105,7 +106,7 @@ m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLast
 m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
 m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
 timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
-m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0)
+m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -120,6 +121,10 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_Ti
     }
 
     InitializeQueryCallbackParameters();
+
+    m_TransactionCallbacks             = std::unique_ptr<TransactionCallbacks>(new TransactionCallbacks());
+    m_PreparedStatementCallbacks       = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
+    m_PreparedStatementCallbacksBuffer = std::unique_ptr<PreparedStatementCallbacks>(new PreparedStatementCallbacks());
 
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
@@ -1143,9 +1148,10 @@ void WorldSession::SendFeatureSystemStatus()
 
     uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
 
-    uint32 l_TwitterMsTillCanPost = 20;
-    uint32 l_TokenPollTimeSeconds = 300;
-    uint32 l_TokenRedeemIndex = 0;
+    uint32 l_TwitterPostThrottleLimit       = 60;
+    uint32 l_TwitterPostThrottleCooldown    = 20;
+    uint32 l_TokenPollTimeSeconds           = 300;
+    uint32 l_TokenRedeemIndex               = 0;
 
     WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 100);
 
@@ -1154,8 +1160,8 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
     l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
     l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
-    l_Data << uint32(60);                                           ///< Unk 6.1.0
-    l_Data << uint32(l_TwitterMsTillCanPost);                       ///< TwitterMsTillCanPost
+    l_Data << uint32(l_TwitterPostThrottleLimit);                   ///< Number of twitter posts the client can send before they start being throttled
+    l_Data << uint32(l_TwitterPostThrottleCooldown);                ///< Time in seconds the client has to wait before posting again after hitting post limit
     l_Data << uint32(l_TokenPollTimeSeconds);                       ///< TokenPollTimeSeconds
     l_Data << uint32(l_TokenRedeemIndex);                           ///< TokenRedeemIndex
 
@@ -1467,8 +1473,196 @@ void WorldSession::UnsetServiceFlags(uint32 p_Flags)
 {
     m_ServiceFlags &= ~p_Flags;
 
-    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_SET_ACCOUNT_SERVICE);
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LoginDatabaseStatements::LOGIN_REMOVE_ACCOUNT_SERVICE);
     l_Statement->setUInt32(0, p_Flags);
     l_Statement->setUInt32(1, GetAccountId());
     LoginDatabase.AsyncQuery(l_Statement);
+}
+
+void WorldSession::SetCustomFlags(uint32 p_Flags)
+{
+    m_CustomFlags |= p_Flags;
+
+    LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags | %u WHERE id = %u", p_Flags, GetAccountId());
+}
+
+void WorldSession::UnsetCustomFlags(uint32 p_Flags)
+{
+    m_CustomFlags &= ~p_Flags;
+
+    LoginDatabase.AsyncPQuery("UPDATE account SET custom_flags = custom_flags &~ %u WHERE id = %u", p_Flags, GetAccountId());
+}
+
+void WorldSession::LoadPremades()
+{
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PREMADES);
+    l_Statement->setUInt32(0, GetAccountId());
+
+    PreparedQueryResult l_Result = CharacterDatabase.Query(l_Statement);
+    if (!l_Result)
+        return;
+
+    uint32 l_CharactersCount = AccountMgr::GetCharactersCount(GetAccountId());
+    if (l_CharactersCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+        return;
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        uint32 l_Transaction = l_Fields[0].GetUInt32();
+        uint32 l_TemplateID = l_Fields[1].GetUInt32();
+        uint32 l_Faction = l_Fields[2].GetUInt8();
+        uint8  l_Type = l_Fields[3].GetUInt8();
+
+        CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateID);
+        if (!l_Template)
+            continue;
+
+        WorldPacket l_Data; ///< Dummy
+        CharacterCreateInfo* l_CreateInfo = new CharacterCreateInfo("#Premade", l_Faction == TEAM_HORDE ? l_Template->m_HordeDefaultRace : l_Template->m_AllianceDefaultRace, l_Template->m_PlayerClass, 0, 0, 0, 0, 0, 0, 0, 0, l_Data);
+
+        Player l_NewCharacter(this);
+        l_NewCharacter.GetMotionMaster()->Initialize();
+
+        if (!l_NewCharacter.Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), l_CreateInfo))
+        {
+            l_NewCharacter.CleanupsBeforeDelete();
+            delete l_CreateInfo;
+            continue;
+        }
+
+        l_NewCharacter.SetAtLoginFlag(AT_LOGIN_FIRST);
+        l_NewCharacter.SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
+
+        l_NewCharacter.SetLevel(l_Template->m_Level);
+        l_NewCharacter.SetMoney(l_Template->m_Money);
+
+        for (auto& l_ReputationInfo : l_Template->m_TemplateFactions)
+        {
+            if (FactionEntry const* l_Faction = sFactionStore.LookupEntry(l_ReputationInfo.m_FactionID))
+                l_NewCharacter.GetReputationMgr().SetReputation(l_Faction, l_ReputationInfo.m_Reputaion);
+        }
+
+        for (auto l_Spell : l_Template->m_SpellIDs)
+            l_NewCharacter.learnSpell(l_Spell, false);
+
+        std::list<CharacterTemplate::TemplateItem const*> l_RemainingTemplates;
+        for (auto& l_Item : l_Template->m_TemplateItems)
+        {
+            if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item.m_ItemID))
+            {
+                // Give bags first to the players, then the equipment
+                if (l_Proto->Class == ITEM_CLASS_CONTAINER)
+                {
+                    if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && l_NewCharacter.GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && l_NewCharacter.GetTeam() == HORDE))
+                        l_NewCharacter.StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+
+                    continue;
+                }
+            }
+            l_RemainingTemplates.push_back(&l_Item);
+        }
+
+        for (auto l_Item : l_RemainingTemplates)
+        {
+            if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->m_ItemID))
+            {
+                if ((l_Proto->AllowableRace & l_NewCharacter.getRaceMask()) == 0)
+                    continue;
+
+                if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && l_NewCharacter.GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && l_NewCharacter.GetTeam() == HORDE))
+                {
+                    ItemContext l_Context = ItemContext::None;
+
+                    /// Pve premade have LFR items
+                    if (l_Type == 1)
+                        l_Context = ItemContext::RaidLfr;
+
+                    if (l_Item->m_Type == 0 || l_Type == l_Item->m_Type)
+                        l_NewCharacter.StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_Context);
+                }
+            }
+        }
+
+        l_NewCharacter.SaveToDB(true);
+
+        if (l_CreateInfo->Class == CLASS_HUNTER)
+        {
+            uint32 pet_id = sObjectMgr->GeneratePetNumber();
+
+            switch (l_CreateInfo->Race)
+            {
+                case RACE_HUMAN:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 299, %u, 903, 13481, 1, 1, 0, 0, 'Wolf', 0, 0, 192, 0, 1295727347, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_DWARF:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42713, %u, 822, 13481, 1, 1, 0, 0, 'Bear', 0, 0, 212, 0, 1295727650, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_ORC:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42719, %u, 744, 13481, 1, 1, 0, 0, 'Boar', 0, 0, 212, 0, 1295727175, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_NIGHTELF:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42718, %u,  17090, 13481, 1, 1, 0, 0, 'Cat', 0, 0, 192, 0, 1295727501, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_UNDEAD_PLAYER:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 51107, %u,  368, 13481, 1, 1, 0, 0, 'Spider', 0, 0, 202, 0, 1295727821, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_TAUREN:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42720, %u,  29057, 13481, 1, 1, 0, 0, 'Tallstrider', 0, 0, 192, 0, 1295727912, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_TROLL:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42721, %u,  23518, 13481, 1, 1, 0, 0, 'Raptor', 0, 0, 192, 0, 1295727987, '7 2 7 1 7 0 129 2649 129 50498 129 16827 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_GOBLIN:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42715, %u, 27692, 13481, 1, 1, 0, 0, 'Crab', 0, 0, 212, 0, 1295720595, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_BLOODELF:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42710, %u, 23515, 13481, 1, 1, 0, 0, 'Dragonhawk', 0, 0, 202, 0, 1295728068, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_DRAENEI:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42712, %u, 29056, 13481, 1, 1, 0, 0, 'Moth', 0, 0, 192, 0, 1295728128, '7 2 7 1 7 0 129 2649 129 49966 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_WORGEN:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42722, %u, 30221, 13481, 1, 1, 0, 0, 'Dog', 0, 0, 192, 0, 1295728219, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                case RACE_PANDAREN_NEUTRAL:
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `slot`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 57239, %u, 42656, 13481, 1, 1, 0, 0, 'Turtle', 0, 0, 192, 0, 1295728219, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", pet_id, l_NewCharacter.GetGUIDLow());
+                    break;
+                default:
+                    break;
+            }
+
+            CharacterDatabase.PExecute("UPDATE characters SET currentPetSlot = '0', petSlotUsed = '1' WHERE guid = %u", l_NewCharacter.GetGUIDLow());
+            l_NewCharacter.SetTemporaryUnsummonedPetNumber(pet_id);
+        }
+
+        l_NewCharacter.CleanupsBeforeDelete();
+        delete l_CreateInfo;
+
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PREMADE_SUCESS);
+        l_Statement->setUInt32(0, l_Transaction);
+        CharacterDatabase.Execute(l_Statement);
+    } while (l_Result->NextRow());
+}
+
+/// Send a game error
+/// @p_Error : Game error
+/// @p_Data1 : Additional data 1
+/// @p_Data2 : Additional data 2
+void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32 p_Data2)
+{
+    WorldPacket l_Packet(SMSG_DISPLAY_GAME_ERROR, 13);
+    l_Packet << uint32(p_Error);
+    l_Packet.WriteBit(p_Data1 != 0xF0F0F0F0);
+    l_Packet.WriteBit(p_Data2 != 0xF0F0F0F0);
+    l_Packet.FlushBits();
+
+    if (p_Data1 != 0xF0F0F0F0)
+        l_Packet << uint32(p_Data1);
+
+    if (p_Data2 != 0xF0F0F0F0)
+        l_Packet << uint32(p_Data2);
+
+    SendPacket(&l_Packet);
 }

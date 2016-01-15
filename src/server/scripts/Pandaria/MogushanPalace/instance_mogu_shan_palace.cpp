@@ -287,7 +287,7 @@ public:
                 case CREATURE_ANIMATED_AXE:
                     animated_axes.push_back(creature->GetGUID());
                     creature->SetReactState(REACT_PASSIVE);
-                    creature->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 30316);
+                    creature->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 30316);
                     break;
                 case CREATURE_LAUNCH_SWORD:
                     swordLauncherGuids.push_back(creature->GetGUID());

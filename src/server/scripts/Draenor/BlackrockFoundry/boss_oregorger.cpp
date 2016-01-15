@@ -6,115 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
-
-Position const g_OreCrateSpawnPos[eFoundryDatas::MaxOreCrateSpawns] =
-{
-    { 16.221f, 3537.0501f, 280.97699f, 0.0f },
-    { 31.512f, 3537.0601f, 280.97699f, 0.0f },
-    { 1.4497f, 3548.2399f, 280.97699f, 0.0f },
-    { -12.05f, 3567.3999f, 280.97699f, 0.0f },
-    { -11.19f, 3585.7900f, 280.97699f, 0.0f },
-    { -11.48f, 3599.4599f, 281.01300f, 0.0f },
-    { 1.4514f, 3619.1299f, 281.01300f, 0.0f },
-    { 17.313f, 3628.5400f, 281.01300f, 0.0f },
-    { 37.201f, 3629.0701f, 281.01300f, 0.0f },
-    { 52.556f, 3627.7299f, 281.01300f, 0.0f },
-    { 69.613f, 3616.8799f, 280.97699f, 0.0f },
-    { 80.066f, 3601.2900f, 280.97699f, 0.0f },
-    { 80.977f, 3579.9099f, 280.97699f, 0.0f },
-    { 79.835f, 3564.7900f, 280.97699f, 0.0f },
-    { 69.385f, 3547.6599f, 280.97699f, 0.0f },
-    { 53.776f, 3536.9299f, 280.97699f, 0.0f },
-    { 16.865f, 3587.8701f, 281.01300f, 0.0f },
-    { 16.045f, 3576.7500f, 280.97699f, 0.0f },
-    { 52.951f, 3588.3701f, 280.97699f, 0.0f },
-    { 51.832f, 3579.7500f, 280.97699f, 0.0f },
-    { 42.146f, 3565.1799f, 280.97699f, 0.0f },
-    { 32.075f, 3565.8799f, 280.97699f, 0.0f },
-    { 38.521f, 3600.9699f, 280.97699f, 0.0f },
-    { 29.146f, 3602.8601f, 280.97699f, 0.0f }
-};
-
-Position const g_MovePos[eFoundryDatas::MaxOregorgerMovePos] =
-{
-    { 29.788f, 3685.025f, 289.8583f, 0.0f },
-    { 36.313f, 3677.135f, 290.9291f, 0.0f },
-    { 40.641f, 3670.757f, 290.8677f, 0.0f },
-    { 43.917f, 3664.390f, 290.9170f, 0.0f },
-    { 45.461f, 3657.372f, 290.7451f, 0.0f },
-    { 46.257f, 3652.046f, 290.9441f, 0.0f },
-    { 46.144f, 3647.808f, 290.4916f, 0.0f },
-    { 45.582f, 3642.901f, 290.1242f, 0.0f }
-};
-
-Position const g_JumpPos = { 52.8958f, 3617.03f, 280.894f, 4.673866f };
-
-struct PointData
-{
-    uint8 I;
-    uint8 J;
-};
-
-PointData const g_CollisionPoints[eFoundryDatas::MaxOregorgerCollisions] =
-{
-    { 4, 5 },   ///< 1: Linked to 3 and 7
-    { 4, 4 },   ///< 2: Linked to 3 and 7
-    { 4, 2 },   ///< 3: Linked to 6 and 1
-    { 5, 2 },   ///< 4: Linked to 6 and 1
-    { 2, 4 },   ///< 5: Linked to 2 and 8
-    { 2, 2 },   ///< 6: Linked to 5 and 4
-    { 1, 4 },   ///< 7: Linked to 2 and 8
-    { 2, 1 }    ///< 8: Linked to 5 and 4
-};
-
-std::pair<uint8, uint8> const g_LinkedCollisionPoints[eFoundryDatas::MaxOregorgerCollisions] =
-{
-    { 3, 7 },
-    { 3, 7 },
-    { 6, 1 },
-    { 6, 1 },
-    { 2, 8 },
-    { 5, 4 },
-    { 2, 8 },
-    { 5, 4 }
-};
-
-/// Some positions in Oregorger's room aren't accessible by players or creatures, just bypass them
-bool const g_BypassPoints[eFoundryDatas::MaxOregorgerPatterns][eFoundryDatas::MaxOregorgerPatterns] =
-{
-    { true,  false, false, false, false, true,  true  },
-    { false, false, true,  true,  false, false, false },
-    { false, false, false, false, false, true,  false },
-    { false, true,  false, true,  false, true,  false },
-    { false, true,  false, false, false, false, false },
-    { false, false, false, true,  true,  false, true  },
-    { true,  false, false, false, false, false, true  }
-};
-
-float const g_OregorgerPatternsX[eFoundryDatas::MaxOregorgerPatterns] =
-{
-    -6.71f,
-    10.28f,
-    22.23f,
-    44.96f,
-    60.04f,
-    76.24f,
-    86.94f
-};
-
-float const g_OregorgerPatternsY[eFoundryDatas::MaxOregorgerPatterns] =
-{
-    3542.52f,
-    3558.64f,
-    3573.06f,
-    3596.53f,
-    3609.33f,
-    3624.89f,
-    3634.95f
-};
-
-Position const g_VolatileOreSpawn = { 34.08f, 3636.04f, 281.19f, 4.83f };
+# include "boss_oregorger.hpp"
 
 /// Oregorger <The Devourer> - 77182
 class boss_oregorger : public CreatureScript
@@ -129,6 +21,7 @@ class boss_oregorger : public CreatureScript
             RollingFuryVisual           = 174183,
             RollingBox                  = 160665,
             WallshakingRoar             = 160662,
+            EarthshakingStomp           = 159958,
             /// Phase 1
             /// Acid Maw
             AcidMawDoT                  = 173471,
@@ -141,6 +34,7 @@ class boss_oregorger : public CreatureScript
             /// Acid Torrent
             AcidTorrentSearcher         = 156240,
             AcidTorrentTriggered        = 160465,
+            AcidTorrentScriptEffect     = 156243,
             AcidTorrentDmgAndDebuff     = 156297,   ///< Main target and 20s debuff
             AcidTorrentAura             = 156300,   ///< 2s aura
             AcidTorrentMissile          = 156309,   ///< Triggers 156324, needs aura
@@ -174,12 +68,11 @@ class boss_oregorger : public CreatureScript
         {
             EventCheckTrashs = 1,
             EventCollectOre,
-            EventCheckLastCollision
+            EventSoftEnrage
         };
 
         enum eCreatures
         {
-            PathIdentifier          = 77848,
             OreCrateCosmetic        = 79504,
             OreCrate                = 77252,
             DarkshardCrystalback    = 78233,
@@ -196,8 +89,8 @@ class boss_oregorger : public CreatureScript
         enum eDatas
         {
             DataMitigationPct,
-            MoveResetRolling,
-            MovementFinished = 666
+            MovementInProgress,
+            MovementFinished
         };
 
         enum eTalks
@@ -232,9 +125,6 @@ class boss_oregorger : public CreatureScript
 
             uint8 m_Phase;
 
-            uint64 m_AcidTorrentTarget;
-            std::list<uint64> m_FrontPlayers;
-
             float m_MitigationPct;
 
             std::set<uint64> m_Crates;
@@ -249,9 +139,11 @@ class boss_oregorger : public CreatureScript
             /// Counter for Path Identifier reached
             uint8 m_PathCount;
 
+            std::vector<G3D::Vector2> m_Path;
+
             std::set<uint64> m_BlackrockOres;
 
-            uint32 m_LastCollisionTime;
+            uint64 m_AcidTorrentTarget;
 
             void Reset() override
             {
@@ -308,9 +200,6 @@ class boss_oregorger : public CreatureScript
 
                 m_Phase = ePhases::PhaseFight;
 
-                m_AcidTorrentTarget = 0;
-                m_FrontPlayers.clear();
-
                 m_MitigationPct = 0.0f;
 
                 m_CratesToActivate.clear();
@@ -323,9 +212,11 @@ class boss_oregorger : public CreatureScript
 
                 m_PathCount = 0;
 
+                m_Path.clear();
+
                 m_BlackrockOres.clear();
 
-                m_LastCollisionTime = 0;
+                m_AcidTorrentTarget = 0;
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -343,7 +234,7 @@ class boss_oregorger : public CreatureScript
                         p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
                         p_Summon->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         break;
                     }
                     case eCreatures::UnstableSlag:
@@ -433,8 +324,6 @@ class boss_oregorger : public CreatureScript
                             l_Ore->RemoveFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                     }
 
-                    m_PathCount = 0;
-
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -495,6 +384,9 @@ class boss_oregorger : public CreatureScript
                                 }
                             }
 
+                            if (l_NearestCrate == nullptr)
+                                return;
+
                             m_Crates.erase(l_NearestCrate->GetGUID());
 
                             l_NearestCrate->CastSpell(g_OreCrateSpawnPos[l_I], eSpells::RollingBox, true);
@@ -518,7 +410,7 @@ class boss_oregorger : public CreatureScript
                                 l_Crate->SetReactState(ReactStates::REACT_PASSIVE);
                                 l_Crate->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
                                 l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED | UnitState::UNIT_STATE_ROOT);
-                                l_Crate->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                l_Crate->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                                 l_Crate->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
                             }
                         }
@@ -544,11 +436,9 @@ class boss_oregorger : public CreatureScript
                         else
                         {
                             me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
+                            me->GetMotionMaster()->MovePoint(eDatas::MovementInProgress, m_NextPos);
                         }
                     });
-
-                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
                 }
                 /// When Oregorger reaches full Mana, Phase One restarts.
                 else if (p_Value == 100)
@@ -561,7 +451,6 @@ class boss_oregorger : public CreatureScript
                     me->RemoveAura(eSpells::RollingFuryAura);
 
                     m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCollectOre);
-                    m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCheckLastCollision);
 
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
@@ -606,13 +495,6 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
             }
 
@@ -652,54 +534,43 @@ class boss_oregorger : public CreatureScript
                     return;
 
                 /// Handle phase 2 movements in a specific way
-                if (m_Phase == ePhases::PhaseRolling)
+                if (m_Phase == ePhases::PhaseRolling && me->HasAura(eSpells::RollingFuryAura))
                 {
-                    if (p_ID == eDatas::MovementFinished && me->HasAura(eSpells::RollingFuryAura))
+                    switch (p_ID)
                     {
-                        /// Movement not finished, handle it in a different way
-                        if (me->GetDistance(m_Destination) > 0.5f)
+                        case eDatas::MovementInProgress:
                         {
-                            if (!IsCenterPos(me->m_positionX, me->m_positionY))
+                            ++m_PathCount;
+
+                            m_NextPos.m_positionX = m_Path[m_PathCount].x;
+                            m_NextPos.m_positionY = m_Path[m_PathCount].y;
+                            m_NextPos.m_positionZ = me->GetPositionZ();
+
+                            if (m_NextPos.IsNearPosition(&m_Destination, 1.0f))
                             {
-                                switch (m_PathCount)
+                                AddTimedDelayedOperation(50, [this]() -> void
                                 {
-                                    case 1:
-                                    case 4:
-                                    {
-                                        me->SetFacingTo(me->GetOrientation() + M_PI / 2.0f);
-                                        break;
-                                    }
-                                    case 5:
-                                    {
-                                        AddTimedDelayedOperation(50, [this]() -> void
-                                        {
-                                            m_PathCount = 0;
-
-                                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
-                                            return;
-                                        });
-
-                                        break;
-                                    }
-                                    case 2:
-                                    case 3:
-                                    default:
-                                        break;
-                                }
+                                    me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                                });
+                            }
+                            else
+                            {
+                                AddTimedDelayedOperation(50, [this]() -> void
+                                {
+                                    me->GetMotionMaster()->MovePoint(eDatas::MovementInProgress, m_NextPos);
+                                });
                             }
 
-                            AddTimedDelayedOperation(125, [this]() -> void
-                            {
-                                SelectNextPathIdentifier();
-                            });
-
-                            return;
+                            break;
                         }
-
-                        HandleCollisionPoint();
+                        case eDatas::MovementFinished:
+                        {
+                            HandleCollisionPoint();
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    else if (p_ID == eDatas::MoveResetRolling)
-                        HandleCollisionPoint();
 
                     return;
                 }
@@ -765,37 +636,40 @@ class boss_oregorger : public CreatureScript
                         me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
                         break;
                     }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
                     case eSpells::AcidTorrentSearcher:
                     {
-                        if (!m_AcidTorrentTarget)
-                            break;
+                        m_AcidTorrentTarget = 0;
 
-                        std::list<Player*> l_PlayerList;
-                        me->GetPlayerListInGrid(l_PlayerList, 100.0f);
+                        me->SetFacingTo(me->GetAngle(p_Target));
 
-                        if (l_PlayerList.empty())
-                            break;
+                        /// Sprays a cone of acid at a random ranged foe, inflicting 475000 to 525000 Physical damage to the closest player
+                        /// and increasing that player's damage taken from Acid Torrent by 475000 to 525000 for 20 sec.
+                        /// p_Target is already the clotest player
+                        /// Order here is important, debuff the main target to deals damage to him once
+                        me->CastSpell(p_Target, eSpells::AcidTorrentDmgAndDebuff, true);
 
-                        l_PlayerList.remove_if([this](Player* p_Player) -> bool
-                        {
-                            if (p_Player == nullptr || !p_Player->isInFront(me))
-                                return true;
+                        m_AcidTorrentTarget = p_Target->GetGUID();
 
-                            return false;
-                        });
+                        /// Cast the cone triggered to add targetting aura to each players in that cone
+                        me->CastSpell(p_Target, eSpells::AcidTorrentTriggered, true);
 
-                        if (l_PlayerList.empty())
-                            break;
+                        /// Add the targetting aura on boss, then cast the AoE spell which will affects only players with the aura
+                        me->CastSpell(me, eSpells::AcidTorrentAura, true);
 
-                        l_PlayerList.sort(JadeCore::ObjectDistanceOrderPred(me));
-
-                        m_FrontPlayers.clear();
-
-                        for (Player* l_Player : l_PlayerList)
-                            m_FrontPlayers.push_back(l_Player->GetGUID());
-
-                        if (Unit* l_Target = Unit::GetUnit(*me, m_AcidTorrentTarget))
-                            me->CastSpell(l_Target, eSpells::AcidTorrentTriggered, true);
+                        /// All other targets take up to 300000 Nature damage, reduced by the closest player's total damage mitigation.
+                        me->CastSpell(me, eSpells::AcidTorrentMissile, true);
 
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
@@ -809,42 +683,13 @@ class boss_oregorger : public CreatureScript
 
                         break;
                     }
-                    default:
-                        break;
-                }
-            }
-
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_Target == nullptr)
-                    return;
-
-                switch (p_SpellInfo->Id)
-                {
-                    case eSpells::AcidTorrentTriggered:
+                    case eSpells::AcidTorrentScriptEffect:
                     {
-                        bool l_First = true;
-                        for (uint64 l_Guid : m_FrontPlayers)
-                        {
-                            if (l_First)
-                            {
-                                l_First = false;
+                        /// Don't damage main target twice
+                        if (p_Target->GetGUID() == m_AcidTorrentTarget)
+                            break;
 
-                                /// Sprays a cone of acid at a random ranged foe, inflicting 475000 to 525000 Physical damage to the closest player
-                                /// and increasing that player's damage taken from Acid Torrent by 475000 to 525000 for 20 sec.
-                                if (Player* l_MainTarget = Player::GetPlayer(*me, l_Guid))
-                                    me->CastSpell(l_MainTarget, eSpells::AcidTorrentDmgAndDebuff, true);
-
-                                continue;
-                            }
-
-                            if (Player* l_Target = Player::GetPlayer(*me, l_Guid))
-                                me->CastSpell(l_Target, eSpells::AcidTorrentAura, true);
-                        }
-
-                        /// All other targets take up to 300000 Nature damage, reduced by the closest player's total damage mitigation.
-                        me->CastSpell(me, eSpells::AcidTorrentAura, true);
-                        me->CastSpell(me, eSpells::AcidTorrentMissile, true);
+                        me->CastSpell(p_Target, eSpells::AcidTorrentAura, true);
                         break;
                     }
                     case eSpells::BlackrockBarrageAoE:
@@ -874,19 +719,23 @@ class boss_oregorger : public CreatureScript
                         me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::DarkshardCrystalback, 150.0f);
                         me->GetCreatureListWithEntryInGrid(l_CreatureList, eCreatures::DarkshardGnasher, 150.0f);
 
-                        if (l_CreatureList.empty())
-                            break;
+                        bool l_IsEmpty = l_CreatureList.empty();
 
-                        l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                        if (!l_IsEmpty)
                         {
-                            if (p_Creature == nullptr || !p_Creature->isAlive())
-                                return true;
-
-                            return false;
-                        });
+                            l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                            {
+                                if (p_Creature == nullptr || !p_Creature->isAlive())
+                                    return true;
+    
+                                return false;
+                            });
+                        }
+                        
+                        l_IsEmpty = l_CreatureList.empty();
 
                         /// All trashes are dead, launch move
-                        if (l_CreatureList.empty())
+                        if (l_IsEmpty)
                         {
                             m_Init = true;
 
@@ -922,19 +771,18 @@ class boss_oregorger : public CreatureScript
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
                         break;
                     }
-                    case eCosmeticEvents::EventCheckLastCollision:
+                    case eCosmeticEvents::EventSoftEnrage:
                     {
-                        if (time(nullptr) >= (m_LastCollisionTime + 10))
-                        {
-                            G3D::Vector2 l_Point = GetNearestIntersectionPoint(me, 0.0f).first;
+                        m_Phase = ePhases::PhaseFight;
 
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(eDatas::MoveResetRolling, l_Point.x, l_Point.y, me->GetPositionZ());
+                        me->RemoveAura(eSpells::HungerDrivePeriodic);
+                        me->RemoveAura(eSpells::RollingFuryAura);
 
-                            m_LastCollisionTime = 0;
-                        }
+                        m_Events.Reset();
+                        m_CosmeticEvents.Reset();
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckLastCollision, 1 * TimeConstants::IN_MILLISECONDS);
+                        me->CastSpell(me, eSpells::EarthshakingStomp, false);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSoftEnrage, 1 * TimeConstants::IN_MILLISECONDS + 500);
                         break;
                     }
                     default:
@@ -981,20 +829,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventAcidTorrent:
                     {
-                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f);
-                        if (l_Target == nullptr)
-                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM);
-
-                        if (l_Target != nullptr)
-                        {
-                            float l_O = me->GetAngle(l_Target);
-
-                            me->SetFacingTo(l_O);
-                            me->SetReactState(ReactStates::REACT_PASSIVE);
-
-                            m_AcidTorrentTarget = l_Target->GetGUID();
-                        }
-
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->CastSpell(me, eSpells::AcidTorrentSearcher, false);
                         m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 13 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -1037,6 +872,8 @@ class boss_oregorger : public CreatureScript
 
                 if (me->HasAura(eSpells::BlackrockSpines))
                     m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 100);
+
+                m_CosmeticEvents.RescheduleEvent(eCosmeticEvents::EventSoftEnrage, 7 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             }
 
             uint8 GetCollisionOrIntersectionPoint(uint8 p_I, uint8 p_J) const
@@ -1097,10 +934,10 @@ class boss_oregorger : public CreatureScript
                 return std::make_pair(l_Point, l_PointID);
             }
 
-            std::pair<G3D::Vector2, uint8> GetRandomCollisionPoint() const
+            uint8 GetRandomCollisionPoint() const
             {
                 if (m_PointID == 255)
-                    return std::make_pair(G3D::Vector2(), m_PointID);
+                    return m_PointID;
 
                 std::pair<uint8, uint8> l_Choices = g_LinkedCollisionPoints[m_PointID];
                 uint8 l_ID = 0;
@@ -1109,23 +946,17 @@ class boss_oregorger : public CreatureScript
                 /// Try to choose a point with Blackrock ores to eat
                 if (!m_BlackrockOres.empty())
                 {
-                    float l_MinDistA = 100000.0f;
-                    float l_MinDistB = 100000.0f;
+                    std::vector<G3D::Vector2> const l_FirstPath     = g_MovementPaths[m_PointID][l_Choices.first - 1];
+                    std::vector<G3D::Vector2> const l_SecondPath    = g_MovementPaths[m_PointID][l_Choices.second - 1];
 
-                    Position l_PosA, l_PosB;
-                    PointData l_PointA = g_CollisionPoints[l_Choices.first - 1];
-                    PointData l_PointB = g_CollisionPoints[l_Choices.second - 1];
+                    if (l_FirstPath.empty() || l_SecondPath.empty())
+                    {
+                        ACE_ASSERT (false && "boss_oregorgerAI::GetRandomCollisionPoint => RollingPath found is empty");
+                        return m_PointID;
+                    }
 
                     uint8 l_CenterCount = 0;
                     uint8 l_OutterCount = 0;
-
-                    l_PosA.m_positionX = (g_OregorgerPatternsX[l_PointA.I] + g_OregorgerPatternsX[l_PointA.I - 1]) / 2.0f;
-                    l_PosA.m_positionY = (g_OregorgerPatternsY[l_PointA.J] + g_OregorgerPatternsY[l_PointA.J - 1]) / 2.0f;
-                    l_PosA.m_positionZ = me->GetPositionZ();
-
-                    l_PosB.m_positionX = (g_OregorgerPatternsX[l_PointB.I] + g_OregorgerPatternsX[l_PointB.I - 1]) / 2.0f;
-                    l_PosB.m_positionY = (g_OregorgerPatternsY[l_PointB.J] + g_OregorgerPatternsY[l_PointB.J - 1]) / 2.0f;
-                    l_PosB.m_positionZ = me->GetPositionZ();
 
                     for (uint64 l_Guid : m_BlackrockOres)
                     {
@@ -1136,35 +967,28 @@ class boss_oregorger : public CreatureScript
                                 l_CenterCount++;
                             else
                                 l_OutterCount++;
-
-                            if (l_Ore->GetDistance(l_PosA) < l_MinDistA)
-                                l_MinDistA = l_Ore->GetDistance(l_PosA);
-
-                            if (l_Ore->GetDistance(l_PosB) < l_MinDistB)
-                                l_MinDistB = l_Ore->GetDistance(l_PosB);
                         }
                     }
 
-                    /// If more ores at center than at outter of the room, move to center
-                    if (l_CenterCount > l_OutterCount)
+                    Position l_Position;
+                    l_Position.m_positionX = l_FirstPath[l_FirstPath.size() - 1].x;
+                    l_Position.m_positionY = l_FirstPath[l_FirstPath.size() - 1].y;
+                    l_Position.m_positionZ = me->GetPositionZ();
+
+                    /// If more ores at center than at outer of the room, move to center
+                    /// If it's equal, move to center, fastest way
+                    /// If first choice is center, second choice will always be outer
+                    if (l_CenterCount > l_OutterCount || l_CenterCount == l_OutterCount)
                     {
-                        if (IsCenterPos(l_PosA.m_positionX, l_PosA.m_positionY))
+                        if (IsCenterPos(l_Position.m_positionX, l_Position.m_positionY))
                             l_ID = l_Choices.first;
                         else
                             l_ID = l_Choices.second;
                     }
-                    /// If more ores at outter than at center of the room, move to outter
-                    else if (l_OutterCount > l_CenterCount)
-                    {
-                        if (!IsCenterPos(l_PosA.m_positionX, l_PosA.m_positionY))
-                            l_ID = l_Choices.first;
-                        else
-                            l_ID = l_Choices.second;
-                    }
-                    /// If it's equal, move to the nearest ore
+                    /// If more ores at outer than at center of the room, move to outer
                     else
                     {
-                        if (l_MinDistA < l_MinDistB)
+                        if (!IsCenterPos(l_Position.m_positionX, l_Position.m_positionY))
                             l_ID = l_Choices.first;
                         else
                             l_ID = l_Choices.second;
@@ -1180,16 +1004,7 @@ class boss_oregorger : public CreatureScript
                 }
                 /////////////////////////////////////////////////////////////////////
 
-                --l_ID;
-
-                PointData l_Point = g_CollisionPoints[l_ID];
-
-                float l_CenterX, l_CenterY;
-
-                l_CenterX = (g_OregorgerPatternsX[l_Point.I] + g_OregorgerPatternsX[l_Point.I - 1]) / 2.0f;
-                l_CenterY = (g_OregorgerPatternsY[l_Point.J] + g_OregorgerPatternsY[l_Point.J - 1]) / 2.0f;
-
-                return std::make_pair(G3D::Vector2(l_CenterX, l_CenterY), l_ID);
+                return --l_ID;
             }
 
             bool IsCenterPos(float p_X, float p_Y) const
@@ -1221,118 +1036,49 @@ class boss_oregorger : public CreatureScript
             {
                 /// At this point, Oregorger is at an intersection point
                 /// Choose in priority paths with one or more Blackrock Ore to eat
-                std::pair<G3D::Vector2, uint8> l_PointDatas = GetRandomCollisionPoint();
+                uint8 l_OldID = m_PointID;
 
-                G3D::Vector2 l_Point = l_PointDatas.first;
+                m_PointID = GetRandomCollisionPoint();
 
-                m_PointID = l_PointDatas.second;
+                std::vector<G3D::Vector2> const l_Path = g_MovementPaths[l_OldID][m_PointID];
 
-                /// Calculate path
-                if (l_Point.x != 0.0f && l_Point.y != 0.0f)
+                if (l_Path.empty())
                 {
-                    /// At center, moves are always on a front lines, directly setup destination
-                    if (IsCenterPos(l_Point.x, l_Point.y))
-                    {
-                        m_Destination.m_positionX = l_Point.x;
-                        m_Destination.m_positionY = l_Point.y;
-                        m_Destination.m_positionZ = me->GetPositionZ();
-
-                        m_NextPos = Position();
-
-                        me->SetFacingTo(me->GetAngle(&m_Destination));
-                    }
-                    else
-                    {
-                        m_Destination.m_positionX = l_Point.x;
-                        m_Destination.m_positionY = l_Point.y;
-                        m_Destination.m_positionZ = me->GetPositionZ();
-
-                        float l_O = 0.0f;
-
-                        /// In this case, the first step is the nearest collision point
-                        if (IsCenterPos(me->m_positionX, me->m_positionY))
-                        {
-                            l_Point = GetNearestIntersectionPoint(me).first;
-
-                            m_NextPos.m_positionX = l_Point.x;
-                            m_NextPos.m_positionY = l_Point.y;
-                            m_NextPos.m_positionZ = me->GetPositionZ();
-
-                            l_O += me->GetAngle(&m_NextPos);
-
-                            me->SetFacingTo(l_O);
-                        }
-                        else
-                        {
-                            l_O = me->GetOrientation();
-                            l_O -= M_PI / 2.0f;
-
-                            me->SetFacingTo(l_O);
-
-                            m_NextPos = SelectNextPathIdentifier(false);
-                        }
-                    }
-                }
-            }
-
-            Position SelectNextPathIdentifier(bool p_LaunchMove = true)
-            {
-                std::list<Creature*> l_PathList;
-                me->GetCreatureListWithEntryInGrid(l_PathList, eCreatures::PathIdentifier, 5.0f);
-
-                /// If no path identifier in line of sight, it should be the last move
-                if (l_PathList.empty())
-                {
-                    if (p_LaunchMove)
-                    {
-                        AddTimedDelayedOperation(50, [this]() -> void
-                        {
-                            m_PathCount = 0;
-
-                            me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
-                        });
-                    }
-
-                    return Position();
+                    ACE_ASSERT (false && "boss_oregorgerAI::SelectPath => RollingPath found is empty");
+                    return;
                 }
 
-                /// Only one should remain in this list
-                l_PathList.remove_if([this](Creature* p_Creature) -> bool
+                m_PathCount = 0;
+
+                m_Path = l_Path;
+
+                m_Destination.m_positionX = l_Path[l_Path.size() - 1].x;
+                m_Destination.m_positionY = l_Path[l_Path.size() - 1].y;
+                m_Destination.m_positionZ = me->GetPositionZ();
+
+                /// At center, moves are always on a front lines, directly setup destination
+                if (l_Path.size() == 1)
                 {
-                    if (p_Creature == nullptr || !me->isInFront(p_Creature, M_PI / 2.0f))
-                        return true;
+                    m_NextPos = Position();
 
-                    if (p_Creature->GetDistance(me) < 0.5f)
-                        return true;
-
-                    return false;
-                });
-
-                /// Shouldn't happens
-                if (l_PathList.empty())
-                    return Position();
-
-                Position l_Pos;
-
-                if (Creature* l_PathIdentifier = (*l_PathList.begin()))
-                {
-                    l_Pos = *l_PathIdentifier;
-
-                    ++m_PathCount;
-
-                    if (p_LaunchMove)
-                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, *l_PathIdentifier);
+                    me->SetFacingTo(me->GetAngle(&m_Destination));
                 }
+                else
+                {
+                    float l_O = 0.0f;
 
-                return l_Pos;
+                    m_NextPos.m_positionX = l_Path[m_PathCount].x;
+                    m_NextPos.m_positionY = l_Path[m_PathCount].y;
+                    m_NextPos.m_positionZ = me->GetPositionZ();
+
+                    l_O += me->GetAngle(&m_NextPos);
+
+                    me->SetFacingTo(l_O);
+                }
             }
 
             void HandleCollisionPoint()
             {
-                m_LastCollisionTime = time(nullptr);
-
-                m_PathCount = 0;
-
                 me->RemoveAura(eSpells::RollingFuryAura);
 
                 me->CastSpell(me, eSpells::EarthshakingCollision, true);
@@ -1362,10 +1108,16 @@ class boss_oregorger : public CreatureScript
                 {
                     me->CastSpell(me, eSpells::RollingFuryAura, true);
 
-                    if (m_NextPos.m_positionX != 0.0f)
-                        me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_NextPos);
-                    else
+                    if (m_NextPos.m_positionX == 0.0f)
+                    {
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eDatas::MovementFinished, m_Destination);
+                    }
+                    else
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(eDatas::MovementInProgress, m_NextPos);
+                    }
                 });
             }
         };
@@ -1532,6 +1284,59 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
         }
 };
 
+/// Acid Torrent (Searcher) - 156240
+class spell_foundry_acid_torrent_searcher : public SpellScriptLoader
+{
+    public:
+        spell_foundry_acid_torrent_searcher() : SpellScriptLoader("spell_foundry_acid_torrent_searcher") { }
+
+        class spell_foundry_acid_torrent_searcher_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_acid_torrent_searcher_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster))
+                        return true;
+
+                    return false;
+                });
+
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
+
+                WorldObject* l_Object = (*p_Targets.begin());
+
+                p_Targets.clear();
+                p_Targets.push_back(l_Object);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_acid_torrent_searcher_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_acid_torrent_searcher_SpellScript();
+        }
+};
+
 /// Rolling Fury - 155898
 class spell_foundry_rolling_fury_aura : public SpellScriptLoader
 {
@@ -1547,10 +1352,36 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                 RollingFuryDamage = 155900
             };
 
+            enum ePhases
+            {
+                PhaseRolling = 1
+            };
+
             uint32 m_DamageTimer;
 
             bool Load()
             {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Creature* l_Boss = l_Caster->ToCreature())
+                    {
+                        if (!l_Boss->IsAIEnabled)
+                            return false;
+
+                        if (boss_oregorger::boss_oregorgerAI* l_AI = CAST_AI(boss_oregorger::boss_oregorgerAI, l_Boss->GetAI()))
+                        {
+                            if (l_AI->m_Phase != ePhases::PhaseRolling)
+                                return false;
+                        }
+                        else
+                            return false;
+                    }
+                    else
+                        return false;
+                }
+                else
+                    return false;
+
                 m_DamageTimer = 500;
                 return true;
             }
@@ -1848,6 +1679,7 @@ void AddSC_boss_oregorger()
     /// Spells
     new spell_foundry_acid_torrent();
     new spell_foundry_acid_torrent_aoe();
+    new spell_foundry_acid_torrent_searcher();
     new spell_foundry_rolling_fury_aura();
     new spell_foundry_harvest_volatile_blackrock();
     new spell_foundry_throw_volatile_ore();

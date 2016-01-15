@@ -523,6 +523,7 @@ public:
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
     void EffectStampede(SpellEffIndex p_EffIndex);
     void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
+    void EffectLearnFollowerAbility(SpellEffIndex p_EffIndex);
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
 
@@ -641,7 +642,7 @@ public:
     uint64 m_castItemGUID;
     uint8 m_cast_count;
     uint32 m_CastItemEntry;
-    uint32 m_glyphIndex;
+    uint32 m_Misc[2];
     uint32 m_preCastSpell;
     SpellCastTargets m_targets;
     int8 m_comboPointGain;
@@ -703,6 +704,7 @@ protected:
     bool IsDarkSimulacrum() const;
     bool IsCommandDemonSpell() const;
     bool IsMorePowerfulAura(Unit const* target) const;
+    bool IsSpellTriggeredAfterCast() const;
 
     void SendLoot(uint64 guid, LootType loottype);
 

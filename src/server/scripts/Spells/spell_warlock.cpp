@@ -82,6 +82,8 @@ enum WarlockSpells
     WARLOCK_SUCCUBUS_WHIPLASH               = 137706,
     WARLOCK_FELHUNTER_SPELL_LOCK            = 132409,
     WARLOCK_FELGUARD_PURSUIT                = 132410,
+    WARLOCK_INFERNAL_METEOR_STRIKE          = 171017,
+    WARLOCK_DOOMGUARD_SHADOW_LOCK           = 171139,
     WARLOCK_SHADOW_BOLT                     = 686,
     WARLOCK_TWILIGHT_WARD                   = 6229,
     WARLOCK_TWILIGHT_WARD_METAMORPHOSIS     = 104048,
@@ -692,7 +694,8 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         }
 };
 
-// Agony - 980
+/// Last Update 6.2.3
+/// Agony - 980
 class spell_warl_agony: public SpellScriptLoader
 {
     public:
@@ -704,9 +707,20 @@ class spell_warl_agony: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (GetCaster())
-                    if (AuraPtr l_Agony = GetTarget()->GetAura(p_AurEff->GetSpellInfo()->Id, GetCaster()->GetGUID()))
-                        l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraPtr l_Agony = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                {
+                    l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
+
+                    /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetTickNumber() == 1)
+                        l_Agony->GetEffect(EFFECT_0)->ChangeAmount(l_Agony->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Agony->GetEffect(EFFECT_0)->GetAmount(), 10));
+                }
             }
 
             bool CanRefreshProcDummy()
@@ -766,6 +780,12 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                                     break;
                                 case ENTRY_FELGUARD:
                                     bp = WARLOCK_FELGUARD_PURSUIT;
+                                    break;
+                                case ENTRY_INFERNAL_PET:
+                                    bp = WARLOCK_INFERNAL_METEOR_STRIKE;
+                                    break;
+                                case ENTRY_DOOMGUARD_PET:
+                                    bp = WARLOCK_DOOMGUARD_SHADOW_LOCK;
                                     break;
                                 default:
                                     break;
@@ -3408,7 +3428,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 /// Called by Corruption - 146739
 /// Nightfall - 108558
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 class spell_warl_nightfall : public SpellScriptLoader
 {
     public:
@@ -3434,6 +3454,7 @@ class spell_warl_nightfall : public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
                 if (!l_Caster)
                     return;
 
@@ -3444,7 +3465,10 @@ class spell_warl_nightfall : public SpellScriptLoader
                 if (!l_SpellInfoNightfall)
                     return;
 
-                uint8 l_Chance = l_SpellInfoNightfall->Effects[EFFECT_0].BasePoints / 10;
+                float l_Chance = 0.0f;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::Nightfall, EFFECT_0))
+                    l_Chance = (l_AuraEffect->GetAmount() / 10);
 
                 /// While channeling Drain Soul on a target afflicted by your Corruption, Unstable Affliction, and Agony, the chance for Nightfall to activate is increased by 5%.
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction2P, EFFECT_0))
@@ -3464,7 +3488,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                     }
                 }
 
-                if (roll_chance_i(l_Chance))
+                if (roll_chance_f(l_Chance))
                 {
                     l_Caster->CastSpell(l_Caster, eSpells::NightfallGain, true);
 
@@ -3474,6 +3498,13 @@ class spell_warl_nightfall : public SpellScriptLoader
                         if (Player* l_Player = l_Caster->ToPlayer())
                             l_Player->ReduceSpellCooldown(eSpells::DarkSoulMisery, l_AuraEffect->GetAmount());
                     }
+                }
+
+                if (AuraPtr l_Corruption = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                {
+                    /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER && p_AurEff->GetTickNumber() == 1)
+                        l_Corruption->GetEffect(EFFECT_0)->ChangeAmount(l_Corruption->GetEffect(EFFECT_0)->GetAmount() - CalculatePct(l_Corruption->GetEffect(EFFECT_0)->GetAmount(), 10));
                 }
             }
 
@@ -3489,6 +3520,7 @@ class spell_warl_nightfall : public SpellScriptLoader
         }
 };
 
+/// Last Update : 6.2.3
 /// Chaos Bolt - 116858 and Chaos Bolt (Fire and Brimstone) - 157701
 class spell_warl_chaos_bolt : public SpellScriptLoader
 {
@@ -3499,17 +3531,41 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
 
+            enum eSpells
+            {
+                Backdraft = 117828
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (AuraPtr l_Backdraft = l_Caster->GetAura(WARLOCK_BACKDRAFT))
-                        l_Backdraft->ModCharges(-3);
-                }
+                Unit* l_Caster = GetCaster();
+
+                AuraPtr l_Backdraft = l_Caster->GetAura(eSpells::Backdraft);
+
+                if (l_Backdraft == nullptr)
+                    return;
+
+                if (l_Backdraft->GetCharges() < 3)
+                    return;
+
+                l_Backdraft->ModCharges(-3);
+            }
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// Chaos Bolt now deals 33% more damage in PvP combat
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 33));
             }
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
             }
         };
@@ -3593,7 +3649,7 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3git 
 /// Doom Bolt - 85692
 class spell_warl_doom_bolt : public SpellScriptLoader
 {
@@ -3606,21 +3662,16 @@ class spell_warl_doom_bolt : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Owner = l_Caster->GetOwner();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Owner == nullptr || l_Target == nullptr)
+                if (l_Target == nullptr)
                     return;
 
-                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+                int32 l_Damage = GetHitDamage();
 
                 /// If target has less then 20% damage we should increase damage by 20%
-                if (l_Target->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                if (l_Target->GetHealthPct() <= (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                     AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-
-                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }
@@ -3727,23 +3778,33 @@ class spell_warl_grimoire_of_synergy : public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
 
-                if (Player* l_Player = l_Target->ToPlayer())
+                /// If procs on warlock, we should add buff on pet
+                if (l_Target->GetTypeId() == TYPEID_PLAYER && l_Target->ToPlayer())
                 {
-                    Pet* l_Pet = l_Player->GetPet();
+                    if (Pet* l_Pet = l_Target->ToPlayer()->GetPet())
+                    {
+                        if (!l_Pet)
+                            return;
 
-                    if (l_Pet == nullptr)
-                        return;
-
-                    l_Player->CastSpell(l_Pet, eSpells::GrimoireofSynergyBuff, true);
+                        l_Target->CastSpell(l_Pet, eSpells::GrimoireofSynergyBuff, true);
+                    }
                 }
-                else if (Unit* l_Owner = l_Target->GetOwner())
-                    l_Target->CastSpell(l_Owner, eSpells::GrimoireofSynergyBuff, true);
+                /// If procs on pet, we should add buff on warlock
+                else if (l_Target->GetTypeId() == TYPEID_UNIT)
+                {
+                    if (Unit* l_Owner = l_Target->GetOwner())
+                    {
+                        if (!l_Owner)
+                            return;
+
+                        l_Target->CastSpell(l_Owner, eSpells::GrimoireofSynergyBuff, true);
+                    }
+                }
             }
 
             void Register()
             {
                 OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
@@ -3889,36 +3950,41 @@ public:
     {
         OneMainSoulShard = 104756,
         TwoMainSoulShards = 123171,
-        TwoSoulShards = 104759
-
+        TwoSoulShards = 104759,
+        GlyphOfSubtlety = 56217
     };
 
     /// Override
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
     {
+        ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
         {
             p_Player->RemoveAura(eSpells::OneMainSoulShard);  ///< 1 center shard visual
             p_Player->RemoveAura(eSpells::TwoMainSoulShards); ///< 2 center shards visual
             p_Player->RemoveAura(eSpells::TwoSoulShards);     ///< 2 shards visual
-
-            if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
+            
+            /// Glyph of Subtlety
+            if (!p_Player->HasAura(eSpells::GlyphOfSubtlety))
             {
-                p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
-            }
-            else if (p_NewValue < (3 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-            }
-            else if (p_NewValue < (4 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-            }
-            else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(p_Power)))
-            {
-                p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
-                p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+                if ((p_NewValue > (1 * p_Player->GetPowerCoeff(p_Power))) && (p_NewValue < (2 * p_Player->GetPowerCoeff(p_Power))))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+                }
+                else if (p_NewValue < (3 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                }
+                else if (p_NewValue < (4 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::OneMainSoulShard, true);
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                }
+                else if (p_NewValue >= (4 * p_Player->GetPowerCoeff(p_Power)))
+                {
+                    p_Player->CastSpell(p_Player, eSpells::TwoMainSoulShards, true);
+                    p_Player->CastSpell(p_Player, eSpells::TwoSoulShards, true);
+                }
             }
         }
     }
@@ -4052,8 +4118,92 @@ class spell_warl_glyph_of_life_tap_periodic : public SpellScriptLoader
         }
 };
 
+/// Cripple - 170995
+class spell_warl_cripple_doomguard : public SpellScriptLoader
+{
+public:
+    spell_warl_cripple_doomguard() : SpellScriptLoader("spell_warl_cripple_doomguard") { }
+
+    class spell_warl_cripple_doomguard_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_cripple_doomguard_SpellScript);
+
+        void HandleAfterHit()
+        {
+            if (!GetCaster() || !GetCaster()->ToPet())
+                return;
+
+            if (Pet* l_Pet = GetCaster()->ToPet())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    /// 4 seconds duration in PVP
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        if (AuraPtr l_Cripple = l_Target->GetAura(GetSpellInfo()->Id))
+                            l_Cripple->SetDuration(4000);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_warl_cripple_doomguard_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_cripple_doomguard_SpellScript();
+    }
+};
+
+/// last update : 6.2.3
+/// Incinerate - 2972, Incinerate (Fire and Brimstone) - 114654
+class spell_warl_incinerate : public SpellScriptLoader
+{
+    public:
+        spell_warl_incinerate() : SpellScriptLoader("spell_warl_incinerate") { }
+
+        class spell_warl_incinerate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_incinerate_SpellScript);
+
+            enum eSpells
+            {
+                WarlockWoDPvPDestruction4PBonus = 189209,
+                ImmolateDamage                  = 157736
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
+                {
+                    if (l_Target->HasAura(eSpells::ImmolateDamage, l_Caster->GetGUID()))
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 100)); ///< Patch 6.2.3 Hotfixes: November 17 - 23 : 4-piece PvP set bonus for Destruction Warlocks now increases damage dealt by Incinerate on targets afflicted by the casting Warlock's Immolate by 100% (up from 50%)
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_incinerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_incinerate_SpellScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();
     new spell_warl_glyph_of_life_tap();
     new spell_warl_demonic_servitude();
@@ -4134,4 +4284,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_healthstone();
     new spell_warl_soul_shards_visual();
     new spell_warl_command_demon_spells();
+    new spell_warl_cripple_doomguard();
 }

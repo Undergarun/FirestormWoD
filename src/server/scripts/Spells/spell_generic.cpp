@@ -35,6 +35,7 @@
 #include "LFGMgr.h"
 #include "Player.h"
 #include "GameEventMgr.h"
+#include "DB2Stores.h"
 
 class spell_gen_absorb0_hitlimit1: public SpellScriptLoader
 {
@@ -600,7 +601,7 @@ class spell_creature_permanent_feign_death: public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (target->GetTypeId() == TYPEID_UNIT)
                     target->ToCreature()->SetReactState(REACT_PASSIVE);
@@ -932,7 +933,7 @@ class spell_generic_clone: public SpellScriptLoader
                 }
                 else
                 {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                     OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
                 }
             }
@@ -1023,41 +1024,41 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                         case SPELL_COPY_WEAPON_2_AURA:
                         case SPELL_COPY_WEAPON_3_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS);
 
                             if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, mainItem->GetEntry());
                             }
                             else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
                             break;
                         case SPELL_COPY_OFFHAND_AURA:
                         case SPELL_COPY_OFFHAND_2_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2);
 
                             if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                             }
                             else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
                             break;
                         }
                         case SPELL_COPY_RANGED_AURA:
                         {
-                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
+                            prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4);
 
                             if (Player* player = caster->ToPlayer())
                             {
                                 if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                                    target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, rangedItem->GetEntry());
                             }
                             else
-                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
+                                target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4));
                             break;
                         }
                         default:
@@ -1075,14 +1076,14 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                     case SPELL_COPY_WEAPON_AURA:
                     case SPELL_COPY_WEAPON_2_AURA:
                     case SPELL_COPY_WEAPON_3_AURA:
-                       target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, prevItem);
+                       target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, prevItem);
                        break;
                     case SPELL_COPY_OFFHAND_AURA:
                     case SPELL_COPY_OFFHAND_2_AURA:
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, prevItem);
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, prevItem);
                         break;
                     case SPELL_COPY_RANGED_AURA:
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, prevItem);
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, prevItem);
                         break;
                     default:
                         break;
@@ -2997,48 +2998,6 @@ public:
     }
 };
 
-// TP to Stormwind (17334) or Orgrimmar (17609)
-class spell_gen_tp_storm_orgri: public SpellScriptLoader
-{
-    public:
-        spell_gen_tp_storm_orgri() : SpellScriptLoader("spell_gen_tp_storm_orgri") { }
-
-        class spell_gen_tp_storm_orgri_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_tp_storm_orgri_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(17334) || !sSpellMgr->GetSpellInfo(17609))
-                    return false;
-                return true;
-            }
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // Tp to Stormwind
-                    if (GetSpellInfo()->Id == 17334)
-                        _player->TeleportTo(0, -8833.07f, 622.778f, 93.9317f, _player->GetOrientation());
-                    // Tp to Orgrimmar
-                    else if (GetSpellInfo()->Id == 17609)
-                        _player->TeleportTo(1, 1569.97f, -4397.41f, 16.0472f, _player->GetOrientation());
-                }
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_gen_tp_storm_orgri_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_tp_storm_orgri_SpellScript();
-        }
-};
-
 // Gift of the Naaru - 59548 or 59547 or 59545 or 59544 or 59543 or 59542 or 121093 or 28880
 class spell_gen_gift_of_the_naaru: public SpellScriptLoader
 {
@@ -4486,7 +4445,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                     return;
 
                 l_Attacker->CastSpell(l_Victim, eSpells::TouchoftheGraveEffect, true);
-                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 20 * IN_MILLISECONDS, true);
+                l_Attacker->ToPlayer()->AddSpellCooldown(eSpells::TouchoftheGraveEffect, 0, 15 * IN_MILLISECONDS, true);
             }
 
             void Register()
@@ -4659,8 +4618,647 @@ class spell_gen_shadowmeld : public SpellScriptLoader
         }
 };
 
+enum DraenicPhilosophers
+{
+    ForceAura       = 60229,
+    AgilityAura     = 60233,
+    IntellectAura   = 60234
+};
+
+static uint32 const g_DraenicAuras[3] =
+{
+    DraenicPhilosophers::ForceAura,
+    DraenicPhilosophers::AgilityAura,
+    DraenicPhilosophers::IntellectAura
+};
+
+static Stats const g_DraenicStats[3] =
+{
+    STAT_STRENGTH,
+    STAT_AGILITY,
+    STAT_INTELLECT
+};
+
+/// last update : 6.1.2 19802
+/// Draenic Philosopher's Stone - 157136
+class spell_gen_draenic_philosophers : public SpellScriptLoader
+{
+    public:
+        spell_gen_draenic_philosophers() : SpellScriptLoader("spell_gen_draenic_philosophers") { }
+
+        class spell_gen_draenic_philosophers_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_draenic_philosophers_AuraScript);
+
+            int32 m_Value = 1414;
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Player* l_Player = GetTarget()->ToPlayer();
+                Stats l_MaxStatValue = STAT_STRENGTH;
+
+                if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
+                    return;
+
+                for (int8 l_I = 0; l_I < 3; l_I++)
+                {
+                    if (l_Player->GetStat(g_DraenicStats[l_I]) >= l_Player->GetStat(g_DraenicStats[l_MaxStatValue]))
+                        l_MaxStatValue = (Stats)l_I;
+                }
+
+                /// Can proc just on damage spell, also check for absorbed damage, because all damage can be absorbed but it's still damage spell
+                if (p_EventInfo.GetDamageInfo() && p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
+                    return;
+
+                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 55 * IN_MILLISECONDS, true);
+
+                l_Player->CastSpell(l_Player, g_DraenicAuras[l_MaxStatValue], true);
+                if (AuraEffectPtr l_DreanicAura = l_Player->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
+                    l_DreanicAura->ChangeAmount(m_Value);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_draenic_philosophers_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_draenic_philosophers_AuraScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Jard's Peculiar Energy Source - 143743
+class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
+{
+    public:
+        spell_gen_jards_peculiar_energy_source() : SpellScriptLoader("spell_gen_jards_peculiar_energy_source") { }
+
+        class spell_gen_jards_peculiar_energy_source_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_jards_peculiar_energy_source_SpellScript);
+
+            enum eSpells 
+            {
+                SkyGolem                    = 139192,
+                RascalBot                   = 143714,
+                Pierre                      = 139196,
+                AdvancedRefrigerationUnit   = 139197,
+                JardPeculiarenergySource    = 139176
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->learnSpell(eSpells::SkyGolem, false);
+                l_Player->learnSpell(eSpells::RascalBot, false);
+                l_Player->learnSpell(eSpells::Pierre, false);
+                l_Player->learnSpell(eSpells::AdvancedRefrigerationUnit, false);
+                l_Player->learnSpell(eSpells::JardPeculiarenergySource, false);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_jards_peculiar_energy_source_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_jards_peculiar_energy_source_SpellScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Celestial Cloth and Its Uses - 143626
+class spell_gen_celestial_cloth_and_its_uses : public SpellScriptLoader
+{
+public:
+    spell_gen_celestial_cloth_and_its_uses() : SpellScriptLoader("spell_gen_celestial_cloth_and_its_uses") { }
+    
+    class spell_gen_celestial_cloth_and_its_uses_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_celestial_cloth_and_its_uses_SpellScript);
+        
+        enum eSpells
+        {
+            CelestialCloth              = 143011,
+            AcceleratedCelestialCloth   = 146925,
+            BeltOfTheNightSky           = 142964,
+            LeggingsOfTheNightSky       = 142955,
+            WhiteCloudBelt              = 142960,
+            WhiteCloudLeggings          = 142951
+        };
+        
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            
+            if (l_Player == nullptr)
+                return;
+            
+            l_Player->learnSpell(eSpells::CelestialCloth, false);
+            l_Player->learnSpell(eSpells::AcceleratedCelestialCloth, false);
+            l_Player->learnSpell(eSpells::BeltOfTheNightSky, false);
+            l_Player->learnSpell(eSpells::LeggingsOfTheNightSky, false);
+            l_Player->learnSpell(eSpells::WhiteCloudBelt, false);
+            l_Player->learnSpell(eSpells::WhiteCloudLeggings, false);
+        }
+        
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_gen_celestial_cloth_and_its_uses_SpellScript::HandleOnHit);
+        }
+    };
+    
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_celestial_cloth_and_its_uses_SpellScript();
+    }
+};
+
+/// last update : 6.1.2
+/// Hardened Magnificent Hide and Its Uses - 143644
+class spell_gen_hardened_magnificient_hide_and_its_uses : public SpellScriptLoader
+{
+public:
+    spell_gen_hardened_magnificient_hide_and_its_uses() : SpellScriptLoader("spell_gen_hardened_magnificient_hide_and_its_uses") { }
+    
+    class spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript);
+        
+        enum eSpells
+        {
+            HardenMagnificentHide               = 142976,
+            AcceleratedHardenMagnificentHide    = 146923,
+            GorgeStalkerBelt                    = 142966,
+            GorgeStalkerLegplates               = 142957,
+            KrasariProwlerBelt                  = 142962,
+            KrasariProwlerBritches              = 142953,
+            PennyroyalBelt                      = 142961,
+            PennyroyalLeggings                  = 142952,
+            SnowLilyBelt                        = 142965,
+            SnowLilyBritches                    = 142956
+        };
+        
+        void HandleOnHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            
+            if (l_Player == nullptr)
+                return;
+            
+            l_Player->learnSpell(eSpells::HardenMagnificentHide, false);
+            l_Player->learnSpell(eSpells::AcceleratedHardenMagnificentHide, false);
+            l_Player->learnSpell(eSpells::GorgeStalkerBelt, false);
+            l_Player->learnSpell(eSpells::GorgeStalkerLegplates, false);
+            l_Player->learnSpell(eSpells::KrasariProwlerBelt, false);
+            l_Player->learnSpell(eSpells::KrasariProwlerBritches, false);
+            l_Player->learnSpell(eSpells::PennyroyalBelt, false);
+            l_Player->learnSpell(eSpells::PennyroyalLeggings, false);
+            l_Player->learnSpell(eSpells::SnowLilyBelt, false);
+            l_Player->learnSpell(eSpells::SnowLilyBritches, false);
+        }
+        
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript::HandleOnHit);
+        }
+    };
+    
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_hardened_magnificient_hide_and_its_uses_SpellScript();
+    }
+};
+
+/// Power handler
+/// Reset timer to correctly start decreasing power at 10 sec
+class spell_gen_power_handler : public PlayerScript
+{
+    public:
+        spell_gen_power_handler() : PlayerScript("spell_gen_power_handler") {}
+
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        {
+            if (p_Player->isInCombat())
+                return;
+
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_DiffValue = p_NewValue - p_OldValue;
+            if (l_DiffValue < 0)
+                return;
+
+            switch (p_Player->getClass())
+            {
+                case CLASS_PALADIN:
+                    if (p_Power == POWER_HOLY_POWER)
+                        p_Player->setHolyPowerRegenTimerCount(0);
+                    break;
+                case CLASS_MONK:
+                    if (p_Power == POWER_CHI)
+                        p_Player->setChiPowerRegenTimerCount(0);
+                    break;
+            }
+        }
+
+        void OnLeaveCombat(Player* p_Player)
+        {
+            switch (p_Player->getClass())
+            {
+                case CLASS_PALADIN:
+                    if (p_Player->GetPower(POWER_HOLY_POWER))
+                        p_Player->setHolyPowerRegenTimerCount(0);
+                    break;
+                case CLASS_MONK:
+                    if (p_Player->GetPower(POWER_CHI))
+                        p_Player->setChiPowerRegenTimerCount(0);
+                    break;
+            }
+        }
+};
+
+/// Alchemist's Flask - 105617
+enum alchemists_effects
+{
+    ALCHEMISTS_STRENGTH = 79638,
+    ALCHEMISTS_AGILITY = 79639,
+    ALCHEMISTS_INTELLECT = 79640
+};
+
+class spell_gen_alchemists_flask : public SpellScriptLoader
+{
+    public:
+        spell_gen_alchemists_flask() : SpellScriptLoader("spell_gen_alchemists_flask") { }
+
+        class spell_gen_alchemists_flask_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_alchemists_flask_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (!GetCaster())
+                    return;
+
+                if (!GetHitUnit())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    int32 agility = _player->GetTotalStatValue(STAT_AGILITY);
+                    int32 strength = _player->GetTotalStatValue(STAT_STRENGTH);
+                    int32 intellect = _player->GetTotalStatValue(STAT_INTELLECT);
+
+                    if (intellect > agility && intellect > strength)
+                        _player->CastSpell(_player, ALCHEMISTS_INTELLECT, true);
+                    else if (agility > intellect && agility > strength)
+                        _player->CastSpell(_player, ALCHEMISTS_AGILITY, true);
+                    else
+                        _player->CastSpell(_player, ALCHEMISTS_STRENGTH, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_alchemists_flask_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_alchemists_flask_SpellScript();
+        }
+};
+
+/// Potion of Illusion - 80265
+class spell_gen_potion_of_illusion : public SpellScriptLoader
+{
+    public:
+        spell_gen_potion_of_illusion() : SpellScriptLoader("spell_gen_potion_of_illusion") { }
+
+        class spell_gen_potion_of_illusion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_potion_of_illusion_SpellScript);
+
+            enum eSpells
+            {
+                Illusion = 80396
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::Illusion, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_potion_of_illusion_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_potion_of_illusion_SpellScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Hemet's Heartseeker - 173286, Megawatt Filament - 156059, Oglethorpe's Missile Splitter - 156052
+class spell_gen_inge_trigger_enchant : public SpellScriptLoader
+{
+    public:
+        spell_gen_inge_trigger_enchant() : SpellScriptLoader("spell_gen_inge_trigger_enchant") { }
+
+        class spell_gen_inge_trigger_enchant_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_inge_trigger_enchant_AuraScript);
+
+            enum eSpells
+            {
+                HemetsHeartseekerAura   = 173286,
+                HemetsHeartseeker       = 173288,
+                MegawattFilamentAura    = 156059,
+                MegawattFilament        = 156060,
+                OglethorpesMissileAura  = 156052,
+                OglethorpesMissile      = 156055
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+                
+                DamageInfo* l_DamageInfo = p_EventInfo.GetDamageInfo();
+
+                if (l_DamageInfo == nullptr)
+                    return;
+
+                Unit* l_Target = l_DamageInfo->GetVictim();
+                Unit* l_Caster = l_DamageInfo->GetAttacker();
+
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                uint32 l_WeaponSpeed = l_Caster->GetAttackTime(WeaponAttackType::RangedAttack);
+                float l_Chance = l_Caster->GetPPMProcChance(l_WeaponSpeed, 1.55f, GetSpellInfo());
+
+                if (!roll_chance_f(l_Chance))
+                    return;
+
+                switch (GetSpellInfo()->Id)
+                {
+                case eSpells::HemetsHeartseekerAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::HemetsHeartseeker, true);
+                    break;
+                case eSpells::MegawattFilamentAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::MegawattFilament, true);
+                    break;
+                case eSpells::OglethorpesMissileAura:
+                    l_Caster->CastSpell(l_Caster, eSpells::OglethorpesMissile, true);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_inge_trigger_enchant_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_inge_trigger_enchant_AuraScript();
+        }
+};
+
+/// last update : 6.1.2
+/// Mark of the Thunderlord - 159234
+class spell_gen_mark_of_thunderlord : public SpellScriptLoader
+{
+    public:
+        spell_gen_mark_of_thunderlord() : SpellScriptLoader("spell_gen_mark_of_thunderlord") { }
+
+        class spell_gen_mark_of_thunderlord_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_mark_of_thunderlord_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                if (!p_AurEff->GetBase()->GetDuration())
+                    return;
+
+                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() + 2 * IN_MILLISECONDS);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_mark_of_thunderlord_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_mark_of_thunderlord_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Iron Horde Pirate Costume - 173956
+class spell_generic_iron_horde_pirate_costume : public SpellScriptLoader
+{
+    public:
+        spell_generic_iron_horde_pirate_costume() : SpellScriptLoader("spell_generic_iron_horde_pirate_costume") { }
+
+        class spell_generic_iron_horde_pirate_costume_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_generic_iron_horde_pirate_costume_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->getGender() == GENDER_MALE)
+                    l_Caster->CastSpell(l_Caster, 173958, true);
+                else
+                    l_Caster->CastSpell(l_Caster, 173959, true);
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_generic_iron_horde_pirate_costume_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_generic_iron_horde_pirate_costume_SpellScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Kilrogg's Dead Eye - 184762
+class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
+{
+    public:
+        spell_gen_kilroggs_dead_eye() : SpellScriptLoader("spell_gen_kilroggs_dead_eye") { }
+
+        class spell_gen_kilroggs_dead_eye_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_kilroggs_dead_eye_AuraScript);
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                Unit* l_Target = GetCaster();
+                if (l_Target == nullptr)
+                    return;
+
+                float l_Multiplier = (p_AurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() / 100) * ((100.0f - l_Target->GetHealthPct()) / 100.0f);
+                p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
+            }
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = -1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_kilroggs_dead_eye_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_kilroggs_dead_eye_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_kilroggs_dead_eye_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Blood Elf Illusion - 160331
+class spell_gen_blood_elfe_illusion : public SpellScriptLoader
+{
+    public:
+        spell_gen_blood_elfe_illusion() : SpellScriptLoader("spell_gen_blood_elfe_illusion") { }
+
+        class spell_gen_blood_elfe_illusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_blood_elfe_illusion_AuraScript);
+
+            uint8 m_Race = 0;
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+               /* PlayerInfo const* l_BloodElfInfo = sObjectMgr->GetPlayerInfo(RACE_BLOODELF, l_Player->getClass());
+
+                m_Race = l_Player->getRace();
+                uint32 RaceClassPower = (RACE_BLOODELF) | (l_Player->getClass() << 8) | (l_Player->getPowerType() << 16);
+
+                l_Player->SetUInt32Value(UNIT_FIELD_SEX, (RaceClassPower | (l_Player->getGender() << 24)));
+
+                if (l_BloodElfInfo == nullptr)
+                    return;*/
+
+                uint8 l_Gender = l_Player->getGender();
+                uint32 l_CreatureID = 0;
+                switch (l_Gender)
+                {
+                case GENDER_FEMALE:
+                    l_CreatureID = 21631;
+                    break;
+                case GENDER_MALE:
+                    l_CreatureID = 21630;
+                    break;
+                default:
+                    break;
+                }
+
+                if (!l_CreatureID)
+                    return;
+
+                CreatureTemplate const* l_Template = sObjectMgr->GetCreatureTemplate(l_CreatureID);
+                if (l_Template)
+                {
+                    uint32 l_ModelId = 0;
+
+                    if (uint32 l_Model = l_Template->GetRandomValidModelId())
+                        l_ModelId = l_Model;
+
+                    if (l_ModelId)
+                        l_Player->SetDisplayId(l_ModelId);
+                }
+
+                /*for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+                {
+                    if (Item* l_Item = l_Player->GetItemByPos(i))
+                    {
+                        l_Player->SetVisibleItemSlot(i, l_Item);
+                    }
+                }*/
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /*uint32 l_RaceClassPower = (m_Race) | (l_Player->getClass() << 8) | (l_Player->getPowerType() << 16);
+
+                l_Player->SetUInt32Value(UNIT_FIELD_SEX, (l_RaceClassPower | (l_Player->getGender() << 24)));*/
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_blood_elfe_illusion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_blood_elfe_illusion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_blood_elfe_illusion_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_blood_elfe_illusion();
+    new spell_gen_kilroggs_dead_eye();
+    new spell_generic_iron_horde_pirate_costume();
+    new spell_gen_mark_of_thunderlord();
+    new spell_gen_inge_trigger_enchant();
+    new spell_gen_potion_of_illusion();
+    new spell_gen_alchemists_flask();
+    new spell_gen_jards_peculiar_energy_source();
+    new spell_gen_celestial_cloth_and_its_uses();
+    new spell_gen_hardened_magnificient_hide_and_its_uses();
+    new spell_gen_draenic_philosophers();
     new spell_gen_shadowmeld();
     new spell_gen_mark_of_warsong();
     new spell_gen_savage_fortitude();
@@ -4724,7 +5322,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mount("spell_blazing_hippogryph", 0, 0, 0, SPELL_BLAZING_HIPPOGRYPH_150, SPELL_BLAZING_HIPPOGRYPH_280);
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_bonked();
-    new spell_gen_tp_storm_orgri();
     new spell_gen_gift_of_the_naaru();
     new spell_gen_running_wild();
     new spell_gen_two_forms();
@@ -4753,4 +5350,5 @@ void AddSC_generic_spell_scripts()
     new PlayerScript_Touch_Of_Elune();
     new PlayerScript_gen_remove_rigor_mortis();
     new Resolve::PlayerScript_Resolve();
+    new spell_gen_power_handler();
 }

@@ -94,6 +94,12 @@ void Pet::AddToWorld()
         if (m_owner->HasAura(108503))
             m_owner->RemoveAura(108503);
 
+        /// Threatening Presence - special ability for some warlock pets
+        if (GetEntry() == ENTRY_FELGUARD || GetEntry() == ENTRY_WRATHGUARD)
+            learnSpell(134477);
+        else if (GetEntry() == ENTRY_VOIDWALKER || GetEntry() == ENTRY_VOIDLORD)
+            learnSpell(112042);
+
         // Supplant Command Demon
         if (m_owner->getLevel() >= 56)
         {
@@ -154,11 +160,19 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    // Hack for water elemental
-    // Pet should be saved for all specs, but can be summoned only by frost mages
     if (owner->ToPlayer())
     {
+        /// Hack for water elemental
+        /// Pet should be saved for all specs, but can be summoned only by frost mages
         if (owner->getClass() == CLASS_MAGE && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_MAGE_FROST)
+        {
+            m_loading = false;
+            p_Callback(this, false);
+            return;
+        }
+        /// Hack for Raise dead
+        /// Pet should be saved for all specs, but can be summoned only by unholy dk
+        if (owner->getClass() == CLASS_DEATH_KNIGHT && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
         {
             m_loading = false;
             p_Callback(this, false);
@@ -287,6 +301,19 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             {
                 SetUInt32Value(UNIT_FIELD_SEX, 0x400); // class = rogue
                 setPowerType(POWER_ENERGY); // Warlock's pets have energy
+            }
+
+            if (cinfo && cinfo->Entry == 17252)
+            {
+                if (owner && owner->HasAura(56246) && owner->ToPlayer())
+                {
+                    /// Get item template for Fel Guard weapon
+                    if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(12784))
+                    {
+                        uint32 l_RandomItemId = owner->ToPlayer()->GetRandomWeaponFromPrimaryBag(l_ItemTemplate);
+                        LoadSpecialEquipment(l_RandomItemId);
+                    }
+                }
             }
             break;
         case HUNTER_PET:
@@ -1483,10 +1510,8 @@ void Pet::InitLevelupSpellsForLevel()
         }
     }
 
-    int32 petSpellsId = GetCreatureTemplate()->PetSpellDataId ? -(int32)GetCreatureTemplate()->PetSpellDataId : GetEntry();
-
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
-    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
+    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(int32(GetEntry())))
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
@@ -1682,7 +1707,7 @@ bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint3
         return false;
 
     // Force regen flag for player pets, just like we do for players themselves
-    SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+    SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetSheath(SHEATH_STATE_MELEE);
 
     return true;

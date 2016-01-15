@@ -317,9 +317,9 @@ class boss_dark_animus : public CreatureScript
                     }
                 }
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 _Reset();
 
@@ -486,7 +486,7 @@ class boss_dark_animus : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 for (uint8 l_Iter = 0; l_Iter < MAX_ANIMA_CAPACITY; ++l_Iter)
                 {
@@ -986,9 +986,9 @@ class mob_anima_golem : public CreatureScript
 
                 m_Activated = false;
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 m_Events.Reset();
             }
@@ -1184,9 +1184,9 @@ class mob_large_anima_golem : public CreatureScript
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 m_Events.Reset();
                 DespawnCrimsonWakes();
@@ -1396,9 +1396,9 @@ class mob_massive_anima_golem : public CreatureScript
                 me->ReenableEvadeMode();
                 me->SetReactState(REACT_PASSIVE);
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNK_6); // Sniffed value
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_UNK5); // Sniffed value
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK5); // Sniffed value
 
                 m_Events.Reset();
 

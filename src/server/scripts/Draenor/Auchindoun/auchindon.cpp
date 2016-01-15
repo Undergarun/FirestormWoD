@@ -127,7 +127,7 @@ public:
                                         l_Tuulina->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                                         l_Tuulina->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
                                         l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                                        l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                        l_Tuulina->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                                         l_Tuulina->AI()->Talk(eAuchindonTalk::TUULANITALK7);
 
                                         l_Tuulina->GetMotionMaster()->MovePoint(10, g_PositionTuulaniMovement10th.GetPositionX(), g_PositionTuulaniMovement10th.GetPositionY(), g_PositionTuulaniMovement10th.GetPositionZ());
@@ -376,11 +376,10 @@ public:
                     if (Creature* l_Vigilant = l_Teronogor->SummonCreature(eAuchindonCreatures::CreatureAucheniVigiliant, g_PositionAuchenaiVigilant[i], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         l_Vigilant->CastSpell(l_Vigilant, eAuchindonSpells::SpellGuard);
-
                         l_Vigilant->SetReactState(ReactStates::REACT_PASSIVE);
                         l_Vigilant->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                         l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        l_Vigilant->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                     }
                 }
                 for (int32 i = 0; i < 2; i++)
@@ -501,7 +500,7 @@ public:
     }
 };
 
-/// Sargerei Soulbinder - 
+/// Sargerei Soulbinder - 77812
 class auchindon_creature_sargerei_soulbinder : public CreatureScript
 {
 public:
@@ -1014,7 +1013,7 @@ public:
                 itr->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
                 itr->SetCanFly(false);
 
-                itr->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
+                itr->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
                 itr->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 itr->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
             }

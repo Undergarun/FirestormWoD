@@ -2,33 +2,8 @@ language: cpp
 compiler:
   - clang
 
-# Uncomment the following when moving to the container based infrastructure of travis.
-# libace-dev might not be an approved package
-#cache: apt
-
-#addons:
-#  apt:
-#    sources:
-#    - kalakris-cmake
-#    - ubuntu-toolchain-r-test
-#    packages:
-#    - build-essential
-#    - gcc-4.8
-#    - g++-4.8
-#    - make
-#    - cmake
-#    - openssl
-#    - libmysqlclient-dev
-#    - libmysql++-dev
-#    - libssl-dev
-#    - libace-dev
-#    - libreadline6-dev
-#    - zlib1g-dev
-#    - libbz2-dev
-#    - libtool
-
 git:
-  depth: 5
+  depth: 10
 
 branches:
   only:
@@ -36,7 +11,6 @@ branches:
     - wod_ptr
 
 before_install:
-  # Comment the following when moving to the container based infrastructure of travis
   - sudo add-apt-repository ppa:kalakris/cmake -y
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get -qq update
@@ -63,8 +37,8 @@ script:
   - make -j 12
   - cd ..
 
-#after_success:
-#  -
+after_success:
+  # -
 
 after_script:
   - mysql -uroot < sql/create/drop_mysql.sql

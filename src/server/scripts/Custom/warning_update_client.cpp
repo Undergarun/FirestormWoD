@@ -23,7 +23,7 @@ class WarningUpdateClient : public PlayerScript
         {
             if (p_Player->GetSession()->GetClientBuild() != sWorld->getIntConfig(CONFIG_LAST_CLIENT_BUILD))
             {
-                ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
+                //ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
                 m_WarningTimers[p_Player->GetGUID()] = k_WarningUpdateTimer;
             }
         }
@@ -40,7 +40,7 @@ class WarningUpdateClient : public PlayerScript
 
             if (m_WarningTimers[p_Player->GetGUID()] <= p_Diff)
             {
-                ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
+                //ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
                 m_WarningTimers[p_Player->GetGUID()] = k_WarningUpdateTimer;
             }
             else

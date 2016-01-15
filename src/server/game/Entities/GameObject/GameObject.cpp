@@ -115,6 +115,8 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 
     if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
         RemoveFromOwner();
+
+    m_Events.KillAllEvents(false);
 }
 
 void GameObject::RemoveFromOwner()
@@ -151,17 +153,14 @@ void GameObject::AddToWorld()
 
         sObjectAccessor->AddObject(this);
 
-        // The state can be changed after GameObject::Create but before GameObject::AddToWorld
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
-        if (m_model)
-            GetMap()->InsertGameObjectModel(*m_model);
-
         if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
         {
             GetMap()->AddGameObjectTransport(this);
             SendTransportToOutOfRangePlayers();
         }
 
+        // The state can be changed after GameObject::Create but before GameObject::AddToWorld
+        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
         if (m_model)
         {
             if (Transport* trans = ToTransport())
@@ -197,6 +196,16 @@ void GameObject::RemoveFromWorld()
 
 bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 p_GoHealth)
 {
+    {
+        GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(name_id);
+
+        if (l_GameObjectTemplate && l_GameObjectTemplate->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
+        {
+            sLog->outAshran("GameObject::Create called with an GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT template %u", name_id);
+            return false;
+        }
+    }
+
     ASSERT(map);
     SetMap(map);
 
@@ -270,7 +279,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     loot.SetSource(GetGUID());
 
-    // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
+    // GAMEOBJECT_FIELD_PERCENT_HEALTH, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
     SetGoArtKit(artKit);
@@ -387,6 +396,8 @@ void GameObject::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
 
 void GameObject::Update(uint32 diff)
 {
+    m_Events.Update(diff);
+
     if (!AI())
     {
         if (!AIM_Initialize())
@@ -438,7 +449,7 @@ void GameObject::Update(uint32 diff)
                     if (visualStateBefore != visualStateAfter)
                     {
                         ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_LEVEL);
-                        ForceValuesUpdateAtIndex(GAMEOBJECT_BYTES_1);
+                        ForceValuesUpdateAtIndex(GAMEOBJECT_FIELD_PERCENT_HEALTH);
                     }
                 }
             }
@@ -1724,6 +1735,9 @@ void GameObject::Use(Unit* p_User)
                     return;
             }
 
+            if (!sScriptMgr->OnGameObjectSpellCasterUse(this, p_User->ToPlayer()))
+                return;
+
             p_User->RemoveAurasByType(SPELL_AURA_MOUNTED);
             spellId = info->spellcaster.spell;
 
@@ -2268,7 +2282,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 
 void GameObject::SetGoState(GOState state)
 {
-    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0, state);
 
     if (AI() != nullptr)
         AI()->OnStateChanged(state);
@@ -2425,7 +2439,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
     {
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
-            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_BYTES_1 || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
+            (index == GAMEOBJECT_FIELD_FLAGS && forcedFlags) || index == OBJECT_FIELD_DYNAMIC_FLAGS || index == GAMEOBJECT_FIELD_PERCENT_HEALTH || (index == GAMEOBJECT_FIELD_LEVEL && IsTransport()))
         {
             updateMask.SetBit(index);
 
@@ -2476,7 +2490,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 else
                     fieldBuffer << m_uint32Values[index];
             }
-            else if (index == GAMEOBJECT_BYTES_1)
+            else if (index == GAMEOBJECT_FIELD_PERCENT_HEALTH)
             {
                 uint32 bytes1 = m_uint32Values[index];
                 if (isStoppableTransport
@@ -2521,6 +2535,16 @@ void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* 
     z = GetPositionZ();
     if (ori)
         *ori = GetOrientation();
+}
+
+Transport* GameObject::ToTransport()
+{
+    return dynamic_cast<Transport*>(this);
+}
+
+Transport const* GameObject::ToTransport() const
+{
+    return dynamic_cast<Transport const*>(this);
 }
 
 void GameObject::SendTransportToOutOfRangePlayers() const

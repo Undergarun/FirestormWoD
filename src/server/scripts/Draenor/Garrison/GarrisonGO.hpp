@@ -181,6 +181,20 @@ namespace MS { namespace Garrison
             };
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 236911, 236774, 236906, 236910, 236912, 236765                     ///
+    /// Deactivated Portals from Mage Tower                                ///
+    //////////////////////////////////////////////////////////////////////////
+
+    class go_garrison_deactivated_mage_portal : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_deactivated_mage_portal();
+            
+            virtual bool OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const override;
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

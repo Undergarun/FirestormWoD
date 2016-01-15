@@ -157,7 +157,7 @@ class Aura : public std::enable_shared_from_this<Aura>
 
         void RefreshSpellMods();
 
-        uint8 GetCasterLevel() const { return m_casterLevel; }
+        uint16 GetCasterLevel() const { return m_casterLevel; }
 
         bool IsArea() const;
         bool IsPassive() const;
@@ -210,6 +210,8 @@ class Aura : public std::enable_shared_from_this<Aura>
         void TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         SpellPowerEntry const* GetSpellPowerData() const { return m_spellPowerData; }
 
+        void Delink();
+
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
@@ -256,7 +258,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
-        uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
+        uint16 m_casterLevel;                               // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 

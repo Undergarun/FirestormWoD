@@ -701,6 +701,7 @@
     <field type="int" name="m_soundID" />
     <field type="int" name="m_extendedDisplayInfoID" />
     <field type="float" name="m_creatureModelScale" />
+    <field type="float" name="unk620" />
     <field type="int" name="m_creatureModelAlpha" />
     <field type="string" name="m_textureVariation_1" />
     <field type="string" name="m_textureVariation_2" />
@@ -717,7 +718,6 @@
     <field type="int" name="m_flags" />
     <field type="int" name="m_gender" />
     <field type="int" name="m_stateSpellVisualKitID" />
-    <field type="int" name="newField" />
   </CreatureDisplayInfo>
   <CreatureFamily build="0">
     <index>
@@ -3218,16 +3218,16 @@
   </Weather>
   <BattlePetAbility build="0">
     <index>
-      <primary>field0</primary>
+      <primary>id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
+    <field type="int" name="id" />
+    <field type="int" name="petType" />
+    <field type="int" name="family" />
+    <field type="int" name="cooldown" />
+    <field type="int" name="visualId" />
+    <field type="int" name="flags" />
+    <field type="string" name="name" />
+    <field type="string" name="description" />
   </BattlePetAbility>
   <BattlePetVisual build="0">
     <index>
@@ -4937,14 +4937,14 @@
   </AttackAnimTypes>
   <BattlePetAbilityEffect build="20182">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="int" name="ID" />
+    <field type="int" name="AbilityTurnID" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
+    <field type="int" name="Effect" />
+    <field type="int" name="EffectIndex" />
     <field type="int" name="field6" />
     <field type="int" name="field7" />
     <field type="int" name="field8" />
@@ -5928,20 +5928,20 @@
       <primary>ID</primary>
     </index>
     <field type="int" name="ID" />
-    <field type="int" name="ActivityGroupID" />
-    <field type="int" name="field2" />
+    <field type="int" name="CategoryID" />
+    <field type="int" name="ActivityID" />
     <field type="int" name="field3" />
     <field type="int" name="minLevel" />
     <field type="int" name="maxLevel" />
     <field type="int" name="ReqiLevel" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
+    <field type="int" name="map" />
+    <field type="int" name="Difficulty" />
+    <field type="int" name="ZoneID" />
+    <field type="int" name="Type" />
     <field type="int" name="field11" />
-    <field type="int" name="field12" />
+    <field type="int" name="maxplayers" />
     <field type="string" name="Name" />
-    <field type="string" name="Difficulty" />
+    <field type="string" name="DifficultyStr" />
   </GroupFinderActivity>
   <GroupFinderActivityGrp build="20182">
     <index>
@@ -6739,4 +6739,169 @@
     <field type="int" name="CalendarFilterType" />
     <field type="int" name="Flags" />
   </Holidays>
+  <PlayerCondition build="19426">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="RaceMask" />
+    <field type="int" name="ClassMask" />
+    <field type="int" name="Gender" />
+    <field type="int" name="NativeGender" />
+    <field type="int" name="SkillID1" />
+    <field type="int" name="SkillID2" />
+    <field type="int" name="SkillID3" />
+    <field type="int" name="SkillID4" />
+    <field type="int" name="MinSkill1" />
+    <field type="int" name="MinSkill2" />
+    <field type="int" name="MinSkill3" />
+    <field type="int" name="MinSkill4" />
+    <field type="int" name="MaxSkill1" />
+    <field type="int" name="MaxSkill2" />
+    <field type="int" name="MaxSkill3" />
+    <field type="int" name="MaxSkill4" />
+    <field type="int" name="SkillLogic" />
+    <field type="int" name="LanguageID" />
+    <field type="int" name="MinLanguage" />
+    <field type="int" name="MaxLanguage" />
+    <field type="int" name="MinFactionID1" />
+    <field type="int" name="MinFactionID2" />
+    <field type="int" name="MinFactionID3" />
+    <field type="int" name="MaxFactionID" />
+    <field type="int" name="MinReputation1" />
+    <field type="int" name="MinReputation2" />
+    <field type="int" name="MinReputation3" />
+    <field type="int" name="MaxReputation" />
+    <field type="int" name="ReputationLogic" />
+    <field type="int" name="MinPVPRank" />
+    <field type="int" name="MaxPVPRank" />
+    <field type="int" name="PvpMedal" />
+    <field type="int" name="PrevQuestLogic" />
+    <field type="int" name="PrevQuestID1" />
+    <field type="int" name="PrevQuestID2" />
+    <field type="int" name="PrevQuestID3" />
+    <field type="int" name="PrevQuestID4" />
+    <field type="int" name="CurrQuestLogic" />
+    <field type="int" name="CurrQuestID1" />
+    <field type="int" name="CurrQuestID2" />
+    <field type="int" name="CurrQuestID3" />
+    <field type="int" name="CurrQuestID4" />
+    <field type="int" name="CurrentCompletedQuestLogic" />
+    <field type="int" name="CurrentCompletedQuestID1" />
+    <field type="int" name="CurrentCompletedQuestID2" />
+    <field type="int" name="CurrentCompletedQuestID3" />
+    <field type="int" name="CurrentCompletedQuestID4" />
+    <field type="int" name="SpellLogic" />
+    <field type="int" name="SpellID1" />
+    <field type="int" name="SpellID2" />
+    <field type="int" name="SpellID3" />
+    <field type="int" name="SpellID4" />
+    <field type="int" name="ItemLogic" />
+    <field type="int" name="ItemID1" />
+    <field type="int" name="ItemID2" />
+    <field type="int" name="ItemID3" />
+    <field type="int" name="ItemID4" />
+    <field type="int" name="ItemCount1" />
+    <field type="int" name="ItemCount2" />
+    <field type="int" name="ItemCount3" />
+    <field type="int" name="ItemCount4" />
+    <field type="int" name="ItemFlags" />
+    <field type="int" name="Explored1" />
+    <field type="int" name="Explored2" />
+    <field type="int" name="Time1" />
+    <field type="int" name="Time2" />
+    <field type="int" name="AuraSpellLogic" />
+    <field type="int" name="AuraSpellID1" />
+    <field type="int" name="AuraSpellID2" />
+    <field type="int" name="AuraSpellID3" />
+    <field type="int" name="AuraSpellID4" />
+    <field type="int" name="AuraSpellID5" />
+    <field type="int" name="WorldStateExpressionID" />
+    <field type="int" name="WeatherID" />
+    <field type="int" name="PartyStatus" />
+    <field type="int" name="LifetimeMaxPVPRank" />
+    <field type="int" name="AchievementLogic" />
+    <field type="int" name="Achievement1" />
+    <field type="int" name="Achievement2" />
+    <field type="int" name="Achievement3" />
+    <field type="int" name="Achievement4" />
+    <field type="int" name="LfgLogic" />
+    <field type="int" name="LfgStatus1" />
+    <field type="int" name="LfgStatus2" />
+    <field type="int" name="LfgStatus3" />
+    <field type="int" name="LfgStatus4" />
+    <field type="int" name="LfgCompare1" />
+    <field type="int" name="LfgCompare2" />
+    <field type="int" name="LfgCompare3" />
+    <field type="int" name="LfgCompare4" />
+    <field type="int" name="LfgValue1" />
+    <field type="int" name="LfgValue2" />
+    <field type="int" name="LfgValue3" />
+    <field type="int" name="LfgValue4" />
+    <field type="int" name="AreaLogic" />
+    <field type="int" name="AreaID1" />
+    <field type="int" name="AreaID2" />
+    <field type="int" name="AreaID3" />
+    <field type="int" name="AreaID4" />
+    <field type="int" name="CurrencyLogic" />
+    <field type="int" name="CurrencyID1" />
+    <field type="int" name="CurrencyID2" />
+    <field type="int" name="CurrencyID3" />
+    <field type="int" name="CurrencyID4" />
+    <field type="int" name="CurrencyCount1" />
+    <field type="int" name="CurrencyCount2" />
+    <field type="int" name="CurrencyCount3" />
+    <field type="int" name="CurrencyCount4" />
+    <field type="int" name="QuestKillID" />
+    <field type="int" name="QuestKillLogic" />
+    <field type="int" name="QuestKillMonster1" />
+    <field type="int" name="QuestKillMonster2" />
+    <field type="int" name="QuestKillMonster3" />
+    <field type="int" name="QuestKillMonster4" />
+    <field type="int" name="MinExpansionLevel" />
+    <field type="int" name="MaxExpansionLevel" />
+    <field type="int" name="MinExpansionTier" />
+    <field type="int" name="MaxExpansionTier" />
+    <field type="int" name="MinGuildLevel" />
+    <field type="int" name="MaxGuildLevel" />
+    <field type="int" name="PhaseUseFlags" />
+    <field type="int" name="PhaseID" />
+    <field type="int" name="PhaseGroupID" />
+    <field type="int" name="MinAvgItemLevel" />
+    <field type="int" name="MaxAvgItemLevel" />
+    <field type="int" name="MinAvgEquippedItemLevel" />
+    <field type="int" name="MaxAvgEquippedItemLevel" />
+    <field type="int" name="ChrSpecializationIndex" />
+    <field type="int" name="ChrSpecializationRole" />
+    <field type="string" name="FailureDescriptionLang" />
+    <field type="int" name="PowerType" />
+    <field type="int" name="PowerTypeComp" />
+    <field type="int" name="PowerTypeValue" />
+  </PlayerCondition>
+  <SpellScaling build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="float" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+  </SpellScaling>
+  <RulesetItemUpgrade build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="unk" />
+    <field type="int" name="itemupgradeid" />
+    <field type="int" name="itemid" />
+  </RulesetItemUpgrade>
 </DBFilesClient>

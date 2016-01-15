@@ -81,13 +81,13 @@ typedef std::chrono::system_clock Clock;
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
-/// 6.0.3 19116
+/// 6.2.3 20726
 enum ToastTypes
 {
     TOAST_TYPE_NONE         = 0,
-    TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_NEW_ITEM     = 2,
-    TOAST_TYPE_MONEY        = 3,
+    TOAST_TYPE_NEW_ITEM     = 1,
+    TOAST_TYPE_MONEY        = 2,
+    TOAST_TYPE_NEW_CURRENCY = 3,
 };
 
 /// 6.0.3 19116
@@ -189,6 +189,12 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_BALANCE        = 752,
     TALENT_TREE_DRUID_FERAL_COMBAT   = 750,
     TALENT_TREE_DRUID_RESTORATION    = 748
+};
+
+enum CharacterWorldStates
+{
+    CharWorldStateGarrisonStablesFirstQuest  = 1,
+    CharWorldStateGarrisonStablesSecondQuest = 2
 };
 
 // Spell modifier (used for modify other spells)
@@ -568,7 +574,7 @@ enum PlayerLocalFlags
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   10
+#define KNOWN_TITLES_SIZE   12
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 5 uint64 fields
 
 #define ECLIPSE_FULL_CYCLE_DURATION 40
@@ -612,6 +618,15 @@ enum PlayerFieldBytes2Offsets
 {
     PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
     PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+};
+
+enum PlayerAvgItemLevelOffsets
+{
+    TotalAvgItemLevel       = 0,
+    EquippedAvgItemLevel    = 1,
+    NonPvPAvgItemLevel      = 2,
+    PvPAvgItemLevel         = 3,
+    MaxAvgItemLevel         = 4
 };
 
 static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
@@ -1541,6 +1556,16 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+enum StoreCallback
+{
+    ItemDelivery,
+    GoldDelivery,
+    CurrencyDelivery,
+    LevelDelivery,
+    ProfessionDelivery,
+    MaxDelivery
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1623,12 +1648,15 @@ class Player : public Unit, public GridObject<Player>
         MS::Garrison::Manager* GetGarrison();
         void CreateGarrison();
         bool IsInGarrison() const;
+        bool IsInShipyard() const;
         int32 GetGarrisonMapID() const;
+        int32 GetShipyardMapID() const;
         void DeleteGarrison();
         std::vector<uint32> GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
         void AddGarrisonTavernData(uint32 p_Data);
         void SetGarrisonTavernData(uint32 p_Data);
         void CleanGarrisonTavernData() { m_GarrisonDailyTavernData.clear(); };
+        bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID);
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -1792,7 +1820,7 @@ class Player : public Unit, public GridObject<Player>
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
         void AutoUnequipOffhandIfNeed(bool force = false);
-        bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
+        bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count, ItemContext p_ItemContext = ItemContext::None);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
         void StoreLootItem(uint8 p_LootSlot, Loot* p_Loot, uint8 p_LinkedLootSlot = 255);
@@ -1933,7 +1961,7 @@ class Player : public Unit, public GridObject<Player>
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
-        bool AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount = NULL);
+        bool AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses = {});
 
         uint32 m_stableSlots;
 
@@ -2090,6 +2118,7 @@ class Player : public Unit, public GridObject<Player>
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
+        static uint64 GetUInt64ValueFromArray(Tokenizer const& p_Datas, uint16 p_Index);
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);
         static uint32 GetLevelFromDB(uint64 guid);
@@ -2290,6 +2319,7 @@ class Player : public Unit, public GridObject<Player>
 
         /// Custom functions for spells
         void HandleWarlockWodPvpBonus();
+        uint32 GetRandomWeaponFromPrimaryBag(ItemTemplate const* p_Transmogrified) const;
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -2621,9 +2651,10 @@ class Player : public Unit, public GridObject<Player>
         void UpdateManaRegen();
         void UpdateEnergyRegen();
         void UpdateFocusRegen();
-        void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
         float GetRegenForPower(Powers p_Power);
+        void setHolyPowerRegenTimerCount(uint32 p_Value) { m_holyPowerRegenTimerCount = p_Value; }
+        void setChiPowerRegenTimerCount(uint32 p_Value) { m_chiPowerRegenTimerCount = p_Value; }
 
         bool CanSwitch() const;
         bool IsInWorgenForm() const { return HasAuraType(SPELL_AURA_ALLOW_WORGEN_TRANSFORM); }
@@ -2659,7 +2690,7 @@ class Player : public Unit, public GridObject<Player>
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
-        void SendResetInstanceFailed(uint32 reason, uint32 MapId);
+        void SendResetInstanceFailed(ResetFailedReason reason, uint32 MapId);
         void SendResetFailedNotify();
 
         virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false);
@@ -2826,7 +2857,7 @@ class Player : public Unit, public GridObject<Player>
         void ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply, bool form_change = false);
         void UpdateEquipSpellsAtFormChange();
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx);
-        void CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex);
+        void CastItemUseSpell(Item* p_Item, SpellCastTargets const& p_Targets, uint8 p_CastCount, uint32 p_Misc, uint32 p_Misc2);
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
@@ -2858,8 +2889,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
         void SendLootRelease(uint64 p_LootGuid);
-        void SendNotifyLootItemRemoved(uint8 lootSlot, bool p_IsAoELoot = false);
-        void SendNotifyLootMoneyRemoved(bool p_IsAoE);
+        void SendNotifyLootItemRemoved(uint8 lootSlot);
+        void SendNotifyLootMoneyRemoved();
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -3073,7 +3104,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
 
@@ -3106,6 +3137,13 @@ class Player : public Unit, public GridObject<Player>
         float m_homebindZ;
 
         WorldLocation GetStartPosition() const;
+
+        WorldLocation GetPreviousLocation() const;
+        uint32 m_PreviousLocationMapId;
+        float m_PreviousLocationX;
+        float m_PreviousLocationY;
+        float m_PreviousLocationZ;
+        float m_PreviousLocationO;
 
         // current pet slot
         PetSlot m_currentPetSlot;
@@ -3318,8 +3356,9 @@ class Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        uint32 GetAverageItemLevelEquipped();
-        uint32 GetAverageItemLevelTotal();
+        uint32 GetAverageItemLevelEquipped() const;
+        uint32 GetAverageItemLevelTotal() const;
+        uint32 GetAverageItemLevelTotalWithOrWithoutPvPBonus(bool p_PvP) const;
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -3464,7 +3503,7 @@ class Player : public Unit, public GridObject<Player>
         //////////////////////////////////////////////////////////////////////////
 
         ScalingStatDistributionEntry const* GetSSDForItem(Item const* p_Item) const;
-        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
+        uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr, bool p_IgnorePvPModifiers = false, bool p_ForcePvPItemLevel = false) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
         bool UpdateItemLevelCutOff(uint32 p_StartsWith, uint32 p_MinLevel, uint32 p_MaxLevel, bool p_RescaleItems = true);
@@ -3548,6 +3587,9 @@ class Player : public Unit, public GridObject<Player>
         void _GarrisonSetIn();
         void _GarrisonSetOut();
 
+        void _SetInShipyard();
+        void _SetOutOfShipyard();
+
         bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
         bool HasHeirloom(uint32 p_ItemID) const;
         bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
@@ -3600,13 +3642,22 @@ class Player : public Unit, public GridObject<Player>
         }
 
         /// Send custom message with system message (addon, custom interfaces ...etc)
+        void SendCustomMessage(std::string const& p_Opcode);
         void SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Data);
+        void SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data);
 
         uint32 GetBagsFreeSlots() const;
 
         bool IsSummoned() const { return m_Summoned; }
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
+
+        /// Store callback
+        bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
+        bool IsStoreDeliveryProccesed(StoreCallback p_DeliveryType) const { return m_StoreDeliveryProcessed[p_DeliveryType]; }
+
+        void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
+        void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
         
     protected:
         void OnEnterPvPCombat();
@@ -4046,9 +4097,12 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
-        // Store callback
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        /// Store callback
+        bool m_StoreDeliveryProcessed[StoreCallback::MaxDelivery];
+        bool m_StoreDeliverySave;
 
         uint8 m_bgRoles;
 
@@ -4158,7 +4212,14 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                 if (l_ChaosBolt)
                     continue;
                 else
+                {
                     l_ChaosBolt = true;
+                    if (l_SpellMod->charges < 3)
+                    {
+                        p_RemoveStacks = false;
+                        continue;
+                    }
+                }
             }
             /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
             else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)

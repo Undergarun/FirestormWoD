@@ -604,7 +604,7 @@ public:
         {
             if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
             {
-                if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID))
+                if (!me->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS))
                     SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 else
                     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
@@ -1187,7 +1187,7 @@ public:
             Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
             Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
             SetEquipmentSlots(false, 44850, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, 45738);
+            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, 45738);
         }
 
         void EnterCombat(Unit* /*who*/) {}

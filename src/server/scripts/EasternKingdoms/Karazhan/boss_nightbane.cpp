@@ -360,6 +360,7 @@ public:
     };
 };
 
+/// Blackened Urn - 194092
 class go_blackened_urn : public GameObjectScript
 {
     public:
@@ -371,7 +372,7 @@ class go_blackened_urn : public GameObjectScript
             if (!_instance)
                 return false;
 
-            // already summoned
+            /// already summoned
             if (_instance->GetData(TYPE_NIGHTBANE) != NOT_STARTED)
                 return false;
 

@@ -253,6 +253,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
         return;
 
     p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Base->GetId());                                  ///< SpellID
+    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVIsualID);                                         ///< SpellVisuals
     p_Data << uint8(l_Flags);                                                                                   ///< Flags
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Base->GetCasterLevel());                                                                 ///< Cast Level
@@ -490,8 +491,7 @@ AuraPtr Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* o
 Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID) :
 m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
-m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
-m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
+m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
 {
     for (auto itr : m_spellInfo->SpellPowers)
@@ -507,6 +507,19 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(caster);
     m_isUsingCharges = m_procCharges != 0;
+
+    if (castItem && caster)
+    {
+        if (Player* l_Player = caster->ToPlayer())
+        {
+            if (m_spellInfo->AttributesEx11 & SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL)
+                m_casterLevel = l_Player->GetEquipItemLevelFor(castItem->GetTemplate(), castItem);
+                
+        }
+    }
+    else
+        m_casterLevel = caster ? caster->getLevel() : m_spellInfo->SpellLevel;
+ 
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
 }
 
@@ -1132,14 +1145,17 @@ void Aura::RefreshTimers()
         }
     }
 
-    /// In WoD blizzards have made "Pandemic" system for all auras
-    for (uint8 i = 0; i < m_EffectCount; ++i)
+    /// In WoD blizzards have made "Pandemic" system for all auras, check if we need to use it
+    if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
     {
-        if (constAuraEffectPtr l_Effect = GetEffect(i))
+        for (uint8 i = 0; i < m_EffectCount; ++i)
         {
-            /// If it's a DoT or a HoT we should apply "Pandemic" system for it
-            if (l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-                l_IsAffectedByPandemic = true;
+            if (constAuraEffectPtr l_Effect = GetEffect(i))
+            {
+                /// If it's a DoT or a HoT we should apply "Pandemic" system for it
+                if (l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE || l_Effect->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
+                    l_IsAffectedByPandemic = true;
+            }
         }
     }
 
@@ -1341,7 +1357,8 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
-    if (GetId() == 54637)
+    /// Blood of the North and Cho'gall Night (for phase handling)
+    if (GetId() == 54637 || GetId() == 163661)
         return true;
 
     if (IsPassive())
@@ -1406,6 +1423,10 @@ bool Aura::CanBeSentToClient() const
     /// Chi Wave
     if (GetId() == 115098)
         return false;
+
+    /// Grimoire of Synergy
+    if (GetId() == 171975)
+        return true;
 
     if (!IsPassive())
         return true;
@@ -2081,24 +2102,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (caster && caster->HasAura(56845))
                         target->CastSpell(target, 61394, true);
                 }
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 51753: ///< Camouflage
-                    {
-                        if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        if (Pet* l_Pet = caster->ToPlayer()->GetPet())
-                        {
-                            l_Pet->RemoveAura(GetSpellInfo()->Id);
-                            l_Pet->RemoveAura(80325);
-                        }
-
-                        break;
-                    }
-                }
-
                 break;
             }
             case SPELLFAMILY_SHAMAN:
@@ -3320,6 +3323,10 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
                 Pet* l_Pet = GetUnitOwner()->ToPlayer()->GetPet();
                 if (l_Pet != nullptr)
                     targetList.push_back(l_Pet);
+
+                /// Hack fix for Grimoire of Synergy
+                if (GetSpellInfo()->Id == 171975)
+                    targetList.push_back(GetUnitOwner());
             }
         }
         else
@@ -3432,4 +3439,15 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
                 targets[*itr] = 1<<effIndex;
         }
     }
+}
+
+void Aura::Delink()
+{
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+    {
+        m_effects[i].reset();
+        m_effects[i] = nullptr;
+    }
+
+    _DeleteRemovedApplications();
 }

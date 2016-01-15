@@ -27,8 +27,10 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::GemBoutique_GemBoutique_Level1);
         m_AllowedBluePrints.push_back(Buildings::LumberMill_LumberMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::LunarfallInn_FrostwallTavern_Level1);
+        m_AllowedBluePrints.push_back(Buildings::MageTower_SpiritLodge_Level1);
         m_AllowedBluePrints.push_back(Buildings::SalvageYard_SalvageYard_Level1);
         m_AllowedBluePrints.push_back(Buildings::ScribesQuarters__ScribesQuarters_Level1);
+        m_AllowedBluePrints.push_back(Buildings::Stables_Stables_Level1);
         m_AllowedBluePrints.push_back(Buildings::Storehouse__Storehouse_Level1);
         m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);
         m_AllowedBluePrints.push_back(Buildings::TheForge__TheForge_Level1);

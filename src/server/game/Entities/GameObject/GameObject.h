@@ -410,7 +410,7 @@ struct GameObjectTemplate
         //27 GAMEOBJECT_TYPE_MINI_GAME
         struct
         {
-        } DONOTUSE3;
+        } miniGame;
         //28 GAMEOBJECT_TYPE_DO_NOT_USE_2
         struct
         {
@@ -605,13 +605,24 @@ struct GameObjectTemplate
         struct
         {
             uint32 ShipmentContainer;                       // 0 Shipment Container, References: CharShipmentContainer, NoValue = 0
+            uint32 GiganticAOI;                             // 1 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 LargeAOI;                                // 2 Large AOI, enum { false, true, }; Default: false
         } garrisonShipment;
         // 46 GAMEOBJECT_TYPE_GARRISON_MONUMENT_PLAQUE
         struct
         {
             uint32 TrophyInstanceID;                        // 0 Trophy Instance ID, References: TrophyInstance, NoValue = 0
         } garrisonMonumentPlaque;
-
+        // 47 GAMEOBJECT_TYPE_DO_NOT_USE_3
+        struct
+        {
+        } DONOTUSE3;
+        // 48 GAMEOBJECT_TYPE_UI_LINK
+        struct
+        {
+            int32 UILinkType;                              // 0 UI Link Type, Type id: 10
+        } UILink;
+        
         // not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct
         {
@@ -868,11 +879,11 @@ enum GOState
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
     GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
-    GO_STATE_TRANSPORT_STOPPED  = 25,
     GO_STATE_TRANSPORT_ACTIVE   = 24,
+    GO_STATE_TRANSPORT_STOPPED  = 25,
+    MAX_GO_STATE
 };
 
-#define MAX_GO_STATE                       3
 #define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 // from `gameobject`
@@ -1019,20 +1030,20 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
 
-        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
+        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0)); }
         void SetGoState(GOState state);
 
-        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
-        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1)); }
+        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1, type); }
 
-        uint8 GetGoHealth() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
-        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_BYTES_1, 3, health); }
+        uint8 GetGoHealth() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
+        void SetGoHealth(uint8 health) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, health); }
 
         uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 1); }
         void SetGoArtKit(uint8 artkit);
 
-        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
-        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
+        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
+        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, animprogress); }
 
         void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
 
@@ -1137,8 +1148,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         GameObjectModel * m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
+        Transport* ToTransport();
+        Transport const* ToTransport() const;
 
         float GetStationaryX() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
         float GetStationaryY() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
@@ -1155,6 +1166,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         uint32 GetCustomFlags() const { return m_CustomFlags; }
 
         void SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain = true, Player* p_Target = nullptr);
+
+        /// Event handler
+        EventProcessor m_Events;
 
     protected:
         bool AIM_Initialize();

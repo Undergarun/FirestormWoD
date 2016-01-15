@@ -1,10 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2014-2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2014-2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -14,11 +15,13 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
-#include "Buildings/Alliance/Medium/ABarn.hpp"
-#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
+#include "Buildings/Alliance/Large/AMageTower.hpp"
+#include "Buildings/Alliance/Large/AStables.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
+#include "Buildings/Alliance/Medium/ABarn.hpp"
+#include "Buildings/Alliance/Medium/ALumberMill.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -32,6 +35,8 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HStables.hpp"
+#include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
 #include "Buildings/Horde/Medium/HBarn.hpp"
 #include "Buildings/Horde/Medium/HLumberMill.hpp"
@@ -53,7 +58,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr), m_Owner(nullptr)
     {
 
     }
@@ -281,6 +286,11 @@ namespace MS { namespace Garrison
 
     }
 
+    void GarrisonNPCAI::OnPlotInstanceUnload()
+    {
+
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -289,37 +299,54 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        if (p_ID == CreatureAIDataIDs::PlotInstanceID)
-        {
-            m_PlotInstanceLocation = nullptr;
 
-            for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
+        switch (p_ID)
+        {
+            case CreatureAIDataIDs::PlotInstanceID:
             {
-                if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                m_PlotInstanceLocation = nullptr;
+
+                for (uint32 l_I = 0; l_I < Globals::PlotInstanceCount; ++l_I)
                 {
-                    m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
-                    break;
+                    if (gGarrisonPlotInstanceInfoLocation[l_I].PlotInstanceID == (p_Value & 0x0000FFFF) && gGarrisonPlotInstanceInfoLocation[l_I].SiteLevelID == ((p_Value >> 16) & 0x0000FFFF))
+                    {
+                        m_PlotInstanceLocation = &gGarrisonPlotInstanceInfoLocation[l_I];
+                        break;
+                    }
                 }
-            }
 
-            if (m_PlotInstanceLocation)
-            {
-                G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
+                if (m_PlotInstanceLocation)
+                {
+                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -m_PlotInstanceLocation->O);
 
-                /// transform plot coord
-                m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
+                    /// transform plot coord
+                    m_NonRotatedPlotPosition = l_Mat * G3D::Vector3(m_PlotInstanceLocation->X, m_PlotInstanceLocation->Y, m_PlotInstanceLocation->Z);
             
-                OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
+                    OnSetPlotInstanceID(m_PlotInstanceLocation->PlotInstanceID);
+                }
+                break;
             }
+            case CreatureAIDataIDs::BuildingID:
+            {
+                m_BuildingID = p_Value;
+                OnSetBuildingID(m_BuildingID);
+            }
+            case CreatureAIDataIDs::DailyReset:
+                OnDataReset();
+                break;
+            case CreatureAIDataIDs::DespawnData:
+                OnPlotInstanceUnload();
+                break;
+            default:
+                break;
         }
-        else if (p_ID == CreatureAIDataIDs::BuildingID)
-        {
-            m_BuildingID = p_Value;
-            OnSetBuildingID(m_BuildingID);
-        }
-        else if (p_ID == CreatureAIDataIDs::DailyReset)
-            OnDataReset();
+    }
+
+    void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
     }
 
     /// Get UInt32 value
@@ -439,7 +466,7 @@ namespace MS { namespace Garrison
             p_Player->CLOSE_GOSSIP_MENU();
             p_Player->CreateGarrison();
 
-            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MovieID    = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
             uint32 l_MapID      = p_Player->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID     = p_Player->GetTeamId();
 
@@ -573,6 +600,450 @@ namespace MS { namespace Garrison
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_garrison_atheeru_palestar::npc_garrison_atheeru_palestar()
+        : CreatureScript("npc_garrison_atheeru_palestar")
+    {
+    }
+
+    /// Constructor
+    npc_garrison_atheeru_palestarAI::npc_garrison_atheeru_palestarAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_garrison_atheeru_palestar::GetAI(Creature* p_Creature) const
+    {
+        return new npc_garrison_atheeru_palestarAI(p_Creature);
+    }
+
+    void npc_garrison_atheeru_palestarAI::SpawnAssemblies()
+    {
+        if (GetOwner() == nullptr)
+            return;
+
+        me->DespawnCreaturesInArea(82441);
+
+        const SequencePosition l_SpawnPositions[4] =
+        {
+            /// Alliance
+            { 24.2378f, -8.7516f, 0.0211f, 4.3490f },
+            { 25.6718f, 11.0212f, 0.0001f, 4.4158f },
+            /// Horde
+            { 23.9077f, -4.0247f, -0.1916f, 4.1163f },
+            { 25.5492f, 9.3343f, -0.0021f, 2.0483f }
+        };
+
+        if (GetOwner()->GetTeamId() == TEAM_ALLIANCE)
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[0].X, l_SpawnPositions[0].Y, l_SpawnPositions[0].Z, l_SpawnPositions[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[1].X, l_SpawnPositions[1].Y, l_SpawnPositions[1].Z, l_SpawnPositions[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+        }
+        else if (GetOwner()->GetTeamId() == TEAM_HORDE)
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[2].X, l_SpawnPositions[2].Y, l_SpawnPositions[2].Z, l_SpawnPositions[2].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+
+            if (Creature* l_Creature = SummonRelativeCreature(82441, l_SpawnPositions[3].X, l_SpawnPositions[3].Y, l_SpawnPositions[3].Z, l_SpawnPositions[3].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                if (l_Creature->AI())
+                    l_Creature->AI()->SetGUID(GetOwner()->GetGUID());
+            }
+        }
+    }
+
+    void npc_garrison_atheeru_palestarAI::OnPlotInstanceUnload()
+    {
+        std::list<Creature*> l_CreatureList;
+        me->GetCreatureListWithEntryInGrid(l_CreatureList, 82441, 250.0f);
+
+        for (Creature* l_Creature : l_CreatureList)
+            l_Creature->DespawnOrUnsummon();
+    }
+
+    bool npc_garrison_atheeru_palestar::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        p_Player->SEND_GOSSIP_MENU(MiscDatas::NpcTextID, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI())
+            p_Creature->AI()->DoAction(1);
+        return true;
+    }
+
+    void npc_garrison_atheeru_palestarAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        DoAction(1);
+    }
+
+    void npc_garrison_atheeru_palestarAI::DoAction(int32 const p_Action)
+    {
+        if (p_Action == 1)
+            SpawnAssemblies();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_garrison_amperial_construct::npc_garrison_amperial_construct()
+        : CreatureScript("npc_garrison_amperial_construct")
+    {
+    }
+
+    /// Constructor
+    npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::npc_garrison_amperial_constructAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        m_OwnerGuid  = 0;
+        m_CheckTimer = 1500;
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_garrison_amperial_construct::GetAI(Creature* p_Creature) const
+    {
+        return new npc_garrison_amperial_constructAI(p_Creature);
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::OnSpellClick(Unit* p_Clicker)
+    {
+        if (m_OwnerGuid == p_Clicker->GetGUID())
+            p_Clicker->CastSpell(me, 166052, true);
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    {
+        if (!p_Apply)
+        {
+            p_Passenger->RemoveAurasDueToSpell(166052);
+            me->RemoveAurasDueToSpell(166052);
+        }
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (!p_Id)
+            m_OwnerGuid = p_Guid;
+    }
+
+    void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::UpdateAI(const uint32 p_Diff)
+    {
+        if (m_CheckTimer)
+        {
+            if (m_CheckTimer <= p_Diff)
+            {
+                std::list<Player*> l_PlayerList;
+                std::list<Creature*> l_CreatureList;
+
+                GetCreatureListWithEntryInGrid(l_CreatureList, me, 82441, 100.0f);
+                GetPlayerListInGrid(l_PlayerList, me, 2.0f);
+
+                if (l_CreatureList.size() == 2)
+                {
+                    l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                    {
+                        if (p_Creature->GetGUID() == me->GetGUID())
+                            return true;
+
+                        return false;
+                    });
+
+                    l_PlayerList.remove_if([this](Player* p_Player) -> bool
+                    {
+                        if (p_Player->GetGUID() != m_OwnerGuid)
+                            return true;
+
+                        return false;
+                    });
+
+                    if (l_PlayerList.empty() || !m_OwnerGuid || l_CreatureList.empty())
+                        return;
+
+                    if (Creature* l_Creature = l_CreatureList.front())
+                    {
+                        if (Player* l_Player = l_PlayerList.front())
+                        {
+                            if (l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                                l_Player->NearTeleportTo(l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ, l_Creature->GetOrientation());
+                        }
+                    }
+                }
+
+                m_CheckTimer = 500;
+            }
+            else
+                m_CheckTimer -= p_Diff;
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_GarrisonStablesCreatures::npc_GarrisonStablesCreatures()
+        : CreatureScript("npc_GarrisonStablesCreatures")
+    {
+    }
+
+    /// Constructor
+    npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::npc_GarrisonStablesCreaturesAI(Creature* p_Creature)
+        : npc_escortAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_GarrisonStablesCreatures::GetAI(Creature* p_Creature) const
+    {
+        return new npc_GarrisonStablesCreaturesAI(p_Creature);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::Reset()
+    {
+        SetMaxPlayerDistance(200.0f);
+        SetDespawnAtFar(false);
+        SetDespawnAtEnd(false);
+        SetEscortPaused(true);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+    {
+        if (p_SpellInfo && (p_SpellInfo->Id == StablesData::g_LassoAllianceAura || p_SpellInfo->Id == StablesData::g_LassoHordeAura))
+        {
+            Start(false, true, p_Caster->GetGUID());
+            SetRun(true);
+            me->SetWalk(false);
+            SetEscortPaused(false);
+        }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::MovementInform(uint32 p_Type, uint32 p_ID)
+    {
+        npc_escortAI::MovementInform(p_Type, p_ID);
+
+        if (p_Type != EFFECT_MOTION_TYPE)
+            return;
+
+        using namespace StablesData;
+
+        switch (p_ID)
+        {
+            case CreatureJumps::MeadowstomperSecondJump:
+                me->GetMotionMaster()->MoveJump(g_CreaturesJumps[2].x, g_CreaturesJumps[2].y, g_CreaturesJumps[2].z, 10.0f, 10.0f, me->GetOrientation(), CreatureJumps::MeadowstomperThirdJump);
+                break;
+            case CreatureJumps::SilverpeltFirstJump:
+                me->GetMotionMaster()->MoveJump(g_CreaturesJumps[11].x, g_CreaturesJumps[11].y, g_CreaturesJumps[11].z, 10.0f, 10.0f, me->GetOrientation(), CreatureJumps::SilverpeltSecondJump);
+                break;
+            case CreatureJumps::MeadowstomperFirstJump:
+            case CreatureJumps::MeadowstomperThirdJump:
+            case CreatureJumps::SnarlerFirstJump:
+            case CreatureJumps::SnarlerSecondJump:
+            case CreatureJumps::SnarlerThirdJump:
+            case CreatureJumps::SnarlerFourthJump:
+            case CreatureJumps::SnarlerFifthJump:
+            case CreatureJumps::SnarlerSixthJump:
+            case CreatureJumps::SnarlerSeventhJump:
+            case CreatureJumps::SilverpeltSecondJump:
+                SetEscortPaused(false);
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::WaypointReached(uint32 p_PointId)
+    {
+        using namespace StablesData;
+
+        uint32 l_Index  = 0;
+        uint32 l_JumpID = 0;
+
+        switch (me->GetEntry())
+        {
+            case eCreaturesEntries::NpcMeadowstomper:
+            {
+                switch (p_PointId)
+                {
+                    case 17:
+                        l_JumpID = CreatureJumps::MeadowstomperFirstJump;
+                        break;
+                    case 26:
+                        l_Index = 1;
+                        l_JumpID = CreatureJumps::MeadowstomperSecondJump;
+                        break;
+                    case 29:
+                        StopEscortEvent(eKillCredits::ElekkKillCredit, g_LassoAllianceAura);
+                        StopEscortEvent(eKillCredits::ElekkKillCredit, g_LassoHordeAura);
+                        return;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcSnarler:
+            {
+                switch (p_PointId)
+                {
+                    case 4:
+                        l_Index = 3;
+                        l_JumpID = CreatureJumps::SnarlerFirstJump;
+                        break;
+                    case 5:
+                        l_Index = 4;
+                        l_JumpID = CreatureJumps::SnarlerSecondJump;
+                        break;
+                    case 7:
+                        l_Index = 5;
+                        l_JumpID = CreatureJumps::SnarlerThirdJump;
+                        break;
+                    case 17:
+                        l_Index = 6;
+                        l_JumpID = CreatureJumps::SnarlerFourthJump;
+                        break;
+                    case 21:
+                        l_Index = 7;
+                        l_JumpID = CreatureJumps::SnarlerFifthJump;
+                        break;
+                    case 23:
+                        l_Index = 8;
+                        l_JumpID = CreatureJumps::SnarlerSixthJump;
+                        break;
+                    case 24:
+                        l_Index = 9;
+                        l_JumpID = CreatureJumps::SnarlerSeventhJump;
+                        break;
+                    case 36:
+                        StopEscortEvent(eKillCredits::WolfKillCredit, g_LassoAllianceAura);
+                        StopEscortEvent(eKillCredits::WolfKillCredit, g_LassoHordeAura);
+                        return;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcSilverpelt:
+            {
+                switch (p_PointId)
+                {
+                    case 24:
+                        l_Index = 10;
+                        l_JumpID = CreatureJumps::SilverpeltFirstJump;
+                        break;
+                    case 30:
+                        StopEscortEvent(eKillCredits::TalbukKillCredit, g_LassoAllianceAura);
+                        StopEscortEvent(eKillCredits::TalbukKillCredit, g_LassoHordeAura);
+                        return;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case eCreaturesEntries::NpcIcehoof:
+            {
+                if (p_PointId == 43)
+                {
+                    StopEscortEvent(eKillCredits::ClefthoofKillCredit, g_LassoAllianceAura);
+                    StopEscortEvent(eKillCredits::ClefthoofKillCredit, g_LassoHordeAura);
+                }
+                return;
+            }
+            case eCreaturesEntries::NpcRiverwallow:
+            {
+                if (p_PointId == 28)
+                {
+                    StopEscortEvent(eKillCredits::RiverbeasttKillCredit, g_LassoAllianceAura);
+                    StopEscortEvent(eKillCredits::RiverbeasttKillCredit, g_LassoHordeAura);
+                }
+                return;
+            }
+            case eCreaturesEntries::NpcRocktusk:
+            {
+                if (p_PointId == 45)
+                {
+                    StopEscortEvent(eKillCredits::BoarKillCredit, g_LassoAllianceAura);
+                    StopEscortEvent(eKillCredits::BoarKillCredit, g_LassoHordeAura);
+                }
+                return;
+            }
+            default:
+                break;
+        }
+
+        if (!l_JumpID)
+            return;
+
+        SetEscortPaused(true);
+        me->GetMotionMaster()->MoveJump(g_CreaturesJumps[l_Index].x, g_CreaturesJumps[l_Index].y, g_CreaturesJumps[l_Index].z, 10.0f, 10.0f, me->GetOrientation(), l_JumpID);
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::StopEscortEvent(uint32 p_KillCredit, uint32 p_SpellID)
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(GetEventStarterGUID()))
+        {
+            l_Player->KilledMonsterCredit(p_KillCredit);
+            me->RemoveAura(p_SpellID);
+            SetEscortPaused(true);
+            me->DespawnOrUnsummon();
+        }
+    }
+
+    void npc_GarrisonStablesCreatures::npc_GarrisonStablesCreaturesAI::UpdateAI(uint32 const p_Diff)
+    {
+        npc_escortAI::UpdateAI(p_Diff);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    // Because blizzard does it this way - also icon type 27 could be for this purpose only
+
+    npc_FleetCommandTable::npc_FleetCommandTable() : CreatureScript("npc_FleetCommandTable")
+    {
+    }
+
+    bool npc_FleetCommandTable::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (!p_Player->GetGarrison())
+            return true;
+
+        p_Player->GetSession()->SendGarrisonSetMissionNpc(p_Creature->GetGUID());
+        return true;
+    }
+
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -581,6 +1052,9 @@ void AddSC_Garrison_NPC()
     /// Generic
     new MS::Garrison::npc_GarrisonFord;
     new MS::Garrison::npc_CallToArms;
+    new MS::Garrison::npc_garrison_amperial_construct;
+    new MS::Garrison::npc_garrison_atheeru_palestar;
+    new MS::Garrison::npc_GarrisonStablesCreatures;
 
     /// Alliance
     {
@@ -654,6 +1128,14 @@ void AddSC_Garrison_NPC()
 
         /// Lunarfall Inn
         new MS::Garrison::npc_MadisonClark;
+
+        /// Mage Tower
+        new MS::Garrison::npc_ApprenticeVarNath;
+        new MS::Garrison::npc_AncientWaygateProtector;
+
+        /// Stables
+        new MS::Garrison::npc_FannyFirebeard;
+        new MS::Garrison::npc_KeeganFirebeard;
     }
 
     /// Horde
@@ -723,5 +1205,18 @@ void AddSC_Garrison_NPC()
 
         /// Frostwall Tavern
         new MS::Garrison::npc_Murg;
+
+        /// Spirit Lodge
+        new MS::Garrison::npc_Varsha;
+
+        /// Stables
+        new MS::Garrison::npc_Tormak;
+        new MS::Garrison::npc_SagePaluna;
+    }
+
+    /// General
+    {
+        /// Shipyard
+        new MS::Garrison::npc_FleetCommandTable;
     }
 }

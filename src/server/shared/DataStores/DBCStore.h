@@ -130,7 +130,7 @@ class DBCStorage
             fieldCount = dbc.GetCols();
 
             dataTable = (T*)dbc.AutoProduceData(fmt, nCount, indexTable.asChar,
-                sqlRecordCount, sqlHighestIndex, sqlDataTable, m_KeyOrders);
+                sqlRecordCount, sqlHighestIndex, sqlDataTable);
 
             m_LastEntry = nCount;
 
@@ -281,14 +281,8 @@ class DBCStorage
             return m_DbcFileName;
         }
 
-        std::vector<int32> GetKeyOrders() const
-        {
-            return m_KeyOrders;
-        }
-
     private:
         std::string m_DbcFileName;
-        std::vector<int32> m_KeyOrders;
         char const* fmt;
         uint32 nCount;
         uint32 fieldCount;

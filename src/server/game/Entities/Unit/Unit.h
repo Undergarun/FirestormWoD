@@ -701,7 +701,7 @@ enum eUnitFlags
     UNIT_FLAG_UNK_31                = 0x80000000
 };
 
-// Value masks for UNIT_FIELD_FLAGS2
+// Value masks for UNIT_FIELD_FLAGS_2
 enum eUnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH                  = 0x00000001,
@@ -821,7 +821,7 @@ enum NPCFlags2
     UNIT_NPC_FLAG2_GARRISON_ARCHITECT           = 0x00000002,       /// Garrison Architect
     UNIT_NPC_FLAG2_AI_OBSTACLE                  = 0x00000004,       /// AI Obstacle manager
     UNIT_NPC_FLAG2_STEERING                     = 0x00000008,       /// ?
-    UNIT_NPC_FLAG2_UNUSED_1                     = 0x00000010,       /// ?
+    UNIT_NPC_FLAG2_SHIPYARD_MISSION_NPC         = 0x00000020,       /// Garrison Shipyard Mission NPC -- TODO WTF ? UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER == UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER ??????
     UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER    = 0x00000020,       /// Garrison Shipment Crafter
     UNIT_NPC_FLAG2_GARRISON_MISSION_NPC         = 0x00000040,       /// Garrison Mission NPC
     UNIT_NPC_FLAG2_TRADESKILL_NPC               = 0x00000080        /// Garrison tradeskill NPC
@@ -859,6 +859,7 @@ enum MovementFlags
     MOVEMENTFLAG_WATERWALKING          = 0x04000000,               // prevent unit from falling through water
     MOVEMENTFLAG_FALLING_SLOW          = 0x08000000,               // active rogue safe fall spell (passive)
     MOVEMENTFLAG_HOVER                 = 0x10000000,               // hover, cannot jump
+    MOVEMENTFLAG_CAN_SAFE_FALL         = 0x20000000,
 
     // TODO: Check if PITCH_UP and PITCH_DOWN really belong here..
     MOVEMENTFLAG_MASK_MOVING =
@@ -1667,7 +1668,7 @@ class Unit : public WorldObject
         void ClearComboPoints();
 
         PowerTypeSet GetUsablePowers() const;
-        uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
+        uint32 GetPowerIndex(uint32 powerId, uint32 classId) const;
 
         uint32 GetAttackTime(WeaponAttackType att) const
         {
@@ -1772,6 +1773,8 @@ class Unit : public WorldObject
         float CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature);
         float CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature);
 
+        float GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const;
+
         float MeleeSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell, WeaponAttackType p_AttType) const;
         float MagicSpellMissChance(const Unit* p_Victim, SpellInfo const* p_Spell) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
@@ -1790,8 +1793,8 @@ class Unit : public WorldObject
             switch (attacktype)
             {
                 case WeaponAttackType::BaseAttack: return !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
-                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_OFFHAND);
-                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISARM_RANGED);
+                case WeaponAttackType::OffAttack: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_OFFHAND);
+                case WeaponAttackType::RangedAttack: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_RANGED);
             }
             return true;
         }
@@ -1849,6 +1852,7 @@ class Unit : public WorldObject
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2); }
         bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
         bool isInStun() const { return HasAuraType(SPELL_AURA_MOD_STUN); }
+        bool isConfused() const { return HasAuraType(SPELL_AURA_MOD_CONFUSE); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
@@ -1883,6 +1887,7 @@ class Unit : public WorldObject
         void CastSpell(G3D::Vector3 p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, constAuraEffectPtr p_AurEff = NULLAURA_EFFECT, uint64 p_OriginalCaster = 0);
         void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem = NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
         void CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castItem = NULL, AuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
+        void CastSpell(Item* p_ItemTarget, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, AuraEffectPtr p_TriggeredByAura = NULLAURA_EFFECT, uint64 p_OriginalCaster = 0);
 
         void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem= NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
         void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, int32 const* bp3, int32 const* bp4, int32 const* bp5, bool triggered, Item* castItem= NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
@@ -2403,7 +2408,7 @@ class Unit : public WorldObject
         bool   isBlockCritical();
         bool   IsSpellMultistrike() const;
         uint32 GetMultistrikeBasePoints(uint32 p_Damage) const;
-        void   ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
+        uint8  ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32 p_ProcFlag, uint32 p_ProcExtra, uint32 p_Damage, WeaponAttackType p_AttType = WeaponAttackType::BaseAttack, SpellInfo const* p_ProcAura = NULL, constAuraEffectPtr p_OwnerAuraEffect = NULL);
         uint8  ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target);
         void   ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount);
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
@@ -2664,6 +2669,10 @@ class Unit : public WorldObject
         void ClearLastUsedLeapBackSpell() { l_LastUsedLeapBackSpell = 0; }
         uint32 GetLastUsedLeapBackSpell() { return l_LastUsedLeapBackSpell; }
 
+        /// helpers for Devouring Plague DOT damage
+        void SetDevouringPlagueDamage(uint32 l_CurrentDamage) { m_DevouringPlagueDamage = l_CurrentDamage; }
+        uint32 GetDevouringPlagueDamage() { return m_DevouringPlagueDamage; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2680,6 +2689,9 @@ class Unit : public WorldObject
         void ClearPoisonTargets();
         ///     LowGuid          SpellIDs
         std::map<uint32, std::set<uint32>> m_PoisonTargets;
+
+        void SetChannelSpellID(uint32 p_SpellID);
+        void SetChannelSpellID(SpellInfo const* p_SpellInfo);
 
         void SetHealingRainTrigger(uint64 p_Guid) { m_HealingRainTrigger = p_Guid; }
         uint64 GetHealingRainTrigger() const { return m_HealingRainTrigger; }
@@ -2852,6 +2864,7 @@ class Unit : public WorldObject
         uint64 soulSwapTargetGUID;
         bool soulSwapRefreshDuration;
         uint32 l_LastUsedLeapBackSpell;
+        uint32 m_DevouringPlagueDamage;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

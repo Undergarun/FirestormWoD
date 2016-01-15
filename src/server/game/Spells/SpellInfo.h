@@ -392,7 +392,7 @@ public:
     int32  EquippedItemSubClassMask;
     int32  EquippedItemInventoryTypeMask;
     uint32 TotemCategory[2];
-    uint32 SpellVisual[2];
+    uint32 SpellVisual[MAX_SPELL_VISUAL];
     uint32 SpellIconID;
     uint32 ActiveIconID;
     char* SpellName;
@@ -434,6 +434,7 @@ public:
     SpellChainNode const* ChainEntry;
     std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
+    uint32 FirstSpellXSpellVIsualID;
     uint8 EffectCount;
 
     // SpecializationSpellEntry
@@ -473,6 +474,7 @@ public:
 
     int8 GetEffectIndex(SpellEffects effect) const;
     bool HasAura(AuraType aura) const;
+    bool HasAuraPositive(AuraType aura) const;
     bool HasAreaAuraEffect() const;
 
     bool HasPersistenAura() const;
@@ -648,6 +650,9 @@ public:
 
     /// Cache the maximum number of effects
     void UpdateSpellEffectCount();
+
+    /// Handler for new Wod aura system
+    bool IsAffectedByWodAuraSystem() const;
 };
 
 #endif // _SPELLINFO_H

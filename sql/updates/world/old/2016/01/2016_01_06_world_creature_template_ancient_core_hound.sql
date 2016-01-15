@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET minlevel=62, maxlevel=62 WHERE entry=11673;

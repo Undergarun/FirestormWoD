@@ -1352,7 +1352,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                             AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
-                                me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, eVisuals::SteelSword);
+                                me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEMS, eVisuals::SteelSword);
 
                                 if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                                 {

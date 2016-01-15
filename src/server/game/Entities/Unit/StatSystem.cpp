@@ -369,8 +369,10 @@ void Player::UpdateMaxPower(Powers p_Power)
 
 void Player::UpdateItemLevel()
 {
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, (float)GetAverageItemLevelTotal());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::TotalAvgItemLevel, (float)GetAverageItemLevelTotal());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::EquippedAvgItemLevel, (float)GetAverageItemLevelEquipped());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::NonPvPAvgItemLevel, (float)GetAverageItemLevelTotalWithOrWithoutPvPBonus(false));
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PvPAvgItemLevel, (float)GetAverageItemLevelTotalWithOrWithoutPvPBonus(true));
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
@@ -569,7 +571,9 @@ void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& mi
     /// Speed coefficients from http://wowwiki.wikia.com/Normalization - tested on official server, information is correct
     if (l_UsedWeapon && l_UsedWeapon->GetTemplate())
     {
-        if (l_UsedWeapon->GetTemplate()->IsOneHanded())
+        if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
+            l_NormalizedSpeedCoef = 2.8f;
+        else if (l_UsedWeapon->GetTemplate()->IsOneHanded())
         {
             if (l_UsedWeapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
                 l_NormalizedSpeedCoef = 1.7f;
@@ -578,8 +582,6 @@ void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& mi
         }
         else if (l_UsedWeapon->GetTemplate()->IsTwoHandedWeapon())
             l_NormalizedSpeedCoef = 3.3f;
-        else if (l_UsedWeapon->GetTemplate()->IsRangedWeapon())
-            l_NormalizedSpeedCoef = 2.8f;
     }
 
     min_damage = weapon_mindamage + (attackPower / 3.5f * l_NormalizedSpeedCoef);
@@ -891,8 +893,7 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
+                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2)) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
@@ -985,12 +986,12 @@ void Player::UpdateManaRegen()
     if (GetRoleForGroup() != ROLE_HEALER)
     {
         combatRegen = 0.004f * mana + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-        outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+        outOfCombatRegen = 0.02f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
     }
     else
     {
         combatRegen = spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-        outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+        outOfCombatRegen = 0.02f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
     }
 
     /// Warlocks mana regen 5% of maximum mana - blizzlike
@@ -1022,7 +1023,7 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+    uint32 l_PowerIndex = GetPowerIndex(Powers::POWER_ENERGY, getClass());
 
     float l_RegenFlatMultiplier = 1.0f;
     Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
@@ -1044,45 +1045,21 @@ void Player::UpdateFocusRegen()
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
-void Player::UpdateRuneRegen(RuneType p_Rune)
-{
-    if (p_Rune > NUM_RUNE_TYPES)
-        return;
-
-    uint32 l_Cooldown = 0;
-
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-        if (GetBaseRune(i) == p_Rune)
-        {
-            l_Cooldown = GetRuneBaseCooldown(i);
-            break;
-        }
-
-    if (l_Cooldown <= 0)
-        return;
-
-    float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
-    l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
-
-    SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(p_Rune), l_Regen);
-}
-
 void Player::UpdateAllRunesRegen()
 {
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
 
-    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
+    for (uint8 l_I = 0; l_I < RuneType::NUM_RUNE_TYPES; ++l_I)
     {
-        if (uint32 l_Cooldown = GetRuneTypeBaseCooldown(RuneType(i)))
+        if (uint32 l_Cooldown = GetRuneTypeBaseCooldown(RuneType(l_I)))
         {
-            float l_Regen = float(1 * IN_MILLISECONDS) / float(l_Cooldown);
-            l_Regen *= 2.f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+            float l_Regen = float(1 * TimeConstants::IN_MILLISECONDS) / float(l_Cooldown);
 
             if (l_Regen < 0.0099999998f)
                 l_Regen = 0.01f;
 
-            SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, l_Regen);
+            SetFloatValue(EPlayerFields::PLAYER_FIELD_RUNE_REGEN + l_I, l_Regen);
         }
     }
 
@@ -1099,8 +1076,11 @@ float Player::GetRegenForPower(Powers p_Power)
         /// Client calculate this value itself, i don't know how, it has base value 5, but it should be 4, so just -1.0f
         /// I've done some tests and now it's fine, please don't touch, just if server version is changed and client-part value is fixed
         case Powers::POWER_FOCUS:
-            return -1.0f;
-            break;
+            /// Steady Focus increase focus regen, i don't want to remove a hack with return -1 because it works fine
+            if (HasAura(177668))
+                return 1.0f;
+            else
+                return -1.0f;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
             l_BaseRegen = 10.0f;
@@ -1114,14 +1094,14 @@ float Player::GetRegenForPower(Powers p_Power)
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
     {
         if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
-            l_Pct += (*l_Iter)->GetAmount() / 100.0f;
+            l_Pct += (float)(*l_Iter)->GetAmount() / 100.0f;
     }
 
     float l_HastePct = 1.0f;
     float l_Total = 1.0f;
 
-    l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
-    l_Total = l_BaseRegen * l_HastePct * l_Pct;
+    l_HastePct = GetFloatValue(EUnitFields::UNIT_FIELD_MOD_HASTE_REGEN);
+    l_Total = l_BaseRegen * l_HastePct / l_Pct;
 
     return l_Total;
 }

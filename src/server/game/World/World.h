@@ -642,6 +642,17 @@ struct CharacterNameData
     uint32 m_AccountId;
 };
 
+struct BuildInfo
+{
+    bool valid;
+    uint16 year;
+    uint8 month;
+    uint8 day;
+    uint8 hour;
+    uint8 minute;
+    std::string timeStr;
+};
+
 enum RecordDiffType
 {
     RECORD_DIFF_MAP,
@@ -664,6 +675,15 @@ struct QueryHolderCallback
 
     QueryResultHolderFuture m_QueryResultHolderFuture;
     std::function<void(SQLQueryHolder*)>   m_Callback;
+};
+
+
+struct MotdText
+{
+    std::string Text;
+    std::string TextFR;
+    std::string TextES;
+    std::string TextRU;
 };
 
 /// The World
@@ -729,12 +749,11 @@ class World
         /// Allow/Disallow object movements
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
-        /// Set a new Message of the Day
-        void SetMotd(const std::string& motd);
+        void LoadDBMotd();
+        void SetDBMotd(MotdText p_MotdText);
+
         /// Get the current Message of the Day
-        const char* GetMotd() const;
-        /// Get lines count of current Message of the Day
-        const uint32 GetMotdLineCount() const;
+        MotdText const& GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
@@ -940,6 +959,8 @@ class World
 
         bool ModerateMessage(std::string l_Text);
 
+        const BuildInfo& GetLastBuildInfo() const { return m_LastBuild; }
+
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
@@ -1031,8 +1052,9 @@ class World
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         void DetectDBCLang();
         bool m_allowMovement;
-        std::string m_motd;
         std::string m_dataPath;
+        BuildInfo m_LastBuild;
+        MotdText m_Motd;
 
         // for max speed access
         static float m_MaxVisibleDistanceOnContinents;
@@ -1068,7 +1090,15 @@ class World
         // used versions
         std::string m_DBVersion;
 
-        std::list<std::string> m_Autobroadcasts;
+        struct AutoBroadcastText
+        {
+            std::string Text;
+            std::string TextFR;
+            std::string TextRU;
+            std::string TextES;
+        };
+
+        std::list<AutoBroadcastText> m_Autobroadcasts;
 
         std::map<uint32, CharacterNameData> _characterNameDataMap;
         void LoadCharacterNameData();

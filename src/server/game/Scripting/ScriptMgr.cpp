@@ -917,6 +917,14 @@ bool ScriptMgr::OnGameObjectElevatorCheck(const GameObject * p_GameObject) const
     return tmpscript->OnGameObjectElevatorCheck(p_GameObject);
 }
 
+bool ScriptMgr::OnGameObjectSpellCasterUse(GameObject const* p_GameObject, Player* p_User) const
+{
+    ASSERT(p_GameObject);
+
+    GET_SCRIPT_RET(GameObjectScript, p_GameObject->GetScriptId(), tmpscript, true);
+    return tmpscript->OnGameObjectSpellCasterUse(p_GameObject, p_User);
+}
+
 /// Called when a GameObjectAI object is needed for the GameObject.
 /// @p_GameObject : GameObject instance
 GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject * p_GameObject)
@@ -1978,12 +1986,17 @@ void ScriptMgr::OnQuestComplete(Player* p_Player, const Quest* p_Quest)
     FOREACH_SCRIPT(PlayerScript)->OnQuestComplete(p_Player, p_Quest);
 }
 
-/// Called when player abandons some quest
+/// Called when player has quest removed from questlog (active or rewarded)
 /// @p_Player : Player instance
 /// @p_Quest  : Removed quest
 void ScriptMgr::OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestAbandon(p_Player, p_Quest);
+}
+
+void ScriptMgr::OnQuestCleared(Player* p_Player, Quest const* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestCleared(p_Player, p_Quest);
 }
 
 /// Called when a player shapeshift

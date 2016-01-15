@@ -41,7 +41,8 @@ class gobject_commandscript: public CommandScript
                 { "state",          SEC_GAMEMASTER,     false, &HandleGameObjectSetStateCommand,  "", NULL },
                 { "flags",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFlagsCommand,  "", NULL },
                 { "field",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFieldCommand,  "", NULL },
-                { "animkit",        SEC_ADMINISTRATOR,  false, &HandleGameObjectSetAnimKitCOmmand,"", NULL },
+                { "animkit",        SEC_ADMINISTRATOR,  false, &HandleGameObjectSetAnimKitCommand,"", NULL },
+                { "activateanim",   SEC_ADMINISTRATOR,  false, &HandleGameObjectActivateAnim,     "", NULL },
                 { NULL,             0,                  false, NULL,                              "", NULL }
             };
             static ChatCommand gobjectGetCommandTable[] =
@@ -691,7 +692,7 @@ class gobject_commandscript: public CommandScript
             int32 objectState = atoi(state);
 
             if (objectType < 4)
-                object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
+                object->SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, objectType, objectState);
             else if (objectType == 4)
             {
                 WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
@@ -768,7 +769,7 @@ class gobject_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGameObjectSetAnimKitCOmmand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGameObjectSetAnimKitCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
             if (!l_GuidLow)
@@ -797,6 +798,41 @@ class gobject_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleGameObjectActivateAnim(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
+            if (!l_GuidLow)
+                return false;
+
+            GameObject* l_GameObject = nullptr;
+
+            if (GameObjectData const* l_GameObjectData = sObjectMgr->GetGOData(l_GuidLow))
+                l_GameObject = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GameObjectData->id);
+
+            if (!l_GameObject)
+            {
+                p_Handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_Value = strtok(nullptr, " ");
+            if (!l_Value)
+                return false;
+
+            uint32 l_Val = atoi(l_Value);
+
+            char* l_MaintainChar = strtok(nullptr, " ");
+            if (!l_MaintainChar)
+                return false;
+
+            bool l_Maintain = atoi(l_MaintainChar);
+
+            l_GameObject->SendGameObjectActivateAnimKit(l_Val, l_Maintain);
+            p_Handler->PSendSysMessage("Activate anim kit %u, maintained %u for GameObject %u.", l_Val, l_Maintain, l_GuidLow);
+            return true;
+        }
+
         static bool HandleGameObjectGetStateCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
@@ -815,10 +851,10 @@ class gobject_commandscript: public CommandScript
                 return false;
             }
 
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 0, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 0));
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 1, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 1));
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 2, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 2));
-            p_Handler->PSendSysMessage("Gobject type %d state %d", 3, l_GameObject->GetByteValue(GAMEOBJECT_BYTES_1, 3));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 0, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 0));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 1, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 1));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 2, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 2));
+            p_Handler->PSendSysMessage("Gobject type %d state %d", 3, l_GameObject->GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3));
             return true;
         }
 

@@ -142,6 +142,50 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
+/// Molten Earth damage - 170379
+class spell_mastery_molten_earth_damage : public SpellScriptLoader
+{
+    public:
+        spell_mastery_molten_earth_damage() : SpellScriptLoader("spell_mastery_molten_earth_damage") { }
+
+        class spell_mastery_molten_earth_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mastery_molten_earth_damage_SpellScript);
+
+            enum eSpells
+            {
+                MoltenEarth = 170374
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                float l_Mastery = 0.0f;
+                float l_SpellPower = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::MoltenEarth, EFFECT_0))
+                    l_Mastery = l_AuraEffect->GetAmount();
+
+                int32 l_Damage = (l_Mastery / 100) * l_SpellPower;
+
+                SetHitDamage(l_Damage);
+            }
+
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mastery_molten_earth_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mastery_molten_earth_damage_SpellScript;
+        }
+};
+
+
 /// Mastery: Sniper Training - 76659
 class spell_mastery_sniper_training : public SpellScriptLoader
 {
@@ -288,7 +332,8 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
         }
 };
 
-// Mastery: Echo of Light - 77485
+/// last update : 6.1.2
+/// Mastery: Echo of Light - 77485
 class spell_mastery_echo_of_light: public SpellScriptLoader
 {
     public:
@@ -314,7 +359,7 @@ class spell_mastery_echo_of_light: public SpellScriptLoader
                     return;
 
                 float Mastery = plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 6;
+                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 2;
 
                 bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
                 plr->CastCustomSpell(unitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &bp, NULL, NULL, true);
@@ -717,7 +762,8 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                 DivineStorm             = 53385,
                 FinalVerdict            = 157048,
                 Inquisition             = 111341,
-                HandOfLightEffect       = 96172
+                HandOfLightEffect       = 96172,
+                EmpoweredHammerofWrath  = 158392
             };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
@@ -731,7 +777,8 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
 
                 if (l_SpellInfo->Id != eSpells::CrusaderStrike && l_SpellInfo->Id != eSpells::HammeroftheRighteous 
                     && l_SpellInfo->Id != eSpells::HammerofWrath && l_SpellInfo->Id != eSpells::TemplarsVerdict 
-                    && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict)
+                    && l_SpellInfo->Id != eSpells::DivineStorm && l_SpellInfo->Id != eSpells::FinalVerdict &&
+                    l_SpellInfo->Id != eSpells::EmpoweredHammerofWrath)
                     return;
 
                 Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
@@ -925,6 +972,7 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_icicles_proc();
     new spell_mastery_molten_earth();
     new spell_mastery_molten_earth_periodic();
+    new spell_mastery_molten_earth_damage();
     new spell_mastery_sniper_training();
     new spell_mastery_recently_moved();
     new spell_mastery_sniper_training_aura();

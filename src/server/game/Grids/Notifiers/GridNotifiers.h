@@ -793,6 +793,32 @@ namespace JadeCore
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&);
     };
 
+    /// Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO)
+    class NearestGameObjectInObjectRangeCheck
+    {
+        public:
+            NearestGameObjectInObjectRangeCheck(WorldObject const& p_Object, float p_Range) : m_Object(p_Object), m_Range(p_Range) { }
+
+            bool operator()(GameObject* p_GameObject)
+            {
+                if (m_Object.IsWithinDistInMap(p_GameObject, m_Range))
+                {
+                    m_Range = m_Object.GetDistance(p_GameObject);        // use found GO range as new range limit for next check
+                    return true;
+                }
+                return false;
+            }
+
+            float GetLastRange() const { return m_Range; }
+
+        private:
+            WorldObject const& m_Object;
+            float  m_Range;
+
+            // prevent clone this object
+            NearestGameObjectInObjectRangeCheck(NearestGameObjectInObjectRangeCheck const&);
+    };
+
     // Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO with a certain type)
     class NearestGameObjectTypeInObjectRangeCheck
     {

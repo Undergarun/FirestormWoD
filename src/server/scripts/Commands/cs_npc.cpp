@@ -170,6 +170,7 @@ public:
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
             //}
             { "animkit",        SEC_GAMEMASTER,     false, &HandleNpcSetAnimKitCommand,        "", NULL },
+            { "emotestate",     SEC_GAMEMASTER,     false, &HandleNpcSetEmoteStateCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand npcCommandTable[] =
@@ -756,7 +757,7 @@ public:
             if (target->GetUInt32Value(UNIT_FIELD_FLAGS) & unitFlags[i].flag)
                 handler->PSendSysMessage(unitFlags[i].text, unitFlags[i].flag);
 
-        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS2), target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS), target->getFaction());
+        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS_2), target->GetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS), target->getFaction());
         handler->PSendSysMessage(LANG_COMMAND_RESPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
@@ -1702,6 +1703,59 @@ public:
         WorldDatabase.Execute(l_Statement);
 
         l_Target->SetAIAnimKitId(l_ID);
+        return true;
+    }
+
+    static bool HandleNpcSetEmoteStateCommand(ChatHandler* p_Handler, char const* p_Args)
+    {
+        if (!*p_Args)
+            return false;
+
+        uint32 l_ID = atoi((char*)p_Args);
+        Creature* l_Target = p_Handler->getSelectedCreature();
+        if (!l_Target)
+        {
+            p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (l_Target->GetEntry() == 1)
+        {
+            p_Handler->PSendSysMessage("%s%s|r", "|cffff33ff", "You want to load path to a waypoint? Aren't you?");
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (sEmotesStore.LookupEntry(l_ID) == nullptr)
+        {
+            p_Handler->PSendSysMessage("The Emote you're trying to set doesn't exists!");
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 l_GuidLow = l_Target->GetDBTableGUIDLow();
+
+        PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_SEL_CREATURE_ADDON_BY_GUID);
+        l_Statement->setUInt32(0, l_GuidLow);
+
+        PreparedQueryResult l_Result = WorldDatabase.Query(l_Statement);
+        if (l_Result)
+        {
+            l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_UPD_CREATURE_ADDON_EMOTESTATE);
+            l_Statement->setUInt32(0, l_ID);
+            l_Statement->setUInt32(1, l_GuidLow);
+        }
+        else
+        {
+            l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_INS_CREATURE_ADDON_BY_EMOTESTATE);
+            l_Statement->setUInt32(0, l_GuidLow);
+            l_Statement->setUInt32(1, l_ID);
+        }
+
+        WorldDatabase.Execute(l_Statement);
+
+        l_Target->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, l_ID);
         return true;
     }
 

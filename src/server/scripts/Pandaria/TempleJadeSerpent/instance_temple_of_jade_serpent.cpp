@@ -445,7 +445,7 @@ public:
                         return;
                     summoner->AddAura(SPELL_FIGMENT_OF_DOUBT_2, creature);
                     creature->SetDisplayId(summoner->GetDisplayId());
-                    creature->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
                     summoner->CastSpell(creature, SPELL_COPY_WEAPON, false);
                     summoner->CastSpell(creature, SPELL_COPY_WEAPON_2, false);
 
@@ -454,36 +454,36 @@ public:
 
                     if (!caster)
                         return;
-                    uint32 prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
+                    uint32 prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS);
                     if (Player* player = caster->ToPlayer())
 
                     {
                         if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, mainItem->GetEntry());
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, mainItem->GetEntry());
 
                     }
                     else
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID));
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS));
 
-                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2);
 
                     if (Player* player = caster->ToPlayer())
                     {
                         if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, offItem->GetEntry());
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, offItem->GetEntry());
                     }
                     else
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1));
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2));
 
-                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2);
+                    prevItem = target->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4);
 
                     if (Player* player = caster->ToPlayer())
                     {
                         if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, rangedItem->GetEntry());
+                            target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, rangedItem->GetEntry());
                     }
                     else
-                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2));
+                        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4, caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 4));
                 }
                 break;
             }
@@ -852,7 +852,7 @@ public:
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         c->CastSpell(unit, SPELL_DRAW_SHA_3, false);
                         c->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, scroll);
-                        c->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 42808);
+                        c->SetChannelSpellID(42808);
                         c->ForcedDespawn(2000);
                     }
 

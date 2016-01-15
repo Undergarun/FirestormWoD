@@ -268,12 +268,8 @@ class iron_docks_mob_gromkar_footsoldier : public CreatureScript
                 SpellTacticalKick      = 169413,
                 SpellDemoralizingShout = 169341,
                 SpellChargingSlash     = 172889,
-                SpellChargingSlashJump = 172885
-            };
-
-            enum eFootSoldierEmotes
-            {
-                EmoteBeg = 20
+                SpellChargingSlashJump = 172885,
+                SpellKneelDown         = 173091
             };
 
             void Reset() override
@@ -284,7 +280,6 @@ class iron_docks_mob_gromkar_footsoldier : public CreatureScript
             void EnterCombat(Unit* p_Who) override
             {
                 me->RemoveAllAuras();
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, eFootSoldierEmotes::EmoteBeg);
                 events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                 events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 8 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);               
@@ -671,7 +666,7 @@ public:
         {
             me->setFaction(HostileFaction);
             m_DamageDiff = 1 * TimeConstants::IN_MILLISECONDS;
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -895,9 +890,9 @@ class iron_docks_mob_iron_star : public CreatureScript
 
         iron_docks_mob_iron_star() : CreatureScript("iron_docks_mob_iron_star") { }
 
-        struct mob_iron_docksAI : public ScriptedAI
+        struct iron_docks_mob_iron_starAI : public ScriptedAI
         {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            iron_docks_mob_iron_starAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_Instance = me->GetInstanceScript();
                 m_Activated = false;
@@ -938,8 +933,8 @@ class iron_docks_mob_iron_star : public CreatureScript
             {
                 if (p_Id == eMovementInformed::MovementInformedIronStarWallContact)
                 {
-                    me->CastSpell(me, eIronStarSpells::SpellQuietSuicide);
                     m_Activated = false;
+                    me->CastSpell(me, eIronStarSpells::SpellQuietSuicide);           
                     me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
@@ -986,7 +981,7 @@ class iron_docks_mob_iron_star : public CreatureScript
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
-            return new mob_iron_docksAI(p_Creature);
+            return new iron_docks_mob_iron_starAI(p_Creature);
         }
 };
 
@@ -1381,118 +1376,6 @@ class iron_docks_trigger_cannon : public CreatureScript
         }
 };
 
-/// Thunderlord Wrangler - 83390
-class iron_docks_mob_thundering_wandler : public CreatureScript
-{
-    public:
-
-        iron_docks_mob_thundering_wandler() : CreatureScript("iron_docks_mob_thundering_wandler") { }
-
-        struct mob_iron_docksAI : public ScriptedAI
-        {
-            mob_iron_docksAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_Instance = me->GetInstanceScript();
-            }
-
-            enum eThunderingWandlerSpells
-            {
-                /// Thunderlord Wrangler
-                SpellCultTraps       = 173336,
-                SpellCultTrapsDamage = 173324,
-                SpellRendingCleave   = 167815,
-                SpellSpearThrow      = 167095,
-                SpellCorpseExplosion = 73163 ///< Cosmetic
-            };
-
-            enum eThunderWandlerEvents
-            {
-                /// Thunderlord Wrangler
-                EventCultTraps = 1,
-                EventSpearThrow,
-                EventRendingCleave         
-            };
-
-            InstanceScript* m_Instance;
-
-            void Reset() override
-            {
-                events.Reset();
-            }
-
-            void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-            {
-                if (p_Id == eIronDocksMovementInformed::MovementInformWanlderingThundlerOshirThirdKill)
-                {
-                    if (m_Instance != nullptr)
-                    {
-                        if (Creature* l_Oshir = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataOshir)))
-                        {
-                            l_Oshir->GetMotionMaster()->CustomJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 20.0f, 20.0f, eIronDocksMovementInformed::MovementInformWanlderingThundlerOshirThirdKill);
-                            me->CastSpell(me, eThunderingWandlerSpells::SpellCorpseExplosion);
-                            me->Kill(me);
-                            l_Oshir->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_UNK_6 | eUnitFlags::UNIT_FLAG_UNK_15);
-                            l_Oshir->RemoveAllAuras();
-                            l_Oshir->setFaction(HostileFaction);
-
-                            if (Player* l_Player = l_Oshir->FindNearestPlayer(20.0f, true))
-                                l_Oshir->Attack(l_Player, true);
-                        }
-                    }
-                }
-            }
-
-            void EnterCombat(Unit* p_Attacker) override
-            {
-                events.ScheduleEvent(eThunderWandlerEvents::EventCultTraps, 18 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eThunderWandlerEvents::EventSpearThrow, 18 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eThunderWandlerEvents::EventRendingCleave, urand(7 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-            }
-
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(p_Diff);
-
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                    return;
-
-                switch (events.ExecuteEvent())
-                {
-                    case eThunderWandlerEvents::EventCultTraps:
-                            if (Unit* l_Target = me->getVictim())
-                            {
-                                me->CastSpell(l_Target, eThunderingWandlerSpells::SpellCultTraps, true);
-                                me->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 8.0f);
-                            }
-                            events.ScheduleEvent(eThunderWandlerEvents::EventCultTraps, 25 * TimeConstants::IN_MILLISECONDS);
-                            break;
-                    case eThunderWandlerEvents::EventSpearThrow:
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 50.0f, true))
-                                me->CastSpell(l_Target, eThunderingWandlerSpells::SpellSpearThrow);
-                            events.ScheduleEvent(eThunderWandlerEvents::EventSpearThrow, 18 * TimeConstants::IN_MILLISECONDS);
-                            break;
-                    case eThunderWandlerEvents::EventRendingCleave:
-                            if (Unit* l_Target = me->getVictim())
-                                me->CastSpell(l_Target, eThunderingWandlerSpells::SpellRendingCleave);
-                            events.ScheduleEvent(eThunderWandlerEvents::EventRendingCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                            break;
-                        default:
-                            break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new mob_iron_docksAI(p_Creature);
-        }
-};
-
 /// Rampaging Clefthoof - 83392
 class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 {
@@ -1540,22 +1423,7 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede,  12 * TimeConstants::IN_MILLISECONDS);
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_Damage && p_Damage > 0)
-                {
-                    if (m_Frenzied)
-                        return;
-
-                    if (me->GetHealthPct() <= 30)
-                    {
-                        m_Frenzied = true;
-                        me->CastSpell(me, eClefthoofSpells::SpellClefthoofFrenzy);
-                    }
-                }
+                events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -1567,6 +1435,7 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
                     me->RemoveAura(eClefthoofSpells::SpellClefthoofStampedeVisualMovement);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                     me->CastSpell(me, eClefthoofSpells::SpellClefthoofStampedeDamage);
+                    me->AddAura(eClefthoofSpells::SpellClefthoofFrenzy, me);
                 }
             }
 
@@ -1797,16 +1666,18 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
                     if (l_Caster->GetVehicleKit())
                     {
                         if (Unit* l_Unit = l_Caster->GetVehicleKit()->GetPassenger(0))
-                        {
-                            l_Caster->GetVehicleKit()->RemoveAllPassengers(true);
-                            
+                        {                                                   
                             if (l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                             {
                                 if (Unit* l_UnitSelection = l_Unit->ToPlayer()->GetSelectedUnit())
                                 {
-                                    l_Caster->GetMotionMaster()->MoveCharge(l_UnitSelection, 42.0f, eMovementInformed::MovementInformedIronStarWallContact);
+                                    l_Caster->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                                    l_Caster->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FORCE_MOVEMENT);
+                                    l_Caster->GetMotionMaster()->MoveCharge(l_UnitSelection, 42.0f, eMovementInformed::MovementInformedIronStarWallContact);                         
                                 }
                             }
+
+                            l_Caster->GetVehicleKit()->RemoveAllPassengers(true);
                         }
                     }
                 }
@@ -2508,22 +2379,21 @@ void AddSC_iron_docks()
     new iron_docks_mob_gwarnok(); /// 84520
     new iron_docks_mob_iron_star(); /// 81247
     new iron_docks_mob_laborer_ogron(); /// 83578
-    new iron_docks_mob_gromkar_deck_hand();
-    new iron_docks_mob_gromkar_technician_deckhand_leader();
-    new iron_docks_mob_thundering_wandler();
-    new iron_docks_mob_rampaging_clefthoof();
-    new iron_docks_mob_ironwing_flamespitter();
-    new iron_docks_mob_hammer_stalker();
+    new iron_docks_mob_gromkar_deck_hand(); /// 83762
+    new iron_docks_mob_gromkar_technician_deckhand_leader(); /// 83763
+    new iron_docks_mob_rampaging_clefthoof(); /// 83392
+    new iron_docks_mob_ironwing_flamespitter(); /// 83389
+    new iron_docks_mob_hammer_stalker(); /// 86534
     /// Spells
-    new iron_docks_spell_flurry_periodic();
-    new iron_docks_spell_charge_forward();
-    new iron_docks_spell_barbed_arrow_aura();
-    new iron_docks_spell_barbed_arrow_dummy();
-    new iron_docks_spell_burning_arrow_aura();
-    new iron_docks_spell_charging_slash_effect();
-    new iron_docks_spell_lava_barrage_dummy();
-    new iron_docks_spell_lava_blast();
-    new iron_docks_spell_trampling_stampede();
+    new iron_docks_spell_flurry_periodic(); /// 178412
+    new iron_docks_spell_charge_forward(); /// 167299
+    new iron_docks_spell_barbed_arrow_aura(); /// 164370
+    new iron_docks_spell_barbed_arrow_dummy(); /// 172810
+    new iron_docks_spell_burning_arrow_aura(); /// 172810
+    new iron_docks_spell_charging_slash_effect(); /// 172885
+    new iron_docks_spell_lava_barrage_dummy(); /// 176356
+    new iron_docks_spell_lava_blast(); /// 173514
+    new iron_docks_spell_trampling_stampede(); /// 173384
     /// AreaTriggers
     new iron_docks_area_trigger_burning_arrow();
     new iron_docks_area_trigger_lava_barrage_effect();

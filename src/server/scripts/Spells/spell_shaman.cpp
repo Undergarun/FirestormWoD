@@ -75,7 +75,6 @@ enum ShamanSpells
     SPELL_SHA_CONDUCTIVITY_HEAL                 = 118800,
     SPELL_SHA_GLYPH_OF_LAKESTRIDER              = 55448,
     SPELL_SHA_WATER_WALKING                     = 546,
-    SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE         = 63280,
     SPELL_SHA_SOLAR_BEAM                        = 113286,
     SPELL_SHA_SOLAR_BEAM_SILENCE                = 113288,
     SPELL_SHA_GHOST_WOLF                        = 2645,
@@ -420,6 +419,76 @@ class spell_sha_totemic_projection: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
+/// Call by Ascendance - 114050, Ascendance - 114051, Ascendance - 114052
+/// Glyph of Ascendance - 186198
+class spell_sha_glyph_of_ascendance : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_ascendance() : SpellScriptLoader("spell_sha_glyph_of_ascendance") { }
+
+        class spell_sha_glyph_of_ascendance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_glyph_of_ascendance_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofAscendance               = 186198,
+                GlyphofAscendanceVisualElem     = 186199,
+                GlyphofAscendanceVisualResto    = 186200,
+                GlyphofAscendanceVisualEnh       = 186201
+            };
+
+            void AfterApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(eSpells::GlyphofAscendance))
+                    return;
+
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                {
+                case SPEC_SHAMAN_ELEMENTAL:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualElem, true);
+                    break;
+                case SPEC_SHAMAN_ENHANCEMENT:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualEnh, true);
+                    break;
+                case SPEC_SHAMAN_RESTORATION:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualResto, true);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualElem);
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualEnh);
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualResto);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_sha_glyph_of_ascendance_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_sha_glyph_of_ascendance_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_glyph_of_ascendance_AuraScript();
+        }
+};
+
 /// Ascendance (Flame) - 114050
 /// last update: 6.1.2 19865
 class spell_sha_ascendance_flame : public SpellScriptLoader
@@ -433,7 +502,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
 
             enum eSpells
             {
-                LavaBurst = 51505
+                LavaBurst                           = 51505
             };
 
             void HandleOnHit()
@@ -441,7 +510,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
-
+                
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                     l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
             }
@@ -604,17 +673,26 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_glyph_of_shamanistic_rage_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfShamanisticRage = 63280
+            };
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE))
-                    {
-                        DispelChargesList dispelList;
-                        caster->GetDispellableAuraList(caster, DISPEL_ALL_MASK, dispelList);
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                        for (auto itr : dispelList)
-                            caster->RemoveAura(itr.first);
+                if (l_Caster->HasAura(eSpells::GlyphOfShamanisticRage))
+                {
+                    DispelChargesList l_DispelList;
+                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
+
+                    for (auto itr : l_DispelList)
+                    {
+                        if (!itr.first->GetSpellInfo()->IsPositive())
+                            l_Caster->RemoveAura(itr.first);
                     }
                 }
             }
@@ -1363,19 +1441,6 @@ class spell_sha_earthquake: public SpellScriptLoader
                 ImprovedChainLightning = 157766,
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                AreaTrigger* l_AreaTrigger = l_Caster->GetAreaTrigger(eSpells::Earthquake);
-                if (!l_AreaTrigger)
-                    return;
-
-                l_Caster->CastCustomSpell(l_AreaTrigger->GetPositionX(), l_AreaTrigger->GetPositionY(), l_AreaTrigger->GetPositionZ(), eSpells::EarthquakeSlow, nullptr, nullptr, nullptr, true);
-            }
-
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1399,7 +1464,6 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sha_earthquake_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1424,6 +1488,7 @@ public:
         enum eSpells
         {
             EarthquakeTick      = 77478,
+            EarthquakeSlow      = 182387,
             EarthquakeKnockDown = 77505
         };
 
@@ -1440,6 +1505,8 @@ public:
             Unit* l_Target = GetHitUnit();
             if (!l_Caster || !l_Target)
                 return;
+
+            l_Caster->CastSpell(l_Target, eSpells::EarthquakeSlow, true);
 
             /// 10% chance of knocking down affected targets
             if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
@@ -2223,6 +2290,9 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
                 if (!l_Owner)
                     return;
 
+                if (p_EventInfo.GetDamageInfo() == nullptr)
+                    return;
+
                 int32 l_TakenDamage = p_EventInfo.GetDamageInfo()->GetDamage();
                 if (!l_TakenDamage)
                     return;
@@ -2549,8 +2619,8 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// 51505 - Lava Burst
+/// last update : 6.2.3
+/// Lava Burst - 51505
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
@@ -2578,9 +2648,8 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
 
                 /// Lavaburst deals 50% more damage with Flame Shock on target
-                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
-                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION && l_Target->GetTypeId() == TYPEID_PLAYER))
-                    SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                    SetHitDamage(int32(GetHitDamage() * 1.5f));
             }
 
             void HandleAfterCast()
@@ -3346,6 +3415,7 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_glyph_of_ascendance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
     new spell_sha_eye_of_the_storm();

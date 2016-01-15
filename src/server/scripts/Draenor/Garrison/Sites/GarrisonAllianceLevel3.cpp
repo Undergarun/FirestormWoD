@@ -21,7 +21,7 @@ namespace MS { namespace Garrison { namespace Sites
 {
     /// Constructor
     InstanceMapScript_GarrisonAllianceLevel3::InstanceMapScript_GarrisonAllianceLevel3()
-        : InstanceMapScript("instance_Garrison_A3", MapIDs::MAP_GARRISON_ALLIANCE_LEVEL_3)
+        : InstanceMapScript("instance_Garrison_A3", MapIDs::MapGarrisonAllianceLevel3)
     {
 
     }

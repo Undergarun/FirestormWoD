@@ -415,11 +415,11 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID,   family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
     //                                            42          43           44          45          46         47         48            49         50            51           52
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           53     54       55     56       57     58       59      60        61           62          63      64       65         66
-                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                           67             68          69         70           71           72         73            74           75          76         77          78
+    //                                           53     54       55     56       57     58       59      60        61       62       63      64       65
+                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
+    //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            79           80         81          82               83               84              85            86
+    //                                            78           79         80          81               82               83              84            85
                                              "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -508,7 +508,6 @@ void ObjectMgr::LoadCreatureTemplates()
         for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
             l_CreatureTemplate->spells[i] = fields[index++].GetUInt32();
 
-        l_CreatureTemplate->PetSpellDataId = fields[index++].GetUInt32();
         l_CreatureTemplate->VehicleId      = fields[index++].GetUInt32();
         l_CreatureTemplate->mingold        = fields[index++].GetUInt32();
         l_CreatureTemplate->maxgold        = fields[index++].GetUInt32();
@@ -897,13 +896,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
              sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
              const_cast<CreatureTemplate*>(cInfo)->VehicleId = 0;
         }
-    }
-
-    if (cInfo->PetSpellDataId)
-    {
-        CreatureSpellDataEntry const* spellDataId = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
-        if (!spellDataId)
-            sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing PetSpellDataId (%u).", cInfo->Entry, cInfo->PetSpellDataId);
     }
 
     for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
@@ -2031,6 +2023,7 @@ void ObjectMgr::LoadGameobjects()
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
             continue;
         }
+
         data.go_state       = GOState(go_state);
 
         data.isActive       = fields[16].GetBool();
@@ -3011,7 +3004,6 @@ void ObjectMgr::LoadItemSpecs()
             continue;
         
         ItemSpecStats itemSpecStats(sItemStore.LookupEntry(l_ItemTemplate.ItemId), sItemSparseStore.LookupEntry(l_ItemTemplate.ItemId));
-
         if (itemSpecStats.ItemSpecStatCount)
         {
             for (uint32 l_SpecIndex = 0; l_SpecIndex < sItemSpecStore.GetNumRows(); l_SpecIndex++)
@@ -3040,7 +3032,7 @@ void ObjectMgr::LoadItemSpecs()
                 if (!hasPrimary || !hasSecondary)
                     continue;
 
-                if (l_ItemTemplate.RequiredLevel > 40)
+                if (l_ItemTemplate.RequiredLevel > 40 && l_ItemTemplate.InventoryType != InventoryType::INVTYPE_CLOAK && l_ItemTemplate.Class == ItemClass::ITEM_CLASS_ARMOR)
                 {
                     uint8 l_Class = GetClassBySpec(itemSpec->SpecializationID);
                     switch (l_ItemTemplate.SubClass)
@@ -3072,7 +3064,6 @@ void ObjectMgr::LoadItemSpecs()
             }
         }
     }
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
@@ -7685,11 +7676,15 @@ void ObjectMgr::LoadQuestPOI()
         uint32 l_WorldEffectID      = l_Fields[8].GetUInt32();
         uint32 l_PlayerConditionID  = l_Fields[9].GetUInt32();
         uint32 l_Unk                = l_Fields[10].GetUInt32();
+        
+        
+        if (l_QuestId < int32(POIs.size()) && l_BlobIndex < int32(POIs[l_QuestId].size()))
+        {
+            QuestPOI l_POI(l_BlobIndex, l_ObjectiveIndex, l_MapID, l_WorldMapAreaId, l_Floor, l_Priority, l_Flags, l_WorldEffectID, l_PlayerConditionID, l_Unk);
+            l_POI.Points = POIs[l_QuestId][l_BlobIndex];
 
-        QuestPOI l_POI(l_BlobIndex, l_ObjectiveIndex, l_MapID, l_WorldMapAreaId, l_Floor, l_Priority, l_Flags, l_WorldEffectID, l_PlayerConditionID, l_Unk);
-        l_POI.Points = POIs[l_QuestId][l_BlobIndex];
-
-        _questPOIStore[l_QuestId].push_back(l_POI);
+            _questPOIStore[l_QuestId].push_back(l_POI);
+        }
 
         ++count;
     }
@@ -9011,7 +9006,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
         return false;
     }
 
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS) // FIXME: GetItemCount range 0...255 MAX_VENDOR_ITEMS = 300
+    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
     {
         if (player)
             ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
@@ -9772,7 +9767,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return NULL;
 }
 
-void ObjectMgr::LoadResearchSiteZones()
+ void ObjectMgr::LoadResearchSiteZones()
 {
     uint32 l_OldMSTime = getMSTime();
 
@@ -10066,7 +10061,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
 void ObjectMgr::LoadCharacterTemplateData()
 {
     uint32 l_OldMSTime = getMSTime();
-    QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap FROM character_template WHERE disabled = 0");
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap, hordeDefaultRace, allianceDefaultRace FROM character_template WHERE disabled = 0");
     uint32 l_Count = 0;
 
     if (!l_Result)
@@ -10092,6 +10087,8 @@ void ObjectMgr::LoadCharacterTemplateData()
             l_CharacterTemplate->m_AlianceMapID = l_Fields[10].GetInt16();
             l_CharacterTemplate->m_HordePos.Relocate(l_Fields[11].GetFloat(), l_Fields[12].GetFloat(), l_Fields[13].GetFloat(), l_Fields[14].GetFloat());
             l_CharacterTemplate->m_HordeMapID = l_Fields[15].GetInt16();
+            l_CharacterTemplate->m_HordeDefaultRace = l_Fields[16].GetUInt8();
+            l_CharacterTemplate->m_AllianceDefaultRace = l_Fields[17].GetUInt8();
         }
 
         if (!sChrClassesStore.LookupEntry(l_CharacterTemplate->m_PlayerClass))
@@ -10111,7 +10108,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         if (!l_CharacterTemplate->m_Level)
             l_CharacterTemplate->m_Level = 1;
 
-        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
+        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count, type FROM character_template_item WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_ItemResult)
         {
             do
@@ -10123,6 +10120,7 @@ void ObjectMgr::LoadCharacterTemplateData()
                     l_TemplateItem.m_ItemID = l_ItemFields[0].GetUInt32();
                     l_TemplateItem.m_Faction = l_ItemFields[1].GetUInt32();
                     l_TemplateItem.m_Count = l_ItemFields[2].GetUInt32();
+                    l_TemplateItem.m_Type = l_ItemFields[3].GetUInt8();
                 }
 
                 if (!GetItemTemplate(l_TemplateItem.m_ItemID))

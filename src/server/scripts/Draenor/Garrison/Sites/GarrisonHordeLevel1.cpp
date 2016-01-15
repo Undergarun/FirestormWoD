@@ -22,7 +22,7 @@ namespace MS { namespace Garrison { namespace Sites
 {
     /// Constructor
     InstanceMapScript_GarrisonHordeLevel1::InstanceMapScript_GarrisonHordeLevel1()
-        : InstanceMapScript("instance_Garrison_H1", MapIDs::MAP_GARRISON_HORDE_LEVEL_1)
+        : InstanceMapScript("instance_Garrison_H1", MapIDs::MapGarrisonHordeLevel1)
     {
 
     }
@@ -214,8 +214,8 @@ namespace MS { namespace Garrison { namespace Sites
         if (!l_Entry)
             return;
 
-        p_Owner->AddMovieDelayedTeleport(l_Entry->CreationMovie, l_Entry->MapID, 5754.82f, 4495.425f, 132.50f, 2.90f);
-        p_Owner->SendMovieStart(l_Entry->CreationMovie);
+        p_Owner->AddMovieDelayedTeleport(l_Entry->MovieID, l_Entry->MapID, 5754.82f, 4495.425f, 132.50f, 2.90f);
+        p_Owner->SendMovieStart(l_Entry->MovieID);
         p_Owner->CompleteQuest(Quests::Horde_BiggerIsBetter);
     }
 

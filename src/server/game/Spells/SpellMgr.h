@@ -136,6 +136,7 @@ enum ProcFlags
     PROC_FLAG_DONE_OFFHAND_ATTACK             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
 
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
+    PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
 
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
@@ -562,6 +563,8 @@ typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
 typedef std::map<uint32, float>  AreaTriggerVisuals;
 typedef std::map<uint16, uint16> ItemUpgradeDatas;
+
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 struct PetDefaultSpellsEntry
 {

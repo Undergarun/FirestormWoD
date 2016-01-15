@@ -248,7 +248,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             if (!l_IsRaid)
                 l_GoldPerPlayer = uint32((loot->Gold) / (playersNear.size()));
 
-            loot->NotifyMoneyRemoved(linkedLoots.size() > 1);
+            loot->NotifyMoneyRemoved();
 
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
@@ -303,7 +303,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 }
             }
 
-            loot->NotifyMoneyRemoved(linkedLoots.size() > 1);
+            loot->NotifyMoneyRemoved();
 
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             data << uint32(loot->Gold);
@@ -680,18 +680,22 @@ void WorldSession::HandleMasterLootItemOpcode(WorldPacket & p_Packet)
 
         /// Not move item from loot to target inventory
         Item* l_NewItem = l_Target->StoreNewItem(l_Destination, l_Item.itemid, true, l_Item.randomPropertyId, l_Looters);
-        l_NewItem->AddItemBonuses(l_Item.itemBonuses);
 
-        l_Target->SendNewItem(l_NewItem, uint32(l_Item.count), false, false, true);
-        l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, l_Item.itemid, l_Item.count);
-        l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, l_Loot->Type, l_Item.count);
-        l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, l_Item.itemid, l_Item.count);
+        if (l_NewItem != nullptr)
+        {
+            l_NewItem->AddItemBonuses(l_Item.itemBonuses);
 
-        /// Mark as looted
-        l_Item.count=0;
-        l_Item.is_looted=true;
+            l_Target->SendNewItem(l_NewItem, uint32(l_Item.count), false, false, true);
+            l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, l_Item.itemid, l_Item.count);
+            l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, l_Loot->Type, l_Item.count);
+            l_Target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, l_Item.itemid, l_Item.count);
 
-        l_Loot->NotifyItemRemoved(l_SlotID);
-        --l_Loot->UnlootedCount;
+            /// Mark as looted
+            l_Item.count = 0;
+            l_Item.is_looted = true;
+
+            l_Loot->NotifyItemRemoved(l_SlotID);
+            --l_Loot->UnlootedCount;
+        }
     }
 }

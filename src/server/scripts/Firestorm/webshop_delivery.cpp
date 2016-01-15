@@ -49,7 +49,7 @@ namespace WebShop
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
                 QueryResultFuture& l_Callback = m_QueryResultFutures[p_Player->GetGUIDLow()];
-                l_Callback = CharacterDatabase.AsyncPQuery("SELECT itemid, count, transaction FROM webshop_delivery_item WHERE guid = '%u' and delivery = 0", l_LowGuid);
+                l_Callback = CharacterDatabase.AsyncPQuery("SELECT itemid, ItemBonus, count, transaction FROM webshop_delivery_item WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
             void OnUpdate(Player* p_Player, uint32 p_Diff) override
@@ -71,6 +71,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::ItemDelivery);
                     return;
                 }
 
@@ -78,8 +79,9 @@ namespace WebShop
                 {
                     Field* l_Field = l_Result->Fetch();
                     uint32 l_ItemID = l_Field[0].GetUInt32();
-                    uint32 l_ItemCount = l_Field[1].GetUInt32();
-                    uint32 l_Transaction = l_Field[2].GetUInt32();
+                    std::string l_Bonuses = l_Field[1].GetString();
+                    uint32 l_ItemCount = l_Field[2].GetUInt32();
+                    uint32 l_Transaction = l_Field[3].GetUInt32();
 
                     ItemPosCountVec l_Dest;
                     InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_ItemCount);
@@ -90,13 +92,20 @@ namespace WebShop
                         continue;
                     }
 
-                    p_Player->AddItem(l_ItemID, l_ItemCount);
+                    std::list<uint32> l_BonusesID;
+                    Tokenizer l_Tokens(l_Bonuses, ',');
+
+                    for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
+                        l_BonusesID.push_back(uint32(atol(*l_Iter)));
+
+                    p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
                 } 
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::ItemDelivery);
             }
     };
 
@@ -136,6 +145,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::GoldDelivery);
                     return;
                 }
 
@@ -165,6 +175,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::GoldDelivery);
             }
     };
 
@@ -204,6 +215,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::CurrencyDelivery);
                     return;
                 }
 
@@ -227,6 +239,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::CurrencyDelivery);
             }
     };
 
@@ -266,6 +279,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::LevelDelivery);
                     return;
                 }
 
@@ -283,6 +297,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::LevelDelivery);
             }
     };
 
@@ -325,6 +340,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::ProfessionDelivery);
                     return;
                 }
 
@@ -397,6 +413,30 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::ProfessionDelivery);
+            }
+    };
+
+    class Delivery_Save : public PlayerScript
+    {
+        public:
+            Delivery_Save() : PlayerScript("WebshopDelivery_Save")
+            {
+            }
+
+            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            {
+                if (p_Player->IsStoreDeliverySaved())
+                    return;
+
+                for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+                {
+                    if (!p_Player->IsStoreDeliveryProccesed((StoreCallback)l_I))
+                        return;
+                }
+
+                p_Player->SaveToDB();
+                p_Player->SetStoreDeliverySaved();
             }
     };
 }
@@ -408,4 +448,5 @@ void AddSC_Webshop_Delivery()
     new WebShop::Delivery_Currency();
     new WebShop::Delivery_Level();
     new WebShop::Delivery_Profession();
+    new WebShop::Delivery_Save();
 };

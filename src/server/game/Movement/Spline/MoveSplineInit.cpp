@@ -303,7 +303,7 @@ namespace Movement
         l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X
         l_Data << float(m_Unit.GetPositionY());                                                     ///< Spline start Y
         l_Data << float(m_Unit.GetPositionZ());                                                     ///< Spline start Z
-        l_Data << uint32(getMSTime());                                                              ///< Move Ticks
+        l_Data << uint32(l_MoveSpline.GetId());                                                     ///< Move Ticks
         l_Data << float(0);                                                                         ///< Spline destination X
         l_Data << float(0);                                                                         ///< Spline destination Y
         l_Data << float(0);                                                                         ///< Spline destination Z

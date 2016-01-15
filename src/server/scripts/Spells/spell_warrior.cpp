@@ -1091,8 +1091,10 @@ class spell_warr_bloodthirst: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::BloodthirstHeal, true);
 
                     if (AuraEffectPtr l_Bloodsurge = l_Caster->GetAuraEffect(eSpells::Bloodsurge, EFFECT_0))
+                    {
                         if (roll_chance_i(l_Bloodsurge->GetAmount()))
                             l_Caster->CastSpell(l_Caster, eSpells::BloodsurgeProc, true);
+                    }
                 }
             }
 
@@ -1496,7 +1498,7 @@ class spell_warr_spell_reflection: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Intervene - 3411
 class spell_warr_intervene: public SpellScriptLoader
 {
@@ -1509,8 +1511,9 @@ class spell_warr_intervene: public SpellScriptLoader
 
             enum eSpells
             {
-                InterveneAura = 34784,
-                InterveneCharge = 147833
+                InterveneAura           = 34784,
+                InterveneCharge         = 147833,
+                GlyphoftheWatchfulEye   = 146973
             };
 
             SpellCastResult CheckCast()
@@ -1518,8 +1521,34 @@ class spell_warr_intervene: public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetExplTargetUnit();
 
+
+                if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
+                    return SPELL_FAILED_ROOTED;
+
+                if (l_Player->HasAura(eSpells::GlyphoftheWatchfulEye))
+                {
+                    std::list<Unit*> l_MemberList;
+                    std::list<Unit*> l_MemberListInRange;
+
+                    l_Player->GetRaidMembers(l_MemberList);
+
+                    for (auto l_Itr : l_MemberList)
+                    {
+                        if (l_Itr->IsWithinDistInMap(l_Player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend) && l_Player->GetGUID() != l_Itr->GetGUID())
+                            l_MemberListInRange.push_back(l_Itr);
+                    }
+
+                    if (l_MemberListInRange.size() < 1)
+                        return SPELL_FAILED_TARGET_FRIENDLY;
+
+                    return SPELL_CAST_OK;
+                }
+
                 if (!l_Player || !l_Target)
                     return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Player->GetGUID() == l_Target->GetGUID())
+                    return SPELL_FAILED_BAD_TARGETS;
 
                 if (l_Player->GetDistance(l_Target) >= 25.0f)
                     return SPELL_FAILED_OUT_OF_RANGE;
@@ -1531,6 +1560,25 @@ class spell_warr_intervene: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Caster->HasAura(eSpells::GlyphoftheWatchfulEye))
+                {
+                    std::list<Unit*> l_MemberList;
+                    std::list<Unit*> l_MemberListInRange;
+
+                    l_Caster->GetRaidMembers(l_MemberList);
+
+                    for (auto l_Itr : l_MemberList)
+                    {
+                        if (l_Itr->IsWithinDistInMap(l_Caster, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend) && l_Caster->GetGUID() != l_Itr->GetGUID())
+                            l_MemberListInRange.push_back(l_Itr);
+                    }
+
+                    l_MemberListInRange.sort(JadeCore::HealthPctOrderPred());
+                    
+                    if (l_MemberListInRange.front())
+                        l_Target = l_MemberListInRange.front();
+                }
 
                 if (l_Target == nullptr)
                     return;
@@ -1842,16 +1890,6 @@ class spell_warr_whirlwind: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::GlyphOfTheRagingWhirlwindAura, true);
             }
 
-            void HandleOnHit()
-            {
-                Player* l_Player = GetCaster()->ToPlayer();
-                Unit* l_Target = GetHitUnit();
-                if (!l_Player || !l_Target)
-                    return;
-
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                    l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
-            }
 
             void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
             {
@@ -1862,6 +1900,9 @@ class spell_warr_whirlwind: public SpellScriptLoader
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
                     PreventHitDefaultEffect(p_EffIndex);
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
             }
 
             void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
@@ -1882,7 +1923,6 @@ class spell_warr_whirlwind: public SpellScriptLoader
             {
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-                OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
                 OnCast += SpellCastFn(spell_warr_whirlwind_SpellScript::HandleOnCast);
             }
         };
@@ -2157,42 +2197,6 @@ class spell_warr_blood_bath : public SpellScriptLoader
         }
 };
 
-enum SweepingStrikes
-{
-    SpellWarrGlyphOfSweepingStrikes         = 58384,
-    SpellWarrSweepingStrikesRageBonus       = 124333
-};
-
-/// Sweeping Strikes (proc) - 12723
-class spell_warr_sweeping_strikes : public SpellScriptLoader
-{
-    public:
-        spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
-
-        class spell_warr_sweeping_strikes_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_sweeping_strikes_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(SweepingStrikes::SpellWarrGlyphOfSweepingStrikes))
-                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SpellWarrSweepingStrikesRageBonus, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_sweeping_strikes_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_sweeping_strikes_SpellScript();
-        }
-};
-
 enum BloodCrazeSpells
 {
     SPELL_WARR_BLOOD_CRAZE_HEAL = 159363
@@ -2388,7 +2392,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                     return;
 
                 /// Formula : $apmult=${0.366+$gte($PL,80)*0.426+$gte($PL,85)*2.46}
-                float l_ApMul = 0.366f + gte(l_Caster->getLevel(), 80) * 0.426f + gte(l_Caster->getLevel(), 85) * 2.46f;
+                float l_ApMul = 0.561f + gte(l_Caster->getLevel(), 80) * 0.426f + gte(l_Caster->getLevel(), 85) * 2.46f;
                 /// $gladmult=$?a156291[${1.05}][${1.0}] -> Already apply by Gladiator Stance
                 /// $shieldchargemult=$?a169667[${1.25}][${1.0}] -> Already apply on spell_warr_shield_charge
 
@@ -2748,7 +2752,9 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
                 GlyphofMystucShout = 58095,
                 GlyphofMystucShoutAura = 121186,
                 GlyphofBloodcurdlingShout = 58096,
-                GlyphofBloodcurdlingShoutAura = 23690
+                GlyphofBloodcurdlingShoutAura = 23690,
+                GlyphofTheWeaponmaster = 146974,
+                GlyphofTheWeaponmasterAura = 147367
             };
 
             void HandleOnCast()
@@ -2762,6 +2768,13 @@ class spell_warr_glyph_of_mystic_shout : public SpellScriptLoader
                     l_Player->CastSpell(l_Player, eSpells::GlyphofBloodcurdlingShoutAura, true);
                 if (l_Player->HasGlyph(eSpells::GlyphofMystucShout))
                     l_Player->CastSpell(l_Player, eSpells::GlyphofMystucShoutAura, true);
+                if (l_Player->HasGlyph(eSpells::GlyphofTheWeaponmaster))
+                {
+                    if (l_Player->HasAura(eSpells::GlyphofTheWeaponmasterAura))
+                        l_Player->RemoveAura(eSpells::GlyphofTheWeaponmasterAura);
+
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofTheWeaponmasterAura, true);
+                }
             }
 
             void Register()
@@ -2928,8 +2941,150 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
         }
 };
 
+/// Glyph of the Weaponmaster - 146974
+/// Weaponmaster - 147367
+class spell_warr_weaponmaster : public SpellScriptLoader
+{
+public:
+    spell_warr_weaponmaster() : SpellScriptLoader("spell_warr_weaponmaster") { }
+
+    class spell_warr_weaponmaster_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_weaponmaster_AuraScript);
+
+        enum eSpells
+        {
+            SingleMindedFury = 81099
+        };
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (!GetCaster())
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint16 l_EndItems = l_Player->HasAura(eSpells::SingleMindedFury) ? EQUIPMENT_SLOT_OFFHAND : EQUIPMENT_SLOT_MAINHAND;
+
+                for (uint16 l_I = EQUIPMENT_SLOT_MAINHAND; l_I <= l_EndItems; l_I++)
+                    if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+                        l_Item->RandomWeaponTransmogrificationFromPrimaryBag(l_Player, l_Item, true);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (!GetCaster())
+                return;
+
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                uint16 l_EndItems = l_Player->HasAura(eSpells::SingleMindedFury) ? EQUIPMENT_SLOT_OFFHAND : EQUIPMENT_SLOT_MAINHAND;
+
+                for (uint16 l_I = EQUIPMENT_SLOT_MAINHAND; l_I <= l_EndItems; l_I++)
+                    if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+                        l_Item->RandomWeaponTransmogrificationFromPrimaryBag(l_Player, l_Item, false);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_warr_weaponmaster_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            OnEffectRemove += AuraEffectRemoveFn(spell_warr_weaponmaster_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_weaponmaster_AuraScript();
+    }
+};
+
+/// Last Update 6.2.3
+/// Sweeping Strikes - 12328
+class spell_warr_sweeping_strikes : public SpellScriptLoader
+{
+    public:
+        spell_warr_sweeping_strikes() : SpellScriptLoader("spell_warr_sweeping_strikes") { }
+
+        class spell_warr_sweeping_strikes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_sweeping_strikes_SpellScript);
+
+            enum SweepingStrikes
+            {
+                SpellWarrGlyphOfSweepingStrikes = 58384,
+                SpellWarrSweepingStrikesRageBonus = 124333
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SweepingStrikes::SpellWarrGlyphOfSweepingStrikes))
+                    l_Caster->CastSpell(l_Caster, SweepingStrikes::SpellWarrSweepingStrikesRageBonus, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_sweeping_strikes_SpellScript::HandleOnHit);
+            }
+        };
+
+        class spell_warr_sweeping_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
+            {
+                Unit* l_Target = GetTarget();
+                if (p_ProcInfo.GetDamageInfo() == nullptr)
+                    return;
+
+                Unit* l_DamageTarget = p_ProcInfo.GetDamageInfo()->GetVictim();
+
+                if (l_DamageTarget == nullptr)
+                    return;
+
+                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo() && p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == 12723)
+                    return;
+
+                int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
+
+                if ((l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
+                    l_Damage /= l_Target->CalculateDamageDealtFactor(l_Target, l_DamageTarget->ToCreature());
+                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->GetTypeId() == TYPEID_PLAYER || l_DamageTarget->IsPetGuardianStuff()))
+                    l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
+
+                Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
+
+                if (l_NewTarget == nullptr)
+                    return;
+
+                l_Target->CastCustomSpell(l_NewTarget, 12723, &l_Damage, NULL, NULL, true);
+
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_sweeping_strikes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_sweeping_strikes_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_sweeping_strikes_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
     new spell_warr_glyph_of_crow_feast();
     new spell_warr_glyph_of_mystic_shout();
@@ -2986,6 +3141,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_single_minded_fury();
     new spell_warr_activate_battle_stance();
     new spell_warr_shield_charge_damage();
+    new spell_warr_weaponmaster();
 
     /// Playerscripts
     new PlayerScript_second_wind();

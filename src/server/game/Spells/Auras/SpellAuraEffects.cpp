@@ -540,6 +540,13 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_481
     &AuraEffect::HandleNULL,                                      //482 SPELL_AURA_482
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
+    &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_484
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_485
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_486
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_487
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_488
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_489
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_490
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -1267,11 +1274,6 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 
 uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
 {
-    float totalMod = 0.0f;
-
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
-        return p_Amount;
-
     /// Dampening, must be calculated off the raw amount
     if (AuraEffectPtr l_AurEff = p_Caster->GetAuraEffect(110310, EFFECT_0))
     {
@@ -1961,10 +1963,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 target->RemoveAura(159687);
 
             break;
-        case FORM_SPIRITOFREDEMPTION:
-            spellId  = 27792;
-            spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
-            break;
         case FORM_SHADOW:
             if (target->HasAura(107906)) // Glyph of Shadow
                 spellId2 = 107904;
@@ -2300,40 +2298,44 @@ void AuraEffect::HandleModStealthLevel(AuraApplication const* aurApp, uint8 mode
     target->UpdateObjectVisibility();
 }
 
-void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = aurApp->GetTarget();
+    Unit* l_Target = p_AurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // prepare spirit state
-    if (apply)
+    if (p_Apply)
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (l_Target->GetTypeId() == TYPEID_PLAYER)
         {
             // disable breath/etc timers
-            target->ToPlayer()->StopMirrorTimers();
+            l_Target->ToPlayer()->StopMirrorTimers();
 
             // set stand state (expected in this form)
-            if (!target->IsStandState())
-                target->SetStandState(UNIT_STAND_STATE_STAND);
+            if (!l_Target->IsStandState())
+                l_Target->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
-        target->SetHealth(1);
+        l_Target->SetFullHealth();
     }
     // die at aura end
-    else if (target->isAlive())
+    else if (l_Target->isAlive())
+    {
         // call functions which may have additional effects after chainging state of unit
-        target->setDeathState(JUST_DIED);
+        l_Target->setDeathState(JUST_DIED);
+    }
 
-    if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    l_Target->SetControlled(p_Apply, UNIT_STATE_ROOT);
+
+    if (p_Apply)
+        l_Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
     else
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        l_Target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 }
 
 void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2909,17 +2911,17 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
         // What must be cloned? at least display and scale
         target->SetDisplayId(caster->GetDisplayId());
 
-        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 3)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
-        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 3)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS);
+        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 2)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 1);
 
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_MainHand);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_OffHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, l_MainHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, l_OffHand);
 
     }
     else
     {
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
-        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS + 2, 0);
         target->SetDisplayId(target->GetNativeDisplayId());
     }
 }
@@ -2937,10 +2939,10 @@ void AuraEffect::HandleAuraInitializeImages(AuraApplication const* aurApp, uint8
         if (!caster || caster == target)
             return;
 
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
     }
     else
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_MIRROR_IMAGE);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 }
 
 void AuraEffect::HandleAuraEnableBossUnitFrame(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
@@ -3019,7 +3021,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             // blizz like 2.0.x
             target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
             // blizz like 2.0.x
-            target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             // blizz like 2.0.x
             target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
@@ -3034,7 +3036,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             // blizz like 2.0.x
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
             // blizz like 2.0.x
-            target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+            target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             // blizz like 2.0.x
             target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
 
@@ -3090,13 +3092,13 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* p_AurApp, uint8 p_Mo
             l_AttType = WeaponAttackType::BaseAttack;
             break;
         case SPELL_AURA_MOD_DISARM_OFFHAND:
-            l_Field   = UNIT_FIELD_FLAGS2;
+            l_Field   = UNIT_FIELD_FLAGS_2;
             l_Flag    = UNIT_FLAG2_DISARM_OFFHAND;
             l_Slot    = EQUIPMENT_SLOT_OFFHAND;
             l_AttType = WeaponAttackType::OffAttack;
             break;
         case SPELL_AURA_MOD_DISARM_RANGED:
-            /*field=UNIT_FIELD_FLAGS2;
+            /*field=UNIT_FIELD_FLAGS_2;
             flag=UNIT_FLAG2_DISARM_RANGED;
             slot=EQUIPMENT_SLOT_MAINHAND;
             attType=RANGED_ATTACK;
@@ -3497,6 +3499,27 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             case 171837:
                 l_DisplayId = 59536;    ///< Warsong Direfang
                 break;
+            ///< Hackfix for Stables, already tried through hotfix db but didn't work live
+            case 174216:                ///< Snarler
+                l_DisplayId = 59757;
+                break;
+            case 174218:                ///< Icehoof
+                l_DisplayId = 59320;
+                break;
+            case 174219:                ///< Meadowstomper
+                l_DisplayId = 59340;
+                break;
+            case 174220:                ///< Riverwallow
+                l_DisplayId = 59743;
+                break;
+            case 174221:                ///< Rocktusk
+                l_DisplayId = 59735;
+                break;
+            case 174222:                ///< Silverpelt
+                l_DisplayId = 59365;
+                break;
+            default:
+                break;
         }
 
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
@@ -3662,13 +3685,13 @@ void AuraEffect::HandleForceMoveForward(AuraApplication const* aurApp, uint8 mod
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
             return;
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
     }
 }
 
@@ -4090,17 +4113,6 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     Unit* target = aurApp->GetTarget();
     if (!target)
         return;
-
-    switch (m_spellInfo->Id)
-    {
-        case 114868:// Soul Reaper - Haste
-            // Don't increase speed if caster doesn't have glyph
-            if (!target->HasAura(146645))
-                return;
-            break;
-        default:
-            break;
-    }
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
@@ -5071,7 +5083,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
             l_Player->UpdateManaRegen();
             break;
         case POWER_RUNES:
-            l_Player->UpdateRuneRegen(RuneType(GetMiscValueB()));
+            l_Player->UpdateAllRunesRegen();
             break;
         case POWER_ENERGY:
             l_Player->UpdateEnergyRegen();
@@ -5094,7 +5106,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
                 l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
             }
 
-            uint32 l_PowerIndex = l_Player->GetPowerIndexByClass(GetMiscValue(), l_Player->getClass());
+            uint32 l_PowerIndex = l_Player->GetPowerIndex(GetMiscValue(), l_Player->getClass());
             if (l_PowerIndex != MAX_POWERS)
             {
                 /// HACKFIX
@@ -6613,13 +6625,13 @@ void AuraEffect::HandleComprehendLanguage(AuraApplication const* aurApp, uint8 m
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_COMPREHEND_LANG);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_COMPREHEND_LANG);
     else
     {
         if (target->HasAuraType(GetAuraType()))
             return;
 
-        target->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_COMPREHEND_LANG);
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_COMPREHEND_LANG);
     }
 }
 
@@ -6650,14 +6662,11 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
             if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
 
-            if (!player->GetRuneCooldown(i))
-            {
-                player->AddRuneBySpell(i, rune, GetId());
-                if (permanently)
-                    player->SetRuneConvertType(i, permanently);
+            player->AddRuneBySpell(i, rune, GetId());
+            if (permanently)
+                player->SetRuneConvertType(i, permanently);
 
-                --runes;
-            }
+            --runes;
         }
     }
     else
@@ -6957,18 +6966,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         {
             switch (GetSpellInfo()->Id)
             {
-                // Camouflage
-                case 80326:
-                {
-                    if ((caster->isMoving() && !caster->HasAura(119449)) || caster->HasAura(80325))
-                        return;
-
-                    if (caster->HasAura(119449) || (caster->GetOwner() && caster->GetOwner()->HasAura(119449)))
-                        caster->CastSpell(caster, 119450, true);
-                    else
-                        caster->CastSpell(caster, 80325, true);
-                    break;
-                }
                 // Feeding Frenzy Rank 1
                 case 53511:
                     if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
@@ -7481,7 +7478,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         /// Poisoned Ammo
-        if (GetSpellInfo()->Id == 162543)
+        if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);
 
@@ -7566,48 +7563,52 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     /// In WoD blizzards have implemented system of "not full finaly tick damage"
     if (AuraPtr l_Aura = target->GetAura(GetSpellInfo()->Id, caster->GetGUID()))
     {
-        int32 l_LeftDuration = l_Aura->GetDuration();
-        int32 l_MaxDuration = l_Aura->GetMaxDuration();
-        int32 l_Amplitude = GetAmplitude();
-        int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
-
-        /// If it was last tick, we should deal instant damage, according to left duration
-        if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+        /// Check if we need to use new wod aura system
+        if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
         {
-            uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
+            int32 l_LeftDuration = l_Aura->GetDuration();
+            int32 l_MaxDuration = l_Aura->GetMaxDuration();
+            int32 l_Amplitude = GetAmplitude();
+            int32 l_MaxTicksCount = l_Amplitude == 0 ? 0 : int32(l_MaxDuration / l_Amplitude);
 
-            bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
-            uint32 l_AbsorbAdditional = 0;
-            uint32 l_ResistAdditional = 0;
+            /// If it was last tick, we should deal instant damage, according to left duration and this left damage can be dealed just if left duration smaller then amplitude
+            if (l_MaxTicksCount == m_tickNumber && l_LeftDuration != 0 && l_LeftDuration < l_Amplitude)
+            {
+                uint32 l_LeftDamage = int32((float(l_LeftDuration) / float(l_Amplitude)) * damage);
 
-            if (l_CritAdditional)
-                damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
+                bool l_CritAdditional = CanPeriodicTickCrit(target, caster);
+                uint32 l_AbsorbAdditional = 0;
+                uint32 l_ResistAdditional = 0;
 
-            caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
+                if (l_CritAdditional)
+                    damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
 
-            caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
+                caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
 
-            // Set trigger flag for additional proc
-            uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
-            uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
-            uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
-            if (l_AbsorbAdditional)
-                l_ProcEx |= PROC_EX_ABSORB;
+                caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
 
-            l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
-            if (l_LeftDamage)
-                l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
+                // Set trigger flag for additional proc
+                uint32 l_ProcAttacker = PROC_FLAG_DONE_PERIODIC;
+                uint32 l_ProcVictim = PROC_FLAG_TAKEN_PERIODIC;
+                uint32 l_ProcEx = (l_CritAdditional ? PROC_EX_CRITICAL_HIT : PROC_EX_NORMAL_HIT) | PROC_EX_INTERNAL_DOT;
+                if (l_AbsorbAdditional)
+                    l_ProcEx |= PROC_EX_ABSORB;
 
-            int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
-            if (l_OverkillAdditional < 0)
-                l_OverkillAdditional = 0;
+                l_LeftDamage = (l_LeftDamage <= l_AbsorbAdditional + l_ResistAdditional) ? 0 : (l_LeftDamage - l_AbsorbAdditional - l_ResistAdditional);
+                if (l_LeftDamage)
+                    l_ProcVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
-            SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
-            target->SendPeriodicAuraLog(&pInfo);
+                int32 l_OverkillAdditional = l_LeftDamage - target->GetHealth();
+                if (l_OverkillAdditional < 0)
+                    l_OverkillAdditional = 0;
 
-            caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+                SpellPeriodicAuraLogInfo pInfo(CONST_CAST(AuraEffect, shared_from_this()), l_LeftDamage, l_OverkillAdditional, l_AbsorbAdditional, l_ResistAdditional, 0.0f, l_CritAdditional);
+                target->SendPeriodicAuraLog(&pInfo);
 
-            caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+                caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
+
+                caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+            }
         }
     }
 
@@ -8361,7 +8362,7 @@ void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode
     // Asphyxiate
     if (m_spellInfo->Id == 108194)
     {
-        int32 newZ = 5;
+        float newZ = 4.9f;
         target->SetControlled(apply, UNIT_STATE_STUNNED);
 
         if (apply)
@@ -8471,7 +8472,7 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* p_AurApp, ui
     if (!l_Player)
         return;
 
-    if (l_Player->GetPowerIndexByClass(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
+    if (l_Player->GetPowerIndex(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
         return;
 
     float l_Mod   = 1.f;

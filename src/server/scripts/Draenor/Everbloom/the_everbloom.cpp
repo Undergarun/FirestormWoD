@@ -679,7 +679,7 @@ public:
     }
 };
 
-// Venom Spray
+// Venom Spray - 173052
 class the_everbloom_venom_spray : public SpellScriptLoader
 {
 public:
@@ -826,8 +826,8 @@ public:
             events.Reset();
             m_Time = 1500;
 
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS,  eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
             me->CastSpell(me, eEverbloomSpells::SpellLivingLeavesAreaTrigger);
         }
