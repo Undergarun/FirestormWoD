@@ -310,8 +310,6 @@ void BattlePetInstance::UpdateOriginalInstance()
 
     OriginalBattlePet->JournalID       = JournalID;
     OriginalBattlePet->Slot            = Slot;
-    OriginalBattlePet->Name            = Name;
-    OriginalBattlePet->NameTimeStamp   = NameTimeStamp;
     OriginalBattlePet->Species         = Species;
     OriginalBattlePet->Quality         = Quality;
     OriginalBattlePet->Breed           = Breed;
@@ -369,6 +367,11 @@ PetBattleEvent& PetBattleEvent::UpdateHealth(int8 p_TargetPetID, int32 p_Health)
     Updates.push_back(l_Update);
 
     return *this;
+}
+/// Make an max health update
+PetBattleEvent& PetBattleEvent::UpdateMaxHealth(int8 p_TargetPetID, int32 p_MaxHealth)
+{
+    return UpdateSpeed(p_TargetPetID, p_MaxHealth);
 }
 /// Make an state update
 PetBattleEvent& PetBattleEvent::UpdateState(int8 p_TargetPetID, uint32 p_StateID, int32 p_Value)
@@ -482,6 +485,28 @@ void PetBattleAura::Apply(PetBattle* p_Battle)
 
         p_Battle->SetPetState(CasterPetID, TargetPetID, 0, l_Entry->stateId, l_Value, false, l_Flags);
     }
+
+    if (AbilityID == 577)   ///< Healthy http://www.wowhead.com/petability=576/perk-up
+    {
+        std::shared_ptr<BattlePetInstance> l_Pet = p_Battle->Pets[TargetPetID];
+        int32 l_HealthBonus = 5 * l_Pet->Level;
+
+        float l_HealthPct = float(l_Pet->Health) / float(l_Pet->GetMaxHealth() - l_HealthBonus);
+
+        l_Pet->InfoMaxHealth = l_Pet->GetMaxHealth();
+        l_Pet->Health = l_HealthPct * float(l_Pet->GetMaxHealth());
+
+        {
+            PetBattleEvent l_Event(PETBATTLE_EVENT_SET_MAX_HEALTH, CasterPetID, 0, 577, p_Battle->RoundTurn, 0, 1);
+            l_Event.UpdateMaxHealth(TargetPetID, l_Pet->InfoMaxHealth);
+            p_Battle->RoundEvents.push_back(l_Event);
+        }
+        {
+            PetBattleEvent l_Event(PETBATTLE_EVENT_SET_HEALTH, CasterPetID, 0, 577, p_Battle->RoundTurn, 0, 1);
+            l_Event.UpdateHealth(TargetPetID, l_Pet->Health);
+            p_Battle->RoundEvents.push_back(l_Event);
+        }
+    }
 }
 /// Remove
 void PetBattleAura::Remove(PetBattle* p_Battle)
@@ -497,6 +522,28 @@ void PetBattleAura::Remove(PetBattle* p_Battle)
             continue;
 
         p_Battle->SetPetState(CasterPetID, TargetPetID, 0, l_Entry->stateId, p_Battle->Pets[TargetPetID]->States[l_Entry->stateId] - l_Entry->value);
+    }
+
+    if (AbilityID == 577)   ///< Healthy http://www.wowhead.com/petability=576/perk-up
+    {
+        std::shared_ptr<BattlePetInstance> l_Pet = p_Battle->Pets[TargetPetID];
+        int32 l_HealthBonus = 5 * l_Pet->Level;
+
+        float l_HealthPct = float(l_Pet->Health) / float(l_Pet->GetMaxHealth() + l_HealthBonus);
+
+        l_Pet->InfoMaxHealth = l_Pet->GetMaxHealth();
+        l_Pet->Health = l_HealthPct * float(l_Pet->GetMaxHealth());
+
+        {
+            PetBattleEvent l_Event(PETBATTLE_EVENT_SET_HEALTH, CasterPetID, 0, 577, p_Battle->RoundTurn, Turn, 1);
+            l_Event.UpdateHealth(TargetPetID, l_Pet->Health);
+            p_Battle->RoundEvents.push_back(l_Event);
+        }
+        {
+            PetBattleEvent l_Event(PETBATTLE_EVENT_SET_MAX_HEALTH, CasterPetID, 0, 577, p_Battle->RoundTurn, Turn, 1);
+            l_Event.UpdateMaxHealth(TargetPetID, l_Pet->InfoMaxHealth);
+            p_Battle->RoundEvents.push_back(l_Event);
+        }
     }
 }
 
@@ -690,7 +737,7 @@ void PetBattleTeam::DoCasts(uint32 p_Turn0ProcCond)
 /// Has pending multi turn cast
 bool PetBattleTeam::HasPendingMultiTurnCast()
 {
-    if (ActiveAbilityId && activeAbilityTurn < activeAbilityTurnMax)
+    if (ActiveAbilityId && activeAbilityTurn <= activeAbilityTurnMax)
         return true;
 
     return false;
@@ -704,8 +751,13 @@ bool PetBattleTeam::CanCastAny()
     if (HasPendingMultiTurnCast())
         return false;
 
-    // TODO check more state
+    if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_turnLock])
+        return false;
+
     if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsStunned])
+        return false;
+
+    if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed])
         return false;
 
     return true;
@@ -923,6 +975,13 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
     TotalPetCount++;
     Teams[p_TeamID]->TeamPetCount++;
 
+    if (Teams[p_TeamID]->TeamPetCount > MAX_PETBATTLE_SLOTS)
+    {
+        ACE_Stack_Trace l_StackTrace;
+        sLog->outAshran("PetBattle::AddPet TeamPetCount overflow (%u)", Teams[p_TeamID]->TeamPetCount);
+        sLog->outAshran(l_StackTrace.c_str());
+    }
+
     Pets[p_Pet->ID] = p_Pet;
 
     memset(p_Pet->States, 0, sizeof(p_Pet->States));
@@ -1021,7 +1080,7 @@ void PetBattle::Begin()
 
     // Initialize pet health and auras
     for (uint32 l_PetId = 0; l_PetId < MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS; ++l_PetId)
-        Cast(l_PetId, 291, 0, 0, PETBATTLE_CAST_TRIGGER_NONE);
+        Cast(l_PetId, 291, 1, 0, PETBATTLE_CAST_TRIGGER_NONE);
 
     RoundEvents.clear();
     RoundDeadPets.clear();
@@ -1116,7 +1175,7 @@ void PetBattle::ProceedRound()
     // Passive: Humanoid
     for (uint32 l_PetId = 0; l_PetId < MAX_PETBATTLE_TEAM * MAX_PETBATTLE_SLOTS; ++l_PetId)
         if (Pets[l_PetId] && Pets[l_PetId]->States[BATTLEPET_STATE_Passive_Humanoid] && Pets[l_PetId]->States[BATTLEPET_STATE_Condition_DidDamageThisRound])
-            Cast(l_PetId, 726, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_NONE, PETBATTLE_CAST_TRIGGER_NONE);
+            Cast(l_PetId, 726, 1, PETBATTLE_ABILITY_TURN0_PROC_ON_NONE, PETBATTLE_CAST_TRIGGER_NONE);
 
     // Passive: Dragonkin
     if (Pets[Teams[0]->ActivePetID]->IsAlive() && Pets[Teams[1]->ActivePetID]->IsAlive())
@@ -1124,25 +1183,6 @@ void PetBattle::ProceedRound()
             if (Pets[Teams[l_TeamID]->ActivePetID]->States[BATTLEPET_STATE_Passive_Dragon])
                 if (Pets[Teams[!l_TeamID]->ActivePetID]->Health * 100 / Pets[Teams[!l_TeamID]->ActivePetID]->GetMaxHealth() < 50)
                     AddAura(Teams[l_TeamID]->ActivePetID, Teams[l_TeamID]->ActivePetID, 245, 1, 0, 0, 0);
-
-    //////////////////////////////////////////////////////////////////////////
-    // Send round result
-
-    if (RoundResult == PETBATTLE_ROUND_RESULT_NONE)
-        RoundResult = PETBATTLE_ROUND_RESULT_NORMAL;
-
-    for (size_t l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; ++l_CurrentTeamID)
-    {
-        if (!Teams[l_CurrentTeamID]->PlayerGuid)
-            continue;
-
-        Player* l_Player = ObjectAccessor::GetObjectInWorld(Teams[l_CurrentTeamID]->PlayerGuid, (Player*)NULL);
-
-        if (!l_Player)
-            continue;
-
-        l_Player->GetSession()->SendPetBattleRoundResult(this);
-    }
 
     //////////////////////////////////////////////////////////////////////////
     /// clear expired auras
@@ -1162,7 +1202,17 @@ void PetBattle::ProceedRound()
     /// Update abilities turns
 
     for (uint32 l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; l_CurrentTeamID++)
+    {
         Teams[l_CurrentTeamID]->activeAbilityTurn++;
+     
+        if (Teams[l_CurrentTeamID]->activeAbilityTurn > Teams[l_CurrentTeamID]->activeAbilityTurnMax)
+        {
+            Teams[l_CurrentTeamID]->ActiveAbilityId = 0;
+            Teams[l_CurrentTeamID]->activeAbilityTurn = 0;
+            Teams[l_CurrentTeamID]->activeAbilityTurnMax = 0;
+        }
+    }
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Update abilities cooldown
@@ -1172,6 +1222,25 @@ void PetBattle::ProceedRound()
         for (uint32 l_CurrentAbilitySlot = 0; l_CurrentAbilitySlot < MAX_PETBATTLE_ABILITIES; l_CurrentAbilitySlot++)
             if (Pets[l_CurrentPetSlot] && Pets[l_CurrentPetSlot]->Cooldowns[l_CurrentAbilitySlot] != -1)
                 Pets[l_CurrentPetSlot]->Cooldowns[l_CurrentAbilitySlot]--;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Send round result
+
+    if (RoundResult == PETBATTLE_ROUND_RESULT_NONE)
+        RoundResult = PETBATTLE_ROUND_RESULT_NORMAL;
+
+    for (size_t l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; ++l_CurrentTeamID)
+    {
+        if (!Teams[l_CurrentTeamID]->PlayerGuid)
+            continue;
+
+        Player* l_Player = ObjectAccessor::GetObjectInWorld(Teams[l_CurrentTeamID]->PlayerGuid, (Player*)NULL);
+
+        if (!l_Player)
+            continue;
+
+        l_Player->GetSession()->SendPetBattleRoundResult(this);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1350,6 +1419,22 @@ void PetBattle::Update(uint32 p_TimeDiff)
             Teams[PETBATTLE_TEAM_1]->Ready = false;
             Teams[PETBATTLE_TEAM_2]->Ready = false;
             return;
+        }
+
+        if (!Teams[PETBATTLE_TEAM_1]->Ready && Teams[PETBATTLE_TEAM_1]->ActivePetID != PETBATTLE_NULL_ID && !Pets[Teams[PETBATTLE_TEAM_1]->ActivePetID]->CanAttack())
+        {
+            Teams[PETBATTLE_TEAM_1]->Ready = true;
+            Teams[PETBATTLE_TEAM_1]->ActiveAbilityId = 0;
+            Teams[PETBATTLE_TEAM_1]->activeAbilityTurn = 0;
+            Teams[PETBATTLE_TEAM_1]->activeAbilityTurnMax = 0;
+        }
+
+        if (!Teams[PETBATTLE_TEAM_2]->Ready && Teams[PETBATTLE_TEAM_2]->ActivePetID != PETBATTLE_NULL_ID && !Pets[Teams[PETBATTLE_TEAM_2]->ActivePetID]->CanAttack())
+        {
+            Teams[PETBATTLE_TEAM_2]->Ready = true;
+            Teams[PETBATTLE_TEAM_2]->ActiveAbilityId = 0;
+            Teams[PETBATTLE_TEAM_2]->activeAbilityTurn = 0;
+            Teams[PETBATTLE_TEAM_2]->activeAbilityTurnMax = 0;
         }
 
         if (Teams[PETBATTLE_TEAM_1]->Ready && Teams[PETBATTLE_TEAM_2]->Ready)

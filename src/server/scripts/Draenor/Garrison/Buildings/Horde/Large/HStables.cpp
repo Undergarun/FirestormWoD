@@ -207,6 +207,11 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    void npc_TormakAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
+    }
+
     void npc_TormakAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         Player* l_Owner = GetOwner();
@@ -214,14 +219,10 @@ namespace MS { namespace Garrison
         if (l_Owner == nullptr)
             return;
 
+        me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
+
         PlayerSpellMap &l_SpellMap = l_Owner->GetSpellMap();
         std::vector<uint32> l_MountEntries;
-        std::list<Creature*> l_CreatureList;
-
-        me->GetCreatureListInGrid(l_CreatureList, 12.0f);
-
-        for (Creature* l_Creature : l_CreatureList)
-            l_Creature->DespawnOrUnsummon();
 
         if (!l_SpellMap.empty())
         {
@@ -239,7 +240,8 @@ namespace MS { namespace Garrison
 
         using namespace StablesData::Horde;
 
-        SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[0].X, g_HordeCreaturesPos[0].Y, g_HordeCreaturesPos[0].Z, g_HordeCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN);
+        if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[0].X, g_HordeCreaturesPos[0].Y, g_HordeCreaturesPos[0].Z, g_HordeCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+            m_SummonsEntries.push_back(l_Creature->GetEntry());
 
         l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
         l_MountEntry = 0;
@@ -248,7 +250,10 @@ namespace MS { namespace Garrison
             l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
 
         if (l_MountEntry)
-            SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[1].X, g_HordeCreaturesPos[1].Y, g_HordeCreaturesPos[1].Z, g_HordeCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN);
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[1].X, g_HordeCreaturesPos[1].Y, g_HordeCreaturesPos[1].Z, g_HordeCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+                m_SummonsEntries.push_back(l_Creature->GetEntry());
+        }
 
         using namespace StablesData::Horde::TormakQuestGiver;
         using namespace StablesData::Horde::SagePalunaQuestGiver;
@@ -260,6 +265,8 @@ namespace MS { namespace Garrison
 
             if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[2].X, g_HordeCreaturesPos[2].Y, g_HordeCreaturesPos[2].Z, g_HordeCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
+                m_SummonsEntries.push_back(l_FirstCreature->GetEntry());
+
                 if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
                     l_FirstCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedRocktusk);
                 else if (std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) != g_ElekkQuests.end() || l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
@@ -278,6 +285,8 @@ namespace MS { namespace Garrison
 
             if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[3].X, g_HordeCreaturesPos[3].Y, g_HordeCreaturesPos[3].Z, g_HordeCreaturesPos[3].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
+                m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
+
                 if (std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
                     l_SecondCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedSnarler);
                 else if (std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID) != g_TalbukQuests.end() || l_QuestID == TalbukQuests::QuestTamingATalbuk)
@@ -290,12 +299,15 @@ namespace MS { namespace Garrison
         }
 
         if (GetClosestCreatureWithEntry(me, g_SagePalunaQuestgiverEntry, 200.0f) == nullptr && l_Owner->IsQuestRewarded(StablesData::Horde::TormakQuestGiver::ClefthoofQuests::QuestCapturingAClefthoof))
-            SummonRelativeCreature(g_SagePalunaQuestgiverEntry,
-            g_HordeCreaturesPos[4].X,
-            g_HordeCreaturesPos[4].Y,
-            g_HordeCreaturesPos[4].Z,
-            g_HordeCreaturesPos[4].O,
-            TEMPSUMMON_MANUAL_DESPAWN);
+        {
+            if (Creature* l_Creature = SummonRelativeCreature(g_SagePalunaQuestgiverEntry,
+                g_HordeCreaturesPos[4].X,
+                g_HordeCreaturesPos[4].Y,
+                g_HordeCreaturesPos[4].Z,
+                g_HordeCreaturesPos[4].O,
+                TEMPSUMMON_MANUAL_DESPAWN))
+                m_SummonsEntries.push_back(l_Creature->GetEntry());
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////

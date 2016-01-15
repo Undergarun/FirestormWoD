@@ -4173,6 +4173,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77756: ///< Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
+            case 77762: ///< Lava Surge
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 138106: ///< Cloack and Dagger
+                spellInfo->Stances = 0;
+                break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams
             case 114941: ///< Healing Tide
@@ -4281,6 +4287,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 3;
                 spellInfo->Effects[1].BasePoints = 3;
                 break;
+            case 159234: ///< Thunderlord
+            case 159675: ///< Warsong
+            case 159676: ///< Frostwolf
+            case 173322: ////< BleedingHollow
             case 118334: ///< Dancing Steel (agility)
             case 118335: ///< Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
@@ -5561,7 +5571,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
-            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words)
+            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words
+            case 130551: ///< Word of Glory (overide by Glyph of Harsh Words)
             case 20066: ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -5724,7 +5735,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 3411:  ///< Intervene
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
@@ -6889,6 +6899,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
+                break;
+            case 108415: ///< Soul Link
+            case 108446:
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 break;
             default:
                 break;

@@ -193,6 +193,9 @@ TaxiMask sHordeTaxiNodesMask;
 TaxiMask sAllianceTaxiNodesMask;
 TaxiMask sDeathKnightTaxiNodesMask;
 
+std::set<ResearchSiteEntry const*>      sResearchSiteSet;
+std::set<ResearchProjectEntry const*>   sResearchProjectSet;
+
 SpellTotemMap       sSpellTotemMap;
 MountCapabilitiesMap sMountCapabilitiesMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
@@ -481,9 +484,6 @@ void LoadDB2Stores(const std::string& dataPath)
 
     for (int l_Class = 0; l_Class < MAX_CLASSES; ++l_Class)
         std::sort(sPowersByClassStore[l_Class].begin(), sPowersByClassStore[l_Class].end());
-
-    std::set<ResearchSiteEntry const*> sResearchSiteSet;
-    std::set<ResearchProjectEntry const*> sResearchProjectSet;
 
     for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
     {

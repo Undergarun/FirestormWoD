@@ -1556,6 +1556,16 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+enum StoreCallback
+{
+    ItemDelivery,
+    GoldDelivery,
+    CurrencyDelivery,
+    LevelDelivery,
+    ProfessionDelivery,
+    MaxDelivery
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -3128,6 +3138,13 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        WorldLocation GetPreviousLocation() const;
+        uint32 m_PreviousLocationMapId;
+        float m_PreviousLocationX;
+        float m_PreviousLocationY;
+        float m_PreviousLocationZ;
+        float m_PreviousLocationO;
+
         // current pet slot
         PetSlot m_currentPetSlot;
         uint64 m_petSlotUsed;
@@ -3634,6 +3651,13 @@ class Player : public Unit, public GridObject<Player>
         bool IsSummoned() const { return m_Summoned; }
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
+
+        /// Store callback
+        bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
+        bool IsStoreDeliveryProccesed(StoreCallback p_DeliveryType) const { return m_StoreDeliveryProcessed[p_DeliveryType]; }
+
+        void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
+        void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
         
     protected:
         void OnEnterPvPCombat();
@@ -4073,9 +4097,12 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
-        // Store callback
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        /// Store callback
+        bool m_StoreDeliveryProcessed[StoreCallback::MaxDelivery];
+        bool m_StoreDeliverySave;
 
         uint8 m_bgRoles;
 
@@ -4185,7 +4212,14 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                 if (l_ChaosBolt)
                     continue;
                 else
+                {
                     l_ChaosBolt = true;
+                    if (l_SpellMod->charges < 3)
+                    {
+                        p_RemoveStacks = false;
+                        continue;
+                    }
+                }
             }
             /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
             else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)

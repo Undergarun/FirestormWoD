@@ -153,17 +153,14 @@ void GameObject::AddToWorld()
 
         sObjectAccessor->AddObject(this);
 
-        // The state can be changed after GameObject::Create but before GameObject::AddToWorld
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
-        if (m_model)
-            GetMap()->InsertGameObjectModel(*m_model);
-
         if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
         {
             GetMap()->AddGameObjectTransport(this);
             SendTransportToOutOfRangePlayers();
         }
 
+        // The state can be changed after GameObject::Create but before GameObject::AddToWorld
+        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
         if (m_model)
         {
             if (Transport* trans = ToTransport())
@@ -199,6 +196,16 @@ void GameObject::RemoveFromWorld()
 
 bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 p_GoHealth)
 {
+    {
+        GameObjectTemplate const* l_GameObjectTemplate = sObjectMgr->GetGameObjectTemplate(name_id);
+
+        if (l_GameObjectTemplate && l_GameObjectTemplate->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
+        {
+            sLog->outAshran("GameObject::Create called with an GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT template %u", name_id);
+            return false;
+        }
+    }
+
     ASSERT(map);
     SetMap(map);
 
@@ -2528,6 +2535,16 @@ void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* 
     z = GetPositionZ();
     if (ori)
         *ori = GetOrientation();
+}
+
+Transport* GameObject::ToTransport()
+{
+    return dynamic_cast<Transport*>(this);
+}
+
+Transport const* GameObject::ToTransport() const
+{
+    return dynamic_cast<Transport const*>(this);
 }
 
 void GameObject::SendTransportToOutOfRangePlayers() const

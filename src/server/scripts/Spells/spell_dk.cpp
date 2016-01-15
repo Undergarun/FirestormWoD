@@ -3320,8 +3320,84 @@ class spell_dk_soul_reaper_bonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Defile - 152280
+class spell_dk_defile_absorb_effect : public SpellScriptLoader
+{
+    public:
+        spell_dk_defile_absorb_effect() : SpellScriptLoader("spell_dk_defile_absorb_effect") { }
+
+        class spell_dk_defile_absorb_effect_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_defile_absorb_effect_AuraScript);
+
+            bool IsInDefileArea(Unit* p_Victim, Unit *p_Attacker)
+            {
+                if (p_Attacker == nullptr || p_Victim == nullptr)
+                    return false;
+
+                std::list<AreaTrigger*> l_DefileList;
+
+                p_Victim->GetAreaTriggerList(l_DefileList, GetSpellInfo()->Id);
+
+                if (!l_DefileList.empty())
+                {
+                    for (auto itr : l_DefileList)
+                    {
+                        if (itr->IsInRange(p_Attacker, 0, itr->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) * 8.0f))
+                            return true;
+                    }
+                }
+                return false;
+            }
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                Unit* l_Victim = p_DmgInfo.GetVictim();
+                Unit* l_Attacker = p_DmgInfo.GetAttacker();
+
+                if (l_Victim == nullptr || l_Attacker == nullptr)
+                    return;
+
+                if (IsInDefileArea(l_Victim, l_Attacker))
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_3].BasePoints);
+            }
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Only in blood spec
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DK_BLOOD)
+                    amount = 0;
+                else
+                    amount = -1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_defile_absorb_effect_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_defile_absorb_effect_AuraScript::OnAbsorb, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_defile_absorb_effect_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
     new spell_dk_empowered_obliterate_icy_touch();

@@ -528,49 +528,7 @@ class spell_pri_spectral_guise_charges: public SpellScriptLoader
         }
 };
 
-// Spirit of Redemption (Shapeshift) - 27827
-class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
-{
-    public:
-        spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
-
-        class spell_pri_spirit_of_redemption_form_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_spirit_of_redemption_form_AuraScript);
-
-            enum eSpells
-            {
-                SpiritOfRedemptionImmunity      = 62371,
-                //SpiritOfRedemptionTalent        = 20711,
-                SpiritOfRedemptionRoot          = 27792,
-                SpiritOfRedemptionForm          = 27795,
-            };
-
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
-                l_Caster->RemoveAura(eSpells:: SpiritOfRedemptionRoot);
-                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionForm);
-                l_Caster->setDeathState(JUST_DIED);
-            }
-
-            void Register()
-            {
-                OnEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_spirit_of_redemption_form_AuraScript();
-        }
-};
-
-// Spirit of Redemption - 20711
+/// Spirit of Redemption - 20711
 class spell_pri_spirit_of_redemption: public SpellScriptLoader
 {
     public:
@@ -583,7 +541,7 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
             enum eSpells
             {
                 SpiritOfRedemptionImmunity      = 62371,
-                SpiritOfRedemptionRoot          = 27792,
+                UntransformHero                 = 25100,
                 SpiritOfRedemptionForm          = 27795,
                 SpiritOfRedemptionShapeshift    = 27827
             };
@@ -605,12 +563,12 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::SpiritOfRedemptionShapeshift))
                     return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
-                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionRoot, true);
-                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
                 l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionShapeshift, true);
+                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionForm, true);
+                l_Caster->CastSpell(l_Caster, eSpells::SpiritOfRedemptionImmunity, true);
+                l_Caster->CastSpell(l_Caster, eSpells::UntransformHero, true); ///< Visual
 
-                p_AbsorbAmount = l_Caster->GetHealth() - 1;
+                //p_AbsorbAmount = l_Caster->GetHealth() - 1;
             }
 
             void Register()
@@ -623,6 +581,44 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_pri_spirit_of_redemption_AuraScript();
+        }
+};
+
+/// Spirit of Redemption (Shapeshift) - 27827
+class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
+{
+    public:
+        spell_pri_spirit_of_redemption_form() : SpellScriptLoader("spell_pri_spirit_of_redemption_form") { }
+
+        class spell_pri_spirit_of_redemption_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_spirit_of_redemption_form_AuraScript);
+
+            enum eSpells
+            {
+                SpiritOfRedemptionImmunity      = 62371,
+                SpiritOfRedemptionForm          = 27795
+            };
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionForm);
+                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_spirit_of_redemption_form_AuraScript();
         }
 };
 
@@ -4178,8 +4174,56 @@ class PlayerScript_word_of_mending : public PlayerScript
         }
 };
 
+
+/// Last Update : 6.2.3
+/// Shadowform - 15473
+class spell_pri_shadowform : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowform() : SpellScriptLoader("spell_pri_shadowform") { }
+
+        class spell_pri_shadowform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_shadowform_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfShadowAura   = 107906,
+                GlyphOfShadowEffect = 107904
+            };
+
+            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::GlyphOfShadowAura))
+                    l_Target->CastSpell(l_Target, eSpells::GlyphOfShadowEffect, true);
+            }
+
+            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::GlyphOfShadowEffect))
+                    l_Target->RemoveAura(eSpells::GlyphOfShadowEffect);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_shadowform_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_shadowform();
     new spell_pri_penance_aura();
     new spell_pri_focused_will();
     new spell_pri_dispel_mass();
@@ -4205,8 +4249,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_nova();
     new spell_pri_glyph_of_holy_nova();
     new spell_pri_spectral_guise_charges();
-    new spell_pri_spirit_of_redemption_form();
     new spell_pri_spirit_of_redemption();
+    new spell_pri_spirit_of_redemption_form();
     new spell_pri_item_s12_4p_heal();
     new spell_pri_item_s12_2p_shadow();
     new spell_pri_divine_insight_shadow();

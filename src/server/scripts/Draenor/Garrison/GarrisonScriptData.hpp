@@ -768,6 +768,7 @@ namespace MS { namespace Garrison
         ItemTimber                              = 114781,
         ItemTimberSample                        = 114827,
         ItemGarrisonResources                   = 114677,
+        ItemSecondGarrisonResources             = 118111,
         ItemMine                                = 116055,
         ItemBlackrockOre                        = 109118,
         ItemTrueIronOre                         = 109119

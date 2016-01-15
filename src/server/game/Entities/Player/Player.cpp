@@ -1056,6 +1056,17 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     ///////////////////////////////////////////////////////////
 
     m_WargameRequest = nullptr;
+
+    m_PreviousLocationMapId = MAPID_INVALID;
+    m_PreviousLocationX = 0;
+    m_PreviousLocationY = 0;
+    m_PreviousLocationZ = 0;
+    m_PreviousLocationO = 0;
+
+    for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+        m_StoreDeliveryProcessed[l_I] = false;
+
+    m_StoreDeliverySave = false;
 }
 
 Player::~Player()
@@ -2893,6 +2904,13 @@ bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p
     /// ObjectAccessor won't find the flag.
     if (m_Duel && GetMapId() != p_MapID && GetMap()->GetGameObject(GetGuidValue(EPlayerFields::PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DuelCompleteType::DUEL_FLED);
+
+    /// Save previous location
+    m_PreviousLocationMapId = GetMapId();
+    m_PreviousLocationX     = GetPositionX();
+    m_PreviousLocationY     = GetPositionY();
+    m_PreviousLocationZ     = GetPositionZ();
+    m_PreviousLocationO     = GetOrientation();
 
     if (GetMapId() == p_MapID)
     {
@@ -18968,6 +18986,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     bool rewarded = (m_RewardedQuests.find(l_QuestId) != m_RewardedQuests.end());
 
     float QuestXpRate = 1;
+
     if (GetPersonnalXpRate())
         QuestXpRate = GetPersonnalXpRate();
     else
@@ -20661,8 +20680,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     /// totalKills,   todayKills,     yesterdayKills, chosenTitle,       watchedFaction,           drunk,                    health,          power1,            power2,              power3,
     /// 50            51              52      53              54                 55                        56                        57               58                 59                   60
     /// power4,       power5,         power6, instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
-    /// 61            62              63              64                 65                        66                        67               68                 69                   70
-    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
+    /// 61            62              63              64                 65                        66                        67               68                 69                   70             71
+    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet, xprate
 
     uint32 l_StartTime = getMSTime();
     std::vector<uint32> l_Times;
@@ -21137,6 +21156,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
     m_LastSummonedBattlePet = fields[70].GetUInt32();
+    m_PersonnalXpRate = fields[71].GetFloat();
 
     // clear channel spell data (if saved at channel spell casting)
     SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
@@ -21451,9 +21471,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     m_achievementMgr.CheckAllAchievementCriteria(this);
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
-
-    /*if (QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
-        m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();*/
 
     if (mustResurrectFromUnlock)
         ResurrectPlayer(1, true);
@@ -23208,6 +23225,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
+        stmt->setFloat(index++, m_PersonnalXpRate);
     }
     else
     {
@@ -23357,6 +23375,8 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetSpecializationResetCost());
         stmt->setUInt32(index++, GetSpecializationResetTime());
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
+
+        stmt->setFloat(index++, m_PersonnalXpRate);
 
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
@@ -23682,10 +23702,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
     if (!m_VoidStorageLoaded)
-    {
-        sLog->outAshran("Trying to save Void Storage before loaded it!");
         return;
-    }
 
     PreparedStatement* stmt = NULL;
     uint32 lowGuid = GetGUIDLow();
@@ -26948,6 +26965,11 @@ WorldLocation Player::GetStartPosition() const
     if (getClass() == CLASS_DEATH_KNIGHT && HasSpell(50977))
         mapId = 0;
     return WorldLocation(mapId, info->positionX, info->positionY, info->positionZ, 0);
+}
+
+WorldLocation Player::GetPreviousLocation() const
+{
+    return WorldLocation(m_PreviousLocationMapId, m_PreviousLocationX, m_PreviousLocationY, m_PreviousLocationZ, m_PreviousLocationO);
 }
 
 bool Player::IsNeverVisible() const
@@ -32007,25 +32029,14 @@ void Player::ShowNeutralPlayerFactionSelectUI()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SetPersonnalXpRate(float PersonnalXpRate)
+void Player::SetPersonnalXpRate(float p_PersonnalXPRate)
 {
-    if (PersonnalXpRate != m_PersonnalXpRate)
-    {
-        if (PersonnalXpRate)
-        {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUIDLow(), PersonnalXpRate);
-            CharacterDatabase.CommitTransaction(trans);
-        }
-        else // Rates normales
-        {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM character_rates WHERE guid = '%u';", GetGUIDLow());
-            CharacterDatabase.CommitTransaction(trans);
-        }
-    }
+    m_PersonnalXpRate = p_PersonnalXPRate;
 
-    m_PersonnalXpRate = PersonnalXpRate;
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
+    l_Statement->setFloat(0, p_PersonnalXPRate);
+    l_Statement->setUInt32(1, GetGUIDLow());
+    CharacterDatabase.Execute(l_Statement);
 }
 
 void Player::HandleStoreGoldCallback(PreparedQueryResult result)
@@ -32985,11 +32996,15 @@ void Player::SendToyBox()
 
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
-    l_Statement->setUInt32(0, GetSession()->GetAccountId());
-    l_Statement->setUInt32(1, p_ItemID);
-    l_Statement->setBool(2, false);
-    LoginDatabase.Execute(l_Statement);
+    /// Save toys to database only for live realms
+    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+    {
+        PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
+        l_Statement->setUInt32(0, GetSession()->GetAccountId());
+        l_Statement->setUInt32(1, p_ItemID);
+        l_Statement->setBool(2, false);
+        LoginDatabase.Execute(l_Statement);
+    }
 
     if (!HasToy(p_ItemID))
     {
@@ -33267,13 +33282,11 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
         ilvl = std::min(ilvl, maxItemLevel);
 
-    if (GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame())
+    if (!(GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame()))
     {
-        if ((itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY) == 0)
+        if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
             ilvl = 1;
     }
-    else if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
-        ilvl = 1;
 
     return ilvl;
 }
@@ -34374,13 +34387,13 @@ void Player::SendCustomMessage(std::string const& p_Opcode)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << " " << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << p_Message.str() << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data)
 {
@@ -34395,7 +34408,7 @@ void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::str
     else
         l_Message << " " << "|";
 
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 
 uint32 Player::GetBagsFreeSlots() const

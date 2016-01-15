@@ -2638,7 +2638,7 @@ class spell_monk_tigers_lust: public SpellScriptLoader
         }
 };
 
-// Flying Serpent Kick - 115057
+/// Flying Serpent Kick - 115057
 class spell_monk_flying_serpent_kick: public SpellScriptLoader
 {
     public:
@@ -2705,7 +2705,7 @@ class spell_monk_flying_serpent_kick: public SpellScriptLoader
         }
 };
 
-// Chi Torpedo - 115008 or Chi Torpedo (3 charges) - 121828
+/// Chi Torpedo - 115008
 class spell_monk_chi_torpedo: public SpellScriptLoader
 {
     public:
@@ -3511,7 +3511,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
         }
 };
 
-// Roll - 109132 or Roll (3 charges) - 121827
+// Roll - 109132
 class spell_monk_roll: public SpellScriptLoader
 {
     public:
@@ -4672,10 +4672,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
                 /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
                 l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
-
-                /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    l_PctModifier += 20;
 
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 

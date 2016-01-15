@@ -14,6 +14,7 @@
 
 namespace MS { namespace Garrison
 {
+    static const uint32 g_FannyQuestgiverEntry  = 86974;
     static const uint32 g_KeeganQuestgiverEntry = 86973;
 
     //////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,11 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_FannyFirebeardAI(Creature* p_Creature);
 
+            std::vector<uint32> m_SummonsEntries;
+
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+            virtual void OnPlotInstanceUnload() override;
     };
 
     //////////////////////////////////////////////////////////////////////////

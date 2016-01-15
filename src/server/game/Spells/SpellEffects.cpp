@@ -888,18 +888,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 53478: // Last Stand (Tenacity)
                     m_caster->CastSpell(m_caster, 53479, true);
                     break;
-                case 51753: // Camouflage
-                    m_caster->CastSpell(m_caster, 51755, true);
-                    m_caster->CastSpell(m_caster, 80326, true);
-
-                    if (m_caster->isInCombat())
-                        if (AuraPtr camouflage = m_caster->GetAura(51755))
-                            camouflage->SetDuration(6000);
-
-                    if (Unit* pet = m_caster->GetGuardianPet())
-                        pet->CastSpell(pet, 51753, true);
-
-                    break;
                 case 63487: // Ice Trap
                     if (Unit* owner = m_caster->GetOwner())
                         owner->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 13810, true);
@@ -1475,6 +1463,14 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
                     destTarget = new WorldLocation(0, -8833.07f, 622.778f, 93.9317f, 0.6771f);
                 else
                     destTarget = new WorldLocation(1, 1569.97f, -4397.41f, 16.0472f, 0.543025f);
+            }
+            break;
+        case 18960: ///< Teleport: Moonglade
+            if (unitTarget->GetZoneId() == 493 && unitTarget->GetMapId() == 1) ///< Moonglade, Kalimdor
+            {
+                WorldLocation l_Loc = unitTarget->ToPlayer()->GetPreviousLocation();
+                if (l_Loc.GetMapId() != MAPID_INVALID)
+                    destTarget = &l_Loc;
             }
             break;
         case 48129:  ///< Scroll of Recall
@@ -4158,7 +4154,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
 
-    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
+    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, false);
     int32 autoAttacksBonus = std::max(1 + (m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE) / 100), 1);
     weaponDamage /= autoAttacksBonus;
 
