@@ -34387,13 +34387,13 @@ void Player::SendCustomMessage(std::string const& p_Opcode)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << " " << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << p_Message.str() << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data)
 {
@@ -34408,7 +34408,7 @@ void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::str
     else
         l_Message << " " << "|";
 
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 
 uint32 Player::GetBagsFreeSlots() const
