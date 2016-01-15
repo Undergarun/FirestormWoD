@@ -2129,19 +2129,20 @@ bool WorldObject::IsInElipse(const WorldObject* p_Obj1, const WorldObject* p_Obj
     if (!p_Obj1 || !p_Obj2)
         return false;
 
-    float l_CoefRadius = p_Obj1->GetDistance(this) - (p_Obj1->GetDistance(p_Obj2) / 2);
+    float l_HalfDist = p_Obj1->GetDistance(p_Obj2) / 2;
+    float l_CoefRadius = p_Obj1->GetDistance(this) - l_HalfDist;
     if (l_CoefRadius < 0.0f)
         l_CoefRadius *= -1;
     else
-        l_CoefRadius = (p_Obj1->GetDistance(p_Obj2) / 2) - l_CoefRadius;
+        l_CoefRadius = l_HalfDist - l_CoefRadius;
 
-    if (l_CoefRadius > (p_Obj1->GetDistance(p_Obj2) / 2))
+    if (l_CoefRadius > l_HalfDist)
         return false;
 
     if (!IsInBetween(p_Obj1, p_Obj2, p_With + (p_Thickness / 2)))
         return false;
 
-    l_CoefRadius /= (p_Obj1->GetDistance(p_Obj2) / 2);
+    l_CoefRadius /= l_HalfDist;
 
     l_CoefRadius *= p_With;
 
