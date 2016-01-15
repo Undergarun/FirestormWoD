@@ -31108,6 +31108,10 @@ bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuse
         for (auto l_Bonus : p_Bonuses)
             l_Item->AddItemBonus(l_Bonus);
 
+        std::vector<uint32> l_Bonus;
+        Item::GenerateItemBonus(l_Item->GetEntry(), ItemContext::None, l_Bonus);
+        l_Item->AddItemBonuses(l_Bonus);
+
         SendNewItem(l_Item, p_Count, true, false);
 
         return true;
