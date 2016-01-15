@@ -1281,6 +1281,7 @@ class ObjectMgr
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
+        uint32 GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range);
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();

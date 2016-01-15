@@ -148,6 +148,9 @@ enum IROpcodes
 
     IR_CMSG_BATTLEFIELD_LEAVE                       = 0x70,
 
+    IR_SMSG_RESERVE_LOCAL_GUID                      = 0x71,
+    IR_CMSG_RESERVE_LOCAL_GUID                      = 0x72,
+
     IR_NUM_MSG_TYPES,
 };
 

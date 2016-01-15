@@ -6651,6 +6651,22 @@ uint32 ObjectMgr::GenerateMailID()
     return _mailId++;
 }
 
+uint32 ObjectMgr::GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range)
+{
+    switch (p_GuidHigh)
+    {
+        case HIGHGUID_ITEM:
+            ASSERT(m_HighItemGuid < 0xFFFFFFFE && "Item guid overflow!");
+            return m_HighItemGuid.fetch_add(p_Range);
+            break;
+        default:
+            break;
+    }
+
+    ASSERT(false);
+    return 0;
+}
+
 uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
 {
     switch (guidhigh)

@@ -1257,6 +1257,18 @@ void InterRealmSession::Handle_GuildQuery(WorldPacket& recvPacket)
     SendGuild(guildGuid);
 }
 
+void InterRealmSession::Handle_ReserveLocalGuid(WorldPacket& p_Packet)
+{
+    HighGuid l_HighGuid = (HighGuid)p_Packet.read<uint32>();
+    uint32   l_Size     = p_Packet.read<uint32>();
+
+    WorldPacket l_Data(IR_CMSG_RESERVE_LOCAL_GUID);
+    l_Data << uint32(l_HighGuid);
+    l_Data << uint32(sObjectMgr->GenerateLowGuid(l_HighGuid, l_Size));
+    l_Data << uint32(l_Size);
+    SendPacket(&l_Data);
+}
+
 void InterRealmSession::SendWhisper(uint64 sender, uint64 receiver, const std::string& text, uint32 language)
 {
     /*Player* pSender = ObjectAccessor::FindPlayer(sender);

@@ -131,7 +131,11 @@ void IROpcodeTable::Initialize()
     DEFINE_IR_OPCODE_HANDLER(IR_CMSG_GUILD,                     &InterRealmSession::Handle_ClientSide  );
     DEFINE_IR_OPCODE_HANDLER(IR_SMSG_GUILD_QUERY,               &InterRealmSession::Handle_GuildQuery  );
 
-    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_BATTLEFIELD_LEAVE,        &InterRealmSession::Handle_ClientSide   );
+    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_BATTLEFIELD_LEAVE,         &InterRealmSession::Handle_ClientSide   );
+
+    DEFINE_IR_OPCODE_HANDLER(IR_SMSG_RESERVE_LOCAL_GUID,        &InterRealmSession::Handle_ReserveLocalGuid);
+    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_RESERVE_LOCAL_GUID,        &InterRealmSession::Handle_ReserveLocalGuid);
+
 
 #undef DEFINE_IR_OPCODE_HANDLER
 };

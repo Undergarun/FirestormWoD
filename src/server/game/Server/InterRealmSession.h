@@ -172,6 +172,8 @@ class InterRealmSession: public ACE_Based::Runnable
 
         void Handle_GuildQuery(WorldPacket& recvPacket);
 
+        void Handle_ReserveLocalGuid(WorldPacket& p_Packet);
+
         void SendWhisper(uint64 sender, uint64 receiver, const std::string& text, const uint32 language);
         void SendBattlegroundHolidaysQuery();
 
