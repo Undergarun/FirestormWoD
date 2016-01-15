@@ -6641,14 +6641,15 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
     return _equipmentSetGuid++;
 }
 
-uint32 ObjectMgr::GenerateMailID()
+uint32 ObjectMgr::GenerateMailID(uint32 p_Range)
 {
-    if (_mailId >= 0xFFFFFFFE)
+    if (m_MailId >= 0xFFFFFFFE)
     {
         sLog->outError(LOG_FILTER_GENERAL, "Mail ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
-    return _mailId++;
+
+    return m_MailId.fetch_add(p_Range);
 }
 
 uint32 ObjectMgr::GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range)
@@ -6658,6 +6659,9 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range)
         case HIGHGUID_ITEM:
             ASSERT(m_HighItemGuid < 0xFFFFFFFE && "Item guid overflow!");
             return m_HighItemGuid.fetch_add(p_Range);
+            break;
+        case HIGHGUID_MAIL:
+            return GenerateMailID(p_Range);
             break;
         default:
             break;

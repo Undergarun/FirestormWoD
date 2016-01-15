@@ -1284,7 +1284,7 @@ class ObjectMgr
         uint32 GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range);
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
-        uint32 GenerateMailID();
+        uint32 GenerateMailID(uint32 p_Range = 1);
         uint32 GeneratePetNumber();
         uint64 GenerateVoidStorageItemId();
 
@@ -1675,7 +1675,6 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _equipmentSetGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _mailId;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetNumber;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
 
@@ -1698,6 +1697,7 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
 
         std::atomic_uint m_HighItemGuid;
+        std::atomic_uint m_MailId;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
