@@ -2469,8 +2469,78 @@ void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
     if (l_Dungeon->difficulty == Difficulty::DifficultyRaidHeroic)
         p_Player->UpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
-    /// This dungeon has no LFG reward registered, ignore it
     LfgReward const* l_Rewards = GetRandomDungeonReward(l_RandDungeonID, p_Player->getLevel());
+
+    /// This dungeon has no LFG reward registered, try generic rewards filled by grouptype
+    if (!l_Rewards)
+    {
+        switch (l_Dungeon->grouptype)
+        {
+            case LfgGroupType::LfgGroupeTypeClassic:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomClassicDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonBC:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomBurningCrusadeDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicBC:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomBurningCrusadeHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonTLK:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomLichKingDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicTLK:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomLichKingHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicCataclysm:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomCataclysmHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonCataclysm:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomCataclysmDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicHourOfTwilight:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomHourOfTwilightHeoic;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeScenarioMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopScenario;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicScenarioMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopHeroicScenario;
+                break;
+            case LfgGroupType::LfgGroupeTypeTimeWalking:
+            {
+                switch (l_Dungeon->expansion)
+                {
+                    case Expansion::EXPANSION_THE_BURNING_CRUSADE:
+                        l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomTimewalkingDungeonBC;
+                        break;
+                    case Expansion::EXPANSION_WRATH_OF_THE_LICH_KING:
+                        l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomTimewalkingDungeonTLK;
+                        break;
+                    case Expansion::EXPANSION_CATACLYSM:
+                        l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomTimewalkingDungeonCata;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case LfgGroupType::LfgGroupeTypeDungeonWod:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomWodDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicWod:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomWodHeroic;
+                break;
+        }
+    }
+
+    /// This dungeon has no LFG reward registered, ignore it
+    l_Rewards = GetRandomDungeonReward(l_RandDungeonID, p_Player->getLevel());
     if (!l_Rewards)
         return;
 

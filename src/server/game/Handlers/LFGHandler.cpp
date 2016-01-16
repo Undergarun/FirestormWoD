@@ -38,7 +38,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
     uint32 l_CommentLenght  = 0;
 
     uint8 l_PartyIndex = 0;
-
     bool l_QueueAsGroup = false;
 
     l_QueueAsGroup  = p_Packet.ReadBit();
