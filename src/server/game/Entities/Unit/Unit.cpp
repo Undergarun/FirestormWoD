@@ -19843,6 +19843,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43764;
                         else
                             l_BaseCatModel = 29405;
+                        break;
                     }
                     case 3: // Light Blue
                     {
@@ -19850,6 +19851,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43763;
                         else
                             l_BaseCatModel = 29406;
+                        break;
                     }
                     case 0: // Green
                     case 1: // Light Green
@@ -19859,6 +19861,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43762;
                         else
                             l_BaseCatModel = 29407;
+                        break;
                     }
                     case 4: // White
                     {
@@ -19866,6 +19869,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43765;
                         else
                             l_BaseCatModel = 29408;
+                        break;
                     }
                     default: // original - Dark Blue
                     {
@@ -19873,6 +19877,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43761;
                         else
                             l_BaseCatModel = 892;
+                        break;
                     }
                 }
             }
@@ -19891,6 +19896,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43776;
                         else
                             l_BaseCatModel = 33668;
+                        break;
                     }
                     case 2: // Yellow
                     case 3:
@@ -19899,6 +19905,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43778;
                         else
                             l_BaseCatModel = 33667;
+                        break;
                     }
                     case 4: // Blue
                     case 5:
@@ -19908,6 +19915,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43773;
                         else
                             l_BaseCatModel = 33666;
+                        break;
                     }
                     case 7: // Purple
                     case 10:
@@ -19916,6 +19924,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43775;
                         else
                             l_BaseCatModel = 33665;
+                        break;
                     }
                     default: // original - white
                     {
@@ -19923,6 +19932,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43777;
                         else
                             l_BaseCatModel = 33669;
+                        break;
                     }
                 }
             }
@@ -19944,6 +19954,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43781;
                             else
                                 l_BaseCatModel = 33662;
+                            break;
                         }
                         case 2: // Black
                         case 7:
@@ -19952,6 +19963,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43780;
                             else
                                 l_BaseCatModel = 33661;
+                            break;
                         }
                         case 4: // yellow
                         {
@@ -19959,6 +19971,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43784;
                             else
                                 l_KingOfTheJungleModel = 33664;
+                            break;
                         }
                         case 3: // White
                         case 5:
@@ -19974,6 +19987,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43782;
                             else
                                 l_BaseCatModel = 33660;
+                            break;
                         }
                     }
                 }
@@ -19989,6 +20003,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43781;
                             else
                                 l_BaseCatModel = 33662;
+                            break;
                         }
                         case 7: // Black
                         case 8:
@@ -19997,6 +20012,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43780;
                             else
                                 l_BaseCatModel = 33661;
+                            break;
                         }
                         case 3: // yellow
                         case 4:
@@ -20005,6 +20021,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43784;
                             else
                                 l_BaseCatModel = 33664;
+                            break;
                         }
                         case 2: // White
                         {
@@ -20012,6 +20029,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43785;
                             else
                                 l_BaseCatModel = 33663;
+                            break;
                         }
                         default: // original - Gray
                         {
@@ -20019,6 +20037,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43782;
                             else
                                 l_BaseCatModel = 33660;
+                            break;
                         }
                     }
                 }
@@ -20044,6 +20063,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43769;
                             else
                                 l_BaseCatModel = 29409;
+                            break;
                         }
                         case 9: // Light Brown
                         case 10:
@@ -20053,6 +20073,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43770;
                             else
                                 l_BaseCatModel = 29410;
+                            break;
                         }
                         case 6: // Brown
                         case 7:
@@ -20062,6 +20083,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43768;
                             else
                                 l_BaseCatModel = 29411;
+                            break;
                         }
                         case 0: // Dark
                         case 1:
@@ -20074,6 +20096,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43766;
                             else
                                 l_BaseCatModel = 29412;
+                            break;
                         }
                         default: // original - Grey
                         {
@@ -20081,6 +20104,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43767;
                             else
                                 l_BaseCatModel = 8571;
+                            break;
                         }
                     }
                 }
@@ -20095,6 +20119,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43769;
                             else
                                 l_BaseCatModel = 29409;
+                            break;
                         }
                         case 6: // Light Brown
                         case 7:
@@ -20103,6 +20128,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43770;
                             else
                                 l_BaseCatModel = 29410;
+                            break;
                         }
                         case 4: // Brown
                         case 5:
@@ -20111,6 +20137,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43768;
                             else
                                 l_BaseCatModel = 29411;
+                            break;
                         }
                         case 0: // Dark
                         case 1:
@@ -20121,6 +20148,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43766;
                             else
                                 l_BaseCatModel = 29412;
+                            break;
                         }
                         default: // original - Grey
                         {
@@ -20128,6 +20156,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43767;
                             else
                                 l_BaseCatModel = 8571;
+                            break;
                         }
                     }
                 }
