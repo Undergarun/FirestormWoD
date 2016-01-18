@@ -536,15 +536,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     }
-                    case 118000:// Dragon Roar
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 168);
-                        else
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 140);
-
-                        break;
-                    }
                 }
 
                 break;
