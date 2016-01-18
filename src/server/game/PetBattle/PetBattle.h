@@ -369,6 +369,7 @@ class BattlePetInstance : public BattlePet
         uint32      OldXP;
 
         BattlePet::Ptr  OriginalBattlePet;
+        uint64          OriginalCreature;
 };
 
 //////////////////////////////////////////////////////////////////////////
