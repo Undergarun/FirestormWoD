@@ -1446,8 +1446,14 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (l_SpellInfo == nullptr)
                         return;
 
-                    float l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount() - (m_Absorbed / (m_AmountAbsorb / 100));
-                    int32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
+                    float l_RemainingPct = 0.0f;
+                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
+
+                    /// If we have absorbed more than 50% we set value to 50%
+                    l_RemainingPct = l_AbsorbedPct > l_Amount ? l_Amount : (l_Amount - l_AbsorbedPct);
+
+                    uint32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
 
                     if (Player* l_Player = l_Caster->ToPlayer())
                         l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
