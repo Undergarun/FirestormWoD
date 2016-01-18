@@ -236,6 +236,9 @@ namespace MS { namespace Garrison
             }
         }
 
+        if (l_MountEntries.empty())
+            return;
+
         uint32 l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
 
         using namespace StablesData::Alliance;

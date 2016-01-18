@@ -482,9 +482,6 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Psychic Scream - 6 seconds in PvP
             if (spellproto->Id == 8122)
                 return 6 * IN_MILLISECONDS;
-            /// Power Word: Shield - 11 seconds in PvP
-            if (spellproto->Id == 17)
-                return 11 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -1018,8 +1015,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
-        // No extra req, so can trigger only for hit/crit - spell has to be active
-        if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && active)
+        // No extra req, so can trigger only for hit/crit/absorb - spell has to be active
+        if ((procExtra & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT | PROC_EX_ABSORB)) && active)
             return true;
     }
     else // Passive spells hits here only if resist/reflect/immune/evade
@@ -1036,7 +1033,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
                 return true;
             // PROC_EX_NOT_ACTIVE_SPELL and PROC_EX_ONLY_ACTIVE_SPELL flags handle: if passed checks before
-            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
+            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT|PROC_EX_ABSORB)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
                 return true;
         }
         // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
@@ -3374,6 +3371,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 105157: ///< See Quest Invis 14, Wandering Island spell
+                spellInfo->AreaGroupId = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Stables
             ///////////////////////////////////////////////////////////////////////////////////
@@ -4998,6 +4998,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 1122: ///< Summon Infernal
                 spellInfo->OverrideSpellList.push_back(112921); ///< Summon Abyssal
                 break;
+            case 112921: ///< Summon Abyssal
+                spellInfo->OverrideSpellList.push_back(157899); ///< Summon Abyssal
+                break;
             case 18540: ///< Summon Doomguard
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
                 break;
@@ -5925,6 +5928,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 124915:///< Chaos Wave
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 break;
+            case 77535: ///< Blood Shield
             case 127802: ///< Touch of The Grave (trigger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
@@ -6775,6 +6779,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// ENDOF ULDUAR SPELLS
             ///
+            case 108194: ///< Asphixiate
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
+                break;
             case 49560: ///< Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
@@ -6800,7 +6807,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158221: ///< Hurricane Strike (damage)
                 spellInfo->SetDurationIndex(39); ///< 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 152118: ///< Clarity of Will
                 spellInfo->InterruptFlags = 0x0000000F;
@@ -6902,7 +6908,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108415: ///< Soul Link
             case 108446:
-                spellInfo->AttributesEx8 &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
+                spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 break;
             default:
                 break;

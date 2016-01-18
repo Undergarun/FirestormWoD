@@ -1367,7 +1367,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
     int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == Difficulty::DifficultyNone)
+        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex)
             l_MaxIndex = (*l_Iter)->dbcEntry->OrderIndex;
     }
 

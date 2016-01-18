@@ -916,12 +916,31 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
             {
                 float l_Radius = 1.0f;
                 Unit* l_Target = nullptr;
+                std::list<Unit*> l_TargetList;
 
                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Checker);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                l_TargetList.remove_if([this, l_AreaTriggerCaster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_AreaTriggerCaster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                if (l_TargetList.size() > 1)
+                {
+                    l_TargetList.sort(JadeCore::ObjectDistanceOrderPred(p_AreaTrigger));
+                    l_TargetList.resize(1);
+                }
+
+                if (l_TargetList.size() == 1)
+                l_Target = l_TargetList.front();
 
                 if (l_Target != nullptr)
                 {

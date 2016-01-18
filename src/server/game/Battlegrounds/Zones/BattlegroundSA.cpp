@@ -363,8 +363,26 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             DemolisherStartState(false);
             Status = BG_SA_ROUND_ONE;
             StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, (Attackers == TEAM_ALLIANCE) ? 23748 : 21702);
+            SetStatus(STATUS_IN_PROGRESS);
 
-            // Teleport players to boat ...
+            /// Teleports players on boat to beach
+            for (BattlegroundPlayerMap::const_iterator l_Itr = GetPlayers().begin(); l_Itr != GetPlayers().end(); ++l_Itr)
+            {
+                if (Player* l_Player = ObjectAccessor::FindPlayer(l_Itr->first))
+                {
+                    uint32 l_AttackerTeam = Attackers == TEAM_ALLIANCE ? ALLIANCE : HORDE;
+                    if (l_Player->GetBGTeam() != l_AttackerTeam)
+                        continue;
+
+                    float l_PositionX = 0.0f;
+                    float l_PositionY = 0.0f;
+                    float l_PositionZ = 0.0f;
+                    float l_Orientation = 0.0f;
+                    GetTeamStartLoc(l_AttackerTeam, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+
+                    l_Player->TeleportTo(607, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+                }
+            }
 
             m_EndTimestamp = time(nullptr) + BG_SA_ROUNDLENGTH / IN_MILLISECONDS;
             UpdateWorldState(BG_SA_ENABLE_TIMER, 1);
@@ -458,7 +476,6 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 InitSecondRound = true;
                 ToggleTimer();
                 ResetObjs();
-                TeleportPlayers();
                 return;
             }
         }

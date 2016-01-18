@@ -2086,6 +2086,17 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 /// Remove friendly unit with already renewing mist apply
                 l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
 
+                l_FriendlyUnitList.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
                 /// Sort friendly unit by pourcentage of health and get the most injured
                 if (l_FriendlyUnitList.size() > 1)
                 {
@@ -3017,7 +3028,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_UnitList.size() > 1)
                 {
-                    l_UnitList.remove(p_Target);
                     l_UnitList.sort(JadeCore::HealthPctOrderPred());
                     l_UnitList.resize(1);
                 }
@@ -3935,6 +3945,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 {
@@ -3945,6 +3956,17 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_fists_of_fury_stun_SpellScript);
 
+            enum eSpells
+            {
+                GlyphoftheFloatingButterfly = 159490
+            };
+
+            void HandleStun(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (GetCaster()->HasAura(eSpells::GlyphoftheFloatingButterfly))
+                    PreventHitAura();
+            }
+
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id, GetCaster()->GetGUID()));
@@ -3952,16 +3974,18 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_stun_SpellScript::HandleStun, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_stun_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_fists_of_fury_stun_SpellScript();
         }
 };
 
+/// Last Update 6.2.3
 /// Fists of Fury - 113656
 class spell_monk_fists_of_fury : public SpellScriptLoader
 {
@@ -3974,8 +3998,8 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Windwalker2P = 165403,
-                TigereyeBrew    = 125195
+                T17Windwalker2P             = 165403,
+                TigereyeBrew                = 125195
             };
 
             void HandleDummy(SpellEffIndex p_EffIndex)
@@ -3990,7 +4014,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -4324,7 +4348,8 @@ enum HurricaneStrikeSpells
     SPELL_MONK_HURRICANE_STRIKE_DAMAGE      = 158221
 };
 
-// Hurricane Strike - 152175
+/// Last Update 6.2.3
+/// Hurricane Strike - 152175
 class spell_monk_hurricane_strike : public SpellScriptLoader
 {
     public:
@@ -4337,10 +4362,7 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
-                {
-                    for (uint8 l_I = 1; l_I < 10; ++l_I)
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
-                }
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
             }
 
             void Register()
@@ -4355,7 +4377,8 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
         }
 };
 
-// Hurricane Strike (damage) - 158221
+/// Last Update 6.2.3
+/// Hurricane Strike (damage) - 158221
 class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 {
     public:
@@ -4364,6 +4387,11 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
         class spell_monk_hurricane_strike_damage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_monk_hurricane_strike_damage_SpellScript);
+
+            enum eSpells
+            {
+                HurricaneStrikeAura = 152175
+            };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -4397,8 +4425,19 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
                 SetHitDamage(l_Damage);
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::HurricaneStrikeAura))
+                {
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
+                }
+            }
+
             void Register()
             {
+                AfterHit += SpellHitFn(spell_monk_hurricane_strike_damage_SpellScript::HandleAfterHit);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_hurricane_strike_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_hurricane_strike_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
@@ -4655,7 +4694,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                int32 l_PctModifier = 0;
                 float l_Low = 0;
                 float l_High = 0;
 
@@ -4675,7 +4713,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
-                l_Bp += CalculatePct(l_Bp, l_PctModifier);
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
                 l_Bp = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp, SPELL_DIRECT_DAMAGE);
 

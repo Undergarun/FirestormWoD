@@ -461,7 +461,7 @@ typedef ACE_Based::LockedMap<uint32, QuestLocale> QuestLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef ACE_Based::LockedMap<int32, TrinityStringLocale> TrinityStringLocaleContainer;
-typedef ACE_Based::LockedMap<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
+typedef ACE_Based::LockedMap<uint64, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, QuestObjectiveLocale> QuestObjectiveLocaleContainer;
 
@@ -1375,7 +1375,7 @@ class ObjectMgr
             if (itr == _pageTextLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 entry) const
+        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint64 entry) const
         {
             GossipMenuItemsLocaleContainer::const_iterator itr = _gossipMenuItemsLocaleStore.find(entry);
             if (itr == _gossipMenuItemsLocaleStore.end()) return NULL;

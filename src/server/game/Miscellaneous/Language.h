@@ -1331,12 +1331,13 @@ enum TrinityStrings
 
     /// Custom
     WarnRaidTests = 20000,
+    CharXPRateWarn,
 
     /// Chat filtering
-    LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF = 300000,
-    LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON
+    ChatFilteringOff = 300000,
+    ChatFilteringOn
 
-    // NOT RESERVED IDS                   20001-1999999999
+    // NOT RESERVED IDS                   300002-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
 };

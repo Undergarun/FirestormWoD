@@ -11128,6 +11128,17 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, targetList, u_check);
             unit->VisitNearbyObject(6.0f, searcher);
 
+            targetList.remove_if([this, unit](WorldObject* p_Object) -> bool
+            {
+                if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                    return true;
+
+                if (!unit->IsValidAssistTarget(p_Object->ToUnit()))
+                    return true;
+
+                return false;
+            });
+
             if (!targetList.empty())
             {
                 targetList.sort(JadeCore::HealthPctOrderPred());
@@ -13230,7 +13241,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
             {
-                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
+                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
                 {
                     if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
                         DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
@@ -14027,13 +14038,23 @@ bool Unit::IsValidAssistTarget(Unit const* target) const
 }
 
 // function based on function Unit::CanAssist from 13850 client
-bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const
+bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell, bool duelFlag) const
 {
     ASSERT(target);
 
     // can assist to self
     if (this == target)
         return true;
+
+    /// on duel, the healing spells should not proc on other target than caster
+    if (duelFlag && GetSpellModOwner() && GetSpellModOwner()->m_Duel)
+    {
+        if (target->GetSpellModOwner() == nullptr)
+            return false;
+
+        if (GetSpellModOwner()->GetGUID() != target->GetSpellModOwner()->GetGUID())
+            return false;
+    }
 
     // can't assist unattackable units or GMs
     if (target->HasUnitState(UNIT_STATE_UNATTACKABLE)
@@ -16734,7 +16755,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
-        bool active = damage || (procExtra & PROC_EX_BLOCK && isVictim);
+        bool active = (damage + absorb) || (procExtra & PROC_EX_BLOCK && isVictim);
         if (isVictim)
             procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
 
@@ -16747,7 +16768,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 if (spellProto->Effects[i].TriggerSpell)
                     triggerSpell = true;
 
-            if (damage || triggerSpell)
+            if ((damage + absorb) || triggerSpell)
                 active = true;
         }
 
@@ -16763,12 +16784,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         /// Ruthlessness can proc just from finishing spells
         if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 14181 && procSpell->Id != 408 && procSpell->Id != 2098 && procSpell->Id != 73651 && procSpell->Id != 5171 && procSpell->Id != 26679 && procSpell->Id != 1943)))
             continue;
-
-        // Some spells can proc on absorb
-        if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 || spellProto->Id == 44448 ||
-            triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificSeal || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
-            || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
-            active = true;
 
         /// Item - Druid T17 Restoration 4P Bonus - 167714
         if (spellProto->Id == 167714)
@@ -18042,13 +18057,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        /// Hack Fix Grimoire of Synergy can be triggered if damage is absorbed
-        if (spellProto && spellProto->Id == 171975 && procSpell && procExtra && (procExtra & PROC_EX_ABSORB))
-            return true;
-        // Hack Fix Backdraft can be triggered if damage is absorbed
-        else if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
-            return true;
-        else if (spellProto && spellProto->Id == 44448 && procSpell &&
+        if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
             return true;
         // Hack fix Mutilate can Trigger Blindside
@@ -19868,7 +19877,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         if (kingOfTheJungle)
                             l_KingOfTheJungleModel = 43765;
                         else
-                            return 29408;
+                            l_BaseCatModel = 29408;
                     }
                     default: // original - Dark Blue
                     {

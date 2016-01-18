@@ -420,6 +420,8 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                 FinishFirstPhase    = 1
             };
 
+            int32 m_OldDataTimeSpell = 0;
+
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
@@ -443,8 +445,8 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
 
                                 uint64 l_Data;
                                 ((uint32*)(&l_Data))[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
-                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
-
+                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration() - m_OldDataTimeSpell;
+                                m_OldDataTimeSpell = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
                                 l_Creature->AI()->SetGUID(l_Data, eDatas::AddSpellToQueue);
                                 break;
                             }

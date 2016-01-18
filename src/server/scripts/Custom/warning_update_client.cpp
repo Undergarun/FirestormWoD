@@ -21,7 +21,8 @@ class WarningUpdateClient : public PlayerScript
 
         void OnLogin(Player* p_Player)
         {
-            if (p_Player->GetSession()->GetClientBuild() != sWorld->getIntConfig(CONFIG_LAST_CLIENT_BUILD))
+            uint32 l_LastBuild = sWorld->getIntConfig(CONFIG_LAST_CLIENT_BUILD);
+            if (l_LastBuild && p_Player->GetSession()->GetClientBuild() != l_LastBuild)
             {
                 //ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
                 m_WarningTimers[p_Player->GetGUID()] = k_WarningUpdateTimer;

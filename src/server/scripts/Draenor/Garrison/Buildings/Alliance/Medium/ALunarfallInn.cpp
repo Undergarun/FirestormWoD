@@ -49,6 +49,11 @@ namespace MS { namespace Garrison
             if (Player* l_Player = l_GarrisonSite->GetOwner())
             {
                 std::list<Creature*> l_CreatureList;
+                MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+                if (l_GarrisonMgr == nullptr)
+                    return;
+
                 me->GetCreatureListInGrid(l_CreatureList, 30.0f);
 
                 for (Creature* l_Creature : l_CreatureList)
@@ -57,7 +62,7 @@ namespace MS { namespace Garrison
                         l_Creature->DespawnOrUnsummon();
                 }
 
-                std::vector<uint32> l_Entries = l_Player->GetGarrisonTavernDatas();
+                std::vector<uint32>& l_Entries = l_GarrisonMgr->GetGarrisonTavernDatas();
 
                 if (l_Entries.size() == 1)
                     SummonRelativeCreature(l_Entries[0],
@@ -92,12 +97,17 @@ namespace MS { namespace Garrison
         {
             if (Player* l_Player = l_GarrisonSite->GetOwner())
             {
+                MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+                if (l_GarrisonMgr == nullptr)
+                    return;
+
                 if (roll_chance_i(50))
                 {
                     uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                    l_Player->CleanGarrisonTavernData();
-                    l_Player->AddGarrisonTavernData(l_Entry);
+                    l_GarrisonMgr->CleanGarrisonTavernData();
+                    l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
                     OnSetPlotInstanceID(GetPlotInstanceID());
                 }
                 else
@@ -109,9 +119,9 @@ namespace MS { namespace Garrison
                         l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
                     while (l_SecondEntry == l_FirstEntry);
 
-                    l_Player->CleanGarrisonTavernData();
-                    l_Player->AddGarrisonTavernData(l_FirstEntry);
-                    l_Player->AddGarrisonTavernData(l_SecondEntry);
+                    l_GarrisonMgr->CleanGarrisonTavernData();
+                    l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
+                    l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
                     OnSetPlotInstanceID(GetPlotInstanceID());
                 }
             }
