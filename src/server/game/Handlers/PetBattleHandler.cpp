@@ -26,6 +26,8 @@
 #include "PetBattle.h"
 #include "WildBattlePet.h"
 #include "AchievementMgr.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 void WorldSession::SendPetBattleJournal()
 {
@@ -786,8 +788,6 @@ void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData)
     m_Player->UpdateBattlePetCombatTeam();
     SendPetBattleJournalBattleSlotUpdate();
 }
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 
 void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 {
