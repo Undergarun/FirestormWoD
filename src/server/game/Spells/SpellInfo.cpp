@@ -3921,7 +3921,6 @@ bool SpellInfo::CanTriggerBladeFlurry() const
         case 57841: // Killing Spree
         case 57842: // Killing Spree Off-Hand
         case 84617: // Revealing Strike
-        case 86392: // Main Gauche
         case 114014:// Shuriken Toss
         case 121411:// Crimson Tempest
         case 121473:// Shadow Blade
