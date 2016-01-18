@@ -613,6 +613,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     l_Stmt->setString(0, l_CharacterName);
+    l_Stmt->setString(1, l_CharacterName);
 
     _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
 }
@@ -1497,6 +1498,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& p_RecvData)
     stmt->setUInt16(2, AT_LOGIN_RENAME);
     stmt->setUInt16(3, AT_LOGIN_RENAME);
     stmt->setString(4, newName);
+    stmt->setString(5, newName);
 
     _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
