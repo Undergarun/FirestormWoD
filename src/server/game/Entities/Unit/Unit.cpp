@@ -18707,6 +18707,10 @@ void Unit::SetControlled(bool apply, UnitState state)
 
         ClearUnitState(state);
 
+        /// Fix problems with CC when character is not available for control in 1-2 seconds after breaking CC
+        /// After ClearUnitState player should receive control on his character, if char is still moving - we need to stop him
+        StopMoving();
+
         if (HasUnitState(UNIT_STATE_STUNNED))
             SetStunned(true);
         else
