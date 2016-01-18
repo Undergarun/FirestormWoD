@@ -3189,60 +3189,8 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
         }
 };
 
-/// Last Update 6.2.3
-/// Mastery: Main Gauche - 76806
-class spell_rog_main_gauche: public SpellScriptLoader
-{
-    public:
-  
-        spell_rog_main_gauche() : SpellScriptLoader("spell_rog_main_gauche") { }
-
-        class spell_rog_main_gauche_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_main_gauche_AuraScript);
-
-            enum eSpells
-            {
-                MainGauche = 86392
-            };
-
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
-            {
-                PreventDefaultAction();
-
-                DamageInfo* l_DamageInfo = p_EventInfo.GetDamageInfo();
-                Unit* l_Target = GetTarget();
-
-                if (l_DamageInfo == nullptr || l_Target == nullptr)
-                    return;
-
-                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
-
-                if (l_Victim == nullptr)
-                    return;
-
-                if (!(p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
-                    return;
-
-                if (roll_chance_f(p_AurEff->GetAmount()))
-                    l_Target->CastSpell(l_Victim, eSpells::MainGauche, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_rog_main_gauche_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_rog_main_gauche_AuraScript();
-        }
-};
-
 void AddSC_rogue_spell_scripts()
 {
-    new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();
