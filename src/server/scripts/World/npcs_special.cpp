@@ -3117,27 +3117,49 @@ class npc_rate_xp_modifier : public CreatureScript
             OriginalRate
         };
 
-        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+        struct npc_rate_xp_modifierAI : public ScriptedAI
         {
-            switch (p_Action)
-            {
-                case eOptions::Rate1:
-                    p_Player->SetPersonnalXpRate(1.0f);
-                    break;
-                case eOptions::Rate3:
-                    p_Player->SetPersonnalXpRate(3.0f);
-                    break;
-                case eOptions::Rate5:
-                    p_Player->SetPersonnalXpRate(5.0f);
-                    break;
-                case eOptions::OriginalRate:
-                    p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
-                    break;
-                default:
-                    break;
-            }
+            npc_rate_xp_modifierAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            return false;
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eOptions::Rate1:
+                        p_Player->SetPersonnalXpRate(1.0f);
+                        break;
+                    case eOptions::Rate3:
+                        p_Player->SetPersonnalXpRate(3.0f);
+                        break;
+                    case eOptions::Rate5:
+                        p_Player->SetPersonnalXpRate(5.0f);
+                        break;
+                    case eOptions::OriginalRate:
+                        p_Player->SetPersonnalXpRate(sWorld->getRate(RATE_XP_KILL));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_rate_xp_modifierAI(p_Creature);
+        }
+};
+
+/// Send current rate XP at login
+class RatesXPWarner : public PlayerScript
+{
+    public:
+        RatesXPWarner() : PlayerScript("RatesXPWarner") { }
+
+        void OnLogin(Player* p_Player)
+        {
+            uint32 l_Rate = p_Player->GetPersonnalXpRate();
+
+            ChatHandler(p_Player).PSendSysMessage(TrinityStrings::CharXPRateWarn, l_Rate);
         }
 };
 
@@ -3942,7 +3964,6 @@ enum eForceOfNatureSpells
     SPELL_TREANT_SWIFTMEND      = 142421,
     SPELL_TREANT_HEAL           = 113828,
     SPELL_TREANT_WRATH          = 113769,
-    SPELL_TREANT_EFFLORESCENCE  = 142424
 };
 
 class npc_force_of_nature : public CreatureScript
@@ -4037,37 +4058,6 @@ class npc_force_of_nature : public CreatureScript
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_force_of_natureAI(pCreature);
-        }
-};
-
-/// Swiftmend - 142423
-class spell_special_swiftmend: public SpellScriptLoader
-{
-    public:
-        spell_special_swiftmend() : SpellScriptLoader("spell_special_swiftmend") { }
-
-        class spell_special_swiftmend_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_special_swiftmend_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_TREANT_SWIFTMEND))
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_TREANT_EFFLORESCENCE, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_special_swiftmend_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_special_swiftmend_AuraScript();
         }
 };
 
@@ -4722,6 +4712,7 @@ void AddSC_npcs_special()
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
     new npc_rate_xp_modifier();
+    new RatesXPWarner();
     new npc_demoralizing_banner();
     new npc_guardian_of_ancient_kings();
     new npc_dire_beast();
@@ -4734,7 +4725,6 @@ void AddSC_npcs_special()
     new npc_void_tendrils();
     new npc_spectral_guise();
     new npc_force_of_nature();
-    new spell_special_swiftmend();
     new npc_luo_meng();
     new npc_monk_spirit();
     new npc_rogue_decoy();

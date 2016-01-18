@@ -1653,11 +1653,6 @@ class Player : public Unit, public GridObject<Player>
         int32 GetGarrisonMapID() const;
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
-        std::vector<uint32> GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
-        void AddGarrisonTavernData(uint32 p_Data);
-        void SetGarrisonTavernData(uint32 p_Data);
-        void CleanGarrisonTavernData() { m_GarrisonDailyTavernData.clear(); };
-        bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID);
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -3809,6 +3804,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
+        void _SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -4079,7 +4075,6 @@ class Player : public Unit, public GridObject<Player>
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
         MS::Garrison::Manager* m_Garrison;
-        std::vector<uint32> m_GarrisonDailyTavernData;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////

@@ -1548,7 +1548,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     float l_SpellPower            = l_BaseValue;
     float l_AttackPowerMultiplier = 1.f;
 
-    PetStatInfo const* l_PetStat = GetPetStat();
+    PetStatInfo const* l_PetStat = GetPetStat(true);
     if (l_PetStat != nullptr)
     {
         switch (l_PetStat->m_PowerStat)

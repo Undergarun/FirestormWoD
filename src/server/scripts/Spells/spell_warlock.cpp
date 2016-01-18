@@ -3701,9 +3701,11 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
 
             enum eSpells
             {
-                GrimoireOfService = 108501,
-                GrimoireDoomguard = 157900,
-                GrimoireInfernal = 157901
+                GrimoireOfService   = 108501,
+                GrimoireDoomguard   = 157900,
+                GrimoireInfernal    = 157901,
+                GrimoireofSupremacy = 108499,
+                SummonAbyssal       = 157899
             };
 
             void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -3725,6 +3727,12 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                     if (!l_Player->HasSpell(eSpells::GrimoireInfernal))
                         l_Player->learnSpell(eSpells::GrimoireInfernal, false);
                 }
+                if (l_Player->HasAura(eSpells::GrimoireofSupremacy)) ///< Grimoire of Supremacy
+                {
+                    if (!l_Player->HasSpell(eSpells::SummonAbyssal))
+                        l_Player->learnSpell(eSpells::SummonAbyssal, false);
+                }
+
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -3743,6 +3751,8 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                     l_Player->removeSpell(eSpells::GrimoireDoomguard, false, false);
                 if (l_Player->HasSpell(eSpells::GrimoireInfernal))
                     l_Player->removeSpell(eSpells::GrimoireInfernal, false, false);
+                if (l_Player->HasSpell(eSpells::SummonAbyssal))
+                    l_Player->removeSpell(eSpells::SummonAbyssal, false, false);
             }
 
             void Register()
@@ -4158,7 +4168,7 @@ public:
 };
 
 /// last update : 6.2.3
-/// Incinerate - 2972, Incinerate (Fire and Brimstone) - 114654
+/// Incinerate - 29722, Incinerate (Fire and Brimstone) - 114654
 class spell_warl_incinerate : public SpellScriptLoader
 {
     public:
@@ -4201,8 +4211,45 @@ class spell_warl_incinerate : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Demonbolt - 157695
+class spell_warl_demonbolt : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonbolt() : SpellScriptLoader("spell_warl_demonbolt") { }
+
+        class spell_warl_demonbolt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_demonbolt_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                p_Amount *= l_HastePct;
+                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() * l_HastePct);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_demonbolt_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_demonbolt_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_demonbolt();
     new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();
     new spell_warl_glyph_of_life_tap();

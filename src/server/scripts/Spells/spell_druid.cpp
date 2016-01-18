@@ -1578,9 +1578,6 @@ class spell_dru_cat_form: public SpellScriptLoader
                 if (l_Target->HasAura(eSpells::Prowl))
                     l_Target->RemoveAura(eSpells::Prowl);
 
-                if (l_Target->HasAura(eSpells::DesplacerBeast))
-                    l_Target->RemoveAura(eSpells::DesplacerBeast);
-
                 /// When we remove cat form dash shouldn't increase movement speed
                 if (AuraEffectPtr l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
                     l_DashAura->SetAmount(0);

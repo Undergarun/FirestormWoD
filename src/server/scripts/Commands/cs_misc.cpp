@@ -131,6 +131,7 @@ class misc_commandscript: public CommandScript
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
                 { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
                 { "lastbuild",          SEC_MODERATOR,      false,  &HandleLastBuildCommand,        "", NULL },
+                { "initlfg",            SEC_ADMINISTRATOR,  false,  &HandleInitializeLFGCommand,    "", NULL },
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
@@ -140,6 +141,18 @@ class misc_commandscript: public CommandScript
         {
             /// Get last build from last time modified information
             p_Handler->PSendSysMessage("Last core build: %s", sWorld->GetLastBuildInfo().timeStr.data());
+            return true;
+        }
+
+        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_Player = p_Handler->getSelectedPlayer();
+
+            if (!l_Player)
+                return false;
+
+            sLFGMgr->InitializeLockedDungeons(l_Player);
+
             return true;
         }
 
@@ -153,12 +166,12 @@ class misc_commandscript: public CommandScript
             if (l_PlayerSession->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
             {
                 l_PlayerSession->UnsetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
-                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF);
+                p_Handler->SendSysMessage(TrinityStrings::ChatFilteringOff);
             }
             else
             {
                 l_PlayerSession->SetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
-                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON);
+                p_Handler->SendSysMessage(TrinityStrings::ChatFilteringOn);
             }
 
             if (l_PlayerSession->GetPlayer())

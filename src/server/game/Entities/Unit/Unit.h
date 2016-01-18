@@ -1863,7 +1863,7 @@ class Unit : public WorldObject
         bool _IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj = NULL) const;
 
         bool IsValidAssistTarget(Unit const* target) const;
-        bool _IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const;
+        bool _IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell, bool duelFlag = true) const;
 
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;

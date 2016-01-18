@@ -637,8 +637,8 @@ class spell_dk_soul_reaper: public SpellScriptLoader
 
                 if (AuraPtr l_ImprovedSoulReaper = l_Caster->GetAura(eSpells::ImprovedSoulReaper))
                     l_HealthPctMax = l_ImprovedSoulReaper->GetEffect(EFFECT_0)->GetAmount();
-
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+
                 if (removeMode == AURA_REMOVE_BY_DEATH)
                     l_Caster->CastSpell(l_Caster, DK_SPELL_SOUL_REAPER_HASTE, true);
                 else if (removeMode == AURA_REMOVE_BY_EXPIRE && GetTarget()->GetHealthPct() < (float)l_HealthPctMax)
@@ -3291,32 +3291,32 @@ class spell_dk_soul_reaper_bonus : public SpellScriptLoader
     public:
         spell_dk_soul_reaper_bonus() : SpellScriptLoader("spell_dk_soul_reaper_bonus") {}
 
-        class spell_dk_soul_reaper_bonus_SpellScript : public SpellScript
+        class  spell_dk_soul_reaper_bonus_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dk_soul_reaper_bonus_SpellScript);
+            PrepareAuraScript(spell_dk_soul_reaper_bonus_AuraScript);
 
             enum eSpells
             {
                 GlyphofSwiftDeath = 146645
             };
 
-            void HandleModSpeed(SpellEffIndex /*p_EffIndex*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofSwiftDeath))
-                    PreventHitAura();
+                    p_Amount = 0;
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_soul_reaper_bonus_SpellScript::HandleModSpeed, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_soul_reaper_bonus_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dk_soul_reaper_bonus_SpellScript();
+            return new  spell_dk_soul_reaper_bonus_AuraScript();
         }
 };
 
