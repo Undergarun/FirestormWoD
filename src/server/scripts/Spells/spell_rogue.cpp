@@ -3210,18 +3210,13 @@ class spell_rog_main_gauche: public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                DamageInfo* l_DamageInfo = p_EventInfo.GetDamageInfo();
                 Unit* l_Target = GetTarget();
-
-                if (l_DamageInfo == nullptr || l_Target == nullptr)
-                    return;
-
                 Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
 
                 if (l_Victim == nullptr)
                     return;
 
-                if (!(p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
+                if (p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_OFFHAND_ATTACK)
                     return;
 
                 if (roll_chance_f(p_AurEff->GetAmount()))
