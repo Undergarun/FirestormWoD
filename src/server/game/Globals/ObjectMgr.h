@@ -1757,7 +1757,7 @@ class ObjectMgr
         SpellPhaseStore _SpellPhaseStore;
 
         uint32 _skipUpdateCount;
-        std::map<uint64, uint64> _lootViewGUID;
+        ACE_Based::LockedMap<uint64, uint64> _lootViewGUID;
 
         AreaTriggerTemplateContainer m_AreaTriggerTemplates;
         AreaTriggerTemplateContainer m_AreaTriggerTemplatesSpell;
