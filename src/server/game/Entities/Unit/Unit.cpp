@@ -13194,18 +13194,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, amount);
     }
 
-    /// 76806 - Mastery : Main Gauche
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
-    {
-        if (AuraEffectPtr l_AurEff = GetAuraEffect(76806, EFFECT_0, GetGUID()))
-        {
-            float l_Mastery = (float)l_AurEff->GetAmount();
-
-            if (roll_chance_f(l_Mastery))
-                CastSpell(victim, 86392, true);
-        }
-    }
-
     /// Custom WoD Script - Glyph of Frostbrand Weapon
     if (GetTypeId() == TYPEID_PLAYER && victim && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT && attType == WeaponAttackType::BaseAttack)
     {
@@ -13241,7 +13229,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
             {
-                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
                 {
                     if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
                         DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
