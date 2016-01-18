@@ -759,6 +759,14 @@ struct BattlePetTemplate
 };
 typedef std::map<uint32, BattlePetTemplate> BattlePetTemplateContainer;
 
+struct BattlePetNpcTeamMember
+{
+    uint32 Specie;
+    uint32 Level;
+    uint32 Ability[3];
+};
+typedef std::map<uint32, std::vector<BattlePetNpcTeamMember>> BattlePetNpcTeamMembers;
+
 struct ResearchPOIPoint
 {
     ResearchPOIPoint(int32 _x, int32 _y) { x = _x; y = _y; }
@@ -1213,6 +1221,7 @@ class ObjectMgr
         void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
         void LoadBattlePetTemplate();
+        void LoadBattlePetNpcTeamMember();
 
         void LoadGuildChallengeRewardInfo();
 
@@ -1829,6 +1838,7 @@ class ObjectMgr
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
         BattlePetTemplateContainer _battlePetTemplateStore;
+        BattlePetNpcTeamMembers m_BattlePetNpcTeamMembers;
         QuestObjectiveLocaleContainer m_questObjectiveLocaleStore;
 
         CacheVendorItemContainer _cacheVendorItemStore;

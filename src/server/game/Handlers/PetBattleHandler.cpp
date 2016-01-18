@@ -886,9 +886,6 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Wild, l_NearCreature, u_check);
     l_Wild->VisitNearbyObject(40.f, searcher);
 
-
-  //  l_Wild->GetCreatureListInGrid(l_NearCreature, 15);
-
     uint32 l_WildsPetCount = 1;
     for (Unit* l_Current : l_NearCreature)
     {
