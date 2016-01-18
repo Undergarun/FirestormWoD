@@ -1450,22 +1450,22 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< slottype is never read 01/18/16
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
-                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT); ///< slottype is never read 01/18/16
                             else
-                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
+                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING); ///< slottype is never read 01/18/16
                             break;
                         default:
-                            slottype = uint8(slotType);
+                            slottype = uint8(slotType); ///< slottype is never read 01/18/16
                             break;
                     }
                 }
                 else
-                    slottype = uint8(slotType);
+                    slottype = uint8(slotType); ///< slottype is never read 01/18/16
 
                 uint8 l_ItemListType = LOOT_LIST_ITEM;
 

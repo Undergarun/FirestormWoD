@@ -720,7 +720,7 @@ void Creature::RegenerateHealth()
     {
         float l_HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
 
-        l_AddValue = l_HealthIncreaseRate;
+        l_AddValue = l_HealthIncreaseRate; ///< l_AddValue is never read 01/18/16
 
         if (getLevel() < 15)
             l_AddValue = 106.0f * l_HealthIncreaseRate;                                             ///< I've try level 1 to 5, it's always 106 at each tick

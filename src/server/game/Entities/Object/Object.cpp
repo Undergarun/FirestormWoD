@@ -212,7 +212,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8  updateType = UPDATETYPE_CREATE_OBJECT;
     uint32 flags      = m_updateFlag;
 
-    uint32 valCount = m_valuesCount;
+    uint32 valCount = m_valuesCount; ///< valCount is never read 01/18/16
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself

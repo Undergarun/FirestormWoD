@@ -694,7 +694,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     if (stat < strength)
                     {
-                        stat = strength;
+                        stat = strength; ///< stat is never read 01/18/16
                         usedStat = STAT_STRENGTH;
                     }
 

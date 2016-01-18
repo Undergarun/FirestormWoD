@@ -464,7 +464,7 @@ uint32 const g_FlightSplineSyncDelay = 5 * TimeConstants::IN_MILLISECONDS;
 
 void Unit::UpdateSplineMovement(uint32 p_Diff)
 {
-    bool l_Arrived = movespline->Finalized();
+    bool l_Arrived = movespline->Finalized(); ///< l_Arrived is never read 01/18/16
     if (movespline->Finalized())
         return;
 
@@ -2894,8 +2894,8 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Ranged attacks can only miss, resist and deflect
     if (attType == WeaponAttackType::RangedAttack)
     {
-        canParry = false;
-        canDodge = false;
+        canParry = false; ///< canParry is never read 01/18/16
+        canDodge = false; ///< can Dodge is never read 01/18/16
 
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
@@ -6043,7 +6043,7 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
 
 bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo(); //@todo hasteSpell is unused variable
+    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo(); //< hasteSpell is never read 01/18/16
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -6077,7 +6077,7 @@ bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
 bool Unit::HandleSpellCritChanceAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* triggeredByAuraSpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* triggeredByAuraSpell = triggeredByAura->GetSpellInfo(); ///> triggerByAuraSpell is never read 01/18/16
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -6119,7 +6119,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
     SpellInfo const* auraSpellInfo = triggeredByAura->GetSpellInfo();
 
     // Get effect index used for the proc
-    uint32 effIndex = triggeredByAura->GetEffIndex();
+    uint32 effIndex = triggeredByAura->GetEffIndex(); ///< effIndex is never read 01/18/16
 
     // Power amount required to proc the spell
     int32 powerAmountRequired = triggeredByAura->GetAmount();
@@ -8694,7 +8694,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
 bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo(); ///< dummySpell is never read 01/18/16
     //uint32 effIndex = triggeredByAura->GetEffIndex();
     //int32  triggerAmount = triggeredByAura->GetAmount();
 
@@ -8729,7 +8729,7 @@ bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffec
 
 bool Unit::HandleModDamagePctTakenAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo(); ///< dummySpell is never read 01/18/16
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -11561,7 +11561,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         if (damagetype == DOT)
         {
-            coeff = bonus->dot_damage;
+            coeff = bonus->dot_damage; ///< coeff is never read 01/18/16
             if (bonus->ap_dot_bonus > 0)
             {
                 WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
@@ -11572,7 +11572,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
         else
         {
-            coeff = bonus->direct_damage;
+            coeff = bonus->direct_damage; ///< coeff is never read 01/18/16
             if (bonus->ap_bonus > 0)
             {
                 WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
@@ -12699,14 +12699,14 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     {
         if (damagetype == DOT)
         {
-            coeff = bonus->dot_damage;
+            coeff = bonus->dot_damage; ///< coeff is never read 01/18/16
             if (bonus->ap_dot_bonus > 0)
                 DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
                     (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack));
         }
         else
         {
-            coeff = bonus->direct_damage;
+            coeff = bonus->direct_damage; ///< coef is never read 01/18/16
             if (bonus->ap_bonus > 0)
                 DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
         }
@@ -13268,7 +13268,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         DoneTotalMod += CalculatePct(1.0, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
     // done scripted mod (take it from owner)
-    Unit* owner = GetOwner() ? GetOwner() : this;
+    Unit* owner = GetOwner() ? GetOwner() : this; ///< owner is never read 01/18/16
     // AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
@@ -14462,7 +14462,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
-    float l_OldRate = m_speed_rate[p_MovementType];
+    float l_OldRate = m_speed_rate[p_MovementType]; ///< l_oldrate is never read 01/18/16
     m_speed_rate[p_MovementType] = rate;
 
     if (!clientSideOnly)
@@ -15188,7 +15188,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     if (spellProto->IsChanneled() && !(spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION))
         return;
 
-    Unit* owner = GetOwner();
+    Unit* owner = GetOwner(); ///< owner is never read 01/18/16
     // called from caster
     Player* modOwner = GetSpellModOwner();
 

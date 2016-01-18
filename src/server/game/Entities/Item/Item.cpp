@@ -1848,7 +1848,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 break;
             }
             case INVTYPE_WEAPONMAINHAND:
-                wepType = 0;             // unk enum, fall back
+                wepType = 0;             // unk enum, fall back wepType is never read 01/18/16
             case INVTYPE_WEAPONOFFHAND:
                 wepType = 1;             // unk enum, fall back
             case INVTYPE_WEAPON:

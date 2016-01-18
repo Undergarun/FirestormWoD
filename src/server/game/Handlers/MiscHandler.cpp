@@ -64,7 +64,7 @@
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& p_RecvData)
 {
-    bool l_CheckInstance = p_RecvData.ReadBit();
+    bool l_CheckInstance = p_RecvData.ReadBit(); ///< l_checkInstance is never read 01/18/16
 
     if (m_Player->isAlive() || m_Player->HasFlag(EPlayerFields::PLAYER_FIELD_PLAYER_FLAGS, PlayerFlags::PLAYER_FLAGS_GHOST))
         return;
@@ -220,9 +220,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
     l_GuildVirtualRealmNameLen = p_RecvData.ReadBits(9);                    ///< guild realm
     l_WordsCount               = p_RecvData.ReadBits(3);                    ///< Words count
 
-    l_Unk1                     = p_RecvData.ReadBit();
-    l_Unk2                     = p_RecvData.ReadBit();
-    l_Bit725                   = p_RecvData.ReadBit();
+    l_Unk1                     = p_RecvData.ReadBit();                      ///< is never read 01/18/16
+    l_Unk2                     = p_RecvData.ReadBit();                      ///< is never read 01/18/16
+    l_Bit725                   = p_RecvData.ReadBit();                      ///< is never read 01/18/16
     l_HasWhoRequestServerInfo  = p_RecvData.ReadBit();                      ///< HasWhoRequestServerInfo
 
     p_RecvData.ResetBitReading();
@@ -525,7 +525,7 @@ void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 
     uint32 unk = 0;
     if (unkBit)
-        unk = recvData.read<uint32>();
+        unk = recvData.read<uint32>(); ///< unk is never read 01/18/16
 }
 
 void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
@@ -920,7 +920,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
 
     p_RecvData >> l_ID;
     l_Enter = p_RecvData.ReadBit();
-    l_FromClient = p_RecvData.ReadBit();
+    l_FromClient = p_RecvData.ReadBit(); ///< l_fromclient is never read 01/18/16
 
     Player* l_Player = GetPlayer();
     if (l_Player->isInFlight())

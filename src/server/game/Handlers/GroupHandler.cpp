@@ -321,12 +321,12 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
     bool   l_Accept;
     bool   l_HasRolesDesired;
 
-    l_PartyIndex      = p_RecvData.read<uint8>();
+    l_PartyIndex      = p_RecvData.read<uint8>(); ///< l_Partyindex is never read 01/18/16
     l_Accept          = p_RecvData.ReadBit();
     l_HasRolesDesired = p_RecvData.ReadBit();
 
     if (l_HasRolesDesired)
-        l_RolesDesired = p_RecvData.read<uint32>();
+        l_RolesDesired = p_RecvData.read<uint32>(); ///< l_RolesDesired is never read 01/18/16
 
     uint32 l_GroupGUID = GetPlayer()->GetGroupInvite();
 
@@ -457,7 +457,7 @@ void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
     uint64 l_Target;
     uint8  l_PartyIndex;
 
-    l_PartyIndex = p_RecvData.read<uint8>();
+    l_PartyIndex = p_RecvData.read<uint8>(); ///< l_PartyIndex is never read 01/18/16
     p_RecvData.readPackGUID(l_Target);
 
     Player* player = ObjectAccessor::FindPlayer(l_Target);
@@ -551,7 +551,7 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
-    uint8 l_PartyIndex = p_RecvData.read<uint8>();
+    uint8 l_PartyIndex = p_RecvData.read<uint8>(); ///< L_partyIndex is never read 01/18/16
 
     Group* l_Group = m_Player->GetGroup();
     if (!l_Group)
