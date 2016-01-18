@@ -2411,8 +2411,6 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 {
                     if (l_ShieldCharge->GetEffect(EFFECT_0))
                         l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                    l_ShieldCharge->DropStack();
                 }
 
 
@@ -2919,8 +2917,6 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
                             {
                                 if (l_ShieldCharge->GetEffect(EFFECT_0))
                                     l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                                l_ShieldCharge->DropStack();
                             }
 
                             SetHitDamage(l_Damage);
