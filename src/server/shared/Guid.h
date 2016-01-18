@@ -28,7 +28,9 @@ enum HighGuid
     HIGHGUID_WOW_ACCOUNT        = 0xD4E,
     HIGHGUID_VIGNETTE           = 0x200,
     HIGHGUID_BATTLE_PET         = 0x201,
-    HIGHGUID_MAIL               = 0x800                         // Custom, used for cross <-> local realm sync
+    HIGHGUID_MAIL               = 0x800,                        // Custom, used for cross <-> local realm sync
+    HIGHGUID_PET_NUMBER         = 0x900,                        // Custom, used for cross <-> local realm sync
+    HIGHGUID_EQUIPMENT_SET      = 0x700
 };
 
 #define IS_EMPTY_GUID(Guid)          (Guid == 0)
