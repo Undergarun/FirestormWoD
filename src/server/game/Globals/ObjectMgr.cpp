@@ -6576,7 +6576,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
-        _mailId = (*result)[0].GetUInt32()+1;
+        m_MailId = (*result)[0].GetUInt32()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
     if (result)
