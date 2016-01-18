@@ -1470,10 +1470,6 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
 
-    /// Temp disable PvE ranking for Hans'gar & Franzok
-    if (p_EncounterID == 1693)
-        return;
-
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
     m_EncounterDatas.EndTime        = time(nullptr);
     m_EncounterDatas.Success        = p_Success;

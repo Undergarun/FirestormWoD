@@ -909,7 +909,7 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                                if (!l_Player)
+                                if (!l_Player || !p_QueryHolder)
                                 {
                                     delete l_NewPet;
                                     return;
@@ -3303,43 +3303,43 @@ class spell_warl_corruption : public SpellScriptLoader
 /// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
-public:
-    spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
+    public:
+        spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
 
-    class spell_warl_dark_soul_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_dark_soul_SpellScript);
-
-        void HandleAfterCast()
+        class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
+
+            void HandleAfterCast()
             {
-                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
-                uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                    uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
 
-                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
 
-                if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
-                else ///< Case of GLYPH_OF_DARK_SOUL
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                    if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                    else ///< Case of GLYPH_OF_DARK_SOUL
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
 
-                if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
-                    l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
+                    if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
+                        l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
 
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+            return new spell_warl_dark_soul_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_dark_soul_SpellScript();
-    }
 };
 
 /// last update : 6.1.2 19802

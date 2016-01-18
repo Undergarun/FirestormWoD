@@ -675,7 +675,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
     p_RecvData >> l_SortCount;
 
     uint32 l_UnkCount = p_RecvData.read<uint32>();
-    uint8 l_UnkByte = p_RecvData.read<uint8>();
+    uint8 l_UnkByte = p_RecvData.read<uint8>(); ///< l_Unkbyte is never read 01/18/16
 
     std::vector<uint8> l_UnkBytes;
     l_UnkBytes.resize(l_UnkCount);
@@ -688,7 +688,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
     l_Name = p_RecvData.ReadString(l_NameLen);
 
     l_Usable = p_RecvData.ReadBit();
-    l_ExactMatch = p_RecvData.ReadBit();
+    l_ExactMatch = p_RecvData.ReadBit(); ///< l_ExactMatch is never read 01/18/16
 
     p_RecvData >> l_Offset;
 

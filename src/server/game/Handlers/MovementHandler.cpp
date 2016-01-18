@@ -302,14 +302,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         || l_OpCode == CMSG_MOVE_SET_TURN_SPEED_CHEAT
         || l_OpCode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT)
     {
-        uint32 l_AckIndex   = p_Packet.read<uint32>();
-        float  l_Speed      = p_Packet.read<float>();
+        uint32 l_AckIndex   = p_Packet.read<uint32>(); ///< l_AckIndex is never read 01/18/16
+        float  l_Speed      = p_Packet.read<float>(); ///< l_Speed is never read 01/18/16
     }
 
     if (l_OpCode == CMSG_MOVE_FEATHER_FALL_ACK
      || l_OpCode == CMSG_MOVE_WATER_WALK_ACK)
     {
-        uint32 l_AckIndex = p_Packet.read<uint32>();
+        uint32 l_AckIndex = p_Packet.read<uint32>(); ///< l_AckIndex is never read 01/18/16
     }
 
     // prevent tampered movement data
@@ -537,7 +537,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 {
-    uint32 opcode = recvData.GetOpcode();
+    uint32 opcode = recvData.GetOpcode(); ///< opcode is never read 01/18/16
 
     /* extract packet */
     uint64 guid;
@@ -824,7 +824,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
                 break;
 
             case MSEHasSpline:
-                l_HasSpline = p_Data.ReadBit();
+                l_HasSpline = p_Data.ReadBit(); ///< l_HasSpline is never read 01/18/16
                 break;
 
             case MSEFlushBits:

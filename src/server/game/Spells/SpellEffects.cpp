@@ -500,51 +500,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     }
-                    case 46968: // Shockwave
-                    {
-                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        int32 pct = 0;
-
-                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                        {
-                            case SPEC_WARRIOR_ARMS:
-                                pct = 90;
-                                break;
-                            case SPEC_WARRIOR_FURY:
-                            case SPEC_WARRIOR_PROTECTION:
-                                pct = 75;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), pct));
-
-                        break;
-                    }
-                    case 103840:// Impending Victory
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 70.0f);
-                        else
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 56.0f);
-
-                        // Impending Victory heals you for 10% of your maximum health
-                        m_caster->CastSpell(m_caster, 118340, true);
-
-                        break;
-                    }
-                    case 118000:// Dragon Roar
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 168);
-                        else
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 140);
-
-                        break;
-                    }
                 }
 
                 break;
@@ -694,7 +649,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     if (stat < strength)
                     {
-                        stat = strength;
+                        stat = strength; ///< stat is never read 01/18/16
                         usedStat = STAT_STRENGTH;
                     }
 

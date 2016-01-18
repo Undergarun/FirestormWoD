@@ -287,7 +287,7 @@ void BattlegroundDG::UpdatePlayerScore(Player* p_Source, uint32 p_Type, uint32 p
     if (l_Iter == PlayerScores.end())
         return;
 
-    uint32 l_TeamIndex = GetTeamIndexByTeamId(p_Source->GetBGTeam());
+    uint32 l_TeamIndex = GetTeamIndexByTeamId(p_Source->GetBGTeam()); ///< l_TeamIndex is never read 01/18/16
     switch (p_Type)
     {
         case SCORE_CART_CAPTURES:

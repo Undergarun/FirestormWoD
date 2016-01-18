@@ -390,8 +390,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
-        index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS;
-        index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG;
+        index_mod_pos = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS; ///< index_mod_pos is never read 01/18/16
+        index_mod_neg = UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG; ///< index_mod_neg is never read 01/18/16
         index_mult = UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER;
         val2 = GetStat(STAT_AGILITY) *  entry->RangedAttackPowerPerAgility;
     }
@@ -1306,7 +1306,7 @@ bool Guardian::UpdateStats(Stats p_Stat)
     {
         case STAT_STAMINA:
         {
-            l_Mod = 0.3f;
+            l_Mod = 0.3f; ///< l_mod is never read 01/18/16
 
             if (IsPetGhoul() || IsPetGargoyle())
                 l_Mod = 0.45f;

@@ -2189,7 +2189,8 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaLash = 60103
+                LavaLash = 60103,
+                LavaLashHighlight = 144967
             };
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2211,7 +2212,10 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                     return;;
 
                 if (SpellInfo const* l_LavaLash = sSpellMgr->GetSpellInfo(eSpells::LavaLash))
+                {
                     l_Player->RestoreCharge(l_LavaLash->ChargeCategoryEntry);
+                    l_Player->CastSpell(l_Player, LavaLashHighlight, true);
+                }
             }
 
             void Register()

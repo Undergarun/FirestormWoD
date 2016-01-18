@@ -124,7 +124,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
                     creature.SetHomePosition(x, y, z, o);
                 }
                 else
-                    transportPath = false;
+                    transportPath = false; ///< transportpath is never read 01/18/16
                 // else if (vehicle) - this should never happen, vehicle offsets are const
             }
             creature.GetMotionMaster()->Initialize();

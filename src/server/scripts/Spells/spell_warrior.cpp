@@ -2411,8 +2411,6 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 {
                     if (l_ShieldCharge->GetEffect(EFFECT_0))
                         l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                    l_ShieldCharge->DropStack();
                 }
 
 
@@ -2919,8 +2917,6 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
                             {
                                 if (l_ShieldCharge->GetEffect(EFFECT_0))
                                     l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                                l_ShieldCharge->DropStack();
                             }
 
                             SetHitDamage(l_Damage);
@@ -3082,8 +3078,44 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Impending Victory - 103840
+class spell_warr_impending_victory : public SpellScriptLoader
+{
+    public:
+        spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
+
+        class spell_warr_impending_victory_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_impending_victory_SpellScript);
+
+            enum eSpells
+            {
+                ImpendingVictoryHeal = 118340
+            };
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::ImpendingVictoryHeal, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_impending_victory_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_impending_victory_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
     new spell_warr_glyph_of_crow_feast();

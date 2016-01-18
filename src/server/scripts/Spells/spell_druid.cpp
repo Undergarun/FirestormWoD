@@ -1552,7 +1552,9 @@ class spell_dru_cat_form: public SpellScriptLoader
                 Dash           = 1850,
                 Prowl          = 5215,
                 GlyphOfCatForm = 47180,
-                DesplacerBeast = 137452
+                DesplacerBeast = 137452,
+                BurningEssence = 138927,
+                BurningEssenceModel = 38150
             };
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
@@ -1569,6 +1571,14 @@ class spell_dru_cat_form: public SpellScriptLoader
 
                 if (l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm) && !l_Target->HasAura(eSpells::GlyphOfCatForm))
                     l_Target->AddAura(eSpells::GlyphOfCatForm, l_Target);
+            }
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::BurningEssence))
+                    l_Target->SetDisplayId(eSpells::BurningEssenceModel);
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
@@ -1588,6 +1598,7 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             void Register()
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_cat_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 OnEffectApply += AuraEffectApplyFn(spell_dru_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
@@ -2068,39 +2079,55 @@ class spell_dru_faerie_fire: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Druid of the flames - 138927
 class spell_dru_druid_flames : public SpellScriptLoader
 {
     public:
         spell_dru_druid_flames() : SpellScriptLoader("spell_dru_druid_flames") { }
 
-        class spell_dru_druid_flames_SpellScript : public SpellScript
+        class spell_dru_druid_flames_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dru_druid_flames_SpellScript);
+            PrepareAuraScript(spell_dru_druid_flames_AuraScript);
 
-            enum eDruidOfFlames
+            enum eSpells
             {
                 DruidOfFlamesModel = 38150,
                 DruidOfFlames = 138927
             };
 
-            void HandleOnHit()
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetTarget()->ToPlayer();
 
-                if (l_Player && l_Player->GetShapeshiftForm() == FORM_CAT && l_Player->HasAura(eDruidOfFlames::DruidOfFlames))
-                    l_Player->SetDisplayId(eDruidOfFlames::DruidOfFlamesModel);
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetShapeshiftForm() == FORM_CAT)
+                    l_Player->SetDisplayId(eSpells::DruidOfFlamesModel);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetShapeshiftForm() == FORM_CAT)
+                    l_Player->RestoreDisplayId();
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_dru_druid_flames_SpellScript::HandleOnHit);
+                OnEffectApply += AuraEffectApplyFn(spell_dru_druid_flames_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_druid_flames_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dru_druid_flames_SpellScript();
+            return new spell_dru_druid_flames_AuraScript();
         }
 };
 

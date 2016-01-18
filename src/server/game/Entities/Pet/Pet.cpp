@@ -183,7 +183,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (slotID == PET_SLOT_ACTUAL_PET_SLOT)
         slotID = owner->m_currentPetSlot;
 
-    uint32 ownerid = owner->GetGUIDLow();
+    uint32 ownerid = owner->GetGUIDLow(); ///< ownerID is never read 01/18/16
 
     PreparedQueryResult result = holder->GetPetResult();
 
@@ -282,10 +282,10 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     switch (cinfo->unit_class)
     {
         case CLASS_WARRIOR:
-            powerType = POWER_RAGE;
+            powerType = POWER_RAGE;  ///< powertype is never read 01/18/16
             break;
         case CLASS_ROGUE:
-            powerType = POWER_ENERGY;
+            powerType = POWER_ENERGY; ///< powertype is never read 01/18/16
             break;
     }
 
@@ -730,7 +730,7 @@ void Creature::Regenerate(Powers power)
         return;
 
     float addvalue = 0.0f;
-    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f;
+    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f; ///< rangedHaste is never read 01/18/16
 
     switch (power)
     {

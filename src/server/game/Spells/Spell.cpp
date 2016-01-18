@@ -2100,7 +2100,7 @@ void Spell::SelectImplicitTrajTargets()
                 y += factor * ((*itr)->GetPositionY() - y);
                 z += factor * ((*itr)->GetPositionZ() - z);
 
-                distSq = (*itr)->GetExactDistSq(x, y, z);
+                distSq = (*itr)->GetExactDistSq(x, y, z); ///< distSq is never read 01/18/16
             }
         }
 
@@ -3321,7 +3321,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
                             if (m_spellAura->GetEffect(i))
                                 if (m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
-                                    periodicDamage = true;
+                                    periodicDamage = true; ///< periodicDamage is never read 01/18/16
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())

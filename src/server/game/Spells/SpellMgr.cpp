@@ -5966,6 +5966,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 47753: ///< Divine Aegis
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             case 170995:///< Cripple
@@ -5981,6 +5982,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 95861: ///< Meditation
                 spellInfo->Effects[1].Effect = 0;  ///< On retail priests don't have this bonus, also in tooltip nothing said about that
+                break;
+            case 157048:///< Final Verdict
+                spellInfo->Effects[0].BasePoints = 259; ///< 6.2.3 hotfix: Final Verdict (Retribution) damage has been increased by 8%
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
