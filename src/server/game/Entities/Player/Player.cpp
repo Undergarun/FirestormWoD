@@ -18797,7 +18797,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -19737,8 +19738,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
-                    DestroyItemCount(l_Objective.ObjectID, GetItemCount(l_Objective.ObjectID), true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
             }
         }
 
