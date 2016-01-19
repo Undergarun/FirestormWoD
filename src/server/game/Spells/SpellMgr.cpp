@@ -5260,6 +5260,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 34428: ///< Victory Rush
                 spellInfo->OverrideSpellList.push_back(103840); ///< Impending Victory
                 break;
+            case 157633: ///< Improved Scorch
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_FIRE;
+                break;
             case 91342: ///< Shadow Infusion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
