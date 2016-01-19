@@ -38,7 +38,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
     uint32 l_CommentLenght  = 0;
 
     uint8 l_PartyIndex = 0;
-
     bool l_QueueAsGroup = false;
 
     l_QueueAsGroup  = p_Packet.ReadBit();
@@ -263,21 +262,10 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
         for (LfgLockMap::const_iterator l_It = l_Lock.begin(); l_It != l_Lock.end(); ++l_It)
         {
             LfgLockStatus l_LockData = l_It->second;
-
-            if (l_LockData.lockstatus == LFG_LOCKSTATUS_TOO_LOW_LEVEL || l_LockData.lockstatus == LFG_LOCKSTATUS_TOO_HIGH_LEVEL)
-            {
-                l_Data << uint32(0);
-                l_Data << uint32(l_LockData.lockstatus);
-                l_Data << uint32(0);
-                l_Data << uint32(0);
-            }
-            else
-            {
-                l_Data << uint32(l_It->first);
-                l_Data << uint32(l_LockData.lockstatus);
-                l_Data << uint32(l_LockData.SubReason1);
-                l_Data << uint32(l_LockData.SubReason2);
-            }
+            l_Data << uint32(l_It->first);
+            l_Data << uint32(l_LockData.lockstatus);
+            l_Data << uint32(l_LockData.SubReason1);
+            l_Data << uint32(l_LockData.SubReason2);
         }
 
         for (LfgDungeonSet::const_iterator l_It = l_RandomDungeons.begin(); l_It != l_RandomDungeons.end(); ++l_It)

@@ -4168,7 +4168,7 @@ public:
 };
 
 /// last update : 6.2.3
-/// Incinerate - 2972, Incinerate (Fire and Brimstone) - 114654
+/// Incinerate - 29722, Incinerate (Fire and Brimstone) - 114654
 class spell_warl_incinerate : public SpellScriptLoader
 {
     public:

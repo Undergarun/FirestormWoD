@@ -18,9 +18,6 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-65','1','86974','2.35014','0.122752','1.14831','0.745757');
 
 
-	-- Tormak le balafré
-
-	update creature_template set npcflag = npcflag | 1, scriptname = "npc_Tormak_Garr" where entry = 86979;
 	/* Quests list : 
 	-- Elever un elekk
 	36946

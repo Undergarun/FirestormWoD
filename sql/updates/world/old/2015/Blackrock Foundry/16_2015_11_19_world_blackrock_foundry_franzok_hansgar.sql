@@ -205,6 +205,28 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '|TInterface\\Icons\\ability_hanzandfranz_bodyslam.blp:20|t$n сейчас получит урон от способности |cFFF00000|Hspell:159646|h[Мощный удар]|h|r!'
 );
 
+DELETE FROM `reference_loot_template` WHERE entry = @REF_HANSGAR;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_HANSGAR, 113897, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113898, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113899, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113900, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113901, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113902, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113903, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113904, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113905, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113906, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113907, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113908, 0, 1, 1, 1, 1),
+(@REF_HANSGAR, 113910, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_HANSGAR WHERE `entry`= @REF_HANSGAR;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_HANSGAR;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_HANSGAR, 1, 100, 1, 0, -@REF_HANSGAR, 6);
+
 DELETE FROM creature_groupsizestats WHERE entry = @REF_HANSGAR;
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES
 (@REF_HANSGAR, 14, 10, 44546433),

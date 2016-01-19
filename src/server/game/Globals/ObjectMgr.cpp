@@ -5421,6 +5421,94 @@ void ObjectMgr::LoadInstanceEncounters()
         }
     }
 
+    ///                                                 0         1            2                3
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+
+    if (!l_Result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance encounters, table is empty!");
+
+        return;
+    }
+
+    std::map<uint32, DungeonEncounterEntry const*> l_DungeonLastBosses;
+    do
+    {
+        Field* l_Fields                                 = l_Result->Fetch();
+        uint32 l_EncounterID                            = l_Fields[0].GetUInt32();
+        uint8 l_CreditType                              = l_Fields[1].GetUInt8();
+        uint32 l_CreditEntry                            = l_Fields[2].GetUInt32();
+        uint16 l_LastEncounterDungeon                   = l_Fields[3].GetUInt16();
+        DungeonEncounterEntry const* l_DungeonEncounter = sDungeonEncounterStore.LookupEntry(l_EncounterID);
+
+        if (!l_DungeonEncounter)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid encounter id %u, skipped!", l_EncounterID);
+            continue;
+        }
+
+        if (l_LastEncounterDungeon && !sLFGDungeonStore.LookupEntry(l_LastEncounterDungeon))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", l_EncounterID, l_DungeonEncounter->NameLang, l_LastEncounterDungeon);
+            continue;
+        }
+
+        std::map<uint32, DungeonEncounterEntry const*>::const_iterator l_Itr = l_DungeonLastBosses.find(l_LastEncounterDungeon);
+        if (l_LastEncounterDungeon)
+        {
+            if (l_Itr != l_DungeonLastBosses.end())
+            {
+                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", l_EncounterID, l_DungeonEncounter->NameLang, l_Itr->second->ID, l_Itr->second->NameLang);
+                continue;
+            }
+
+            l_DungeonLastBosses[l_LastEncounterDungeon] = l_DungeonEncounter;
+        }
+
+        switch (l_CreditType)
+        {
+            case ENCOUNTER_CREDIT_KILL_CREATURE:
+            {
+                CreatureTemplate const* l_CreatureInfo = GetCreatureTemplate(l_CreditEntry);
+                if (!l_CreatureInfo)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", l_CreditEntry, l_EncounterID, l_DungeonEncounter->NameLang);
+                    continue;
+                }
+                const_cast<CreatureTemplate*>(l_CreatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                break;
+            }
+            case ENCOUNTER_CREDIT_CAST_SPELL:
+                if (!sSpellMgr->GetSpellInfo(l_CreditEntry))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", l_CreditEntry, l_EncounterID, l_DungeonEncounter->NameLang);
+                    continue;
+                }
+                break;
+            default:
+                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", l_CreditType, l_EncounterID, l_DungeonEncounter->NameLang);
+                continue;
+        }
+
+        uint32 l_DungeonStoreIndex = MAKE_PAIR32(l_DungeonEncounter->MapID, l_DungeonEncounter->DifficultyID);
+
+        if (_dungeonEncounterStore.find(l_DungeonStoreIndex) != _dungeonEncounterStore.end())
+        {
+            DungeonEncounterList& l_Encounters = _dungeonEncounterStore[l_DungeonStoreIndex];
+
+            for (auto& l_Encounter : l_Encounters)
+            {
+                if (l_Encounter->dbcEntry && l_Encounter->dbcEntry->ID == l_EncounterID)
+                {
+                    delete l_Encounter;
+                    l_Encounter = new DungeonEncounter(l_DungeonEncounter, EncounterCreditType(l_CreditType), l_CreditEntry, l_LastEncounterDungeon);
+                    break;
+                }
+            }
+        }
+    }
+    while (l_Result->NextRow());
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
 }
 

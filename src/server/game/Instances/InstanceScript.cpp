@@ -1367,7 +1367,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
     int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == Difficulty::DifficultyNone)
+        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex)
             l_MaxIndex = (*l_Iter)->dbcEntry->OrderIndex;
     }
 
@@ -1469,10 +1469,6 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.WriteBit(p_Success);
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
-
-    /// Temp disable PvE ranking for Hans'gar & Franzok
-    if (p_EncounterID == 1693)
-        return;
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
     m_EncounterDatas.EndTime        = time(nullptr);

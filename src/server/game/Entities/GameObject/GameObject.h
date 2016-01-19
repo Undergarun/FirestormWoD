@@ -1148,8 +1148,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         GameObjectModel * m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return NULL; }
+        Transport* ToTransport();
+        Transport const* ToTransport() const;
 
         float GetStationaryX() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
         float GetStationaryY() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }

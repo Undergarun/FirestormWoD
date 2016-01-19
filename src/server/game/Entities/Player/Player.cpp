@@ -9897,7 +9897,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
 
             l_Packet << uint32(p_CurrencyID);
             l_Packet << uint32(l_NewTotalCount);
-            l_Packet << uint32(0);                        // Flags
+            l_Packet << uint32(l_CurrencyIT->second.flags);
 
             l_Packet.WriteBit(l_WeekCap != 0);
             l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);
@@ -31092,6 +31092,10 @@ bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuse
         for (auto l_Bonus : p_Bonuses)
             l_Item->AddItemBonus(l_Bonus);
 
+        std::vector<uint32> l_Bonus;
+        Item::GenerateItemBonus(l_Item->GetEntry(), ItemContext::None, l_Bonus);
+        l_Item->AddItemBonuses(l_Bonus);
+
         SendNewItem(l_Item, p_Count, true, false);
 
         return true;
@@ -34359,13 +34363,13 @@ void Player::SendCustomMessage(std::string const& p_Opcode)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << " " << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << p_Message.str() << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data)
 {
@@ -34380,7 +34384,7 @@ void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::str
     else
         l_Message << " " << "|";
 
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 
 uint32 Player::GetBagsFreeSlots() const
