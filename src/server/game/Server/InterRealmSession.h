@@ -115,7 +115,7 @@ class InterRealmSession: public ACE_Based::Runnable
         void SendServerAnnounce(uint64 guid, std::string const &text);
         void SendPlayerTeleport(Player *player, uint32 zoneId, Player *target, bool isSpectator = false);
 
-        void SendRegisterArena(Group* group, uint32 arenaSlot);
+        void SendRegisterArena(std::list<Player*> p_Players, uint32 p_ArenaSlot, bool p_IsSkrimish);
         void SendRegisterRated(Group* group, uint32 personalRating, uint32 matchmakerRating);
         void SendRegisterPlayer(Player* player, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId, uint8 role, uint32* blacklist);
         void SendRegisterGroup(Group* group, uint32 bgInstanceId, uint64 bgGuid, uint32 bgTypeId, uint8 role, uint32* blacklist);

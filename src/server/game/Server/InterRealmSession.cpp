@@ -1463,70 +1463,65 @@ void InterRealmSession::SendRegisterGroup(Group* group, uint32 bgInstanceId, uin
     SendPacket(&pckt);
 }
 
-void InterRealmSession::SendRegisterArena(Group* group, uint32 arenaSlot)
+void InterRealmSession::SendRegisterArena(std::list<Player*> p_Players, uint32 p_ArenaSlot, bool p_IsSkirmish)
 {
-    WorldPacket pckt(IR_CMSG_REGISTER_ARENA, 1 + 4 + (8 + 4 + 1 + 1 + 1 + 8 + 1 + 1 +
+    WorldPacket l_Pckt(IR_CMSG_REGISTER_ARENA, 1 + 4 + (8 + 4 + 1 + 1 + 1 + 8 + 1 + 1 +
         10 + 1 + 1 + 1 + 4 + 4 + 1 + 1));
     
-    ByteBuffer data;
+    ByteBuffer l_Data;
 
-    size_t num_pos = data.wpos();
-    pckt << uint8(0);
-    pckt << uint8(arenaSlot);
+    size_t l_NumPos = l_Data.wpos();
+    l_Pckt << uint8(0);
+    l_Pckt << uint8(p_ArenaSlot);
+    l_Pckt << uint8(p_IsSkirmish);
 
-    uint8 count = 0;
-    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    uint8 l_Count = 0;
+    for (Player* l_Player : p_Players)
     {
-        Player* member = itr->getSource();
-        if (!member || !member->IsInWorld())
+        if (!l_Player || !l_Player->IsInWorld())
             continue;
 
-        count++;
+        l_Count++;
 
-        pckt << uint64(member->GetGUID());
+        l_Pckt << uint64(l_Player->GetGUID());
 
-        uint64 _mute;
-        uint32 _accountId;
-        uint8 _security, _premium, _exp, _locale, _recruiter;
+        uint32 l_AccountId  = l_Player->GetSession()->GetAccountId();
+        uint8  l_Security   = l_Player->GetSession()->GetSecurity();
+        uint8  l_Premium    = l_Player->GetSession()->IsPremium();
+        uint8  l_Exp        = l_Player->GetSession()->Expansion();
+        uint64 l_Mute       = l_Player->GetSession()->m_muteTime;
+        uint8  l_Locale     = l_Player->GetSession()->GetSessionDbLocaleIndex();
+        uint8  l_Recruiter  = l_Player->GetSession()->GetRecruiterId();
 
-        _accountId = member->GetSession()->GetAccountId();
-        _security = member->GetSession()->GetSecurity();
-        _premium = member->GetSession()->IsPremium();
-        _exp = member->GetSession()->Expansion();
-        _mute = member->GetSession()->m_muteTime;
-        _locale = member->GetSession()->GetSessionDbLocaleIndex();
-        _recruiter = member->GetSession()->GetRecruiterId();
+        l_Data << uint32(l_AccountId);
+        l_Data << uint8(l_Security);
+        l_Data << uint8(l_Premium);
+        l_Data << uint8(l_Exp);
+        l_Data << uint64(l_Mute);
+        l_Data << uint8(l_Locale);
+        l_Data << uint8(l_Recruiter);
 
-        //pckt << uint64(member->GetGUID());
-        data << uint32(_accountId);
-        data << uint8(_security);
-        data << uint8(_premium);
-        data << uint8(_exp);
-        data << uint64(_mute);
-        data << uint8(_locale);
-        data << uint8(_recruiter);
+        l_Data << std::string(l_Player->GetName());
 
-        data << std::string(member->GetName());
+        l_Data << uint8(l_Player->getLevel()); // Level
+        l_Data << uint8(l_Player->getRace()); // Race
+        l_Data << uint8(l_Player->getClass()); // Class
+        l_Data << uint32(l_Player->GetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID)); // Skin, Face, Hairstyle, Haircolor
+        l_Data << uint32(l_Player->GetUInt32Value(PLAYER_FIELD_REST_STATE)); // FacialHair
+        l_Data << uint8(l_Player->GetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER)); // Gender
+        l_Data << uint32(l_Player->GetGuildId());
+        l_Data << uint8(l_Player->GetRank());
+        l_Data << uint32(l_Player->GetGuildLevel());
 
-        data << uint8(member->getLevel()); // Level
-        data << uint8(member->getRace()); // Race
-        data << uint8(member->getClass()); // Class
-        data << uint32(member->GetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID)); // Skin, Face, Hairstyle, Haircolor
-        data << uint32(member->GetUInt32Value(PLAYER_FIELD_REST_STATE)); // FacialHair
-        data << uint8(member->GetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER)); // Gender
-        data << uint32(member->GetGuildId());
-        data << uint8(member->GetRank());
-        data << uint32(member->GetGuildLevel());
+        l_Data << uint8(l_Player->GetRandomWinner() ? 1 : 0); // Has random winner
 
-        data << uint8(member->GetRandomWinner() ? 1 : 0); // Has random winner
-
-        BuildPlayerArenaInfoBlock(member, data);
+        BuildPlayerArenaInfoBlock(l_Player, l_Data);
     }
 
-    pckt.put<uint8>(num_pos, count);
-    pckt.append(data);
+    l_Pckt.put<uint8>(l_NumPos, l_Count);
+    l_Pckt.append(l_Data);
 
-    SendPacket(&pckt);
+    SendPacket(&l_Pckt);
 }
 
 void InterRealmSession::SendRegisterRated(Group* group, uint32 personalRating, uint32 matchmakerRating)
