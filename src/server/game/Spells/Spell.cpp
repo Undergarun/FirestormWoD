@@ -2296,6 +2296,8 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
         case SPELL_DAMAGE_CLASS_RANGED:
             // 7.5y for multi shot
             jumpRadius = 7.5f;
+            if (m_spellInfo->SpellFamilyFlags[2] & 0x1)
+                jumpRadius = 2.5f; ///< Chimaera Shot has smaller radius
             break;
         case SPELL_DAMAGE_CLASS_MELEE:
             // 5y for swipe, cleave and similar
