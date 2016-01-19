@@ -4232,7 +4232,6 @@ class spell_warl_demonbolt : public SpellScriptLoader
                 float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
                 p_Amount *= l_HastePct;
-                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() * l_HastePct);
             }
 
             void Register()
@@ -4241,9 +4240,35 @@ class spell_warl_demonbolt : public SpellScriptLoader
             }
         };
 
+        class spell_warl_demonbolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demonbolt_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                if (AuraPtr l_AuraPtr = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_AuraPtr->SetDuration(l_AuraPtr->GetDuration() * l_HastePct);
+
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleAfterHit);
+            }
+        };
+
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_demonbolt_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_demonbolt_SpellScript();
         }
 };
 
