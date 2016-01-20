@@ -1165,7 +1165,7 @@ namespace MS { namespace Garrison
         if (CanMissionBeStartedAfterSoftCap(l_MissionTemplate->FollowerType) || (GetActiveFollowerCount(l_MissionTemplate->FollowerType) > GetFollowerSoftCap(l_MissionTemplate->FollowerType)))
             return;
 
-        if (!m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->CurrencyCost))
+        if (l_MissionTemplate->CurrencyCost && !m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->CurrencyCost))
         {
             StartMissionFailed(p_MissionRecID, p_Followers);
             return;
@@ -1210,7 +1210,8 @@ namespace MS { namespace Garrison
                 return;
         }
 
-        m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->CurrencyCost);
+        if (l_MissionTemplate->CurrencyCost)
+            m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->CurrencyCost);
 
         std::vector<uint32> l_FollowersIDs;
         for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)

@@ -684,7 +684,7 @@ namespace MS { namespace Garrison
 
     bool npc_garrison_atheeru_palestar::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        p_Player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1, "Do you want to respawn the assemblies ?", 10000, false);
         p_Player->SEND_GOSSIP_MENU(MiscDatas::NpcTextID, p_Creature->GetGUID());
 
         return true;
@@ -693,7 +693,10 @@ namespace MS { namespace Garrison
     bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI())
+        {
+            p_Player->ModifyMoney(-10000);
             p_Creature->AI()->DoAction(1);
+        }
         return true;
     }
 
@@ -798,7 +801,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                m_CheckTimer = 500;
+                m_CheckTimer = 1000;
             }
             else
                 m_CheckTimer -= p_Diff;

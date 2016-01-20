@@ -603,11 +603,6 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
 {
     Creature::setDeathState(s);
 
-    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
-        CastSpell(this, 157863, true);
-    else if (HasAura(157863))
-        RemoveAura(157863);
-
     if (getDeathState() == CORPSE)
     {
         if (getPetType() == HUNTER_PET)
@@ -644,6 +639,10 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
+    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+        CastSpell(this, 157863, true);
+    else if (HasAura(157863))
+        RemoveAura(157863);
     switch (m_deathState)
     {
         case CORPSE:
