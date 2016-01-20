@@ -3528,6 +3528,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                 break;
+            case 177858: ///< Ember in the Wind (Mol'dana Two Blade)
+                spellInfo->TargetAuraSpell = 177855;    ///< Ember in the Wind (aura)
+                break;
+            case 177891: ///< Rising Flame Kick (Mol'dana Two Blade)
+            case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills

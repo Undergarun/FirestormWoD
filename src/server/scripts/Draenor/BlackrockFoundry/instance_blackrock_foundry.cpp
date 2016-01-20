@@ -15,7 +15,8 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::FurnacePortcullis,           eFoundryDatas::DataOregorger,           DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,        DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::HansgarAndFranzokEntrance,   eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    ///{ eFoundryGameObjects::HansgarAndFranzokExit,       eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::HansgarAndFranzokExit,       eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::FirewallDoor,                eFoundryDatas::DataFlamebenderKagraz,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -47,6 +48,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_StampStampRevolution      = true;
 
                 m_IronTaskmasterAggro       = false;
+                m_SteelHasBeenBrought       = true;
+                m_FlamebenderKagrazGuid     = 0;
+                m_AknorSteelbringerGuid     = 0;
             }
 
             /// Slagworks
@@ -73,6 +77,9 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             /// Burning Front
             bool m_IronTaskmasterAggro;
+            bool m_SteelHasBeenBrought;
+            uint64 m_FlamebenderKagrazGuid;
+            uint64 m_AknorSteelbringerGuid;
 
             void Initialize() override
             {
@@ -108,6 +115,12 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::BossFranzok:
                         m_FranzokGuid = p_Creature->GetGUID();
                         break;
+                    case eFoundryCreatures::BossFlamebenderKagraz:
+                        m_FlamebenderKagrazGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::AknorSteelbringer:
+                        m_AknorSteelbringerGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -123,6 +136,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                     case eFoundryGameObjects::HansgarAndFranzokEntrance:
                     case eFoundryGameObjects::HansgarAndFranzokExit:
+                    case eFoundryGameObjects::FirewallDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -143,9 +157,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         p_GameObject->SetAIAnimKitId(eFoundryVisuals::ConveyorsStop);
                         break;
                     case eFoundryGameObjects::ConveyorBelt006:
-                    case eFoundryGameObjects::ConveyorBelt007:
                     case eFoundryGameObjects::ConveyorBelt008:
                         p_GameObject->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart2, true);
+                        break;
+                    case eFoundryGameObjects::ConveyorBelt007:
+                        p_GameObject->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart3, true);
                         break;
                     default:
                         break;
@@ -162,6 +178,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
                     case eFoundryGameObjects::HansgarAndFranzokEntrance:
                     case eFoundryGameObjects::HansgarAndFranzokExit:
+                    case eFoundryGameObjects::FirewallDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -276,6 +293,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 break;
                         }
                     }
+                    case eFoundryDatas::DataFlamebenderKagraz:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_SteelHasBeenBrought && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::TheSteelHasBeenBrought);
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_SteelHasBeenBrought = true;
+                                break;
+                            }
+                        }
+                    }
                     default:
                         break;
                 }
@@ -334,6 +369,14 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_IronTaskmasterAggro = true;
                         break;
                     }
+                    case eFoundryDatas::AknorDied:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        m_SteelHasBeenBrought = false;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -374,6 +417,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_HansgarGuid;
                     case eFoundryCreatures::BossFranzok:
                         return m_FranzokGuid;
+                    case eFoundryCreatures::BossFlamebenderKagraz:
+                        return m_FlamebenderKagrazGuid;
+                    case eFoundryCreatures::AknorSteelbringer:
+                        return m_AknorSteelbringerGuid;
                     default:
                         break;
                 }

@@ -2082,7 +2082,7 @@ class npc_foundry_iron_flametwister : public CreatureScript
 
                 m_Exploded = false;
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt006; l_Entry <= eFoundryGameObjects::ConveyorBelt008; ++l_Entry)
                     {
@@ -2147,7 +2147,7 @@ class npc_foundry_iron_flametwister : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     for (uint32 l_Entry = eFoundryGameObjects::ConveyorBelt006; l_Entry <= eFoundryGameObjects::ConveyorBelt008; ++l_Entry)
                     {
@@ -2243,22 +2243,44 @@ class npc_foundry_flame_vents : public CreatureScript
 
         struct npc_foundry_flame_ventsAI : public ScriptedAI
         {
-            npc_foundry_flame_ventsAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_flame_ventsAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Initialized(false) { }
 
             enum eSpell
             {
                 FlameVentCosmetics = 163045
             };
 
+            bool m_Initialized;
+
+            std::set<uint64> m_AffectedPlayers;
+
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                std::list<Creature*> l_FlameVents;
+                me->GetCreatureListWithEntryInGrid(l_FlameVents, me->GetEntry(), 10.0f);
+
+                for (Creature* l_Trigger : l_FlameVents)
                 {
-                    if (me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f)
+                    if (npc_foundry_flame_vents::npc_foundry_flame_ventsAI* l_AI = CAST_AI(npc_foundry_flame_vents::npc_foundry_flame_ventsAI, l_Trigger->GetAI()))
+                    {
+                        /// Don't use all triggers as cosmetic triggers
+                        /// Only the first will be enough
+                        if (l_AI->m_Initialized)
+                            return;
+                    }
+                }
+
+                if ((me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f) || me->GetOrientation() < 0.1f)
+                {
+                    m_Initialized = true;
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
                         me->CastSpell(me, eSpell::FlameVentCosmetics, true);
-                });
+                    });
+                }
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -2269,15 +2291,85 @@ class npc_foundry_flame_vents : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                if (!m_Initialized)
+                    return;
+
+                Position l_ForcedPos;
+                float l_MaxDist = 70.0f;
+                float l_O = 0.0f;
+
+                bool l_Negative = true;
+
+                if (GameObject* l_Belt = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt006, 40.0f))
+                    l_O = M_PI;
+                else if (GameObject* l_Belt = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt007, 40.0f))
+                {
+                    l_Negative = false;
+                    l_O = 0.0f;
+                }
+                else if (GameObject* l_Belt = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt008, 45.0f))
+                    l_O = M_PI;
+                else
+                    return;
+
+                l_ForcedPos.m_positionX = me->GetPositionX() + (l_MaxDist * cos(l_O));
+                l_ForcedPos.m_positionY = me->GetPositionY() + (l_MaxDist * sin(l_O));
+                l_ForcedPos.m_positionZ = me->GetPositionZ();
+                l_ForcedPos.m_orientation = l_O;
+
+                std::set<uint64> l_Targets;
+
+                Map::PlayerList const& l_PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                {
+                    if (Player* l_Player = l_Iter->getSource())
+                    {
+                        if (l_Player->GetDistance(me) >= l_MaxDist)
+                            continue;
+
+                        if (l_Player->GetPositionY() <= me->GetPositionY() + 3.5f &&
+                            l_Player->GetPositionY() >= me->GetPositionY() - 3.0f)
+                            l_Targets.insert(l_Player->GetGUID());
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) == l_Targets.end())
+                    {
+                        if (Player* l_Player = Player::GetPlayer(*me, (*l_Iter)))
+                            l_Player->SendApplyMovementForce(me->GetGUID(), false, Position());
+
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                    }
+                    else
+                        ++l_Iter;
+                }
+
+                for (uint64 l_Guid : l_Targets)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                    {
+                        if (!l_Player->HasMovementForce(me->GetGUID()))
+                        {
+                            l_Player->SendApplyMovementForce(me->GetGUID(), true, l_ForcedPos, 1.84f, 0, G3D::Vector3(l_Negative ? -1.84f : 1.84f, 0.0f, 0.0f));
+
+                            m_AffectedPlayers.insert(l_Guid);
+                        }
+                    }
+                }
             }
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                if ((me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f) || me->GetOrientation() < 0.1f)
                 {
-                    if (me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f)
+                    AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
                         me->CastSpell(me, eSpell::FlameVentCosmetics, true);
-                });
+                    });
+                }
             }
         };
 
@@ -2297,9 +2389,12 @@ class npc_foundry_enchanted_armament : public CreatureScript
         {
             npc_foundry_enchanted_armamentAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            enum eSpell
+            enum eSpells
             {
-                EnchantedArmamanetSpawn = 163050
+                EnchantedArmamanetSpawn = 163050,
+                ImbueWeapon             = 163089,
+                Imbued                  = 163095,
+                EmpoweredArmamentAoE    = 162337
             };
 
             enum eMove
@@ -2307,19 +2402,35 @@ class npc_foundry_enchanted_armament : public CreatureScript
                 MoveToOtherSide = 1
             };
 
+            enum eEvent
+            {
+                EventEmpoweredArmament = 1
+            };
+
+            EventMap m_Event;
+
             void Reset() override
             {
-                me->CastSpell(me, eSpell::EnchantedArmamanetSpawn, true);
+                me->CastSpell(me, eSpells::EnchantedArmamanetSpawn, true);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 
                 AddTimedDelayedOperation(100, [this]() -> void
                 {
-                    me->SetFacingTo(M_PI);
+                    float l_O = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt007, 40.0f) ? 0.0f : M_PI;
+                    me->SetFacingTo(l_O);
+
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, me->GetSpeedRate(UnitMoveType::MOVE_RUN));
 
                     float l_X, l_Y, l_Z;
 
-                    l_X = me->GetPositionX() + (66.0f * cos(M_PI));
-                    l_Y = me->GetPositionY() + (66.0f * sin(M_PI));
-                    l_Z = me->GetPositionZ() + 1.0f;
+                    float l_Radius = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt007, 40.0f) ? 68.0f : 73.0f;
+
+                    l_X = me->GetPositionX() + (l_Radius * cos(l_O));
+                    l_Y = me->GetPositionY() + (l_Radius * sin(l_O));
+                    l_Z = me->GetPositionZ();
 
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(eMove::MoveToOtherSide, l_X, l_Y, l_Z);
@@ -2331,6 +2442,10 @@ class npc_foundry_enchanted_armament : public CreatureScript
                 me->GetMotionMaster()->Clear();
 
                 AttackStart(p_Attacker);
+
+                m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
+
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -2342,15 +2457,168 @@ class npc_foundry_enchanted_armament : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
+            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::ImbueWeapon)
+                {
+                    me->CastSpell(me, eSpells::Imbued, true);
+
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Event.Update(p_Diff);
+
+                if (m_Event.ExecuteEvent() == eEvent::EventEmpoweredArmament)
+                {
+                    me->CastSpell(me, eSpells::EmpoweredArmamentAoE, true);
+
+                    m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
+                }
             }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_foundry_enchanted_armamentAI(p_Creature);
+        }
+};
+
+/// Mol'dana Two-Blade - 88902
+class npc_foundry_moldana_two_blade : public CreatureScript
+{
+    public:
+        npc_foundry_moldana_two_blade() : CreatureScript("npc_foundry_moldana_two_blade") { }
+
+        enum eSpells
+        {
+            AkathaCosmetics         = 175413,
+            RisingFlameKick         = 177891,
+            /// Ember in the Wind
+            EmberInTheWindSearcher  = 177854,
+            EmberInTheWindAura      = 177855,
+            EmberInTheWindCast      = 177856,
+            EmberInTheWindNext      = 177858,
+            EmberInTheWindTeleport  = 177859,
+            EmberInTheWindAoE       = 177860
+        };
+
+        enum eEvents
+        {
+            EventRisingFlameKick = 1,
+            EventEmberInTheWind,
+            EventNextEmberInTheWind
+        };
+
+        struct npc_foundry_moldana_two_bladeAI : public ScriptedAI
+        {
+            npc_foundry_moldana_two_bladeAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::AkathaCosmetics, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+
+                m_Events.ScheduleEvent(eEvents::EventRisingFlameKick, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventEmberInTheWind, 15 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::EmberInTheWindSearcher:
+                    {
+                        me->CastSpell(p_Target, eSpells::EmberInTheWindAura, true);
+                        break;
+                    }
+                    case eSpells::EmberInTheWindNext:
+                    {
+                        me->CastSpell(p_Target, eSpells::EmberInTheWindTeleport, true);
+                        me->CastSpell(me, eSpells::EmberInTheWindAoE, true);
+
+                        me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                        m_Events.ScheduleEvent(eEvents::EventNextEmberInTheWind, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventRisingFlameKick:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::RisingFlameKick, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventRisingFlameKick, 25 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventEmberInTheWind:
+                    {
+                        me->CastSpell(me, eSpells::EmberInTheWindSearcher, true);
+                        me->CastSpell(me, eSpells::EmberInTheWindCast, false);
+                        m_Events.ScheduleEvent(eEvents::EventEmberInTheWind, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventNextEmberInTheWind:
+                    {
+                        me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+                        me->CastSpell(me, eSpells::EmberInTheWindNext, true);
+                        m_Events.ScheduleEvent(eEvents::EventNextEmberInTheWind, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_moldana_two_bladeAI(p_Creature);
         }
 };
 
@@ -2865,6 +3133,40 @@ class spell_foundry_crushing_slam : public SpellScriptLoader
         }
 };
 
+/// Ember in the Wind - 177860
+class spell_foundry_ember_in_the_wind_damage : public SpellScriptLoader
+{
+    public:
+        spell_foundry_ember_in_the_wind_damage() : SpellScriptLoader("spell_foundry_ember_in_the_wind_damage") { }
+
+        class spell_foundry_ember_in_the_wind_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_ember_in_the_wind_damage_SpellScript);
+
+            void HandleDamage()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetMap()->GetDifficultyID() != Difficulty::DifficultyRaidHeroic)
+                        return;
+
+                    /// No hotfix on retail, even on newest DBCs
+                    SetHitDamage(GetHitDamage() / 10);
+                }
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_foundry_ember_in_the_wind_damage_SpellScript::HandleDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_ember_in_the_wind_damage_SpellScript();
+        }
+};
+
 /// Acidback Puddle - 159121
 class areatrigger_foundry_acidback_puddle : public AreaTriggerEntityScript
 {
@@ -3197,6 +3499,7 @@ void AddSC_blackrock_foundry()
     new npc_foundry_iron_smith();
     new npc_foundry_flame_vents();
     new npc_foundry_enchanted_armament();
+    new npc_foundry_moldana_two_blade();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -3209,6 +3512,7 @@ void AddSC_blackrock_foundry()
     new spell_foundry_blast_wave();
     new spell_foundry_rending_slash();
     new spell_foundry_crushing_slam();
+    new spell_foundry_ember_in_the_wind_damage();
 
     /// GameObjects
 

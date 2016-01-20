@@ -73,6 +73,7 @@ enum eFoundryCreatures
     BossFranzok             = 76974,
     /// Flamebender Ka'graz
     BossFlamebenderKagraz   = 76814,
+    AknorSteelbringer       = 77337,
     /// Kromog
     BossKromog              = 77692,
     /// Iron Assembly - Part 3
@@ -133,6 +134,7 @@ enum eFoundryGameObjects
     ConveyorBelt006             = 233238,
     ConveyorBelt007             = 233239,
     ConveyorBelt008             = 233240,
+    FirewallDoor                = 236845,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     /// Blackhand's Crucible - Part 4
@@ -164,6 +166,7 @@ enum eFoundryDatas
     PrimalElementalistTime,
     PlayerStamped,
     IronTaskmasterAggro,
+    AknorDied,
 
     /// Counters
     /// Gruul
@@ -188,7 +191,8 @@ enum eFoundryAchievements
     TheIronPrince           = 8978,
     HeShootsHeOres          = 8979,
     YaWeveGotTime           = 8930,
-    StampStampRevolution    = 8980
+    StampStampRevolution    = 8980,
+    TheSteelHasBeenBrought  = 8929
 };
 
 enum eFoundryVisuals
@@ -196,7 +200,8 @@ enum eFoundryVisuals
     CrucibleVisuals = 6922,
     ConveyorsStart  = 7621,
     ConveyorsStop   = 7336,
-    ConveyorsStart2 = 6975
+    ConveyorsStart2 = 6975,
+    ConveyorsStart3 = 6974
 };
 
 #endif
