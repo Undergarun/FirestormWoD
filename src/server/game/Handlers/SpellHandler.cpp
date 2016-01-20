@@ -648,10 +648,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         caster = m_Player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER &&
-        !caster->ToPlayer()->HasActiveSpell(l_SpellID) && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) &&
-        l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
-        l_SpellID != 1843 && !spellInfo->IsRaidMarker()) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+    if (caster->GetTypeId() == TYPEID_PLAYER
+        && !caster->ToPlayer()->HasActiveSpell(l_SpellID) 
+        && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) 
+        && !spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ALWAYS_ACTIVE) 
+        && !spellInfo->IsRaidMarker())
     {
         // GameObject Use
         if (IS_GAMEOBJECT_GUID(l_TargetGUID))

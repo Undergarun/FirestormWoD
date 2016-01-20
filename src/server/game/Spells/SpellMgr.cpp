@@ -3371,6 +3371,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
+            case 101603:    ///< Hack for Throw Totem, Echo of Baine
+            case 161710:    ///< Garrison enchanter study
+            case 160201:    ///< Garrison enchanter study
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
+                break;
+        }
+
+        switch (spellInfo->Id)
+        {
             case 105157: ///< See Quest Invis 14, Wandering Island spell
                 spellInfo->AreaGroupId = 0;
                 break;
@@ -5362,6 +5372,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123811: ///< Pheromones of Zeal (HoF - #1 Zor'lok)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
+            case 178153: ///< Death from Above
+                spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_FRONT;
+                break;
             case 97817: ///< Leap of Faith
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
                 spellInfo->Effects[0].MiscValue = 25;
@@ -5402,6 +5415,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[0].Amplitude = 500;
+                break;
+            case 12043:
+                spellInfo->Effects[1].Effect = 0;
                 break;
             case 122786: ///< Broken leg (HoF - #3 Garalon)
                 spellInfo->Effects[0].MiscValue = -15;

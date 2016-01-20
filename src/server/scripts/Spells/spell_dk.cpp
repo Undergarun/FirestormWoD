@@ -3403,14 +3403,14 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
 
 /// last update : 6.2.3
 /// Periodic Taunt - 43264
-class spell_warl_army_of_the_death_taunt : public SpellScriptLoader
+class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
 {
     public:
-        spell_warl_army_of_the_death_taunt() : SpellScriptLoader("spell_warl_army_of_the_death_taunt") { }
+        spell_dk_army_of_the_death_taunt() : SpellScriptLoader("spell_dk_army_of_the_death_taunt") { }
 
-        class spell_warl_army_of_the_death_taunt_SpellScript : public SpellScript
+        class spell_dk_army_of_the_death_taunt_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warl_army_of_the_death_taunt_SpellScript);
+            PrepareSpellScript(spell_dk_army_of_the_death_taunt_SpellScript);
 
             enum eSpells
             {
@@ -3425,19 +3425,19 @@ class spell_warl_army_of_the_death_taunt : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warl_army_of_the_death_taunt_SpellScript();
+            return new spell_dk_army_of_the_death_taunt_SpellScript();
         }
 };
 
 void AddSC_deathknight_spell_scripts()
 {
-    new spell_warl_army_of_the_death_taunt();
+    new spell_dk_army_of_the_death_taunt();
     new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();
