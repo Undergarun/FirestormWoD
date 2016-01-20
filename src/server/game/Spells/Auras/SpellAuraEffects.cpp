@@ -2082,8 +2082,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             // Use the new aura to see on what stance the target will be
             uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
 
-            // If the stances are not compatible with the spell, remove it
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
+            /// If the stances are not compatible with the spell, remove it, but not on periodic aura apply on you (aura should continue to tick)
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic())
                 target->RemoveAura(itr);
             else
                 ++itr;
