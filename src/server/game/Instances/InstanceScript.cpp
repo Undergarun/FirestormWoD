@@ -1418,10 +1418,6 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
 
-    /// Temp disable PvE ranking for Hans'gar & Franzok
-    if (p_EncounterID == 1693)
-        return;
-
     /// Reset datas before each attempt
     m_EncounterDatas = EncounterDatas();
 
