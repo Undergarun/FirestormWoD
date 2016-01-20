@@ -1770,11 +1770,27 @@ class debug_commandscript: public CommandScript
                 tunnel->SendPacket(&pckt);
                 return true;
             }
+            sBattlegroundMgr->ToggleTesting();
+
             return true;
         }
 
-        static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, char const* /*args*/)
+        static bool HandleDebugArenaCommand(ChatHandler* handler, char const* /*args*/)
         {
+            if (sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE))
+            {
+                InterRealmSession* tunnel = sWorld->GetInterRealmSession();
+                if (!tunnel || !tunnel->IsTunnelOpened())
+                {
+                    handler->PSendSysMessage(LANG_INTERREALM_DISABLED);
+                    return false;
+                }
+
+                WorldPacket pckt(IR_CMSG_DEBUG_ARENA, 1);
+                pckt << uint8(1);
+                tunnel->SendPacket(&pckt);
+                return true;
+            }
             sBattlegroundMgr->ToggleArenaTesting();
             return true;
         }

@@ -1379,6 +1379,8 @@ void InterRealmSession::SendRegisterPlayer(Player* player, uint32 bgInstanceId, 
     
     pckt << uint8(player->GetRandomWinner() ? 1 : 0); // Has random winner
 
+    BuildPlayerArenaInfoBlock(player, pckt);
+
     pckt << uint32(bgInstanceId); // bg instance id
     pckt << uint64(bgGuid); // bg guid
     pckt << uint32(bgTypeId);
@@ -1386,8 +1388,6 @@ void InterRealmSession::SendRegisterPlayer(Player* player, uint32 bgInstanceId, 
 
     for (int i = 0; i < 2; i++)
         pckt << blacklist[i];
-
-    BuildPlayerArenaInfoBlock(player, pckt);
 
     SendPacket(&pckt);
 }
@@ -1439,6 +1439,14 @@ void InterRealmSession::SendRegisterGroup(Group* group, uint32 bgInstanceId, uin
         data << uint64(_mute);
         data << uint8(_locale);
         data << uint8(_recruiter);
+
+        for (uint8 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        {
+            AccountData* pData = member->GetSession()->GetAccountData(AccountDataType(i));
+
+            data << pData->Data;
+            data << pData->Time;
+        }
 
         data << std::string(member->GetName());
 
@@ -1500,6 +1508,14 @@ void InterRealmSession::SendRegisterArena(std::list<Player*> p_Players, uint32 p
         l_Data << uint64(l_Mute);
         l_Data << uint8(l_Locale);
         l_Data << uint8(l_Recruiter);
+
+        for (uint8 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        {
+            AccountData* pData = l_Player->GetSession()->GetAccountData(AccountDataType(i));
+
+            l_Data << pData->Data;
+            l_Data << pData->Time;
+        }
 
         l_Data << std::string(l_Player->GetName());
 
@@ -1566,6 +1582,14 @@ void InterRealmSession::SendRegisterRated(Group* group, uint32 personalRating, u
         data << uint64(_mute);
         data << uint8(_locale);
         data << uint8(_recruiter);
+
+        for (uint8 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        {
+            AccountData* pData = member->GetSession()->GetAccountData(AccountDataType(i));
+
+            data << pData->Data;
+            data << pData->Time;
+        }
 
         data << std::string(member->GetName());
 

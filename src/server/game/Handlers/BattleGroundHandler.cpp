@@ -1023,10 +1023,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
             l_Players.push_back(m_Player);
     }
 
-    if (!l_InterRealmEnable)
-        return;
-
-    if (l_JoinAsGroup)
+    if (l_InterRealmEnable)
         l_Tunnel->SendRegisterArena(l_Players, l_ArenaType, true);
 }
 
