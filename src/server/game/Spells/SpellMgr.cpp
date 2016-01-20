@@ -5362,6 +5362,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123811: ///< Pheromones of Zeal (HoF - #1 Zor'lok)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
+            case 178153: ///< Death from Above
+                spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_FRONT;
+                break;
             case 97817: ///< Leap of Faith
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
                 spellInfo->Effects[0].MiscValue = 25;
