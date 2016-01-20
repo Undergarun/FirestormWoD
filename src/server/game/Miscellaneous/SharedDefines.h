@@ -1282,7 +1282,7 @@ enum SpellEffects
     SPELL_EFFECT_RESURECT_BATTLE_PETS               = 200,
     SPELL_EFFECT_CAN_PETBATTLE                      = 201,
     SPELL_EFFECT_202                                = 202,
-    SPELL_EFFECT_203                                = 203,
+    SPELL_EFFECT_REMOVE_AURA_2                      = 203,
     SPELL_EFFECT_UPGRADE_BATTLEPET_QUALITY          = 204,
     SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205,
     SPELL_EFFECT_ETERNITY_EMBRACE                   = 206,
