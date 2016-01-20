@@ -195,6 +195,24 @@ namespace MS { namespace Garrison
             virtual bool OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const override;
     };
 
+
+    //////////////////////////////////////////////////////////////////////////
+    /// 237335, 237132                                                     ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Garrison Enchanter's Study receptacle
+    class go_garrison_essence_font : public GameObjectScript
+    {
+        public:
+            /// Constructor
+            go_garrison_essence_font();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_GameObject : Target GameObject instance
+            bool OnGossipHello(Player* p_Player, GameObject* p_GameObject);
+
+    };
 }   ///< namespace Garrison
 }   ///< namespace MS
 
