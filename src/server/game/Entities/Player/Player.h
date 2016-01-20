@@ -191,6 +191,12 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_RESTORATION    = 748
 };
 
+enum CharacterWorldStates
+{
+    CharWorldStateGarrisonStablesFirstQuest  = 1,
+    CharWorldStateGarrisonStablesSecondQuest = 2
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1550,6 +1556,16 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+enum StoreCallback
+{
+    ItemDelivery,
+    GoldDelivery,
+    CurrencyDelivery,
+    LevelDelivery,
+    ProfessionDelivery,
+    MaxDelivery
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1636,10 +1652,6 @@ class Player : public Unit, public GridObject<Player>
         int32 GetGarrisonMapID() const;
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
-        std::vector<uint32> GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
-        void AddGarrisonTavernData(uint32 p_Data);
-        void SetGarrisonTavernData(uint32 p_Data);
-        void CleanGarrisonTavernData() { m_GarrisonDailyTavernData.clear(); };
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
@@ -2872,8 +2884,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
         void SendLootRelease(uint64 p_LootGuid);
-        void SendNotifyLootItemRemoved(uint8 lootSlot, bool p_IsAoELoot = false);
-        void SendNotifyLootMoneyRemoved(bool p_IsAoE);
+        void SendNotifyLootItemRemoved(uint8 lootSlot);
+        void SendNotifyLootMoneyRemoved();
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -3087,7 +3099,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool SetHover(bool enable);
 
-        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
+        void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
 
@@ -3120,6 +3132,13 @@ class Player : public Unit, public GridObject<Player>
         float m_homebindZ;
 
         WorldLocation GetStartPosition() const;
+
+        WorldLocation GetPreviousLocation() const;
+        uint32 m_PreviousLocationMapId;
+        float m_PreviousLocationX;
+        float m_PreviousLocationY;
+        float m_PreviousLocationZ;
+        float m_PreviousLocationO;
 
         // current pet slot
         PetSlot m_currentPetSlot;
@@ -3634,6 +3653,13 @@ class Player : public Unit, public GridObject<Player>
         void SetInterRealmAreaId(uint32 val) { m_irAreaId = val; }
         uint32 GetInterRealmMapId() const { return m_irMapId; }
         void SetInterRealmMapId(uint32 val) { m_irMapId = val; }
+
+        /// Store callback
+        bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
+        bool IsStoreDeliveryProccesed(StoreCallback p_DeliveryType) const { return m_StoreDeliveryProcessed[p_DeliveryType]; }
+
+        void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
+        void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
         
     protected:
         void OnEnterPvPCombat();
@@ -3772,6 +3798,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
         void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
+        void _SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -4042,7 +4069,6 @@ class Player : public Unit, public GridObject<Player>
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
         MS::Garrison::Manager* m_Garrison;
-        std::vector<uint32> m_GarrisonDailyTavernData;
         IntervalTimer m_GarrisonUpdateTimer;
 
         //////////////////////////////////////////////////////////////////////////
@@ -4073,9 +4099,12 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
-        // Store callback
         PreparedQueryResultFuture _petPreloadCallback;
         QueryResultHolderFuture _petLoginCallback;
+
+        /// Store callback
+        bool m_StoreDeliveryProcessed[StoreCallback::MaxDelivery];
+        bool m_StoreDeliverySave;
 
         uint8 m_bgRoles;
 
@@ -4190,7 +4219,14 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                 if (l_ChaosBolt)
                     continue;
                 else
+                {
                     l_ChaosBolt = true;
+                    if (l_SpellMod->charges < 3)
+                    {
+                        p_RemoveStacks = false;
+                        continue;
+                    }
+                }
             }
             /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
             else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)

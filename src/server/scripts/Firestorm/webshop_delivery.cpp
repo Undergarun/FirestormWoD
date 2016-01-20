@@ -71,6 +71,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::ItemDelivery);
                     return;
                 }
 
@@ -104,6 +105,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::ItemDelivery);
             }
     };
 
@@ -143,6 +145,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::GoldDelivery);
                     return;
                 }
 
@@ -172,6 +175,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::GoldDelivery);
             }
     };
 
@@ -211,6 +215,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::CurrencyDelivery);
                     return;
                 }
 
@@ -234,6 +239,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::CurrencyDelivery);
             }
     };
 
@@ -273,6 +279,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::LevelDelivery);
                     return;
                 }
 
@@ -290,6 +297,7 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::LevelDelivery);
             }
     };
 
@@ -332,6 +340,7 @@ namespace WebShop
                 {
                     l_Callback.cancel();
                     m_QueryResultFutures.erase(l_LowGuid);
+                    p_Player->SetStoreDeliveryProccesed(StoreCallback::ProfessionDelivery);
                     return;
                 }
 
@@ -404,6 +413,30 @@ namespace WebShop
 
                 l_Callback.cancel();
                 m_QueryResultFutures.erase(l_LowGuid);
+                p_Player->SetStoreDeliveryProccesed(StoreCallback::ProfessionDelivery);
+            }
+    };
+
+    class Delivery_Save : public PlayerScript
+    {
+        public:
+            Delivery_Save() : PlayerScript("WebshopDelivery_Save")
+            {
+            }
+
+            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            {
+                if (p_Player->IsStoreDeliverySaved())
+                    return;
+
+                for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+                {
+                    if (!p_Player->IsStoreDeliveryProccesed((StoreCallback)l_I))
+                        return;
+                }
+
+                p_Player->SaveToDB();
+                p_Player->SetStoreDeliverySaved();
             }
     };
 }
@@ -415,4 +448,5 @@ void AddSC_Webshop_Delivery()
     new WebShop::Delivery_Currency();
     new WebShop::Delivery_Level();
     new WebShop::Delivery_Profession();
+    new WebShop::Delivery_Save();
 };

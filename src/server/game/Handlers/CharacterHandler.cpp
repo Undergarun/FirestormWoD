@@ -613,6 +613,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
     l_Stmt->setString(0, l_CharacterName);
+    l_Stmt->setString(1, l_CharacterName);
 
     _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(l_Stmt));
 }
@@ -639,60 +640,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             ASSERT(_charCreateCallback.GetParam() == createInfo);
 
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SUM_REALM_CHARACTERS);
-            stmt->setUInt32(0, GetAccountId());
-
-            _charCreateCallback.FreeResult();
-            _charCreateCallback.SetFutureResult(LoginDatabase.AsyncQuery(stmt));
-            _charCreateCallback.NextStage();
-        }
-        break;
-        case 1:
-        {
-            uint16 acctCharCount = 0;
-            if (result)
-            {
-                Field* fields = result->Fetch();
-                // SELECT SUM(x) is MYSQL_TYPE_NEWDECIMAL - needs to be read as string
-                const char* ch = fields[0].GetCString();
-                if (ch)
-                {
-                    // Try crashfix, atoi -> std::stoi with handling of exception
-                    // We have log in Pandashan.log to make better fix
-                    try
-                    {
-                        acctCharCount = std::stoi(ch);
-                    }
-                    catch(...)
-                    {
-                        acctCharCount = 0;
-                        sLog->outAshran("Exception (invalid argument) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
-                        KickPlayer();
-                        return;
-                    }
-                    /*catch(std::out_of_range)
-                    {
-                        acctCharCount = 0;
-                        sLog->outAshran("Exception (out of range) throw in HandleCharCreateCallback for account %u (ch : %s)", GetAccountId(), ch);
-                        KickPlayer();
-                        return;
-                    }*/
-                }
-            }
-
-            if (acctCharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
-            {
-                WorldPacket data(SMSG_CREATE_CHAR, 1);
-                data << uint8(CHAR_CREATE_ACCOUNT_LIMIT);
-                SendPacket(&data);
-                delete createInfo;
-                _charCreateCallback.Reset();
-                return;
-            }
-
-
-            ASSERT(_charCreateCallback.GetParam() == createInfo);
-
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
             stmt->setUInt32(0, GetAccountId());
 
@@ -701,7 +648,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             _charCreateCallback.NextStage();
         }
         break;
-        case 2:
+        case 1:
         {
             if (result)
             {
@@ -735,10 +682,10 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
             _charCreateCallback.NextStage();
-            HandleCharCreateCallback(PreparedQueryResult(NULL), createInfo);   // Will jump to case 3
+            HandleCharCreateCallback(PreparedQueryResult(NULL), createInfo);   // Will jump to case 2
         }
         break;
-        case 3:
+        case 2:
         {
             bool haveSameRace = false;
             uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
@@ -1047,9 +994,28 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     uint32 time2 = getMSTime() - time1;
 
-    // Send MOTD
+    /// Send MOTD
     {
-        std::string l_MotdStr = sWorld->GetMotd();
+        MotdText const l_MotdText = sWorld->GetMotd();
+        std::string l_MotdStr = "";
+
+        switch (GetSessionDbLocaleIndex())
+        {
+            case LocaleConstant::LOCALE_frFR:
+                l_MotdStr = l_MotdText.TextFR;
+                break;
+            case LocaleConstant::LOCALE_esMX:
+            case LocaleConstant::LOCALE_esES:
+                l_MotdStr = l_MotdText.TextES;
+                break;
+            case LocaleConstant::LOCALE_ruRU:
+                l_MotdStr = l_MotdText.TextRU;
+                break;
+            default:
+                l_MotdStr = l_MotdText.Text;
+                break;
+        }
+
         std::string::size_type l_Position, l_NextPosition;
         std::vector<std::string> l_Lines;
         uint32 l_LineCount = 0;
@@ -1538,6 +1504,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& p_RecvData)
     stmt->setUInt16(2, AT_LOGIN_RENAME);
     stmt->setUInt16(3, AT_LOGIN_RENAME);
     stmt->setString(4, newName);
+    stmt->setString(5, newName);
 
     _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
@@ -2727,7 +2694,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     std::string const* name = GetRandomCharacterName(race, gender);
     WorldPacket data(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 10);
     data.WriteBits(name->size(), 6);
-    data.WriteBit(0); // unk
+    data.WriteBit(0);               ///< Succes
     data.WriteString(name->c_str());
     SendPacket(&data);
 }

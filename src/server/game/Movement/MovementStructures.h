@@ -205,6 +205,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(uint16 opcode)
         || opcode == CMSG_MOVE_WATER_WALK_ACK
         || opcode == CMSG_MOVE_KNOCK_BACK_ACK
         || opcode == CMSG_MOVE_HOVER_ACK
+        || opcode == CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK
+        || opcode == CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK
         || opcode == CMSG_MOVE_SPLINE_DONE
         || opcode == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
         return MovementGlobalSequence;

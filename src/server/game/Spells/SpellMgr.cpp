@@ -1015,8 +1015,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
-        // No extra req, so can trigger only for hit/crit - spell has to be active
-        if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && active)
+        // No extra req, so can trigger only for hit/crit/absorb - spell has to be active
+        if ((procExtra & (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT | PROC_EX_ABSORB)) && active)
             return true;
     }
     else // Passive spells hits here only if resist/reflect/immune/evade
@@ -1033,7 +1033,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (procEvent_procEx & PROC_EX_EX_TRIGGER_ALWAYS)
                 return true;
             // PROC_EX_NOT_ACTIVE_SPELL and PROC_EX_ONLY_ACTIVE_SPELL flags handle: if passed checks before
-            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
+            if ((procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT|PROC_EX_ABSORB)) && ((procEvent_procEx & (AURA_SPELL_PROC_EX_MASK)) == 0))
                 return true;
         }
         // Check Extra Requirement like (hit/crit/miss/resist/parry/dodge/block/immune/reflect/absorb and other)
@@ -2629,35 +2629,6 @@ void SpellMgr::LoadPetDefaultSpells()
     uint32 countCreature = 0;
     uint32 countData = 0;
 
-    CreatureTemplate** l_CreatureTemplates = sObjectMgr->GetCreatureTemplates();
-    uint32 l_LastEntry = sObjectMgr->GetCreatureTemplateStoreSize();
-
-    for (uint32 l_Entry = 0; l_Entry < l_LastEntry; l_Entry++)
-    {
-        CreatureTemplate const* l_CreatureTemplate = l_CreatureTemplates[l_Entry];
-        if (l_CreatureTemplate == nullptr)
-            continue;
-
-        if (!l_CreatureTemplate->PetSpellDataId)
-            continue;
-
-        // for creature with PetSpellDataId get default pet spells from dbc
-        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(l_CreatureTemplate->PetSpellDataId);
-        if (!spellDataEntry)
-            continue;
-
-        int32 petSpellsId = -int32(l_CreatureTemplate->PetSpellDataId);
-        PetDefaultSpellsEntry petDefSpells;
-        for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
-            petDefSpells.spellid[j] = spellDataEntry->spellId[j];
-
-        if (LoadPetDefaultSpells_helper(l_CreatureTemplate, petDefSpells))
-        {
-            mPetDefaultSpellsMap[petSpellsId] = petDefSpells;
-            ++countData;
-        }
-    }
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded addition spells for %u pet spell data entries in %u ms", countData, GetMSTimeDiffToNow(oldMSTime));
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading summonable creature templates...");
@@ -2679,11 +2650,7 @@ void SpellMgr::LoadPetDefaultSpells()
                 if (!cInfo)
                     continue;
 
-                // already loaded
-                if (cInfo->PetSpellDataId)
-                    continue;
-
-                // for creature without PetSpellDataId get default pet spells from creature_template
+                /// Get default pet spells from creature_template
                 int32 petSpellsId = cInfo->Entry;
                 if (mPetDefaultSpellsMap.find(cInfo->Entry) != mPetDefaultSpellsMap.end())
                     continue;
@@ -3118,7 +3085,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!l_TalentEntry)
             continue;
 
-        SpellInfo * l_SpellInfo = mSpellInfoMap[DifficultyNone][l_TalentEntry->SpellID];
+        SpellInfo* l_SpellInfo = mSpellInfoMap[DifficultyNone][l_TalentEntry->SpellID];
         if (l_SpellInfo)
             l_SpellInfo->m_TalentIDs.push_back(l_TalentEntry->Id);
 
@@ -3138,19 +3105,21 @@ void SpellMgr::LoadSpellInfoStore()
         if (!l_Entry)
             continue;
 
-        // unk0 always exists and has same values as l_Entry->Unk != 0 -- could be difficulty ???
         if (!l_Entry->SpellId || l_Entry->SpellId >= sSpellStore.GetNumRows())
             continue;
 
-        SpellInfo* l_SpellInfo = mSpellInfoMap[l_Entry->DifficultyID][l_Entry->SpellId];
+        /// Register first visual entry found for all difficulties
+        for (uint8 l_I = 0; l_I < Difficulty::MaxDifficulties; ++l_I)
+        {
+            SpellInfo* l_SpellInfo = mSpellInfoMap[l_I][l_Entry->SpellId];
+            if (!l_SpellInfo)
+                continue;
 
-        if (!l_SpellInfo)
-            continue;
+            for (uint8 l_J = 0; l_J < MAX_SPELL_VISUAL; ++l_J)
+                l_SpellInfo->SpellVisual[l_J] = l_Entry->VisualID[l_J];
 
-        for (int l_I = 0; l_I < MAX_SPELL_VISUAL; ++l_I)
-            l_SpellInfo->SpellVisual[l_I] = l_Entry->VisualID[l_I];
-
-        l_SpellInfo->FirstSpellXSpellVIsualID = l_Entry->Id;
+            l_SpellInfo->FirstSpellXSpellVIsualID = l_Entry->Id;
+        }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -3402,6 +3371,33 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 105157: ///< See Quest Invis 14, Wandering Island spell
+                spellInfo->AreaGroupId = 0;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Stables
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 174216:
+            case 174218:
+            case 174219:
+            case 174220:
+            case 174221:
+            case 174222:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOUNTED;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].MiscValue = 305;
+                spellInfo->Effects[0].MiscValueB = 230;
+                break;
+            case 173702:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                break;
+            case 173686: ///< Stables Lasso
+            case 174070: ///< Stables Lasso
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(5); ///< 300s
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 182464: ///< Portal to Garrison
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
@@ -3501,6 +3497,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155200: ///< Burn (Slag Elemental)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 156220: ///< Tactical Retreat
+            case 156883: ///< Tactical Retreat (Other)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 155747: ///< Body Slam
+            case 157923: ///< Jump Slam
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
                 break;
             case 156324: ///< Acid Torrent (AoE)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
@@ -4168,6 +4173,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 77756: ///< Lava Surge
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 77762;
                 break;
+            case 77762: ///< Lava Surge
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 138106: ///< Cloack and Dagger
+                spellInfo->Stances = 0;
+                break;
             case 8188:   ///< Magma Totem Passive
             case 5672:   ///< Healing Streams
             case 114941: ///< Healing Tide
@@ -4276,6 +4287,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 3;
                 spellInfo->Effects[1].BasePoints = 3;
                 break;
+            case 159234: ///< Thunderlord
+            case 159675: ///< Warsong
+            case 159676: ///< Frostwolf
+            case 173322: ////< BleedingHollow
             case 118334: ///< Dancing Steel (agility)
             case 118335: ///< Dancing Steel (strength)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ENCHANT_STACK;
@@ -4688,7 +4703,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155057:///< Magma Pool (DoT)
             case 166730:///< Burning Bridge (DoT)
             case 176037:///< Noxious Spit (DoT)
-            case 88611: ///< Smoke Bomb
             case 161635:///< Molten Bomb
             case 159311:///< Flame Jet
             case 161517:///< Splitting Breath (DoT)
@@ -4983,6 +4997,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 1122: ///< Summon Infernal
                 spellInfo->OverrideSpellList.push_back(112921); ///< Summon Abyssal
+                break;
+            case 112921: ///< Summon Abyssal
+                spellInfo->OverrideSpellList.push_back(157899); ///< Summon Abyssal
                 break;
             case 18540: ///< Summon Doomguard
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
@@ -5557,7 +5574,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
-            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words)
+            case 136494: ///< Word of Glory (overide by Glyph of Harsh Words
+            case 130551: ///< Word of Glory (overide by Glyph of Harsh Words)
             case 20066: ///< Repentance
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -5720,7 +5738,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 3411:  ///< Intervene
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_RAID;
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG;
                 spellInfo->AttributesEx7 |= SPELL_ATTR7_HAS_CHARGE_EFFECT;
                 spellInfo->OverrideSpellList.push_back(114029); ///< Add Safeguard to override spell list of Intervene
                 break;
@@ -5839,9 +5857,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 118:   ///< Polymorph
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-                break;
+            case 114908: ///< Spirit Shell
             case 50273: ///< Arcane Barrage
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
@@ -5857,6 +5873,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73651: ///< Recuperate
                 spellInfo->Effects[1].Effect = 0;
             case 153564:///< Meteor
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
             case 153561:///< Meteor (launch spell)
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
@@ -5907,6 +5928,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 124915:///< Chaos Wave
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 break;
+            case 77535: ///< Blood Shield
             case 127802: ///< Touch of The Grave (trigger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
@@ -5953,6 +5975,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 118283:///< Ursol's Vortex
                 spellInfo->Effects[0].ValueMultiplier = 60;
+                break;
+            case 6262:  ///< Healthstone
+                spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CANT_CRIT;
+                break;
+            case 95861: ///< Meditation
+                spellInfo->Effects[1].Effect = 0;  ///< On retail priests don't have this bonus, also in tooltip nothing said about that
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
@@ -6751,6 +6779,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// ENDOF ULDUAR SPELLS
             ///
+            case 108194: ///< Asphixiate
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
+                break;
             case 49560: ///< Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
@@ -6776,7 +6807,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158221: ///< Hurricane Strike (damage)
                 spellInfo->SetDurationIndex(39); ///< 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 152118: ///< Clarity of Will
                 spellInfo->InterruptFlags = 0x0000000F;
@@ -6817,6 +6847,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 124280:// Touch of Karma (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
             case 110914:// Dark Bargain (DoT)
@@ -6873,6 +6905,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
+                break;
+            case 108415: ///< Soul Link
+            case 108446:
+                spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 break;
             default:
                 break;
@@ -6946,6 +6982,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 109248:///< Binding Shot
                 case 173229:///< Creeping Moss (Brackenspore)
                 case 102793:///< Ursol's Vortex
+                case 123986:///< Chi Butst
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power

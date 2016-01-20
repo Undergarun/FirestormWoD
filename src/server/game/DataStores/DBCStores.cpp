@@ -76,7 +76,6 @@ DBCStorage <CinematicCameraEntry>         sCinematicCameraStore(CinematicCameraE
 DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
 DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore(CreatureModelDatafmt);
-DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore(CreatureSpellDatafmt);
 
 DBCStorage <DifficultyEntry>              sDifficultyStore(DifficultyEntryfmt);
 
@@ -104,7 +103,6 @@ DBCStorage <GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore(GtChance
 DBCStorage <GtChanceToMeleeCritEntry>     sGtChanceToMeleeCritStore(GtChanceToMeleeCritfmt);
 DBCStorage <GtChanceToSpellCritBaseEntry> sGtChanceToSpellCritBaseStore(GtChanceToSpellCritBasefmt);
 DBCStorage <GtChanceToSpellCritEntry>     sGtChanceToSpellCritStore(GtChanceToSpellCritfmt);
-DBCStorage <GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore(GtOCTClassCombatRatingScalarfmt);
 DBCStorage <GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore(GtOCTLevelExperiencefmt);
 DBCStorage <GtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore(GtOCTHpPerStaminafmt);
 DBCStorage <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore(GtRegenMPPerSptfmt);
@@ -148,9 +146,6 @@ DBCStorage <PvPDifficultyEntry>          sPvPDifficultyStore(PvPDifficultyfmt);
 
 DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
-
-std::set<ResearchSiteEntry const*>      sResearchSiteSet;
-std::set<ResearchProjectEntry const*>   sResearchProjectSet;
 
 DBCStorage <ScenarioStepEntry> sScenarioStepStore(ScenarioStepEntryfmt);
 
@@ -290,7 +285,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoExtraStore, dbcPath, "CreatureDisplayInfoExtra.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureFamilyStore,         dbcPath, "CreatureFamily.dbc");                                               // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureModelDataStore,      dbcPath, "CreatureModelData.dbc");                                            // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureSpellDataStore,      dbcPath, "CreatureSpellData.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sDifficultyStore,             dbcPath, "Difficulty.dbc");                                                   // 19027
     LoadDBC(availableDbcLocales, bad_dbc_files, sDungeonEncounterStore,       dbcPath, "DungeonEncounter.dbc");                                             // 17399
 
@@ -339,11 +333,8 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToMeleeCritStore,    dbcPath, "gtChanceToMeleeCrit.dbc");                                          // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToSpellCritBaseStore,dbcPath, "gtChanceToSpellCritBase.dbc");                                      // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtChanceToSpellCritStore,    dbcPath, "gtChanceToSpellCrit.dbc");                                          // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTClassCombatRatingScalarStore,    dbcPath, "gtOCTClassCombatRatingScalar.dbc");                        // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTLevelExperienceStore, dbcPath, "gtOCTLevelExperience.dbc");                                           // 19027
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTRegenHPStore,           dbcPath, "gtOCTRegenHP.dbc");                                               // Not used currently
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTHpPerStaminaStore,      dbcPath, "gtOCTHpPerStamina.dbc");                                            // 17399
-    //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sGtOCTRegenMPStore,           dbcPath, "gtOCTRegenMP.dbc");                                     // Not used currently
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtRegenMPPerSptStore,        dbcPath, "gtRegenMPPerSpt.dbc");                                              // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtSpellScalingStore,         dbcPath, "gtSpellScaling.dbc");                                               // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTBaseHPByClassStore,     dbcPath, "gtOCTBaseHPByClass.dbc");                                           // 17399
@@ -351,7 +342,6 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetSpellStore,           dbcPath, "ItemSetSpell.dbc");                                                 // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemBagFamilyStore,          dbcPath, "ItemBagFamily.dbc");                                                // 17399
-    //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemDisplayInfoStore,        dbcPath, "ItemDisplayInfo.dbc");                                  // Not used currently
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetStore,                dbcPath, "ItemSet.dbc");                                                      // 17399
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorQualityStore,       dbcPath, "ItemArmorQuality.dbc");                                             // 17399
@@ -375,7 +365,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");                                                          // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc");                                                         // 17399
 
-    ///< Make shipyards instances
+    /// Make shipyards instances
     if (MapEntry* l_MapEntry = const_cast<MapEntry*>(sMapStore.LookupEntry(1473)))
         l_MapEntry->instanceType = MAP_INSTANCE;
 
@@ -937,52 +927,6 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_
     return l_MapDifficulty;
 }
 
-/*vPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
-{
-    PvPDifficultyEntry const* maxEntry = NULL;              // Used for level > max listed level case
-    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
-    {
-        if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
-        {
-            // Skip unrelated and too-high brackets
-            if (entry->mapId != mapid || entry->minLevel > level)
-                continue;
-
-            // Exactly fit
-            if (entry->maxLevel >= level)
-                return entry;
-
-            // Remember for possible out-of-range case (search higher from existed)
-            if (!maxEntry || maxEntry->maxLevel < entry->maxLevel)
-                maxEntry = entry;
-        }
-    }
-
-    return maxEntry;
-}*/
-
-/*vPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id)
-{
-    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
-        if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
-            if (entry->mapId == mapid && entry->GetBracketId() == id)
-                return entry;
-
-    return NULL;
-}*/
-
-/*std::size_t GetBracketSizeByMapId(uint32 p_MapId)
-{
-    std::size_t l_Size = 0;
-
-    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
-        if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
-            if (entry->mapId == p_MapId)
-                l_Size++;
-
-    return l_Size;
-}*/
-
 std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
 {
     return NULL;
@@ -998,158 +942,6 @@ uint32 GetLiquidFlags(uint32 liquidType)
     if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquidType))
         return 1 << liq->Type;
 
-    return 0;
-}
-
-uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const
-{
-    if (inventoryType < MAX_INVTYPE)
-    {
-        switch (inventoryType)
-        {
-            case INVTYPE_NON_EQUIP:
-            case INVTYPE_BODY:
-            case INVTYPE_BAG:
-            case INVTYPE_TABARD:
-            case INVTYPE_AMMO:
-            case INVTYPE_QUIVER:
-                return 0;
-            case INVTYPE_HEAD:
-            case INVTYPE_CHEST:
-            case INVTYPE_LEGS:
-            case INVTYPE_2HWEAPON:
-            case INVTYPE_ROBE:
-                return StatMultiplier[0];
-            case INVTYPE_SHOULDERS:
-            case INVTYPE_WAIST:
-            case INVTYPE_FEET:
-            case INVTYPE_HANDS:
-            case INVTYPE_TRINKET:
-                return StatMultiplier[1];
-            case INVTYPE_NECK:
-            case INVTYPE_WRISTS:
-            case INVTYPE_FINGER:
-            case INVTYPE_SHIELD:
-            case INVTYPE_CLOAK:
-            case INVTYPE_HOLDABLE:
-                return StatMultiplier[2];
-            case INVTYPE_RANGED:
-            case INVTYPE_THROWN:
-            case INVTYPE_RANGEDRIGHT:
-            case INVTYPE_RELIC:
-                return StatMultiplier[3];
-            case INVTYPE_WEAPON:
-            case INVTYPE_WEAPONMAINHAND:
-            case INVTYPE_WEAPONOFFHAND:
-                return StatMultiplier[4];
-            default:
-                break;
-        }
-    }
-    return 0;
-}
-
-uint32 ScalingStatValuesEntry::GetArmor(uint32 inventoryType, uint32 armorType) const
-{
-    if (inventoryType <= INVTYPE_ROBE && armorType < 4)
-    {
-        switch (inventoryType)
-        {
-            case INVTYPE_NON_EQUIP:
-            case INVTYPE_NECK:
-            case INVTYPE_BODY:
-            case INVTYPE_FINGER:
-            case INVTYPE_TRINKET:
-            case INVTYPE_WEAPON:
-            case INVTYPE_SHIELD:
-            case INVTYPE_RANGED:
-            case INVTYPE_2HWEAPON:
-            case INVTYPE_BAG:
-            case INVTYPE_TABARD:
-                break;
-            case INVTYPE_SHOULDERS:
-                return Armor[0][armorType];
-            case INVTYPE_CHEST:
-            case INVTYPE_ROBE:
-                return Armor[1][armorType];
-            case INVTYPE_HEAD:
-                return Armor[2][armorType];
-            case INVTYPE_LEGS:
-                return Armor[3][armorType];
-            case INVTYPE_FEET:
-                return Armor[4][armorType];
-            case INVTYPE_WAIST:
-                return Armor[5][armorType];
-            case INVTYPE_HANDS:
-                return Armor[6][armorType];
-            case INVTYPE_WRISTS:
-                return Armor[7][armorType];
-            case INVTYPE_CLOAK:
-                return CloakArmor;
-            default:
-                break;
-        }
-    }
-    return 0;
-}
-
-uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const
-{
-    if (!isCasterWeapon)
-    {
-        switch (subClass)
-        {
-            case ITEM_SUBCLASS_WEAPON_AXE:
-            case ITEM_SUBCLASS_WEAPON_MACE:
-            case ITEM_SUBCLASS_WEAPON_SWORD:
-            case ITEM_SUBCLASS_WEAPON_DAGGER:
-            case ITEM_SUBCLASS_WEAPON_THROWN:
-                *damageMultiplier = 0.3f;
-                return dpsMod[0];
-            case ITEM_SUBCLASS_WEAPON_AXE2:
-            case ITEM_SUBCLASS_WEAPON_MACE2:
-            case ITEM_SUBCLASS_WEAPON_POLEARM:
-            case ITEM_SUBCLASS_WEAPON_SWORD2:
-            case ITEM_SUBCLASS_WEAPON_STAFF:
-            case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
-                *damageMultiplier = 0.2f;
-                return dpsMod[1];
-            case ITEM_SUBCLASS_WEAPON_BOW:
-            case ITEM_SUBCLASS_WEAPON_GUN:
-            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                *damageMultiplier = 0.3f;
-                return dpsMod[4];
-            case ITEM_SUBCLASS_WEAPON_Obsolete:
-            case ITEM_SUBCLASS_WEAPON_EXOTIC:
-            case ITEM_SUBCLASS_WEAPON_EXOTIC2:
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-            case ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
-            case ITEM_SUBCLASS_WEAPON_SPEAR:
-            case ITEM_SUBCLASS_WEAPON_WAND:
-                break;
-        }
-    }
-    else
-    {
-        if (subClass <= ITEM_SUBCLASS_WEAPON_WAND)
-        {
-            uint32 mask = 1 << subClass;
-            // Two-handed weapons
-            if (mask & 0x562)
-            {
-                *damageMultiplier = 0.2f;
-                return dpsMod[3];
-            }
-
-            if (mask & (1 << ITEM_SUBCLASS_WEAPON_WAND))
-            {
-                *damageMultiplier = 0.3f;
-                return dpsMod[5];
-            }
-        }
-        *damageMultiplier = 0.3f;
-        return dpsMod[2];
-    }
     return 0;
 }
 
@@ -1734,7 +1526,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         p_Instructions.push_back("call GetWorldStateValue");
 #endif
 
-        if (p_Player && sWorldStateStore.LookupEntry(l_WorldStateID))
+        if (p_Player)
             return p_Player->GetWorldState(l_WorldStateID);
     }
     else if(l_OpType == WorldStateExpressionCustomOpType::CallFunction)
@@ -1746,7 +1538,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
         if (l_FunctionID > (sizeof(g_WorldStateExpressionFunction) / sizeof(g_WorldStateExpressionFunction[0])))
-            return 0;
+            return (uint32)-1;
 
 #ifdef _MSC_VER
         p_Instructions.push_back("push " + std::to_string(l_Arg1));
@@ -1757,7 +1549,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
     }
 
-    return 0;
+    return (uint32)-1;
 #undef UNPACK_INT32
 #undef UNPACK_UINT8
 }

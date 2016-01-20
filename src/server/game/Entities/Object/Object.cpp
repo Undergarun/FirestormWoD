@@ -2124,6 +2124,33 @@ bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Ra
     return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * l_Dist, p_Object->GetPositionY() + sin(l_Angle) * l_Dist);
 }
 
+bool WorldObject::IsInElipse(const WorldObject* p_Obj1, const WorldObject* p_Obj2, float p_With, float p_Thickness) const
+{
+    if (!p_Obj1 || !p_Obj2)
+        return false;
+
+    float l_HalfDist = p_Obj1->GetDistance(p_Obj2) / 2;
+    float l_CoefRadius = p_Obj1->GetDistance(this) - l_HalfDist;
+    if (l_CoefRadius < 0.0f)
+        l_CoefRadius *= -1;
+    else
+        l_CoefRadius = l_HalfDist - l_CoefRadius;
+
+    if (l_CoefRadius > l_HalfDist)
+        return false;
+
+    if (!IsInBetween(p_Obj1, p_Obj2, p_With + (p_Thickness / 2)))
+        return false;
+
+    l_CoefRadius /= l_HalfDist;
+
+    l_CoefRadius *= p_With;
+
+    if (l_CoefRadius && IsInBetween(p_Obj1, p_Obj2, l_CoefRadius + (p_Thickness / 2)) && !IsInBetween(p_Obj1, p_Obj2, l_CoefRadius - (p_Thickness / 2)))
+        return true;
+    return false;
+}
+
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 {
     return HasInArc(arc, target);
@@ -3041,7 +3068,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
             {
                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                if (!l_Player)
+                if (!l_Player || !p_QueryHolder)
                     return;
 
                 pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void
@@ -3365,6 +3392,17 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
     JadeCore::GameObjectLastSearcher<JadeCore::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
     VisitNearbyGridObject(range, searcher);
     return go;
+}
+
+GameObject* WorldObject::FindNearestGameObject(float p_Range) const
+{
+    GameObject* l_GameObject = nullptr;
+
+    JadeCore::NearestGameObjectInObjectRangeCheck l_Checker(*this, p_Range);
+    JadeCore::GameObjectLastSearcher<JadeCore::NearestGameObjectInObjectRangeCheck> l_Searcher(this, l_GameObject, l_Checker);
+    VisitNearbyGridObject(p_Range, l_Searcher);
+
+    return l_GameObject;
 }
 
 GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
@@ -4027,7 +4065,7 @@ uint64 WorldObject::GetTransGUID() const
     return 0;
 }
 
-void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID)
+void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID, bool p_Packet /*= true*/)
 {
     if (m_AIAnimKitId == p_AnimKitID)
         return;
@@ -4037,11 +4075,13 @@ void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID)
 
     m_AIAnimKitId = p_AnimKitID;
 
-    WorldPacket l_Data(SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data << uint16(p_AnimKitID);
-
-    SendMessageToSet(&l_Data, true);
+    if (p_Packet)
+    {
+        WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
+        l_Data.appendPackGUID(GetGUID());
+        l_Data << uint16(p_AnimKitID);
+        SendMessageToSet(&l_Data, true);
+    }
 }
 
 void WorldObject::SetMovementAnimKitId(uint16 p_AnimKitID)

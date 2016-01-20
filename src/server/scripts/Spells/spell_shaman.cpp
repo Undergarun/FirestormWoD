@@ -419,6 +419,76 @@ class spell_sha_totemic_projection: public SpellScriptLoader
         }
 };
 
+/// Last Build 6.2.3
+/// Call by Ascendance - 114050, Ascendance - 114051, Ascendance - 114052
+/// Glyph of Ascendance - 186198
+class spell_sha_glyph_of_ascendance : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_ascendance() : SpellScriptLoader("spell_sha_glyph_of_ascendance") { }
+
+        class spell_sha_glyph_of_ascendance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_glyph_of_ascendance_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofAscendance               = 186198,
+                GlyphofAscendanceVisualElem     = 186199,
+                GlyphofAscendanceVisualResto    = 186200,
+                GlyphofAscendanceVisualEnh       = 186201
+            };
+
+            void AfterApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasAura(eSpells::GlyphofAscendance))
+                    return;
+
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                {
+                case SPEC_SHAMAN_ELEMENTAL:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualElem, true);
+                    break;
+                case SPEC_SHAMAN_ENHANCEMENT:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualEnh, true);
+                    break;
+                case SPEC_SHAMAN_RESTORATION:
+                    l_Player->CastSpell(l_Player, eSpells::GlyphofAscendanceVisualResto, true);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualElem);
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualEnh);
+                l_Target->RemoveAura(eSpells::GlyphofAscendanceVisualResto);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_sha_glyph_of_ascendance_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_sha_glyph_of_ascendance_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_glyph_of_ascendance_AuraScript();
+        }
+};
+
 /// Ascendance (Flame) - 114050
 /// last update: 6.1.2 19865
 class spell_sha_ascendance_flame : public SpellScriptLoader
@@ -432,7 +502,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
 
             enum eSpells
             {
-                LavaBurst = 51505
+                LavaBurst                           = 51505
             };
 
             void HandleOnHit()
@@ -440,7 +510,7 @@ class spell_sha_ascendance_flame : public SpellScriptLoader
                 Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
-
+                
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                     l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
             }
@@ -1185,6 +1255,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// 77762 - Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
@@ -1197,7 +1268,8 @@ class spell_sha_lava_surge: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaBurst = 51505
+                LavaBurst               = 51505,
+                LavaSurgeVisualRight    = 174928
             };
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
@@ -1211,11 +1283,25 @@ class spell_sha_lava_surge: public SpellScriptLoader
 
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                     l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
+
+                l_Player->CastSpell(l_Player, eSpells::LavaSurgeVisualRight, true);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::LavaSurgeVisualRight))
+                    l_Caster->RemoveAura(eSpells::LavaSurgeVisualRight);
             }
 
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2220,6 +2306,9 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
                 if (!l_Owner)
                     return;
 
+                if (p_EventInfo.GetDamageInfo() == nullptr)
+                    return;
+
                 int32 l_TakenDamage = p_EventInfo.GetDamageInfo()->GetDamage();
                 if (!l_TakenDamage)
                     return;
@@ -2277,7 +2366,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
 
                 if (!(l_Caster->HasAura(eSpells::ImprovedLightningShield) && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::LavaBust))
                 {
-                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning)
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != 114074)
                         return;
                 }
 
@@ -2557,6 +2646,7 @@ class spell_sha_lava_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
+            bool m_HasLavaSurge = false;
             enum eSpells
             {
                 LavaSurge = 77762,
@@ -2576,12 +2666,14 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 /// Lavaburst deals 50% more damage with Flame Shock on target
                 if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                    SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
+                    SetHitDamage(int32(GetHitDamage() * 1.5f));
+            }
 
-                /// 24 novembre 2015 : now deals 20% more damage while in PvP combat.
-                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
-                if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION) && l_Target->GetTypeId() == TYPEID_PLAYER)
-                    SetHitDamage(int32(float(GetHitDamage()) * 1.2f));
+            void HandleBeforeCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster->HasAura(eSpells::LavaSurge))
+                    m_HasLavaSurge = true;
             }
 
             void HandleAfterCast()
@@ -2592,14 +2684,25 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
                     l_Player->RestoreCharge(l_LavaSurge->ChargeCategoryEntry);
+            }
 
-                if (l_Player->HasAura(eSpells::LavaSurge))
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::LavaSurge) && !m_HasLavaSurge)
+                {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
+                }
             }
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_sha_lava_burst_SpellScript::HandleBeforeCast);
+                AfterHit += SpellHitFn(spell_sha_lava_burst_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
@@ -2737,6 +2840,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
+/// Las Update 6.2.3
 /// Riptide - 61295
 class spell_sha_riptide : public SpellScriptLoader
 {
@@ -2745,7 +2849,8 @@ class spell_sha_riptide : public SpellScriptLoader
 
         enum eSpells
         {
-            UnleashLife = 73685
+            UnleashLife = 73685,
+            UnleashFury = 118473
         };
 
         class spell_sha_riptide_SpellScript : public SpellScript
@@ -2755,13 +2860,21 @@ class spell_sha_riptide : public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+                SpellInfo const* l_UnleashLife = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+                SpellInfo const* l_UnleashFurry = sSpellMgr->GetSpellInfo(eSpells::UnleashFury);
 
-                if (l_SpellInfo == nullptr)
+                if (l_UnleashLife == nullptr || l_UnleashFurry == nullptr)
                     return;
 
+                int32 l_BonusHealPct = 0;
+
+                if (l_Caster->HasAura(eSpells::UnleashFury))
+                    l_BonusHealPct += l_UnleashFurry->Effects[EFFECT_0].BasePoints;
+
                 if (l_Caster->HasAura(eSpells::UnleashLife))
-                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
+                    l_BonusHealPct += l_UnleashLife->Effects[EFFECT_2].BasePoints;
+
+                SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_BonusHealPct));
             }
 
             void HandleAfterHit()
@@ -2770,6 +2883,8 @@ class spell_sha_riptide : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                     l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+                if (l_Caster->HasAura(eSpells::UnleashFury))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashFury);
             }
 
             void Register()
@@ -3347,6 +3462,7 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
 
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_glyph_of_ascendance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
     new spell_sha_eye_of_the_storm();

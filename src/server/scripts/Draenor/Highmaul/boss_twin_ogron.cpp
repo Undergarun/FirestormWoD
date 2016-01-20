@@ -304,18 +304,13 @@ class boss_twin_ogron_pol : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
             }
 
             void EnterEvadeMode() override
             {
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
                 CreatureAI::EnterEvadeMode();
 
                 if (m_Instance != nullptr)

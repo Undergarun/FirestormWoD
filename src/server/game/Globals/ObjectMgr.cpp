@@ -360,10 +360,10 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     {
         Field* fields = result->Fetch();
 
-        uint16 menuId   = fields[0].GetUInt32();
+        uint32 menuId   = fields[0].GetUInt32();
         uint16 id       = fields[1].GetUInt16();
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR64(menuId, id)];
 
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
@@ -418,11 +418,11 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID,   family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
     //                                            42          43           44          45          46         47         48            49         50            51           52
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           53     54       55     56       57     58       59      60        61           62          63      64       65         66
-                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                           67             68          69         70           71           72         73            74           75          76         77          78
+    //                                           53     54       55     56       57     58       59      60        61       62       63      64       65
+                                             "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
+    //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            79           80         81          82               83               84              85            86
+    //                                            78           79         80          81               82               83              84            85
                                              "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -436,7 +436,7 @@ void ObjectMgr::LoadCreatureTemplates()
     if (!l_MaxResult)
         return;
 
-    m_CreatureTemplateStoreSize = l_MaxResult->Fetch()[0].GetUInt32();
+    m_CreatureTemplateStoreSize = l_MaxResult->Fetch()[0].GetUInt32() + 1;  ///< Start from 0
     m_CreatureTemplateStore     = new CreatureTemplate*[m_CreatureTemplateStoreSize];
 
     memset(m_CreatureTemplateStore, 0, m_CreatureTemplateStoreSize * sizeof(CreatureTemplate*));
@@ -511,7 +511,6 @@ void ObjectMgr::LoadCreatureTemplates()
         for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
             l_CreatureTemplate->spells[i] = fields[index++].GetUInt32();
 
-        l_CreatureTemplate->PetSpellDataId = fields[index++].GetUInt32();
         l_CreatureTemplate->VehicleId      = fields[index++].GetUInt32();
         l_CreatureTemplate->mingold        = fields[index++].GetUInt32();
         l_CreatureTemplate->maxgold        = fields[index++].GetUInt32();
@@ -900,13 +899,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
              sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
              const_cast<CreatureTemplate*>(cInfo)->VehicleId = 0;
         }
-    }
-
-    if (cInfo->PetSpellDataId)
-    {
-        CreatureSpellDataEntry const* spellDataId = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
-        if (!spellDataId)
-            sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has non-existing PetSpellDataId (%u).", cInfo->Entry, cInfo->PetSpellDataId);
     }
 
     for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
@@ -2034,6 +2026,7 @@ void ObjectMgr::LoadGameobjects()
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
             continue;
         }
+
         data.go_state       = GOState(go_state);
 
         data.isActive       = fields[16].GetBool();
@@ -3403,7 +3396,7 @@ void ObjectMgr::LoadPetStatInfo()
     l_DefaultPetStat.m_Speed             = 1.14f;
     l_DefaultPetStat.m_PowerStat         = PetStatInfo::PowerStatBase::SpellPower;
     l_DefaultPetStat.m_ArmorCoef         = 1.0f;
-    l_DefaultPetStat.m_APSPCoef          = 0.5f;
+    l_DefaultPetStat.m_APSPCoef          = 1.0f;
     l_DefaultPetStat.m_HealthCoef        = 0.7f;
     l_DefaultPetStat.m_DamageCoef        = 0.85f;
     l_DefaultPetStat.m_AttackSpeed       = 2.0f;
@@ -4408,14 +4401,14 @@ void ObjectMgr::LoadQuests()
 
                 if (!qinfo->RewardItemIdCount[j])
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemIdCount%d` = 0, quest will not reward this item.",
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemCount%d` = 0, quest will not reward this item.",
                         qinfo->GetQuestId(), j+1, id, j+1);
                     // No changes
                 }
             }
             else if (qinfo->RewardItemIdCount[j]>0)
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemIdCount%d` = %u.",
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemCount%d` = %u.",
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RewardItemIdCount[j]);
                 // No changes, quest ignore this data
             }
@@ -5430,6 +5423,94 @@ void ObjectMgr::LoadInstanceEncounters()
             ++l_Counter;
         }
     }
+
+    ///                                                 0         1            2                3
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+
+    if (!l_Result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance encounters, table is empty!");
+
+        return;
+    }
+
+    std::map<uint32, DungeonEncounterEntry const*> l_DungeonLastBosses;
+    do
+    {
+        Field* l_Fields                                 = l_Result->Fetch();
+        uint32 l_EncounterID                            = l_Fields[0].GetUInt32();
+        uint8 l_CreditType                              = l_Fields[1].GetUInt8();
+        uint32 l_CreditEntry                            = l_Fields[2].GetUInt32();
+        uint16 l_LastEncounterDungeon                   = l_Fields[3].GetUInt16();
+        DungeonEncounterEntry const* l_DungeonEncounter = sDungeonEncounterStore.LookupEntry(l_EncounterID);
+
+        if (!l_DungeonEncounter)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid encounter id %u, skipped!", l_EncounterID);
+            continue;
+        }
+
+        if (l_LastEncounterDungeon && !sLFGDungeonStore.LookupEntry(l_LastEncounterDungeon))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", l_EncounterID, l_DungeonEncounter->NameLang, l_LastEncounterDungeon);
+            continue;
+        }
+
+        std::map<uint32, DungeonEncounterEntry const*>::const_iterator l_Itr = l_DungeonLastBosses.find(l_LastEncounterDungeon);
+        if (l_LastEncounterDungeon)
+        {
+            if (l_Itr != l_DungeonLastBosses.end())
+            {
+                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", l_EncounterID, l_DungeonEncounter->NameLang, l_Itr->second->ID, l_Itr->second->NameLang);
+                continue;
+            }
+
+            l_DungeonLastBosses[l_LastEncounterDungeon] = l_DungeonEncounter;
+        }
+
+        switch (l_CreditType)
+        {
+            case ENCOUNTER_CREDIT_KILL_CREATURE:
+            {
+                CreatureTemplate const* l_CreatureInfo = GetCreatureTemplate(l_CreditEntry);
+                if (!l_CreatureInfo)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", l_CreditEntry, l_EncounterID, l_DungeonEncounter->NameLang);
+                    continue;
+                }
+                const_cast<CreatureTemplate*>(l_CreatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                break;
+            }
+            case ENCOUNTER_CREDIT_CAST_SPELL:
+                if (!sSpellMgr->GetSpellInfo(l_CreditEntry))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", l_CreditEntry, l_EncounterID, l_DungeonEncounter->NameLang);
+                    continue;
+                }
+                break;
+            default:
+                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", l_CreditType, l_EncounterID, l_DungeonEncounter->NameLang);
+                continue;
+        }
+
+        uint32 l_DungeonStoreIndex = MAKE_PAIR32(l_DungeonEncounter->MapID, l_DungeonEncounter->DifficultyID);
+
+        if (_dungeonEncounterStore.find(l_DungeonStoreIndex) != _dungeonEncounterStore.end())
+        {
+            DungeonEncounterList& l_Encounters = _dungeonEncounterStore[l_DungeonStoreIndex];
+
+            for (auto& l_Encounter : l_Encounters)
+            {
+                if (l_Encounter->dbcEntry && l_Encounter->dbcEntry->ID == l_EncounterID)
+                {
+                    delete l_Encounter;
+                    l_Encounter = new DungeonEncounter(l_DungeonEncounter, EncounterCreditType(l_CreditType), l_CreditEntry, l_LastEncounterDungeon);
+                    break;
+                }
+            }
+        }
+    }
+    while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
 }
@@ -7348,14 +7429,17 @@ void ObjectMgr::LoadCurrencyOnKill()
         l_CurrOnKill[l_Fields[2].GetUInt16()] = l_Fields[5].GetInt32();
         l_CurrOnKill[l_Fields[3].GetUInt16()] = l_Fields[6].GetInt32();
 
-
         if (!GetCreatureTemplate(l_Creature_id))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `creature_creature` have data for not existed creature entry (%u), skipped", l_Creature_id);
             continue;
         }
+
         for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)
         {
+            if (!i->first)
+                continue;
+
             if (!sCurrencyTypesStore.LookupEntry(i->first))
             {
                 sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", i->first);
@@ -9045,15 +9129,6 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
             ChatHandler(player).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, id, ExtendedCost, type);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", id, ExtendedCost, type, vendor_entry);
-        return false;
-    }
-
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS) // FIXME: GetItemCount range 0...255 MAX_VENDOR_ITEMS = 300
-    {
-        if (player)
-            ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
-        else
-            sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
         return false;
     }
 

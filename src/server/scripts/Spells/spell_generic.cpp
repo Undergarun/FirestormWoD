@@ -321,7 +321,7 @@ class spell_gen_pet_summoned: public SpellScriptLoader
                             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                                if (!l_Player)
+                                if (!l_Player || !p_QueryHolder)
                                 {
                                     delete l_NewPet;
                                     return;
@@ -933,7 +933,7 @@ class spell_generic_clone: public SpellScriptLoader
                 }
                 else
                 {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                     OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
                 }
             }
@@ -4707,7 +4707,8 @@ class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
                 SkyGolem                    = 139192,
                 RascalBot                   = 143714,
                 Pierre                      = 139196,
-                AdvancedRefrigerationUnit   = 139197
+                AdvancedRefrigerationUnit   = 139197,
+                JardPeculiarenergySource    = 139176
             };
 
             void HandleOnHit()
@@ -4721,6 +4722,7 @@ class spell_gen_jards_peculiar_energy_source : public SpellScriptLoader
                 l_Player->learnSpell(eSpells::RascalBot, false);
                 l_Player->learnSpell(eSpells::Pierre, false);
                 l_Player->learnSpell(eSpells::AdvancedRefrigerationUnit, false);
+                l_Player->learnSpell(eSpells::JardPeculiarenergySource, false);
             }
 
             void Register()
@@ -5077,8 +5079,213 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Iron Horde Pirate Costume - 173956
+class spell_generic_iron_horde_pirate_costume : public SpellScriptLoader
+{
+    public:
+        spell_generic_iron_horde_pirate_costume() : SpellScriptLoader("spell_generic_iron_horde_pirate_costume") { }
+
+        class spell_generic_iron_horde_pirate_costume_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_generic_iron_horde_pirate_costume_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->getGender() == GENDER_MALE)
+                    l_Caster->CastSpell(l_Caster, 173958, true);
+                else
+                    l_Caster->CastSpell(l_Caster, 173959, true);
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_generic_iron_horde_pirate_costume_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_generic_iron_horde_pirate_costume_SpellScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Kilrogg's Dead Eye - 184762
+class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
+{
+    public:
+        spell_gen_kilroggs_dead_eye() : SpellScriptLoader("spell_gen_kilroggs_dead_eye") { }
+
+        class spell_gen_kilroggs_dead_eye_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_kilroggs_dead_eye_AuraScript);
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                Unit* l_Target = GetCaster();
+                if (l_Target == nullptr)
+                    return;
+
+                float l_Multiplier = (p_AurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() / 100) * ((100.0f - l_Target->GetHealthPct()) / 100.0f);
+                p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
+            }
+
+            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = -1;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_kilroggs_dead_eye_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_kilroggs_dead_eye_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_kilroggs_dead_eye_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Blood Elf Illusion - 160331
+class spell_gen_blood_elfe_illusion : public SpellScriptLoader
+{
+    public:
+        spell_gen_blood_elfe_illusion() : SpellScriptLoader("spell_gen_blood_elfe_illusion") { }
+
+        class spell_gen_blood_elfe_illusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_blood_elfe_illusion_AuraScript);
+
+            uint8 m_Race = 0;
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+               /* PlayerInfo const* l_BloodElfInfo = sObjectMgr->GetPlayerInfo(RACE_BLOODELF, l_Player->getClass());
+
+                m_Race = l_Player->getRace();
+                uint32 RaceClassPower = (RACE_BLOODELF) | (l_Player->getClass() << 8) | (l_Player->getPowerType() << 16);
+
+                l_Player->SetUInt32Value(UNIT_FIELD_SEX, (RaceClassPower | (l_Player->getGender() << 24)));
+
+                if (l_BloodElfInfo == nullptr)
+                    return;*/
+
+                uint8 l_Gender = l_Player->getGender();
+                uint32 l_CreatureID = 0;
+                switch (l_Gender)
+                {
+                case GENDER_FEMALE:
+                    l_CreatureID = 21631;
+                    break;
+                case GENDER_MALE:
+                    l_CreatureID = 21630;
+                    break;
+                default:
+                    break;
+                }
+
+                if (!l_CreatureID)
+                    return;
+
+                CreatureTemplate const* l_Template = sObjectMgr->GetCreatureTemplate(l_CreatureID);
+                if (l_Template)
+                {
+                    uint32 l_ModelId = 0;
+
+                    if (uint32 l_Model = l_Template->GetRandomValidModelId())
+                        l_ModelId = l_Model;
+
+                    if (l_ModelId)
+                        l_Player->SetDisplayId(l_ModelId);
+                }
+
+                /*for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+                {
+                    if (Item* l_Item = l_Player->GetItemByPos(i))
+                    {
+                        l_Player->SetVisibleItemSlot(i, l_Item);
+                    }
+                }*/
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /*uint32 l_RaceClassPower = (m_Race) | (l_Player->getClass() << 8) | (l_Player->getPowerType() << 16);
+
+                l_Player->SetUInt32Value(UNIT_FIELD_SEX, (l_RaceClassPower | (l_Player->getGender() << 24)));*/
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_blood_elfe_illusion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_blood_elfe_illusion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_blood_elfe_illusion_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Wyrmhunter Hooks - 88914
+class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
+{
+    public:
+        spell_gen_wyrmhunter_hooks() : SpellScriptLoader("spell_gen_wyrmhunter_hooks") {}
+
+        class spell_gen_wyrmhunter_hooks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_wyrmhunter_hooks_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_wyrmhunter_hooks_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_wyrmhunter_hooks_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_wyrmhunter_hooks();
+    new spell_gen_blood_elfe_illusion();
+    new spell_gen_kilroggs_dead_eye();
+    new spell_generic_iron_horde_pirate_costume();
     new spell_gen_mark_of_thunderlord();
     new spell_gen_inge_trigger_enchant();
     new spell_gen_potion_of_illusion();
@@ -5170,7 +5377,7 @@ void AddSC_generic_spell_scripts()
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
     new spell_gen_sword_technique();
-    new spell_gen_check_faction();
+    //new spell_gen_check_faction(); -- temp disable
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
 

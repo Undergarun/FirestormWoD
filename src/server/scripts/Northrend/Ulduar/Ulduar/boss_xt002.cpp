@@ -1258,7 +1258,7 @@ void AddSC_boss_xt002()
     new spell_xt002_gravity_bomb_aura();
     new spell_xt002_gravity_bomb_aura_target();
     new spell_xt002_gravity_bomb_damage();
-    new spell_xt002_heart_overload_periodic();
+    //new spell_xt002_heart_overload_periodic();
     new spell_xt002_tympanic_tantrum();
     new spell_xt002_submerged();
     new spell_xt002_stand();

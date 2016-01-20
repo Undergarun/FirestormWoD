@@ -83,6 +83,7 @@
 #include "UpdateFieldFlags.h"
 #include "SceneObject.h"
 #include "GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 #include "PetBattle.h"
 #include "MSCallback.hpp"
 #include "Vignette.hpp"
@@ -1060,6 +1061,17 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     ///////////////////////////////////////////////////////////
 
     m_WargameRequest = nullptr;
+
+    m_PreviousLocationMapId = MAPID_INVALID;
+    m_PreviousLocationX = 0;
+    m_PreviousLocationY = 0;
+    m_PreviousLocationZ = 0;
+    m_PreviousLocationO = 0;
+
+    for (uint8 l_I = 0; l_I < StoreCallback::MaxDelivery; l_I++)
+        m_StoreDeliveryProcessed[l_I] = false;
+
+    m_StoreDeliverySave = false;
 }
 
 Player::~Player()
@@ -1392,11 +1404,13 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 // Give bags first to the players, then the equipment
                 if (l_Proto->Class == ITEM_CLASS_CONTAINER)
                 {
-                    StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+                    if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
+                        StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
                     continue;
                 }
+                else
+                    l_RemainingTemplates.push_back(&l_Item);
             }
-            l_RemainingTemplates.push_back(&l_Item);
         }
 
         for (auto l_Item : l_RemainingTemplates)
@@ -1406,8 +1420,24 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if ((l_Proto->AllowableRace & getRaceMask()) == 0)
                     continue;
 
-                if (l_Item->m_Type == 1)
-                    StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, ItemContext::RaidLfr);
+                if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
+                {
+                    ItemContext l_ItemContext = ItemContext::None;
+                    switch (l_Item->m_Type)
+                    {
+                        case 1: ///< Shop PvE premade
+                            l_ItemContext = ItemContext::RaidLfr;
+                            break;
+                        case 3: ///< PTR PvE templates
+                            l_ItemContext = ItemContext::RaidNormal;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_ItemContext != ItemContext::None)
+                        StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count, l_ItemContext);
+                }
             }
         }
     }
@@ -1705,6 +1735,11 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
+        /// Falling damages are disabled in Blackrock Foundry
+        /// @TODO: Maybe find a new MapFlag?
+        if (GetMapId() == 1205)
+            return 0;
+
         /// Glyph of Falling Meteor - 56247
         if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
             AddPct(p_Damage, -95);
@@ -2875,7 +2910,14 @@ bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p
     if (m_Duel && GetMapId() != p_MapID && GetMap()->GetGameObject(GetGuidValue(EPlayerFields::PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DuelCompleteType::DUEL_FLED);
 
-    if (GetMapId() == p_MapID && !forced_far)
+    /// Save previous location
+    m_PreviousLocationMapId = GetMapId();
+    m_PreviousLocationX     = GetPositionX();
+    m_PreviousLocationY     = GetPositionY();
+    m_PreviousLocationZ     = GetPositionZ();
+    m_PreviousLocationO     = GetOrientation();
+
+    if (GetMapId() == p_MapID)
     {
         /// Lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -7936,12 +7978,11 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr * GT_MAX_LEVEL + level - 1);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass() - 1) * GT_MAX_RATING + cr + 1);
-    if (!Rating || !classRating)
-        return 1.0f;                                        // By default use minimum coefficient (not must be called)
+    
+    if (!Rating || !Rating->ratio)
+        return 1.0f; ///< By default use minimum coefficient (not must be called)
 
-    return classRating->ratio / Rating->ratio;
+    return 1.0f / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -9861,7 +9902,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
 
             l_Packet << uint32(p_CurrencyID);
             l_Packet << uint32(l_NewTotalCount);
-            l_Packet << uint32(0);                        // Flags
+            l_Packet << uint32(l_CurrencyIT->second.flags);
 
             l_Packet.WriteBit(l_WeekCap != 0);
             l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);
@@ -12238,22 +12279,18 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved(bool p_IsAoE)
+void Player::SendNotifyLootMoneyRemoved()
 {
-    WorldPacket l_Data(SMSG_COIN_REMOVED);
     ObjectGuid l_Guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(l_Guid, GetLootGUID());
 
-    if (p_IsAoE)
-        l_Data.appendPackGUID(l_Guid);
-    else
-        l_Data.appendPackGUID(GetGUID());
-
+    WorldPacket l_Data(SMSG_COIN_REMOVED);
+    l_Data.appendPackGUID(l_Guid);
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot, bool p_IsAoELoot /*= false*/)
+void Player::SendNotifyLootItemRemoved(uint8 p_LootSlot)
 {
     ObjectGuid l_Guid       = GetLootGUID();
     ObjectGuid l_LootGuid   = MAKE_NEW_GUID(GUID_LOPART(l_Guid), 0, HIGHGUID_LOOT);
@@ -17909,8 +17946,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             int32 locale = GetSession()->GetSessionDbLocaleIndex();
             if (locale >= 0)
             {
-                uint32 idxEntry = MAKE_PAIR32(menuId, itr->second.OptionIndex);
-                if (GossipMenuItemsLocale const* no = sObjectMgr->GetGossipMenuItemsLocale(idxEntry))
+                if (GossipMenuItemsLocale const* no = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR64(menuId, itr->second.OptionIndex)))
                 {
                     ObjectMgr::GetLocaleString(no->OptionText, locale, strOptionText);
                     ObjectMgr::GetLocaleString(no->BoxText, locale, strBoxText);
@@ -18954,6 +18990,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     bool rewarded = (m_RewardedQuests.find(l_QuestId) != m_RewardedQuests.end());
 
     float QuestXpRate = 1;
+
     if (GetPersonnalXpRate())
         QuestXpRate = GetPersonnalXpRate();
     else
@@ -19954,6 +19991,12 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
+                    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
+                    {
+                        if (!l_GarrisonMgr->CheckGarrisonStablesQuestsConditions(questid, this))
+                            continue;
+                    }
+
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
                     {
@@ -20599,8 +20642,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     /// totalKills,   todayKills,     yesterdayKills, chosenTitle,       watchedFaction,           drunk,                    health,          power1,            power2,              power3,
     /// 50            51              52      53              54                 55                        56                        57               58                 59                   60
     /// power4,       power5,         power6, instance_id,    speccount,         activespec,               specialization1,          specialization2, exploredZones,     equipmentCache,      knownTitles,
-    /// 61            62              63              64                 65                        66                        67               68                 69                   70
-    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
+    /// 61            62              63              64                 65                        66                        67               68                 69                   70             71
+    /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet, xprate
 
     uint32 l_StartTime = getMSTime();
     std::vector<uint32> l_Times;
@@ -21075,6 +21118,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
     m_LastSummonedBattlePet = fields[70].GetUInt32();
+    m_PersonnalXpRate = fields[71].GetFloat();
 
     // clear channel spell data (if saved at channel spell casting)
     SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, 0);
@@ -21389,9 +21433,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     m_achievementMgr.CheckAllAchievementCriteria(this);
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
-
-    /*if (QueryResult PersonnalRateResult = CharacterDatabase.PQuery("SELECT rate FROM character_rates WHERE guid='%u' LIMIT 1", GetGUIDLow()))
-        m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();*/
 
     if (mustResurrectFromUnlock)
         ResurrectPlayer(1, true);
@@ -22456,6 +22497,11 @@ void Player::_LoadSpells(PreparedQueryResult result)
 
 void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
 {
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
     if (p_Result)
     {
         do
@@ -22463,20 +22509,21 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
             Field* fields = p_Result->Fetch();
 
             uint32 l_NpcEntry = fields[1].GetUInt32();
-            SetGarrisonTavernData(l_NpcEntry);
+            l_GarrisonMgr->SetGarrisonTavernData(l_NpcEntry);
         }
         while (p_Result->NextRow());
     }
     else
     {
-        if (GetGarrison() != nullptr && GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
         {
             if (roll_chance_i(50))
             {
                 uint32 l_Entry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                CleanGarrisonTavernData();
-                AddGarrisonTavernData(l_Entry);
+                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
             }
             else
             {
@@ -22487,9 +22534,9 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
                     l_SecondEntry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
                 while (l_SecondEntry == l_FirstEntry);
 
-                CleanGarrisonTavernData();
-                AddGarrisonTavernData(l_FirstEntry);
-                AddGarrisonTavernData(l_SecondEntry);
+                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
+                l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
             }
         }
     }
@@ -23149,6 +23196,7 @@ void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
         stmt->setUInt8(index++, m_currentPetSlot);
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
+        stmt->setFloat(index++, m_PersonnalXpRate);
     }
     else
     {
@@ -23299,6 +23347,8 @@ void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
         stmt->setUInt32(index++, GetSpecializationResetTime());
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
 
+        stmt->setFloat(index++, m_PersonnalXpRate);
+
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
     }
@@ -23340,6 +23390,7 @@ void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
     _SaveCurrency(trans);
     m_archaeologyMgr.SaveArchaeology(trans);
     _SaveCharacterWorldStates(trans);
+    _SaveCharacterGarrisonTavernDatas(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -23648,10 +23699,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
     if (!m_VoidStorageLoaded)
-    {
-        sLog->outAshran("Trying to save Void Storage before loaded it!");
         return;
-    }
 
     PreparedStatement* stmt = NULL;
     uint32 lowGuid = GetGUIDLow();
@@ -24145,6 +24193,26 @@ void Player::_SaveStats(SQLTransaction& trans)
     stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_RESILIENCE_PLAYER_DAMAGE_TAKEN));
 
     trans->Append(stmt);
+}
+
+void Player::_SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction)
+{
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR);
+    l_Stmt->setUInt32(0, GetGUIDLow());
+    p_Transaction->Append(l_Stmt);
+
+    for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonTavernDatas())
+    {
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
+        l_Stmt->setUInt32(0, GetGUIDLow());
+        l_Stmt->setUInt32(1, l_TavernData);
+        p_Transaction->Append(l_Stmt);
+    }
 }
 
 void Player::outDebugValues() const
@@ -26497,7 +26565,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
     {
         // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
-        if (l_Cooldown <= 0 && l_CategoryCooldown <= 0 && (l_CategoryId == 76 || (p_SpellInfo->IsAutoRepeatRangedSpell() && p_SpellInfo->Id != 75)))
+        if (l_Cooldown <= 0 && l_CategoryCooldown <= 0 && (l_CategoryId == 76 || (p_SpellInfo->IsAutoRepeatRangedSpell() && p_SpellInfo->Id != 75 && p_SpellInfo->Id != 5019)))
             l_Cooldown = GetAttackTime(WeaponAttackType::RangedAttack);
 
         // Now we have cooldown data (if found any), time to apply mods
@@ -26914,6 +26982,11 @@ WorldLocation Player::GetStartPosition() const
     if (getClass() == CLASS_DEATH_KNIGHT && HasSpell(50977))
         mapId = 0;
     return WorldLocation(mapId, info->positionX, info->positionY, info->positionZ, 0);
+}
+
+WorldLocation Player::GetPreviousLocation() const
+{
+    return WorldLocation(m_PreviousLocationMapId, m_PreviousLocationX, m_PreviousLocationY, m_PreviousLocationZ, m_PreviousLocationO);
 }
 
 bool Player::IsNeverVisible() const
@@ -27907,6 +27980,18 @@ void Player::ResetGarrisonDatas()
                         l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
                 }
             }
+        }
+
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
+            {
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+                GetBattleground();
+            }
+
+            if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
         }
     }
 }
@@ -29566,7 +29651,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
             ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
 
-        SendNotifyLootItemRemoved(lootSlot, loot->m_IsAoELoot);
+        SendNotifyLootItemRemoved(lootSlot);
         currency->is_looted = true;
         --loot->UnlootedCount;
         return;
@@ -29584,7 +29669,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -29594,7 +29679,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot, loot->m_IsAoELoot);
+                SendNotifyLootItemRemoved(linkedLootSlot == 0xFF ? lootSlot : linkedLootSlot);
             }
             else
             {
@@ -30195,7 +30280,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
         {
             Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-            if (!l_Player)
+            if (!l_Player || !p_QueryHolder)
             {
                 delete l_NewPet;
                 return;
@@ -31039,6 +31124,10 @@ bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuse
     {
         for (auto l_Bonus : p_Bonuses)
             l_Item->AddItemBonus(l_Bonus);
+
+        std::vector<uint32> l_Bonus;
+        Item::GenerateItemBonus(l_Item->GetEntry(), ItemContext::None, l_Bonus);
+        l_Item->AddItemBonuses(l_Bonus);
 
         SendNewItem(l_Item, p_Count, true, false);
 
@@ -31961,25 +32050,14 @@ void Player::ShowNeutralPlayerFactionSelectUI()
     GetSession()->SendPacket(&data);
 }
 
-void Player::SetPersonnalXpRate(float PersonnalXpRate)
+void Player::SetPersonnalXpRate(float p_PersonnalXPRate)
 {
-    if (PersonnalXpRate != m_PersonnalXpRate)
-    {
-        if (PersonnalXpRate)
-        {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUIDLow(), PersonnalXpRate);
-            CharacterDatabase.CommitTransaction(trans);
-        }
-        else // Rates normales
-        {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM character_rates WHERE guid = '%u';", GetGUIDLow());
-            CharacterDatabase.CommitTransaction(trans);
-        }
-    }
+    m_PersonnalXpRate = p_PersonnalXPRate;
 
-    m_PersonnalXpRate = PersonnalXpRate;
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
+    l_Statement->setFloat(0, p_PersonnalXPRate);
+    l_Statement->setUInt32(1, GetGUIDLow());
+    CharacterDatabase.Execute(l_Statement);
 }
 
 void Player::HandleStoreGoldCallback(PreparedQueryResult result)
@@ -32252,6 +32330,8 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             if (!HasAura(108499))
                 AddAura(108499, this);
+            if (HasAura(152107)) ///< Demonic Servitude
+                learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
             break;
         case 108501:// Grimoire of Service
             learnSpell(111859, false);  ///< WARLOCK_GRIMOIRE_IMP
@@ -32265,7 +32345,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
                 if (HasAura(152107)) ///< Demonic Servitude
                 {
                     learnSpell(157900, false);  ///< WARLOCK_GRIMOIRE_DOOMGUARD
-                    learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
+                    learnSpell(157899, false);  ///< WARLOCK_GRIMOIRE_ABYSSAL
                 }
             }
             break;
@@ -32297,6 +32377,8 @@ void Player::RemovePassiveTalentSpell(SpellInfo const* info)
             break;
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
+            if (HasSpell(157899))
+                removeSpell(157899, false, false);  // WARLOCK_GRIMOIRE_ABYSSAL
             break;
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
@@ -32343,20 +32425,11 @@ void Player::SetEmoteState(uint32 anim_id)
     m_emote = anim_id;
 }
 
-void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
+void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/, G3D::Vector3 p_TransportPos /*= G3D::Vector3(0.0f, 0.0f, 0.0f)*/)
 {
-/* Removed because some Unit* can also be source of movement force
-    if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
-        return;
-    }
-*/
-
     if (p_Apply)
     {
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
-        G3D::Vector3 l_Vector(0, 0, 0);
 
         WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 2 + 16 + 4 + 2 + 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
@@ -32366,7 +32439,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
-        l_Data.WriteVector3(l_Vector);                  ///< TransportPosition
+        l_Data.WriteVector3(p_TransportPos);            ///< TransportPosition
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
@@ -32948,11 +33021,15 @@ void Player::SendToyBox()
 
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
-    l_Statement->setUInt32(0, GetSession()->GetAccountId());
-    l_Statement->setUInt32(1, p_ItemID);
-    l_Statement->setBool(2, false);
-    LoginDatabase.Execute(l_Statement);
+    /// Save toys to database only for live realms
+    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+    {
+        PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
+        l_Statement->setUInt32(0, GetSession()->GetAccountId());
+        l_Statement->setUInt32(1, p_ItemID);
+        l_Statement->setBool(2, false);
+        LoginDatabase.Execute(l_Statement);
+    }
 
     if (!HasToy(p_ItemID))
     {
@@ -33124,22 +33201,6 @@ void Player::DeleteGarrison()
     m_Garrison = nullptr;
 }
 
-void Player::AddGarrisonTavernData(uint32 p_Data)
-{
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
-
-    l_Stmt->setUInt32(0, GetGUIDLow());
-    l_Stmt->setUInt32(1, p_Data);
-    CharacterDatabase.AsyncQuery(l_Stmt);
-
-    SetGarrisonTavernData(p_Data);
-}
-
-void Player::SetGarrisonTavernData(uint32 p_Data)
-{
-    m_GarrisonDailyTavernData.push_back(p_Data);
-}
-
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;
@@ -33230,13 +33291,11 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
         ilvl = std::min(ilvl, maxItemLevel);
 
-    if (GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame())
+    if (!(GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame()))
     {
-        if ((itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY) == 0)
+        if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
             ilvl = 1;
     }
-    else if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
-        ilvl = 1;
 
     return ilvl;
 }
@@ -34337,13 +34396,13 @@ void Player::SendCustomMessage(std::string const& p_Opcode)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << " " << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::ostringstream const& p_Message)
 {
     std::ostringstream l_Message;
     l_Message << p_Opcode << "|" << p_Message.str() << "|";
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::string> const& p_Data)
 {
@@ -34358,7 +34417,7 @@ void Player::SendCustomMessage(std::string const& p_Opcode, std::vector<std::str
     else
         l_Message << " " << "|";
 
-    ChatHandler(this).PSendSysMessage(l_Message.str().c_str());
+    ChatHandler(this).SendSysMessage(l_Message.str().c_str());
 }
 
 uint32 Player::GetBagsFreeSlots() const

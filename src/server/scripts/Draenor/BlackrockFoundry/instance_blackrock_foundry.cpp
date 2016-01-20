@@ -10,11 +10,13 @@
 
 DoorData const g_DoorData[] =
 {
-    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,           DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::FurnacePortcullis,           eFoundryDatas::DataOregorger,       DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
-    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,    DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
-    { 0,                                                0,                                  DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
+    { eFoundryGameObjects::GruulSpikeDoor,              eFoundryDatas::DataGruul,               DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BKFoundrySpikeTrapGate,      eFoundryDatas::DataOregorger,           DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::FurnacePortcullis,           eFoundryDatas::DataOregorger,           DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlastFurnaceEncounterDoor,   eFoundryDatas::DataBlastFurnace,        DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::HansgarAndFranzokEntrance,   eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    ///{ eFoundryGameObjects::HansgarAndFranzokExit,       eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
 class instance_blackrock_foundry : public InstanceMapScript
@@ -39,6 +41,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_FurnaceGate               = 0;
                 m_PrimalElementalistTime    = 0;
                 m_YaWeveGotTimeAchiev       = false;
+
+                m_HansgarGuid               = 0;
+                m_FranzokGuid               = 0;
+                m_StampStampRevolution      = true;
             }
 
             /// Slagworks
@@ -56,6 +62,12 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_FurnaceGate;
             uint32 m_PrimalElementalistTime;
             bool m_YaWeveGotTimeAchiev;
+
+            /// The Black Forge
+            /// Slagmill Press
+            uint64 m_HansgarGuid;
+            uint64 m_FranzokGuid;
+            bool m_StampStampRevolution;
 
             void Initialize() override
             {
@@ -85,6 +97,12 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::BlackhandCosmetic:
                         m_CosmeticBlackhand = p_Creature->GetGUID();
                         break;
+                    case eFoundryCreatures::BossHansgar:
+                        m_HansgarGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::BossFranzok:
+                        m_FranzokGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -98,6 +116,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BKFoundrySpikeTrapGate:
                     case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
+                    case eFoundryGameObjects::HansgarAndFranzokEntrance:
+                    case eFoundryGameObjects::HansgarAndFranzokExit:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -109,6 +129,13 @@ class instance_blackrock_foundry : public InstanceMapScript
                         break;
                     case eFoundryGameObjects::FurnaceGate:
                         m_FurnaceGate = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::ConveyorBelt001:
+                    case eFoundryGameObjects::ConveyorBelt002:
+                    case eFoundryGameObjects::ConveyorBelt003:
+                    case eFoundryGameObjects::ConveyorBelt004:
+                    case eFoundryGameObjects::ConveyorBelt005:
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::ConveyorsStop);
                         break;
                     default:
                         break;
@@ -123,6 +150,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BKFoundrySpikeTrapGate:
                     case eFoundryGameObjects::FurnacePortcullis:
                     case eFoundryGameObjects::BlastFurnaceEncounterDoor:
+                    case eFoundryGameObjects::HansgarAndFranzokEntrance:
+                    case eFoundryGameObjects::HansgarAndFranzokExit:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -143,7 +172,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                if (m_PristineTrueIronOres >= eFoundryDatas::MaxPristineTrueIronOres)
+                                if (m_PristineTrueIronOres >= eFoundryDatas::MaxPristineTrueIronOres && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::TheIronPrince);
 
                                 break;
@@ -165,7 +194,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                if (m_VolatileOreGrinded)
+                                if (m_VolatileOreGrinded && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::HeShootsHeOres);
 
                                 break;
@@ -187,7 +216,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         {
                             case EncounterState::DONE:
                             {
-                                if (m_YaWeveGotTimeAchiev)
+                                if (m_YaWeveGotTimeAchiev && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::YaWeveGotTime);
 
                                 break;
@@ -201,6 +230,26 @@ class instance_blackrock_foundry : public InstanceMapScript
                         }
 
                         break;
+                    }
+                    case eFoundryDatas::DataHansgarAndFranzok:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_StampStampRevolution && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::StampStampRevolution);
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_StampStampRevolution = true;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
                     }
                     default:
                         break;
@@ -247,6 +296,14 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::PlayerStamped:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        m_StampStampRevolution = false;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -270,6 +327,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_VolatileOreGuid;
                     case eFoundryGameObjects::FurnaceGate:
                         return m_FurnaceGate;
+                    case eFoundryCreatures::BossHansgar:
+                        return m_HansgarGuid;
+                    case eFoundryCreatures::BossFranzok:
+                        return m_FranzokGuid;
                     default:
                         break;
                 }

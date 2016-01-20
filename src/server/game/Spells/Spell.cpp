@@ -4528,7 +4528,7 @@ void Spell::finish(bool ok)
             if (m_UniqueTargetInfo.empty())
                 break;
 
-            if (m_UniqueTargetInfo.front().missCondition != SPELL_MISS_IMMUNE)
+            if (m_UniqueTargetInfo.front().missCondition != SPELL_MISS_IMMUNE && m_UniqueTargetInfo.front().missCondition != SPELL_MISS_IMMUNE2)
                 break;
 
             if (m_caster->HasAura(59309)) // Glyph of Resilient Grip
@@ -6064,7 +6064,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
 
         //can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) && l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY) &&
             m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) &&
             (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
@@ -6092,7 +6092,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     // Check global cooldown
-    if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown() && !m_spellInfo->DoesIgnoreGlobalCooldown(m_caster))
+    if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) && HasGlobalCooldown() && !m_spellInfo->DoesIgnoreGlobalCooldown(m_caster))
         return SPELL_FAILED_NOT_READY;
 
     // only triggered spells can be processed an ended battleground
@@ -6565,8 +6565,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
                 int32 skillValue = m_caster->ToPlayer()->GetSkillValue(skill);
-                int32 TargetLevel = m_targets.GetUnitTarget()->getLevel();
+                int32 TargetLevel = creature->getLevel();
                 int32 ReqValue = (skillValue < 100 ? (TargetLevel-10) * 10 : TargetLevel * 5);
+
+                /// Skinning in Draenor doesn't require to have a specific skill level, 1 is enough
+                if (skillValue && creature->GetCreatureTemplate()->expansion >= Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
+                    break;
+
                 if (ReqValue > skillValue)
                     return SPELL_FAILED_LOW_CASTLEVEL;
 
@@ -7052,7 +7057,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear())
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && !m_caster->HasAura(51690))
             return SPELL_FAILED_FLEEING;
 
     // hex
@@ -9222,7 +9227,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
             case TARGET_CHECK_ALLY:
                 if (unitTarget->isTotem())
                     return false;
-                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo, false))
                     return false;
                 break;
             case TARGET_CHECK_PARTY:

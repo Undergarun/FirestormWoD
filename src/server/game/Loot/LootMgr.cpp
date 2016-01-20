@@ -766,14 +766,14 @@ void Loot::NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter /*= 0*/)
             if (p_PersonalLooter && (*i) != p_PersonalLooter)
                 continue;
 
-            player->SendNotifyLootItemRemoved(lootIndex, m_IsAoELoot);
+            player->SendNotifyLootItemRemoved(lootIndex);
         }
         else
             PlayersLooting.erase(i);
     }
 }
 
-void Loot::NotifyMoneyRemoved(bool p_IsAoE /*= false*/)
+void Loot::NotifyMoneyRemoved()
 {
     // notify all players that are looting this that the money was removed
     std::set<uint64>::iterator i_next;
@@ -782,7 +782,7 @@ void Loot::NotifyMoneyRemoved(bool p_IsAoE /*= false*/)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootMoneyRemoved(p_IsAoE);
+            player->SendNotifyLootMoneyRemoved();
         else
             PlayersLooting.erase(i);
     }
@@ -814,7 +814,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(Items.size() + j, m_IsAoELoot);
+                    player->SendNotifyLootItemRemoved(Items.size() + j);
             }
         }
         else
@@ -1803,15 +1803,9 @@ float LootTemplate::LootGroup::TotalChance() const
 void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint8 group_id) const
 {
     float chance = RawTotalChance();
-    if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
-    {
-        sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
-
+    
     if (chance >= 100.0f && !EqualChanced.empty())
-    {
         sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
 }
 
 void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, LootIdSet* ref_set) const

@@ -106,8 +106,8 @@ namespace MS { namespace Garrison
             GarrisonPlotInstanceInfoLocation GetPlot(uint32 p_PlotInstanceID) const;
             /// Get plot instance ID by activation game object
             uint32 GetPlotInstanceIDByActivationGameObject(uint64 p_Guid) const;
-            /// bababab
-            std::map<uint32, uint64> GetPlotsWorkOrderGob() { return m_PlotsWorkOrderGob; };
+            /// Return Daily Tavern Datas
+            std::vector<uint32>& GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
 
             /// Add mission
             bool AddMission(uint32 p_MissionRecID);
@@ -209,6 +209,12 @@ namespace MS { namespace Garrison
             uint32 GetGarrisonID() { return m_ID; };
             /// Get Garrison Level
             uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
+            /// Check if the players has the right mount
+            bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
+
+            void AddGarrisonTavernData(uint32 p_Data);
+            void SetGarrisonTavernData(uint32 p_Data);
+            void CleanGarrisonTavernData();
 
             /// Get known blueprints
             std::vector<int32> GetKnownBlueprints() const;
@@ -334,7 +340,7 @@ namespace MS { namespace Garrison
             void UpdateWorkOrders();
 
         private:
-            Player *    m_Owner;            ///< Garrison owner
+            Player*     m_Owner;            ///< Garrison owner
             uint32      m_ID;               ///< Garrison DB ID
             uint32      m_GarrisonLevel;    ///< Garrison level
             uint32      m_GarrisonLevelID;  ///< Garrison level ID in 
@@ -356,6 +362,7 @@ namespace MS { namespace Garrison
             std::vector<GarrisonWorkOrder>                  m_WorkOrders;
             std::vector<int32>                              m_KnownBlueprints;
             std::vector<int32>                              m_KnownSpecializations;
+            std::vector<uint32>                             m_GarrisonDailyTavernData;
 
             std::map<uint32, uint64>                m_PlotsGob;
             std::map<uint32, uint64>                m_PlotsActivateGob;

@@ -431,7 +431,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target))
                 {
                     l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
@@ -480,7 +480,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target))
                 {
                     l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
@@ -523,7 +523,10 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
             p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
             for (auto itr : targetList)
-                itr->CastSpell(itr, IceTrapEffect, true);
+            {
+                if (l_Caster->IsValidAttackTarget(itr))
+                    itr->CastSpell(itr, IceTrapEffect, true);
+            }
 
             // Glyph of Black Ice
             if (l_Caster->GetDistance(p_AreaTrigger) <= l_Radius && l_Caster->HasAura(GlyphOfBlackIce) && !l_Caster->HasAura(BlackIceEffect))
@@ -580,7 +583,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                 {
                     if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
                     {
@@ -590,10 +593,6 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                     }
                     l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
                     p_AreaTrigger->Remove(0);
-
-                    /// Item - Hunter WoD PvP 2P Bonus
-                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::HunterWodPvp2PBonus))
-                        l_AreaTriggerCaster->CastSpell(l_AreaTriggerCaster, (uint32)HunterFreezingTrap::HunterWodPvp2PBonusEffect, true);
                 }
             }
         }
@@ -632,7 +631,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                 {
                     l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterExplosiveTrap::SpellExplosiveEffect, true);
                     p_AreaTrigger->Remove(0);
@@ -917,12 +916,31 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
             {
                 float l_Radius = 1.0f;
                 Unit* l_Target = nullptr;
+                std::list<Unit*> l_TargetList;
 
                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Checker);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                l_TargetList.remove_if([this, l_AreaTriggerCaster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_AreaTriggerCaster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
+                if (l_TargetList.size() > 1)
+                {
+                    l_TargetList.sort(JadeCore::ObjectDistanceOrderPred(p_AreaTrigger));
+                    l_TargetList.resize(1);
+                }
+
+                if (l_TargetList.size() == 1)
+                l_Target = l_TargetList.front();
 
                 if (l_Target != nullptr)
                 {
@@ -1182,11 +1200,14 @@ class spell_at_pri_angelic_feather : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Smoke Bomb - 76577
 class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
 {
     public:
         spell_at_rogue_smoke_bomb() : AreaTriggerEntityScript("spell_areatrigger_smoke_bomb") { }
+
+        std::list<uint64> m_TargetList;
 
         enum eSmokeSpells
         {
@@ -1195,33 +1216,48 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            float l_Radius = 4.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            std::list<Unit*> l_NewTargetList;
+            JadeCore::AnyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+            for (Unit* l_Target : l_NewTargetList)
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 8.0f;
-
-                JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                if (l_TargetList.empty())
-                    return;
-
-                l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
+                if (std::find(m_TargetList.begin(), m_TargetList.end(), l_Target->GetGUID()) == m_TargetList.end())
                 {
-                    if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
-                        return true;
+                    m_TargetList.push_back(l_Target->GetGUID());
+                    l_Caster->CastSpell(l_Target, eSmokeSpells::SmokeBombAura, true);
+                }
+            }
 
-                    if (p_Unit->HasAura(eSmokeSpells::SmokeBombAura))
-                        return true;
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end();)
+            {
+                Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
+                if (!l_Target || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end()))
+                {
+                    if (l_Target)
+                        l_Target->RemoveAura(eSmokeSpells::SmokeBombAura);
 
-                    return false;
-                });
+                    l_It = m_TargetList.erase(l_It);
+                }
+                else
+                    ++l_It;
+            }
+        }
 
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eSmokeSpells::SmokeBombAura, true);
-
-                l_Caster->CastSpell(l_Caster, eSmokeSpells::SmokeBombAura, true);
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            for (uint64 l_TargetGUID : m_TargetList)
+            {
+                Unit* l_Target = ObjectAccessor::FindUnit(l_TargetGUID);
+                if (l_Target)
+                    l_Target->RemoveAura(eSmokeSpells::SmokeBombAura);
             }
         }
 
@@ -1231,6 +1267,7 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Chi burst - 123986
 class spell_at_monk_chi_burst : public AreaTriggerEntityScript
 {
@@ -1275,7 +1312,7 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
             std::list<uint64> l_UnitGUIDList = m_UnitGUIDList;
             l_TargetList.remove_if([this, l_Caster, l_UnitGUIDList](Unit* p_Unit) -> bool
             {
-                if (p_Unit == nullptr || p_Unit->GetGUID() == l_Caster->GetGUID())
+                if (p_Unit == nullptr)
                     return true;
 
                 if (!(std::find(l_UnitGUIDList.begin(), l_UnitGUIDList.end(), p_Unit->GetGUID()) == l_UnitGUIDList.end()))
@@ -1286,9 +1323,9 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
 
             for (Unit* l_Target : l_TargetList)
             {
-                if (l_Target->IsFriendlyTo(l_Caster))
+                if (l_Target->IsFriendlyTo(l_Caster) && l_Caster->IsValidAssistTarget(l_Target))
                     l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstHeal, &l_Healing, NULL, NULL, true);
-                else
+                else if (l_Caster->IsValidAttackTarget(l_Target))
                     l_Player->CastCustomSpell(l_Target, eSpells::ChiBurstDamage, &l_Damage, NULL, NULL, true);
 
                 m_UnitGUIDList.push_back(l_Target->GetGUID());
@@ -1301,7 +1338,7 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Charging Ox Wave - 119392
 class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
 {
@@ -1345,7 +1382,7 @@ class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Target->HasAura(eSpells::Stun))
+                if (!l_Target->HasAura(eSpells::Stun) && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                     l_AreaTriggerCaster->CastSpell(l_Target, eSpells::Stun, true);
             }
         }

@@ -82,20 +82,34 @@ class WorldServerSignalHandler : public JadeCore::SignalHandler
 class FreezeDetectorRunnable : public ACE_Based::Runnable
 {
 public:
-    FreezeDetectorRunnable() { _delaytime = 0; }
+    FreezeDetectorRunnable()
+    {
+        m_Delaytime = 0;
+        m_CanStop = false;
+    }
+
     uint32 m_loops, m_lastchange;
     uint32 w_loops, w_lastchange;
-    uint32 _delaytime;
-    void SetDelayTime(uint32 t) { _delaytime = t; }
+    uint32 m_Delaytime;
+
+    bool m_CanStop;
+
+    void SetDelayTime(uint32 t) { m_Delaytime = t; }
+    void SetCanStop() { m_CanStop = true; }
+
     void run(void)
     {
-        if (!_delaytime)
+        if (!m_Delaytime)
             return;
-        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", _delaytime/1000);
+
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", m_Delaytime/1000);
+
         m_loops = 0;
         w_loops = 0;
         m_lastchange = 0;
         w_lastchange = 0;
+
+        /// Protect against freeze in world loop
         while (!World::IsStopped())
         {
             ACE_Based::Thread::Sleep(1000);
@@ -108,13 +122,29 @@ public:
                 w_loops = worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(w_lastchange, curtime) > _delaytime)
+            else if (getMSTimeDiff(w_lastchange, curtime) > m_Delaytime)
             {
                 sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
                 assert(false);
                 abort();
             }
         }
+
+        /// Protect against freeze on shutdown
+        uint32 l_WorldStopTime = time(nullptr);
+
+        while (!m_CanStop)
+        {
+            ACE_Based::Thread::Sleep(1000);
+
+            if ((time(nullptr) - l_WorldStopTime) > 60)
+            {
+                sLog->outError(LOG_FILTER_WORLDSERVER, "Freeze on shutdown, kill the server!");
+                assert(false);
+                abort();
+            }
+        }
+
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
     }
 };
@@ -531,10 +561,12 @@ int Master::Run()
         soap_thread = new ACE_Based::Thread(runnable, "SoapRunnable");
     }
 
+    FreezeDetectorRunnable* fdr = nullptr;
+
     ///- Start up freeze catcher thread
     if (uint32 freeze_delay = ConfigMgr::GetIntDefault("MaxCoreStuckTime", 0))
     {
-        FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
+        fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay * 1000);
         ACE_Based::Thread freeze_thread(fdr, "FreezeDetector");
         freeze_thread.setPriority(ACE_Based::Highest);
@@ -637,6 +669,9 @@ int Master::Run()
     // for some unknown reason, unloading scripts here and not in worldrunnable
     // fixes a memory leak related to detaching threads from the module
     //UnloadScriptingModule();
+
+    if (fdr)
+        fdr->SetCanStop();
 
     // Exit the process with specified return value
     return World::GetExitCode();

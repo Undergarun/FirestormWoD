@@ -1455,9 +1455,12 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 if (l_Attacker == nullptr || l_Caster == nullptr)
                     return;
 
-                Unit* l_Target;
+                Unit* l_Target = nullptr;
                 std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
+
+                if (p_DmgInfo.GetSpellInfo())
+                    sLog->outAshran("spell_monk_touch_of_karma id : %u", p_DmgInfo.GetSpellInfo()->Id);
 
                 l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
 
@@ -1481,10 +1484,14 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 }
 
                 l_TargetList.clear();
-
                 if (l_Target)
-                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, (m_TotalAbsorbAmount / 6), l_Target);
-
+                {
+                    int32 l_Damage = p_DmgInfo.GetDamage();
+                    if (AuraEffectPtr l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0))
+                        l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
+                    l_Damage /= 6;
+                    l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
+                }
             }
 
             void Register()
@@ -2079,6 +2086,17 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 /// Remove friendly unit with already renewing mist apply
                 l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
 
+                l_FriendlyUnitList.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (!l_Caster->IsValidAssistTarget(p_Object->ToUnit()))
+                        return true;
+
+                    return false;
+                });
+
                 /// Sort friendly unit by pourcentage of health and get the most injured
                 if (l_FriendlyUnitList.size() > 1)
                 {
@@ -2409,8 +2427,8 @@ enum ChiBurstSpells
     SPELL_MONK_CHI_BURST_HEAL             = 130654,
 };
 
-/// last update : 6.1.2 19802
-/// Chi Burst - 123986
+/// last update : 6.2.3
+/// Chi Burst - 130654
 class spell_monk_chi_burst: public SpellScriptLoader
 {
     public:
@@ -2420,7 +2438,7 @@ class spell_monk_chi_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_burst_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
@@ -2432,13 +2450,12 @@ class spell_monk_chi_burst: public SpellScriptLoader
 
                 int32 l_Healing = sSpellMgr->GetSpellInfo(SPELL_MONK_CHI_BURST_HEAL)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
-                if (l_Target->GetGUID() != l_Player->GetGUID())
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_CHI_BURST_HEAL, &l_Healing, NULL, NULL, true);
+                SetHitHeal(l_Healing);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_chi_burst_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_burst_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -2632,7 +2649,7 @@ class spell_monk_tigers_lust: public SpellScriptLoader
         }
 };
 
-// Flying Serpent Kick - 115057
+/// Flying Serpent Kick - 115057
 class spell_monk_flying_serpent_kick: public SpellScriptLoader
 {
     public:
@@ -2699,7 +2716,7 @@ class spell_monk_flying_serpent_kick: public SpellScriptLoader
         }
 };
 
-// Chi Torpedo - 115008 or Chi Torpedo (3 charges) - 121828
+/// Chi Torpedo - 115008
 class spell_monk_chi_torpedo: public SpellScriptLoader
 {
     public:
@@ -3011,7 +3028,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_UnitList.size() > 1)
                 {
-                    l_UnitList.remove(p_Target);
                     l_UnitList.sort(JadeCore::HealthPctOrderPred());
                     l_UnitList.resize(1);
                 }
@@ -3505,7 +3521,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
         }
 };
 
-// Roll - 109132 or Roll (3 charges) - 121827
+// Roll - 109132
 class spell_monk_roll: public SpellScriptLoader
 {
     public:
@@ -3929,6 +3945,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 {
@@ -3939,6 +3956,17 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_fists_of_fury_stun_SpellScript);
 
+            enum eSpells
+            {
+                GlyphoftheFloatingButterfly = 159490
+            };
+
+            void HandleStun(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (GetCaster()->HasAura(eSpells::GlyphoftheFloatingButterfly))
+                    PreventHitAura();
+            }
+
             void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id, GetCaster()->GetGUID()));
@@ -3946,16 +3974,18 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_stun_SpellScript::HandleStun, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_stun_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_fists_of_fury_stun_SpellScript();
         }
 };
 
+/// Last Update 6.2.3
 /// Fists of Fury - 113656
 class spell_monk_fists_of_fury : public SpellScriptLoader
 {
@@ -3968,8 +3998,8 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Windwalker2P = 165403,
-                TigereyeBrew    = 125195
+                T17Windwalker2P             = 165403,
+                TigereyeBrew                = 125195
             };
 
             void HandleDummy(SpellEffIndex p_EffIndex)
@@ -3984,7 +4014,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -4318,7 +4348,8 @@ enum HurricaneStrikeSpells
     SPELL_MONK_HURRICANE_STRIKE_DAMAGE      = 158221
 };
 
-// Hurricane Strike - 152175
+/// Last Update 6.2.3
+/// Hurricane Strike - 152175
 class spell_monk_hurricane_strike : public SpellScriptLoader
 {
     public:
@@ -4331,10 +4362,7 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
-                {
-                    for (uint8 l_I = 1; l_I < 10; ++l_I)
-                        l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
-                }
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
             }
 
             void Register()
@@ -4349,7 +4377,8 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
         }
 };
 
-// Hurricane Strike (damage) - 158221
+/// Last Update 6.2.3
+/// Hurricane Strike (damage) - 158221
 class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 {
     public:
@@ -4358,6 +4387,11 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
         class spell_monk_hurricane_strike_damage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_monk_hurricane_strike_damage_SpellScript);
+
+            enum eSpells
+            {
+                HurricaneStrikeAura = 152175
+            };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -4391,8 +4425,19 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
                 SetHitDamage(l_Damage);
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::HurricaneStrikeAura))
+                {
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
+                }
+            }
+
             void Register()
             {
+                AfterHit += SpellHitFn(spell_monk_hurricane_strike_damage_SpellScript::HandleAfterHit);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_hurricane_strike_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_hurricane_strike_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
@@ -4649,7 +4694,6 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
-                int32 l_PctModifier = 0;
                 float l_Low = 0;
                 float l_High = 0;
 
@@ -4667,16 +4711,8 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
                 l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
-                if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
-                    l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
-
-                /// Hotfixes : 24 novembre 2015 - now deals 20% more damage while in PvP combat
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
-                    l_PctModifier += 20;
-
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
-                l_Bp += CalculatePct(l_Bp, l_PctModifier);
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
                 l_Bp = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp, SPELL_DIRECT_DAMAGE);
 
@@ -5324,7 +5360,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
                 GlyphofFreedomRoll = 159534
             };
 
-            void HandleOnHit()
+            void HandleBeforeHit()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5334,7 +5370,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnHit);
+                BeforeHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleBeforeHit);
             }
         };
 
@@ -5436,13 +5472,15 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
 
             enum eSpells
             {
-                BreathoftheSerpentHeal = 157590,
-                BreathoftheSerpentPeriodic = 157627
+                BreathoftheSerpentHeal      = 157590,
+                BreathoftheSerpentPeriodic  = 157627,
+                BreathoftheSerpentVisual    = 157636
             };
             
             enum eNPCs
             {
-                SerpentStatue = 60849
+                SerpentStatue       = 60849,
+                SerpentStatueVisual = 78065
             };
 
             void HandleCast()
@@ -5454,7 +5492,10 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
 
                 std::list<Creature*> l_TempList;
                 std::list<Creature*> l_StatueList;
+                std::list<Creature*> l_TempListVisual;
+                std::list<Creature*> l_StatueListVisual;
                 Creature* l_Statue = nullptr;
+                Creature* l_StatueVisual = nullptr;
 
                 l_Player->GetCreatureListWithEntryInGrid(l_TempList, eNPCs::SerpentStatue, 100.0f);
                 l_Player->GetCreatureListWithEntryInGrid(l_StatueList, eNPCs::SerpentStatue, 100.0f);
@@ -5477,7 +5518,33 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
                     if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
                     {
                         if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == l_Player->GetGUID())
-                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentPeriodic, true);
+                            l_Statue->CastSpell(l_Statue, eSpells::BreathoftheSerpentVisual, true, 0, 0, l_Player->GetGUID());
+                    }
+                }
+
+                /// Select visual statue
+                l_Player->GetCreatureListWithEntryInGrid(l_TempListVisual, eNPCs::SerpentStatueVisual, 100.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_StatueListVisual, eNPCs::SerpentStatueVisual, 100.0f);
+
+                /// Remove other players visual statue
+                for (std::list<Creature*>::iterator i = l_TempListVisual.begin(); i != l_TempListVisual.end(); ++i)
+                {
+                    Unit* l_Owner = (*i)->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == l_Player->GetGUID() && (*i)->isSummon())
+                        continue;
+
+                    l_StatueListVisual.remove((*i));
+                }
+
+                if (l_StatueListVisual.size() == 1)
+                {
+                    for (auto itrBis : l_StatueListVisual)
+                        l_StatueVisual = itrBis;
+
+                    if (l_StatueVisual)
+                    {
+                        if (l_StatueVisual->GetOwner() && l_StatueVisual->GetOwner()->GetGUID() == l_Player->GetGUID())
+                            l_StatueVisual->CastSpell(l_StatueVisual, eSpells::BreathoftheSerpentPeriodic, true);
                     }
                 }
             }
@@ -5504,7 +5571,7 @@ class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_breath_of_the_serpent_heal_SpellScript);
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -5515,9 +5582,10 @@ class spell_monk_breath_of_the_serpent_heal : public SpellScriptLoader
                 if (Unit* l_Owner = l_Caster->GetOwner())
                 {
                     int32 l_Heal = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC);
-                    l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, p_EffIndex, HEAL);
+                    l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
                     l_Heal = l_Target->SpellHealingBonusTaken(l_Owner, GetSpellInfo(), l_Heal, HEAL);
-                    SetHitHeal(l_Heal);
+                    l_Owner->HealBySpell(l_Target, GetSpellInfo(), l_Heal, GetSpell()->IsCritForTarget(l_Target), false);
+                    SetHitHeal(0);
                 }
             }
 
@@ -5556,14 +5624,37 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
                 if (l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                /* Get SPELL_ATTR1_CHANNEL_TRACK_TARGET, so normally statue has to follow owner but doen't */
-                /*l_Target->SetOrientation(l_Target->GetAngle(l_Caster));*/
-                l_Target->CastSpell(l_Target, eSpells::BreathoftheSerpentHeal, true);
+                if (Unit* l_Owner = l_Caster->GetSpellModOwner())
+                {
+                    l_Caster->SetOrientation(l_Caster->GetAngle(l_Owner));
+                    l_Caster->SetFacingTo(l_Caster->GetAngle(l_Owner));
+                    l_Target->CastSpell(l_Owner, eSpells::BreathoftheSerpentHeal, true);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Owner = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                uint32 l_SpellId = GetTargetApplication()->GetBase()->GetId();
+
+                if (l_RemoveMode != AURA_REMOVE_BY_CANCEL || !l_SpellId)
+                    return;
+
+                /// Remove aura from statue too
+                if (l_Owner->HasAura(l_SpellId))
+                    l_Owner->RemoveAura(l_SpellId);
             }
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_monk_breath_of_the_serpent_tick_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

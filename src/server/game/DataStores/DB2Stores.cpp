@@ -137,7 +137,7 @@ DB2Storage <AreaGroupMemberEntry>         sAreaGroupMemberStore(AreaGroupMemberE
 DB2Storage <AuctionHouseEntry>            sAuctionHouseStore(AuctionHouseEntryfmt);
 DB2Storage <BarberShopStyleEntry>         sBarberShopStyleStore(BarberShopStyleEntryfmt);
 DB2Storage <CharStartOutfitEntry>         sCharStartOutfitStore(CharStartOutfitEntryfmt);
-DB2Storage <ChrPowerTypesEntry>           sChrPowerTypesStore(ChrClassesXPowerTypesfmt);
+DB2Storage <ChrClassXPowerTypesEntry>     sChrClassXPowerTypesStore(ChrClassesXPowerTypesfmt);
 DB2Storage <CinematicSequencesEntry>      sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DB2Storage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DB2Storage <CreatureTypeEntry>            sCreatureTypeStore(CreatureTypefmt);
@@ -192,6 +192,9 @@ TaxiMask sOldContinentsNodesMask;
 TaxiMask sHordeTaxiNodesMask;
 TaxiMask sAllianceTaxiNodesMask;
 TaxiMask sDeathKnightTaxiNodesMask;
+
+std::set<ResearchSiteEntry const*>      sResearchSiteSet;
+std::set<ResearchProjectEntry const*>   sResearchProjectSet;
 
 SpellTotemMap       sSpellTotemMap;
 MountCapabilitiesMap sMountCapabilitiesMap;
@@ -426,7 +429,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sAuctionHouseStore,           db2Path, "AuctionHouse.db2");                                                 // 17399
     LoadDB2(bad_db2_files,  sBarberShopStyleStore,        db2Path, "BarberShopStyle.db2");                                              // 17399
     LoadDB2(bad_db2_files,  sCharStartOutfitStore,        db2Path, "CharStartOutfit.db2");                                              // 17399
-    LoadDB2(bad_db2_files,  sChrPowerTypesStore,          db2Path, "ChrClassesXPowerTypes.db2");                                        // 17399
+    LoadDB2(bad_db2_files,  sChrClassXPowerTypesStore,    db2Path, "ChrClassesXPowerTypes.db2");                                        // 17399
     LoadDB2(bad_db2_files,  sCinematicSequencesStore,     db2Path, "CinematicSequences.db2");                                           // 17399
     LoadDB2(bad_db2_files,  sCreatureDisplayInfoStore,    db2Path, "CreatureDisplayInfo.db2");                                          // 17399
     LoadDB2(bad_db2_files,  sCreatureTypeStore,           db2Path, "CreatureType.db2");                                                 // 17399
@@ -470,9 +473,9 @@ void LoadDB2Stores(const std::string& dataPath)
 
     sPowersByClassStore.resize(MAX_CLASSES);
 
-    for (uint32 l_I = 0; l_I <= sChrPowerTypesStore.GetNumRows(); ++l_I)
+    for (uint32 l_I = 0; l_I <= sChrClassXPowerTypesStore.GetNumRows(); ++l_I)
     {
-        ChrPowerTypesEntry const* l_PowerEntry = sChrPowerTypesStore.LookupEntry(l_I);
+        ChrClassXPowerTypesEntry const* l_PowerEntry = sChrClassXPowerTypesStore.LookupEntry(l_I);
         if (!l_PowerEntry)
             continue;
 
@@ -481,9 +484,6 @@ void LoadDB2Stores(const std::string& dataPath)
 
     for (int l_Class = 0; l_Class < MAX_CLASSES; ++l_Class)
         std::sort(sPowersByClassStore[l_Class].begin(), sPowersByClassStore[l_Class].end());
-
-    std::set<ResearchSiteEntry const*> sResearchSiteSet;
-    std::set<ResearchProjectEntry const*> sResearchProjectSet;
 
     for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
     {

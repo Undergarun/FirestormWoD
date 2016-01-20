@@ -893,8 +893,7 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || l_SpellInfo->Id == 76856) ///< Mastery : Unshackled Fury
+                    if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2)) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
@@ -1077,7 +1076,11 @@ float Player::GetRegenForPower(Powers p_Power)
         /// Client calculate this value itself, i don't know how, it has base value 5, but it should be 4, so just -1.0f
         /// I've done some tests and now it's fine, please don't touch, just if server version is changed and client-part value is fixed
         case Powers::POWER_FOCUS:
-            return -1.0f;
+            /// Steady Focus increase focus regen, i don't want to remove a hack with return -1 because it works fine
+            if (HasAura(177668))
+                return 1.0f;
+            else
+                return -1.0f;
         case Powers::POWER_ENERGY:
         case Powers::POWER_RUNES:
             l_BaseRegen = 10.0f;
@@ -1545,7 +1548,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
     float l_SpellPower            = l_BaseValue;
     float l_AttackPowerMultiplier = 1.f;
 
-    PetStatInfo const* l_PetStat = GetPetStat();
+    PetStatInfo const* l_PetStat = GetPetStat(true);
     if (l_PetStat != nullptr)
     {
         switch (l_PetStat->m_PowerStat)

@@ -101,6 +101,7 @@ struct PetBattleAbilityEffect
     bool Execute();
 
     bool HandleNull() { return false; }
+    bool HandleDummy();
 
     bool HandleSetState();
     bool HandleDamage();
@@ -166,6 +167,8 @@ struct PetBattleAbilityEffect
     bool HandleCheckFailure();
     bool HandleTryRevive();
     bool HandleDamagePercentTaken();
+    bool HandleDamageUnk();
+    bool HandleDamageWithBonus();
 };
 
 #endif

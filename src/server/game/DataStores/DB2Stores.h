@@ -134,7 +134,7 @@ extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
 extern DB2Storage <AuctionHouseEntry>            sAuctionHouseStore;
 extern DB2Storage <BarberShopStyleEntry>         sBarberShopStyleStore;
 extern DB2Storage <CharStartOutfitEntry>         sCharStartOutfitStore;
-extern DB2Storage <ChrPowerTypesEntry>           sChrPowerTypesStore;
+extern DB2Storage <ChrClassXPowerTypesEntry>     sChrClassXPowerTypesStore;
 extern DB2Storage <CinematicSequencesEntry>      sCinematicSequencesStore;
 extern DB2Storage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
 extern DB2Storage <CreatureTypeEntry>            sCreatureTypeStore;
@@ -279,7 +279,7 @@ typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;
 
-#define TaxiMaskSize 215
+#define TaxiMaskSize 217
 typedef uint8 TaxiMask[TaxiMaskSize];
 
 extern TaxiMask                                  sTaxiNodesMask;

@@ -888,18 +888,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 53478: // Last Stand (Tenacity)
                     m_caster->CastSpell(m_caster, 53479, true);
                     break;
-                case 51753: // Camouflage
-                    m_caster->CastSpell(m_caster, 51755, true);
-                    m_caster->CastSpell(m_caster, 80326, true);
-
-                    if (m_caster->isInCombat())
-                        if (AuraPtr camouflage = m_caster->GetAura(51755))
-                            camouflage->SetDuration(6000);
-
-                    if (Unit* pet = m_caster->GetGuardianPet())
-                        pet->CastSpell(pet, 51753, true);
-
-                    break;
                 case 63487: // Ice Trap
                     if (Unit* owner = m_caster->GetOwner())
                         owner->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), 13810, true);
@@ -1427,6 +1415,10 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
         case 49376: ///< Wild Charge
             m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
             break;
+        case 156220: ///< Tactical Retreat
+        case 156883: ///< Tactical Retreat (Other)
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
+            break;
         default:
             m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_caster->GetOrientation(), m_spellInfo->Id);
             break;
@@ -1464,47 +1456,64 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     uint8 uiMaxSafeLevel = 0;
     switch (m_spellInfo->Id)
     {
-    case 48129:  ///< Scroll of Recall
-        uiMaxSafeLevel = 40;
-    case 60320:  ///< Scroll of Recall II
-        if (!uiMaxSafeLevel)
-            uiMaxSafeLevel = 70;
-    case 60321:  ///< Scroll of Recal III
-        if (!uiMaxSafeLevel)
-            uiMaxSafeLevel = 80;
+        case 556: ///< Astral Recall
+            if (unitTarget->HasAura(147787) && unitTarget->ToPlayer()) ///< Glyph of Astral Fixation
+            {
+                if (unitTarget->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+                    destTarget = new WorldLocation(0, -8833.07f, 622.778f, 93.9317f, 0.6771f);
+                else
+                    destTarget = new WorldLocation(1, 1569.97f, -4397.41f, 16.0472f, 0.543025f);
+            }
+            break;
+        case 18960: ///< Teleport: Moonglade
+            if (unitTarget->GetZoneId() == 493 && unitTarget->GetMapId() == 1) ///< Moonglade, Kalimdor
+            {
+                WorldLocation l_Loc = unitTarget->ToPlayer()->GetPreviousLocation();
+                if (l_Loc.GetMapId() != MAPID_INVALID)
+                    destTarget = &l_Loc;
+            }
+            break;
+        case 48129:  ///< Scroll of Recall
+            uiMaxSafeLevel = 40;
+        case 60320:  ///< Scroll of Recall II
+            if (!uiMaxSafeLevel)
+                uiMaxSafeLevel = 70;
+        case 60321:  ///< Scroll of Recal III
+            if (!uiMaxSafeLevel)
+                uiMaxSafeLevel = 80;
 
-        if (unitTarget->getLevel() > uiMaxSafeLevel)
-        {
-            unitTarget->AddAura(60444, unitTarget); //Apply Lost! Aura
+            if (unitTarget->getLevel() > uiMaxSafeLevel)
+            {
+                unitTarget->AddAura(60444, unitTarget); //Apply Lost! Aura
 
-            // ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
+                // ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
 
-            uint32 spellId = 60323;
-            if (m_caster->ToPlayer()->GetTeam() == HORDE)
-                spellId += 5;
-            spellId += urand(0, 7);
-            m_caster->CastSpell(m_caster, spellId, true);
-            return;
-        }
-        break;
-    case 66550: // teleport outside (Isle of Conquest)
-        if (Player* target = unitTarget->ToPlayer())
-        {
-            if (target->GetTeamId() == TEAM_ALLIANCE)
-                m_targets.SetDst(442.24f, -835.25f, 44.30f, 0.06f, 628);
-            else
-                m_targets.SetDst(1120.43f, -762.11f, 47.92f, 2.94f, 628);
-        }
-        break;
-    case 66551: // teleport inside (Isle of Conquest)
-        if (Player* target = unitTarget->ToPlayer())
-        {
-            if (target->GetTeamId() == TEAM_ALLIANCE)
-                m_targets.SetDst(389.57f, -832.38f, 48.65f, 3.00f, 628);
-            else
-                m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
-        }
-        break;
+                uint32 spellId = 60323;
+                if (m_caster->ToPlayer()->GetTeam() == HORDE)
+                    spellId += 5;
+                spellId += urand(0, 7);
+                m_caster->CastSpell(m_caster, spellId, true);
+                return;
+            }
+            break;
+        case 66550: // teleport outside (Isle of Conquest)
+            if (Player* target = unitTarget->ToPlayer())
+            {
+                if (target->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.SetDst(442.24f, -835.25f, 44.30f, 0.06f, 628);
+                else
+                    m_targets.SetDst(1120.43f, -762.11f, 47.92f, 2.94f, 628);
+            }
+            break;
+        case 66551: // teleport inside (Isle of Conquest)
+            if (Player* target = unitTarget->ToPlayer())
+            {
+                if (target->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.SetDst(389.57f, -832.38f, 48.65f, 3.00f, 628);
+                else
+                    m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
+            }
+            break;
     }
 
     // If not exist data for dest location - return
@@ -7638,7 +7647,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     std::vector<uint32> l_Items;
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
 
-    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
+    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + (l_Player->GetBonusRollFails() * 2);
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
 
     if (l_IsBGReward)
@@ -7677,7 +7686,30 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
 
         if (roll_chance_i(l_DropChance) && !l_Items.empty())
         {
-            l_Player->AddItem(l_Items[0], 1);
+            std::vector<uint32> l_Bonuses;
+            std::list<uint32> l_OtherBonuses;
+
+            uint32 l_ItemID = l_Items[0];
+
+            switch (l_Player->GetMap()->GetDifficultyID())
+            {
+                case Difficulty::DifficultyRaidNormal:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+                    break;
+                case Difficulty::DifficultyRaidHeroic:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidHeroic, l_Bonuses);
+                    break;
+                case Difficulty::DifficultyRaidMythic:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidMythic, l_Bonuses);
+                    break;
+                default:
+                    break;
+            }
+
+            for (uint32 l_Bonus : l_Bonuses)
+                l_OtherBonuses.push_back(l_Bonus);
+
+            l_Player->AddItem(l_Items[0], 1, l_OtherBonuses);
             l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
 
             if (!l_IsBGReward)
@@ -7697,8 +7729,6 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             l_Player->GetSession()->SendPacket(&l_Data);
         }
     }
-
-    l_Player->ModifyCurrency(m_spellInfo->CurrencyID, -int32(m_spellInfo->CurrencyCount), false);
 }
 
 void Spell::EffectDeathGrip(SpellEffIndex effIndex)

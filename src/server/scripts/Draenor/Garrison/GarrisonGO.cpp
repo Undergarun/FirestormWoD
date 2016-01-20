@@ -153,10 +153,7 @@ namespace MS { namespace Garrison
             else if (l_RewardItemID == 114999) ///< Barn Somptuous Fur, itemID from dbc is wrong
                 l_RewardItemID = 111557;
             else if (l_RewardItemID == 122589) ///< Mage Tower/Spirit Lodge reward, needs custom handling
-            {
                 l_RewardItemID = 122514;
-                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(1, 5));
-            }
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
@@ -184,6 +181,9 @@ namespace MS { namespace Garrison
                     p_Player->SendDisplayToast(l_RewardItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
                     l_ToastStatus[l_RewardItemID] = true;
                 }
+
+                if (l_RewardItemID == 122514)
+                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(1, 5));
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }

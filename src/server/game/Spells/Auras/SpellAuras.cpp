@@ -2102,24 +2102,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (caster && caster->HasAura(56845))
                         target->CastSpell(target, 61394, true);
                 }
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case 51753: ///< Camouflage
-                    {
-                        if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        if (Pet* l_Pet = caster->ToPlayer()->GetPet())
-                        {
-                            l_Pet->RemoveAura(GetSpellInfo()->Id);
-                            l_Pet->RemoveAura(80325);
-                        }
-
-                        break;
-                    }
-                }
-
                 break;
             }
             case SPELLFAMILY_SHAMAN:
@@ -3457,4 +3439,15 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
                 targets[*itr] = 1<<effIndex;
         }
     }
+}
+
+void Aura::Delink()
+{
+    for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+    {
+        m_effects[i].reset();
+        m_effects[i] = nullptr;
+    }
+
+    _DeleteRemovedApplications();
 }

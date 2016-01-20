@@ -1239,14 +1239,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
 uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 {
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS) || m_spellInfo->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         return p_Amount;
 
-    float l_Minval = (float)p_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-    float l_Maxval = (float)p_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
     /// Apply bonus absorption
-    float l_TotalMod = l_Minval + l_Maxval;
+    float l_TotalMod = (float)p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
 
     /// Apply Versatility absorb bonus
     if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
@@ -1963,10 +1960,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                 target->RemoveAura(159687);
 
             break;
-        case FORM_SPIRITOFREDEMPTION:
-            spellId  = 27792;
-            spellId2 = 27795;                               // must be second, this important at aura remove to prevent to early iterator invalidation.
-            break;
         case FORM_SHADOW:
             if (target->HasAura(107906)) // Glyph of Shadow
                 spellId2 = 107904;
@@ -2302,40 +2295,44 @@ void AuraEffect::HandleModStealthLevel(AuraApplication const* aurApp, uint8 mode
     target->UpdateObjectVisibility();
 }
 
-void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = aurApp->GetTarget();
+    Unit* l_Target = p_AurApp->GetTarget();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // prepare spirit state
-    if (apply)
+    if (p_Apply)
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (l_Target->GetTypeId() == TYPEID_PLAYER)
         {
             // disable breath/etc timers
-            target->ToPlayer()->StopMirrorTimers();
+            l_Target->ToPlayer()->StopMirrorTimers();
 
             // set stand state (expected in this form)
-            if (!target->IsStandState())
-                target->SetStandState(UNIT_STAND_STATE_STAND);
+            if (!l_Target->IsStandState())
+                l_Target->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
-        target->SetHealth(1);
+        l_Target->SetFullHealth();
     }
     // die at aura end
-    else if (target->isAlive())
+    else if (l_Target->isAlive())
+    {
         // call functions which may have additional effects after chainging state of unit
-        target->setDeathState(JUST_DIED);
+        l_Target->setDeathState(JUST_DIED);
+    }
 
-    if (apply)
-        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    l_Target->SetControlled(p_Apply, UNIT_STATE_ROOT);
+
+    if (p_Apply)
+        l_Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
     else
-        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        l_Target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 }
 
 void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3158,6 +3155,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
             break;
     }
 
+    /// Glyph of Strangulate - 58618
+    /// Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
+    if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
+    {
+        p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
+        p_AurApp->GetBase()->RefreshDuration();
+    }
+
     if (p_Apply)
     {
         l_Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
@@ -3173,14 +3178,6 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
                 if (spell->m_spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::Pacify))
                     l_Target->InterruptSpell(CurrentSpellTypes(i), false);
             }
-        }
-
-        // Glyph of Strangulate - 58618
-        // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
-        {
-            p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
-            p_AurApp->GetBase()->RefreshDuration();
         }
 
         /// Item - Warlock WoD PvP Affliction 2P Bonus
@@ -3481,24 +3478,6 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
 
             l_DisplayId = l_MountEntry->CreatureDisplayID;
             break;
-        }
-
-        /// Hackfix for somes mount unavailable on retail (data aren't)
-        /// But we need it because we sell it on the shop
-        switch (GetId())
-        {
-            case 171630:                ///< Armored Razorback
-                l_DisplayId = 59346;
-                break;
-            case 171619:                ///< Tundra Icehoof
-                l_DisplayId = 53307;
-                break;
-            case 171826:
-                l_DisplayId = 59746;    ///< Mudback Riverbeast
-                break;
-            case 171837:
-                l_DisplayId = 59536;    ///< Warsong Direfang
-                break;
         }
 
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
@@ -4092,17 +4071,6 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     Unit* target = aurApp->GetTarget();
     if (!target)
         return;
-
-    switch (m_spellInfo->Id)
-    {
-        case 114868:// Soul Reaper - Haste
-            // Don't increase speed if caster doesn't have glyph
-            if (!target->HasAura(146645))
-                return;
-            break;
-        default:
-            break;
-    }
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
@@ -6652,14 +6620,11 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
             if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
 
-            if (!player->GetRuneCooldown(i))
-            {
-                player->AddRuneBySpell(i, rune, GetId());
-                if (permanently)
-                    player->SetRuneConvertType(i, permanently);
+            player->AddRuneBySpell(i, rune, GetId());
+            if (permanently)
+                player->SetRuneConvertType(i, permanently);
 
-                --runes;
-            }
+            --runes;
         }
     }
     else
@@ -6959,18 +6924,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         {
             switch (GetSpellInfo()->Id)
             {
-                // Camouflage
-                case 80326:
-                {
-                    if ((caster->isMoving() && !caster->HasAura(119449)) || caster->HasAura(80325))
-                        return;
-
-                    if (caster->HasAura(119449) || (caster->GetOwner() && caster->GetOwner()->HasAura(119449)))
-                        caster->CastSpell(caster, 119450, true);
-                    else
-                        caster->CastSpell(caster, 80325, true);
-                    break;
-                }
                 // Feeding Frenzy Rank 1
                 case 53511:
                     if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
@@ -7483,7 +7436,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
 
         /// Poisoned Ammo
-        if (GetSpellInfo()->Id == 162543)
+        if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);
 
@@ -8367,7 +8320,7 @@ void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode
     // Asphyxiate
     if (m_spellInfo->Id == 108194)
     {
-        int32 newZ = 5;
+        float newZ = 4.9f;
         target->SetControlled(apply, UNIT_STATE_STUNNED);
 
         if (apply)

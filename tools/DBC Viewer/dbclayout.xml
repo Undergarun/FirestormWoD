@@ -701,6 +701,7 @@
     <field type="int" name="m_soundID" />
     <field type="int" name="m_extendedDisplayInfoID" />
     <field type="float" name="m_creatureModelScale" />
+    <field type="float" name="unk620" />
     <field type="int" name="m_creatureModelAlpha" />
     <field type="string" name="m_textureVariation_1" />
     <field type="string" name="m_textureVariation_2" />
@@ -717,7 +718,6 @@
     <field type="int" name="m_flags" />
     <field type="int" name="m_gender" />
     <field type="int" name="m_stateSpellVisualKitID" />
-    <field type="int" name="newField" />
   </CreatureDisplayInfo>
   <CreatureFamily build="0">
     <index>
@@ -5937,7 +5937,7 @@
     <field type="int" name="map" />
     <field type="int" name="Difficulty" />
     <field type="int" name="ZoneID" />
-    <field type="int" name="field10" />
+    <field type="int" name="Type" />
     <field type="int" name="field11" />
     <field type="int" name="maxplayers" />
     <field type="string" name="Name" />
@@ -6445,25 +6445,25 @@
   </LfgDungeonGroup>
   <LfgDungeons build="20182">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
-    <field type="int" name="field11" />
-    <field type="int" name="field12" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+    <field type="int" name="minLevel" />
+    <field type="int" name="maxLevel" />
+    <field type="int" name="recLevel" />
+    <field type="int" name="recMinLevel" />
+    <field type="int" name="recMaxLevel" />
+    <field type="int" name="map" />
+    <field type="int" name="difficulty" />
+    <field type="int" name="flags" />
+    <field type="int" name="type" />
+    <field type="int" name="faction" />
+    <field type="string" name="texturefilename" />
+    <field type="int" name="exp" />
+    <field type="int" name="orderIndex" />
+    <field type="int" name="groupType" />
+    <field type="int" name="description" />
     <field type="int" name="field17" />
     <field type="int" name="field18" />
     <field type="int" name="field19" />
@@ -6895,4 +6895,13 @@
     <field type="int" name="field7" />
     <field type="int" name="field8" />
   </SpellScaling>
+  <RulesetItemUpgrade build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="unk" />
+    <field type="int" name="itemupgradeid" />
+    <field type="int" name="itemid" />
+  </RulesetItemUpgrade>
 </DBFilesClient>

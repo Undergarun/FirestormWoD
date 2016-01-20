@@ -1578,9 +1578,6 @@ class spell_dru_cat_form: public SpellScriptLoader
                 if (l_Target->HasAura(eSpells::Prowl))
                     l_Target->RemoveAura(eSpells::Prowl);
 
-                if (l_Target->HasAura(eSpells::DesplacerBeast))
-                    l_Target->RemoveAura(eSpells::DesplacerBeast);
-
                 /// When we remove cat form dash shouldn't increase movement speed
                 if (AuraEffectPtr l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
                     l_DashAura->SetAmount(0);
@@ -2068,34 +2065,6 @@ class spell_dru_faerie_fire: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_faerie_fire_SpellScript();
-        }
-};
-
-/// Teleport : Moonglade - 18960
-class spell_dru_teleport_moonglade: public SpellScriptLoader
-{
-    public:
-        spell_dru_teleport_moonglade() : SpellScriptLoader("spell_dru_teleport_moonglade") { }
-
-        class spell_dru_teleport_moonglade_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_teleport_moonglade_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->TeleportTo(1, 7964.063f, -2491.099f, 487.83f, l_Player->GetOrientation());
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_dru_teleport_moonglade_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_teleport_moonglade_SpellScript();
         }
 };
 
@@ -3829,6 +3798,7 @@ enum SpellsFerociousBite
     SPELL_DRUID_RIP = 1079
 };
 
+/// Last Update 6.2.3
 /// Ferocious Bite - 22568
 class spell_dru_ferocious_bite: public SpellScriptLoader
 {
@@ -3840,6 +3810,8 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
             PrepareSpellScript(spell_dru_ferocious_bite_SpellScript);
 
             int32 m_SpellCost = 25;
+            int32 m_EnergyConsumedExtra = 0;
+            bool m_IsFreeCost = false;
 
             void HandleOnPrepare()
             {
@@ -3847,6 +3819,9 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 if (l_Caster->HasAura(SpellsFerociousBite::SPELL_DRUID_BERSEK))
                     m_SpellCost = 12;
+
+                if (l_Caster->HasAura(135700))
+                    m_IsFreeCost = true;
             }
 
             void HandleOnHit()
@@ -3869,6 +3844,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 AddPct(l_Damage, l_EnergyConsumed * (100 / m_SpellCost));
                 SetHitDamage(l_Damage);
 
+                m_EnergyConsumedExtra = l_EnergyConsumed;
                 /// Glyph of Ferocious Bite
                 if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
@@ -3883,10 +3859,21 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Rip->RefreshDuration();
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                if (m_IsFreeCost)
+                {
+                    l_Caster->SetPower(POWER_ENERGY, l_Caster->GetPower(POWER_ENERGY) + m_EnergyConsumedExtra);
+                    m_IsFreeCost = false;
+                }
+            }
+
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_dru_ferocious_bite_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleAfterHit);
             }
         };
 
@@ -3968,9 +3955,37 @@ class spell_dru_rip: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_rip_AuraScript);
 
+            uint32 m_PreviousTick = 0;
+
+            void OnReApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                    m_PreviousTick = ((l_AurEff->GetAmount() * (l_AurEff->GetBase()->GetDuration() / l_AurEff->GetAmplitude())) / (p_AurEff->GetBase()->GetMaxDuration() / p_AurEff->GetAmplitude()));
+
+            }
+
+            void AfterReApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                    l_AurEff->SetAmount(l_AurEff->GetAmount() + m_PreviousTick);
+            }
+
             void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+
                 if (l_Caster == nullptr)
                     return;
 
@@ -3982,6 +3997,8 @@ class spell_dru_rip: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_rip_AuraScript::OnReApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_rip_AuraScript::AfterReApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
@@ -4352,6 +4369,20 @@ class spell_dru_healing_touch: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_healing_touch_SpellScript);
 
+            enum eSpells
+            {
+                BearForm = 5487
+            };
+
+            void HandleOnPrepare()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                /// Healing Touch no longer cancels Bear Form for Guardian Druids.
+                if (l_Player->HasAura(eSpells::BearForm) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_DRUID_GUARDIAN)
+                    l_Player->RemoveAura(eSpells::BearForm);
+            }
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -4364,6 +4395,7 @@ class spell_dru_healing_touch: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_dru_healing_touch_SpellScript::HandleOnPrepare);
                 OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
             }
         };
@@ -5696,7 +5728,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_stampeding_roar();
     new spell_dru_lacerate();
     new spell_dru_faerie_fire();
-    new spell_dru_teleport_moonglade();
     new spell_dru_eclipse();
     new spell_dru_eclipse_mod_damage();
     new spell_dru_moonfire();

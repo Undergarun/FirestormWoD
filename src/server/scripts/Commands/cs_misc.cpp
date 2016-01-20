@@ -131,6 +131,7 @@ class misc_commandscript: public CommandScript
                 { "wargame",            SEC_GAMEMASTER,     false,  &HandleWargameCommand,          "", NULL },
                 { "chatfilter",         SEC_PLAYER,         false,  &HandleToggleChatFiltering,     "", NULL },
                 { "lastbuild",          SEC_MODERATOR,      false,  &HandleLastBuildCommand,        "", NULL },
+                { "initlfg",            SEC_ADMINISTRATOR,  false,  &HandleInitializeLFGCommand,    "", NULL },
                 { NULL,                 0,                  false,  NULL,                           "", NULL }
             };
             return commandTable;
@@ -140,6 +141,18 @@ class misc_commandscript: public CommandScript
         {
             /// Get last build from last time modified information
             p_Handler->PSendSysMessage("Last core build: %s", sWorld->GetLastBuildInfo().timeStr.data());
+            return true;
+        }
+
+        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_Player = p_Handler->getSelectedPlayer();
+
+            if (!l_Player)
+                return false;
+
+            sLFGMgr->InitializeLockedDungeons(l_Player);
+
             return true;
         }
 
@@ -153,12 +166,12 @@ class misc_commandscript: public CommandScript
             if (l_PlayerSession->HasCustomFlags(AccountCustomFlags::NoChatLocaleFiltering))
             {
                 l_PlayerSession->UnsetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
-                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_OFF);
+                p_Handler->SendSysMessage(TrinityStrings::ChatFilteringOff);
             }
             else
             {
                 l_PlayerSession->SetCustomFlags(AccountCustomFlags::NoChatLocaleFiltering);
-                p_Handler->SendSysMessage(LANG_CHANNEL_CHAT_LOCALE_FILTERING_ON);
+                p_Handler->SendSysMessage(TrinityStrings::ChatFilteringOn);
             }
 
             if (l_PlayerSession->GetPlayer())
@@ -411,6 +424,29 @@ class misc_commandscript: public CommandScript
                 object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
                 cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
                 zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
+
+#ifdef WIN32
+            char   l_Buffer[120];
+            char * lPtrData = nullptr;
+
+            sprintf(l_Buffer, "%.4f, %.4f, %.4f, ", object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+
+            HANDLE l_Handle;
+
+            int l_BufferSize = strlen(l_Buffer);
+
+            l_Handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, l_BufferSize + 1);
+
+            lPtrData = (char*)GlobalLock(l_Handle);
+            memcpy(lPtrData, l_Buffer, l_BufferSize + 1);
+
+            GlobalUnlock(l_Handle);
+
+            OpenClipboard(nullptr);
+            EmptyClipboard();
+            SetClipboardData(CF_TEXT, l_Handle);
+            CloseClipboard();
+#endif
 
             LiquidData liquidStatus;
             ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);

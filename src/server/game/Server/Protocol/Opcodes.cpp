@@ -1434,6 +1434,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_MOVE_HOVER_ACK,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK,                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            , PROCESS_DISTANT_IF_NEED);
 
     //////////////////////////////////////////////////////////////////////////
     /// Group

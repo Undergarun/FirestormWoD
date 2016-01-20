@@ -22,7 +22,7 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-char const AnimKitfmt[] = "nxxx";
+char const AnimKitfmt[]                       = "nxxx";
 const char AreaTableEntryfmt[]                = "iiinixxxxxxxisiiiiixxxxxxxxxx";
 const char AreaTriggerEntryfmt[]              = "nifffxxxfffffxxxx";
 const char ArmorLocationfmt[]                 = "nfffff";
@@ -37,9 +37,8 @@ const char CinematicCameraEntryfmt[]          = "nsiffff";
 char const CreatureDisplayInfoExtrafmt[]      = "dixxxxxxxxxxxxxxxxxxxx";
 const char CreatureModelDatafmt[]             = "nixxxxxxxxxxxxxffxxxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]                = "nfifiiiiixsx";
-const char CreatureSpellDatafmt[]             = "niiiixxxx";
 const char DifficultyEntryfmt[]               = "niiiiiiiiiisix";
-const char DungeonEncounterfmt[]              = "iiiiisiii";
+const char DungeonEncounterfmt[]              = "niiiisiii";
 const char DurabilityCostsfmt[]               = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char EmotesEntryfmt[]                   = "nsiiiiii";
 const char EmotesTextEntryfmt[]               = "nxixxxxxxxxxxxxxxxx";
@@ -57,10 +56,8 @@ const char GtChanceToMeleeCritBasefmt[]       = "xf";
 const char GtChanceToMeleeCritfmt[]           = "xf";
 const char GtChanceToSpellCritBasefmt[]       = "xf";
 const char GtChanceToSpellCritfmt[]           = "xf";
-const char GtOCTClassCombatRatingScalarfmt[]  = "df";
 const char GtOCTLevelExperiencefmt[]          = "nf";
 const char GtOCTRegenHPfmt[]                  = "f";
-//const char GtOCTRegenMPfmt[]                ="f";
 const char GtRegenMPPerSptfmt[]               = "xf";
 const char GtSpellScalingfmt[]                = "df";
 const char GtOCTBaseHPByClassfmt[]            = "df";
@@ -72,7 +69,6 @@ const char ItemArmorShieldfmt[]               = "nifffffff";
 const char ItemArmorTotalfmt[]                = "niffff";
 const char ItemDamagefmt[]                    = "nfffffffi";
 const char gtItemSocketCostPerLevelfmt[]      = "df";
-//const char ItemDisplayInfoEntryfmt[]        = "nxxxxxxxxxxxxxxxxxxxxxx";
 const char ItemSetEntryfmt[]                  = "dsiiiiiiiiiiiiiiiiiii";
 const char LFGDungeonEntryfmt[]               = "nxiiiiiiiiixxixixiiiixxxxixxxx";
 const char LiquidTypefmt[]                    = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";

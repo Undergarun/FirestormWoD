@@ -160,11 +160,19 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    // Hack for water elemental
-    // Pet should be saved for all specs, but can be summoned only by frost mages
     if (owner->ToPlayer())
     {
+        /// Hack for water elemental
+        /// Pet should be saved for all specs, but can be summoned only by frost mages
         if (owner->getClass() == CLASS_MAGE && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_MAGE_FROST)
+        {
+            m_loading = false;
+            p_Callback(this, false);
+            return;
+        }
+        /// Hack for Raise dead
+        /// Pet should be saved for all specs, but can be summoned only by unholy dk
+        if (owner->getClass() == CLASS_DEATH_KNIGHT && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
         {
             m_loading = false;
             p_Callback(this, false);
@@ -1501,10 +1509,8 @@ void Pet::InitLevelupSpellsForLevel()
         }
     }
 
-    int32 petSpellsId = GetCreatureTemplate()->PetSpellDataId ? -(int32)GetCreatureTemplate()->PetSpellDataId : GetEntry();
-
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
-    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
+    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(int32(GetEntry())))
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {

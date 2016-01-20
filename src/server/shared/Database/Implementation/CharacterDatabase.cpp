@@ -27,7 +27,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM, "DELETE FROM guild_bank_item WHERE guildid = ? AND TabId = ? AND SlotId = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_DEL_EXPIRED_BANS, "UPDATE character_banned SET active = 0 WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate <> bandate", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_GUID_BY_NAME, "SELECT guid FROM characters WHERE BINARY name = ?", CONNECTION_BOTH);
-    PREPARE_STATEMENT(CHAR_SEL_CHECK_NAME, "SELECT 1 FROM characters WHERE BINARY name  = ?", CONNECTION_BOTH);
+    PREPARE_STATEMENT(CHAR_SEL_CHECK_NAME, "SELECT 1 FROM characters WHERE BINARY name  = ? OR BINARY deleteInfos_Name = ?", CONNECTION_BOTH);
     PREPARE_STATEMENT(CHAR_SEL_CHECK_GUID, "SELECT 1 FROM characters WHERE guid = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_SUM_CHARS, "SELECT COUNT(guid) FROM characters WHERE account = ?", CONNECTION_BOTH);
     PREPARE_STATEMENT(CHAR_SEL_CHAR_CREATE_INFO, "SELECT level, race, class FROM characters WHERE account = ? LIMIT 0, ?", CONNECTION_ASYNC);
@@ -54,7 +54,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_CHAR_PET_BY_ID, "DELETE FROM character_pet WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_INVALID_PET_SPELL, "DELETE FROM pet_spell WHERE spell = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(CHAR_SEL_FREE_NAME, "SELECT guid, name FROM characters WHERE guid = ? AND account = ? AND (at_login & ?) = ? AND NOT EXISTS (SELECT NULL FROM characters WHERE name = ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_SEL_FREE_NAME, "SELECT guid, name FROM characters WHERE guid = ? AND account = ? AND (at_login & ?) = ? AND NOT EXISTS (SELECT NULL FROM characters WHERE name = ? OR deleteInfos_Name = ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_SEL_GUID_RACE_ACC_BY_NAME, "SELECT guid, race, account FROM characters WHERE BINARY name = ?", CONNECTION_BOTH);
     PREPARE_STATEMENT(CHAR_SEL_CHAR_RACE, "SELECT race FROM characters WHERE guid = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SEL_CHAR_LEVEL, "SELECT level FROM characters WHERE guid = ?", CONNECTION_SYNCH);
@@ -78,7 +78,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     "position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
     "resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, DungeonDifficulty, "
     "totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
-    "health, power1, power2, power3, power4, power5, power6, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet  FROM characters WHERE guid = ?", CONNECTION_ASYNC)
+    "health, power1, power2, power3, power4, power5, power6, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, petslotused, grantableLevels, resetspecialization_cost, resetspecialization_time, playerFlagsEx, RaidDifficulty, LegacyRaidDifficuly, lastbattlepet, xprate FROM characters WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_GROUP_MEMBER, "SELECT guid FROM group_member WHERE memberGuid = ?", CONNECTION_BOTH)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_INSTANCE, "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_AURAS, "SELECT caster_guid, slot, spell, effect_mask, recalculate_mask, stackcount, maxduration, remaintime, remaincharges FROM character_aura WHERE guid = ?", CONNECTION_ASYNC)
@@ -418,15 +418,15 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     "extra_flags, stable_slots, at_login, zone, "
     "death_expire_time, taxi_path, totalKills, "
     "todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, health, power1, power2, power3, "
-    "power4, power5, power6, latency, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, grantableLevels, lastbattlepet) VALUES "
-    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    "power4, power5, power6, latency, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, knownTitles, actionBars, currentpetslot, grantableLevels, lastbattlepet, xprate) VALUES "
+    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_UPD_CHARACTER, "UPDATE characters SET name=?,race=?,class=?,gender=?,level=?,xp=?,money=?,playerBytes=?,playerBytes2=?,playerFlags=?,playerFlagsEx=?,"
     "map=?,instance_id=?,DungeonDifficulty=?, RaidDifficulty = ?, LegacyRaidDifficuly = ?, position_x=?,position_y=?,position_z=?,orientation=?,taximask=?,cinematic=?,totaltime=?,leveltime=?,rest_bonus=?,"
     "logout_time=?,is_logout_resting=?,resettalents_cost=?,resettalents_time=?,talentTree=?,extra_flags=?,stable_slots=?,at_login=?,zone=?,death_expire_time=?,taxi_path=?,"
     "totalKills=?,todayKills=?,yesterdayKills=?,chosenTitle=?,"
     "watchedFaction=?,drunk=?,health=?,power1=?,power2=?,power3=?,power4=?,power5=?, power6=?, latency=?,speccount=?,activespec=?,specialization1=?,specialization2=?,exploredZones=?,"
-    "equipmentCache=?,knownTitles=?,actionBars=?,currentpetslot=?,grantableLevels=?,online=?, resetspecialization_cost = ?, resetspecialization_time = ?, lastbattlepet = ? WHERE guid=?", CONNECTION_ASYNC);
+    "equipmentCache=?,knownTitles=?,actionBars=?,currentpetslot=?,grantableLevels=?,online=?, resetspecialization_cost = ?, resetspecialization_time = ?, lastbattlepet = ?, xprate = ? WHERE guid=?", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_UPD_ADD_AT_LOGIN_FLAG, "UPDATE characters SET at_login = at_login | ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_REM_AT_LOGIN_FLAG, "UPDATE characters set at_login = at_login & ~ ? WHERE guid = ?", CONNECTION_ASYNC);
@@ -741,4 +741,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(CHAR_SEL_WORLD_STATES, "SELECT `worldstate`, `value` FROM character_worldstates WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_REP_WORLD_STATES, "REPLACE INTO `character_worldstates` (`guid`, `worldstate`, `value`) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_UPD_WORLD_STATE, "UPDATE `character_worldstates` SET `value` = ? WHERE `guid` = ? and `worldstate` = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_WORLD_STATE_DATA, "DELETE FROM `character_worldstates` WHERE `guid` = ? AND `worldstate` = ? and `value` = ?", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_UPD_XP_RATE, "UPDATE characters SET xpRate = ? WHERE guid = ?", CONNECTION_ASYNC);
 }
