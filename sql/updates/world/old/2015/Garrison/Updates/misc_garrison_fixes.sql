@@ -336,3 +336,7 @@
 #14112/Trinity String
 
 	UPDATE trinity_string SET content_default = "|3ADF00FF+$1i Timber |r" WHERE entry = 14112;
+
+#36404-34193/Quest - Clearing the Garden
+
+	UPDATE quest_template SET requiredskillid = 0 WHERE id IN (36404, 34193);
