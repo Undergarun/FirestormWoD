@@ -5406,6 +5406,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[0].Amplitude = 500;
                 break;
+            case 12043:
+                spellInfo->Effects[1].Effect = 0;
+                break;
             case 122786: ///< Broken leg (HoF - #3 Garalon)
                 spellInfo->Effects[0].MiscValue = -15;
                 spellInfo->Effects[1].BasePoints = 0; ///< Cancel damages, done by Garalon' script
