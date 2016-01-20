@@ -1945,6 +1945,10 @@ class npc_mirror_image : public CreatureScript
                 events.Update(p_Diff);
 
                 Unit* l_Victim = me->getVictim();
+                Player* l_Owner = me->GetOwner()->ToPlayer();
+                if (!l_Owner)
+                    return;
+
                 if (l_Victim)
                 {
                     if (CanAIAttack(l_Victim))
@@ -1954,9 +1958,9 @@ class npc_mirror_image : public CreatureScript
                         {
                             if (uint32 l_SpellId = events.ExecuteEvent())
                             {
-                                DoCast(l_SpellId);
+                                me->CastSpell(l_Victim, l_SpellId, false);
                                 uint32 l_CastTime = me->GetCurrentSpellCastTime(l_SpellId);
-                                events.ScheduleEvent(l_SpellId, (l_CastTime ? l_CastTime : 500) + GetAISpellInfo(l_SpellId)->realCooldown);
+                                events.ScheduleEvent(l_SpellId, 0);
                             }
                         }
                     }
@@ -1978,7 +1982,12 @@ class npc_mirror_image : public CreatureScript
                         /// No target? Let's see if our owner has a better target for us
                         if (Unit* l_Owner = me->GetOwner())
                         {
-                            Unit* l_OwnerVictim = l_Owner->getVictim();
+                            Unit* l_OwnerVictim = nullptr;
+                            if (Player* l_Player = l_Owner->ToPlayer())
+                                l_OwnerVictim = l_Player->GetSelectedUnit();
+                            else
+                                l_OwnerVictim = l_Owner->getVictim();
+
                             if (l_OwnerVictim && me->canCreatureAttack(l_OwnerVictim))
                                 l_Target = l_OwnerVictim;
                         }
