@@ -1153,10 +1153,11 @@ class npc_guardian : public CreatureScript
         }
 };
 
-/*######
-## npc_mount_vendor
-######*/
+/////////////////////////
+/// npc_mount_vendor
+/////////////////////////
 
+/// Used for faction restriction on mount vendor.
 class npc_mount_vendor : public CreatureScript
 {
     public:
@@ -1173,69 +1174,78 @@ class npc_mount_vendor : public CreatureScript
 
             switch (vendor)
             {
-                case 384:                                           //Katie Hunter
-                case 1460:                                          //Unger Statforth
-                case 2357:                                          //Merideth Carlson
-                case 4885:                                          //Gregor MacVince
+                case 384:                                           ///< Katie Hunter
+                case 1460:                                          ///< Unger Statforth
+                case 2357:                                          ///< Merideth Carlson
+                case 4885:                                          ///< Gregor MacVince
                     if (player->GetReputationRank(72) != REP_EXALTED && race != RACE_HUMAN)
                         player->SEND_GOSSIP_MENU(5855, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 1261:                                          //Veron Amberstill
+                case 1261:                                          ///< Veron Amberstill
                     if (player->GetReputationRank(47) != REP_EXALTED && race != RACE_DWARF)
                         player->SEND_GOSSIP_MENU(5856, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 3362:                                          //Ogunaro Wolfrunner
+                case 3362:                                          ///< Ogunaro Wolfrunner
                     if (player->GetReputationRank(76) != REP_EXALTED && race != RACE_ORC)
                         player->SEND_GOSSIP_MENU(5841, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 3685:                                          //Harb Clawhoof
+                case 3685:                                          ///< Harb Clawhoof
                     if (player->GetReputationRank(81) != REP_EXALTED && race != RACE_TAUREN)
                         player->SEND_GOSSIP_MENU(5843, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 4730:                                          //Lelanai
+                case 4730:                                          ///< Lelanai
                     if (player->GetReputationRank(69) != REP_EXALTED && race != RACE_NIGHTELF)
                         player->SEND_GOSSIP_MENU(5844, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 4731:                                          //Zachariah Post
+                case 4731:                                          ///< Zachariah Post
                     if (player->GetReputationRank(68) != REP_EXALTED && race != RACE_UNDEAD_PLAYER)
                         player->SEND_GOSSIP_MENU(5840, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 7952:                                          //Zjolnir
+                case 7952:                                          ///< Zjolnir
                     if (player->GetReputationRank(530) != REP_EXALTED && race != RACE_TROLL)
                         player->SEND_GOSSIP_MENU(5842, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 7955:                                          //Milli Featherwhistle
+                case 7955:                                          ///< Milli Featherwhistle
                     if (player->GetReputationRank(54) != REP_EXALTED && race != RACE_GNOME)
                         player->SEND_GOSSIP_MENU(5857, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 16264:                                         //Winaestra
+                case 16264:                                         ///< Winaestra
                     if (player->GetReputationRank(911) != REP_EXALTED && race != RACE_BLOODELF)
                         player->SEND_GOSSIP_MENU(10305, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 17584:                                         //Torallius the Pack Handler
+                case 17584:                                         ///< Torallius the Pack Handler
                     if (player->GetReputationRank(930) != REP_EXALTED && race != RACE_DRAENEI)
                         player->SEND_GOSSIP_MENU(10239, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 48510:                                         //Kall Worthalon
+                case 48510:                                         ///< Kall Worthalon
                     if (player->GetReputationRank(1133) != REP_EXALTED && race != RACE_GOBLIN)
                         player->SEND_GOSSIP_MENU(30002, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 65068:                                         //Old Whitenose
-                    canBuy = true;
+                case 55285:                                         ///< Astrid Langstrump
+                    if (player->GetReputationRank(1134) != REP_EXALTED && race != RACE_WORGEN)
+                        player->SEND_GOSSIP_MENU(30002, creature->GetGUID());
+                    else canBuy = true;
                     break;
-                case 66022:                                         //Turtlemaster Odai
-                    canBuy = true;
+                case 65068:                                         ///< Old Whitenose
+                    if (player->GetReputationRank(1353) != REP_EXALTED && race != RACE_PANDAREN_ALLI)
+                        player->SEND_GOSSIP_MENU(300002, creature->GetGUID()); ///< unk id
+                    else canBuy = true;
+                    break;
+                case 66022:                                         ///< Turtlemaster Odai
+                    if (player->GetReputationRank(1352) != REP_EXALTED && race != RACE_PANDAREN_HORDE)
+                        player->SEND_GOSSIP_MENU(300002, creature->GetGUID()); ///< unk id
+                    else canBuy = true;
                     break;
             }
 
