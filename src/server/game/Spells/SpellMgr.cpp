@@ -3371,6 +3371,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
+            case 101603:    ///< Hack for Throw Totem, Echo of Baine
+            case 161710:    ///< Garrison enchanter study
+            case 160201:    ///< Garrison enchanter study
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
+                break;
+        }
+
+        switch (spellInfo->Id)
+        {
             case 105157: ///< See Quest Invis 14, Wandering Island spell
                 spellInfo->AreaGroupId = 0;
                 break;

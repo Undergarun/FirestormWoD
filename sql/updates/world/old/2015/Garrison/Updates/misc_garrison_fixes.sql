@@ -332,3 +332,7 @@
 	);
 	DELETE FROM gossip_menu_option WHERE menu_id = 92005;
 	INSERT INTO gossip_menu_option (menu_id, option_text) VALUE (92005, "Why are you here?");
+
+#14112/Trinity String
+
+	UPDATE trinity_string SET content_default = "|3ADF00FF+$1i Timber |r" WHERE entry = 14112;

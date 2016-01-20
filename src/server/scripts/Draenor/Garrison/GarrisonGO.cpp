@@ -706,6 +706,34 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 237335, 237132                                                     ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_essence_font::go_garrison_essence_font()
+        : GameObjectScript("go_garrison_essence_font")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_GameObject : Target GameObject instance
+    bool go_garrison_essence_font::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    {
+        if (p_Player)
+        {
+            p_Player->CastSpell(p_Player->ToUnit(), 161736, true);
+            p_Player->CastSpell(p_Player->ToUnit(), 161735, true);
+        }
+
+        return true;
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -719,4 +747,5 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_deposit;
     new MS::Garrison::gob_IronTrap_Garrison;
     new MS::Garrison::go_garrison_small_timber;
+    new MS::Garrison::go_garrison_essence_font;
 }
