@@ -1118,6 +1118,49 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Molten Core - 122355
+class spell_warl_molten_core : public SpellScriptLoader
+{
+    public:
+        spell_warl_molten_core() : SpellScriptLoader("spell_warl_molten_core") { }
+
+        class spell_warl_molten_core_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_molten_core_AuraScript);
+
+            enum eSpells
+            {
+                MoltenCoreVisual = 126090
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->CastSpell(l_Target, eSpells::MoltenCoreVisual, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->RemoveAura(eSpells::MoltenCoreVisual);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_molten_core_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_warl_molten_core_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_molten_core_AuraScript();
+        }
+};
+
 // Called by Shadow Bolt - 686 and Soul Fire - 6353
 // Decimate - 108869
 class spell_warl_decimate: public SpellScriptLoader
@@ -4080,7 +4123,6 @@ class spell_warl_glyph_of_life_tap : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                sLog->outError(LOG_FILTER_GENERAL, "PASSSSSSSSSSSSSSSSSSSSSSs");
                 if (!l_Player->HasAura(eSpells::GlyphofLifePactPeriodic))
                     l_Player->CastSpell(l_Player, eSpells::GlyphofLifePactPeriodic, true);
             }
@@ -4290,6 +4332,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_molten_core();
     new spell_warl_demonbolt();
     new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();
