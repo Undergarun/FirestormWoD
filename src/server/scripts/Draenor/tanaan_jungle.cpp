@@ -4127,7 +4127,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
 
         bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
         {
-            if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE)
+            if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(273388))
             {
                 uint32 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask &= ~TanaanPhases::PhaseCannonTurret;
