@@ -1788,11 +1788,6 @@ class npc_foundry_forge_overdrive : public CreatureScript
                 p_Damage = 0;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
-            {
-                p_Damage = 0;
-            }
-
             void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
