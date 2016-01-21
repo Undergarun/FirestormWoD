@@ -1257,6 +1257,8 @@ class boss_franzok : public CreatureScript
                             me->InterruptNonMeleeSpells(true);
 
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+  
+                            me->AttackStop();
 
                             me->AttackStop();
 
@@ -1779,6 +1781,11 @@ class npc_foundry_forge_overdrive : public CreatureScript
                 });
 
                 m_AffectedPlayers.clear();
+            }
+            
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
