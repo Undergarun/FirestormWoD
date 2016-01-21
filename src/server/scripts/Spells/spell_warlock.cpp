@@ -2174,6 +2174,8 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
 
                 int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
+                if (AuraEffectPtr l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    l_TotalHeal += l_PreviousEffect->GetAmount() * (p_AurEff->GetBase()->GetDuration() / p_AurEff->GetAmplitude());
                 if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);

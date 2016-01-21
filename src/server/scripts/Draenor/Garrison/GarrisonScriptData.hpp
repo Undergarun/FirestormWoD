@@ -65,7 +65,8 @@ namespace MS { namespace Garrison
         SpellIronTrap                          = 180609,
         SpellApprenticeLogging                 = 167911,
         SpellSummonStump                       = 170079,
-        SpellGarrisonPortal                    = 182464
+        SpellGarrisonPortal                    = 182464,
+        SpellAuraRunesOfPower                  = 178777
     };
 
     enum DisplayIDs
@@ -505,7 +506,7 @@ namespace MS { namespace Garrison
                 enum TalbukQuests
                 {
                     /// Initial Quest
-                    QuestTamingATalbuk = 36917,
+                    QuestTamingATalbuk    = 36917,
                     /// Progression Quests
                     TalbukTrainingQuest1  = 37093,
                     TalbukTrainingQuest2  = 37094,
