@@ -377,6 +377,11 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                 return true;
             }
 
+            enum eSpells
+            {
+                MirrorImage = 60352
+            };
+
             void HandleDummy(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
@@ -453,7 +458,10 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                                     }
 
                                     if (pPet && pPet->GetAI())
+                                    {
                                         pPet->GetAI()->SetGUID(target->GetGUID());
+                                        caster->CastSpell(pPet, eSpells::MirrorImage, true);
+                                    }
 
                                     return;
                                 }
@@ -481,7 +489,10 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                             }
 
                             if (pPet && pPet->GetAI())
+                            {
                                 pPet->GetAI()->SetGUID(target->GetGUID());
+                                caster->CastSpell(pPet, eSpells::MirrorImage, true);
+                            }
 
                             if (firstSpirit == 3)
                                 firstSpirit = i;
