@@ -36,6 +36,9 @@ EndScriptData */
 #include "Group.h"
 #include "LFGMgr.h"
 
+#include "InterRealmOpcodes.h"
+#include "InterRealmSession.h"
+
 #include <fstream>
 #include <vector>
 #include "BattlegroundPacketFactory.hpp"
@@ -1751,14 +1754,43 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugBattlegroundCommand(ChatHandler* /*handler*/, char const* /*args*/)
+        static bool HandleDebugBattlegroundCommand(ChatHandler* handler, char const* /*args*/)
         {
+            if (sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE))
+            {
+                InterRealmSession* tunnel = sWorld->GetInterRealmSession();
+                if (!tunnel || !tunnel->IsTunnelOpened())
+                {
+                    handler->PSendSysMessage(LANG_INTERREALM_DISABLED);
+                    return false;
+                }
+
+                WorldPacket pckt(IR_CMSG_DEBUG_BG, 1);
+                pckt << uint8(1);
+                tunnel->SendPacket(&pckt);
+                return true;
+            }
             sBattlegroundMgr->ToggleTesting();
+
             return true;
         }
 
-        static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, char const* /*args*/)
+        static bool HandleDebugArenaCommand(ChatHandler* handler, char const* /*args*/)
         {
+            if (sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE))
+            {
+                InterRealmSession* tunnel = sWorld->GetInterRealmSession();
+                if (!tunnel || !tunnel->IsTunnelOpened())
+                {
+                    handler->PSendSysMessage(LANG_INTERREALM_DISABLED);
+                    return false;
+                }
+
+                WorldPacket pckt(IR_CMSG_DEBUG_ARENA, 1);
+                pckt << uint8(1);
+                tunnel->SendPacket(&pckt);
+                return true;
+            }
             sBattlegroundMgr->ToggleArenaTesting();
             return true;
         }

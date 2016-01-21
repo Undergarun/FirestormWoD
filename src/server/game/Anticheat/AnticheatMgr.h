@@ -63,6 +63,8 @@ public:
     void AnticheatGlobalCommand(ChatHandler* handler);
     void AnticheatDeleteCommand(uint32 guid);
 
+    void BuildReport(Player* player, uint8 reportType);
+
     void ResetDailyReportStates();
 private:
     void SpeedHackDetection(Player* player, MovementInfo movementInfo);
@@ -72,7 +74,6 @@ private:
     void TeleportPlaneHackDetection(Player* player, MovementInfo);
     void ClimbHackDetection(Player* player,MovementInfo movementInfo,uint32 opcode);
 
-    void BuildReport(Player* player,uint8 reportType);
 
     bool MustCheckTempReports(uint8 type);
 

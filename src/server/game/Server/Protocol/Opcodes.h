@@ -1965,6 +1965,12 @@ enum PacketProcessing
     PROCESS_THREADSAFE                                          // packet is thread-safe - process it in Map::Update()
 };
 
+enum IRPacketProcessing
+ {
+     PROCESS_LOCAL           = 0,                            // Never send to interrealm
+     PROCESS_DISTANT_IF_NEED = 1,                            // Send to interrealm if needed (player is on bg)
+ };
+
 class WorldPacket;
 class WorldSession;
 
@@ -1973,20 +1979,21 @@ typedef void(WorldSession::*g_OpcodeHandlerType)(WorldPacket& recvPacket);
 struct OpcodeHandler
 {
     OpcodeHandler() {}
-    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, g_OpcodeHandlerType _handler)
-        : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
+    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, g_OpcodeHandlerType _handler, IRPacketProcessing _forwardToIR)
+        : name(_name), status(_status), packetProcessing(_processing), handler(_handler), forwardToIR(_forwardToIR) {}
 
     char const* name;
     SessionStatus status;
     PacketProcessing packetProcessing;
     g_OpcodeHandlerType handler;
+	IRPacketProcessing forwardToIR;
 };
 
 extern OpcodeHandler* g_OpcodeTable[TRANSFER_DIRECTION_MAX][NUM_OPCODE_HANDLERS];
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(Opcodes id, int p_Direction)
+inline std::string GetOpcodeNameForLogging(uint16 id, int p_Direction)
 {
     uint32 opcode = uint32(id);
     std::ostringstream ss;
@@ -2006,6 +2013,23 @@ inline std::string GetOpcodeNameForLogging(Opcodes id, int p_Direction)
 
     ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
     return ss.str();
+}
+
+inline bool CanBeSentDuringInterRealm(uint16 id)
+{
+    switch (id)
+    {
+        case SMSG_CHAT:
+        case SMSG_CONTACT_LIST:
+        case SMSG_GUILD_BANK_QUERY_RESULTS:
+        case SMSG_GUILD_COMMAND_RESULT:
+        case SMSG_GUILD_INVITE:
+        case SMSG_QUERY_GUILD_INFO_RESPONSE:
+        case SMSG_GUILD_ROSTER:
+            return true;
+    }
+
+    return false;
 }
 
 #endif

@@ -38,6 +38,8 @@
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundScheduler.hpp"
 
+#include "InterRealmOpcodes.h"
+
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
     uint64 guid;
@@ -74,6 +76,19 @@ void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId
 
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
 {
+    bool l_InterRealmEnable     = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    InterRealmSession* l_Tunnel = nullptr;
+
+    if (l_InterRealmEnable)
+    {
+        l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+    }
+
     uint64 l_QueueID = 0;
     uint32 l_BlacklistMap[2];
     uint8  l_Roles = 0;
@@ -182,20 +197,23 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
             return;
         }
 
-        m_Player->SetBattleGroundRoles(l_Roles);
+        if (!l_InterRealmEnable)
+        {
+            m_Player->SetBattleGroundRoles(l_Roles);
 
-        GroupQueueInfo * l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, ArenaType::None, false, 0, 0, false);
-        uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
-        uint32 l_QueueSlot      = m_Player->AddBattlegroundQueueId(l_BGQueueTypeID);
+            GroupQueueInfo * l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, ArenaType::None, false, 0, 0, false);
+            uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
+            uint32 l_QueueSlot = m_Player->AddBattlegroundQueueId(l_BGQueueTypeID);
 
-        // add joined time data
-        m_Player->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
+            // add joined time data
+            m_Player->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
 
-        WorldPacket l_Data; // send status packet (in queue)
-        MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, m_Player, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, false);
-        SendPacket(&l_Data);
+            WorldPacket l_Data; // send status packet (in queue)
+            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, m_Player, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, false);
+            SendPacket(&l_Data);
 
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", l_BGQueueTypeID, l_BGTypeID, m_Player->GetGUIDLow(), m_Player->GetName());
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", l_BGQueueTypeID, l_BGTypeID, m_Player->GetGUIDLow(), m_Player->GetName());
+        }
     }
     else
     {
@@ -235,23 +253,32 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
                 continue;
             }
 
-            // add to queue
-            uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
+            if (!l_InterRealmEnable)
+            {
+                // add to queue
+                uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
-            // add joined time data
-            l_Member->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, ginfo->m_JoinTime);
+                // add joined time data
+                l_Member->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, ginfo->m_JoinTime);
 
-            WorldPacket l_Data; // send status packet (in queue)
-            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->m_JoinTime, ginfo->m_ArenaType, false);
-            l_Member->GetSession()->SendPacket(&l_Data);
+                WorldPacket l_Data; // send status packet (in queue)
+                MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->m_JoinTime, ginfo->m_ArenaType, false);
+                l_Member->GetSession()->SendPacket(&l_Data);
 
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", l_BGQueueTypeID, l_BGTypeID, l_Member->GetGUIDLow(), l_Member->GetName());
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", l_BGQueueTypeID, l_BGTypeID, l_Member->GetGUIDLow(), l_Member->GetName());
+            }
         }
 
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: group end");
     }
 
-    //sBattlegroundMgr->ScheduleQueueUpdate(0, 0, l_BGQueueTypeID, l_BGTypeID, l_BracketEntry->GetBracketId());
+    if (l_Error || !l_InterRealmEnable)
+        return;
+
+    if (!l_JoinAsGroup)
+        l_Tunnel->SendRegisterPlayer(m_Player, l_InstanceID, l_QueueID, l_BGTypeID, l_Roles, l_BlacklistMap);
+    else
+        l_Tunnel->SendRegisterGroup(l_Group, l_InstanceID, l_QueueID, l_BGTypeID, l_Roles, l_BlacklistMap);
 }
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
@@ -282,14 +309,42 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& p_Packet)
         return;
     }
 
-    WorldPacket l_Data;
-    MS::Battlegrounds::PacketFactory::List(&l_Data, 0, m_Player, BattlegroundTypeId(l_ListID), l_ListID, false, false, false, false);
+    /// InterRealm
+    InterRealmSession* l_Tunnel = sWorld->GetInterRealmSession();
+    if (l_Tunnel && l_Tunnel->IsTunnelOpened())
+    {
+        WorldPacket l_Data(IR_CMSG_BATTLEGROUND_LIST_QUERY, 8 + 4 + 1 + 1);
+        l_Data << uint64(GetPlayer()->GetGUID());
+        l_Data << uint32(l_ListID);
+        l_Data << uint8(GetPlayer()->GetRandomWinner());
+        l_Data << uint8(GetPlayer()->getLevel());
 
-    SendPacket(&l_Data);
+        l_Tunnel->SendPacket(&l_Data);
+    }
+    else
+    {
+        WorldPacket l_Data;
+        MS::Battlegrounds::PacketFactory::List(&l_Data, 0, m_Player, BattlegroundTypeId(l_ListID), l_ListID, false, false, false, false);
+
+        SendPacket(&l_Data);
+    }
 }
 
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 {
+    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    InterRealmSession* l_Tunnel = nullptr;
+
+    if (l_InterRealmEnable)
+    {
+        l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+    }
+
     uint64 l_RequesterGuid = 0;
     uint32 l_QueueSlotID = 0;                           ///< guessed
     uint32 l_Time = 0;
@@ -309,6 +364,45 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     if (l_QueueSlotID > PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
         sLog->outAshran("HandleBattleFieldPortOpcode queueSlot %u", l_QueueSlotID);
+        return;
+    }
+
+    if (l_InterRealmEnable)
+    {
+        if (l_AcceptedInvite == 1)
+        {
+            m_Player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+ 
+            if (!m_Player->InBattleground())
+                m_Player->SetBattlegroundEntryPoint();
+ 
+            // resurrect the player
+            if (!m_Player->isAlive())
+            {
+                m_Player->ResurrectPlayer(1.0f);
+                m_Player->SpawnCorpseBones();
+            }
+            // stop taxi flight at port
+            if (m_Player->isInFlight())
+            {
+                m_Player->GetMotionMaster()->MovementExpired();
+                m_Player->CleanupAfterTaxiFlight();
+            }
+ 
+            SetBattlegroundPortData(GetPlayer()->GetGUID(), l_Time, l_QueueSlotID, l_AcceptedInvite);
+            GetPlayer()->SaveToDB(false, true);
+        }
+        else
+        {
+            WorldPacket pckt(IR_CMSG_BATTLEFIELD_PORT, 8 + 4 + 4 + 1);
+ 
+            pckt << uint64(GetPlayer()->GetGUID());
+            pckt << uint32(l_Time);
+            pckt << uint32(l_QueueSlotID);
+            pckt << uint8(l_AcceptedInvite);
+ 
+            l_Tunnel->SendPacket(&pckt);
+        }
         return;
     }
 
@@ -450,12 +544,35 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "Battleground port: unknown action %u", l_AcceptedInvite);
             break;
-
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& p_RecvData)
 {
+    if (m_Player == nullptr)
+        return;
+
+    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    InterRealmSession* l_Tunnel = nullptr;
+
+    if (l_InterRealmEnable)
+    {
+        l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+    }
+
+    if (l_InterRealmEnable)
+    {
+        WorldPacket l_Data(IR_CMSG_BATTLEFIELD_LEAVE);
+        l_Data << uint64(m_Player->GetGUID());
+        l_Tunnel->SendPacket(&l_Data);
+        return;
+    }
+
     if (m_Player->InArena())
         if (m_Player->GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
             return;
@@ -465,6 +582,22 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 {
+    if (sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE))
+    {
+        InterRealmSession* l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+
+        WorldPacket l_Data(IR_CMSG_BATTLEFIELD_STATUS_QUERY, 8);
+        l_Data << uint64(GetPlayer()->GetGUID());
+        l_Tunnel->SendPacket(&l_Data);
+
+        return;
+    }
+
     WorldPacket l_Data;
 
     Battleground * l_BG = nullptr;
@@ -541,6 +674,22 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
 {
+    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    InterRealmSession* l_Tunnel = nullptr;
+
+    if (l_InterRealmEnable)
+    {
+        l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+
+        if (GetInterRealmBG())
+            return;
+    }
+
     uint8 l_TeamSizeIndex;                                        ///< 2v2, 3v3 or 5v5
 
     p_Packet >> l_TeamSizeIndex;
@@ -623,11 +772,16 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
     
     if (!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting()))
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued with matchmaker rating %u for type %u", m_Player->GetName(), l_MatchmakerRating, l_ArenaType);
+        if (!l_InterRealmEnable)
+        {
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued with matchmaker rating %u for type %u", m_Player->GetName(), l_MatchmakerRating, l_ArenaType);
 
-        l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, true, l_ArenaRating, l_MatchmakerRating, false);
-        l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
+            l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, true, l_ArenaRating, l_MatchmakerRating, false);
+            l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
+        }
     }
+
+    std::list<Player*> l_Players;
 
     for (GroupReference * l_It = l_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())
     {
@@ -645,28 +799,52 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
             continue;
         }
 
-        /// Add to queue
-        uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
+        l_Players.push_back(l_Member);
 
-        if (!l_GroupQueueInfo)
-            return;
+        if (!l_InterRealmEnable)
+        {
+            /// Add to queue
+            uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
-        /// Add joined time data
-        l_Member->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
+            if (!l_GroupQueueInfo)
+                return;
 
-        WorldPacket l_Data; // send status packet (in queue)
-        MS::Battlegrounds::PacketFactory::Status(&l_Data, l_Battleground, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, l_GroupQueueInfo->m_JoinTime, l_ArenaType, false);
-        
-        l_Member->GetSession()->SendPacket(&l_Data);
+            /// Add joined time data
+            l_Member->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
 
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena as group bg queue type %u bg type %u: GUID %u, NAME %s", l_BGQueueTypeID, l_BGTypeId, l_Member->GetGUIDLow(), l_Member->GetName());
+            WorldPacket l_Data; // send status packet (in queue)
+            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_Battleground, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, l_GroupQueueInfo->m_JoinTime, l_ArenaType, false);
+
+            l_Member->GetSession()->SendPacket(&l_Data);
+
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena as group bg queue type %u bg type %u: GUID %u, NAME %s", l_BGQueueTypeID, l_BGTypeId, l_Member->GetGUIDLow(), l_Member->GetName());
+        }
     }
 
-   // sBattlegroundMgr->ScheduleQueueUpdate(l_MatchmakerRating, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
+    if (!l_InterRealmEnable || l_ResultError)
+        return;
+
+    l_Tunnel->SendRegisterArena(l_Players, l_ArenaType, false);
 }
 
 void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
 {
+    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    InterRealmSession* l_Tunnel = nullptr;
+
+    if (l_InterRealmEnable)
+    {
+        l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+
+        if (GetInterRealmBG())
+            return;
+    }
+
     uint8 l_Roles;
     uint8 l_Bracket;
     bool  l_JoinAsGroup;
@@ -742,11 +920,13 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
     uint32 l_AverageTime = 0;
     GroupQueueInfo*  l_GroupQueueInfo = nullptr;
 
+    std::list<Player*> l_Players;
+
     if (l_JoinAsGroup)
     {
         l_ResultError = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BGQueueTypeID, l_ArenaType);
 
-        if (!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting()))
+        if ((!l_ResultError || (l_ResultError && sBattlegroundMgr->isArenaTesting())) && !l_InterRealmEnable)
         {
             l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, true);
             l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
@@ -763,6 +943,12 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
                 WorldPacket l_Data;
                 MS::Battlegrounds::PacketFactory::StatusFailed(&l_Data, l_Battleground, m_Player, 0, l_ResultError);
                 l_Member->GetSession()->SendPacket(&l_Data);
+                continue;
+            }
+
+            if (l_InterRealmEnable)
+            {
+                l_Players.push_back(l_Member);
                 continue;
             }
 
@@ -818,25 +1004,47 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
             return;
         }
 
-        m_Player->SetBattleGroundRoles(l_Roles);
+        if (!l_InterRealmEnable)
+        {
+            m_Player->SetBattleGroundRoles(l_Roles);
 
-        l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, true);
-        uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
-        uint32 l_QueueSlot   = m_Player->AddBattlegroundQueueId(l_BGQueueTypeID);
+            l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, nullptr, l_BGQueueTypeID, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, true);
+            uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
+            uint32 l_QueueSlot = m_Player->AddBattlegroundQueueId(l_BGQueueTypeID);
 
-        // add joined time data
-        m_Player->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
+            // add joined time data
+            m_Player->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
 
-        WorldPacket l_Data; // send status packet (in queue)
-        MS::Battlegrounds::PacketFactory::Status(&l_Data, l_Battleground, m_Player, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, true);
-        SendPacket(&l_Data);
+            WorldPacket l_Data; // send status packet (in queue)
+            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_Battleground, m_Player, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, true);
+            SendPacket(&l_Data);
+        }
+        else
+            l_Players.push_back(m_Player);
     }
 
-    //sBattlegroundMgr->ScheduleQueueUpdate(0, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
+    if (l_InterRealmEnable)
+        l_Tunnel->SendRegisterArena(l_Players, l_ArenaType, true);
 }
 
-void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
+void WorldSession::HandleBattlemasterJoinRated(WorldPacket& p_Packet)
 {
+    bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
+    InterRealmSession* l_Tunnel = nullptr;
+
+    if (l_InterRealmEnable)
+    {
+        l_Tunnel = sWorld->GetInterRealmSession();
+        if (!l_Tunnel || !l_Tunnel->IsTunnelOpened())
+        {
+            ChatHandler(this).PSendSysMessage(LANG_INTERREALM_DISABLED);
+            return;
+        }
+
+        if (GetInterRealmBG())
+            return;
+    }
+
     // ignore if we already in BG or BG queue
     if (m_Player->InBattleground())
         return;
@@ -903,8 +1111,11 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
     l_Error = l_Group->CanJoinBattlegroundQueue(l_Battleground, l_BgQueueTypeId, 10);
     if (!l_Error)
     {
-        l_GroupQueue = l_Scheduler.AddGroup(m_Player, l_Group, l_BgQueueTypeId, nullptr, l_BracketEntry, ArenaType::None, true, l_PersonalRating, l_MatchmakerRating, false);
-        l_AvgTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueue, l_BracketEntry->m_Id);
+        if (!l_InterRealmEnable)
+        {
+            l_GroupQueue = l_Scheduler.AddGroup(m_Player, l_Group, l_BgQueueTypeId, nullptr, l_BracketEntry, ArenaType::None, true, l_PersonalRating, l_MatchmakerRating, false);
+            l_AvgTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GroupQueue, l_BracketEntry->m_Id);
+        }
     }
 
     for (GroupReference* l_Iterator = l_Group->GetFirstMember(); l_Iterator != NULL; l_Iterator = l_Iterator->next())
@@ -921,6 +1132,9 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
             continue;
         }
 
+        if (l_InterRealmEnable)
+            continue;
+
          // add to queue
         uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BgQueueTypeId);
 
@@ -933,6 +1147,11 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet)
 
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for rated battleground as group bg queue type %u bg type %u: GUID %u, NAME %s", l_BgQueueTypeId, l_BgTypeId, l_Member->GetGUIDLow(), l_Member->GetName());
     }
+
+    if (l_Error || !l_InterRealmEnable)
+        return;
+
+    l_Tunnel->SendRegisterRated(l_Group, l_PersonalRating, l_MatchmakerRating);
 }
 
 void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet)
@@ -946,6 +1165,7 @@ void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet)
     m_Player->SendDirectMessage(&l_ScoreData);
 }
 
+/// @TODO: make wargame cross server (gl ...)
 void WorldSession::HandleStartWarGame(WorldPacket& p_Packet)
 {
     uint64 l_OpposingPartyMemberGUID;

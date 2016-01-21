@@ -1237,6 +1237,14 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
         Member* l_Member = itr->second;
         Player* l_Player = l_Member->FindPlayer();
 
+        if (!l_Player)
+            l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_Member->GetGUID());
+
+        bool l_InInterRealm = false;
+        if (l_Player && l_Player->GetSession()->GetInterRealmBG())
+            l_InInterRealm = true;
+
+
         uint8 l_Flags = GUILDMEMBER_STATUS_NONE;
         if (l_Player)
         {
@@ -1252,7 +1260,15 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
         l_Data.appendPackGUID(l_Member->GetGUID());
 
         l_Data << uint32(l_Member->GetRankId());
-        l_Data << uint32(l_Player ? l_Player->GetZoneId() : l_Member->GetZone());
+
+        uint32 l_ZoneId = l_Member->GetZone();
+        if (l_InInterRealm)
+            l_ZoneId = l_Player->GetSession()->GetInterRealmBG();
+        else if (l_Player)
+            l_ZoneId = l_Player->GetZoneId();
+
+
+        l_Data << uint32(l_ZoneId);
         l_Data << uint32(l_Player ? l_Player->GetAchievementMgr().GetAchievementPoints() : 0);
         l_Data << uint32(l_Player ? l_Player->GetReputation(REP_GUILD) : 0);
 
@@ -2573,10 +2589,23 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, const std:
         WorldPacket data;
         ChatHandler::FillMessageData(&data, session, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, language, NULL, 0, msg.c_str(), NULL);
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        {
             if (Player* player = itr->second->FindPlayer())
+            {
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
                     !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
                     player->GetSession()->SendPacket(&data);
+            }
+           else if (Player* player = ObjectAccessor::FindPlayerInOrOutOfWorld(itr->second->GetGUID()))
+           {
+               if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
+                   !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()) &&
+                   player->GetSession()->GetInterRealmBG())
+               {
+                   player->GetSession()->SendPacket(&data, true);
+               }
+           }
+        }
     }
 }
 

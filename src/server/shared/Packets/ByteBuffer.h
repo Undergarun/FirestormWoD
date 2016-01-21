@@ -308,6 +308,15 @@ class ByteBuffer
             _rbitpos = 8;
         }
 
+        void eraseFirst(int num)
+        {
+            if ((int)_storage.size() >= num)
+            {
+                _storage.erase(_storage.begin(), _storage.begin() + num);
+                _storage.shrink_to_fit();
+            }
+        }
+
         template <typename T> void append(T value)
         {
             FlushBits();

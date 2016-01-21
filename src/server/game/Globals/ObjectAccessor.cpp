@@ -196,6 +196,11 @@ Creature* ObjectAccessor::FindCreature(uint64 p_Guid)
     return GetObjectInWorld(p_Guid, (Creature*)NULL);
 }
 
+Player* ObjectAccessor::FindPlayerInOrOutOfWorld(uint64 guid)
+{
+    return GetObjectInOrOutOfWorld(guid, (Player*)NULL);
+}
+
 Unit* ObjectAccessor::FindUnit(uint64 guid)
 {
     return GetObjectInWorld(guid, (Unit*)NULL);
@@ -223,6 +228,23 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
 GameObject* ObjectAccessor::FindGameObject(uint64 p_Guid)
 {
     return GetObjectInWorld(p_Guid, (GameObject*)NULL);
+}
+
+Player* ObjectAccessor::FindPlayerByNameInOrOutOfWorld(const char* name)
+{
+    TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+    std::string nameStr = name;
+    std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
+    HashMapHolder<Player>::MapType const& m = GetPlayers();
+    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        std::string currentName = iter->second->GetName();
+        std::transform(currentName.begin(), currentName.end(), currentName.begin(), ::tolower);
+        if (nameStr.compare(currentName) == 0)
+            return iter->second;
+    }
+
+    return NULL;
 }
 
 void ObjectAccessor::SaveAllPlayers()

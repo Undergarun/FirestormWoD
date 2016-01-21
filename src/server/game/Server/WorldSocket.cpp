@@ -523,7 +523,7 @@ int WorldSocket::handle_input_header (void)
             return -1;
         }
 
-        ACE_NEW_RETURN(m_RecvWPct, WorldPacket(PacketFilter::DropHighBytes((Opcodes)header.cmd), header.size), -1);
+        ACE_NEW_RETURN(m_RecvWPct, WorldPacket(PacketFilter::DropHighBytes(header.cmd), header.size), -1);
 
         if (header.size > 0)
         {
@@ -554,7 +554,7 @@ int WorldSocket::handle_input_header (void)
 
         header.size -= 4;
 
-        ACE_NEW_RETURN(m_RecvWPct, WorldPacket(PacketFilter::DropHighBytes((Opcodes)header.cmd), header.size), -1);
+        ACE_NEW_RETURN(m_RecvWPct, WorldPacket(PacketFilter::DropHighBytes(header.cmd), header.size), -1);
 
         if (header.size > 0)
         {
@@ -776,7 +776,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     // manage memory ;)
     ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
 
-    Opcodes opcode = PacketFilter::DropHighBytes(new_pct->GetOpcode());
+    uint16 opcode = PacketFilter::DropHighBytes(new_pct->GetOpcode());
 
     if (closing_)
         return -1;
@@ -863,7 +863,20 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 aptr.release();
                 // WARNING here we call it with locks held.
                 // Its possible to cause deadlock if QueuePacket calls back
-                m_Session->QueuePacket(new_pct);
+                if (handler->forwardToIR == PROCESS_DISTANT_IF_NEED && m_Session->GetInterRealmBG())
+                {
+                    Player* player = m_Session->GetPlayer();
+                    if (!player)
+                        return 0;
+
+                    sWorld->GetInterRealmSession()->SendTunneledPacket(player->GetGUID(), new_pct);
+                }
+                else
+                {
+                    // WARNING here we call it with locks held.
+                    // Its possible to cause deadlock if QueuePacket calls back
+                    m_Session->QueuePacket(new_pct);
+                }
                 return 0;
             }
         }

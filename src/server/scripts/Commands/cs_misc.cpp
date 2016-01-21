@@ -1761,6 +1761,15 @@ class misc_commandscript: public CommandScript
             uint32 areaId;
             uint32 phase = 0;
             uint32 l_GarrisonID = 0;
+            bool inInterRealm = false;
+
+            if (!target)
+            {
+                if (target = sObjectAccessor->FindPlayerInOrOutOfWorld(targetGuid))
+                {
+                    inInterRealm = true;
+                }
+            }
 
             // get additional information from Player object
             if (target)
@@ -1777,8 +1786,8 @@ class misc_commandscript: public CommandScript
                 race = target->getRace();
                 Class = target->getClass();
                 muteTime = target->GetSession()->m_muteTime;
-                mapId = target->GetMapId();
-                areaId = target->GetAreaId();
+                mapId = inInterRealm ? target->GetInterRealmMapId() : target->GetMapId();
+                areaId = inInterRealm ? target->GetInterRealmAreaId() : target->GetAreaId();
                 phase = target->GetPhaseMask();
 
                 if (MS::Garrison::Manager* l_Garr = target->GetGarrison())

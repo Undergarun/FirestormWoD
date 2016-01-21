@@ -86,6 +86,14 @@ struct AccountData
     std::string Data;
 };
 
+struct BattlegroundPortData
+{
+    uint64 PlayerGuid;
+    uint32 Time;
+    uint32 QueueSlot;
+    uint8 Action;
+};
+
 enum PartyCommand
 {
     PARTY_CMD_INVITE   = 0,
@@ -200,7 +208,8 @@ public:
 
     virtual bool Process(WorldPacket* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
-    static Opcodes DropHighBytes(Opcodes opcode) { return Opcodes(opcode & 0xFFFF); }
+    //static Opcodes DropHighBytes(Opcodes opcode) { return Opcodes(opcode & 0xFFFF); }
+    static uint16 DropHighBytes(uint16 opcode) { return opcode & 0xFFFF; }
 
 protected:
     WorldSession* const m_pSession;
@@ -293,7 +302,7 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         static void WriteMovementInfo(WorldPacket& data, MovementInfo* mi);
 
-        void SendPacket(WorldPacket const* packet, bool forced = false);
+        void SendPacket(WorldPacket const* packet, bool forced = false, bool ir_packet = false);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
         void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
@@ -319,6 +328,19 @@ class WorldSession
 
         void InitWarden(BigNumber* k, std::string os);
 
+        uint32 GetInterRealmBG() { return m_InterRealmBG; }
+        void SetInterRealmBG(uint32 value) { m_InterRealmBG = value; }
+        
+        void SetBattlegroundPortData(uint64 guid, uint32 time, uint32 queueslot, uint8 action)
+        {
+            _battlegroundPortData.PlayerGuid = guid;
+            _battlegroundPortData.Time = time;
+            _battlegroundPortData.QueueSlot = queueslot;
+            _battlegroundPortData.Action = action;
+        }
+
+        BattlegroundPortData const& GetBattlegroundPortData() const { return _battlegroundPortData; }
+
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
 
@@ -337,7 +359,8 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
-        void LogoutPlayer(bool Save);
+        void LoginPlayer(uint64 p_Guid);
+        void LogoutPlayer(bool p_Save, bool p_AfterInterRealm = false);
         void KickPlayer();
 
         void QueuePacket(WorldPacket* new_packet);
@@ -1250,6 +1273,8 @@ class WorldSession
         std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
         std::mutex m_PreparedStatementCallbackLock;
 
+        BattlegroundPortData _battlegroundPortData;
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
@@ -1297,6 +1322,9 @@ class WorldSession
         uint32 m_VoteSyncTimer;
 
         typedef std::list<AddonInfo> AddonsList;
+
+        // Zone id for interrealm battleground
+        uint32 m_InterRealmBG;
 
         // Warden
         Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config

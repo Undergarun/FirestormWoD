@@ -218,8 +218,29 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Class = 0;
 
     Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(friendGUID, 0, HIGHGUID_PLAYER));
+    
+    /// handle if friend is in interrealm bg
     if (!pFriend)
+    {
+        pFriend = ObjectAccessor::FindPlayerInOrOutOfWorld(friendGUID);
+        if (!pFriend || !pFriend->GetSession()->GetInterRealmBG())
+            return;
+
+        friendInfo.Status = FRIEND_STATUS_ONLINE;
+        if (pFriend->isAFK())
+            friendInfo.Status = FRIEND_STATUS_AFK;
+        if (pFriend->isDND())
+            friendInfo.Status = FRIEND_STATUS_DND;
+
+        
+        friendInfo.Level = pFriend->getLevel();
+        friendInfo.Class = pFriend->getClass();
+
+        uint32 zoneId = pFriend->GetSession()->GetInterRealmBG();
+        friendInfo.Area = zoneId > 1 ? zoneId : 0;
+
         return;
+    }
 
     uint32 team = player->GetTeam();
     AccountTypes security = player->GetSession()->GetSecurity();

@@ -34,11 +34,11 @@ class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE)
+        WorldPacket() : ByteBuffer(0), m_opcode((uint16)UNKNOWN_OPCODE)
         {
         }
 
-        WorldPacket(Opcodes opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode)
+        WorldPacket(uint16 opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode)
         {
         }
                                                             // copy constructor
@@ -46,7 +46,7 @@ class WorldPacket : public ByteBuffer
         {
         }
 
-        void Initialize(Opcodes opcode, size_t newres = 200)
+        void Initialize(uint16 opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);
@@ -56,13 +56,13 @@ class WorldPacket : public ByteBuffer
 
         void OnSend();
 
-        Opcodes GetOpcode() const { return m_opcode; }
-        void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
+        uint16 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint16 opcode) { m_opcode = opcode; }
         void Compress(z_stream_s* compressionStream);
         void Compress(z_stream_s* compressionStream, WorldPacket const* source);
 
     protected:
-        Opcodes m_opcode;
+        uint16 m_opcode;
         void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
         z_stream_s* _compressionStream;
 };

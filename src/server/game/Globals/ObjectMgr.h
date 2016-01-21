@@ -1281,10 +1281,11 @@ class ObjectMgr
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
+        uint32 GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range);
         uint32 GenerateAuctionID();
-        uint64 GenerateEquipmentSetGuid();
-        uint32 GenerateMailID();
-        uint32 GeneratePetNumber();
+        uint64 GenerateEquipmentSetGuid(uint32 p_Range = 1);
+        uint32 GenerateMailID(uint32 p_Range = 1);
+        uint32 GeneratePetNumber(uint32 p_Range = 1);
         uint64 GenerateVoidStorageItemId();
 
         typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
@@ -1672,10 +1673,7 @@ class ObjectMgr
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _equipmentSetGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _mailId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetNumber;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
 
         // first free low guid for selected guid type
@@ -1696,7 +1694,10 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
 
-        std::atomic_uint m_HighItemGuid;
+        std::atomic_uint32_t m_HighItemGuid;
+        std::atomic_uint32_t m_MailId;
+        std::atomic_uint32_t m_PetNumber;
+        std::atomic_uint64_t m_EquipmentSetGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

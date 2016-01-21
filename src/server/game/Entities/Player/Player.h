@@ -1583,10 +1583,10 @@ class Player : public Unit, public GridObject<Player>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
-        bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, bool forced_far = false);
+        bool TeleportTo(WorldLocation const &loc, uint32 options = 0, bool forced_far = false)
         {
-            return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
+            return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, forced_far);
         }
         bool TeleportTo(uint32 p_MapID, Position const p_Pos, uint32 p_Options = 0)
         {
@@ -1600,7 +1600,7 @@ class Player : public Unit, public GridObject<Player>
 
             return TeleportTo(l_Loc->map_id, l_Loc->x, l_Loc->y, l_Loc->z, l_Loc->o, p_Options);
         }
-        bool TeleportToBGEntryPoint();
+        bool TeleportToBGEntryPoint(bool inter_realm = false);
         void SwitchToPhasedMap(uint32 p_MapID);
 
         void SetSummonPoint(uint32 mapid, float x, float y, float z)
@@ -2128,7 +2128,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void SaveToDB(bool create = false);
+        void SaveToDB(bool create = false, bool afterSave = false);
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
@@ -3660,6 +3660,13 @@ class Player : public Unit, public GridObject<Player>
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
 
+        uint32 GetInterRealmZoneId() const { return m_irZoneId; }
+        void SetInterRealmZoneId(uint32 val) { m_irZoneId = val; }
+        uint32 GetInterRealmAreaId() const { return m_irAreaId; }
+        void SetInterRealmAreaId(uint32 val) { m_irAreaId = val; }
+        uint32 GetInterRealmMapId() const { return m_irMapId; }
+        void SetInterRealmMapId(uint32 val) { m_irMapId = val; }
+
         /// Store callback
         bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
         bool IsStoreDeliveryProccesed(StoreCallback p_DeliveryType) const { return m_StoreDeliveryProcessed[p_DeliveryType]; }
@@ -4132,6 +4139,11 @@ class Player : public Unit, public GridObject<Player>
         /***                  SCENES SYSTEM                    ***/
         /*********************************************************/
         SceneObject* m_LastPlayedScene;
+
+        uint32 m_irZoneId;
+        uint32 m_irAreaId;
+        uint32 m_irMapId;
+
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;

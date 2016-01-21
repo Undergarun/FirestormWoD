@@ -663,7 +663,7 @@ ItemTemplate const* Item::GetTemplate() const
 
 Player* Item::GetOwner()const
 {
-    return ObjectAccessor::FindPlayer(GetOwnerGUID());
+    return ObjectAccessor::FindPlayerInOrOutOfWorld(GetOwnerGUID());
 }
 
 uint32 Item::GetSkill() const
@@ -1456,7 +1456,7 @@ Item* Item::CloneItem(uint32 p_Count, Player const* p_Player) const
     l_NewItem->SetUInt32Value(ITEM_FIELD_EXPIRATION,      GetUInt32Value(ITEM_FIELD_EXPIRATION));
 
     // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
-    if (p_Player)
+    if (p_Player && p_Player->IsInWorld())
         l_NewItem->SetItemRandomProperties(GetItemRandomPropertyId());
 
     l_NewItem->AddItemBonuses(GetAllItemBonuses());

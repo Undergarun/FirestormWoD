@@ -259,13 +259,16 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     return true;
 }
 
-ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
-    _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
+ObjectMgr::ObjectMgr(): _auctionId(1),
+    _itemTextId(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
     _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1),
     m_HiVignetteGuid(1)
 {
-    m_HighItemGuid = 1;
+    m_HighItemGuid     = 1;
+    m_MailId           = 1;
+    m_PetNumber        = 1;
+    m_EquipmentSetGuid = 1;
 
     m_CreatureTemplateStoreSize = 0;
     m_CreatureTemplateStore     = nullptr;
@@ -6657,7 +6660,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
-        _mailId = (*result)[0].GetUInt32()+1;
+        m_MailId = (*result)[0].GetUInt32()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(corpseGuid) FROM corpse");
     if (result)
@@ -6665,7 +6668,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(setguid) FROM character_equipmentsets");
     if (result)
-        _equipmentSetGuid = (*result)[0].GetUInt64()+1;
+        m_EquipmentSetGuid = (*result)[0].GetUInt64()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(guildId) FROM guild");
     if (result)
@@ -6712,24 +6715,50 @@ uint32 ObjectMgr::GenerateAuctionID()
     return _auctionId++;
 }
 
-uint64 ObjectMgr::GenerateEquipmentSetGuid()
+uint64 ObjectMgr::GenerateEquipmentSetGuid(uint32 p_Range)
 {
-    if (_equipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
+    if (m_EquipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
     {
         sLog->outError(LOG_FILTER_GENERAL, "EquipmentSet guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
-    return _equipmentSetGuid++;
+    return m_EquipmentSetGuid.fetch_add(p_Range);
 }
 
-uint32 ObjectMgr::GenerateMailID()
+uint32 ObjectMgr::GenerateMailID(uint32 p_Range)
 {
-    if (_mailId >= 0xFFFFFFFE)
+    if (m_MailId >= 0xFFFFFFFE)
     {
         sLog->outError(LOG_FILTER_GENERAL, "Mail ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
-    return _mailId++;
+
+    return m_MailId.fetch_add(p_Range);
+}
+
+uint32 ObjectMgr::GenerateLowGuid(HighGuid p_GuidHigh, uint32 p_Range)
+{
+    switch (p_GuidHigh)
+    {
+        case HIGHGUID_ITEM:
+            ASSERT(m_HighItemGuid < 0xFFFFFFFE && "Item guid overflow!");
+            return m_HighItemGuid.fetch_add(p_Range);
+            break;
+        case HIGHGUID_MAIL:
+            return GenerateMailID(p_Range);
+            break;
+        case HIGHGUID_PET_NUMBER:
+            return GeneratePetNumber(p_Range);
+            break;
+        case HIGHGUID_EQUIPMENT_SET:
+            return GenerateEquipmentSetGuid(p_Range);
+            break;
+        default:
+            break;
+    }
+
+    ASSERT(false);
+    return 0;
 }
 
 uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
@@ -7230,10 +7259,10 @@ void ObjectMgr::LoadPetNumber()
     if (result)
     {
         Field* fields = result->Fetch();
-        _hiPetNumber = fields[0].GetUInt32()+1;
+        m_PetNumber = fields[0].GetUInt32()+1;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber.value()-1, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", m_PetNumber-1, GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
@@ -7254,9 +7283,15 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     return *(list0.begin()+urand(0, list0.size()-1)) + *(list1.begin()+urand(0, list1.size()-1));
 }
 
-uint32 ObjectMgr::GeneratePetNumber()
+uint32 ObjectMgr::GeneratePetNumber(uint32 p_Range)
 {
-    return ++_hiPetNumber;
+    if (m_PetNumber >= 0xFFFFFFFE)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "Mail ids overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    return m_PetNumber.fetch_add(p_Range);
 }
 
 uint64 ObjectMgr::GenerateVoidStorageItemId()

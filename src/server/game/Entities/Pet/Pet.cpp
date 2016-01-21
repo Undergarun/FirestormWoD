@@ -239,7 +239,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     Map* map = owner->GetMap();
     uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
-    if (!Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
+    if (!Create(guid, map, owner->GetPhaseMask(), petentry))
     {
         p_Callback(this, false);
         return;
@@ -880,9 +880,8 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     sLog->outDebug(LOG_FILTER_PETS, "Pet::CreateBaseForTamed");
-    uint32 guid=sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
-    uint32 pet_number = sObjectMgr->GeneratePetNumber();
-    if (!Create(guid, map, phaseMask, cinfo->Entry, pet_number))
+    uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+    if (!Create(guid, map, phaseMask, cinfo->Entry))
         return false;
 
     setPowerType(POWER_FOCUS);
@@ -1692,7 +1691,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry)
 {
     ASSERT(map);
     SetMap(map);

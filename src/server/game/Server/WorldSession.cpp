@@ -47,10 +47,11 @@
 #include "WardenMac.h"
 #include "GarrisonMgr.hpp"
 #include "AccountMgr.h"
+#include "InterRealmOpcodes.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
-    Opcodes opcode = DropHighBytes(packet->GetOpcode());
+    uint16 opcode = DropHighBytes(packet->GetOpcode());
     OpcodeHandler const* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
 
     //let's check if our opcode can be really processed in Map::Update()
@@ -73,7 +74,7 @@ bool MapSessionFilter::Process(WorldPacket* packet)
 //OR packet handler is not thread-safe!
 bool WorldSessionFilter::Process(WorldPacket* packet)
 {
-    Opcodes opcode = DropHighBytes(packet->GetOpcode());
+    uint16 opcode = DropHighBytes(packet->GetOpcode());
     OpcodeHandler const* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
     //check if packet handler is supposed to be safe
     if (opHandle->packetProcessing == PROCESS_INPLACE)
@@ -108,6 +109,8 @@ m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServ
 timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
 m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
 {
+    m_InterRealmBG = 0;
+
     _warden = NULL;
     _filterAddonMessages = false;
     m_LoginTime = time(nullptr);
@@ -210,9 +213,12 @@ uint32 WorldSession::GetGuidLow() const
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/)
+void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/, bool ir_packet /*=false*/)
 {
     if (!m_Socket)
+        return;
+
+    if (!ir_packet && GetInterRealmBG() && !CanBeSentDuringInterRealm(packet->GetOpcode()))
         return;
 
     const_cast<WorldPacket*>(packet)->OnSend();
@@ -420,6 +426,72 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
+                    else if (m_InterRealmBG)
+                    {
+                        //sLog->outError(LOG_FILTER_SERVER_LOADING, "Packet received when in IRBG: %x (%s)", packet->GetOpcode(), opcodeTable[packet->GetOpcode()]->Name);
+                        // To do: find better way
+                        switch (packet->GetOpcode())
+                        {
+                            //case CMSG_UNREGISTER_ALL_ADDON_PREFIXES:
+                            //case CMSG_ADDON_REGISTERED_PREFIXES:
+                            case CMSG_QUERY_TIME:
+                            //case CMSG_QUEST_NPC_QUERY:
+                            case CMSG_REQUEST_BATTLEFIELD_STATUS:
+                            //case CMSG_QUERY_BATTLEFIELD_STATE:
+                            //case CMSG_LFG_GET_STATUS:
+                            //case CMSG_DUNGEON_FINDER_GET_SYSTEM_INFO:
+                                sWorld->GetInterRealmSession()->SendTunneledPacket(m_Player->GetGUID(), packet);
+                                deletePacket = false;
+                                break;
+                            // Opcodes has a local handle 
+                            // but player not in world and is at interrealm bg
+                            case CMSG_LEAVE_BATTLEFIELD:
+                            case CMSG_ACCEPT_GUILD_INVITE:
+                            //case CMSG_GUILD_ACHIEVEMENT_MEMBERS:
+                            //case CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY:
+                            case CMSG_GUILD_ADD_RANK:
+                            //case CMSG_GUILD_ASSIGN_MEMBER_RANK:
+                            case CMSG_BANKER_ACTIVATE:
+                            case CMSG_GUILD_BANK_BUY_TAB:
+                            case CMSG_GUILD_BANK_DEPOSIT_MONEY:
+                            //case CMSG_GUILD_BANK_LOG_QUERY:
+                            //case CMSG_GUILD_BANK_MONEY_WITHDRAWN_QUERY:
+                            case CMSG_GUILD_BANK_QUERY_TAB:
+                            //case CMSG_GUILD_BANK_QUERY_TEXT:
+                            case CMSG_GUILD_BANK_SWAP_ITEMS:
+                            case CMSG_GUILD_BANK_UPDATE_TAB:
+                            case CMSG_GUILD_BANK_WITHDRAW_MONEY:
+                            //case CMSG_GUILD_CHANGE_NAME_REQUEST:
+                            case CMSG_GUILD_DECLINE_INVITATION:
+                            case CMSG_GUILD_DELETE_RANK:
+                            //case CMSG_GUILD_DEMOTE:
+                            case CMSG_GUILD_DELETE :
+                            //case CMSG_GUILD_EVENT_LOG_QUERY:
+                            case CMSG_GUILD_UPDATE_INFO_TEXT:
+                            case CMSG_GUILD_INVITE_BY_NAME:
+                            case CMSG_GUILD_LEAVE:
+                            //case CMSG_GUILD_MEMBER_SEND_SOR_REQUEST:
+                            case CMSG_GUILD_UPDATE_MOTD_TEXT:
+                            //case CMSG_GUILD_NEWS_UPDATE_STICKY:
+                            //case CMSG_GUILD_PERMISSIONS:
+                            //case CMSG_GUILD_PROMOTE:
+                            case CMSG_QUERY_GUILD_INFO:
+                            //case CMSG_GUILD_QUERY_NEWS:
+                            //case CMSG_GUILD_QUERY_RANKS:
+                            case CMSG_GUILD_OFFICER_REMOVE_MEMBER:
+                            //case CMSG_GUILD_REPLACE_GUILD_MASTER:
+                            //case CMSG_GUILD_REQUEST_CHALLENGE_UPDATE:
+                            //case CMSG_GUILD_REQUEST_MAX_DAILY_XP:
+                            //case CMSG_GUILD_REQUEST_PARTY_STATE:
+                            case CMSG_GUILD_GET_ROSTER:
+                            //case CMSG_GUILD_SET_NOTE:
+                            //case CMSG_GUILD_SET_RANK_PERMISSIONS:
+                            //case CMSG_GUILD_SWITCH_RANK:
+                            case CMSG_SEND_CONTACT_LIST:
+                                (this->*opHandle->handler)(*packet);
+                                break;
+                        }
+                    }
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                     break;
                 case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
@@ -559,7 +631,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 }
 
 /// %Log the player out
-void WorldSession::LogoutPlayer(bool Save)
+void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
 {
     // fix exploit with Aura Bind Sight
     m_Player->StopCastingBindSight();
@@ -571,7 +643,7 @@ void WorldSession::LogoutPlayer(bool Save)
         HandleMoveWorldportAckOpcode();
 
     m_playerLogout = true;
-    m_playerSave = Save;
+    m_playerSave = p_Save;
 
     if (m_Player)
     {
@@ -580,6 +652,15 @@ void WorldSession::LogoutPlayer(bool Save)
 
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
+
+        InterRealmSession* tunnel = sWorld->GetInterRealmSession();
+        if (tunnel && tunnel->IsTunnelOpened())
+        {
+            WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
+            tunPacket << uint64(m_Player->GetGUID());
+            sIRTunnel->SendPacket(&tunPacket);
+            m_InterRealmBG = 0;
+        }
 
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
@@ -619,8 +700,8 @@ void WorldSession::LogoutPlayer(bool Save)
             // give bg rewards and update counters like kill by first from attackers
             // this can't be called for all attackers.
             if (!aset.empty())
-                if (Battleground* bg = m_Player->GetBattleground())
-                    bg->HandleKillPlayer(m_Player, *aset.begin());
+            if (Battleground* bg = m_Player->GetBattleground())
+                bg->HandleKillPlayer(m_Player, *aset.begin());
         }
         else if (m_Player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
@@ -652,7 +733,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         sOutdoorPvPMgr->HandlePlayerLeaveZone(m_Player, m_Player->GetZoneId());
 
-        for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+        for (int i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
             if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
@@ -662,7 +743,7 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         /// If, when the player logout, the battleground pointer of the player is still good, we apply deserter buff.
-        if (Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
+        if (p_Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
         {
             /// We add the Deserter buff, otherwise it can be used bug.
             m_Player->AddAura(MS::Battlegrounds::Spells::DeserterBuff, m_Player);
@@ -695,7 +776,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
-        if (Save)
+        if (p_Save)
         {
             uint32 eslot;
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
@@ -727,11 +808,15 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         //! Broadcast a logout message to the player's friends
-        sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
-        sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
 
-        //! Call script hook before deletion
-        sScriptMgr->OnPlayerLogout(m_Player);
+        if (!p_AfterInterRealm)
+        {
+            sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
+            sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
+
+            //! Call script hook before deletion
+            sScriptMgr->OnPlayerLogout(m_Player);
+        }
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -744,15 +829,18 @@ void WorldSession::LogoutPlayer(bool Save)
 
         SetPlayer(NULL); //! Pointer already deleted during RemovePlayerFromMap
 
-        //! Send the 'logout complete' packet to the client
-        //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
-        WorldPacket data(SMSG_LOGOUT_COMPLETE, 16);
-        data.appendPackGUID(0);
-        SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+        if (!p_AfterInterRealm)
+        {
+            //! Send the 'logout complete' packet to the client
+            //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
+            WorldPacket data(SMSG_LOGOUT_COMPLETE, 16);
+            data.appendPackGUID(0);
+            SendPacket(&data);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
-        //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+            //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
+            CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+        }
     }
 
     m_playerLogout = false;

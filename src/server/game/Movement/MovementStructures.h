@@ -154,7 +154,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEEnd,
 };
 
-MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
+MovementStatusElements* GetMovementStatusElementsSequence(uint16 opcode)
 {
     // Cast spell has movement data part when castflags & 0x10, patched ClientSide to have same data of CMSG_PLAYER_MOVE
     if (opcode == CMSG_CAST_SPELL
