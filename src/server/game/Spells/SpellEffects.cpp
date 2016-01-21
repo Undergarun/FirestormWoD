@@ -3491,8 +3491,8 @@ void Spell::EffectPlayMovie(SpellEffIndex effIndex)
 void Spell::EffectTradeSkill(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
-    return;
-    
+        return;
+
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
