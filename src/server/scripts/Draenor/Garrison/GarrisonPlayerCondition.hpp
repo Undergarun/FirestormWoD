@@ -63,8 +63,35 @@ namespace MS { namespace Garrison
 
     };
 
-    using PlayerCondition_HasHerbGarden                     = GarrisonHasBuildingTypePlayerCondition<26967, BuildingType::Farm>;
-    using PlayerCondition_HasMine                           = GarrisonHasBuildingTypePlayerCondition<43000, BuildingType::Mine>; ///< Custom condition, to avoid conflict with herbs system
+    template<uint32 t_ConditionID, uint32 t_BuildingID, uint32 t_QuestA, uint32 t_QuestH> class GarrisonHasUnlockedBuildingPlayerCondition : PlayerConditionScript
+    {
+        public:
+            /// Constructor
+            GarrisonHasUnlockedBuildingPlayerCondition()
+                : PlayerConditionScript(t_ConditionID)
+            {
+
+            }
+
+            /// Called when a single condition is checked for a player.
+            /// @p_ConditionID : Player condition ID
+            /// @p_Condition   : Player condition instance
+            /// @p_SourceInfo  : Player
+            virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player) override
+            {
+                if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasActiveBuilding(BuildingType::Farm))
+                    return false;
+
+                if (!p_Player->IsQuestRewarded(t_QuestA) && !p_Player->IsQuestRewarded(t_QuestH))
+                    return false;
+
+                return true;
+            }
+
+    };
+
+    using PlayerCondition_HasHerbGarden                     = GarrisonHasUnlockedBuildingPlayerCondition<26967, BuildingType::Farm, Quests::Alliance_ClearingTheGarden,       Quests::Horde_ClearingTheGarden>;
+    using PlayerCondition_HasMine                           = GarrisonHasUnlockedBuildingPlayerCondition<43000, BuildingType::Mine, Quests::Alliance_ThingsAreNotGorenOurWay, Quests::Horde_ThingsAreNotGorenOurWay>; ///< Custom condition, to avoid conflict with herbs system
 
     using PlayerCondition_AlchemyLab_Level2                 = GarrisonHasBuildingPlayerCondition<27405, Buildings::AlchemyLab__AlchemyLab_Level2>;
     using PlayerCondition_AlchemyLab_Level3                 = GarrisonHasBuildingPlayerCondition<27406, Buildings::AlchemyLab__AlchemyLab_Level3>;
