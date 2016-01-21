@@ -3319,8 +3319,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
                         int32 l_Damage = int32(l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
-                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                         SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
                         SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
@@ -3348,15 +3346,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
 
-                        // WoD: Apply factor on damages depending on creature level and expansion
-                        if (l_Pet->IsPetGuardianStuff() && GetHitUnit()->GetTypeId() == TYPEID_UNIT)
-                            l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, GetHitUnit()->ToCreature());
-                        else if (l_Pet->GetTypeId() == TYPEID_UNIT && (GetHitUnit()->GetTypeId() == TYPEID_PLAYER || GetHitUnit()->IsPetGuardianStuff()))
-                            l_Damage *= l_Pet->CalculateDamageTakenFactor(GetHitUnit(), l_Pet->ToCreature());
+                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
-                        /// Reduce damage by armor
-                        if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
-                            l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
                         SetHitDamage(l_Damage);
 
                         /// Invigoration - 53253
