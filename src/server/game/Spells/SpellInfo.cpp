@@ -1285,10 +1285,9 @@ bool SpellInfo::IsExplicitDiscovery() const
 
 bool SpellInfo::IsLootCrafting() const
 {
-    return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+    return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM_2);
 }
 
 bool SpellInfo::IsQuestTame() const
