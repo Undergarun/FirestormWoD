@@ -5779,6 +5779,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
+            case 20578: ///< Cannibalize
+            case 20577: ///< Cannibalize
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
             case 57879: ///< Snake Trap
