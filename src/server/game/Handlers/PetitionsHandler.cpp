@@ -626,7 +626,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& p_Packet)
         Field* fields = result->Fetch();
         ownerguidlo = fields[0].GetUInt32();
         name = fields[1].GetString();
-        type = fields[2].GetUInt8();
+        type = fields[2].GetUInt8(); ///< type is never read 01/18/16
     }
     else
     {

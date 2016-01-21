@@ -1673,7 +1673,9 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
             enum eSpells
             {
-                FreezingTrap = 3355
+                FreezingTrap = 3355,
+                MurderOfCrowsVisualFirst = 131951,
+                MurderOfCrowsVisualSecond = 131952
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -1683,6 +1685,14 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
                 if (l_Caster == nullptr)
                     return;
+
+                /// Visual effect
+                /// Four crows fall from the sky to target
+                for (int8 i = 0; i < 2; ++i)
+                {
+                    l_Target->CastSpell(l_Target, eSpells::MurderOfCrowsVisualFirst, true);
+                    l_Target->CastSpell(l_Target, eSpells::MurderOfCrowsVisualSecond, true);
+                }
 
                 if (l_Caster->IsValidAttackTarget(l_Target))
                     l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);

@@ -212,7 +212,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8  updateType = UPDATETYPE_CREATE_OBJECT;
     uint32 flags      = m_updateFlag;
 
-    uint32 valCount = m_valuesCount;
+    uint32 valCount = m_valuesCount; ///< valCount is never read 01/18/16
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
@@ -3068,7 +3068,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
             {
                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                if (!l_Player)
+                if (!l_Player || !p_QueryHolder)
                     return;
 
                 pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void

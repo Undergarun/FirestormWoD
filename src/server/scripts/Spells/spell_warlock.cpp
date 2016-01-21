@@ -909,7 +909,7 @@ class spell_warl_flames_of_xoroth: public SpellScriptLoader
                             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                                if (!l_Player)
+                                if (!l_Player || !p_QueryHolder)
                                 {
                                     delete l_NewPet;
                                     return;
@@ -2174,6 +2174,8 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
 
                 int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
+                if (AuraEffectPtr l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    l_TotalHeal += l_PreviousEffect->GetAmount() * (p_AurEff->GetBase()->GetDuration() / p_AurEff->GetAmplitude());
                 if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
@@ -3303,43 +3305,43 @@ class spell_warl_corruption : public SpellScriptLoader
 /// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
-public:
-    spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
+    public:
+        spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
 
-    class spell_warl_dark_soul_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_dark_soul_SpellScript);
-
-        void HandleAfterCast()
+        class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
+
+            void HandleAfterCast()
             {
-                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
-                uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                    uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
 
-                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
 
-                if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
-                else ///< Case of GLYPH_OF_DARK_SOUL
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                    if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                    else ///< Case of GLYPH_OF_DARK_SOUL
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
 
-                if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
-                    l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
+                    if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
+                        l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
 
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+            return new spell_warl_dark_soul_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_dark_soul_SpellScript();
-    }
 };
 
 /// last update : 6.1.2 19802
@@ -4232,7 +4234,6 @@ class spell_warl_demonbolt : public SpellScriptLoader
                 float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
                 p_Amount *= l_HastePct;
-                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() * l_HastePct);
             }
 
             void Register()
@@ -4241,9 +4242,35 @@ class spell_warl_demonbolt : public SpellScriptLoader
             }
         };
 
+        class spell_warl_demonbolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demonbolt_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                if (AuraPtr l_AuraPtr = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_AuraPtr->SetDuration(l_AuraPtr->GetDuration() * l_HastePct);
+
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleAfterHit);
+            }
+        };
+
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_demonbolt_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_demonbolt_SpellScript();
         }
 };
 

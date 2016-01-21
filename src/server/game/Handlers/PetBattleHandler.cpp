@@ -593,7 +593,7 @@ void WorldSession::HandlePetBattleSetAbility(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_PetJournalID);
     p_RecvData >> l_Flag;
 
-    l_Action = p_RecvData.ReadBits(2);  // 0 add flag, 2 remove it
+    l_Action = p_RecvData.ReadBits(2);  // 0 add flag, 2 remove it ///< l_Action is never read 01/18/16
 
     BattlePet::Ptr l_BattlePet = m_Player->GetBattlePet(l_PetJournalID);
 

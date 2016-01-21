@@ -1446,8 +1446,14 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (l_SpellInfo == nullptr)
                         return;
 
-                    float l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount() - (m_Absorbed / (m_AmountAbsorb / 100));
-                    int32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
+                    float l_RemainingPct = 0.0f;
+                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
+
+                    /// If we have absorbed more than 50% we set value to 50%
+                    l_RemainingPct = l_AbsorbedPct > l_Amount ? l_Amount : (l_Amount - l_AbsorbedPct);
+
+                    uint32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
 
                     if (Player* l_Player = l_Caster->ToPlayer())
                         l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
@@ -3395,8 +3401,43 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Periodic Taunt - 43264
+class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
+{
+    public:
+        spell_dk_army_of_the_death_taunt() : SpellScriptLoader("spell_dk_army_of_the_death_taunt") { }
+
+        class spell_dk_army_of_the_death_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_army_of_the_death_taunt_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofArmyoftheDead = 58669
+            };
+
+            void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (GetCaster()->HasAura(eSpells::GlyphofArmyoftheDead))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_army_of_the_death_taunt_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_army_of_the_death_taunt();
     new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();

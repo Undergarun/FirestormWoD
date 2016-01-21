@@ -159,7 +159,7 @@ class battlepay_commandscript: public CommandScript
             if (!l_Group)
                 return false;
 
-            uint32 l_FlagsFilter = atoi(strtok(nullptr, " "));
+            uint32 l_FlagsFilter = atoi(strtok(nullptr, " ")); ///< l_FlagsFilter is never read 01/18/16
 
             QueryResult l_Result = WebDatabase.PQuery("SELECT id, price, fake_price, nameUS, filedataID, class_mask FROM shop_pack WHERE category = %u", l_Category);
             if (!l_Result)

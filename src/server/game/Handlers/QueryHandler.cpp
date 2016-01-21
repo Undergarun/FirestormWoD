@@ -379,7 +379,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
 
     GetPlayer()->SetSelection(l_Guid);
 
-    GossipText const* pGossip = sObjectMgr->GetGossipText(l_TextID);
+    GossipText const* pGossip = sObjectMgr->GetGossipText(l_TextID); ///< pGossip is never read 01/18/16
 
     bool l_Allow = true;
 

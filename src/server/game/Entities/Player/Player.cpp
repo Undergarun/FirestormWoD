@@ -1542,7 +1542,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if (msg == EQUIP_ERR_OK)
                 {
                     RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                    pItem = StoreItem(sDest, pItem, true);
+                    pItem = StoreItem(sDest, pItem, true); ///< pItem is never read 01/18/16
                 }
             }
         }
@@ -2333,7 +2333,7 @@ void Player::Update(uint32 p_time)
                     uint32 l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area;
 
                     l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry(); ///< l_garrisonSiteEntry is never read 01/18/16
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
@@ -3726,7 +3726,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!inFight || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = HealthIncreaseRate;
+        addvalue = HealthIncreaseRate; ///< addvalue is never read 01/18/16
         if (getLevel() < 15)
             addvalue = (0.20f*((float)GetMaxHealth())/getLevel()*HealthIncreaseRate);
         else
@@ -9779,7 +9779,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
     if (!p_IgnoreMultipliers)
         p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
 
-    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1; ///< l_precision is never read 01/18/16
     uint32 l_OldTotalCount          = 0;
     uint32 l_OldWeekCount           = 0;
     uint32 l_OldSeasonTotalCount    = 0;
@@ -16948,7 +16948,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                     if (bagItem->m_lootGenerated)
                     {
                         m_session->DoLootRelease(GetLootGUID());
-                        released = true;                    // not realy needed here
+                        released = true;                    // not realy needed here ///< yeah because released is never read 01/18/16
                         break;
                     }
                 }
@@ -16974,7 +16974,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
                 // found empty
                 if (!m_items[i])
                 {
-                    slot = i;
+                    slot = i; ///< slot is never read 01/18/16
                     break;
                 }
 
@@ -18797,7 +18797,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -19737,8 +19738,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
-                    DestroyItemCount(l_Objective.ObjectID, GetItemCount(l_Objective.ObjectID), true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
             }
         }
 
@@ -22134,7 +22135,7 @@ void Player::_LoadMail(PreparedQueryResult p_MailResult)
             m->receiver       = fields[3].GetUInt32();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
-            bool has_items    = fields[6].GetBool();
+            bool has_items    = fields[6].GetBool(); ///< hasitem is never read 01/18/16
             m->expire_time    = time_t(fields[7].GetUInt32());
             m->deliver_time   = time_t(fields[8].GetUInt32());
             m->money          = fields[9].GetUInt64();
@@ -30247,7 +30248,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
         {
             Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-            if (!l_Player)
+            if (!l_Player || !p_QueryHolder)
             {
                 delete l_NewPet;
                 return;
@@ -33163,6 +33164,14 @@ void Player::DeleteGarrison()
     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
     m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
+
+    if (IsInGarrison())
+    {
+        if (GetTeamId() == TEAM_ALLIANCE)
+            TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
+        else if (GetTeamId() == TEAM_HORDE)
+            TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
+    }
 
     delete m_Garrison;
     m_Garrison = nullptr;

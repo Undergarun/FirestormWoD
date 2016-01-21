@@ -69,7 +69,8 @@ enum ConditionTypes
     CONDITION_ALIVE                 = 36,                   // 0                0              0                  true if unit is alive
     CONDITION_HP_VAL                = 37,                   // hpVal            ComparisonType 0                  true if unit's hp matches given value
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
-    CONDITION_MAX                   = 39                    // MAX
+    CONDITION_HAS_BUILDING_TYPE     = 39,                   // BuildingType                                       true if player has this building activated in Garrison
+    CONDITION_MAX                   = 40                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:

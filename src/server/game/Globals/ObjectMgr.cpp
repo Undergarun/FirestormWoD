@@ -2730,6 +2730,14 @@ void ObjectMgr::LoadItemTemplateCorrections()
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
+            case 115759: ///< Primal Gladiator's Badge of Victory
+            case 111232: ///< Primal Gladiator's Badge of Victory
+            case 111227: ///< Primal Gladiator's Badge of Dominance
+            case 115754: ///< Primal Gladiator's Badge of Dominance
+            case 111222: ///< Primal Gladiator's Badge of Conquest
+            case 115749: ///< Primal Gladiator's Badge of Conquest
+                l_ItemTemplate.Spells[0].SpellCooldown = 60000;
+                break;
         }
     }
 }
@@ -4217,7 +4225,7 @@ void ObjectMgr::LoadQuests()
         // RequiredClasses, can be 0/CLASSMASK_ALL_PLAYABLE to allow any class
         if (qinfo->RequiredClasses)
         {
-            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses : -(qinfo->RequiredClasses);
+            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses : -(qinfo->RequiredClasses); ///< RequiredclassCheck is never read 01/18/16
 
             if (!(qinfo->RequiredClasses & CLASSMASK_ALL_PLAYABLE))
             {
@@ -4228,7 +4236,7 @@ void ObjectMgr::LoadQuests()
         // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
         if (qinfo->RequiredRaces)
         {
-            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces : -(qinfo->RequiredRaces);
+            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces : -(qinfo->RequiredRaces); ///< RequiredRacesCheck is never read 01/18/16
 
             if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
             {

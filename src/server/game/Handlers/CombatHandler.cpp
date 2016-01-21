@@ -75,7 +75,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
     bool l_Animate;
 
     recvData >> sheathed;
-    l_Animate = recvData.ReadBit();
+    l_Animate = recvData.ReadBit(); ///< l_Animate is never read 01/18/16
 
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
 

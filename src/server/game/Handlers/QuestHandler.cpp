@@ -115,7 +115,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(guid);
     recvData >> questId;
-    unk1 = recvData.ReadBit();
+    unk1 = recvData.ReadBit(); ///< unk1 is never read 01/18/16
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
 
@@ -333,7 +333,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId;
-    l_RespondToGiver = p_RecvData.ReadBit(); ///< @todo l_RespondToGiver is unused !
+    l_RespondToGiver = p_RecvData.ReadBit(); ///< l_RespondToGiver is never read 01/18/16
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
