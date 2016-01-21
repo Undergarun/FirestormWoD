@@ -14413,6 +14413,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
+
     if (slow)
         AddPct(speed, slow);
 
@@ -14442,7 +14443,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
     if (fabs(rate) <= 0.00000023841858) // From client
-        rate = 1.0f;
+        rate = 0.01f;
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
