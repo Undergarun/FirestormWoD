@@ -155,7 +155,8 @@ INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Condi
 (13, 1, 163125, 31, 0, 3, 80677),
 (13, 1, 163093, 31, 0, 3, 80683);
 
-DELETE FROM spell_script_names WHERE spell_id IN (163182, 177860);
+DELETE FROM spell_script_names WHERE spell_id IN (163182, 177860, 156038);
 INSERT INTO spell_script_names VALUES
 (163182, "spell_foundry_crushing_slam"),
-(177860, "spell_foundry_ember_in_the_wind_damage");
+(177860, "spell_foundry_ember_in_the_wind_damage"),
+(156038, "spell_foundry_drop_the_hammer_aura");

@@ -3532,6 +3532,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 156039: ///< Drop the Hammer (Aknor Steelbringer)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills

@@ -31,7 +31,11 @@ class boss_flamebender_kagraz : public CreatureScript
         enum eSpells
         {
             /// Cosmetic
-            PrefightCosmeticBossAura    = 156237
+            PrefightCosmeticBossAura    = 156237,
+            /// Lava Slash
+            LavaSlashSearcher           = 154914,
+            LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
+            LavaSlashAreaTrigger        = 154915
         };
 
         enum eEvents
@@ -340,15 +344,31 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
 
         enum eSpells
         {
+            DevastatingSlam         = 156018,
+            /// Drop the Hammer
+            DropTheHammerSearcher   = 156038,
+            DropTheHammerJump       = 156039,
+            DropTheHammerAoE        = 156040
         };
 
         enum eEvents
         {
+            EventDevastatingSlam = 1,
+            EventDropTheHammer
         };
 
-        enum eAction
+        enum eTimers
         {
-            AknorDied
+            TimerDevastatingSlam        = 6 * TimeConstants::IN_MILLISECONDS,
+            TimerDevastatingSlamAgain   = 8 * TimeConstants::IN_MILLISECONDS,
+            TimerDropTheHammer          = 10 * TimeConstants::IN_MILLISECONDS,
+            TimerDropTheHammerAgain     = 8 * TimeConstants::IN_MILLISECONDS
+        };
+
+        enum eActions
+        {
+            AknorDied,
+            DropTheHammer
         };
 
         struct npc_foundry_aknor_steelbringerAI : public ScriptedAI
@@ -362,13 +382,34 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
 
             EventMap m_Events;
 
+            uint64 m_HammerTarget;
+
             void Reset() override
             {
                 m_Events.Reset();
+
+                m_HammerTarget = 0;
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                m_Events.ScheduleEvent(eEvents::EventDevastatingSlam, eTimers::TimerDevastatingSlam);
+                m_Events.ScheduleEvent(eEvents::EventDropTheHammer, eTimers::TimerDropTheHammer);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eActions::DropTheHammer)
+                {
+                    if (Unit* l_Target = Unit::GetUnit(*me, m_HammerTarget))
+                        me->CastSpell(*l_Target, eSpells::DropTheHammerJump, true);
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_ID == eSpells::DropTheHammerJump)
+                    me->CastSpell(me, eSpells::DropTheHammerAoE, false);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -378,6 +419,11 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
+                    case eSpells::DropTheHammerSearcher:
+                    {
+                        m_HammerTarget = p_Target->GetGUID();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -391,7 +437,7 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
                 if (Creature* l_Kagraz = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossFlamebenderKagraz)))
                 {
                     if (l_Kagraz->IsAIEnabled)
-                        l_Kagraz->AI()->DoAction(eAction::AknorDied);
+                        l_Kagraz->AI()->DoAction(eActions::AknorDied);
                 }
             }
 
@@ -409,6 +455,18 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventDevastatingSlam:
+                    {
+                        me->CastSpell(me, eSpells::DevastatingSlam, false);
+                        m_Events.ScheduleEvent(eEvents::EventDevastatingSlam, eTimers::TimerDevastatingSlamAgain);
+                        break;
+                    }
+                    case eEvents::EventDropTheHammer:
+                    {
+                        me->CastSpell(me, eSpells::DropTheHammerSearcher, true);
+                        m_Events.ScheduleEvent(eEvents::EventDropTheHammer, eTimers::TimerDropTheHammerAgain);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -423,6 +481,51 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
         }
 };
 
+/// Drop the Hammer (aura) - 156038
+class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
+{
+    public:
+        spell_foundry_drop_the_hammer_aura() : SpellScriptLoader("spell_foundry_drop_the_hammer_aura") { }
+
+        class spell_foundry_drop_the_hammer_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_drop_the_hammer_aura_AuraScript);
+
+            enum eSpell
+            {
+                BodySlam = 155747
+            };
+
+            enum eAction
+            {
+                DropTheHammer = 1
+            };
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
+                    return;
+
+                if (Creature* l_Aknor = GetCaster()->ToCreature())
+                {
+                    if (l_Aknor->IsAIEnabled)
+                        l_Aknor->AI()->DoAction(eAction::DropTheHammer);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_foundry_drop_the_hammer_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_drop_the_hammer_aura_AuraScript();
+        }
+};
+
 void AddSC_boss_flamebender_kagraz()
 {
     /// Boss
@@ -432,6 +535,7 @@ void AddSC_boss_flamebender_kagraz()
     new npc_foundry_aknor_steelbringer();
 
     /// Spells
+    new spell_foundry_drop_the_hammer_aura();
 
     /// AreaTriggers
 }
