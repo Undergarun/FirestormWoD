@@ -820,8 +820,7 @@ namespace MS { namespace Skill
                         else
                         {
                             m_ItemID = ItemIDs::TemporalCrystal;
-                            m_Count = 4;
-                            m_Count += 1 + ((l_SkillValue - 600) / 20);
+                            m_Count = 1;
                         }
 
                         ItemPosCountVec l_Destination;
