@@ -692,7 +692,7 @@ namespace MS { namespace Garrison
 
     bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI())
+        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI() && p_Player->HasEnoughMoney((int64)10000))
         {
             p_Player->ModifyMoney(-10000);
             p_Creature->AI()->DoAction(1);

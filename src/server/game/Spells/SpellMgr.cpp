@@ -7034,7 +7034,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
 
             /// Our targetting system is weird as fuck - would need a full rewrite for this to work properly, do not touch - hours of debugging
-            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY))
+            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY) || spellInfo->HasEffect(SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES))
                 spellInfo->ExplicitTargetMask = TARGET_FLAG_NONE;
 
             spellInfo->UpdateSpellEffectCount(); ///< Re-cache the maximum number of effects

@@ -33165,6 +33165,14 @@ void Player::DeleteGarrison()
     m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
 
+    if (IsInGarrison())
+    {
+        if (GetTeamId() == TEAM_ALLIANCE)
+            TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
+        else if (GetTeamId() == TEAM_HORDE)
+            TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
+    }
+
     delete m_Garrison;
     m_Garrison = nullptr;
 }

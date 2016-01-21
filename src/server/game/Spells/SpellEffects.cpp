@@ -305,7 +305,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL   Upgrade follower iLvL
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+    &Spell::EffectRerollFollowerAbilities,                  //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
     &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
@@ -316,7 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
-    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
@@ -3495,9 +3495,12 @@ void Spell::EffectTradeSkill(SpellEffIndex /*effIndex*/)
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    // uint32 skillid =  m_spellInfo->Effects[i].MiscValue;
-    // uint16 skillmax = unitTarget->ToPlayer()->(skillid);
-    // m_caster->ToPlayer()->SetSkill(skillid, skillval?skillval:1, skillmax+75);
+
+    if (LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
+    {
+        /// Create some random items
+        m_caster->ToPlayer()->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+    }
 }
 
 void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
@@ -7809,8 +7812,6 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-
-
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7820,12 +7821,38 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
-    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-    if (!l_Player || !l_GarrisonMgr)
+    if (l_Player == nullptr)
         return;
 
-    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+}
+
+void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (l_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
+        l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
