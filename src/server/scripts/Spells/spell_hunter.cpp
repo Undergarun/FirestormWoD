@@ -1580,7 +1580,8 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         }
 };
 
-// Dire Beast - 120679
+/// Last Update 6.2.3
+/// Dire Beast - 120679
 class spell_hun_dire_beast: public SpellScriptLoader
 {
     public:
@@ -1592,53 +1593,55 @@ class spell_hun_dire_beast: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         // Summon's skin is different function of Map or Zone ID
-                        switch (_player->GetZoneId())
+                        switch (l_Player->GetZoneId())
                         {
                             case 5785: // The Jade Forest
-                                _player->CastSpell(target, DIRE_BEAST_JADE_FOREST, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_JADE_FOREST, true);
                                 break;
                             case 5805: // Valley of the Four Winds
-                                _player->CastSpell(target, DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
                                 break;
                             case 5840: // Vale of Eternal Blossoms
-                                _player->CastSpell(target, DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
                                 break;
                             case 5841: // Kun-Lai Summit
-                                _player->CastSpell(target, DIRE_BEAST_KUN_LAI_SUMMIT, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_KUN_LAI_SUMMIT, true);
                                 break;
                             case 5842: // Townlong Steppes
-                                _player->CastSpell(target, DIRE_BEAST_TOWNLONG_STEPPES, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_TOWNLONG_STEPPES, true);
                                 break;
                             case 6134: // Krasarang Wilds
-                                _player->CastSpell(target, DIRE_BEAST_KRASARANG_WILDS, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_KRASARANG_WILDS, true);
                                 break;
                             case 6138: // Dread Wastes
-                                _player->CastSpell(target, DIRE_BEAST_DREAD_WASTES, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_DREAD_WASTES, true);
                                 break;
                             default:
                             {
-                                switch (_player->GetMapId())
+                                switch (l_Player->GetMapId())
                                 {
                                     case 0: // Eastern Kingdoms
-                                        _player->CastSpell(target, DIRE_BEAST_EASTERN_KINGDOMS, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_EASTERN_KINGDOMS, true);
                                         break;
                                     case 1: // Kalimdor
-                                        _player->CastSpell(target, DIRE_BEAST_KALIMDOR, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_KALIMDOR, true);
                                         break;
                                     case 8: // Outland
-                                        _player->CastSpell(target, DIRE_BEAST_OUTLAND, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_OUTLAND, true);
                                         break;
                                     case 10: // Northrend
-                                        _player->CastSpell(target, DIRE_BEAST_NORTHREND, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_NORTHREND, true);
                                         break;
                                     default:
-                                        if (_player->GetMap()->IsDungeon() || _player->GetMap()->IsBattlegroundOrArena())
-                                            _player->CastSpell(target, DIRE_BEAST_DUNGEONS, true);
+                                        if (l_Player->GetMap()->IsDungeon() || l_Player->GetMap()->IsBattlegroundOrArena())
+                                            l_Player->CastSpell(l_Target, DIRE_BEAST_DUNGEONS, true);
+                                        else ///< Default beast in case there is not
+                                            l_Player->CastSpell(l_Target, DIRE_BEAST_KALIMDOR, true);
                                         break;
                                 }
                                 break;
