@@ -79,7 +79,7 @@ namespace MS { namespace Garrison
             /// @p_SourceInfo  : Player
             virtual bool OnConditionCheck(uint32 p_ConditionID, PlayerConditionEntry const* p_Condition, Player* p_Player) override
             {
-                if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasActiveBuilding(BuildingType::Farm))
+                if (!p_Player || !p_Player->GetGarrison() || !p_Player->GetGarrison()->HasBuildingType((BuildingType::Type)t_BuildingID))
                     return false;
 
                 if (!p_Player->IsQuestRewarded(t_QuestA) && !p_Player->IsQuestRewarded(t_QuestH))
