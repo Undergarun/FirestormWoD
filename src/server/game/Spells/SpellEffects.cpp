@@ -7036,6 +7036,11 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         summon->AI()->EnterEvadeMode();
 
         ExecuteLogEffectSummonObject(i, summon);
+
+        if (summon->IsWarlockPet())
+            summon->CastSpell(summon, 32233, true);  ///< Avoidance Warlock
+        else if (summon->isHunterPet())
+            summon->CastSpell(summon, 65220, true); ///< Avoidance Hunter
     }
 }
 
