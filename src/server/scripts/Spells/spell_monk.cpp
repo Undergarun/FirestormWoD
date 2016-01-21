@@ -357,7 +357,8 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
         }
 };
 
-// Storm, Earth and Fire - 137639
+/// Last Update 6.2.3
+/// Storm, Earth and Fire - 137639
 class spell_monk_storm_earth_and_fire: public SpellScriptLoader
 {
     public:
