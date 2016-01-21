@@ -183,7 +183,7 @@ namespace MS { namespace Garrison
                 }
 
                 if (l_RewardItemID == 122514)
-                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(1, 5));
+                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(100, 300));
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }

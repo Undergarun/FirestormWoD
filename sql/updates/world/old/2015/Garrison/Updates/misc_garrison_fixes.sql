@@ -340,3 +340,7 @@
 #36404-34193/Quest - Clearing the Garden
 
 	UPDATE quest_template SET requiredskillid = 0 WHERE id IN (36404, 34193);
+
+#178444/Spell - Create Armor Enhancement
+
+	UPDATE spell_loot_template SET groupid = 1 WHERE entry = 178444;
