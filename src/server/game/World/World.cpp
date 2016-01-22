@@ -1873,6 +1873,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells invalid...");
     sObjectMgr->LoadSpellInvalid();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading disabled rankings...");
+    sObjectMgr->LoadDisabledEncounters();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 

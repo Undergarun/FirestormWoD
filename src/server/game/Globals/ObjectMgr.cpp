@@ -10786,5 +10786,34 @@ void ObjectMgr::LoadSpellInvalid()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Invalid in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadDisabledEncounters()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_DisabledEncounters.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID FROM instance_disabled_rankings");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 disabled ranking. DB table `instance_disabled_rankings` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields         = l_Result->Fetch();
+        uint32 l_EncounterID    = l_Fields[0].GetUInt32();
+
+        m_DisabledEncounters.insert(l_EncounterID);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disabled ranking in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
