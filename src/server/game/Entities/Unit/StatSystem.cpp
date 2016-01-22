@@ -874,8 +874,19 @@ void Player::UpdateMasteryPercentage()
     {
         // Mastery from SPELL_AURA_MASTERY aura
         value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
+        float l_Modifier = 0;
+
+        ///< Add rating pct
+        AuraEffectList const& l_ModRatingPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_INCREASE_RATING_PCT);
+        for (AuraEffectList::const_iterator l_Iter = l_ModRatingPCT.begin(); l_Iter != l_ModRatingPCT.end(); ++l_Iter)
+        {
+            if ((*l_Iter)->GetMiscValue() & (1 << CombatRating::CR_MASTERY))
+                l_Modifier += float((*l_Iter)->GetAmount());
+        }
+        AddPct(value, l_Modifier);
+
         // Mastery from rating
-        value += GetRatingBonusValue(CR_MASTERY);
+        value += GetRatingBonusValue(CombatRating::CR_MASTERY);
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
