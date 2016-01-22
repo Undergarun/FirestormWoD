@@ -15901,9 +15901,9 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
             if (l_Aura)
             {
                 int32 l_HolyPower = l_Player->GetPower(POWER_HOLY_POWER) >= 3 ? 3 : l_Player->GetPower(POWER_HOLY_POWER);
-                int32 l_AddValue  = 5 * l_HolyPower;
+                int32 l_AddValue = (5 * l_HolyPower) + l_Aura->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
-                l_Aura->GetEffect(0)->ChangeAmount(15 + l_AddValue);
+                l_Aura->GetEffect(0)->ChangeAmount(l_AddValue);
 
                 AuraPtr l_SecondAura = l_Player->AddAura(114695, l_Player);
 
