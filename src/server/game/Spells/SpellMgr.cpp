@@ -5163,6 +5163,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 703: ///< Garrote
                 spellInfo->ProcChance = 100;
                 break;
+            case 158392: ///< Hammer of Wrath (override)
             case 24275: ///< Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
