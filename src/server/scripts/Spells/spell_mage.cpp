@@ -2956,12 +2956,100 @@ class spell_mage_item_t17_arcane_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Glyph of Illusion - 63092
+class spell_mage_glyph_of_illusion : public SpellScriptLoader
+{
+    public:
+        spell_mage_glyph_of_illusion() : SpellScriptLoader("spell_mage_glyph_of_illusion") { }
+
+        class spell_mage_glyph_of_illusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_glyph_of_illusion_AuraScript);
+
+            enum eSpells
+            {
+                Illusion = 131784
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::Illusion))
+                    l_Player->learnSpell(eSpells::Illusion, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::Illusion))
+                    l_Player->removeSpell(eSpells::Illusion, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_mage_glyph_of_illusion_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_mage_glyph_of_illusion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_glyph_of_illusion_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Illusion - 131784
+class spell_mage_illusion : public SpellScriptLoader
+{
+    public:
+        spell_mage_illusion() : SpellScriptLoader("spell_mage_illusion") { }
+
+        class spell_mage_illusion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_illusion_SpellScript);
+
+            enum eSpells
+            {
+                Illusion = 94632
+            };
+
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::Illusion, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_mage_illusion_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_illusion_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_illusion();
+    new spell_mage_glyph_of_illusion();
     new spell_mage_ring_of_frost_trigger();
     new spell_mage_arcane_charge();
     new spell_mage_meteor();
