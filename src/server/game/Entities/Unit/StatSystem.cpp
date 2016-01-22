@@ -874,8 +874,19 @@ void Player::UpdateMasteryPercentage()
     {
         // Mastery from SPELL_AURA_MASTERY aura
         value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
+        float l_Modifier = 0;
+
+        ///< Add rating pct
+        AuraEffectList const& l_ModRatingPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_INCREASE_RATING_PCT);
+        for (AuraEffectList::const_iterator l_Iter = l_ModRatingPCT.begin(); l_Iter != l_ModRatingPCT.end(); ++l_Iter)
+        {
+            if ((*l_Iter)->GetMiscValue() & (1 << CombatRating::CR_MASTERY))
+                l_Modifier += float((*l_Iter)->GetAmount());
+        }
+        AddPct(value, l_Modifier);
+
         // Mastery from rating
-        value += GetRatingBonusValue(CR_MASTERY);
+        value += GetRatingBonusValue(CombatRating::CR_MASTERY);
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
@@ -1571,7 +1582,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+    if (l_Owner->GetTypeId() == TYPEID_PLAYER && GetEntry() != ENTRY_FROZEN_ORB)
         l_Owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
 
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);

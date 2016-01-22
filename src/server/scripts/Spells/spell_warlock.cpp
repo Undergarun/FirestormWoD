@@ -388,6 +388,45 @@ class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
         }
 };
 
+/// Call by Avoidance - 32233
+/// Grimoire of Supremacy - 108499
+class spell_warl_grimoire_of_supremacy_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_supremacy_bonus() : SpellScriptLoader("spell_warl_grimoire_of_supremacy_bonus") { }
+
+        class spell_warl_grimoire_of_supremacy_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_grimoire_of_supremacy_bonus_AuraScript);
+
+            enum eSpells
+            {
+                GrimoireOfSupremacyBonus    = 115578,
+                GrimoireOfSupremacy         = 108499
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Owner = l_Target->GetOwner();
+
+                if (l_Owner->HasAura(eSpells::GrimoireOfSupremacy) && !l_Target->HasAura(eSpells::GrimoireOfSupremacyBonus))
+                    l_Target->CastSpell(l_Target, eSpells::GrimoireOfSupremacyBonus, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_grimoire_of_supremacy_bonus_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_grimoire_of_supremacy_bonus_AuraScript();
+        }
+};
+
+
 // Soulburn : Seed of Corruption - Damage - 87385
 class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
 {
@@ -4332,6 +4371,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_grimoire_of_supremacy_bonus();
     new spell_warl_molten_core();
     new spell_warl_demonbolt();
     new spell_warl_incinerate();

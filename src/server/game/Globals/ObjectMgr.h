@@ -1212,6 +1212,7 @@ class ObjectMgr
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
+        void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
 
         void LoadGuildChallengeRewardInfo();
@@ -1669,6 +1670,11 @@ class ObjectMgr
             return false;
         }
 
+        bool IsDisabledEncounter(uint32 p_EncounterID) const
+        {
+            return m_DisabledEncounters.find(p_EncounterID) != m_DisabledEncounters.end();
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1855,6 +1861,8 @@ class ObjectMgr
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
         TaxiNodes _taxiNodes;
+
+        std::set<uint32> m_DisabledEncounters;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
