@@ -7765,6 +7765,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 114163: ///< Eternal Flame
+                        case 156322: ///< Eternal Flame (DoT)
                         case 130551: ///< Word of GLory
                         case 85222: ///< Light of Dawn
                         {
