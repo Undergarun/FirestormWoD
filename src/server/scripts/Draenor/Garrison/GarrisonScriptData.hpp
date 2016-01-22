@@ -39,6 +39,7 @@ namespace MS { namespace Garrison
         PhaseMagePortalNagrand        = 0x00000040,
         PhaseMagePortalShadowmoon     = 0x00000080,
         PhaseMagePortalGorgrond       = 0x00000100,
+        PhaseLostInTransitionQuest    = 0x00000200
     };
 
     /// Instance data common IDs
