@@ -13,7 +13,8 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (77378, 0, 18567, 0, 0, 0, 1);
 
 DELETE FROM spell_loot_template WHERE entry = 168178;
-INSERT INTO `spell_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `itemBonuses`) VALUES('168178','106824','0.5','1','1','1','2','');
+INSERT INTO `spell_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `itemBonuses`) VALUES
+('168178','106824','0.5','1','1','1','2',''),
 ('168178','106825','4.9','1','1','1','2',''),
 ('168178','106826','0.9','1','1','1','2',''),
 ('168178','106867','4.1','1','1','1','2',''),
