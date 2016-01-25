@@ -795,22 +795,22 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         m_Player->UninviteFromGroup();
 
-        // remove player from the group if he is:
-        // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-        if (m_Player->GetGroup() && !m_Player->GetGroup()->isRaidGroup() && m_Socket)
-            m_Player->RemoveFromGroup();
-
-        //! Send update to group and reset stored max enchanting level
-        if (m_Player->GetGroup())
-        {
-            m_Player->GetGroup()->SendUpdate();
-            m_Player->GetGroup()->ResetMaxEnchantingLevel();
-        }
-
         //! Broadcast a logout message to the player's friends
 
         if (!p_AfterInterRealm)
         {
+            // remove player from the group if he is:
+            // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
+            if (m_Player->GetGroup() && !m_Player->GetGroup()->isRaidGroup() && m_Socket)
+                m_Player->RemoveFromGroup();
+
+            //! Send update to group and reset stored max enchanting level
+            if (m_Player->GetGroup())
+            {
+                m_Player->GetGroup()->SendUpdate();
+                m_Player->GetGroup()->ResetMaxEnchantingLevel();
+            }
+
             sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
             sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
 
