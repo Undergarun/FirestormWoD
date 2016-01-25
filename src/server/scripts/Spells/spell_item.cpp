@@ -2731,7 +2731,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                    if (Creature* l_Chauffeur = sObjectAccessor->FindCreature(l_Target->GetPersonnalChauffeur()))
                         l_Chauffeur->EnterVehicle(l_Target);
                 }
             }
@@ -2740,7 +2740,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                    if (Creature* l_Chauffeur = sObjectAccessor->FindCreature(l_Target->GetPersonnalChauffeur()))
                         l_Chauffeur->DespawnOrUnsummon();
                 }
             }
