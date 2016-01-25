@@ -3887,6 +3887,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157701:///< Chaos Bolt
                 spellInfo->SpellVisual[0] = 45351; ///< Set a visual id from working Chaos Bolt.
                 break;
+            case 153626:///< Arcane Orb
+                spellInfo->SpellVisual[0] = 42341;
+                break;
             case 162472:///< Earth Breaker (Vul'gor)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
