@@ -3573,7 +3573,7 @@ enum SpellsRake
     SPELL_DRU_BLOODTALONS = 145152
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Rake - 1822
 class spell_dru_rake: public SpellScriptLoader
 {
@@ -3975,7 +3975,7 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Rip - 1079
 class spell_dru_rip: public SpellScriptLoader
 {
