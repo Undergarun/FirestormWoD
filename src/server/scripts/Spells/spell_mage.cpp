@@ -1004,6 +1004,7 @@ class CheckNetherImpactPredicate
         Unit* _mainTarget;
 };
 
+/// Last Update 6.2.3
 /// Nether Tempest - 114954
 class spell_mage_nether_tempest_damage : public SpellScriptLoader
 {
@@ -1014,9 +1015,10 @@ class spell_mage_nether_tempest_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_nether_tempest_damage_SpellScript);
 
-            enum eSpell
+            enum eSpells
             {
-                NetherTempestAura = 114923
+                NetherTempestAura           = 114923,
+                NetherTempestLuncherVisual  = 114956
             };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
@@ -1024,20 +1026,35 @@ class spell_mage_nether_tempest_damage : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
+                Unit* l_FirstTarget = nullptr;
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
                     return;
+
+                for (WorldObject* l_Unit : p_Targets)
+                {
+                    if (l_Unit->ToUnit() && l_Unit->ToUnit()->HasAura(eSpells::NetherTempestAura, l_Caster->GetGUID()))
+                        l_FirstTarget = l_Unit->ToUnit();
+                }
 
                 p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
-                    if (p_Object->ToUnit()->HasAura(eSpell::NetherTempestAura, l_Caster->GetGUID()))
+                    if (p_Object->ToUnit()->HasAura(eSpells::NetherTempestAura, l_Caster->GetGUID()))
                         return true;
 
                     return false;
                 });
+
+                if (l_FirstTarget == nullptr)
+                    return;
+
+                for (WorldObject* l_Unit : p_Targets)
+                {
+                    l_FirstTarget->CastSpell(l_Unit->ToUnit(), eSpells::NetherTempestLuncherVisual, true);
+                }
             }
 
             void HandleDamage()

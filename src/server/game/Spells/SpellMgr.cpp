@@ -3456,6 +3456,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155224: ///< Melt (Heart of the Mountain)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 114956: ///< Nether Tempest (launcher visual)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 155819: ///< Hunger Drive (Oregorger)
                 spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
                 break;
