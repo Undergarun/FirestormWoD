@@ -1150,7 +1150,7 @@ enum Opcodes
     CMSG_NAME_QUERY                             = 0x01A4, ///< 6.2.3 20726
     CMSG_QUEST_QUERY                            = 0x08BD, ///< 6.2.3 20726
     CMSG_QUEST_POI_QUERY                        = 0x04AF, ///< 6.2.3 20726
-    CMSG_REALM_NAME_QUERY                       = 0x0000,
+    CMSG_REALM_NAME_QUERY                       = 0x016C, ///< 6.2.3 20726
     CMSG_GAMEOBJECT_QUERY                       = 0x182D, ///< 6.2.3 20726
     CMSG_PETITION_QUERY                         = 0x050A, ///< 6.2.3 20726
     CMSG_QUERY_GUILD_INFO                       = 0x00BC, ///< 6.2.3 20726

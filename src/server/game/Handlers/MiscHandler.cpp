@@ -1656,6 +1656,7 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& p_Packet)
     l_Data << uint8(REALM_QUERY_NAME_RESPONSE_OK);                  ///< Lookup State
 
     l_Data.WriteBit(true);                                          ///< Is Locale
+    l_Data.WriteBit(false);                                         ///< Unk
     l_Data.WriteBits(sWorld->GetRealmName().size(), 8);             ///< Realm Name Actual
     l_Data.WriteBits(sWorld->GetNormalizedRealmName().size(), 8);   ///< Realm Name Normalized
     l_Data.FlushBits();
