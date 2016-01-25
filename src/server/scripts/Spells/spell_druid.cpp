@@ -3573,7 +3573,7 @@ enum SpellsRake
     SPELL_DRU_BLOODTALONS = 145152
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Rake - 1822
 class spell_dru_rake: public SpellScriptLoader
 {
@@ -3616,11 +3616,8 @@ class spell_dru_rake: public SpellScriptLoader
                 if (!l_Caster || !l_Target)
                     return;
 
-                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
-                {
+                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS)) ///< Charge is drop on Rake periodic damage
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
-                    l_BloodTalons->DropCharge();
-                }
 
                 if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                 {
@@ -3666,18 +3663,25 @@ public:
         {
             Unit* l_Caster = GetCaster();
 
-            if (l_Caster)
+            if (l_Caster == nullptr)
+                return;
+
+
+            if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
             {
-                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                if (l_ImprovedRake->GetEffect(1)->GetAmount() == 1)
                 {
-                    if (l_ImprovedRake->GetEffect(1)->GetAmount() == 1)
-                    {
-                        int32 l_Amount = p_Amount;
-                        l_Amount = (l_Amount + CalculatePct(l_Amount, l_ImprovedRake->GetEffect(0)->GetAmount()));
-                        p_Amount = l_Amount;
-                        l_ImprovedRake->GetEffect(1)->SetAmount(0);
-                    }
+                    int32 l_Amount = p_Amount;
+                    l_Amount = (l_Amount + CalculatePct(l_Amount, l_ImprovedRake->GetEffect(0)->GetAmount()));
+                    p_Amount = l_Amount;
+                    l_ImprovedRake->GetEffect(1)->SetAmount(0);
                 }
+            }
+
+            if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
+            {
+                p_Amount += CalculatePct(p_Amount, l_BloodTalons->GetEffect(EFFECT_0)->GetAmount());
+                l_BloodTalons->DropCharge();
             }
         }
 
@@ -3971,7 +3975,7 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Rip - 1079
 class spell_dru_rip: public SpellScriptLoader
 {
@@ -4020,6 +4024,12 @@ class spell_dru_rip: public SpellScriptLoader
 
                 if (l_Combo > 0)
                     p_Amount *= l_Combo;
+
+                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
+                {
+                    p_Amount += CalculatePct(p_Amount, l_BloodTalons->GetEffect(EFFECT_0)->GetAmount());
+                    l_BloodTalons->DropCharge();
+                }
             }
 
             void Register()

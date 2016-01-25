@@ -2608,12 +2608,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
                 targetInfo.timeDelay = 100LL;
                 m_delayMoment = 100LL;
             }
-        /// Comet Storm
-        else if (m_spellInfo->Id == 153596)
-        {
-            targetInfo.timeDelay = 200LL;
-            m_delayMoment = 200LL;
-        }
         }
     }
     // Removing Death Grip cooldown
