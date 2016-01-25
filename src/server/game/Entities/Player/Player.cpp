@@ -24752,7 +24752,7 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
 
 void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
-    Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
+    Player* l_Target = ObjectAccessor::FindPlayerInOrOutOfWorld(p_Receiver);
     if (l_Target == nullptr)
         return;
 

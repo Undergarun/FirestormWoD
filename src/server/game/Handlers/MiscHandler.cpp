@@ -312,17 +312,17 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
                 continue;
         }
 
-        /// Do not process players which are not in world
-        if (!(l_It->second->IsInWorld()))
-            continue;
-
         /// check if target is globally visible for player
         if (!(l_It->second->IsVisibleGloballyFor(m_Player)))
             continue;
 
         uint32  l_PlayerClass   = l_It->second->getClass();
         uint32  l_PlayerRace    = l_It->second->getRace();
-        uint32  l_AreaID        = l_It->second->GetZoneId();
+        uint32  l_AreaID        = l_It->second->GetSession()->GetInterRealmBG();
+
+        if (!l_AreaID)
+            l_AreaID = l_It->second->GetZoneId();
+
         uint8   l_PlayerLevel   = l_It->second->getLevel();
         uint8   l_PlayerSex     = l_It->second->getGender();
 
