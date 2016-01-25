@@ -5990,7 +5990,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 47753: ///< Divine Aegis
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             case 170995:///< Cripple
