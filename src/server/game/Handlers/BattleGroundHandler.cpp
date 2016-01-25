@@ -162,6 +162,9 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
 
         if (m_Player->GetBattlegroundQueueIndex(l_BGQueueTypeIDRandom) < PLAYER_MAX_BATTLEGROUND_QUEUES)
         {
+            if (l_BGTypeID == BATTLEGROUND_RB)
+                return;
+
             /// Player is already in random queue.
             WorldPacket data;
             MS::Battlegrounds::PacketFactory::StatusFailed(&data, l_BG, m_Player, 0, ERR_IN_RANDOM_BG);

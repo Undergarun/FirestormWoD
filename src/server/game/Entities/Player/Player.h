@@ -2955,6 +2955,7 @@ class Player : public Unit, public GridObject<Player>
                     return i;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
+
         bool IsInvitedForBattlegroundQueueType(MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId) const
         {
             for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
@@ -2962,6 +2963,7 @@ class Player : public Unit, public GridObject<Player>
                     return m_bgBattlegroundQueueID[i].invitedToInstance != 0;
             return false;
         }
+
         bool InBattlegroundQueueForBattlegroundQueueType(MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId) const
         {
             return GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES;
@@ -2972,7 +2974,6 @@ class Player : public Unit, public GridObject<Player>
             m_bgData.bgInstanceID = val;
             m_bgData.bgTypeID = bgTypeId;
         }
-
 
         uint32 AddBattlegroundQueueId(MS::Battlegrounds::BattlegroundType::Type val)
         {

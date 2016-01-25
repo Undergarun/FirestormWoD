@@ -1694,10 +1694,10 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
 
-        std::atomic_uint32_t m_HighItemGuid;
-        std::atomic_uint32_t m_MailId;
-        std::atomic_uint32_t m_PetNumber;
-        std::atomic_uint64_t m_EquipmentSetGuid;
+        std::atomic<uint32> m_HighItemGuid;
+        std::atomic<uint32> m_MailId;
+        std::atomic<uint32> m_PetNumber;
+        std::atomic<uint64> m_EquipmentSetGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
