@@ -53,3 +53,9 @@ insert into `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 
 DELETE FROM gameobject WHERE id IN (232542, 232543, 232544, 232545) AND map in (1331, 1330); -- Garrison lvl 2 (A/H)
 UPDATE gameobject_template SET data17 = 43000, scriptname = "go_garrison_deposit" WHERE entry IN (232542, 232543, 232544, 232545);
+
+UPDATE gameobject_loot_template SET groupid = 1 WHERE entry IN (
+55500,
+55519,
+55521,
+55524);

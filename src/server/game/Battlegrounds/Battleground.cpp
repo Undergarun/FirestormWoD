@@ -593,7 +593,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     // BG Status packet
                     WorldPacket status;
-                    MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
+                    MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish()); ///< l_BgType is never read 01/18/16
                     uint32 queueSlot = l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
                     MS::Battlegrounds::PacketFactory::Status(&status, this, l_Player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     l_Player->GetSession()->SendPacket(&status);
@@ -932,9 +932,9 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
         if (winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
-            loser_team_rating = loser_team->GetRating(slot);
+            loser_team_rating = loser_team->GetRating(slot); ///< loser_team_rating is never read 01/18/16
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
-            winner_team_rating = winner_team->GetRating(slot);
+            winner_team_rating = winner_team->GetRating(slot); ///< winner_team_rating is never read 01/18/16
             winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
             winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
@@ -1106,7 +1106,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         MS::Battlegrounds::PacketFactory::PvpLogData(&data, this);
         l_Player->GetSession()->SendPacket(&data);
 
-        MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish());
+        MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish()); ///< bgQueueTypeId is never read 01/18/16
         MS::Battlegrounds::PacketFactory::Status(&data, this, l_Player, l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
         l_Player->GetSession()->SendPacket(&data);
 

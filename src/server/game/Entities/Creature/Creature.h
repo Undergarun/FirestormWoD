@@ -94,6 +94,7 @@ enum CreatureFlagsExtra
 
 // Mage
 #define ENTRY_WATER_ELEMENTAL   510
+#define ENTRY_FROZEN_ORB        45322
 
 // Druid
 #define ENTRY_TREANT_GUARDIAN   54985

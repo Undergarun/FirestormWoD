@@ -271,12 +271,12 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         cinfoid=uint16(BG_AV_StaticCreaturePos[type][4]);
         creature = AddCreature(BG_AV_StaticCreatureInfo[cinfoid][0], (type+AV_CPLACE_MAX), BG_AV_StaticCreatureInfo[cinfoid][1], BG_AV_StaticCreaturePos[type][0], BG_AV_StaticCreaturePos[type][1], BG_AV_StaticCreaturePos[type][2], BG_AV_StaticCreaturePos[type][3]);
         level = (BG_AV_StaticCreatureInfo[cinfoid][2] == BG_AV_StaticCreatureInfo[cinfoid][3]) ? BG_AV_StaticCreatureInfo[cinfoid][2] : urand(BG_AV_StaticCreatureInfo[cinfoid][2], BG_AV_StaticCreatureInfo[cinfoid][3]);
-        isStatic = true;
+        isStatic = true; ///< level is never read 01/18/16
     }
     else
     {
         creature = AddCreature(BG_AV_CreatureInfo[cinfoid][0], type, BG_AV_CreatureInfo[cinfoid][1], BG_AV_CreaturePos[type][0], BG_AV_CreaturePos[type][1], BG_AV_CreaturePos[type][2], BG_AV_CreaturePos[type][3]);
-        level = (BG_AV_CreatureInfo[cinfoid][2] == BG_AV_CreatureInfo[cinfoid][3]) ? BG_AV_CreatureInfo[cinfoid][2] : urand(BG_AV_CreatureInfo[cinfoid][2], BG_AV_CreatureInfo[cinfoid][3]);
+        level = (BG_AV_CreatureInfo[cinfoid][2] == BG_AV_CreatureInfo[cinfoid][3]) ? BG_AV_CreatureInfo[cinfoid][2] : urand(BG_AV_CreatureInfo[cinfoid][2], BG_AV_CreatureInfo[cinfoid][3]); ///< level is never read 01/18/16
     }
     if (!creature)
         return NULL;
@@ -324,8 +324,8 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     }
     else if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_BOSS][0])
     {
-        triggerSpawnID = AV_CPLACE_TRIGGER19;
-        newFaction = 83;
+        triggerSpawnID = AV_CPLACE_TRIGGER19; ///< triggerSpawnID is never read 01/18/16
+        newFaction = 83; ///< newFaction is never read 01/18/16
     }
     /*if (triggerSpawnID && newFaction)
     {

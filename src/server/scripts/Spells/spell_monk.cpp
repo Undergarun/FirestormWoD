@@ -357,7 +357,8 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
         }
 };
 
-// Storm, Earth and Fire - 137639
+/// Last Update 6.2.3
+/// Storm, Earth and Fire - 137639
 class spell_monk_storm_earth_and_fire: public SpellScriptLoader
 {
     public:
@@ -376,6 +377,11 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                 firstSpirit  = 3;
                 return true;
             }
+
+            enum eSpells
+            {
+                MirrorImage = 60352
+            };
 
             void HandleDummy(SpellEffIndex effIndex)
             {
@@ -453,7 +459,10 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                                     }
 
                                     if (pPet && pPet->GetAI())
+                                    {
                                         pPet->GetAI()->SetGUID(target->GetGUID());
+                                        caster->CastSpell(pPet, eSpells::MirrorImage, true);
+                                    }
 
                                     return;
                                 }
@@ -481,7 +490,10 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                             }
 
                             if (pPet && pPet->GetAI())
+                            {
                                 pPet->GetAI()->SetGUID(target->GetGUID());
+                                caster->CastSpell(pPet, eSpells::MirrorImage, true);
+                            }
 
                             if (firstSpirit == 3)
                                 firstSpirit = i;
@@ -3739,17 +3751,7 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
 
 
                 if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && l_Player->HasAura(eSpells::StanceOfTheWiseSerpents)))
-                {
-                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
-
-                    int32 l_Bp0 = ((0.72f * l_Low + 0.72f * l_High) / 2 * 9);
-                    uint32 l_Amplitude = GetSpellInfo()->Effects[EFFECT_0].Amplitude;
-
-                    if (l_Amplitude)
-                        l_Bp0 /= GetSpellInfo()->GetDuration() / l_Amplitude;
-
-                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, &l_Bp0, NULL, NULL, true);
-                }
+                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, true);
                 else
                     l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
@@ -3807,9 +3809,35 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
                     l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(116847);
+
+                float l_Low = 0;
+                float l_High = 0;
+
+                if (l_Player == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int32 l_Bp0 = ((0.72f * l_Low + 0.72f * l_High) / 2 * 9);
+                uint32 l_Amplitude = l_SpellInfo->Effects[EFFECT_0].Amplitude;
+
+                if (l_Amplitude)
+                    l_Bp0 /= l_SpellInfo->GetDuration() / l_Amplitude;
+
+                l_Bp0 = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp0, 0, SPELL_DIRECT_DAMAGE);
+                l_Bp0 = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp0, SPELL_DIRECT_DAMAGE);
+                SetHitDamage(l_Bp0);
+            }
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_rushing_jade_wind_damage_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_rushing_jade_wind_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

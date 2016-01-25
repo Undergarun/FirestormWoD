@@ -3371,6 +3371,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
+            case 101603:    ///< Hack for Throw Totem, Echo of Baine
+            case 161710:    ///< Garrison enchanter study
+            case 160201:    ///< Garrison enchanter study
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
+                break;
+        }
+
+        switch (spellInfo->Id)
+        {
             case 105157: ///< See Quest Invis 14, Wandering Island spell
                 spellInfo->AreaGroupId = 0;
                 break;
@@ -5153,6 +5163,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 703: ///< Garrote
                 spellInfo->ProcChance = 100;
                 break;
+            case 158392: ///< Hammer of Wrath (override)
             case 24275: ///< Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
@@ -5260,6 +5271,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 34428: ///< Victory Rush
                 spellInfo->OverrideSpellList.push_back(103840); ///< Impending Victory
                 break;
+            case 157633: ///< Improved Scorch
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_FIRE;
+                break;
             case 91342: ///< Shadow Infusion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5359,6 +5373,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123811: ///< Pheromones of Zeal (HoF - #1 Zor'lok)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
+            case 178153: ///< Death from Above
+                spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_FRONT;
+                break;
             case 97817: ///< Leap of Faith
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
                 spellInfo->Effects[0].MiscValue = 25;
@@ -5399,6 +5416,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[0].Amplitude = 500;
+                break;
+            case 12043:
+                spellInfo->Effects[1].Effect = 0;
                 break;
             case 122786: ///< Broken leg (HoF - #3 Garalon)
                 spellInfo->Effects[0].MiscValue = -15;
@@ -5760,6 +5780,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
+            case 20578: ///< Cannibalize
+            case 20577: ///< Cannibalize
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
             case 57879: ///< Snake Trap
@@ -5966,6 +5990,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 47753: ///< Divine Aegis
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             case 170995:///< Cripple
@@ -5981,6 +6006,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 95861: ///< Meditation
                 spellInfo->Effects[1].Effect = 0;  ///< On retail priests don't have this bonus, also in tooltip nothing said about that
+                break;
+            case 157048:///< Final Verdict
+                spellInfo->Effects[0].BasePoints = 259; ///< 6.2.3 hotfix: Final Verdict (Retribution) damage has been increased by 8%
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
@@ -7007,7 +7035,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
 
             /// Our targetting system is weird as fuck - would need a full rewrite for this to work properly, do not touch - hours of debugging
-            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY))
+            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY) || spellInfo->HasEffect(SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES))
                 spellInfo->ExplicitTargetMask = TARGET_FLAG_NONE;
 
             spellInfo->UpdateSpellEffectCount(); ///< Re-cache the maximum number of effects
