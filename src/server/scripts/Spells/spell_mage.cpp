@@ -629,6 +629,7 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                         arcaneMissiles->DropCharge();
             }
 
+
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_missile_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
@@ -3067,12 +3068,64 @@ class spell_mage_illusion : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Arcane Missiles! - 79683
+class spell_mage_arcane_missiles_visual : public SpellScriptLoader
+{
+    public:
+        spell_mage_arcane_missiles_visual() : SpellScriptLoader("spell_mage_arcane_missiles_visual") { }
+
+        class spell_mage_arcane_missiles_visual_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_arcane_missiles_visual_AuraScript);
+
+            enum eSpells
+            {
+                ArcaneMissilesVisualUI = 79808
+            };
+
+            void OnRemove(constAuraEffectPtr p_AuraPtr, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::ArcaneMissilesVisualUI);
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetCharges() > 0 || GetStackAmount() > 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::ArcaneMissilesVisualUI, true);
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_mage_arcane_missiles_visual_AuraScript::OnUpdate);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_arcane_missiles_visual_AuraScript();
+        }
+};
+
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_arcane_missiles_visual();
     new spell_mage_illusion();
     new spell_mage_glyph_of_illusion();
     new spell_mage_ring_of_frost_trigger();
