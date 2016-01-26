@@ -32,6 +32,7 @@ class boss_flamebender_kagraz : public CreatureScript
         {
             /// Cosmetic
             PrefightCosmeticBossAura    = 156237,
+            AllowMoltenTorrentCast      = 155912,
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
@@ -68,6 +69,11 @@ class boss_flamebender_kagraz : public CreatureScript
         {
         };
 
+        enum eCreature
+        {
+            FlamebenderKagrazTrigger = 76996
+        };
+
         struct boss_flamebender_kagrazAI : public BossAI
         {
             boss_flamebender_kagrazAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataFlamebenderKagraz)
@@ -79,6 +85,8 @@ class boss_flamebender_kagraz : public CreatureScript
 
             EventMap m_Events;
             EventMap m_CosmeticEvents;
+
+            uint64 m_LavaSlashTarget;
 
             bool CanRespawn() override
             {
@@ -92,12 +100,15 @@ class boss_flamebender_kagraz : public CreatureScript
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
+                summons.DespawnAll();
+
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
                 _Reset();
 
                 me->RemoveAllAreasTrigger();
 
+                me->CastSpell(me, eSpells::AllowMoltenTorrentCast, true);
                 me->CastSpell(me, eSpells::PrefightCosmeticBossAura, false);
 
                 me->setPowerType(Powers::POWER_ENERGY);
@@ -119,6 +130,8 @@ class boss_flamebender_kagraz : public CreatureScript
                         });
                     }
                 }
+
+                m_LavaSlashTarget = 0;
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -173,6 +186,12 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                 }
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                if (p_Summon->GetEntry() == eCreature::FlamebenderKagrazTrigger && p_Summon->IsAIEnabled)
+                    p_Summon->AI()->SetGUID(m_LavaSlashTarget, 0);
             }
 
             void OnSpellCasted(SpellInfo const* p_SpellInfo) override
@@ -299,6 +318,38 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eEvents::EventLavaSlash:
                     {
+                        Unit* l_Target = nullptr;
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f))
+                            me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
+
+                        m_LavaSlashTarget = l_Target->GetGUID();
+
+                        Position l_Dest = *l_Target;
+                        Position l_Src  = *me;
+
+                        AddTimedDelayedOperation(500, [this, l_Dest, l_Src]() -> void
+                        {
+                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            {
+                                Position l_Target;
+
+                                float l_O = l_Src.GetAngle(&l_Dest);
+                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
+                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
+                                float l_Z = l_Src.m_positionZ;
+
+                                l_Target.m_positionX    = l_X;
+                                l_Target.m_positionY    = l_Y;
+                                l_Target.m_positionZ    = l_Z;
+                                l_Target.m_orientation  = l_O;
+
+                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                            }
+                        });
+
                         m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlashAgain);
                         break;
                     }
@@ -481,6 +532,99 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
         }
 };
 
+/// Flamebender Ka'graz Trigger - 76996
+class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
+{
+    public:
+        npc_foundry_flamebender_kagraz_trigger() : CreatureScript("npc_foundry_flamebender_kagraz_trigger") { }
+
+        enum eSpells
+        {
+            LavaSlashSearcherSecond = 155357,
+            LavaSlashMissile        = 155297,
+            LavaSlashAreaTrigger    = 154915
+        };
+
+        struct npc_foundry_flamebender_kagraz_triggerAI : public ScriptedAI
+        {
+            npc_foundry_flamebender_kagraz_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            uint64 m_LavaSlashTarget;
+
+            void Reset() override
+            {
+                m_LavaSlashTarget = 0;
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            {
+                m_LavaSlashTarget = p_Guid;
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::LavaSlashSearcherSecond:
+                    {
+                        if (p_Target->GetGUID() == m_LavaSlashTarget)
+                            break;
+
+                        me->CastSpell(p_Target, eSpells::LavaSlashMissile, true);
+
+                        Position l_Dest = *p_Target;
+                        Position l_Src  = *me;
+
+                        AddTimedDelayedOperation(200, [this, l_Dest, l_Src]() -> void
+                        {
+                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            {
+                                Position l_Target;
+
+                                float l_O = l_Src.GetAngle(&l_Dest);
+                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
+                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
+                                float l_Z = l_Src.m_positionZ;
+
+                                l_Target.m_positionX    = l_X;
+                                l_Target.m_positionY    = l_Y;
+                                l_Target.m_positionZ    = l_Z;
+                                l_Target.m_orientation  = l_O;
+
+                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                            }
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_flamebender_kagraz_triggerAI(p_Creature);
+        }
+};
+
 /// Drop the Hammer (aura) - 156038
 class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
 {
@@ -526,6 +670,82 @@ class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
         }
 };
 
+/// Lava Slash - 154915
+class areatrigger_foundry_lava_slash_pool : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_lava_slash_pool() : AreaTriggerEntityScript("areatrigger_foundry_lava_slash_pool") { }
+
+        enum eSpell
+        {
+            LavaSlashDoT = 155314
+        };
+
+        std::set<uint64> m_AffectedPlayers;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 0.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::LavaSlashDoT))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::LavaSlashDoT, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::LavaSlashDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::LavaSlashDoT);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_lava_slash_pool();
+        }
+};
+
 void AddSC_boss_flamebender_kagraz()
 {
     /// Boss
@@ -533,9 +753,11 @@ void AddSC_boss_flamebender_kagraz()
 
     /// Creatures
     new npc_foundry_aknor_steelbringer();
+    new npc_foundry_flamebender_kagraz_trigger();
 
     /// Spells
     new spell_foundry_drop_the_hammer_aura();
 
     /// AreaTriggers
+    new areatrigger_foundry_lava_slash_pool();
 }
