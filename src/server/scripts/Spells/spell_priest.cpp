@@ -789,6 +789,7 @@ class spell_pri_shadowfiend: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Surge of Light - 114255
 class spell_pri_surge_of_light : public SpellScriptLoader
 {
@@ -826,9 +827,52 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             }
         };
 
+        class spell_pri_surge_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_surge_of_light_AuraScript);
+
+            enum eSpells
+            {
+                SurgeOfLightVisualUI = 128654
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::SurgeOfLightVisualUI))
+                    l_Caster->CastSpell(l_Caster, eSpells::SurgeOfLightVisualUI, true);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::SurgeOfLightVisualUI))
+                    l_Caster->RemoveAura(eSpells::SurgeOfLightVisualUI);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectRemoveFn(spell_pri_surge_of_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_surge_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_surge_of_light_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_surge_of_light_AuraScript();
         }
 };
 
