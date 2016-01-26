@@ -160,3 +160,7 @@ INSERT INTO spell_script_names VALUES
 (163182, "spell_foundry_crushing_slam"),
 (177860, "spell_foundry_ember_in_the_wind_damage"),
 (156038, "spell_foundry_drop_the_hammer_aura");
+
+DELETE FROM areatrigger_template WHERE spell_id IN (154915);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, ScriptName) VALUES
+(154915, 0, 6229, 2, 0x4000, 1, 1, "areatrigger_foundry_lava_slash_pool");
