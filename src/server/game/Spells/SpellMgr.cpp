@@ -3456,6 +3456,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155224: ///< Melt (Heart of the Mountain)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 114956: ///< Nether Tempest (launcher visual)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 155819: ///< Hunger Drive (Oregorger)
                 spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
                 break;
@@ -3893,6 +3896,9 @@ void SpellMgr::LoadSpellCustomAttr()
             /// Second try to fix, didn't help too.
             case 157701:///< Chaos Bolt
                 spellInfo->SpellVisual[0] = 45351; ///< Set a visual id from working Chaos Bolt.
+                break;
+            case 153626:///< Arcane Orb
+                spellInfo->SpellVisual[0] = 42341;
                 break;
             case 162472:///< Earth Breaker (Vul'gor)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
@@ -5173,6 +5179,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 703: ///< Garrote
                 spellInfo->ProcChance = 100;
                 break;
+            case 158392: ///< Hammer of Wrath (override)
             case 24275: ///< Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
@@ -5789,6 +5796,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
+            case 20578: ///< Cannibalize
+            case 20577: ///< Cannibalize
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
             case 57879: ///< Snake Trap
@@ -5891,7 +5902,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 153596:///< Comet Storm
-                spellInfo->Speed = 0;
+                spellInfo->Speed = 0.05f;
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
@@ -5995,7 +6006,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 47753: ///< Divine Aegis
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             case 170995:///< Cripple

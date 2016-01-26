@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
@@ -330,12 +331,21 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             }
             return false;
         case DISABLE_TYPE_QUEST:
+        {
             if (!unit)
                 return true;
-            if (Player const* player = unit->ToPlayer())
-                if (player->isGameMaster())
+
+            if (Player const* l_Player = unit->ToPlayer())
+            {
+                if (l_Player->isGameMaster())
                     return false;
+
+                if (l_Player->m_IsDebugQuestLogs && l_Player->GetSession())
+                    ChatHandler(l_Player->GetSession()).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_DISABLED);
+            }
+
             return true;
+        }
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:

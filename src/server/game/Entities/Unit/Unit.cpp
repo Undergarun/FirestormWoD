@@ -7765,6 +7765,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 114163: ///< Eternal Flame
+                        case 156322: ///< Eternal Flame (DoT)
                         case 130551: ///< Word of GLory
                         case 85222: ///< Light of Dawn
                         {
@@ -11856,7 +11858,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         AddPct(TakenTotalMod, mult);
 
-        if (caster->GetTypeId() == TYPEID_UNIT)
+        if (caster->GetTypeId() != TYPEID_PLAYER)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
             AddPct(TakenTotalMod, u_mult);
@@ -13384,7 +13386,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     {
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         TakenTotalMod += CalculatePct(1.0, mult);
-        if (attacker->GetTypeId() == TYPEID_UNIT)
+        if (attacker->GetTypeId() != TYPEID_PLAYER)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
             TakenTotalMod += CalculatePct(1.0, u_mult);
@@ -13396,19 +13398,8 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         TakenTotalMod -= CalculatePct(1.0, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     float tmpDamage = 0.0f;
+    tmpDamage = ((CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod) * TakenTotalMod) + CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod));
 
-    if (TakenTotalCasterMod)
-    {
-        if (TakenFlatBenefit < 0)
-        {
-            if (TakenTotalMod < 1)
-                tmpDamage = ((float(CalculatePct(pdamage, TakenTotalCasterMod) + TakenFlatBenefit) * TakenTotalMod) + CalculatePct(pdamage, TakenTotalCasterMod));
-            else
-                tmpDamage = ((float(CalculatePct(pdamage, TakenTotalCasterMod) + TakenFlatBenefit) + CalculatePct(pdamage, TakenTotalCasterMod)) * TakenTotalMod);
-        }
-        else if (TakenTotalMod < 1)
-            tmpDamage = ((CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod) * TakenTotalMod) + CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod));
-    }
     if (!tmpDamage)
         tmpDamage = (float(pdamage) + TakenFlatBenefit) * TakenTotalMod;
 
@@ -14424,6 +14415,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
+
     if (slow)
         AddPct(speed, slow);
 
@@ -14453,7 +14445,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
     if (fabs(rate) <= 0.00000023841858) // From client
-        rate = 1.0f;
+        rate = 0.01f;
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
@@ -15911,9 +15903,9 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
             if (l_Aura)
             {
                 int32 l_HolyPower = l_Player->GetPower(POWER_HOLY_POWER) >= 3 ? 3 : l_Player->GetPower(POWER_HOLY_POWER);
-                int32 l_AddValue  = 5 * l_HolyPower;
+                int32 l_AddValue = (5 * l_HolyPower) + l_Aura->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
-                l_Aura->GetEffect(0)->ChangeAmount(15 + l_AddValue);
+                l_Aura->GetEffect(0)->ChangeAmount(l_AddValue);
 
                 AuraPtr l_SecondAura = l_Player->AddAura(114695, l_Player);
 

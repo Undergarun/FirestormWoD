@@ -1409,7 +1409,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
 void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 {
-    if (!p_EncounterID)
+    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_START);
@@ -1455,7 +1455,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
 {
-    if (!p_EncounterID)
+    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);

@@ -524,7 +524,7 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 
             for (auto itr : targetList)
             {
-                if (l_Caster->IsValidAttackTarget(itr))
+                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && !itr->HasAura(eSpells::IceTrapEffect))
                     itr->CastSpell(itr, IceTrapEffect, true);
             }
 

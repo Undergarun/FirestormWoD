@@ -357,7 +357,8 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
         }
 };
 
-// Storm, Earth and Fire - 137639
+/// Last Update 6.2.3
+/// Storm, Earth and Fire - 137639
 class spell_monk_storm_earth_and_fire: public SpellScriptLoader
 {
     public:
@@ -376,6 +377,11 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                 firstSpirit  = 3;
                 return true;
             }
+
+            enum eSpells
+            {
+                MirrorImage = 60352
+            };
 
             void HandleDummy(SpellEffIndex effIndex)
             {
@@ -453,7 +459,10 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                                     }
 
                                     if (pPet && pPet->GetAI())
+                                    {
                                         pPet->GetAI()->SetGUID(target->GetGUID());
+                                        caster->CastSpell(pPet, eSpells::MirrorImage, true);
+                                    }
 
                                     return;
                                 }
@@ -481,7 +490,10 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                             }
 
                             if (pPet && pPet->GetAI())
+                            {
                                 pPet->GetAI()->SetGUID(target->GetGUID());
+                                caster->CastSpell(pPet, eSpells::MirrorImage, true);
+                            }
 
                             if (firstSpirit == 3)
                                 firstSpirit = i;

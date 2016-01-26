@@ -1255,8 +1255,6 @@ class boss_franzok : public CreatureScript
   
                             me->AttackStop();
 
-                            me->AttackStop();
-
                             me->GetMotionMaster()->Clear();
                             me->SetReactState(ReactStates::REACT_PASSIVE);
 

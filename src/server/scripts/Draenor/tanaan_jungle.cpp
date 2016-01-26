@@ -2634,7 +2634,7 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
                 if (p_Creature->GetAI())
                 {
                     p_Creature->AI()->SetGUID(p_Player->GetGUID(), 0);
-                    p_Creature->AI()->DoAction(1);
+//                    p_Creature->AI()->DoAction(1);
                 }
             }
 
@@ -2650,14 +2650,13 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
 
             uint64 m_PlayerGuid;
 
-            void SetGUID(uint64 p_Guid, int32 p_Id)
+            void SetGUID(uint64 p_Guid, int32 p_Id) override
             {
                 m_PlayerGuid = p_Guid;
             }
 
-            void DoAction(int32 const p_Id)
+            void DoAction(int32 const p_Id) override
             {
-                /// TALK
                 Talk(0);
 
                 if (m_PlayerGuid)
@@ -2822,7 +2821,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
             {
                 if (p_Creature->GetAI())
                 {
-                    p_Creature->AI()->DoAction(1);
+///                    p_Creature->AI()->DoAction(1);
                 }
             }
 
@@ -4127,7 +4126,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
 
         bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
         {
-            if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE)
+            if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(273388))
             {
                 uint32 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask &= ~TanaanPhases::PhaseCannonTurret;
