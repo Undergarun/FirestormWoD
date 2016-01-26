@@ -1264,21 +1264,22 @@ public:
         void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
         {
             Unit* l_Target = GetTarget();
+            Unit* l_Caster = GetCaster();
             Unit* l_Owner = GetUnitOwner();
 
-            if (l_Target == nullptr || l_Owner == nullptr)
+            if (l_Target == nullptr || l_Caster == nullptr || l_Owner == nullptr)
                 return;
 
             if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
 
-            if (l_Owner->HasAura(eSpells::WordOfMendingAura))
+            if (l_Caster->HasAura(eSpells::WordOfMendingAura))
             {
-                if (!l_Owner->HasAura(eSpells::WordOfMendingProc))
-                    l_Owner->CastSpell(l_Owner, eSpells::WordOfMendingStack, true);
+                if (!l_Caster->HasAura(eSpells::WordOfMendingProc))
+                    l_Caster->CastSpell(l_Caster, eSpells::WordOfMendingStack, true);
             }
 
-            Player* l_OwnerPlayer = l_Owner->ToPlayer();
+            Player* l_OwnerPlayer = l_Caster->ToPlayer();
             Player* l_TargetPlayer = l_Target->ToPlayer();
 
             if (l_OwnerPlayer == nullptr || l_TargetPlayer == nullptr)
