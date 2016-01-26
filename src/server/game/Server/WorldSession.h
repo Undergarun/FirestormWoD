@@ -94,6 +94,21 @@ struct BattlegroundPortData
     uint8 Action;
 };
 
+struct CrossPartyInfo
+{
+    CrossPartyInfo()
+    {
+        memset(this, 0, sizeof(CrossPartyInfo));
+    }
+
+    uint64 PlayerGuid;
+    uint64 GroupGUID;
+    uint64 LeaderGUID;
+    uint8  PartyFlags;
+    uint8  PartyIndex;
+    uint8  PartyType;
+};
+
 enum PartyCommand
 {
     PARTY_CMD_INVITE   = 0,
@@ -340,6 +355,9 @@ class WorldSession
         }
 
         BattlegroundPortData const& GetBattlegroundPortData() const { return _battlegroundPortData; }
+
+        void SetCrossPartyInfo(CrossPartyInfo p_CrossPartyInfo) { m_CrossPartyInfo = p_CrossPartyInfo; }
+        CrossPartyInfo const& GetCrossPartyInfo() const { return m_CrossPartyInfo; }
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -1269,7 +1287,9 @@ class WorldSession
         std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
         std::mutex m_PreparedStatementCallbackLock;
 
+        /// Cross realm sync data
         BattlegroundPortData _battlegroundPortData;
+        CrossPartyInfo m_CrossPartyInfo;
 
     private:
         // private trade methods

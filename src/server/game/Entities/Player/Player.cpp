@@ -30453,9 +30453,14 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
 void Player::SendEquipmentSetList()
 {
+    /// Clear old equipmentset with cross realm guid
+    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST);
+    l_Data << uint32(0);
+    GetSession()->SendPacket(&l_Data);
+
     uint32 l_EquipmentSetCount = 0;
 
-    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST, 4 * 1024);
+    l_Data.Initialize(SMSG_EQUIPMENT_SET_LIST, 4 * 1024);
 
     for (EquipmentSets::iterator l_Itr = m_EquipmentSets.begin(); l_Itr != m_EquipmentSets.end(); ++l_Itr)
     {
