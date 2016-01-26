@@ -4202,6 +4202,7 @@ class spell_pri_focused_will : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Word of Mending - 152117
 class PlayerScript_word_of_mending : public PlayerScript
 {
@@ -4213,15 +4214,17 @@ class PlayerScript_word_of_mending : public PlayerScript
             WordOfMendingAura = 152117,
             WordOfMendingProc = 155363,
             WordOfMendingStack = 155362,
-            LiveSteal = 146347
+            LiveSteal = 146347,
+            FlashHeal = 2061,
+            SurgeOfLight = 114255
         };
 
         void OnSpellCast(Player* p_Player, Spell* p_Spell, bool skipCheck)
         {
-            if (p_Player == nullptr)
+            if (p_Player == nullptr || p_Spell == nullptr)
                 return;
 
-            if (skipCheck)
+            if (skipCheck && !(p_Spell->GetSpellInfo()->Id == eSpells::FlashHeal && p_Player->HasAura(eSpells::SurgeOfLight)))
                 return;
 
             if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
