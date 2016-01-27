@@ -346,6 +346,8 @@ namespace MS { namespace Garrison
                                 break;
                         }
                     }
+                    else
+                        FinishCast(SpellCastResult::SPELL_FAILED_BAD_TARGETS);
                 }
 
                 void Register()
