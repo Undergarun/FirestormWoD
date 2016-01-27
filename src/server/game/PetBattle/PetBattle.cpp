@@ -795,7 +795,7 @@ uint8 PetBattleTeam::CanCatchOpponentTeamFrontPet()
 
     uint32 l_ThisTeamID = PetBattleInstance->Teams[PETBATTLE_TEAM_1] == this ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
 
-    if (PetBattleInstance->BattleType != PETBATTLE_TYPE_PVE)
+    if (PetBattleInstance->BattleType != PETBATTLE_TYPE_PVE || (PetBattleInstance->BattleType == PETBATTLE_TYPE_PVE && PetBattleInstance->PveBattleType == PVE_PETBATTLE_TRAINER))
         return 0;
 
     if (l_ThisTeamID == PETBATTLE_PVE_TEAM_ID)
@@ -1355,6 +1355,14 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                     l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT, 1, Pets[Teams[l_CurrentTeamID]->CapturedPet]->Quality);
                 }
             }
+
+            if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_TRAINER && l_CurrentTeamID == p_WinnerTeamID)
+            {
+                Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(Teams[PETBATTLE_PVE_TEAM_ID]->OwnerGuid, (Creature*)NULL);
+
+                if (l_Trainer)
+                    l_Player->QuestObjectiveSatisfy(l_Trainer->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER, l_Trainer->GetGUID());
+            }
         }
     }
 
@@ -1382,23 +1390,26 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
         }
         else
         {
-            for (size_t l_CurrentPetID = 0; l_CurrentPetID < Teams[l_CurrentTeamID]->TeamPetCount; ++l_CurrentPetID)
+            if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_WILD)
             {
-                BattlePetInstance::Ptr l_CurrentPet = Teams[l_CurrentTeamID]->TeamPets[l_CurrentPetID];
+                for (size_t l_CurrentPetID = 0; l_CurrentPetID < Teams[l_CurrentTeamID]->TeamPetCount; ++l_CurrentPetID)
+                {
+                    BattlePetInstance::Ptr l_CurrentPet = Teams[l_CurrentTeamID]->TeamPets[l_CurrentPetID];
 
-                if (!l_CurrentPet || l_CurrentPet->OriginalCreature)
-                    continue;
+                    if (!l_CurrentPet || l_CurrentPet->OriginalCreature)
+                        continue;
 
-                Creature* l_WildPet = ObjectAccessor::GetObjectInOrOutOfWorld(l_CurrentPet->OriginalCreature, (Creature*)NULL);
+                    Creature* l_WildPet = ObjectAccessor::GetObjectInOrOutOfWorld(l_CurrentPet->OriginalCreature, (Creature*)NULL);
 
-                if (!l_WildPet)
-                    continue;
+                    if (!l_WildPet)
+                        continue;
 
-                l_WildPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
-                l_WildPet->SetControlled(false, UNIT_STATE_ROOT);
-                l_WildPet->_petBattleId = 0;
+                    l_WildPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
+                    l_WildPet->SetControlled(false, UNIT_STATE_ROOT);
+                    l_WildPet->_petBattleId = 0;
 
-                sWildBattlePetMgr->LeaveBattle(l_WildPet, p_WinnerTeamID != PETBATTLE_PVE_TEAM_ID);
+                    sWildBattlePetMgr->LeaveBattle(l_WildPet, p_WinnerTeamID != PETBATTLE_PVE_TEAM_ID);
+                }
             }
         }
     }

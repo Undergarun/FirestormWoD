@@ -155,8 +155,14 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, const Position &pos)
-            { MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ); }
-        void MovePoint(uint32 id, float x, float y, float z);
+        {
+            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        }
+        void MovePoint(uint32 id, const Position &pos, float p_Orientation)
+        {
+            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, p_Orientation);
+        }
+        void MovePoint(uint32 id, float x, float y, float z, float p_Orientation = -1000.f);
         void MovePoint(uint32 id, G3D::Vector3 p_Dest) { MovePoint(id, p_Dest.x, p_Dest.y, p_Dest.z); }
 
         // These two movement types should only be used with creatures having landing/takeoff animations

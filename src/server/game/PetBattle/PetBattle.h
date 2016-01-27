@@ -33,6 +33,8 @@ class Field;
 #define MAX_PETBATTLE_ABILITIES 3
 #define MAX_PETBATTLE_ABILITY_TURN 10
 
+#define PETBATTLE_ENTER_MOVE_SPLINE_ID 0xA42BA70B
+
 #define PETBATTLE_NULL_ID -1
 #define PETBATTLE_NULL_SLOT -1
 #define PETBATTLE_UPDATE_INTERVAL 300
@@ -49,6 +51,12 @@ enum PetBattleType
     PETBATTLE_TYPE_PVE,
     PETBATTLE_TYPE_PVP_DUEL,
     PETBATTLE_TYPE_PVP_MATCHMAKING
+};
+
+enum PvePetBattleType
+{
+    PVE_PETBATTLE_WILD,
+    PVE_PETBATTLE_TRAINER
 };
 
 enum ePetBattleStatus
@@ -506,6 +514,7 @@ typedef std::list<PetBattleEvent> PetBattleEventList;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
 /// Pet battle request
 struct PetBattleRequest
 {
@@ -526,6 +535,7 @@ struct PetBattleRequest
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
 /// Pet aura
 class PetBattleAura
 {
@@ -674,6 +684,7 @@ class PetBattle
     public:
         uint32 ID;                                                              ///< Battle global unique ID
         PetBattleType BattleType;                                               ///< Battle type (PETBATTLE_TYPE_PVE / PETBATTLE_TYPE_PVP_DUEL / PETBATTLE_TYPE_PVP_MATCHMAKING)
+        PvePetBattleType PveBattleType;                                         ///< Pve battle type (PVE_PETBATTLE_WILD / PVE_PETBATTLE_TRAINER)
         uint32 Turn;                                                            ///< Battle current turn id
         PetBattleResult CombatResult;                                           ///< Combat result (PETBATTLE_RESULT_WON, PETBATTLE_RESULT_LOOSE, PETBATTLE_RESULT_ABANDON)
 
@@ -705,6 +716,7 @@ class PetBattle
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
 /// Pet battle system main class (singleton)
 class PetBattleSystem
 {

@@ -1232,6 +1232,11 @@ class ObjectMgr
         void LoadRealmCompletedChallenges();
         void LoadChallengeRewards();
 
+        std::vector<BattlePetNpcTeamMember> GetPetBattleTrainerTeam(uint32 p_NpcID)
+        {
+            return m_BattlePetNpcTeamMembers[p_NpcID];
+        }
+
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
             if (m_GroupsCompletedChallenges.find(p_MapID) == m_GroupsCompletedChallenges.end())
@@ -1616,6 +1621,10 @@ class ObjectMgr
 
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
+        std::vector<QuestObjective> GetQuestObjectivesByType(uint8 p_Type)
+        {
+            return m_QuestObjectiveByType[p_Type];
+        }
 
         uint32 GetNewGarrisonID()
         {
@@ -1840,6 +1849,8 @@ class ObjectMgr
         BattlePetTemplateContainer _battlePetTemplateStore;
         BattlePetNpcTeamMembers m_BattlePetNpcTeamMembers;
         QuestObjectiveLocaleContainer m_questObjectiveLocaleStore;
+
+        std::map<uint8, std::vector<QuestObjective>> m_QuestObjectiveByType;
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;

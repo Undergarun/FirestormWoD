@@ -2701,6 +2701,8 @@ class Unit : public WorldObject
         uint64 GetPersonnalChauffeur() const { return m_PersonnalChauffeur; }
         uint64 m_PersonnalChauffeur;
 
+        void SetRooted(bool apply);
+
     public:
         uint64 _petBattleId;
 
@@ -2840,7 +2842,6 @@ class Unit : public WorldObject
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
-        void SetRooted(bool apply);
 
     private:
         class AINotifyTask;

@@ -173,7 +173,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
 
         ObjectGuid l_OwnerGuid = p_Battle->Teams[l_TeamID]->OwnerGuid;
 
-        if (p_Battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID)
+        if (p_Battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID && p_Battle->PveBattleType == PVE_PETBATTLE_WILD)
             l_OwnerGuid = 0;
 
         l_Packet.appendPackGUID(l_OwnerGuid);
@@ -967,7 +967,8 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         }
     }
 
-    l_Battle->BattleType = l_BattleRequest->RequestType;
+    l_Battle->BattleType    = l_BattleRequest->RequestType;
+    l_Battle->PveBattleType = PVE_PETBATTLE_WILD;
 
     // Launch battle
     m_Player->_petBattleId = l_Battle->ID;

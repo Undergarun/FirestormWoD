@@ -36,6 +36,10 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     i_recalculateSpeed = false;
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z);
+    
+    if (m_Angle != -1000.f)
+        init.SetFacing(m_Angle);
+
     if (speed > 0.0f)
         init.SetVelocity(speed);
     init.Launch();
@@ -152,6 +156,8 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit
 
 template <> void PointMovementGenerator<Player>::MovementInform(Player& unit)
 {
+    sScriptMgr->OnPlayerMovementInform(&unit, POINT_MOTION_TYPE, id);
+
     switch (id)
     {
         case MONK_CLASH:

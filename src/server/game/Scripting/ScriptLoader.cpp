@@ -54,6 +54,8 @@ void AddSC_spell_item_enchantment();
 void AddSC_spell_toy();
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
+void AddSC_npc_PetBattleTrainer();
+void AddSC_PetBattlePlayerScript();
 
 //Commands
 void AddSC_anticheat_commandscript();
@@ -994,6 +996,8 @@ void AddSpellScripts()
     AddSC_spell_toy();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
+    AddSC_npc_PetBattleTrainer();
+    AddSC_PetBattlePlayerScript();
 #endif
 }
 

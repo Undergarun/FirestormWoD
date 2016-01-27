@@ -10431,6 +10431,7 @@ void ObjectMgr::LoadQuestObjectives()
 
         QuestObjective l_Objective;
         l_Objective.ID          = l_ObjectiveID;
+        l_Objective.QuestID     = l_ObjectiveQuestId;
         l_Objective.Type        = l_ObjectiveType;
         l_Objective.Index       = l_ObjectiveIndex;
         l_Objective.ObjectID    = l_ObjectiveObjectID;
@@ -10448,6 +10449,7 @@ void ObjectMgr::LoadQuestObjectives()
         }
 
         l_Quest->QuestObjectives.push_back(l_Objective);
+        m_QuestObjectiveByType[l_ObjectiveType].push_back(l_Objective);
         l_Quest->QuestObjecitveTypeCount[l_ObjectiveType]++;
 
         l_Count++;
