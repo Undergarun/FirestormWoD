@@ -3240,8 +3240,60 @@ class spell_rog_main_gauche: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Distract - 1725
+class spell_rog_distract : public SpellScriptLoader
+{
+    public:
+        spell_rog_distract() : SpellScriptLoader("spell_rog_distract") { }
+
+        class spell_rog_distract_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_distract_SpellScript);
+
+            enum eDatas
+            {
+                GlyphofImprovedDistraction = 146961,
+                DistractionNPC = 73544
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* spell = GetSpellInfo();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eDatas::GlyphofImprovedDistraction))
+                {
+                    Position l_Pos;
+                    GetExplTargetDest()->GetPosition(&l_Pos);
+                    TempSummon* summon = l_Player->SummonCreature(eDatas::DistractionNPC, l_Pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                    if (!summon)
+                        return;
+
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Player->GetGUID());
+                    summon->setFaction(l_Player->getFaction());
+                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_rog_distract_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_distract_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_distract();
     new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();

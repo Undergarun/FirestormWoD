@@ -1567,7 +1567,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             /// Magic Damage can be block only by Paladin Proteccion
-            if (HasAura(152261)) ///< Holy Shield
+            if (victim->HasAura(152261)) ///< Holy Shield
             {
                 /// Get blocked status
                 blocked = isSpellBlocked(victim, spellInfo, attackType);
@@ -16696,15 +16696,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Fix Drop charge for Blindsight
     if (GetTypeId() == TYPEID_PLAYER && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
         RemoveAura(121153);
-
-    // Fix Drop charge for Fingers of Frost
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MAGE && procSpell && (procSpell->Id == 30455 || procSpell->Id == 44572) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
-    {
-        if (AuraPtr fingersOfFrost = GetAura(44544, GetGUID()))
-            fingersOfFrost->ModStackAmount(-1);
-        if (AuraPtr fingersVisual = GetAura(126084, GetGUID()))
-            fingersVisual->Remove();
-    }
 
     // Hack Fix Immolate - Critical strikes generate burning embers
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
