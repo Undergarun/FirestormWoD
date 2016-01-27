@@ -1587,7 +1587,8 @@ class spell_mage_alter_time_overrided: public SpellScriptLoader
         }
 };
 
-// Alter Time - 110909
+/// Last Update 6.2.3
+/// Alter Time - 110909
 class spell_mage_alter_time: public SpellScriptLoader
 {
     public:
@@ -1602,7 +1603,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                 if (Player* _player = GetTarget()->ToPlayer())
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
+                    if (removeMode != AURA_REMOVE_BY_EXPIRE)
                         return;
 
                     std::list<Creature*> mirrorList;
