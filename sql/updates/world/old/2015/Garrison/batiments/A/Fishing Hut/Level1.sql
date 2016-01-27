@@ -34,3 +34,21 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','1','77733','14.3749','1.34486','0.503105','6.15809');
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','1','-232268','6.38951','-0.564783','0.000008','4.24988');
 
+-- Quest Chain : 34194, 36199, 36201, 36202
+UPDATE quest_template SET PrevQuestId = 0, NextQuestId = 36199 WHERE Id = 34194;
+UPDATE quest_template SET PrevQuestId = 34194, NextQuestId = 36201 WHERE Id = 36199;
+UPDATE quest_template SET PrevQuestId = 36199, NextQuestId = 36202 WHERE Id = 36201;
+UPDATE quest_template SET PrevQuestId = 36201, NextQuestId = 0 WHERE Id = 36202;
+UPDATE quest_template SET RequiredSkillId = 0 WHERE id IN (34194, 36199, 36201, 36202);
+
+REPLACE INTO `creature_queststarter` (`id`, `quest`) VALUES
+('77733','34194'),
+('84372','36199'),
+('84372','36201'),
+('84372','36202');
+
+REPLACE INTO `creature_questender` (`id`, `quest`) VALUES
+('77733','36202'),
+('84372','34194'),
+('84372','36199'),
+('84372','36201');
