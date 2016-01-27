@@ -486,7 +486,7 @@ void InterRealmSession::Handle_TunneledPacket(WorldPacket& recvPacket)
 
     if (Player* pPlayer = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid))
     {
-        pPlayer->GetSession()->SendPacket(&recvPacket, true);
+        pPlayer->GetSession()->SendPacket(&recvPacket);
     }
 }
 
