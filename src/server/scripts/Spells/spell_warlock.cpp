@@ -2170,6 +2170,8 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_ember_tap_SpellScript);
 
+            int32 m_RemainingAmout = 0;
+
             enum eSpells
             {
                 GlyphOfEmberTap   = 63304,
@@ -2177,6 +2179,17 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 EnhancedEmberTap  = 157121,
                 SearingFlames     = 174848
             };
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
+                    return;
+
+                if (AuraEffectPtr l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    m_RemainingAmout += (l_PreviousEffect->GetAmount() * (l_PreviousEffect->GetBase()->GetDuration() / l_PreviousEffect->GetAmplitude()));
+            }
 
             void HandleOnHit()
             {
@@ -2221,10 +2234,22 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 }
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
+                    return;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    l_AuraEffect->ChangeAmount(l_AuraEffect->GetAmount() + (m_RemainingAmout / (l_AuraEffect->GetBase()->GetDuration() / l_AuraEffect->GetAmplitude())));
+            }
+
             void Register()
             {
+                BeforeHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleBeforeHit);
                 OnHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleOnHit);
-                /*OnEffectHitTarget += SpellEffectFn(spell_warl_ember_tap_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);*/
+                AfterHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2245,6 +2270,8 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
         class spell_warl_ember_tap_glyph_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
+
+            int32 m_RemainingAmout = 0;
 
             enum eSpells
             {
@@ -2270,8 +2297,6 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
 
                 int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
-                if (AuraEffectPtr l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
-                    l_TotalHeal += l_PreviousEffect->GetAmount() * (p_AurEff->GetBase()->GetDuration() / p_AurEff->GetAmplitude());
                 if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);

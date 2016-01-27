@@ -3467,6 +3467,10 @@ class spell_pal_avengers_shield : public SpellScriptLoader
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 /// When you use Avenger's Shield, your block chance is increased by 12% for 5 sec.
                 if (l_Caster->HasAura(eSpells::T17Protection2P))
@@ -3474,7 +3478,7 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
                 /// Your Avenger's Shield now also dazes targets for 10 sec.
                 if (l_Caster->HasAura(eSpells::GlyphofDazingShield))
-                    l_Caster->CastSpell(l_Caster, eSpells::GlyphofDazingShieldDaz, true);
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphofDazingShieldDaz, true);
             }
 
             void Register() override
