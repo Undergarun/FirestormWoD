@@ -5805,6 +5805,13 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
+
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = player->GetInstanceScript())
+            l_InstanceScript->ConsumeCombatResurrectionCharge();
+    }
 }
 
 void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)

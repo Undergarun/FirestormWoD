@@ -21,12 +21,30 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `Exte
 (79971, 0, 6533, 2, 3600, 0, 1);
 
 DELETE FROM garrison_plot_content WHERE plot_type_or_building=-64 AND faction_index = 0;
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','79892','4.10929','-1.38352','0.583206','0.213478');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','44880','2.56324','5.39814','4.2152','0.408808');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','44880','1.28986','-0.327592','8.7592','6.09967');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','79971','-0.343123','7.68761','0.713196','0.655077');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','62953','25.7635','-22.1997','6.16921','1.42364');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','44880','2.56324','5.39814','5.7152','0.408808');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','-232440','8.77231','3.06427','0.000198','4.7124');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-64','0','-230764','1.15135','7.00761','0.089203','0.633848');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','79892','4.10929','-1.38352','0.583206','0.213478');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','44880','2.56324','5.39814','4.2152','0.408808');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','44880','1.28986','-0.327592','8.7592','6.09967');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','79971','-0.343123','7.68761','0.713196','0.655077');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','62953','25.7635','-22.1997','6.16921','1.42364');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','44880','2.56324','5.39814','5.7152','0.408808');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','-232440','8.77231','3.06427','0.000198','4.7124');
+INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-64','0','-230764','1.15135','7.00761','0.089203','0.633848');
 
+-- Quest Chain : 34758, 36141, 36131, 36132
+UPDATE quest_template SET PrevQuestId = 0, NextQuestId = 36141 WHERE Id = 34758;
+UPDATE quest_template SET PrevQuestId = 34758, NextQuestId = 36131 WHERE Id = 36141;
+UPDATE quest_template SET PrevQuestId = 36141, NextQuestId = 36132 WHERE Id = 36131;
+UPDATE quest_template SET PrevQuestId = 36131, NextQuestId = 0 WHERE Id = 36132;
+UPDATE quest_template SET RequiredSkillId = 0 WHERE id IN (34758, 36141, 36131, 36132);
+
+REPLACE INTO `creature_queststarter` (`id`, `quest`) VALUES
+('79892','34758'),
+('79896','36131'),
+('79896','36132'),
+('79896','36141');
+
+REPLACE INTO `creature_questender` (`id`, `quest`) VALUES
+('79892','36132'),
+('79896','34758'),
+('79896','36131'),
+('79896','36141');
