@@ -129,9 +129,10 @@ class npc_PetBattleTrainer : public CreatureScript
                     l_BattleCenterPosition.m_orientation = l_TrainerPosition.m_orientation + M_PI;
                 }
 
-                p_Player->SummonCreature((uint32)1, l_PlayerPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
-                p_Player->SummonCreature((uint32)1, l_TrainerPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
-                p_Player->SummonCreature((uint32)1, l_BattleCenterPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
+                ///p_Player->SummonCreature((uint32)1, l_PlayerPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
+                ///p_Player->SummonCreature((uint32)1, l_TrainerPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
+                ///p_Player->SummonCreature((uint32)1, l_BattleCenterPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
+
                 PetBattleRequest* l_BattleRequest = sPetBattleSystem->CreateRequest(p_Player->GetGUID());
 
                 l_BattleRequest->OpponentGuid               = p_Creature->GetGUID();

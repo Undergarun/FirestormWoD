@@ -47,6 +47,8 @@ class PlayerScriptPetBattle : public PlayerScript
             {
                 if (m_DelayedPetBattleStart[p_Player->GetGUID()] > getMSTime())
                 {
+                    m_DelayedPetBattleStart.erase(m_DelayedPetBattleStart.find(p_Player->GetGUID()));
+
                     uint64 l_BattleID = p_Player->_petBattleId;
                     PetBattle * l_Battle = sPetBattleSystem->GetBattle(l_BattleID);
 
