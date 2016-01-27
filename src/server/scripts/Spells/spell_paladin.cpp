@@ -2536,6 +2536,7 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Holy Shield - 152261
 class spell_pal_holy_shield: public SpellScriptLoader
 {
@@ -2546,14 +2547,31 @@ class spell_pal_holy_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_holy_shield_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+            enum eSpells
             {
-                amount = 0;
+                HolyShieldDamage = 157122
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+                Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+
+                if (l_Victim == nullptr || l_Attacker == nullptr)
+                    return;
+
+                l_Victim->CastSpell(l_Attacker, eSpells::HolyShieldDamage, true);
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_holy_shield_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectProc += AuraEffectProcFn(spell_pal_holy_shield_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 

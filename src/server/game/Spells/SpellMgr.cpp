@@ -4526,6 +4526,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119539: ///< Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
+            case 152261: ///< Holy Shield
+                spellInfo->Effects[2].Effect = 0;
+                break;
             case 139139: ///< Insanity
                 spellInfo->ProcChance = 0;
                 break;

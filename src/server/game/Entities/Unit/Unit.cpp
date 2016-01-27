@@ -1567,7 +1567,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             /// Magic Damage can be block only by Paladin Proteccion
-            if (HasAura(152261)) ///< Holy Shield
+            if (victim->HasAura(152261)) ///< Holy Shield
             {
                 /// Get blocked status
                 blocked = isSpellBlocked(victim, spellInfo, attackType);
