@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Common.h"
 #include "Log.h"
 #include "WorldPacket.h"
@@ -115,7 +116,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(guid);
     recvData >> questId;
-    unk1 = recvData.ReadBit();
+    unk1 = recvData.ReadBit(); ///< unk1 is never read 01/18/16
 
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
 
@@ -129,6 +130,10 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         m_Player->PlayerTalkClass->SendCloseGossip();
         m_Player->SaveToDB();
         m_Player->SetDivider(0);
+
+        if (m_Player->m_IsDebugQuestLogs)
+            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_QUESTGIVER);
+
         return;
     }
 
@@ -321,6 +326,12 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             return;
         }
     }
+    else
+    {
+        /// Quest template is missing
+        if (m_Player->m_IsDebugQuestLogs)
+            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_TEMPLATE);
+    }
 
     m_Player->PlayerTalkClass->SendCloseGossip();
 }
@@ -333,7 +344,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId;
-    l_RespondToGiver = p_RecvData.ReadBit(); ///< @todo l_RespondToGiver is unused !
+    l_RespondToGiver = p_RecvData.ReadBit(); ///< l_RespondToGiver is never read 01/18/16
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);

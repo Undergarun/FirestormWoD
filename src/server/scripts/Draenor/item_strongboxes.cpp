@@ -163,7 +163,57 @@ class item_strongbox : public ItemScript
         }
 };
 
+/// Runic Pouch - 123857
+class item_runic_pouch : public ItemScript
+{
+    public:
+        item_runic_pouch() : ItemScript("item_runic_pouch") { }
+
+        bool OnOpen(Player* p_Player, Item* p_Item)
+        {
+            ItemTemplate const* l_Proto = p_Item->GetTemplate();
+            LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(l_Proto->ItemId);
+            if (!l_LootTemplate)
+                return false;
+
+            std::list<ItemTemplate const*> l_LootTable;
+            std::vector<uint32> l_Items;
+            l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+            uint32 l_SpecID = p_Player->GetLootSpecId() ? p_Player->GetLootSpecId() : p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+
+            for (ItemTemplate const* l_Template : l_LootTable)
+            {
+                if ((l_Template->AllowableClass && !(l_Template->AllowableClass & p_Player->getClassMask())) ||
+                    (l_Template->AllowableRace && !(l_Template->AllowableRace & p_Player->getRaceMask())))
+                    continue;
+
+                for (SpecIndex l_ItemSpecID : l_Template->specs[1])
+                {
+                    if (l_ItemSpecID == l_SpecID)
+                        l_Items.push_back(l_Template->ItemId);
+                }
+            }
+
+            if (l_Items.empty())
+                return true;
+
+            /// Remove self first because of inventory space
+            p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+
+            std::random_shuffle(l_Items.begin(), l_Items.end());
+
+            uint32 l_ItemID = l_Items[0];
+            uint32 l_Count  = urand(1, 3);  ///< Found on wowhead: http://www.wowhead.com/item=123857/runic-pouch#contains
+
+            p_Player->AddItem(l_ItemID, l_Count);
+            p_Player->SendDisplayToast(l_ItemID, l_Count, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+
+            return true;
+        }
+};
+
 void AddSC_item_strongboxes()
 {
     new item_strongbox();
+    new item_runic_pouch();
 }

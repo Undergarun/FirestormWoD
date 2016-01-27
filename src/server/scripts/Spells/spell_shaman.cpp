@@ -1255,6 +1255,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// 77762 - Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
@@ -1267,7 +1268,8 @@ class spell_sha_lava_surge: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaBurst = 51505
+                LavaBurst               = 51505,
+                LavaSurgeVisualRight    = 174928
             };
 
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
@@ -1281,11 +1283,25 @@ class spell_sha_lava_surge: public SpellScriptLoader
 
                 if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                     l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
+
+                l_Player->CastSpell(l_Player, eSpells::LavaSurgeVisualRight, true);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::LavaSurgeVisualRight))
+                    l_Caster->RemoveAura(eSpells::LavaSurgeVisualRight);
             }
 
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2173,7 +2189,8 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaLash = 60103
+                LavaLash = 60103,
+                LavaLashHighlight = 144967
             };
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2195,7 +2212,10 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                     return;;
 
                 if (SpellInfo const* l_LavaLash = sSpellMgr->GetSpellInfo(eSpells::LavaLash))
+                {
                     l_Player->RestoreCharge(l_LavaLash->ChargeCategoryEntry);
+                    l_Player->CastSpell(l_Player, LavaLashHighlight, true);
+                }
             }
 
             void Register()
@@ -2350,7 +2370,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
 
                 if (!(l_Caster->HasAura(eSpells::ImprovedLightningShield) && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpells::LavaBust))
                 {
-                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning)
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::LightningBolt && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ChainLightning && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != 114074)
                         return;
                 }
 
@@ -2630,6 +2650,7 @@ class spell_sha_lava_burst: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_lava_burst_SpellScript);
 
+            bool m_HasLavaSurge = false;
             enum eSpells
             {
                 LavaSurge = 77762,
@@ -2652,6 +2673,13 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     SetHitDamage(int32(GetHitDamage() * 1.5f));
             }
 
+            void HandleBeforeCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster->HasAura(eSpells::LavaSurge))
+                    m_HasLavaSurge = true;
+            }
+
             void HandleAfterCast()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -2660,14 +2688,25 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
                 if (SpellInfo const* l_LavaSurge = sSpellMgr->GetSpellInfo(eSpells::LavaSurge))
                     l_Player->RestoreCharge(l_LavaSurge->ChargeCategoryEntry);
+            }
 
-                if (l_Player->HasAura(eSpells::LavaSurge))
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (l_Player->HasAura(eSpells::LavaSurge) && !m_HasLavaSurge)
+                {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
+                }
             }
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_sha_lava_burst_SpellScript::HandleBeforeCast);
+                AfterHit += SpellHitFn(spell_sha_lava_burst_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
@@ -2805,6 +2844,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
         }
 };
 
+/// Las Update 6.2.3
 /// Riptide - 61295
 class spell_sha_riptide : public SpellScriptLoader
 {
@@ -2813,7 +2853,8 @@ class spell_sha_riptide : public SpellScriptLoader
 
         enum eSpells
         {
-            UnleashLife = 73685
+            UnleashLife = 73685,
+            UnleashFury = 118473
         };
 
         class spell_sha_riptide_SpellScript : public SpellScript
@@ -2823,13 +2864,21 @@ class spell_sha_riptide : public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+                SpellInfo const* l_UnleashLife = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+                SpellInfo const* l_UnleashFurry = sSpellMgr->GetSpellInfo(eSpells::UnleashFury);
 
-                if (l_SpellInfo == nullptr)
+                if (l_UnleashLife == nullptr || l_UnleashFurry == nullptr)
                     return;
 
+                int32 l_BonusHealPct = 0;
+
+                if (l_Caster->HasAura(eSpells::UnleashFury))
+                    l_BonusHealPct += l_UnleashFurry->Effects[EFFECT_0].BasePoints;
+
                 if (l_Caster->HasAura(eSpells::UnleashLife))
-                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
+                    l_BonusHealPct += l_UnleashLife->Effects[EFFECT_2].BasePoints;
+
+                SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_BonusHealPct));
             }
 
             void HandleAfterHit()
@@ -2838,6 +2887,8 @@ class spell_sha_riptide : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                     l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+                if (l_Caster->HasAura(eSpells::UnleashFury))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashFury);
             }
 
             void Register()
@@ -3213,8 +3264,9 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                if (l_Caster == nullptr || !l_Caster->HasAura(eSpells::ItemWodPvpRestoration4PBonus))
+                if (l_Caster == nullptr || l_Player == nullptr || !l_Caster->HasAura(eSpells::ItemWodPvpRestoration4PBonus))
                     return;
 
                 float l_HealthPct = 0.0f;
@@ -3225,18 +3277,35 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
                 if (p_EventInfo.GetDamageInfo() == nullptr || l_AuraSetBonus == nullptr)
                     return;
 
+                if (l_Player->HasSpellCooldown(eSpells::EarthShieldProc))
+                    return;
+
                 Unit* l_Target = GetTarget();
-                if (l_Target->GetHealthPct() >= l_HealthPct && (100.f * (l_Target->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) < l_HealthPct)
+                if (l_Target->GetHealthPct() <= l_HealthPct)
                 {
                     if (AuraEffectPtr l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
-                        for (int8 i = 0; i < l_AuraEffectNbrProc->GetAmount(); ++i)
+                        /// If we have less than 4 stacks, to prevent crash
+                        if (p_AurEff->GetBase() && (p_AurEff->GetBase()->GetCharges() < l_AuraEffectNbrProc->GetAmount()))
                         {
-                            l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
-                            p_AurEff->GetBase()->DropCharge();
+                            for (int8 i = 0; i < p_AurEff->GetBase()->GetCharges(); ++i)
+                            {
+                                l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
+                                p_AurEff->GetBase()->DropCharge();
+                            }
+                        }
+                        else
+                        {
+                            for (int8 i = 0; i < l_AuraEffectNbrProc->GetAmount(); ++i)
+                            {
+                                l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
+                                p_AurEff->GetBase()->DropCharge();
+                            }
                         }
                     }
-
+                    
+                    /// To prevent multiprocs, blizzlike cooldown 3 seconds
+                    l_Player->AddSpellCooldown(eSpells::EarthShieldProc, 0, 3 * IN_MILLISECONDS);
                 }
             }
 

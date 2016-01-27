@@ -139,6 +139,46 @@ enum LfgAnswer
     LFG_ANSWER_AGREE                             = 1
 };
 
+enum LfgSlotRandomDungeonID
+{
+    LfgRandomClassicDungeon         = 258,
+    LfgRandomBurningCrusadeDungeon  = 259,
+    LfgRandomBurningCrusadeHeroic   = 260,
+    LfgRandomLichKingDungeon        = 261,
+    LfgRandomLichKingHeroic         = 262,
+    LfgRandomCataclysmDungeon       = 300,
+    LfgRandomCataclysmHeroic        = 301,
+    LfgRandomMopDungeon             = 462,
+    LfgRandomMopHeroic              = 463,
+    LfgRandomHourOfTwilightHeoic    = 434,
+    LfgRandomWodDungeon             = 788,
+    LfgRandomWodHeroic              = 789,
+    LfgRandomMopScenario            = 493,
+    LfgRandomMopHeroicScenario      = 641,
+    LfgRandomTimewalkingDungeonBC   = 744,
+    LfgRandomTimewalkingDungeonTLK  = 995,
+    LfgRandomTimewalkingDungeonCata = 1146
+};
+
+enum LfgGroupType
+{
+    LfgGroupeTypeClassic                 = 1,
+    LfgGroupeTypeDungeonBC               = 2,
+    LfgGroupeTypeHeroicBC                = 3,
+    LfgGroupeTypeDungeonTLK              = 4,
+    LfgGroupeTypeHeroicTLK               = 5,
+    LfgGroupeTypeHeroicCataclysm         = 12,
+    LfgGroupeTypeDungeonCataclysm        = 13,
+    LfgGroupeTypeHeroicHourOfTwilight    = 33,
+    LfgGroupeTypeHeroicMop               = 36,
+    LfgGroupeTypeDungeonMop              = 37,
+    LfgGroupeTypeScenarioMop             = 38,
+    LfgGroupeTypeHeroicScenarioMop       = 43,
+    LfgGroupeTypeTimeWalking             = 44,
+    LfgGroupeTypeDungeonWod              = 47,
+    LfgGroupeTypeHeroicWod               = 48
+};
+
 // Forward declaration (just to have all typedef together)
 struct LfgReward;
 struct LfgLockStatus;
@@ -407,6 +447,7 @@ class LFGMgr
         uint32 m_NumWaitTimeHealer;                        ///< Num of players used to calc healers wait time
         uint32 m_NumWaitTimeDps;                           ///< Num of players used to calc dps wait time
         LfgDungeonMap m_CachedDungeonMap;                  ///< Stores all dungeons by groupType
+        LfgDungeonSet m_InvalidDungeons;                   ///< Stores dungeons which don't fill conditions for AccessRequirement, LFRAccessRequirement, LfgEntrancePositionMap
         LfgEntrancePositionMap m_entrancePositions;        ///< Stores special entrance positions
         // Reward System
         LfgRewardMap m_RewardMap;                          ///< Stores rewards for random dungeons

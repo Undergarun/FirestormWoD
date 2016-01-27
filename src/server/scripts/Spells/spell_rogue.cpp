@@ -420,6 +420,8 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                 FinishFirstPhase    = 1
             };
 
+            int32 m_OldDataTimeSpell = 0;
+
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
@@ -443,8 +445,8 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
 
                                 uint64 l_Data;
                                 ((uint32*)(&l_Data))[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
-                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
-
+                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration() - m_OldDataTimeSpell;
+                                m_OldDataTimeSpell = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
                                 l_Creature->AI()->SetGUID(l_Data, eDatas::AddSpellToQueue);
                                 break;
                             }
@@ -3187,8 +3189,112 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Mastery: Main Gauche - 76806
+class spell_rog_main_gauche: public SpellScriptLoader
+{
+    public:
+  
+        spell_rog_main_gauche() : SpellScriptLoader("spell_rog_main_gauche") { }
+
+        class spell_rog_main_gauche_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_main_gauche_AuraScript);
+
+            enum eSpells
+            {
+                MainGauche = 86392
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                DamageInfo* l_DamageInfo = p_EventInfo.GetDamageInfo();
+                Unit* l_Target = GetTarget();
+
+                if (l_DamageInfo == nullptr || l_Target == nullptr)
+                    return;
+
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Victim == nullptr)
+                    return;
+
+                if (!(p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
+                    return;
+
+                if (roll_chance_f(p_AurEff->GetAmount()))
+                    l_Target->CastSpell(l_Victim, eSpells::MainGauche, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_rog_main_gauche_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_main_gauche_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Distract - 1725
+class spell_rog_distract : public SpellScriptLoader
+{
+    public:
+        spell_rog_distract() : SpellScriptLoader("spell_rog_distract") { }
+
+        class spell_rog_distract_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_distract_SpellScript);
+
+            enum eDatas
+            {
+                GlyphofImprovedDistraction = 146961,
+                DistractionNPC = 73544
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* spell = GetSpellInfo();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eDatas::GlyphofImprovedDistraction))
+                {
+                    Position l_Pos;
+                    GetExplTargetDest()->GetPosition(&l_Pos);
+                    TempSummon* summon = l_Player->SummonCreature(eDatas::DistractionNPC, l_Pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                    if (!summon)
+                        return;
+
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Player->GetGUID());
+                    summon->setFaction(l_Player->getFaction());
+                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_rog_distract_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_distract_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_distract();
+    new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();
     new spell_rog_sinister_calling();

@@ -305,7 +305,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL   Upgrade follower iLvL
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+    &Spell::EffectRerollFollowerAbilities,                  //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
     &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
@@ -316,7 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
-    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
@@ -500,51 +500,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     }
-                    case 46968: // Shockwave
-                    {
-                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        int32 pct = 0;
-
-                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                        {
-                            case SPEC_WARRIOR_ARMS:
-                                pct = 90;
-                                break;
-                            case SPEC_WARRIOR_FURY:
-                            case SPEC_WARRIOR_PROTECTION:
-                                pct = 75;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), pct));
-
-                        break;
-                    }
-                    case 103840:// Impending Victory
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 70.0f);
-                        else
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 56.0f);
-
-                        // Impending Victory heals you for 10% of your maximum health
-                        m_caster->CastSpell(m_caster, 118340, true);
-
-                        break;
-                    }
-                    case 118000:// Dragon Roar
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 168);
-                        else
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 140);
-
-                        break;
-                    }
                 }
 
                 break;
@@ -694,7 +649,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     if (stat < strength)
                     {
-                        stat = strength;
+                        stat = strength; ///< stat is never read 01/18/16
                         usedStat = STAT_STRENGTH;
                     }
 
@@ -3540,9 +3495,12 @@ void Spell::EffectTradeSkill(SpellEffIndex /*effIndex*/)
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    // uint32 skillid =  m_spellInfo->Effects[i].MiscValue;
-    // uint16 skillmax = unitTarget->ToPlayer()->(skillid);
-    // m_caster->ToPlayer()->SetSkill(skillid, skillval?skillval:1, skillmax+75);
+
+    if (LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
+    {
+        /// Create some random items
+        m_caster->ToPlayer()->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+    }
 }
 
 void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
@@ -4154,7 +4112,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
 
-    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, false);
+    int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
     int32 autoAttacksBonus = std::max(1 + (m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE) / 100), 1);
     weaponDamage /= autoAttacksBonus;
 
@@ -5847,6 +5805,13 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
+
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = player->GetInstanceScript())
+            l_InstanceScript->ConsumeCombatResurrectionCharge();
+    }
 }
 
 void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
@@ -7081,6 +7046,11 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         summon->AI()->EnterEvadeMode();
 
         ExecuteLogEffectSummonObject(i, summon);
+
+        if (summon->IsWarlockPet())
+            summon->CastSpell(summon, 32233, true);  ///< Avoidance Warlock
+        else if (summon->isHunterPet())
+            summon->CastSpell(summon, 65220, true); ///< Avoidance Hunter
     }
 }
 
@@ -7647,7 +7617,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     std::vector<uint32> l_Items;
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
 
-    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + l_Player->GetBonusRollFails();
+    float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + (l_Player->GetBonusRollFails() * 2);
     uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
 
     if (l_IsBGReward)
@@ -7686,7 +7656,30 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
 
         if (roll_chance_i(l_DropChance) && !l_Items.empty())
         {
-            l_Player->AddItem(l_Items[0], 1);
+            std::vector<uint32> l_Bonuses;
+            std::list<uint32> l_OtherBonuses;
+
+            uint32 l_ItemID = l_Items[0];
+
+            switch (l_Player->GetMap()->GetDifficultyID())
+            {
+                case Difficulty::DifficultyRaidNormal:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+                    break;
+                case Difficulty::DifficultyRaidHeroic:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidHeroic, l_Bonuses);
+                    break;
+                case Difficulty::DifficultyRaidMythic:
+                    Item::GenerateItemBonus(l_ItemID, ItemContext::RaidMythic, l_Bonuses);
+                    break;
+                default:
+                    break;
+            }
+
+            for (uint32 l_Bonus : l_Bonuses)
+                l_OtherBonuses.push_back(l_Bonus);
+
+            l_Player->AddItem(l_Items[0], 1, l_OtherBonuses);
             l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
 
             if (!l_IsBGReward)
@@ -7706,8 +7699,6 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             l_Player->GetSession()->SendPacket(&l_Data);
         }
     }
-
-    l_Player->ModifyCurrency(m_spellInfo->CurrencyID, -int32(m_spellInfo->CurrencyCount), false);
 }
 
 void Spell::EffectDeathGrip(SpellEffIndex effIndex)
@@ -7828,8 +7819,6 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-
-
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7839,12 +7828,38 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
-    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-    if (!l_Player || !l_GarrisonMgr)
+    if (l_Player == nullptr)
         return;
 
-    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+}
+
+void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (l_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
+        l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)

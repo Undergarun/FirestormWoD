@@ -637,8 +637,8 @@ class spell_dk_soul_reaper: public SpellScriptLoader
 
                 if (AuraPtr l_ImprovedSoulReaper = l_Caster->GetAura(eSpells::ImprovedSoulReaper))
                     l_HealthPctMax = l_ImprovedSoulReaper->GetEffect(EFFECT_0)->GetAmount();
-
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+
                 if (removeMode == AURA_REMOVE_BY_DEATH)
                     l_Caster->CastSpell(l_Caster, DK_SPELL_SOUL_REAPER_HASTE, true);
                 else if (removeMode == AURA_REMOVE_BY_EXPIRE && GetTarget()->GetHealthPct() < (float)l_HealthPctMax)
@@ -1446,8 +1446,14 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (l_SpellInfo == nullptr)
                         return;
 
-                    float l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount() - (m_Absorbed / (m_AmountAbsorb / 100));
-                    int32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
+                    float l_RemainingPct = 0.0f;
+                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
+
+                    /// If we have absorbed more than 50% we set value to 50%
+                    l_RemainingPct = l_AbsorbedPct > l_Amount ? l_Amount : (l_Amount - l_AbsorbedPct);
+
+                    uint32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
 
                     if (Player* l_Player = l_Caster->ToPlayer())
                         l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
@@ -3291,32 +3297,32 @@ class spell_dk_soul_reaper_bonus : public SpellScriptLoader
     public:
         spell_dk_soul_reaper_bonus() : SpellScriptLoader("spell_dk_soul_reaper_bonus") {}
 
-        class spell_dk_soul_reaper_bonus_SpellScript : public SpellScript
+        class  spell_dk_soul_reaper_bonus_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dk_soul_reaper_bonus_SpellScript);
+            PrepareAuraScript(spell_dk_soul_reaper_bonus_AuraScript);
 
             enum eSpells
             {
                 GlyphofSwiftDeath = 146645
             };
 
-            void HandleModSpeed(SpellEffIndex /*p_EffIndex*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofSwiftDeath))
-                    PreventHitAura();
+                    p_Amount = 0;
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_soul_reaper_bonus_SpellScript::HandleModSpeed, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_soul_reaper_bonus_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dk_soul_reaper_bonus_SpellScript();
+            return new  spell_dk_soul_reaper_bonus_AuraScript();
         }
 };
 
@@ -3395,8 +3401,43 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
         }
 };
 
+/// last update : 6.2.3
+/// Periodic Taunt - 43264
+class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
+{
+    public:
+        spell_dk_army_of_the_death_taunt() : SpellScriptLoader("spell_dk_army_of_the_death_taunt") { }
+
+        class spell_dk_army_of_the_death_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_army_of_the_death_taunt_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofArmyoftheDead = 58669
+            };
+
+            void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (GetCaster()->HasAura(eSpells::GlyphofArmyoftheDead))
+                    PreventHitAura();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_army_of_the_death_taunt_SpellScript::HandlePeriodicTrigger, 0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_army_of_the_death_taunt_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_army_of_the_death_taunt();
     new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
     new spell_dk_death_coil();

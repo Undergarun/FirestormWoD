@@ -882,7 +882,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
             if (dist < nearest)
             {
                 closest = ret;
-                nearest = dist;
+                nearest = dist; ///< nearest is never read 01/18/16
             }
 
             return closest;

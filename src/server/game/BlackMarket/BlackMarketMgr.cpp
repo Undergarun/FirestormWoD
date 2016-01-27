@@ -175,7 +175,7 @@ void BlackMarketMgr::LoadAuctions()
 
 void BlackMarketMgr::Update()
 {
-    uint32 curTime = time(NULL);
+    uint32 curTime = time(NULL); ///< curTime is never read 01/18/16
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 

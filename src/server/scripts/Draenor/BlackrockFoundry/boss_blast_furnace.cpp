@@ -2126,6 +2126,13 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                /// Prevent damage taken after fake death
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
                 if (p_Damage >= me->GetHealth() && me->GetReactState() != ReactStates::REACT_PASSIVE)
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -2258,9 +2265,9 @@ class npc_foundry_firecaller : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                m_Events.ScheduleEvent(eEvents::EventCauterizeWounds, 8 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLavaBurst, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventVolatileFire, 2 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventCauterizeWounds, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventLavaBurst, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventVolatileFire, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2298,19 +2305,19 @@ class npc_foundry_firecaller : public CreatureScript
                         if (Unit* l_Ally = me->SelectNearbyMostInjuredAlly(me, 30.0f, eCreature::SlagElemental))
                             me->CastSpell(l_Ally, eSpells::CauterizeWounds, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventCauterizeWounds, 15 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventCauterizeWounds, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventLavaBurst:
                     {
                         me->CastSpell(me, eSpells::LavaBurst, false);
-                        m_Events.ScheduleEvent(eEvents::EventLavaBurst, 5 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventLavaBurst, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventVolatileFire:
                     {
                         me->CastSpell(me, eSpells::VolatileFire, false);
-                        m_Events.ScheduleEvent(eEvents::EventVolatileFire, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventVolatileFire, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2848,6 +2855,45 @@ class spell_foundry_deafening_roar : public SpellScriptLoader
         }
 };
 
+/// Slag Pool (periodic) - 163532
+class spell_foundry_slag_pool_periodic : public SpellScriptLoader
+{
+    public:
+        spell_foundry_slag_pool_periodic() : SpellScriptLoader("spell_foundry_slag_pool_periodic") { }
+
+        class spell_foundry_slag_pool_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_slag_pool_periodic_AuraScript);
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0);
+                    if (l_AuraEffect == NULLAURA_EFFECT)
+                        return;
+
+                    if (l_Target->GetMap()->IsHeroic())
+                        l_AuraEffect->SetAmplitude(4 * TimeConstants::IN_MILLISECONDS);
+                    else if (l_Target->GetMap()->IsMythic())
+                        l_AuraEffect->SetAmplitude(3 * TimeConstants::IN_MILLISECONDS);
+                    else
+                        l_AuraEffect->SetAmplitude(5 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_slag_pool_periodic_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_slag_pool_periodic_AuraScript();
+        }
+};
+
 /// Crucible (Left) - 233757
 /// Crucible (Right) - 233758
 class go_foundry_crucible : public GameObjectScript
@@ -2951,6 +2997,13 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
         {
             RuptureDoT = 156932
         };
+
+        void OnCreate(AreaTrigger* p_AreaTrigger) override
+        {
+            uint32 l_Duration = (1 * TimeConstants::MINUTE + 30) * TimeConstants::IN_MILLISECONDS;
+
+            p_AreaTrigger->SetDuration(l_Duration);
+        }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
@@ -3279,6 +3332,7 @@ void AddSC_boss_blast_furnace()
     new spell_foundry_melt_aura();
     new spell_foundry_heart_of_the_furnace();
     new spell_foundry_deafening_roar();
+    new spell_foundry_slag_pool_periodic();
 
     /// GameObject
     new go_foundry_crucible();

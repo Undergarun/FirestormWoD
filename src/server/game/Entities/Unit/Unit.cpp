@@ -464,7 +464,7 @@ uint32 const g_FlightSplineSyncDelay = 5 * TimeConstants::IN_MILLISECONDS;
 
 void Unit::UpdateSplineMovement(uint32 p_Diff)
 {
-    bool l_Arrived = movespline->Finalized();
+    bool l_Arrived = movespline->Finalized(); ///< l_Arrived is never read 01/18/16
     if (movespline->Finalized())
         return;
 
@@ -1567,7 +1567,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             /// Magic Damage can be block only by Paladin Proteccion
-            if (HasAura(152261)) ///< Holy Shield
+            if (victim->HasAura(152261)) ///< Holy Shield
             {
                 /// Get blocked status
                 blocked = isSpellBlocked(victim, spellInfo, attackType);
@@ -2894,8 +2894,8 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Ranged attacks can only miss, resist and deflect
     if (attType == WeaponAttackType::RangedAttack)
     {
-        canParry = false;
-        canDodge = false;
+        canParry = false; ///< canParry is never read 01/18/16
+        canDodge = false; ///< can Dodge is never read 01/18/16
 
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
@@ -6043,7 +6043,7 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
 
 bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo(); //@todo hasteSpell is unused variable
+    SpellInfo const* hasteSpell = triggeredByAura->GetSpellInfo(); //< hasteSpell is never read 01/18/16
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -6077,7 +6077,7 @@ bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
 bool Unit::HandleSpellCritChanceAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* triggeredByAuraSpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* triggeredByAuraSpell = triggeredByAura->GetSpellInfo(); ///> triggerByAuraSpell is never read 01/18/16
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -6119,7 +6119,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
     SpellInfo const* auraSpellInfo = triggeredByAura->GetSpellInfo();
 
     // Get effect index used for the proc
-    uint32 effIndex = triggeredByAura->GetEffIndex();
+    uint32 effIndex = triggeredByAura->GetEffIndex(); ///< effIndex is never read 01/18/16
 
     // Power amount required to proc the spell
     int32 powerAmountRequired = triggeredByAura->GetAmount();
@@ -7765,6 +7765,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 114163: ///< Eternal Flame
+                        case 156322: ///< Eternal Flame (DoT)
                         case 130551: ///< Word of GLory
                         case 85222: ///< Light of Dawn
                         {
@@ -8694,7 +8696,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
 bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo(); ///< dummySpell is never read 01/18/16
     //uint32 effIndex = triggeredByAura->GetEffIndex();
     //int32  triggerAmount = triggeredByAura->GetAmount();
 
@@ -8729,7 +8731,7 @@ bool Unit::HandleObsModEnergyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffec
 
 bool Unit::HandleModDamagePctTakenAuraProc(Unit* victim, uint32 /*damage*/, AuraEffectPtr triggeredByAura, SpellInfo const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 cooldown)
 {
-    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
+    SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo(); ///< dummySpell is never read 01/18/16
 
     Item* castItem = triggeredByAura->GetBase()->GetCastItemGUID() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
@@ -11128,6 +11130,17 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
             JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, targetList, u_check);
             unit->VisitNearbyObject(6.0f, searcher);
 
+            targetList.remove_if([this, unit](WorldObject* p_Object) -> bool
+            {
+                if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                    return true;
+
+                if (!unit->IsValidAssistTarget(p_Object->ToUnit()))
+                    return true;
+
+                return false;
+            });
+
             if (!targetList.empty())
             {
                 targetList.sort(JadeCore::HealthPctOrderPred());
@@ -11550,7 +11563,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         if (damagetype == DOT)
         {
-            coeff = bonus->dot_damage;
+            coeff = bonus->dot_damage; ///< coeff is never read 01/18/16
             if (bonus->ap_dot_bonus > 0)
             {
                 WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
@@ -11561,7 +11574,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
         else
         {
-            coeff = bonus->direct_damage;
+            coeff = bonus->direct_damage; ///< coeff is never read 01/18/16
             if (bonus->ap_bonus > 0)
             {
                 WeaponAttackType attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE && getClass() == CLASS_HUNTER) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack;
@@ -11845,7 +11858,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         AddPct(TakenTotalMod, mult);
 
-        if (caster->GetTypeId() == TYPEID_UNIT)
+        if (caster->GetTypeId() != TYPEID_PLAYER)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
             AddPct(TakenTotalMod, u_mult);
@@ -12688,14 +12701,14 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     {
         if (damagetype == DOT)
         {
-            coeff = bonus->dot_damage;
+            coeff = bonus->dot_damage; ///< coeff is never read 01/18/16
             if (bonus->ap_dot_bonus > 0)
                 DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
                     (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? WeaponAttackType::RangedAttack : WeaponAttackType::BaseAttack));
         }
         else
         {
-            coeff = bonus->direct_damage;
+            coeff = bonus->direct_damage; ///< coef is never read 01/18/16
             if (bonus->ap_bonus > 0)
                 DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
         }
@@ -13183,18 +13196,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             DoneTotalMod += CalculatePct(1.0, amount);
     }
 
-    /// 76806 - Mastery : Main Gauche
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
-    {
-        if (AuraEffectPtr l_AurEff = GetAuraEffect(76806, EFFECT_0, GetGUID()))
-        {
-            float l_Mastery = (float)l_AurEff->GetAmount();
-
-            if (roll_chance_f(l_Mastery))
-                CastSpell(victim, 86392, true);
-        }
-    }
-
     /// Custom WoD Script - Glyph of Frostbrand Weapon
     if (GetTypeId() == TYPEID_PLAYER && victim && ToPlayer()->getClass() == CLASS_SHAMAN && ToPlayer()->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT && attType == WeaponAttackType::BaseAttack)
     {
@@ -13269,7 +13270,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         DoneTotalMod += CalculatePct(1.0, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
     // done scripted mod (take it from owner)
-    Unit* owner = GetOwner() ? GetOwner() : this;
+    Unit* owner = GetOwner() ? GetOwner() : this; ///< owner is never read 01/18/16
     // AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
@@ -13385,7 +13386,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     {
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         TakenTotalMod += CalculatePct(1.0, mult);
-        if (attacker->GetTypeId() == TYPEID_UNIT)
+        if (attacker->GetTypeId() != TYPEID_PLAYER)
         {
             int32 u_mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
             TakenTotalMod += CalculatePct(1.0, u_mult);
@@ -13397,19 +13398,8 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         TakenTotalMod -= CalculatePct(1.0, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     float tmpDamage = 0.0f;
+    tmpDamage = ((CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod) * TakenTotalMod) + CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod));
 
-    if (TakenTotalCasterMod)
-    {
-        if (TakenFlatBenefit < 0)
-        {
-            if (TakenTotalMod < 1)
-                tmpDamage = ((float(CalculatePct(pdamage, TakenTotalCasterMod) + TakenFlatBenefit) * TakenTotalMod) + CalculatePct(pdamage, TakenTotalCasterMod));
-            else
-                tmpDamage = ((float(CalculatePct(pdamage, TakenTotalCasterMod) + TakenFlatBenefit) + CalculatePct(pdamage, TakenTotalCasterMod)) * TakenTotalMod);
-        }
-        else if (TakenTotalMod < 1)
-            tmpDamage = ((CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod) * TakenTotalMod) + CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod));
-    }
     if (!tmpDamage)
         tmpDamage = (float(pdamage) + TakenFlatBenefit) * TakenTotalMod;
 
@@ -14027,13 +14017,23 @@ bool Unit::IsValidAssistTarget(Unit const* target) const
 }
 
 // function based on function Unit::CanAssist from 13850 client
-bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const
+bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell, bool duelFlag) const
 {
     ASSERT(target);
 
     // can assist to self
     if (this == target)
         return true;
+
+    /// on duel, the healing spells should not proc on other target than caster
+    if (duelFlag && GetSpellModOwner() && GetSpellModOwner()->m_Duel)
+    {
+        if (target->GetSpellModOwner() == nullptr)
+            return false;
+
+        if (GetSpellModOwner()->GetGUID() != target->GetSpellModOwner()->GetGUID())
+            return false;
+    }
 
     // can't assist unattackable units or GMs
     if (target->HasUnitState(UNIT_STATE_UNATTACKABLE)
@@ -14415,6 +14415,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);
+
     if (slow)
         AddPct(speed, slow);
 
@@ -14444,7 +14445,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 {
     if (fabs(rate) <= 0.00000023841858) // From client
-        rate = 1.0f;
+        rate = 0.01f;
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
@@ -14453,7 +14454,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
-    float l_OldRate = m_speed_rate[p_MovementType];
+    float l_OldRate = m_speed_rate[p_MovementType]; ///< l_oldrate is never read 01/18/16
     m_speed_rate[p_MovementType] = rate;
 
     if (!clientSideOnly)
@@ -15179,7 +15180,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     if (spellProto->IsChanneled() && !(spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION))
         return;
 
-    Unit* owner = GetOwner();
+    Unit* owner = GetOwner(); ///< owner is never read 01/18/16
     // called from caster
     Player* modOwner = GetSpellModOwner();
 
@@ -15902,9 +15903,9 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
             if (l_Aura)
             {
                 int32 l_HolyPower = l_Player->GetPower(POWER_HOLY_POWER) >= 3 ? 3 : l_Player->GetPower(POWER_HOLY_POWER);
-                int32 l_AddValue  = 5 * l_HolyPower;
+                int32 l_AddValue = (5 * l_HolyPower) + l_Aura->GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
-                l_Aura->GetEffect(0)->ChangeAmount(15 + l_AddValue);
+                l_Aura->GetEffect(0)->ChangeAmount(l_AddValue);
 
                 AuraPtr l_SecondAura = l_Player->AddAura(114695, l_Player);
 
@@ -16696,15 +16697,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (GetTypeId() == TYPEID_PLAYER && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
         RemoveAura(121153);
 
-    // Fix Drop charge for Fingers of Frost
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MAGE && procSpell && (procSpell->Id == 30455 || procSpell->Id == 44572) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
-    {
-        if (AuraPtr fingersOfFrost = GetAura(44544, GetGUID()))
-            fingersOfFrost->ModStackAmount(-1);
-        if (AuraPtr fingersVisual = GetAura(126084, GetGUID()))
-            fingersVisual->Remove();
-    }
-
     // Hack Fix Immolate - Critical strikes generate burning embers
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
         SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
@@ -16734,7 +16726,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
-        bool active = damage || (procExtra & PROC_EX_BLOCK && isVictim);
+        bool active = (damage + absorb) || (procExtra & PROC_EX_BLOCK && isVictim);
         if (isVictim)
             procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
 
@@ -16747,7 +16739,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 if (spellProto->Effects[i].TriggerSpell)
                     triggerSpell = true;
 
-            if (damage || triggerSpell)
+            if ((damage + absorb) || triggerSpell)
                 active = true;
         }
 
@@ -16763,12 +16755,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         /// Ruthlessness can proc just from finishing spells
         if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 14181 && procSpell->Id != 408 && procSpell->Id != 2098 && procSpell->Id != 73651 && procSpell->Id != 5171 && procSpell->Id != 26679 && procSpell->Id != 1943)))
             continue;
-
-        // Some spells can proc on absorb
-        if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 || spellProto->Id == 44448 ||
-            triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificSeal || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
-            || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
-            active = true;
 
         /// Item - Druid T17 Restoration 4P Bonus - 167714
         if (spellProto->Id == 167714)
@@ -18042,13 +18028,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
     // Check spellProcEvent data requirements
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        /// Hack Fix Grimoire of Synergy can be triggered if damage is absorbed
-        if (spellProto && spellProto->Id == 171975 && procSpell && procExtra && (procExtra & PROC_EX_ABSORB))
-            return true;
-        // Hack Fix Backdraft can be triggered if damage is absorbed
-        else if (spellProto && spellProto->Id == 117896 && procSpell && procSpell->Id == 17962 && procExtra && (procExtra & PROC_EX_ABSORB))
-            return true;
-        else if (spellProto && spellProto->Id == 44448 && procSpell &&
+        if (spellProto && spellProto->Id == 44448 && procSpell &&
             (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
             return true;
         // Hack fix Mutilate can Trigger Blindside
@@ -18709,6 +18689,10 @@ void Unit::SetControlled(bool apply, UnitState state)
         }
 
         ClearUnitState(state);
+
+        /// Fix problems with CC when character is not available for control in 1-2 seconds after breaking CC
+        /// After ClearUnitState player should receive control on his character, if char is still moving - we need to stop him
+        StopMoving();
 
         if (HasUnitState(UNIT_STATE_STUNNED))
             SetStunned(true);
@@ -19846,6 +19830,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43764;
                         else
                             l_BaseCatModel = 29405;
+                        break;
                     }
                     case 3: // Light Blue
                     {
@@ -19853,6 +19838,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43763;
                         else
                             l_BaseCatModel = 29406;
+                        break;
                     }
                     case 0: // Green
                     case 1: // Light Green
@@ -19862,13 +19848,15 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43762;
                         else
                             l_BaseCatModel = 29407;
+                        break;
                     }
                     case 4: // White
                     {
                         if (kingOfTheJungle)
                             l_KingOfTheJungleModel = 43765;
                         else
-                            return 29408;
+                            l_BaseCatModel = 29408;
+                        break;
                     }
                     default: // original - Dark Blue
                     {
@@ -19876,6 +19864,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43761;
                         else
                             l_BaseCatModel = 892;
+                        break;
                     }
                 }
             }
@@ -19894,6 +19883,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43776;
                         else
                             l_BaseCatModel = 33668;
+                        break;
                     }
                     case 2: // Yellow
                     case 3:
@@ -19902,6 +19892,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43778;
                         else
                             l_BaseCatModel = 33667;
+                        break;
                     }
                     case 4: // Blue
                     case 5:
@@ -19911,6 +19902,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43773;
                         else
                             l_BaseCatModel = 33666;
+                        break;
                     }
                     case 7: // Purple
                     case 10:
@@ -19919,6 +19911,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43775;
                         else
                             l_BaseCatModel = 33665;
+                        break;
                     }
                     default: // original - white
                     {
@@ -19926,6 +19919,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             l_KingOfTheJungleModel = 43777;
                         else
                             l_BaseCatModel = 33669;
+                        break;
                     }
                 }
             }
@@ -19947,6 +19941,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43781;
                             else
                                 l_BaseCatModel = 33662;
+                            break;
                         }
                         case 2: // Black
                         case 7:
@@ -19955,6 +19950,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43780;
                             else
                                 l_BaseCatModel = 33661;
+                            break;
                         }
                         case 4: // yellow
                         {
@@ -19962,6 +19958,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43784;
                             else
                                 l_KingOfTheJungleModel = 33664;
+                            break;
                         }
                         case 3: // White
                         case 5:
@@ -19977,6 +19974,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43782;
                             else
                                 l_BaseCatModel = 33660;
+                            break;
                         }
                     }
                 }
@@ -19992,6 +19990,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43781;
                             else
                                 l_BaseCatModel = 33662;
+                            break;
                         }
                         case 7: // Black
                         case 8:
@@ -20000,6 +19999,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43780;
                             else
                                 l_BaseCatModel = 33661;
+                            break;
                         }
                         case 3: // yellow
                         case 4:
@@ -20008,6 +20008,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43784;
                             else
                                 l_BaseCatModel = 33664;
+                            break;
                         }
                         case 2: // White
                         {
@@ -20015,6 +20016,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43785;
                             else
                                 l_BaseCatModel = 33663;
+                            break;
                         }
                         default: // original - Gray
                         {
@@ -20022,6 +20024,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43782;
                             else
                                 l_BaseCatModel = 33660;
+                            break;
                         }
                     }
                 }
@@ -20047,6 +20050,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43769;
                             else
                                 l_BaseCatModel = 29409;
+                            break;
                         }
                         case 9: // Light Brown
                         case 10:
@@ -20056,6 +20060,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43770;
                             else
                                 l_BaseCatModel = 29410;
+                            break;
                         }
                         case 6: // Brown
                         case 7:
@@ -20065,6 +20070,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43768;
                             else
                                 l_BaseCatModel = 29411;
+                            break;
                         }
                         case 0: // Dark
                         case 1:
@@ -20077,6 +20083,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43766;
                             else
                                 l_BaseCatModel = 29412;
+                            break;
                         }
                         default: // original - Grey
                         {
@@ -20084,6 +20091,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43767;
                             else
                                 l_BaseCatModel = 8571;
+                            break;
                         }
                     }
                 }
@@ -20098,6 +20106,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43769;
                             else
                                 l_BaseCatModel = 29409;
+                            break;
                         }
                         case 6: // Light Brown
                         case 7:
@@ -20106,6 +20115,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43770;
                             else
                                 l_BaseCatModel = 29410;
+                            break;
                         }
                         case 4: // Brown
                         case 5:
@@ -20114,6 +20124,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43768;
                             else
                                 l_BaseCatModel = 29411;
+                            break;
                         }
                         case 0: // Dark
                         case 1:
@@ -20124,6 +20135,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43766;
                             else
                                 l_BaseCatModel = 29412;
+                            break;
                         }
                         default: // original - Grey
                         {
@@ -20131,6 +20143,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                                 l_KingOfTheJungleModel = 43767;
                             else
                                 l_BaseCatModel = 8571;
+                            break;
                         }
                     }
                 }

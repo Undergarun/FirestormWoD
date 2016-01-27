@@ -154,7 +154,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
 
     // reputation discount
     float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Unit);
-    bool l_CanLearnPrimaryProfession = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
+    bool l_CanLearnPrimaryProfession = GetPlayer()->GetFreePrimaryProfessionPoints() > 0; ///< l_CanLearnPrimaryProffesion is never read 01/18/16
 
     uint32 l_TrainerSpellCount = 0;
     for (TrainerSpellMap::const_iterator itr = l_TrainerSpells->spellList.begin(); itr != l_TrainerSpells->spellList.end(); ++itr)
@@ -178,7 +178,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
             const SpellInfo * l_LearnedSpellInfo = sSpellMgr->GetSpellInfo(l_TrainerSpell->learnedSpell[l_I]);
 
             if (l_LearnedSpellInfo && l_LearnedSpellInfo->IsPrimaryProfessionFirstRank())
-                l_PrimaryProfesionFirstRank = true;
+                l_PrimaryProfesionFirstRank = true; ///< l_PrimaryProfesionFirstRank is never read 01/18/16
         }
 
         if (!l_Valid)

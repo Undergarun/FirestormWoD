@@ -1450,22 +1450,22 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< slottype is never read 01/18/16
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
-                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT); ///< slottype is never read 01/18/16
                             else
-                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
+                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING); ///< slottype is never read 01/18/16
                             break;
                         default:
-                            slottype = uint8(slotType);
+                            slottype = uint8(slotType); ///< slottype is never read 01/18/16
                             break;
                     }
                 }
                 else
-                    slottype = uint8(slotType);
+                    slottype = uint8(slotType); ///< slottype is never read 01/18/16
 
                 uint8 l_ItemListType = LOOT_LIST_ITEM;
 
@@ -1803,15 +1803,9 @@ float LootTemplate::LootGroup::TotalChance() const
 void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint8 group_id) const
 {
     float chance = RawTotalChance();
-    if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
-    {
-        sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
-
+    
     if (chance >= 100.0f && !EqualChanced.empty())
-    {
         sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
 }
 
 void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, LootIdSet* ref_set) const

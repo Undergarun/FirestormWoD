@@ -461,7 +461,7 @@ typedef ACE_Based::LockedMap<uint32, QuestLocale> QuestLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef ACE_Based::LockedMap<int32, TrinityStringLocale> TrinityStringLocaleContainer;
-typedef ACE_Based::LockedMap<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
+typedef ACE_Based::LockedMap<uint64, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 typedef ACE_Based::LockedMap<uint32, QuestObjectiveLocale> QuestObjectiveLocaleContainer;
 
@@ -1212,6 +1212,7 @@ class ObjectMgr
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
+        void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
 
         void LoadGuildChallengeRewardInfo();
@@ -1375,7 +1376,7 @@ class ObjectMgr
             if (itr == _pageTextLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 entry) const
+        GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint64 entry) const
         {
             GossipMenuItemsLocaleContainer::const_iterator itr = _gossipMenuItemsLocaleStore.find(entry);
             if (itr == _gossipMenuItemsLocaleStore.end()) return NULL;
@@ -1669,6 +1670,11 @@ class ObjectMgr
             return false;
         }
 
+        bool IsDisabledEncounter(uint32 p_EncounterID) const
+        {
+            return m_DisabledEncounters.find(p_EncounterID) != m_DisabledEncounters.end();
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1757,7 +1763,7 @@ class ObjectMgr
         SpellPhaseStore _SpellPhaseStore;
 
         uint32 _skipUpdateCount;
-        std::map<uint64, uint64> _lootViewGUID;
+        ACE_Based::LockedMap<uint64, uint64> _lootViewGUID;
 
         AreaTriggerTemplateContainer m_AreaTriggerTemplates;
         AreaTriggerTemplateContainer m_AreaTriggerTemplatesSpell;
@@ -1855,6 +1861,8 @@ class ObjectMgr
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
         TaxiNodes _taxiNodes;
+
+        std::set<uint32> m_DisabledEncounters;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

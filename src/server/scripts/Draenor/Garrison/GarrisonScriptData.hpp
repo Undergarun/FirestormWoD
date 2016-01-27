@@ -39,6 +39,7 @@ namespace MS { namespace Garrison
         PhaseMagePortalNagrand        = 0x00000040,
         PhaseMagePortalShadowmoon     = 0x00000080,
         PhaseMagePortalGorgrond       = 0x00000100,
+        PhaseLostInTransitionQuest    = 0x00000200
     };
 
     /// Instance data common IDs
@@ -65,7 +66,8 @@ namespace MS { namespace Garrison
         SpellIronTrap                          = 180609,
         SpellApprenticeLogging                 = 167911,
         SpellSummonStump                       = 170079,
-        SpellGarrisonPortal                    = 182464
+        SpellGarrisonPortal                    = 182464,
+        SpellAuraRunesOfPower                  = 178777
     };
 
     enum DisplayIDs
@@ -105,6 +107,8 @@ namespace MS { namespace Garrison
             Alliance_ThingsAreNotGorenOurWay            = 34192,
             /// Mage Tower
             Alliance_PortablePortals                    = 38354,
+            /// Fishing Hut
+            Alliance_AnglinInOurGarrison                = 36202,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -132,7 +136,9 @@ namespace MS { namespace Garrison
             Horde_ThingsAreNotGorenOurWay               = 35154,
             Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
-            Horde_PortablePortals                       = 38351
+            Horde_PortablePortals                       = 38351,
+            /// Fishing Hut
+            Horde_AnglinInOurGarrison                   = 36132
         };
     }   ///< namespace Quests
 
@@ -505,7 +511,7 @@ namespace MS { namespace Garrison
                 enum TalbukQuests
                 {
                     /// Initial Quest
-                    QuestTamingATalbuk = 36917,
+                    QuestTamingATalbuk    = 36917,
                     /// Progression Quests
                     TalbukTrainingQuest1  = 37093,
                     TalbukTrainingQuest2  = 37094,

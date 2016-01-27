@@ -153,10 +153,7 @@ namespace MS { namespace Garrison
             else if (l_RewardItemID == 114999) ///< Barn Somptuous Fur, itemID from dbc is wrong
                 l_RewardItemID = 111557;
             else if (l_RewardItemID == 122589) ///< Mage Tower/Spirit Lodge reward, needs custom handling
-            {
                 l_RewardItemID = 122514;
-                p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(1, 5));
-            }
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
@@ -184,6 +181,9 @@ namespace MS { namespace Garrison
                     p_Player->SendDisplayToast(l_RewardItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
                     l_ToastStatus[l_RewardItemID] = true;
                 }
+
+                if (l_RewardItemID == 122514)
+                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(100, 300));
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }
@@ -706,6 +706,34 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 237335, 237132                                                     ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_essence_font::go_garrison_essence_font()
+        : GameObjectScript("go_garrison_essence_font")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the GameObject.
+    /// @p_Player     : Source player instance
+    /// @p_GameObject : Target GameObject instance
+    bool go_garrison_essence_font::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    {
+        if (p_Player)
+        {
+            p_Player->CastSpell(p_Player->ToUnit(), 161736, true);
+            p_Player->CastSpell(p_Player->ToUnit(), 161735, true);
+        }
+
+        return true;
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -719,4 +747,5 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_deposit;
     new MS::Garrison::gob_IronTrap_Garrison;
     new MS::Garrison::go_garrison_small_timber;
+    new MS::Garrison::go_garrison_essence_font;
 }

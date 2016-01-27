@@ -582,7 +582,7 @@ void WorldSession::HandlePetRename(WorldPacket & p_RecvPacket)
     std::string l_NewName;
 
     p_RecvPacket.readPackGUID(l_PetNumber);
-    l_Unknow           = p_RecvPacket.read<uint32>();
+    l_Unknow           = p_RecvPacket.read<uint32>(); ///< l_unknow is never read 01/18/16
     l_NewNameSize      = p_RecvPacket.ReadBits(8);
     l_HasDeclinedNames = p_RecvPacket.ReadBit();
 
@@ -768,7 +768,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     p_RecvPacket.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag = p_RecvPacket.ReadBits(5);
+    l_SendCastFlag = p_RecvPacket.ReadBits(5);  ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos = p_RecvPacket.ReadBit();
     l_SpellWeightCount = p_RecvPacket.ReadBits(2);
 
