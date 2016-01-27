@@ -1,14 +1,15 @@
 UPDATE `creature_template` SET gossip_menu_id = 16986, `npcflag`=`npcflag`|17, trainer_type=2 WHERE `entry`=79892;
 DELETE FROM `npc_trainer` WHERE `entry`=79892;
-INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES
-(79892, 7620, 100, 356, 0, 1), 
-(79892, 7731, 500, 356, 50, 1), 
-(79892, 7732, 10000, 356, 125, 1), 
-(79892, 18248, 25000, 356, 200, 1), 
-(79892, 33095, 100000, 356, 275, 1), 
-(79892, 51294, 150000, 356, 350, 1), 
-(79892, 88868, 250000, 356, 425, 1), 
-(79892, 110410, 300000, 356, 500, 1);
+insert into `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) values
+('79892','7733','100','356','0','1'),
+('79892','7734','500','356','50','1'),
+('79892','55083','10000','356','125','1'),
+('79892','18249','25000','356','200','1'),
+('79892','54084','100000','356','275','1'),
+('79892','51293','150000','356','350','1'),
+('79892','88869','250000','356','425','1'),
+('79892','110412','300000','356','500','1');
+
 
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79971;
 DELETE FROM `npc_vendor` WHERE `entry` = 79971 AND `type` = 1;
@@ -48,3 +49,22 @@ REPLACE INTO `creature_questender` (`id`, `quest`) VALUES
 ('79896','34758'),
 ('79896','36131'),
 ('79896','36141');
+
+-- Horde daily quests (35071, 35006, 35072, 35073, 35074, 35075)
+
+UPDATE quest_template SET PrevQuestId = 36132 WHERE Id IN (35071, 35006, 35072, 35073, 35074, 35075);
+
+DELETE FROM pool_quest WHERE pool_entry = 30005;
+DELETE FROM pool_template WHERE entry = 30005;
+INSERT INTO pool_template VALUE (30005, 1, "Horde Garrison Fishing daily quests");
+INSERT INTO pool_quest VALUES
+(35071, 30005, "Jawless Skulker"),
+(35006, 30005, "Fire Ammonite"),
+(35072, 30005, "Fat Sleeper"),
+(35073, 30005, "Blind Lake Sturgeon"),
+(35074, 30005, "Blackwater Whiptail"),
+(35075, 30005, "Abyssal Gulper Eel");
+
+-- Updates
+
+UPDATE creature_template SET scriptname = "npc_MakJin_Garr" WHERE entry = 79892;
