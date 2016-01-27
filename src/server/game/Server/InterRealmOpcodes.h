@@ -151,6 +151,8 @@ enum IROpcodes
     IR_SMSG_RESERVE_LOCAL_GUID                      = 0x71,
     IR_CMSG_RESERVE_LOCAL_GUID                      = 0x72,
 
+    IR_SMSG_CROSS_PARTY_INFO                        = 0x73,
+
     IR_NUM_MSG_TYPES,
 };
 

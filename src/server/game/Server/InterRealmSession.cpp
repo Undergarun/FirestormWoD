@@ -195,6 +195,30 @@ void InterRealmSession::ProcessPlayersAfterDisconnect()
                 {
                     uint64 l_Guid = l_Player->GetGUID();
 
+                    CrossPartyInfo const l_PartyInfo = itr->second->GetCrossPartyInfo();
+                    if (l_PartyInfo.GroupGUID)
+                    {
+                        /// Clear cross group UI client-side
+                        WorldPacket l_Data(SMSG_PARTY_UPDATE, 200);
+                        l_Data << uint8(l_PartyInfo.PartyFlags);
+                        l_Data << uint8(l_PartyInfo.PartyIndex);
+                        l_Data << uint8(l_PartyInfo.PartyType);
+                        l_Data << int32(-1);                    ///< MyIndex
+                        l_Data.appendPackGUID(l_PartyInfo.GroupGUID);
+                        l_Data << uint32(0);
+                        l_Data.appendPackGUID(l_PartyInfo.LeaderGUID);
+                        l_Data << uint32(0);
+                        l_Data.WriteBit(false); ///< LfgInfos
+                        l_Data.WriteBit(false); ///< LootSettings
+                        l_Data.WriteBit(false);
+                        l_Data.FlushBits();
+                        l_Player->GetSession()->SendPacket(&l_Data);
+
+                        /// Clear cross party info server-side
+                        CrossPartyInfo l_CleanPartyInfo;
+                        l_Player->GetSession()->SetCrossPartyInfo(l_CleanPartyInfo);
+                    }
+
                     /// Logout player ...
                     WorldSession* l_Session = l_Player->GetSession();
                     l_Session->LogoutPlayer(false, true);
@@ -462,7 +486,7 @@ void InterRealmSession::Handle_TunneledPacket(WorldPacket& recvPacket)
 
     if (Player* pPlayer = sObjectAccessor->FindPlayerInOrOutOfWorld(playerGuid))
     {
-        pPlayer->GetSession()->SendPacket(&recvPacket, true);
+        pPlayer->GetSession()->SendPacket(&recvPacket);
     }
 }
 
@@ -1267,6 +1291,23 @@ void InterRealmSession::Handle_ReserveLocalGuid(WorldPacket& p_Packet)
     l_Data << uint32(sObjectMgr->GenerateLowGuid(l_HighGuid, l_Size));
     l_Data << uint32(l_Size);
     SendPacket(&l_Data);
+}
+
+void InterRealmSession::Handle_CrossPartyInfo(WorldPacket& p_Packet)
+{
+    CrossPartyInfo l_PartyInfo;
+    l_PartyInfo.PlayerGuid = p_Packet.read<uint64>();
+    l_PartyInfo.PartyFlags = p_Packet.read<uint8>();
+    l_PartyInfo.PartyIndex = p_Packet.read<uint8>();
+    l_PartyInfo.PartyType  = p_Packet.read<uint8>();
+    l_PartyInfo.GroupGUID  = p_Packet.read<uint64>();
+    l_PartyInfo.LeaderGUID = p_Packet.read<uint64>();
+
+    Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_PartyInfo.PlayerGuid);
+    if (l_Player == nullptr)
+        return;
+
+    l_Player->GetSession()->SetCrossPartyInfo(l_PartyInfo);
 }
 
 void InterRealmSession::SendWhisper(uint64 sender, uint64 receiver, const std::string& text, uint32 language)

@@ -136,6 +136,8 @@ void IROpcodeTable::Initialize()
     DEFINE_IR_OPCODE_HANDLER(IR_SMSG_RESERVE_LOCAL_GUID,        &InterRealmSession::Handle_ReserveLocalGuid);
     DEFINE_IR_OPCODE_HANDLER(IR_CMSG_RESERVE_LOCAL_GUID,        &InterRealmSession::Handle_ReserveLocalGuid);
 
+    DEFINE_IR_OPCODE_HANDLER(IR_SMSG_CROSS_PARTY_INFO,          &InterRealmSession::Handle_CrossPartyInfo);
+
 
 #undef DEFINE_IR_OPCODE_HANDLER
 };
