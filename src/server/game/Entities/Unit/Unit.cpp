@@ -22029,6 +22029,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Haunt - In pvp, damages reduce by 25%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
             return -25.0f;
+        /// Chaos Bolt - In pvp, damages increase by 33%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x2000)
+            return 33.0f;
         break;
     }
     case SPELLFAMILY_SHAMAN:
