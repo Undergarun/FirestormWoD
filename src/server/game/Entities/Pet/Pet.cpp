@@ -639,10 +639,17 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
-    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
-        CastSpell(this, 157863, true);
-    else if (HasAura(157863))
-        RemoveAura(157863);
+    if (getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+    {
+        Player* l_Owner = GetOwner();
+        if (l_Owner != nullptr)
+        {
+            if (getDeathState() == ALIVE && !l_Owner->HasAura(157863))
+                l_Owner->CastSpell(l_Owner, 157863, true);
+            else if (HasAura(157863) && getDeathState() != ALIVE)
+                RemoveAura(157863);
+        }
+    }
     switch (m_deathState)
     {
         case CORPSE:
