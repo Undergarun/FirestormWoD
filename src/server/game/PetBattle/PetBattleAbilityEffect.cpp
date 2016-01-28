@@ -255,7 +255,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 219 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 220 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 221 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
-    /* EFFECT 222 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
+    /* EFFECT 222 */{&PetBattleAbilityEffect::HandleDamageRange,                PETBATTLE_TARGET_TARGET},
     /* EFFECT 223 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 224 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 225 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -503,6 +503,9 @@ int32 PetBattleAbilityEffect::CalculateHit(int32 p_Accuracy)
 
     // Calculate
     if (p_Accuracy < 100 && !roll_chance_i(p_Accuracy))
+        Flags |= PETBATTLE_EVENT_FLAG_MISS;
+
+    if (Caster != Target && GetState(Target, BATTLEPET_STATE_untargettable))
         Flags |= PETBATTLE_EVENT_FLAG_MISS;
 
     return p_Accuracy;
@@ -1713,4 +1716,13 @@ bool PetBattleAbilityEffect::HandleDamagePercentTaken()
 
     int32 damage = CalculateDamage(CalculatePct(GetState(Caster, BATTLEPET_STATE_Last_HitTaken), EffectInfo->prop[0]));
     return Damage(Target, damage);
+}
+
+bool PetBattleAbilityEffect::HandleDamageRange()
+{
+    CalculateHit(EffectInfo->prop[1]);
+
+    int32 l_BaseDamage = urand(EffectInfo->prop[0], EffectInfo->prop[2]);
+
+    return Damage(Target, CalculateDamage(l_BaseDamage));
 }
