@@ -299,7 +299,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             if (Player* l_Player = object->ToPlayer())
             {
                 if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
-                    condMeets = l_GarrisonMgr->HasBuildingType((MS::Garrison::BuildingType::Type)ConditionValue1);
+                {
+                    if (!ConditionValue2)
+                        condMeets = l_GarrisonMgr->HasBuildingType((MS::Garrison::BuildingType::Type)ConditionValue1);
+                    else
+                    {
+                        MS::Garrison::GarrisonBuilding l_Building = l_GarrisonMgr->GetBuildingWithType((MS::Garrison::BuildingType::Type)ConditionValue1);
+
+                        if (!l_Building.BuildingID)
+                        {
+                            condMeets = false;
+                            break;
+                        }
+
+                        if (l_GarrisonMgr->GetBuildingLevel(l_Building) == ConditionValue2)
+                            condMeets = true;
+                        else
+                            condMeets = false;
+                    }
+                }
             }
             break;
         }
@@ -2017,8 +2035,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             return false;
         case CONDITION_HAS_BUILDING_TYPE:
         {
-            if (cond->ConditionValue2)
-                sLog->outError(LOG_FILTER_SQL, "HasBuilding condition has useless data in value2 (%u)!", cond->ConditionValue2);
             if (cond->ConditionValue3)
                 sLog->outError(LOG_FILTER_SQL, "HasBuilding condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
