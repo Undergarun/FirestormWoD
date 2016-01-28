@@ -2235,6 +2235,123 @@ class npc_foundry_iron_smith : public CreatureScript
         }
 };
 
+/// Enchanted Armament - 80683
+class npc_foundry_enchanted_armament : public CreatureScript
+{
+    public:
+        npc_foundry_enchanted_armament() : CreatureScript("npc_foundry_enchanted_armament") { }
+
+        struct npc_foundry_enchanted_armamentAI : public ScriptedAI
+        {
+            npc_foundry_enchanted_armamentAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EnchantedArmamanetSpawn = 163050,
+                ImbueWeapon             = 163089,
+                Imbued                  = 163095,
+                EmpoweredArmamentAoE    = 162337
+            };
+
+            enum eMove
+            {
+                MoveToOtherSide = 1
+            };
+
+            enum eEvent
+            {
+                EventEmpoweredArmament = 1
+            };
+
+            EventMap m_Event;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::EnchantedArmamanetSpawn, true);
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                AddTimedDelayedOperation(200, [this]() -> void
+                {
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, me->GetSpeedRate(UnitMoveType::MOVE_RUN));
+
+                    float l_X, l_Y, l_Z;
+                    float l_O = me->GetOrientation();
+
+                    float l_Radius = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt007, 40.0f) ? 68.0f : 73.0f;
+
+                    l_X = me->GetPositionX() + (l_Radius * cos(l_O));
+                    l_Y = me->GetPositionY() + (l_Radius * sin(l_O));
+                    l_Z = me->GetPositionZ();
+
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(eMove::MoveToOtherSide, l_X, l_Y, l_Z);
+                });
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->GetMotionMaster()->Clear();
+
+                AttackStart(p_Attacker);
+
+                m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
+
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == eMove::MoveToOtherSide)
+                    me->DespawnOrUnsummon();
+            }
+
+            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::ImbueWeapon)
+                {
+                    me->CastSpell(me, eSpells::Imbued, true);
+
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Event.Update(p_Diff);
+
+                if (m_Event.ExecuteEvent() == eEvent::EventEmpoweredArmament)
+                {
+                    me->CastSpell(me, eSpells::EmpoweredArmamentAoE, true);
+
+                    m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_enchanted_armamentAI(p_Creature);
+        }
+};
+
 /// Flame Vents - 80681
 class npc_foundry_flame_vents : public CreatureScript
 {
@@ -2272,7 +2389,8 @@ class npc_foundry_flame_vents : public CreatureScript
                     }
                 }
 
-                if ((me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f) || me->GetOrientation() < 0.1f)
+                if ((me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f) ||
+                    (me->GetOrientation() >= 4.70f && me->GetOrientation() <= 4.71f) || me->GetOrientation() < 0.1f)
                 {
                     m_Initialized = true;
 
@@ -2286,6 +2404,18 @@ class npc_foundry_flame_vents : public CreatureScript
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 p_Damage = 0;
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                if (npc_foundry_enchanted_armament::npc_foundry_enchanted_armamentAI* l_AI = CAST_AI(npc_foundry_enchanted_armament::npc_foundry_enchanted_armamentAI, p_Summon->GetAI()))
+                {
+                    float l_O = me->GetOrientation();
+                    l_AI->AddTimedDelayedOperation(50, [l_AI, l_O]() -> void
+                    {
+                        l_AI->me->SetFacingTo(l_O);
+                    });
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -2363,7 +2493,8 @@ class npc_foundry_flame_vents : public CreatureScript
 
             void LastOperationCalled() override
             {
-                if ((me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f) || me->GetOrientation() < 0.1f)
+                if ((me->GetOrientation() >= 3.14f && me->GetOrientation() <= 3.20f) ||
+                    (me->GetOrientation() >= 4.70f && me->GetOrientation() <= 4.71f) || me->GetOrientation() < 0.1f)
                 {
                     AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
@@ -2376,125 +2507,6 @@ class npc_foundry_flame_vents : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_foundry_flame_ventsAI(p_Creature);
-        }
-};
-
-/// Enchanted Armament - 80683
-class npc_foundry_enchanted_armament : public CreatureScript
-{
-    public:
-        npc_foundry_enchanted_armament() : CreatureScript("npc_foundry_enchanted_armament") { }
-
-        struct npc_foundry_enchanted_armamentAI : public ScriptedAI
-        {
-            npc_foundry_enchanted_armamentAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eSpells
-            {
-                EnchantedArmamanetSpawn = 163050,
-                ImbueWeapon             = 163089,
-                Imbued                  = 163095,
-                EmpoweredArmamentAoE    = 162337
-            };
-
-            enum eMove
-            {
-                MoveToOtherSide = 1
-            };
-
-            enum eEvent
-            {
-                EventEmpoweredArmament = 1
-            };
-
-            EventMap m_Event;
-
-            void Reset() override
-            {
-                me->CastSpell(me, eSpells::EnchantedArmamanetSpawn, true);
-
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-
-                AddTimedDelayedOperation(100, [this]() -> void
-                {
-                    float l_O = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt007, 40.0f) ? 0.0f : M_PI;
-                    me->SetFacingTo(l_O);
-
-                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, me->GetSpeedRate(UnitMoveType::MOVE_RUN));
-
-                    float l_X, l_Y, l_Z;
-
-                    float l_Radius = me->FindNearestGameObject(eFoundryGameObjects::ConveyorBelt007, 40.0f) ? 68.0f : 73.0f;
-
-                    l_X = me->GetPositionX() + (l_Radius * cos(l_O));
-                    l_Y = me->GetPositionY() + (l_Radius * sin(l_O));
-                    l_Z = me->GetPositionZ();
-
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(eMove::MoveToOtherSide, l_X, l_Y, l_Z);
-                });
-            }
-
-            void EnterCombat(Unit* p_Attacker) override
-            {
-                me->GetMotionMaster()->Clear();
-
-                AttackStart(p_Attacker);
-
-                m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
-
-                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
-            }
-
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
-            {
-                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
-                    return;
-
-                if (p_ID == eMove::MoveToOtherSide)
-                    me->DespawnOrUnsummon();
-            }
-
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_SpellInfo->Id == eSpells::ImbueWeapon)
-                {
-                    me->CastSpell(me, eSpells::Imbued, true);
-
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                }
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
-            {
-                p_Damage = 0;
-            }
-
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                UpdateOperations(p_Diff);
-
-                if (!UpdateVictim())
-                    return;
-
-                m_Event.Update(p_Diff);
-
-                if (m_Event.ExecuteEvent() == eEvent::EventEmpoweredArmament)
-                {
-                    me->CastSpell(me, eSpells::EmpoweredArmamentAoE, true);
-
-                    m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new npc_foundry_enchanted_armamentAI(p_Creature);
         }
 };
 
