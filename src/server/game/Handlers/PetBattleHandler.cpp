@@ -169,7 +169,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
 
     if (p_Battle->BattleType == PETBATTLE_TYPE_PVE && p_Battle->PveBattleType == PVE_PETBATTLE_TRAINER)
     {
-        Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(l_Guid, (Creature*)NULL);
+        Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(l_Guid, (Creature*)nullptr);
 
         if (l_Trainer)
         {
@@ -830,7 +830,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         return;
     }
 
-    // Wild should be for PetBattle and Player able to interact with it
+    /// Wild should be for PetBattle and Player able to interact with it
     Creature* l_WildPet = m_Player->GetNPCIfCanInteractWith(l_BattleRequest->OpponentGuid, UNIT_NPC_FLAG_PETBATTLE);
     if (!l_WildPet)
     {
@@ -894,7 +894,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     l_WildBattlePets[0] = l_WildBattlePet;
 
     std::list<Unit*> l_NearCreature;
-    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Wild, l_Wild, 50);
+    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Wild, l_Wild, 50.f);
     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Wild, l_NearCreature, u_check);
     l_Wild->VisitNearbyObject(40.f, searcher);
 
@@ -907,7 +907,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
         if (!l_Current->ToCreature() || !l_Current->isAlive() || l_Current->GetGUID() == l_Wild->GetGUID() || !sWildBattlePetMgr->IsWildPet(l_Current->ToCreature()))
             continue;
 
-        if (sWildBattlePetMgr->GetWildBattlePet(l_Current->ToCreature()) != nullptr && roll_chance_i(100))
+        if (sWildBattlePetMgr->GetWildBattlePet(l_Current->ToCreature()) != nullptr && roll_chance_i(80))
         {
             l_WildBattlePets[l_WildsPetCount] = sWildBattlePetMgr->GetWildBattlePet(l_Current->ToCreature());
             l_WildBattlePets[l_WildsPetCount]->OriginalCreature = l_Current->GetGUID();

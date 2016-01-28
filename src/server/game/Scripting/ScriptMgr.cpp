@@ -1958,7 +1958,7 @@ void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
 /// @p_Player   : Player instance
 /// @p_MoveType : Movement type
 /// @p_ID       : Movement ID
-void ScriptMgr::OnPlayerMovementInform(Player * p_Player, uint32 p_MoveType, uint32 p_ID)
+void ScriptMgr::OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnMovementInform(p_Player, p_MoveType, p_ID);
 }

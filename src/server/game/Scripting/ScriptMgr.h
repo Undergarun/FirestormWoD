@@ -760,7 +760,7 @@ class ScriptMgr
         /// @p_Player   : Player instance
         /// @p_MoveType : Movement type
         /// @p_ID       : Movement ID
-        void OnPlayerMovementInform(Player * p_Player, uint32 p_MoveType, uint32 p_ID);
+        void OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID);
 
         /// Called when player accepts some quest
         /// @p_Player : Player instance

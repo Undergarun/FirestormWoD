@@ -1358,7 +1358,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
 
             if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_TRAINER && l_CurrentTeamID == p_WinnerTeamID)
             {
-                Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(Teams[PETBATTLE_PVE_TEAM_ID]->OwnerGuid, (Creature*)NULL);
+                Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(Teams[PETBATTLE_PVE_TEAM_ID]->OwnerGuid, (Creature*)nullptr);
 
                 if (l_Trainer)
                     l_Player->QuestObjectiveSatisfy(l_Trainer->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER, l_Trainer->GetGUID());

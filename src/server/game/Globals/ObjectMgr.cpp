@@ -9743,7 +9743,7 @@ void ObjectMgr::LoadBattlePetNpcTeamMember()
 
     if (!l_Result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battlepet template. DB table `battlepet_npc_team_member` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battlepet npc team member. DB table `battlepet_npc_team_member` is empty.");
         return;
     }
 
