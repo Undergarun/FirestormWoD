@@ -21994,6 +21994,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Rip - In pvp, damages reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
             return -20.0f;
+        /// Starsurge - In pvp, damages reduce by 15%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x2000000)
+            return -15.0f;
         break;
     }
     case SPELLFAMILY_PRIEST:
