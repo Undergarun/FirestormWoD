@@ -26,6 +26,7 @@
 #include "PetBattle.h"
 #include "WildBattlePet.h"
 #include "AchievementMgr.h"
+#include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 
@@ -153,10 +154,10 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
 {
     WorldPacket l_Packet(SMSG_PETBATTLE_FULL_UPDATE, 1000);
 
-    ObjectGuid l_Guid = 0;
+    uint64 l_Guid = 0;
 
     if (p_Battle->BattleType == PETBATTLE_TYPE_PVE)
-        l_Guid = p_Battle->Teams[1]->OwnerGuid;
+        l_Guid = p_Battle->Teams[PETBATTLE_PVE_TEAM_ID]->OwnerGuid;
 
     uint32 l_NpcDisplayID = 0;
     uint32 l_NpcCreatureID = 0;
@@ -166,6 +167,17 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
     bool l_CanAwardXP = true;
     bool l_IsPVP = false;
 
+    if (p_Battle->BattleType == PETBATTLE_TYPE_PVE && p_Battle->PveBattleType == PVE_PETBATTLE_TRAINER)
+    {
+        Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(l_Guid, (Creature*)NULL);
+
+        if (l_Trainer)
+        {
+            l_NpcDisplayID = l_Trainer->GetDisplayId();
+            l_NpcCreatureID = l_Trainer->GetEntry();
+        }
+    }
+
     for (uint8 l_TeamID = 0; l_TeamID < MAX_PETBATTLE_TEAM; l_TeamID++)
     {
         bool l_IsPVP = p_Battle->BattleType != PETBATTLE_TYPE_PVE;
@@ -173,7 +185,7 @@ void WorldSession::SendPetBattleFullUpdate(PetBattle* p_Battle)
 
         ObjectGuid l_OwnerGuid = p_Battle->Teams[l_TeamID]->OwnerGuid;
 
-        if (p_Battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID && p_Battle->PveBattleType == PVE_PETBATTLE_WILD)
+        if (p_Battle->BattleType == PETBATTLE_TYPE_PVE && l_TeamID == PETBATTLE_PVE_TEAM_ID)
             l_OwnerGuid = 0;
 
         l_Packet.appendPackGUID(l_OwnerGuid);
