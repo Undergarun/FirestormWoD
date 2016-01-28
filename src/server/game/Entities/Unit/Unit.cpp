@@ -22026,6 +22026,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Unstable ShadowBurn - In pvp, damages increase by 20%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
             return 20.0f;
+        /// Haunt - In pvp, damages reduce by 25%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
+            return -25.0f;
         break;
     }
     case SPELLFAMILY_SHAMAN:
