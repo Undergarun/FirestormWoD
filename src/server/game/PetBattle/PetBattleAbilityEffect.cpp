@@ -1239,6 +1239,20 @@ bool PetBattleAbilityEffect::HandleHealPercent()
 {
     CalculateHit(EffectInfo->prop[1]);
 
+    /// No sure if all ability should not use spell power on this effect
+    /// Passive humanoid http://wowhead.com/petability=726
+    if (AbilityID == 726)
+    {
+        int32 l_ModPercent = 1;
+        int32 l_Heal = CalculatePct(GetMaxHealth(Target), EffectInfo->prop[0]);
+
+        /// Modifiers Dealt / Taken
+        l_ModPercent += GetState(Caster, BATTLEPET_STATE_Mod_HealingDealtPercent);
+        l_ModPercent += GetState(Target, BATTLEPET_STATE_Mod_HealingTakenPercent);
+
+        return l_Heal + CalculatePct(l_Heal, l_ModPercent);
+    }
+
     // Recovery
     int32 heal = CalculateHeal(CalculatePct(GetMaxHealth(Target), EffectInfo->prop[0]));
 
