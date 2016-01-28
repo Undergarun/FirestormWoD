@@ -2100,7 +2100,7 @@ void Spell::SelectImplicitTrajTargets()
                 y += factor * ((*itr)->GetPositionY() - y);
                 z += factor * ((*itr)->GetPositionZ() - z);
 
-                distSq = (*itr)->GetExactDistSq(x, y, z);
+                distSq = (*itr)->GetExactDistSq(x, y, z); ///< distSq is never read 01/18/16
             }
         }
 
@@ -2296,6 +2296,8 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
         case SPELL_DAMAGE_CLASS_RANGED:
             // 7.5y for multi shot
             jumpRadius = 7.5f;
+            if (m_spellInfo->SpellFamilyFlags[2] & 0x1)
+                jumpRadius = 2.5f; ///< Chimaera Shot has smaller radius
             break;
         case SPELL_DAMAGE_CLASS_MELEE:
             // 5y for swipe, cleave and similar
@@ -3321,7 +3323,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
                             if (m_spellAura->GetEffect(i))
                                 if (m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
-                                    periodicDamage = true;
+                                    periodicDamage = true; ///< periodicDamage is never read 01/18/16
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())
@@ -7057,7 +7059,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear())
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && !m_caster->HasAura(51690))
             return SPELL_FAILED_FLEEING;
 
     // hex
@@ -9227,7 +9229,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
             case TARGET_CHECK_ALLY:
                 if (unitTarget->isTotem())
                     return false;
-                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo, false))
                     return false;
                 break;
             case TARGET_CHECK_PARTY:

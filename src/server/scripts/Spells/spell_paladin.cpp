@@ -3445,6 +3445,7 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Avenger's Shield - 31935
 class spell_pal_avengers_shield : public SpellScriptLoader
 {
@@ -3457,18 +3458,23 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
             enum eSpells
             {
-                FaithBarricade  = 165447,
-                T17Protection2P = 165446
+                FaithBarricade          = 165447,
+                T17Protection2P         = 165446,
+                GlyphofDazingShield     = 56414,
+                GlyphofDazingShieldDaz  = 63529
             };
 
             void HandleAfterCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    /// When you use Avenger's Shield, your block chance is increased by 12% for 5 sec.
-                    if (l_Caster->HasAura(eSpells::T17Protection2P))
-                        l_Caster->CastSpell(l_Caster, eSpells::FaithBarricade, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                /// When you use Avenger's Shield, your block chance is increased by 12% for 5 sec.
+                if (l_Caster->HasAura(eSpells::T17Protection2P))
+                    l_Caster->CastSpell(l_Caster, eSpells::FaithBarricade, true);
+
+                /// Your Avenger's Shield now also dazes targets for 10 sec.
+                if (l_Caster->HasAura(eSpells::GlyphofDazingShield))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphofDazingShieldDaz, true);
             }
 
             void Register() override
@@ -3629,8 +3635,58 @@ public:
     }
 };
 
+/// Last Update : 6.2.3
+/// Glyph of Pillar of Light - 146959
+class spell_pal_glyph_of_pillar_of_light : public SpellScriptLoader
+{
+public:
+    spell_pal_glyph_of_pillar_of_light() : SpellScriptLoader("spell_pal_glyph_of_pillar_of_light") { }
+
+    class spell_pal_glyph_of_pillar_of_light_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_glyph_of_pillar_of_light_AuraScript);
+
+        enum eSpells
+        {
+            GlyphOfPillarofLightVisual = 148064
+        };
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
+                return;
+
+            Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+
+            if (l_Target == nullptr)
+                return;
+
+            if (p_EventInfo.GetHitMask() & ProcFlagsExLegacy::PROC_EX_CRITICAL_HIT)
+                l_Caster->CastSpell(l_Target, eSpells::GlyphOfPillarofLightVisual, true);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_pal_glyph_of_pillar_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_glyph_of_pillar_of_light_AuraScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_glyph_of_pillar_of_light();
     new spell_pal_empowered_seals();
     new spell_pal_glyph_of_the_consecration();
     new spell_pal_beacon_of_light();

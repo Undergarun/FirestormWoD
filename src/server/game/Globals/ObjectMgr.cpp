@@ -357,10 +357,10 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     {
         Field* fields = result->Fetch();
 
-        uint16 menuId   = fields[0].GetUInt32();
+        uint32 menuId   = fields[0].GetUInt32();
         uint16 id       = fields[1].GetUInt16();
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR64(menuId, id)];
 
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
@@ -433,7 +433,7 @@ void ObjectMgr::LoadCreatureTemplates()
     if (!l_MaxResult)
         return;
 
-    m_CreatureTemplateStoreSize = l_MaxResult->Fetch()[0].GetUInt32();
+    m_CreatureTemplateStoreSize = l_MaxResult->Fetch()[0].GetUInt32() + 1;  ///< Start from 0
     m_CreatureTemplateStore     = new CreatureTemplate*[m_CreatureTemplateStoreSize];
 
     memset(m_CreatureTemplateStore, 0, m_CreatureTemplateStoreSize * sizeof(CreatureTemplate*));
@@ -2730,6 +2730,14 @@ void ObjectMgr::LoadItemTemplateCorrections()
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
+            case 115759: ///< Primal Gladiator's Badge of Victory
+            case 111232: ///< Primal Gladiator's Badge of Victory
+            case 111227: ///< Primal Gladiator's Badge of Dominance
+            case 115754: ///< Primal Gladiator's Badge of Dominance
+            case 111222: ///< Primal Gladiator's Badge of Conquest
+            case 115749: ///< Primal Gladiator's Badge of Conquest
+                l_ItemTemplate.Spells[0].SpellCooldown = 60000;
+                break;
         }
     }
 }
@@ -3393,7 +3401,7 @@ void ObjectMgr::LoadPetStatInfo()
     l_DefaultPetStat.m_Speed             = 1.14f;
     l_DefaultPetStat.m_PowerStat         = PetStatInfo::PowerStatBase::SpellPower;
     l_DefaultPetStat.m_ArmorCoef         = 1.0f;
-    l_DefaultPetStat.m_APSPCoef          = 0.5f;
+    l_DefaultPetStat.m_APSPCoef          = 1.0f;
     l_DefaultPetStat.m_HealthCoef        = 0.7f;
     l_DefaultPetStat.m_DamageCoef        = 0.85f;
     l_DefaultPetStat.m_AttackSpeed       = 2.0f;
@@ -4217,7 +4225,7 @@ void ObjectMgr::LoadQuests()
         // RequiredClasses, can be 0/CLASSMASK_ALL_PLAYABLE to allow any class
         if (qinfo->RequiredClasses)
         {
-            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses : -(qinfo->RequiredClasses);
+            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses : -(qinfo->RequiredClasses); ///< RequiredclassCheck is never read 01/18/16
 
             if (!(qinfo->RequiredClasses & CLASSMASK_ALL_PLAYABLE))
             {
@@ -4228,7 +4236,7 @@ void ObjectMgr::LoadQuests()
         // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
         if (qinfo->RequiredRaces)
         {
-            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces : -(qinfo->RequiredRaces);
+            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces : -(qinfo->RequiredRaces); ///< RequiredRacesCheck is never read 01/18/16
 
             if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
             {
@@ -4398,14 +4406,14 @@ void ObjectMgr::LoadQuests()
 
                 if (!qinfo->RewardItemIdCount[j])
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemIdCount%d` = 0, quest will not reward this item.",
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = %u but `RewardItemCount%d` = 0, quest will not reward this item.",
                         qinfo->GetQuestId(), j+1, id, j+1);
                     // No changes
                 }
             }
             else if (qinfo->RewardItemIdCount[j]>0)
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemIdCount%d` = %u.",
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardItemId%d` = 0 but `RewardItemCount%d` = %u.",
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RewardItemIdCount[j]);
                 // No changes, quest ignore this data
             }
@@ -5420,6 +5428,94 @@ void ObjectMgr::LoadInstanceEncounters()
             ++l_Counter;
         }
     }
+
+    ///                                                 0         1            2                3
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+
+    if (!l_Result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance encounters, table is empty!");
+
+        return;
+    }
+
+    std::map<uint32, DungeonEncounterEntry const*> l_DungeonLastBosses;
+    do
+    {
+        Field* l_Fields                                 = l_Result->Fetch();
+        uint32 l_EncounterID                            = l_Fields[0].GetUInt32();
+        uint8 l_CreditType                              = l_Fields[1].GetUInt8();
+        uint32 l_CreditEntry                            = l_Fields[2].GetUInt32();
+        uint16 l_LastEncounterDungeon                   = l_Fields[3].GetUInt16();
+        DungeonEncounterEntry const* l_DungeonEncounter = sDungeonEncounterStore.LookupEntry(l_EncounterID);
+
+        if (!l_DungeonEncounter)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid encounter id %u, skipped!", l_EncounterID);
+            continue;
+        }
+
+        if (l_LastEncounterDungeon && !sLFGDungeonStore.LookupEntry(l_LastEncounterDungeon))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", l_EncounterID, l_DungeonEncounter->NameLang, l_LastEncounterDungeon);
+            continue;
+        }
+
+        std::map<uint32, DungeonEncounterEntry const*>::const_iterator l_Itr = l_DungeonLastBosses.find(l_LastEncounterDungeon);
+        if (l_LastEncounterDungeon)
+        {
+            if (l_Itr != l_DungeonLastBosses.end())
+            {
+                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", l_EncounterID, l_DungeonEncounter->NameLang, l_Itr->second->ID, l_Itr->second->NameLang);
+                continue;
+            }
+
+            l_DungeonLastBosses[l_LastEncounterDungeon] = l_DungeonEncounter;
+        }
+
+        switch (l_CreditType)
+        {
+            case ENCOUNTER_CREDIT_KILL_CREATURE:
+            {
+                CreatureTemplate const* l_CreatureInfo = GetCreatureTemplate(l_CreditEntry);
+                if (!l_CreatureInfo)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", l_CreditEntry, l_EncounterID, l_DungeonEncounter->NameLang);
+                    continue;
+                }
+                const_cast<CreatureTemplate*>(l_CreatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                break;
+            }
+            case ENCOUNTER_CREDIT_CAST_SPELL:
+                if (!sSpellMgr->GetSpellInfo(l_CreditEntry))
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", l_CreditEntry, l_EncounterID, l_DungeonEncounter->NameLang);
+                    continue;
+                }
+                break;
+            default:
+                sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", l_CreditType, l_EncounterID, l_DungeonEncounter->NameLang);
+                continue;
+        }
+
+        uint32 l_DungeonStoreIndex = MAKE_PAIR32(l_DungeonEncounter->MapID, l_DungeonEncounter->DifficultyID);
+
+        if (_dungeonEncounterStore.find(l_DungeonStoreIndex) != _dungeonEncounterStore.end())
+        {
+            DungeonEncounterList& l_Encounters = _dungeonEncounterStore[l_DungeonStoreIndex];
+
+            for (auto& l_Encounter : l_Encounters)
+            {
+                if (l_Encounter->dbcEntry && l_Encounter->dbcEntry->ID == l_EncounterID)
+                {
+                    delete l_Encounter;
+                    l_Encounter = new DungeonEncounter(l_DungeonEncounter, EncounterCreditType(l_CreditType), l_CreditEntry, l_LastEncounterDungeon);
+                    break;
+                }
+            }
+        }
+    }
+    while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
 }
@@ -7306,14 +7402,17 @@ void ObjectMgr::LoadCurrencyOnKill()
         l_CurrOnKill[l_Fields[2].GetUInt16()] = l_Fields[5].GetInt32();
         l_CurrOnKill[l_Fields[3].GetUInt16()] = l_Fields[6].GetInt32();
 
-
         if (!GetCreatureTemplate(l_Creature_id))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `creature_creature` have data for not existed creature entry (%u), skipped", l_Creature_id);
             continue;
         }
+
         for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)
         {
+            if (!i->first)
+                continue;
+
             if (!sCurrencyTypesStore.LookupEntry(i->first))
             {
                 sLog->outError(LOG_FILTER_SQL, "CurrencyType (CurrencyTypes.dbc) %u does not exist but is used in `creature_currency`", i->first);
@@ -9003,15 +9102,6 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
             ChatHandler(player).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, id, ExtendedCost, type);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", id, ExtendedCost, type, vendor_entry);
-        return false;
-    }
-
-    if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
-    {
-        if (player)
-            ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
-        else
-            sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
         return false;
     }
 
@@ -10732,5 +10822,34 @@ void ObjectMgr::LoadSpellInvalid()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Invalid in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadDisabledEncounters()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_DisabledEncounters.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID FROM instance_disabled_rankings");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 disabled ranking. DB table `instance_disabled_rankings` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields         = l_Result->Fetch();
+        uint32 l_EncounterID    = l_Fields[0].GetUInt32();
+
+        m_DisabledEncounters.insert(l_EncounterID);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disabled ranking in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }

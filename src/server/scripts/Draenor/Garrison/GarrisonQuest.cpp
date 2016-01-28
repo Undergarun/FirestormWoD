@@ -428,6 +428,48 @@ namespace MS { namespace Garrison
                 break;
         }
     }
+
+    void playerScript_Garrison_Quests_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        if ((p_Player->GetTeamId() == TEAM_ALLIANCE && p_Player->HasQuest(Quests::Alliance_LostInTransition)) ||
+            (p_Player->GetTeamId() == TEAM_HORDE && p_Player->HasQuest(Quests::Horde_LostInTransition)))
+        {
+            uint32 l_PhaseMask = p_Player->GetPhaseMask();
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+            p_Player->SetPhaseMask(l_PhaseMask, true);
+        }
+    }
+
+    void playerScript_Garrison_Quests_Phases::OnQuestAccept(Player* p_Player, const Quest* p_Quest)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition ||
+            p_Player->GetTeamId() == TEAM_HORDE && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+        {
+            uint32 l_PhaseMask = p_Player->GetPhaseMask();
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+            p_Player->SetPhaseMask(l_PhaseMask, true);
+        }
+    }
+
+    void playerScript_Garrison_Quests_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition ||
+            p_Player->GetTeamId() == TEAM_HORDE && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+        {
+            uint32 l_PhaseMask = p_Player->GetPhaseMask();
+            l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
+            p_Player->SetPhaseMask(l_PhaseMask, true);
+        }
+    }
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -435,5 +477,6 @@ void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonQuestPlayerScript;
     new MS::Garrison::playerScript_Garrison_Portals_Phases;
+    new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
 }

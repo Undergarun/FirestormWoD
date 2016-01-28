@@ -512,3 +512,7 @@
 			UPDATE `quest_template` SET `ExclusiveGroup` = 0 WHERE `Id` = 34925; -- (before -34925)
 			UPDATE `quest_template` SET `ExclusiveGroup` = 0 WHERE `Id` = 34437; -- (before -34925)
 			UPDATE `quest_template` SET `PrevQuestId` = 35747 WHERE `Id` = 34445;
+
+		-- gob 233197 Kelidan the breaker door
+
+			UPDATE gameobject SET state = 0 WHERE id = 233197 AND areaId = 7042;

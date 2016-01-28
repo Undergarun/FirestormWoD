@@ -3176,6 +3176,14 @@ LogPackets = 1
 
 DisableSpellSpecializationCheck = 0
 
+#
+#    IgnoreResearchSite
+#        Description: Ignore the load of reseach site.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+IgnoreResearchSite = 0
+
 ###################################################################################################
 # VIP CONFIG
 #

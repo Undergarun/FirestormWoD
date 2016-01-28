@@ -212,7 +212,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     uint8  updateType = UPDATETYPE_CREATE_OBJECT;
     uint32 flags      = m_updateFlag;
 
-    uint32 valCount = m_valuesCount;
+    uint32 valCount = m_valuesCount; ///< valCount is never read 01/18/16
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
@@ -2124,6 +2124,33 @@ bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Ra
     return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * l_Dist, p_Object->GetPositionY() + sin(l_Angle) * l_Dist);
 }
 
+bool WorldObject::IsInElipse(const WorldObject* p_Obj1, const WorldObject* p_Obj2, float p_With, float p_Thickness) const
+{
+    if (!p_Obj1 || !p_Obj2)
+        return false;
+
+    float l_HalfDist = p_Obj1->GetDistance(p_Obj2) / 2;
+    float l_CoefRadius = p_Obj1->GetDistance(this) - l_HalfDist;
+    if (l_CoefRadius < 0.0f)
+        l_CoefRadius *= -1;
+    else
+        l_CoefRadius = l_HalfDist - l_CoefRadius;
+
+    if (l_CoefRadius > l_HalfDist)
+        return false;
+
+    if (!IsInBetween(p_Obj1, p_Obj2, p_With + (p_Thickness / 2)))
+        return false;
+
+    l_CoefRadius /= l_HalfDist;
+
+    l_CoefRadius *= p_With;
+
+    if (l_CoefRadius && IsInBetween(p_Obj1, p_Obj2, l_CoefRadius + (p_Thickness / 2)) && !IsInBetween(p_Obj1, p_Obj2, l_CoefRadius - (p_Thickness / 2)))
+        return true;
+    return false;
+}
+
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 {
     return HasInArc(arc, target);
@@ -3041,7 +3068,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [entry, x, y, z, ang, petType, duration, l_LoadPetSlotID, slotID, stampeded, p_Callback, pet, currentPet, l_PlayerGUID](SQLQueryHolder* p_QueryHolder) -> void
             {
                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                if (!l_Player)
+                if (!l_Player || !p_QueryHolder)
                     return;
 
                 pet->LoadPetFromDB(l_Player, entry, 0, currentPet, l_LoadPetSlotID, stampeded, (PetQueryHolder*)p_QueryHolder, [entry, x, y, z, ang, petType, duration, slotID, l_LoadPetSlotID, stampeded, p_Callback, l_PlayerGUID](Pet* p_Pet, bool p_Result) -> void

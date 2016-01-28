@@ -2326,6 +2326,8 @@ public:
         void WaypointReached(uint32 i)
         {
             Player* player = GetPlayerForEscort();
+            if (player == nullptr)
+                return;
 
             switch(i)
             {
@@ -2361,7 +2363,7 @@ public:
             npc_escortAI::UpdateAI(diff);
             Player* player = GetPlayerForEscort();
 
-            if (PlayerOn)
+            if (PlayerOn && player != nullptr)
             {
                 player->SetClientControl(me, 0);
                 PlayerOn = false;
@@ -2370,7 +2372,7 @@ public:
             if (KrennanOn) // Do Not yell for help after krennan is on
                 return;
 
-            if (krennansay <=diff)
+            if (krennansay <=diff && player != nullptr)
             {
                 if (Creature* krennan = me->FindNearestCreature(NPC_KRENNAN_ARANAS_TREE, 70.0f, true))
                 {

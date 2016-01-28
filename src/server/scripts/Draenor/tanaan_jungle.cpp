@@ -2036,7 +2036,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
                             Position l_Pos;
                             l_Player->GetPosition(&l_Pos);
                             if (g_KillYourHundredPlayerScript)
-                                g_KillYourHundredPlayerScript->m_PlayerSceneFirstInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEnterKarGathArena, 16, l_Pos);
+                                g_KillYourHundredPlayerScript->m_PlayerSceneFirstInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEnterKarGathArena, 63, l_Pos);
                         }
                     }
                     else
@@ -2225,7 +2225,7 @@ class npc_shattered_hand_brawler : public CreatureScript
                 if (l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAdd) == 98 && l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainInArena) == 99)
                 {
                     if (g_KillYourHundredPlayerScript)
-                        g_KillYourHundredPlayerScript->m_PlayerSceneThirdInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEscapingTheArena, 16, l_Pos);
+                        g_KillYourHundredPlayerScript->m_PlayerSceneThirdInstanceId[l_Player->GetGUID()] = l_Player->PlayStandaloneScene(TanaanSceneObjects::SceneEscapingTheArena, 63, l_Pos);
 
                     l_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditCombattantSlainAdd, 1);
                 }
@@ -2634,7 +2634,7 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
                 if (p_Creature->GetAI())
                 {
                     p_Creature->AI()->SetGUID(p_Player->GetGUID(), 0);
-                    p_Creature->AI()->DoAction(1);
+//                    p_Creature->AI()->DoAction(1);
                 }
             }
 
@@ -2650,14 +2650,13 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
 
             uint64 m_PlayerGuid;
 
-            void SetGUID(uint64 p_Guid, int32 p_Id)
+            void SetGUID(uint64 p_Guid, int32 p_Id) override
             {
                 m_PlayerGuid = p_Guid;
             }
 
-            void DoAction(int32 const p_Id)
+            void DoAction(int32 const p_Id) override
             {
-                /// TALK
                 Talk(0);
 
                 if (m_PlayerGuid)
@@ -2822,8 +2821,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
             {
                 if (p_Creature->GetAI())
                 {
-                    p_Creature->AI()->SetGUID(p_Player->GetGUID(), 0);
-                    p_Creature->AI()->DoAction(1);
+///                    p_Creature->AI()->DoAction(1);
                 }
             }
 
@@ -2840,32 +2838,18 @@ class npc_lady_liadrin_blackrock : public CreatureScript
             npc_lady_liadrin_blackrockAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_PlayerGuid = 0;
-                m_KeliDanPlayerGuid = 0;
                 m_Summoned = false;
             }
 
             uint64 m_PlayerGuid;
-            uint64 m_KeliDanPlayerGuid;
             bool m_Summoned;
-
-            void SetGUID(uint64 p_Guid, int32 p_Type) override
-            {
-                m_KeliDanPlayerGuid = p_Guid;
-            }
-
             void DoAction(int32 const p_Id) override
             {
                 /// TALK
                 Talk(0);
 
-                if (m_KeliDanPlayerGuid)
-                {
-                    if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 80.0f))
-                    {
-                        if (Player* l_Player = me->GetPlayer(*me, m_KeliDanPlayerGuid))
-                            l_Gob->UseDoorOrButton(120000, false, l_Player);
-                    }
-                }
+                if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 80.0f))
+                    l_Gob->UseDoorOrButton(120000, false);
             }
 
             void IsSummonedBy(Unit* p_Summoner) override
@@ -3712,7 +3696,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     p_Player->GetPosition(&l_Pos);
 
                     if (g_SceneAllianceBoatPlayerScript)
-                        g_SceneAllianceBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneAllianceBoat, 16, l_Pos);
+                        g_SceneAllianceBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneAllianceBoat, 63, l_Pos);
                     break;
                 }
                 case TanaanQuests::QuestTheHomeStretchHorde:
@@ -3721,7 +3705,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
                     p_Player->GetPosition(&l_Pos);
 
                     if (g_SceneHordeBoatPlayerScript)
-                        g_SceneHordeBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneHordeBoat, 16, l_Pos);
+                        g_SceneHordeBoatPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneHordeBoat, 63, l_Pos);
                     break;
                 }
                 default:
@@ -4142,7 +4126,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
 
         bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
         {
-            if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE)
+            if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(273388))
             {
                 uint32 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask &= ~TanaanPhases::PhaseCannonTurret;

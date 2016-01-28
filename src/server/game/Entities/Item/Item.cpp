@@ -1629,11 +1629,16 @@ bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTempla
 
     /// Two-Handed
     /// Two-handed axes, maces, and swords can be Transmogrified to each other.
+    /// WoD Patch 6.0.2 (2014-10-14): Polearms and Staves can now be used to transmogrify Two-Handed Axes, Maces and Swords, and vice versa.
     if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
         p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
         p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
         (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
         return true;
 
@@ -1644,14 +1649,6 @@ bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTempla
         (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
         p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
-        return true;
-
-    /// Polearm and Staff
-    /// Staves and polearms can be transmogrified to each other.
-    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
-        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
         return true;
 
     return false;
@@ -1851,7 +1848,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 break;
             }
             case INVTYPE_WEAPONMAINHAND:
-                wepType = 0;             // unk enum, fall back
+                wepType = 0;             // unk enum, fall back wepType is never read 01/18/16
             case INVTYPE_WEAPONOFFHAND:
                 wepType = 1;             // unk enum, fall back
             case INVTYPE_WEAPON:

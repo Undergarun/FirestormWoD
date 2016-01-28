@@ -72,6 +72,18 @@ namespace MS { namespace Garrison
             void OnQuestReward(Player* p_Player, const Quest* p_Quest) override;
     };
 
+    class playerScript_Garrison_Quests_Phases : public PlayerScript
+    {
+        public:
+            playerScript_Garrison_Quests_Phases() : PlayerScript("playerScript_Garrison_Quests_Phases") { }
+
+            void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId) override;
+
+            void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override;
+
+            void OnQuestReward(Player* p_Player, const Quest* p_Quest) override;
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

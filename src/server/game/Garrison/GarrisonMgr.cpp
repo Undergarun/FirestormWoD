@@ -1165,7 +1165,7 @@ namespace MS { namespace Garrison
         if (CanMissionBeStartedAfterSoftCap(l_MissionTemplate->FollowerType) || (GetActiveFollowerCount(l_MissionTemplate->FollowerType) > GetFollowerSoftCap(l_MissionTemplate->FollowerType)))
             return;
 
-        if (!m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->CurrencyCost))
+        if (l_MissionTemplate->CurrencyCost && !m_Owner->HasCurrency(Globals::CurrencyID, l_MissionTemplate->CurrencyCost))
         {
             StartMissionFailed(p_MissionRecID, p_Followers);
             return;
@@ -1210,7 +1210,8 @@ namespace MS { namespace Garrison
                 return;
         }
 
-        m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->CurrencyCost);
+        if (l_MissionTemplate->CurrencyCost)
+            m_Owner->ModifyCurrency(Globals::CurrencyID, -(int32)l_MissionTemplate->CurrencyCost);
 
         std::vector<uint32> l_FollowersIDs;
         for (uint32 l_I = 0; l_I < p_Followers.size(); ++l_I)
@@ -1434,7 +1435,7 @@ namespace MS { namespace Garrison
             }
 
             uint32 l_AddedXP = (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
-            l_AddedXP = l_MissionFollowers[l_FollowerIt]->EarnXP(l_AddedXP, m_Owner);
+            l_AddedXP = l_MissionFollowers[l_FollowerIt]->EarnXP(l_AddedXP, m_Owner); ///< l_addedXP is never read 01/18/16
 
             if (l_FollowerLevel != l_MissionFollowers[l_FollowerIt]->Level && l_MissionFollowers[l_FollowerIt]->Level == 100)
                 m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
@@ -1728,7 +1729,7 @@ namespace MS { namespace Garrison
                 {
                     Item* l_NewItem = l_Item.first ? Item::CreateItem(l_Item.first, l_Item.second, m_Owner) : nullptr;
 
-                    int l_LocIDX = m_Owner->GetSession()->GetSessionDbLocaleIndex();
+                    int l_LocIDX = m_Owner->GetSession()->GetSessionDbLocaleIndex(); ///< l_LocIDX is never read 01/18/16
 
                     MailDraft l_Draft("Garrison mission reward", "");
 
@@ -2008,7 +2009,7 @@ namespace MS { namespace Garrison
             else
                 l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_Float8;
 
-            l_V8 = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
+            l_V8 = (l_Seil * l_V11) + l_CurrentAdditionalWinChance; ///< l_V8 is never read 01/18/16
             l_CurrentAdditionalWinChance = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
 
             #ifdef GARRISON_CHEST_FORMULA_DEBUG
@@ -2029,7 +2030,7 @@ namespace MS { namespace Garrison
 
             if (l_MechanicTypeEntry->Type == MechanicTypes::Ability)
             {
-                double l_Unk1 = l_MechanicEntry->Unk2;
+                double l_Unk1 = l_MechanicEntry->Unk2; ///< l_Unk1 is never read 01/18/16
                 double l_Unk2 = l_MechanicEntry->Unk2;
 
                 if (l_MissionFollowers.size() > 0)
@@ -2049,7 +2050,7 @@ namespace MS { namespace Garrison
 
                                 if (l_AbilityEffectEntry->CounterMechanicTypeID == l_MechanicTypeEntry->ID && !(l_AbilityEffectEntry->Unk3 & 1))
                                 {
-                                    l_Unk1 = l_Unk2;
+                                    l_Unk1 = l_Unk2; ///< l_Unk1 is never read 01/18/16
                                     if (l_Unk2 != 0.0)
                                     {
                                         float l_Seil = 0;
@@ -2476,7 +2477,7 @@ namespace MS { namespace Garrison
                 m_Owner->ModifyMoney(-Globals::FollowerActivationCost);
 
                 l_It->Flags |= GARRISON_FOLLOWER_FLAG_INACTIVE;
-                l_Follower = &(*l_It);
+                l_Follower = &(*l_It); ///< l_follower is never read 01/18/16
             }
 
             l_Follower = &*l_It;
@@ -4459,6 +4460,69 @@ namespace MS { namespace Garrison
             m_Owner->_SetInShipyard();
 
         return true;
+    }
+
+    bool Manager::CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player)
+    {
+        using namespace MS::Garrison::StablesData::Alliance;
+        using namespace MS::Garrison::StablesData::Horde;
+
+        if (std::find(FannyQuestGiver::g_BoarQuests.begin(), FannyQuestGiver::g_BoarQuests.end(), p_QuestID) != FannyQuestGiver::g_BoarQuests.end() ||
+            std::find(TormakQuestGiver::g_BoarQuests.begin(), TormakQuestGiver::g_BoarQuests.end(), p_QuestID) != TormakQuestGiver::g_BoarQuests.end())
+        {
+            if (!p_Player->HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RockstuckTrainingMountAura))
+                return false;
+        }
+        else if (std::find(FannyQuestGiver::g_ClefthoofQuests.begin(), FannyQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != FannyQuestGiver::g_ClefthoofQuests.end() ||
+                 std::find(TormakQuestGiver::g_ClefthoofQuests.begin(), TormakQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != TormakQuestGiver::g_ClefthoofQuests.end())
+        {
+            if (!p_Player->HasAura(MS::Garrison::StablesData::TrainingMountsAuras::IcehoofTrainingMountAura))
+                return false;
+        }
+        else if (std::find(FannyQuestGiver::g_ElekkQuests.begin(), FannyQuestGiver::g_ElekkQuests.end(), p_QuestID) != FannyQuestGiver::g_ElekkQuests.end() ||
+                 std::find(TormakQuestGiver::g_ElekkQuests.begin(), TormakQuestGiver::g_ElekkQuests.end(), p_QuestID) != TormakQuestGiver::g_ElekkQuests.end())
+        {
+            if (!p_Player->HasAura(MS::Garrison::StablesData::TrainingMountsAuras::MeadowstomperTrainingMountAura))
+                return false;
+        }
+        else if (std::find(KeeganQuestGiver::g_RiverbeastQuests.begin(), KeeganQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != KeeganQuestGiver::g_RiverbeastQuests.end() ||
+                 std::find(SagePalunaQuestGiver::g_RiverbeastQuests.begin(), SagePalunaQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_RiverbeastQuests.end())
+        {
+            if (!p_Player->HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RiverwallowTrainingMountAura))
+                return false;
+        }
+        else if (std::find(KeeganQuestGiver::g_TalbukQuests.begin(), KeeganQuestGiver::g_TalbukQuests.end(), p_QuestID) != KeeganQuestGiver::g_TalbukQuests.end() ||
+                 std::find(SagePalunaQuestGiver::g_TalbukQuests.begin(), SagePalunaQuestGiver::g_TalbukQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_TalbukQuests.end())
+        {
+            if (!p_Player->HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SilverpeltTrainingMountAura))
+                return false;
+        }
+        else if (std::find(KeeganQuestGiver::g_WolfQuests.begin(), KeeganQuestGiver::g_WolfQuests.end(), p_QuestID) != KeeganQuestGiver::g_WolfQuests.end() ||
+                 std::find(SagePalunaQuestGiver::g_WolfQuests.begin(), SagePalunaQuestGiver::g_WolfQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_WolfQuests.end())
+        {
+            if (!p_Player->HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SnarlerTrainingMountAura))
+                return false;
+        }
+
+        return true;
+    }
+
+    void Manager::AddGarrisonTavernData(uint32 p_Data)
+    {
+        SetGarrisonTavernData(p_Data);
+
+        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+        m_Owner->SaveToDB(false);
+    }
+
+    void Manager::SetGarrisonTavernData(uint32 p_Data)
+    {
+        GetGarrisonTavernDatas().push_back(p_Data);
+    }
+
+    void Manager::CleanGarrisonTavernData()
+    {
+        GetGarrisonTavernDatas().clear();
     }
 }   ///< namespace Garrison
 }   ///< namespace MS

@@ -43,6 +43,18 @@ namespace eEnchantmentMarkAura
         //Shadowmoon      = 159684
     };
 }
+namespace eEnchantmentMarkIds
+{
+    enum
+    {
+        Thunderlord     = 5330,
+        Warsong         = 5337,
+        BleedingHollow  = 5384,
+        Frostwolf       = 5334,
+        //Blackrock       = 5336,
+        //Shadowmoon      = 5335
+    };
+}
 
 class spell_enchantment_mark : public SpellScriptLoader
 {
@@ -60,6 +72,10 @@ class spell_enchantment_mark : public SpellScriptLoader
 
                 Player* l_Player = GetOwner()->ToPlayer();
 
+                uint32 l_ProcAuraId = 0;
+                uint32 l_EnchantId = 0;
+                bool l_HasEnchant = false;
+
                 if (l_Player == nullptr)
                     return;
 
@@ -72,28 +88,42 @@ class spell_enchantment_mark : public SpellScriptLoader
                 switch (GetSpellInfo()->Id)
                 {
                     case eEnchantmentMarkAura::Thunderlord:
-                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Thunderlord, true, l_Item);
+                        l_ProcAuraId = eEnchantmentMarkProc::Thunderlord;
+                        l_EnchantId = eEnchantmentMarkIds::Thunderlord;
                         break;
                     case eEnchantmentMarkAura::Warsong:
-                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Warsong, true, l_Item);
+                        l_ProcAuraId = eEnchantmentMarkProc::Warsong;
+                        l_EnchantId = eEnchantmentMarkIds::Warsong;
                         break;
                     case eEnchantmentMarkAura::BleedingHollow:
-                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::BleedingHollow, true, l_Item);
+                        l_ProcAuraId = eEnchantmentMarkProc::BleedingHollow;
+                        l_EnchantId = eEnchantmentMarkIds::BleedingHollow;
                         break;
                     case eEnchantmentMarkAura::Frostwolf:
-                        l_Player->CastSpell(l_Player, eEnchantmentMarkProc::Frostwolf, true, l_Item);
+                        l_ProcAuraId = eEnchantmentMarkProc::Frostwolf;
+                        l_EnchantId = eEnchantmentMarkIds::Frostwolf;
                         break;
                     /*
                      case eEnchantmentMarkAura::Blackrock:
-                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Blackrock, TRIGGERED_FULL_MASK);
+                        l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
+                        l_EnchantId = eEnchantmentMarkIds::Blackrock;
                         break;
                     case eEnchantmentMarkAura::Shadowmoon:
-                        GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), eEnchantmentMarkProc::Shadowmoon, TRIGGERED_FULL_MASK);
+                        l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
+                        l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
                         break;
                      */
                     default:
                         break;
                 }
+
+                /// Check if we have this enchant on that weapon
+                for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+                    if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)))
+                        l_HasEnchant = true;
+
+                if (l_HasEnchant)
+                    l_Player->CastSpell(l_Player, l_ProcAuraId, true, l_Item);
             }
 
             void Register() override

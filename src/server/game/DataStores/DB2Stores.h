@@ -279,7 +279,7 @@ typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;
 
-#define TaxiMaskSize 215
+#define TaxiMaskSize 217
 typedef uint8 TaxiMask[TaxiMaskSize];
 
 extern TaxiMask                                  sTaxiNodesMask;

@@ -259,7 +259,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 223 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 224 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 225 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
-    /* EFFECT 226 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
+    /* EFFECT 226 */{&PetBattleAbilityEffect::HandleDamageWithBonus,            PETBATTLE_TARGET_NONE},
     /* EFFECT 227 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 228 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 229 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -1725,4 +1725,16 @@ bool PetBattleAbilityEffect::HandleDamageRange()
     int32 l_BaseDamage = urand(EffectInfo->prop[0], EffectInfo->prop[2]);
 
     return Damage(Target, CalculateDamage(l_BaseDamage));
+}
+
+bool PetBattleAbilityEffect::HandleDamageWithBonus()
+{
+    CalculateHit(EffectInfo->prop[1]);
+
+    uint32 l_Damage = CalculateDamage(EffectInfo->prop[0]);
+
+    if (EffectInfo->prop[3] && GetState(Caster, EffectInfo->prop[3]))
+        l_Damage += CalculateDamage(EffectInfo->prop[2]);
+
+    return Damage(Target, l_Damage);
 }

@@ -543,6 +543,9 @@ void LFGMgr::InitializeLockedDungeons(Player* p_Player)
     LfgDungeonSet l_Dungeons    = GetDungeonsByRandom(0);
     LfgLockMap l_Lock;
 
+    for (uint32 l_InvalidDungeonID : m_InvalidDungeons)
+        l_Dungeons.insert(l_InvalidDungeonID);
+
     for (LfgDungeonSet::const_iterator l_Iter = l_Dungeons.begin(); l_Iter != l_Dungeons.end(); ++l_Iter)
     {
         LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
@@ -720,6 +723,16 @@ void LFGMgr::InitializeLockedDungeons(Player* p_Player)
 
         if (l_LockData.lockstatus != LFG_LOCKSTATUS_OK)
             l_Lock[l_Dungeon->Entry()] = l_LockData;
+
+        if (std::find(m_InvalidDungeons.begin(), m_InvalidDungeons.end(), l_Dungeon->ID) != m_InvalidDungeons.end())
+        {
+            /// Those ones are invalid because of : AccessRequirement, LFRAccessRequirement, or LfgEntrancePositionMap and must not be sent to client
+            /// Data are placeholder, cannot add any custom lockstatus
+            l_LockData.lockstatus = LFG_LOCKSTATUS_OK;
+            l_LockData.SubReason1 = 0;
+            l_LockData.SubReason2 = 0;
+            l_Lock[l_Dungeon->Entry()] = l_LockData;
+        }
     }
 
     SetLockedDungeons(l_Guid, l_Lock);
@@ -2456,8 +2469,78 @@ void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
     if (l_Dungeon->difficulty == Difficulty::DifficultyRaidHeroic)
         p_Player->UpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
-    /// This dungeon has no LFG reward registered, ignore it
     LfgReward const* l_Rewards = GetRandomDungeonReward(l_RandDungeonID, p_Player->getLevel());
+
+    /// This dungeon has no LFG reward registered, try generic rewards filled by grouptype
+    if (!l_Rewards)
+    {
+        switch (l_Dungeon->grouptype)
+        {
+            case LfgGroupType::LfgGroupeTypeClassic:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomClassicDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonBC:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomBurningCrusadeDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicBC:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomBurningCrusadeHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonTLK:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomLichKingDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicTLK:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomLichKingHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicCataclysm:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomCataclysmHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonCataclysm:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomCataclysmDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicHourOfTwilight:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomHourOfTwilightHeoic;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopHeroic;
+                break;
+            case LfgGroupType::LfgGroupeTypeDungeonMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeScenarioMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopScenario;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicScenarioMop:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomMopHeroicScenario;
+                break;
+            case LfgGroupType::LfgGroupeTypeTimeWalking:
+            {
+                switch (l_Dungeon->expansion)
+                {
+                    case Expansion::EXPANSION_THE_BURNING_CRUSADE:
+                        l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomTimewalkingDungeonBC;
+                        break;
+                    case Expansion::EXPANSION_WRATH_OF_THE_LICH_KING:
+                        l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomTimewalkingDungeonTLK;
+                        break;
+                    case Expansion::EXPANSION_CATACLYSM:
+                        l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomTimewalkingDungeonCata;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case LfgGroupType::LfgGroupeTypeDungeonWod:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomWodDungeon;
+                break;
+            case LfgGroupType::LfgGroupeTypeHeroicWod:
+                l_RandDungeonID = LfgSlotRandomDungeonID::LfgRandomWodHeroic;
+                break;
+        }
+    }
+
+    /// This dungeon has no LFG reward registered, ignore it
+    l_Rewards = GetRandomDungeonReward(l_RandDungeonID, p_Player->getLevel());
     if (!l_Rewards)
         return;
 
@@ -2498,8 +2581,8 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
 {
     LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(p_RandDungeon);
     uint32 l_GroupType = l_Dungeon ? l_Dungeon->grouptype : 0;
-
     LfgDungeonSet& l_CachedDungeon = m_CachedDungeonMap[l_GroupType];
+
     for (LfgDungeonSet::const_iterator l_Iter = l_CachedDungeon.begin(); l_Iter != l_CachedDungeon.end();)
     {
         l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
@@ -2508,6 +2591,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
             LfgEntrancePositionMap::const_iterator l_Itr = m_entrancePositions.find(l_Dungeon->ID);
             if (l_Itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(l_Dungeon->map))
             {
+                m_InvalidDungeons.insert(*l_Iter);
                 l_CachedDungeon.erase(l_Iter++);
                 continue;
             }
@@ -2516,6 +2600,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
             {
                 if (l_AccessReq->levelMin > MAX_LEVEL || l_AccessReq->levelMax > MAX_LEVEL)
                 {
+                    m_InvalidDungeons.insert(*l_Iter);
                     l_CachedDungeon.erase(l_Iter++);
                     continue;
                 }
@@ -2525,6 +2610,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
             {
                 if (l_LFRAccessReq->LevelMin > MAX_LEVEL || l_LFRAccessReq->LevelMax > MAX_LEVEL)
                 {
+                    m_InvalidDungeons.insert(*l_Iter);
                     l_CachedDungeon.erase(l_Iter++);
                     continue;
                 }
@@ -2932,7 +3018,7 @@ uint32 LFGMgr::GetAugmentRuneID(Player const* p_Player) const
 {
     uint8 l_RuneCount = 3;
     uint32 l_AugmentRunes[3] = { 118630, 118631, 118632 };
-    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec()); ///< l_SpecID is never read 01/18/16
 
     for (uint8 l_I = 0; l_I < l_RuneCount; ++l_I)
     {

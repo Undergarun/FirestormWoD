@@ -236,6 +236,9 @@ namespace MS { namespace Garrison
             }
         }
 
+        if (l_MountEntries.empty())
+            return;
+
         uint32 l_MountEntry = l_MountEntries[urand(0, l_MountEntries.size() - 1)];
 
         using namespace StablesData::Alliance;
@@ -393,14 +396,12 @@ namespace MS { namespace Garrison
                 return true;
             else if (l_Iterator != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
             {
-
-                if (l_Iterator + 1 != g_WolfQuests.end())
+                if (l_QuestID == WolfQuests::QuestWanglingAWolf)
+                    l_NextQuestID = g_WolfQuests[0];
+                else if (l_Iterator + 1 != g_WolfQuests.end())
                     l_NextQuestID = *(l_Iterator + 1);
                 else
                     return true;
-
-                if (l_QuestID == WolfQuests::QuestWanglingAWolf)
-                    l_NextQuestID = g_WolfQuests[0];
 
                 Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
@@ -425,13 +426,12 @@ namespace MS { namespace Garrison
                 return true;
             else if (l_Iterator != g_TalbukQuests.end() || l_QuestID == TalbukQuests::QuestTamingATalbuk)
             {
-                if (l_Iterator + 1 != g_TalbukQuests.end())
+                if (l_QuestID == TalbukQuests::QuestTamingATalbuk)
+                    l_NextQuestID = g_TalbukQuests[0];
+                else if (l_Iterator + 1 != g_TalbukQuests.end())
                     l_NextQuestID = *(l_Iterator + 1);
                 else
                     l_NextQuestID = WolfQuests::QuestWanglingAWolf;
-
-                if (l_QuestID == TalbukQuests::QuestTamingATalbuk)
-                    l_NextQuestID = g_TalbukQuests[0];
 
                 Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
@@ -456,13 +456,12 @@ namespace MS { namespace Garrison
                 return true;
             else if (l_Iterator != g_RiverbeastQuests.end() || l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
             {
-                if (l_Iterator + 1 != g_RiverbeastQuests.end())
+                if (l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
+                    l_NextQuestID = g_RiverbeastQuests[0];
+                else if (l_Iterator + 1 != g_RiverbeastQuests.end())
                     l_NextQuestID = *(l_Iterator + 1);
                 else
                     l_NextQuestID = TalbukQuests::QuestTamingATalbuk;
-
-                if (l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
-                    l_NextQuestID = g_RiverbeastQuests[0];
 
                 Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 

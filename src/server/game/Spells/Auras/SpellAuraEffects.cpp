@@ -1038,9 +1038,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 int32 resist = caster->getLevel();
 
                 if (resist > 70 && resist < 81)
-                    resist += (resist - 70) * 5;
+                    resist += (resist - 70) * 5; ///< resist is never read 01/18/16
                 else if (resist > 80)
-                    resist += ((resist-70) * 5 + (resist - 80) * 7);
+                    resist += ((resist-70) * 5 + (resist - 80) * 7); ///< resist is never read 01/18/16
                 break;
             }
         }
@@ -1225,7 +1225,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
             {
-                l_IsCrit = true;
+                l_IsCrit = true; ///< l_IsCrit is never read 01/18/16
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
             }
         }
@@ -1239,14 +1239,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
 uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
 {
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS) || m_spellInfo->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         return p_Amount;
 
-    float l_Minval = (float)p_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-    float l_Maxval = (float)p_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
     /// Apply bonus absorption
-    float l_TotalMod = l_Minval + l_Maxval;
+    float l_TotalMod = (float)p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
 
     /// Apply Versatility absorb bonus
     if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
@@ -2085,8 +2082,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             // Use the new aura to see on what stance the target will be
             uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
 
-            // If the stances are not compatible with the spell, remove it
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
+            /// If the stances are not compatible with the spell, remove it, but not on periodic aura apply on you (aura should continue to tick)
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic())
                 target->RemoveAura(itr);
             else
                 ++itr;
@@ -2530,7 +2527,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
         if (PowerType != POWER_MANA)
         {
-            int32 oldPower = target->GetPower(PowerType);
+            int32 oldPower = target->GetPower(PowerType); ///< oldPower is never read 01/18/16
             // reset power to default values only at power change
             if (target->getPowerType() != PowerType)
                 target->setPowerType(PowerType);
@@ -3158,6 +3155,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
             break;
     }
 
+    /// Glyph of Strangulate - 58618
+    /// Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
+    if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
+    {
+        p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
+        p_AurApp->GetBase()->RefreshDuration();
+    }
+
     if (p_Apply)
     {
         l_Target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED);
@@ -3173,14 +3178,6 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
                 if (spell->m_spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::Pacify))
                     l_Target->InterruptSpell(CurrentSpellTypes(i), false);
             }
-        }
-
-        // Glyph of Strangulate - 58618
-        // Increases the Silence duration of your Strangulate ability by 2 sec when used on a target who is casting a spell.
-        if (m_spellInfo->Id == 47476 && GetCaster() && GetCaster()->HasAura(58618) && l_Target->HasUnitState(UnitState::UNIT_STATE_CASTING))
-        {
-            p_AurApp->GetBase()->SetMaxDuration(p_AurApp->GetBase()->GetMaxDuration() + 2000);
-            p_AurApp->GetBase()->RefreshDuration();
         }
 
         /// Item - Warlock WoD PvP Affliction 2P Bonus
@@ -3481,45 +3478,6 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
 
             l_DisplayId = l_MountEntry->CreatureDisplayID;
             break;
-        }
-
-        /// Hackfix for somes mount unavailable on retail (data aren't)
-        /// But we need it because we sell it on the shop
-        switch (GetId())
-        {
-            case 171630:                ///< Armored Razorback
-                l_DisplayId = 59346;
-                break;
-            case 171619:                ///< Tundra Icehoof
-                l_DisplayId = 53307;
-                break;
-            case 171826:
-                l_DisplayId = 59746;    ///< Mudback Riverbeast
-                break;
-            case 171837:
-                l_DisplayId = 59536;    ///< Warsong Direfang
-                break;
-            ///< Hackfix for Stables, already tried through hotfix db but didn't work live
-            case 174216:                ///< Snarler
-                l_DisplayId = 59757;
-                break;
-            case 174218:                ///< Icehoof
-                l_DisplayId = 59320;
-                break;
-            case 174219:                ///< Meadowstomper
-                l_DisplayId = 59340;
-                break;
-            case 174220:                ///< Riverwallow
-                l_DisplayId = 59743;
-                break;
-            case 174221:                ///< Rocktusk
-                l_DisplayId = 59735;
-                break;
-            case 174222:                ///< Silverpelt
-                l_DisplayId = 59365;
-                break;
-            default:
-                break;
         }
 
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
@@ -5975,7 +5933,7 @@ void AuraEffect::HandleModCategoryCooldown(AuraApplication const* aurApp, uint8 
     uint32 categoryId = uint32(GetMiscValue());
     int32 value = apply ? -GetAmount() : 0;
 
-    SpellCategoriesEntry* spellCategory = const_cast<SpellCategoriesEntry*>(sSpellCategoriesStore.LookupEntry(categoryId));
+    SpellCategoriesEntry* spellCategory = const_cast<SpellCategoriesEntry*>(sSpellCategoriesStore.LookupEntry(categoryId)); ///< spellCategory is never read 01/18/16
     if (!sSpellCategoriesStore.LookupEntry(categoryId))
         return;
 
@@ -6504,7 +6462,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
         return;
 
     Player* plCaster = caster->ToPlayer();
-    Unit* target = aurApp->GetTarget();
+    Unit* target = aurApp->GetTarget(); ///< target is never read 01/18/16
 
     // Item amount
     if (GetAmount() <= 0)
@@ -8590,7 +8548,7 @@ void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode
     if (!p_Apply)
         return;
 
-    uint32 l_MiscValue = GetMiscValue();
+    uint32 l_MiscValue = GetMiscValue(); ///< l_miscValue is never read 01/18/16
     Position l_Position;
     l_Target->GetPosition(&l_Position);
 

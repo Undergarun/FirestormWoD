@@ -1389,28 +1389,24 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_glaive_toss_damage_SpellScript);
 
-            uint64 mainTargetGUID;
+            uint64 mainTargetGUID = 0;
 
-            bool Load()
+            void CorrectRange(std::list<WorldObject*>& p_Targets)
             {
-                mainTargetGUID = 0;
-                return true;
-            }
-
-            void CorrectDamageRange(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                std::list<Unit*> targetList;
-                float radius = 50.0f;
-
-                JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(GetCaster(), GetCaster(), radius);
-                JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(GetCaster(), targetList, u_check);
-                GetCaster()->VisitNearbyObject(radius, searcher);
-
-                for (auto itr : targetList)
+                if (GetSpellInfo()->Id == 121414)
                 {
-                    if (itr->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA))
+                    p_Targets.clear();
+                    return;
+                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_OriginalCaster = GetOriginalCaster();
+                Unit* l_MainTarget = nullptr;
+
+                for (auto itr : p_Targets)
+                {
+                    Unit* l_Target = itr->ToUnit();
+
+                    if (l_Target && l_Target->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_OriginalCaster->GetGUID()))
                     {
                         mainTargetGUID = itr->GetGUID();
                         break;
@@ -1418,74 +1414,51 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
                 }
 
                 if (!mainTargetGUID)
-                    return;
+                    mainTargetGUID = l_OriginalCaster->GetGUID();
 
-                Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
-                if (!target)
-                    return;
+                l_MainTarget = ObjectAccessor::FindUnit(mainTargetGUID);
 
-                targets.push_back(target);
-
-                for (auto itr : targetList)
-                    if (itr->IsInBetween(GetCaster(), target, 5.0f))
-                        targets.push_back(itr);
-            }
-
-            void CorrectSnareRange(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                std::list<Unit*> targetList;
-                float radius = 50.0f;
-
-                JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(GetCaster(), GetCaster(), radius);
-                JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(GetCaster(), targetList, u_check);
-                GetCaster()->VisitNearbyObject(radius, searcher);
-
-                for (auto itr : targetList)
+                if (l_MainTarget == nullptr)
                 {
-                    if (itr->HasAura(HUNTER_SPELL_GLAIVE_TOSS_AURA))
-                    {
-                        mainTargetGUID = itr->GetGUID();
-                        break;
-                    }
+                    p_Targets.clear();
+                    return;
                 }
 
-                if (!mainTargetGUID)
-                    return;
+                p_Targets.remove_if([this, l_Caster, l_MainTarget](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsWithinLOSInMap(l_Caster))
+                        return true;
 
-                if (!mainTargetGUID)
-                    return;
+                    if (p_Object->ToUnit() && !l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
+                        return true;
 
-                Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
-                if (!target)
-                    return;
+                    if (p_Object->GetGUID() == l_MainTarget->GetGUID())
+                        return false;
 
-                targets.push_back(target);
-
-                for (auto itr : targetList)
-                    if (itr->IsInBetween(GetCaster(), target, 5.0f))
-                        targets.push_back(itr);
+                    if (p_Object->IsInElipse(l_Caster, l_MainTarget, 7.0f, 4.0f))
+                        return false;
+                    return true;
+                });
             }
 
             void OnDamage()
             {
-                if (!mainTargetGUID)
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (!mainTargetGUID || l_Target == nullptr)
                     return;
 
-                Unit* target = ObjectAccessor::FindUnit(mainTargetGUID);
-                if (!target)
-                    return;
+                Unit* l_MainTarget = ObjectAccessor::FindUnit(mainTargetGUID);
 
-                if (GetHitUnit())
-                    if (GetHitUnit() == target)
-                        SetHitDamage(GetHitDamage() * 4);
+                if (l_MainTarget != nullptr && l_MainTarget->GetGUID() == l_Target->GetGUID())
+                    SetHitDamage(GetHitDamage() * 4);
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectDamageRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectSnareRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_glaive_toss_damage_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_hun_glaive_toss_damage_SpellScript::OnDamage);
             }
         };
@@ -1508,47 +1481,53 @@ class spell_hun_glaive_toss_missile: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
+                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Caster = GetCaster();
+                Unit* l_OriginalCaster = GetOriginalCaster();
+
+                if (l_Target != nullptr)
                 {
-                    if (Player* plr = GetCaster()->ToPlayer())
-                        plr->CastSpell(plr, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-                    else if (GetOriginalCaster())
-                    {
-                        if (Player* caster = GetOriginalCaster()->ToPlayer())
-                            caster->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
-                    }
-                }
-                else
-                {
-                    if (Player* plr = GetCaster()->ToPlayer())
-                        plr->CastSpell(plr, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-                    else if (GetOriginalCaster())
-                    {
-                        if (Player* caster = GetOriginalCaster()->ToPlayer())
-                            caster->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
-                    }
+                    if (l_Caster->GetGUID() == GetOriginalCaster()->GetGUID())
+                        l_Caster->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_Target);
+                    else
+                        l_OriginalCaster->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, l_Caster);
                 }
 
-                if (Unit* target = GetExplTargetUnit())
-                    if (GetCaster() == GetOriginalCaster())
-                        GetCaster()->AddAura(HUNTER_SPELL_GLAIVE_TOSS_AURA, target);
+                if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
+                {
+                    if (l_OriginalCaster != nullptr)
+                        l_OriginalCaster->CastSpell(l_OriginalCaster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                    else
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
+                }
+                if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_LEFT)
+                {
+                    if (l_OriginalCaster != nullptr)
+                        l_OriginalCaster->CastSpell(l_OriginalCaster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                    else
+                        l_Caster->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);
+                }
             }
 
             void HandleOnHit()
             {
+                Unit* l_Caster = GetCaster();
+
                 if (GetSpellInfo()->Id == HUNTER_SPELL_GLAIVE_TOSS_RIGHT)
                 {
-                    if (Unit* caster = GetCaster())
-                        if (Unit* target = GetHitUnit())
-                            if (caster == GetOriginalCaster())
-                                target->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_LEFT, true, NULL, NULLAURA_EFFECT, caster->GetGUID());
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster == GetOriginalCaster())
+                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_LEFT, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    }
                 }
                 else
                 {
-                    if (Unit* caster = GetCaster())
-                        if (Unit* target = GetHitUnit())
-                            if (caster == GetOriginalCaster())
-                                target->CastSpell(caster, HUNTER_SPELL_GLAIVE_TOSS_RIGHT, true, NULL, NULLAURA_EFFECT, caster->GetGUID());
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster == GetOriginalCaster())
+                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_RIGHT, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    }
                 }
             }
 
@@ -1601,7 +1580,8 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         }
 };
 
-// Dire Beast - 120679
+/// Last Update 6.2.3
+/// Dire Beast - 120679
 class spell_hun_dire_beast: public SpellScriptLoader
 {
     public:
@@ -1613,53 +1593,55 @@ class spell_hun_dire_beast: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         // Summon's skin is different function of Map or Zone ID
-                        switch (_player->GetZoneId())
+                        switch (l_Player->GetZoneId())
                         {
                             case 5785: // The Jade Forest
-                                _player->CastSpell(target, DIRE_BEAST_JADE_FOREST, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_JADE_FOREST, true);
                                 break;
                             case 5805: // Valley of the Four Winds
-                                _player->CastSpell(target, DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
                                 break;
                             case 5840: // Vale of Eternal Blossoms
-                                _player->CastSpell(target, DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
                                 break;
                             case 5841: // Kun-Lai Summit
-                                _player->CastSpell(target, DIRE_BEAST_KUN_LAI_SUMMIT, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_KUN_LAI_SUMMIT, true);
                                 break;
                             case 5842: // Townlong Steppes
-                                _player->CastSpell(target, DIRE_BEAST_TOWNLONG_STEPPES, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_TOWNLONG_STEPPES, true);
                                 break;
                             case 6134: // Krasarang Wilds
-                                _player->CastSpell(target, DIRE_BEAST_KRASARANG_WILDS, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_KRASARANG_WILDS, true);
                                 break;
                             case 6138: // Dread Wastes
-                                _player->CastSpell(target, DIRE_BEAST_DREAD_WASTES, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_DREAD_WASTES, true);
                                 break;
                             default:
                             {
-                                switch (_player->GetMapId())
+                                switch (l_Player->GetMapId())
                                 {
                                     case 0: // Eastern Kingdoms
-                                        _player->CastSpell(target, DIRE_BEAST_EASTERN_KINGDOMS, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_EASTERN_KINGDOMS, true);
                                         break;
                                     case 1: // Kalimdor
-                                        _player->CastSpell(target, DIRE_BEAST_KALIMDOR, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_KALIMDOR, true);
                                         break;
                                     case 8: // Outland
-                                        _player->CastSpell(target, DIRE_BEAST_OUTLAND, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_OUTLAND, true);
                                         break;
                                     case 10: // Northrend
-                                        _player->CastSpell(target, DIRE_BEAST_NORTHREND, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_NORTHREND, true);
                                         break;
                                     default:
-                                        if (_player->GetMap()->IsDungeon() || _player->GetMap()->IsBattlegroundOrArena())
-                                            _player->CastSpell(target, DIRE_BEAST_DUNGEONS, true);
+                                        if (l_Player->GetMap()->IsDungeon() || l_Player->GetMap()->IsBattlegroundOrArena())
+                                            l_Player->CastSpell(l_Target, DIRE_BEAST_DUNGEONS, true);
+                                        else ///< Default beast in case there is not
+                                            l_Player->CastSpell(l_Target, DIRE_BEAST_KALIMDOR, true);
                                         break;
                                 }
                                 break;
@@ -1694,7 +1676,9 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
             enum eSpells
             {
-                FreezingTrap = 3355
+                FreezingTrap = 3355,
+                MurderOfCrowsVisualFirst = 131951,
+                MurderOfCrowsVisualSecond = 131952
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -1704,6 +1688,14 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
                 if (l_Caster == nullptr)
                     return;
+
+                /// Visual effect
+                /// Four crows fall from the sky to target
+                for (int8 i = 0; i < 2; ++i)
+                {
+                    l_Target->CastSpell(l_Target, eSpells::MurderOfCrowsVisualFirst, true);
+                    l_Target->CastSpell(l_Target, eSpells::MurderOfCrowsVisualSecond, true);
+                }
 
                 if (l_Caster->IsValidAttackTarget(l_Target))
                     l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
@@ -3330,8 +3322,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
                         int32 l_Damage = int32(l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
-                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                         SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
                         SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
@@ -3359,15 +3349,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
 
-                        // WoD: Apply factor on damages depending on creature level and expansion
-                        if (l_Pet->IsPetGuardianStuff() && GetHitUnit()->GetTypeId() == TYPEID_UNIT)
-                            l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, GetHitUnit()->ToCreature());
-                        else if (l_Pet->GetTypeId() == TYPEID_UNIT && (GetHitUnit()->GetTypeId() == TYPEID_PLAYER || GetHitUnit()->IsPetGuardianStuff()))
-                            l_Damage *= l_Pet->CalculateDamageTakenFactor(GetHitUnit(), l_Pet->ToCreature());
+                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
-                        /// Reduce damage by armor
-                        if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
-                            l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
                         SetHitDamage(l_Damage);
 
                         /// Invigoration - 53253
@@ -3538,9 +3522,9 @@ enum ThrilloftheHunt
 
 static uint32 const g_VisualSpells[3] =
 {
-    ThrilloftheHunt::VisualEffect1,
+    ThrilloftheHunt::VisualEffect3,
     ThrilloftheHunt::VisualEffect2,
-    ThrilloftheHunt::VisualEffect3
+    ThrilloftheHunt::VisualEffect1
 };
 
 /// last update : 6.1.2 19802
@@ -3565,7 +3549,7 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(HUNTER_SPELL_THRILL_OF_THE_HUNT)->Effects[EFFECT_0].BasePoints))
                     {
                         p_Player->CastSpell(p_Player, HUNTER_SPELL_THRILL_OF_THE_HUNT_PROC, true);
-                        for (int8 l_I = 3; l_I >= 0; l_I--)
+                        for (uint8 l_I = 0; l_I < 3; ++l_I)
                             p_Player->CastSpell(p_Player, g_VisualSpells[l_I], true);
                         break;
                     }

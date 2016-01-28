@@ -168,6 +168,7 @@ struct PetBattleAbilityEffect
     bool HandleTryRevive();
     bool HandleDamagePercentTaken();
     bool HandleDamageRange();
+    bool HandleDamageWithBonus();
 };
 
 #endif

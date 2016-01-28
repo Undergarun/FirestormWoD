@@ -1542,7 +1542,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if (msg == EQUIP_ERR_OK)
                 {
                     RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                    pItem = StoreItem(sDest, pItem, true);
+                    pItem = StoreItem(sDest, pItem, true); ///< pItem is never read 01/18/16
                 }
             }
         }
@@ -2333,7 +2333,7 @@ void Player::Update(uint32 p_time)
                     uint32 l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area;
 
                     l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry(); ///< l_garrisonSiteEntry is never read 01/18/16
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
@@ -3726,7 +3726,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!inFight || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = HealthIncreaseRate;
+        addvalue = HealthIncreaseRate; ///< addvalue is never read 01/18/16
         if (getLevel() < 15)
             addvalue = (0.20f*((float)GetMaxHealth())/getLevel()*HealthIncreaseRate);
         else
@@ -9779,7 +9779,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
     if (!p_IgnoreMultipliers)
         p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
 
-    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1; ///< l_precision is never read 01/18/16
     uint32 l_OldTotalCount          = 0;
     uint32 l_OldWeekCount           = 0;
     uint32 l_OldSeasonTotalCount    = 0;
@@ -9897,7 +9897,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
 
             l_Packet << uint32(p_CurrencyID);
             l_Packet << uint32(l_NewTotalCount);
-            l_Packet << uint32(0);                        // Flags
+            l_Packet << uint32(l_CurrencyIT->second.flags);
 
             l_Packet.WriteBit(l_WeekCap != 0);
             l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);
@@ -16948,7 +16948,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                     if (bagItem->m_lootGenerated)
                     {
                         m_session->DoLootRelease(GetLootGUID());
-                        released = true;                    // not realy needed here
+                        released = true;                    // not realy needed here ///< yeah because released is never read 01/18/16
                         break;
                     }
                 }
@@ -16974,7 +16974,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
                 // found empty
                 if (!m_items[i])
                 {
-                    slot = i;
+                    slot = i; ///< slot is never read 01/18/16
                     break;
                 }
 
@@ -17941,8 +17941,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             int32 locale = GetSession()->GetSessionDbLocaleIndex();
             if (locale >= 0)
             {
-                uint32 idxEntry = MAKE_PAIR32(menuId, itr->second.OptionIndex);
-                if (GossipMenuItemsLocale const* no = sObjectMgr->GetGossipMenuItemsLocale(idxEntry))
+                if (GossipMenuItemsLocale const* no = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR64(menuId, itr->second.OptionIndex)))
                 {
                     ObjectMgr::GetLocaleString(no->OptionText, locale, strOptionText);
                     ObjectMgr::GetLocaleString(no->BoxText, locale, strBoxText);
@@ -18798,7 +18797,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -19738,8 +19738,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
-                    DestroyItemCount(l_Objective.ObjectID, GetItemCount(l_Objective.ObjectID), true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
             }
         }
 
@@ -19987,8 +19987,11 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             {
                 if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_NPC && l_Objective.ObjectID == (int32)real_entry)
                 {
-                    if (!CheckGarrisonStablesQuestsConditions(questid))
-                        continue;
+                    if (MS::Garrison::Manager* l_GarrisonMgr = GetGarrison())
+                    {
+                        if (!l_GarrisonMgr->CheckGarrisonStablesQuestsConditions(questid, this))
+                            continue;
+                    }
 
                     uint32 currentCounter = GetQuestObjectiveCounter(l_Objective.ID);
                     if (currentCounter < uint32(l_Objective.Amount))
@@ -20009,51 +20012,6 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
             }
         }
     }
-}
-
-bool Player::CheckGarrisonStablesQuestsConditions(uint32 p_QuestID)
-{
-    using namespace MS::Garrison::StablesData::Alliance;
-    using namespace MS::Garrison::StablesData::Horde;
-
-    if (std::find(FannyQuestGiver::g_BoarQuests.begin(), FannyQuestGiver::g_BoarQuests.end(), p_QuestID) != FannyQuestGiver::g_BoarQuests.end() ||
-        std::find(TormakQuestGiver::g_BoarQuests.begin(), TormakQuestGiver::g_BoarQuests.end(), p_QuestID) != TormakQuestGiver::g_BoarQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RockstuckTrainingMountAura))
-            return false;
-    }
-    else if (std::find(FannyQuestGiver::g_ClefthoofQuests.begin(), FannyQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != FannyQuestGiver::g_ClefthoofQuests.end() ||
-             std::find(TormakQuestGiver::g_ClefthoofQuests.begin(), TormakQuestGiver::g_ClefthoofQuests.end(), p_QuestID) != TormakQuestGiver::g_ClefthoofQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::IcehoofTrainingMountAura))
-            return false;
-    }
-    else if (std::find(FannyQuestGiver::g_ElekkQuests.begin(), FannyQuestGiver::g_ElekkQuests.end(), p_QuestID) != FannyQuestGiver::g_ElekkQuests.end() ||
-             std::find(TormakQuestGiver::g_ElekkQuests.begin(), TormakQuestGiver::g_ElekkQuests.end(), p_QuestID) != TormakQuestGiver::g_ElekkQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::MeadowstomperTrainingMountAura))
-            return false;
-    }
-    else if (std::find(KeeganQuestGiver::g_RiverbeastQuests.begin(), KeeganQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != KeeganQuestGiver::g_RiverbeastQuests.end() ||
-             std::find(SagePalunaQuestGiver::g_RiverbeastQuests.begin(), SagePalunaQuestGiver::g_RiverbeastQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_RiverbeastQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::RiverwallowTrainingMountAura))
-            return false;
-    }
-    else if (std::find(KeeganQuestGiver::g_TalbukQuests.begin(), KeeganQuestGiver::g_TalbukQuests.end(), p_QuestID) != KeeganQuestGiver::g_TalbukQuests.end() ||
-             std::find(SagePalunaQuestGiver::g_TalbukQuests.begin(), SagePalunaQuestGiver::g_TalbukQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_TalbukQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SilverpeltTrainingMountAura))
-            return false;
-    }
-    else if (std::find(KeeganQuestGiver::g_WolfQuests.begin(), KeeganQuestGiver::g_WolfQuests.end(), p_QuestID) != KeeganQuestGiver::g_WolfQuests.end() ||
-             std::find(SagePalunaQuestGiver::g_WolfQuests.begin(), SagePalunaQuestGiver::g_WolfQuests.end(), p_QuestID) != SagePalunaQuestGiver::g_WolfQuests.end())
-    {
-        if (!HasAura(MS::Garrison::StablesData::TrainingMountsAuras::SnarlerTrainingMountAura))
-            return false;
-    }
-
-    return true;
 }
 
 void Player::KilledPlayerCredit()
@@ -22177,7 +22135,7 @@ void Player::_LoadMail(PreparedQueryResult p_MailResult)
             m->receiver       = fields[3].GetUInt32();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
-            bool has_items    = fields[6].GetBool();
+            bool has_items    = fields[6].GetBool(); ///< hasitem is never read 01/18/16
             m->expire_time    = time_t(fields[7].GetUInt32());
             m->deliver_time   = time_t(fields[8].GetUInt32());
             m->money          = fields[9].GetUInt64();
@@ -22535,6 +22493,11 @@ void Player::_LoadSpells(PreparedQueryResult result)
 
 void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
 {
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
     if (p_Result)
     {
         do
@@ -22542,20 +22505,21 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
             Field* fields = p_Result->Fetch();
 
             uint32 l_NpcEntry = fields[1].GetUInt32();
-            SetGarrisonTavernData(l_NpcEntry);
+            l_GarrisonMgr->SetGarrisonTavernData(l_NpcEntry);
         }
         while (p_Result->NextRow());
     }
     else
     {
-        if (GetGarrison() != nullptr && GetGarrison()->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
+
+        if (l_GarrisonMgr->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1))
         {
             if (roll_chance_i(50))
             {
                 uint32 l_Entry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                CleanGarrisonTavernData();
-                AddGarrisonTavernData(l_Entry);
+                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
             }
             else
             {
@@ -22566,9 +22530,9 @@ void Player::_LoadGarrisonTavernDatas(PreparedQueryResult p_Result)
                     l_SecondEntry = MS::Garrison::TavernDatas::g_QuestGiverEntries[urand(0, MS::Garrison::TavernDatas::g_QuestGiverEntries.size() - 1)];
                 while (l_SecondEntry == l_FirstEntry);
 
-                CleanGarrisonTavernData();
-                AddGarrisonTavernData(l_FirstEntry);
-                AddGarrisonTavernData(l_SecondEntry);
+                l_GarrisonMgr->CleanGarrisonTavernData();
+                l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
+                l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
             }
         }
     }
@@ -23419,6 +23383,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveCurrency(trans);
     m_archaeologyMgr.SaveArchaeology(trans);
     _SaveCharacterWorldStates(trans);
+    _SaveCharacterGarrisonTavernDatas(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -24196,6 +24161,26 @@ void Player::_SaveStats(SQLTransaction& trans)
     stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_RESILIENCE_PLAYER_DAMAGE_TAKEN));
 
     trans->Append(stmt);
+}
+
+void Player::_SaveCharacterGarrisonTavernDatas(SQLTransaction& p_Transaction)
+{
+    MS::Garrison::Manager* l_GarrisonMgr = GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_DAILY_TAVERN_DATA_CHAR);
+    l_Stmt->setUInt32(0, GetGUIDLow());
+    p_Transaction->Append(l_Stmt);
+
+    for (uint32 l_TavernData : l_GarrisonMgr->GetGarrisonTavernDatas())
+    {
+        l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
+        l_Stmt->setUInt32(0, GetGUIDLow());
+        l_Stmt->setUInt32(1, l_TavernData);
+        p_Transaction->Append(l_Stmt);
+    }
 }
 
 void Player::outDebugValues() const
@@ -30263,7 +30248,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
         {
             Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-            if (!l_Player)
+            if (!l_Player || !p_QueryHolder)
             {
                 delete l_NewPet;
                 return;
@@ -31107,6 +31092,10 @@ bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuse
     {
         for (auto l_Bonus : p_Bonuses)
             l_Item->AddItemBonus(l_Bonus);
+
+        std::vector<uint32> l_Bonus;
+        Item::GenerateItemBonus(l_Item->GetEntry(), ItemContext::None, l_Bonus);
+        l_Item->AddItemBonuses(l_Bonus);
 
         SendNewItem(l_Item, p_Count, true, false);
 
@@ -32309,6 +32298,8 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             if (!HasAura(108499))
                 AddAura(108499, this);
+            if (HasAura(152107)) ///< Demonic Servitude
+                learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
             break;
         case 108501:// Grimoire of Service
             learnSpell(111859, false);  ///< WARLOCK_GRIMOIRE_IMP
@@ -32322,7 +32313,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
                 if (HasAura(152107)) ///< Demonic Servitude
                 {
                     learnSpell(157900, false);  ///< WARLOCK_GRIMOIRE_DOOMGUARD
-                    learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
+                    learnSpell(157899, false);  ///< WARLOCK_GRIMOIRE_ABYSSAL
                 }
             }
             break;
@@ -32354,6 +32345,8 @@ void Player::RemovePassiveTalentSpell(SpellInfo const* info)
             break;
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
+            if (HasSpell(157899))
+                removeSpell(157899, false, false);  // WARLOCK_GRIMOIRE_ABYSSAL
             break;
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
@@ -33172,24 +33165,16 @@ void Player::DeleteGarrison()
     m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
 
+    if (IsInGarrison())
+    {
+        if (GetTeamId() == TEAM_ALLIANCE)
+            TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
+        else if (GetTeamId() == TEAM_HORDE)
+            TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
+    }
+
     delete m_Garrison;
     m_Garrison = nullptr;
-}
-
-void Player::AddGarrisonTavernData(uint32 p_Data)
-{
-    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GARRISON_DAILY_TAVERN_DATA_CHAR);
-
-    l_Stmt->setUInt32(0, GetGUIDLow());
-    l_Stmt->setUInt32(1, p_Data);
-    CharacterDatabase.AsyncQuery(l_Stmt);
-
-    SetGarrisonTavernData(p_Data);
-}
-
-void Player::SetGarrisonTavernData(uint32 p_Data)
-{
-    m_GarrisonDailyTavernData.push_back(p_Data);
 }
 
 Stats Player::GetPrimaryStat() const

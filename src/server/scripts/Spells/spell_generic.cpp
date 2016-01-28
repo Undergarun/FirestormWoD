@@ -321,7 +321,7 @@ class spell_gen_pet_summoned: public SpellScriptLoader
                             sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
                             {
                                 Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-                                if (!l_Player)
+                                if (!l_Player || !p_QueryHolder)
                                 {
                                     delete l_NewPet;
                                     return;
@@ -5246,8 +5246,43 @@ class spell_gen_blood_elfe_illusion : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Wyrmhunter Hooks - 88914
+class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
+{
+    public:
+        spell_gen_wyrmhunter_hooks() : SpellScriptLoader("spell_gen_wyrmhunter_hooks") {}
+
+        class spell_gen_wyrmhunter_hooks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_wyrmhunter_hooks_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_wyrmhunter_hooks_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_wyrmhunter_hooks_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_wyrmhunter_hooks();
     new spell_gen_blood_elfe_illusion();
     new spell_gen_kilroggs_dead_eye();
     new spell_generic_iron_horde_pirate_costume();
@@ -5342,7 +5377,7 @@ void AddSC_generic_spell_scripts()
     new spell_taunt_flag_targeting();
     new spell_gen_raid_buff_stack();
     new spell_gen_sword_technique();
-    new spell_gen_check_faction();
+    //new spell_gen_check_faction(); -- temp disable
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
 
