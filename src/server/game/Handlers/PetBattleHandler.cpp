@@ -968,7 +968,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
 
             if (Creature* l_CurrrentCreature = sObjectAccessor->GetCreature(*m_Player, l_WildBattlePets[l_CurrentPetSlot]->OriginalCreature))
             {
-                // Ok, Despawn wild
+                /// Ok, Despawn wild
                 l_CurrrentCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC); // Immuned to all
                 l_CurrrentCreature->SetTarget(m_Player->GetGUID());
                 l_CurrrentCreature->SetControlled(true, UNIT_STATE_ROOT);

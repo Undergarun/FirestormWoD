@@ -37,7 +37,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     Movement::MoveSplineInit init(unit);
     init.MoveTo(i_x, i_y, i_z);
     
-    if (m_Angle != -1000.f)
+    if (m_Angle != -1000.0f)
         init.SetFacing(m_Angle);
 
     if (speed > 0.0f)
