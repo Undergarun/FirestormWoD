@@ -3489,7 +3489,7 @@ class spell_pal_avengers_shield : public SpellScriptLoader
                 GlyphofDazingShieldDaz  = 63529
             };
 
-            void HandleAfterCast()
+            void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -3508,7 +3508,7 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_pal_avengers_shield_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_pal_avengers_shield_SpellScript::HandleAfterHit);
             }
         };
 
