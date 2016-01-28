@@ -129,6 +129,7 @@ class npc_PetBattleTrainer : public CreatureScript
                     l_BattleCenterPosition.m_orientation = l_TrainerPosition.m_orientation + M_PI;
                 }
 
+                /// Debug code, show visual position of computed coordinates
                 ///p_Player->SummonCreature((uint32)1, l_PlayerPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
                 ///p_Player->SummonCreature((uint32)1, l_TrainerPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
                 ///p_Player->SummonCreature((uint32)1, l_BattleCenterPosition, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);

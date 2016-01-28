@@ -1205,6 +1205,10 @@ bool PetBattleAbilityEffect::HandleControlAura()
 
 bool PetBattleAbilityEffect::HandlePowerlessAura()
 {
+    /// Hotfix for http://wowhead.com/petability=772
+    if (AbilityID == 772)
+        Target = GetActiveOpponent();
+
     if (EffectInfo->prop[5])
         ReportFailAsImmune = true;
 
