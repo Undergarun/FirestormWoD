@@ -854,7 +854,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     ////////////////////////////////
     ////////////////////////////////
 
-    // Wild should be wild
+    /// Wild should be wild
     if (!sWildBattlePetMgr->IsWildPet(l_Wild))
     {
         SendPetBattleRequestFailed(PETBATTLE_REQUEST_TARGET_NOT_CAPTURABLE);
@@ -870,7 +870,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     size_t                  l_PlayerPetCount = 0;
     PetBattle*              l_Battle;
 
-    // Temporary pet buffer
+    /// Temporary pet buffer
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
     {
         l_PlayerPets[l_CurrentPetSlot] = nullptr;
@@ -894,9 +894,9 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     l_WildBattlePets[0] = l_WildBattlePet;
 
     std::list<Unit*> l_NearCreature;
-    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_Wild, l_Wild, 50.f);
-    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_Wild, l_NearCreature, u_check);
-    l_Wild->VisitNearbyObject(40.f, searcher);
+    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_UCheck(l_Wild, l_Wild, 50.0f);
+    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Wild, l_NearCreature, l_UCheck);
+    l_Wild->VisitNearbyObject(40.0f, l_Searcher);
 
     uint32 l_WildsPetCount = 1;
     for (Unit* l_Current : l_NearCreature)
@@ -918,7 +918,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     ////////////////////////////////
     ////////////////////////////////
 
-    // Load player pets
+    /// Load player pets
     BattlePet::Ptr * l_PetSlots = m_Player->GetBattlePetCombatTeam();
 
     for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
@@ -940,7 +940,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     ////////////////////////////////
     ////////////////////////////////
 
-    m_Player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC); // Immuned only to NPC
+    m_Player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC); ///< Immuned only to NPC
     m_Player->SetTarget(l_WildPet->GetGUID());
 
     SendPetBattleFinalizeLocation(l_BattleRequest);
@@ -948,10 +948,10 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     m_Player->SetFacingTo(m_Player->GetAngle(l_BattleRequest->TeamPosition[PETBATTLE_TEAM_2][0], l_BattleRequest->TeamPosition[PETBATTLE_TEAM_2][1]));
     m_Player->SetRooted(true);
 
-    // Ok, Create battle
+    /// Ok, Create battle
     l_Battle = sPetBattleSystem->CreateBattle();
 
-    // Add player pets
+    /// Add player pets
     l_Battle->Teams[PETBATTLE_TEAM_1]->OwnerGuid    = m_Player->GetGUID();
     l_Battle->Teams[PETBATTLE_TEAM_1]->PlayerGuid   = m_Player->GetGUID();
 
@@ -982,7 +982,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     l_Battle->BattleType    = l_BattleRequest->RequestType;
     l_Battle->PveBattleType = PVE_PETBATTLE_WILD;
 
-    // Launch battle
+    /// Launch battle
     m_Player->_petBattleId = l_Battle->ID;
     l_Battle->Begin();
 
