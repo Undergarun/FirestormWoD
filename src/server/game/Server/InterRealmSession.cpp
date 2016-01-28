@@ -743,7 +743,8 @@ void InterRealmSession::SendPlayerTeleport(Player *player, uint32 zoneId, Player
     {
         AccountData* pData = player->GetSession()->GetAccountData(AccountDataType(i));
 
-        data << pData->Data;
+        data << uint32(pData->Data.size());
+        data.WriteString(pData->Data);
         data << pData->Time;
     }
 
@@ -1402,7 +1403,8 @@ void InterRealmSession::SendRegisterPlayer(Player* player, uint32 bgInstanceId, 
     {
         AccountData* pData = player->GetSession()->GetAccountData(AccountDataType(i));
 
-        pckt << pData->Data;
+        pckt << uint32(pData->Data.size());
+        pckt.WriteString(pData->Data);
         pckt << pData->Time;
     }
 
@@ -1485,7 +1487,8 @@ void InterRealmSession::SendRegisterGroup(Group* group, uint32 bgInstanceId, uin
         {
             AccountData* pData = member->GetSession()->GetAccountData(AccountDataType(i));
 
-            data << pData->Data;
+            data << uint32(pData->Data.size());
+            data.WriteString(pData->Data);
             data << pData->Time;
         }
 
@@ -1554,7 +1557,8 @@ void InterRealmSession::SendRegisterArena(std::list<Player*> p_Players, uint32 p
         {
             AccountData* pData = l_Player->GetSession()->GetAccountData(AccountDataType(i));
 
-            l_Data << pData->Data;
+            l_Data << uint32(pData->Data.size());
+            l_Data.WriteString(pData->Data);
             l_Data << pData->Time;
         }
 
@@ -1628,7 +1632,8 @@ void InterRealmSession::SendRegisterRated(Group* group, uint32 personalRating, u
         {
             AccountData* pData = member->GetSession()->GetAccountData(AccountDataType(i));
 
-            data << pData->Data;
+            data << uint32(pData->Data.size());
+            data.WriteString(pData->Data);
             data << pData->Time;
         }
 
@@ -1673,7 +1678,8 @@ void InterRealmSession::SendRegisterSpectator(Player* player, uint64 targetGuid)
     {
         AccountData* pData = player->GetSession()->GetAccountData(AccountDataType(i));
 
-        packet << pData->Data;
+        packet << uint32(pData->Data.size());
+        packet.WriteString(pData->Data);
         packet << pData->Time;
     }
 
@@ -1724,7 +1730,8 @@ void InterRealmSession::SendAppearRequest(Player* sender, uint64 targetGuid)
     {
         AccountData* pData = sender->GetSession()->GetAccountData(AccountDataType(i));
 
-        data << pData->Data;
+        data << uint32(pData->Data.size());
+        data.WriteString(pData->Data);
         data << pData->Time;
     }
 
