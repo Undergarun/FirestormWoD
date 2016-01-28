@@ -1500,7 +1500,9 @@ void Guardian::UpdateMaxHealth()
     AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
-        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
+        if ((*l_Iterator)->GetMiscValueB() && (int32)GetEntry() != (*l_Iterator)->GetMiscValueB())
+            continue;
+        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT)
             l_Amount += float((*l_Iterator)->GetAmount());
     }
 
