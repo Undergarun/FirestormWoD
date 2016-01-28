@@ -1047,6 +1047,7 @@ void Player::UpdateEnergyRegen()
         l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
     }
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
 }
 
 void Player::UpdateFocusRegen()
@@ -1055,6 +1056,7 @@ void Player::UpdateFocusRegen()
         return;
 
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
 void Player::UpdateAllRunesRegen()
