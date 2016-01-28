@@ -150,17 +150,25 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t%s начинает творить заклинание |cFFFF0404|Hspell:155493|h[Огненная буря]|h|r!"
 );
 
-DELETE FROM conditions WHERE SourceEntry IN (163125, 163093);
+DELETE FROM conditions WHERE SourceEntry IN (163125, 163093, 155776, 163644);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 163125, 31, 0, 3, 80677),
-(13, 1, 163093, 31, 0, 3, 80683);
+(13, 1, 163093, 31, 0, 3, 80683),
+(13, 1, 155776, 31, 0, 3, 77043),
+(13, 1, 163644, 31, 0, 3, 80683);
 
-DELETE FROM spell_script_names WHERE spell_id IN (163182, 177860, 156038);
+DELETE FROM spell_script_names WHERE spell_id IN (163182, 177860, 156038, 154932, 155912, 154961, 154950, 154952);
 INSERT INTO spell_script_names VALUES
 (163182, "spell_foundry_crushing_slam"),
 (177860, "spell_foundry_ember_in_the_wind_damage"),
-(156038, "spell_foundry_drop_the_hammer_aura");
+(156038, "spell_foundry_drop_the_hammer_aura"),
+(154932, "spell_foundry_molten_torrent_aura"),
+(155912, "spell_foundry_allow_molten_torrent_cast"),
+(154961, "spell_foundry_fiery_link"),
+(154950, "spell_foundry_overheated"),
+(154952, "spell_foundry_fixate");
 
-DELETE FROM areatrigger_template WHERE spell_id IN (154915);
-INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, ScriptName) VALUES
-(154915, 0, 6229, 2, 0x4000, 1, 1, "areatrigger_foundry_lava_slash_pool");
+DELETE FROM areatrigger_template WHERE spell_id IN (154915, 155847);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, scale_curve_id, ScriptName) VALUES
+(154915, 0, 6229, 2, 0x4000, 1, 1, 0, "areatrigger_foundry_lava_slash_pool"),
+(155847, 0, 1790, 2, 0x4042, 10, 10, 489, "areatrigger_foundry_molten_torrent_ball");

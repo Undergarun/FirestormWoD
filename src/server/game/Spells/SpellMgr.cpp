@@ -3480,6 +3480,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ChainTarget = 2;
                 break;
             case 155196: ///< Fixate (Slag Elemental)
+            case 154952: ///< Fixate (Cinder Wolf)
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -3509,7 +3510,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
             case 155200: ///< Burn (Slag Elemental)
+            case 155890: ///< Molten Torrent (Dummy visual - Molten Torrent Stalker)
+            case 155049: ///< Singe (Cinder Wolf)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
@@ -3533,10 +3537,28 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 177891: ///< Rising Flame Kick (Mol'dana Two Blade)
             case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
+            case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
+            case 155571: ///< Jump Out of Lava (Cinder Wolf)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                break;
+            case 174215: ///< Summon Armament (Flamebender Ka'graz)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_BACK;
+                break;
+            case 163644: ///< Summon Enchanted Armament (Flamebender Ka'graz)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_NEARBY_ENTRY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(187);  ///< 300y
+                break;
+            case 174217: ///< Summon Enchanted Armament (Enchanted Armament)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(187);  ///< 300y
+                break;
+            case 163153: ///< Enchant Armament (Jump - Enchanted Armament)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 300;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////

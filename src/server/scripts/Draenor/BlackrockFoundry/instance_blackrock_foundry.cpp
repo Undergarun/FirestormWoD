@@ -51,6 +51,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_SteelHasBeenBrought       = true;
                 m_FlamebenderKagrazGuid     = 0;
                 m_AknorSteelbringerGuid     = 0;
+                m_LavaStalkerGuid           = 0;
+                m_MoltenTorrentStalkerGuid  = 0;
             }
 
             /// Slagworks
@@ -80,6 +82,8 @@ class instance_blackrock_foundry : public InstanceMapScript
             bool m_SteelHasBeenBrought;
             uint64 m_FlamebenderKagrazGuid;
             uint64 m_AknorSteelbringerGuid;
+            uint64 m_LavaStalkerGuid;
+            uint64 m_MoltenTorrentStalkerGuid;
 
             void Initialize() override
             {
@@ -121,6 +125,12 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::AknorSteelbringer:
                         m_AknorSteelbringerGuid = p_Creature->GetGUID();
                         break;
+                    case eFoundryCreatures::LavaStalker:
+                        m_LavaStalkerGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::MoltenTorrentStalker:
+                        m_MoltenTorrentStalkerGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -158,9 +168,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                         break;
                     case eFoundryGameObjects::ConveyorBelt006:
                     case eFoundryGameObjects::ConveyorBelt008:
+                    case eFoundryGameObjects::ConveyorBelt010:
                         p_GameObject->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart2, true);
                         break;
                     case eFoundryGameObjects::ConveyorBelt007:
+                    case eFoundryGameObjects::ConveyorBelt009:
                         p_GameObject->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart3, true);
                         break;
                     default:
@@ -421,6 +433,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_FlamebenderKagrazGuid;
                     case eFoundryCreatures::AknorSteelbringer:
                         return m_AknorSteelbringerGuid;
+                    case eFoundryCreatures::LavaStalker:
+                        return m_LavaStalkerGuid;
+                    case eFoundryCreatures::MoltenTorrentStalker:
+                        return m_MoltenTorrentStalkerGuid;
                     default:
                         break;
                 }

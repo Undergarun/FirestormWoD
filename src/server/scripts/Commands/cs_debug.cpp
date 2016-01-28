@@ -60,6 +60,7 @@ class debug_commandscript: public CommandScript
                 { "oneshotanimkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlayOneShotAnimKit,     "", NULL },
                 { "spellvisualkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlaySpellVisualKit,     "", NULL },
                 { "orphanvisual",   SEC_ADMINISTRATOR,  false, &HandleDebugPlayOrphanSpellVisual,  "", NULL },
+                { "visual",         SEC_ADMINISTRATOR,  false, &HandleDebugPlayVisual,             "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -546,25 +547,101 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPlayOrphanSpellVisual(ChatHandler* p_Handler, char const* p_Args)
         {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrID = strtok((char*)p_Args, " ");
+            char* l_StrSpeed = strtok(NULL, " ");
+
+            if (!l_StrID || !l_StrSpeed)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = (uint32)atoi(l_StrID);
+            float l_Speed = (float)atof(l_StrSpeed);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            if (l_Player == nullptr)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Unit* l_Target = l_Player->GetSelectedUnit();
+            if (l_Target == nullptr)
+                l_Target = l_Player;
+
             WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
 
-            G3D::Vector3 l_Source (3737.686f, 7660.064f, 24.95166f);
-            G3D::Vector3 l_Target (3737.686f, 7660.064f, 25.05166f);
-            G3D::Vector3 l_Orientation (0.0f, 4.035325f, 0.0f);
+            G3D::Vector3 l_Source(l_Player->m_positionX, l_Player->m_positionY, l_Player->m_positionZ);
+            G3D::Vector3 l_Dest(l_Target->m_positionX, l_Target->m_positionY, l_Target->m_positionZ);
+            G3D::Vector3 l_Orientation (0.0f, 0.0f, 0.0f);
 
             l_Data.WriteVector3(l_Source);
             l_Data.WriteVector3(l_Orientation);
-            l_Data.WriteVector3(l_Target);
+            l_Data.WriteVector3(l_Dest);
             l_Data.appendPackGUID(0);
 
-            l_Data << int32(37116);
-            l_Data << float(1.0f);
+            l_Data << int32(l_ID);
+            l_Data << float(l_Speed);
             l_Data << float(0.0f);
 
             l_Data.WriteBit(true);
             l_Data.FlushBits();
 
             p_Handler->GetSession()->SendPacket(&l_Data);
+            return true;
+        }
+
+        static bool HandleDebugPlayVisual(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrID = strtok((char*)p_Args, " ");
+            char* l_StrSpeed = strtok(NULL, " ");
+
+            if (!l_StrID || !l_StrSpeed)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = (uint32)atoi(l_StrID);
+            float l_Speed = (float)atof(l_StrSpeed);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (Unit* l_Target = p_Handler->getSelectedUnit())
+            {
+                p_Handler->GetSession()->GetPlayer()->SendPlaySpellVisual(l_ID, l_Target, l_Speed, 0.0f, Position());
+            }
+            else
+                p_Handler->GetSession()->GetPlayer()->SendPlaySpellVisual(l_ID, p_Handler->GetSession()->GetPlayer(), l_Speed, 0.0f, Position());
+
             return true;
         }
 
