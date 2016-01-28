@@ -928,7 +928,7 @@ void Player::UpdateMultistrikePercentage()
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
     float effect = 30.f; // Default value
     value += GetRatingBonusValue(CR_MULTISTRIKE);
-    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
+    AddPct(effect, GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT));
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
 }
