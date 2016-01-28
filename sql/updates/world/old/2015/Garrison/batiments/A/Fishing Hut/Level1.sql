@@ -4,14 +4,14 @@ INSERT INTO gossip_menu_option (`menu_id`, `id`, `option_icon`, `option_text`, `
 UPDATE `creature_template` SET gossip_menu_id = 16986, `npcflag`=`npcflag`|17, trainer_type=2, ScriptName="npc_RonAshton_Garr" WHERE `entry`=77733;
 DELETE FROM `npc_trainer` WHERE `entry`=77733;
 INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES
-(77733, 7620, 100, 356, 0, 1), 
-(77733, 7731, 500, 356, 50, 1), 
-(77733, 7732, 10000, 356, 125, 1), 
-(77733, 18248, 25000, 356, 200, 1), 
-(77733, 33095, 100000, 356, 275, 1), 
-(77733, 51294, 150000, 356, 350, 1), 
-(77733, 88868, 250000, 356, 425, 1), 
-(77733, 110410, 300000, 356, 500, 1);
+('77733','7733','100','356','0','1'),
+('77733','7734','500','356','50','1'),
+('77733','55083','10000','356','125','1'),
+('77733','18249','25000','356','200','1'),
+('77733','54084','100000','356','275','1'),
+('77733','51293','150000','356','350','1'),
+('77733','88869','250000','356','425','1'),
+('77733','110412','300000','356','500','1');
 
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128, ScriptName="npc_Segumi_Garr" WHERE `entry`=85708;
 INSERT INTO creature_equip_template (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(85708, 1, 84660, 0, 0) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `id` = VALUES(`id`), `itemEntry1` = VALUES(`itemEntry1`), `itemEntry2` = VALUES(`itemEntry2`), `itemEntry3` = VALUES(`itemEntry3`);
@@ -52,3 +52,18 @@ REPLACE INTO `creature_questender` (`id`, `quest`) VALUES
 ('84372','34194'),
 ('84372','36199'),
 ('84372','36201');
+
+-- Alliance daily quests (36517, 36515, 36514, 36513, 36510, 36511)
+
+UPDATE quest_template SET PrevQuestId = 36202 WHERE Id IN (36511, 36510, 36513, 36514, 36515, 36517);
+
+DELETE FROM pool_quest WHERE pool_entry = 30006;
+DELETE FROM pool_template WHERE entry = 30006;
+INSERT INTO pool_template VALUE (30006, 1, "Alliance Garrison Fishing daily quests");
+INSERT INTO pool_quest VALUES
+(36511, 30006, "Jawless Skulker"),
+(36510, 30006, "Fire Ammonite"),
+(36513, 30006, "Fat Sleeper"),
+(36514, 30006, "Blind Lake Sturgeon"),
+(36515, 30006, "Blackwater Whiptail"),
+(36517, 30006, "Abyssal Gulper Eel");

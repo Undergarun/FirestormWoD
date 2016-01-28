@@ -2893,6 +2893,31 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    /// Get building with type
+    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType) const
+    {
+        for (std::vector<GarrisonBuilding>::const_iterator l_Itr = m_Buildings.begin(); l_Itr != m_Buildings.end(); ++l_Itr)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Itr->BuildingID);
+
+            if (!l_BuildingEntry)
+                continue;
+
+            if (l_BuildingEntry->Type == p_BuildingType && (*l_Itr).Active == true)
+                return *l_Itr;
+        }
+
+        return GarrisonBuilding();
+    }
+
+    uint32 Manager::GetBuildingLevel(GarrisonBuilding p_Building) const
+    {
+        if (GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_Building.BuildingID))
+            return l_BuildingEntry->Level;
+
+        return 0;
+    }
+
     /// Get building max work order
     uint32 Manager::GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const
     {
