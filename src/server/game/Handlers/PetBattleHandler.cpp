@@ -737,24 +737,26 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
     uint64 l_UnitGuid;
     uint64 l_JournalGuid;
 
-    p_RecvData.readPackGUID(l_UnitGuid);
     p_RecvData.readPackGUID(l_JournalGuid);
+    p_RecvData.readPackGUID(l_UnitGuid);
 
     Creature* l_Creature = Unit::GetCreature(*m_Player, l_UnitGuid);
 
     if (!l_Creature)
         return;
 
+    bool l_HaveCustomName = l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP) != 0;
+
     WorldPacket l_Packet(SMSG_QUERY_PET_NAME_RESPONSE, 0x40);
 
     l_Packet.appendPackGUID(l_JournalGuid);
     l_Packet << uint32(l_Creature->GetEntry());
     l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
-    l_Packet.WriteBit(l_Creature->GetName() ? true : false);
+    l_Packet.WriteBit(l_HaveCustomName);
 
-    if (l_Creature->GetName())
+    if (l_HaveCustomName)
     {
-        l_Packet.WriteBits(l_Creature->GetName() ? strlen(l_Creature->GetName()) : 0, 8);
+        l_Packet.WriteBits(l_HaveCustomName ? strlen(l_Creature->GetName()) : 0, 8);
         l_Packet.WriteBit(0);   // unk maybe declined names
 
         for (uint32 l_I = 0; l_I < 5; ++l_I)
@@ -763,9 +765,9 @@ void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
 
     l_Packet.FlushBits();
 
-    if (l_Creature->GetName())
+    if (l_HaveCustomName)
     {
-        if (l_Creature->GetName())
+        if (l_HaveCustomName)
             l_Packet.WriteString(l_Creature->GetName());
     }
 
