@@ -419,9 +419,14 @@ bool PetBattleAbilityEffect::Heal(uint32 p_Target, int32 p_Heal)
     return p_Heal > 0;
 }
 
-void PetBattleAbilityEffect::ModState(uint32 target, uint32 state, int32 value, bool apply)
+/// Modify pet battle state increment or decrement state by ModValue
+/// @p_Target   : Target Pet ID
+/// @p_StateID  : ID of the state to modify
+/// @p_ModValue : Value to add or sub
+/// @p_Apply    : Add or sub p_ModValue
+void PetBattleAbilityEffect::ModState(uint32 p_Target, uint32 p_StateID, int32 p_ModValue, bool p_Apply)
 {
-    SetState(Target, state, PetBattleInstance->Pets[Target]->States[state] + (apply ? value : -value));
+    SetState(p_Target, p_StateID, PetBattleInstance->Pets[Target]->States[p_StateID] + (p_Apply ? p_ModValue : -p_ModValue));
 }
 
 int32 PetBattleAbilityEffect::CalculateDamage(int32 p_Damage)
