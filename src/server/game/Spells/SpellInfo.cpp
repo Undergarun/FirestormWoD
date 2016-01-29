@@ -1285,10 +1285,9 @@ bool SpellInfo::IsExplicitDiscovery() const
 
 bool SpellInfo::IsLootCrafting() const
 {
-    return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+    return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM_2);
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -4083,6 +4082,7 @@ bool SpellInfo::IsCanBeStolen() const
         case 633:   ///< Lay on Hands
         case 22812: ///< Barkskin
         case 24275: ///< Hammer of Wrath
+        case 158392: ///< Hammer of Wrath
         case 31935: ///< Avenger's Shield
         case 53563: ///< Beacon of Light
             return false;
@@ -4393,14 +4393,15 @@ bool SpellInfo::IsNeedToCheckSchoolImmune() const
 
     switch (Id)
     {
-        case 879:   // Exorcism
-        case 24275: // Hammer of Wrath
-        case 25912: // Holy Shock damage
-        case 25914: // Holy Shock heal
-        case 35395: // Crusader Strike
-        case 42292: // Pvp Trinket
-        case 59752: // Every Man for Himself (racical)
-        case 82327: // Holy Radiance
+        case 879:   ///< Exorcism
+        case 24275: ///< Hammer of Wrath
+        case 158392: ///< Hammer of Wrath
+        case 25912: ///< Holy Shock damage
+        case 25914: ///< Holy Shock heal
+        case 35395: ///< Crusader Strike
+        case 42292: ///< Pvp Trinket
+        case 59752: ///< Every Man for Himself (racical)
+        case 82327: ///< Holy Radiance
             return false;
         default:
             break;

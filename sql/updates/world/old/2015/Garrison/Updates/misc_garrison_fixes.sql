@@ -332,3 +332,15 @@
 	);
 	DELETE FROM gossip_menu_option WHERE menu_id = 92005;
 	INSERT INTO gossip_menu_option (menu_id, option_text) VALUE (92005, "Why are you here?");
+
+#14112/Trinity String
+
+	UPDATE trinity_string SET content_default = "|3ADF00FF+$1i Timber |r" WHERE entry = 14112;
+
+#36404-34193/Quest - Clearing the Garden
+
+	UPDATE quest_template SET requiredskillid = 0 WHERE id IN (36404, 34193);
+
+#178444/Spell - Create Armor Enhancement
+
+	UPDATE spell_loot_template SET groupid = 1 WHERE entry = 178444;

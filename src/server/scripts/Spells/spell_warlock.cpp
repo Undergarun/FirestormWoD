@@ -388,6 +388,45 @@ class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
         }
 };
 
+/// Call by Avoidance - 32233
+/// Grimoire of Supremacy - 108499
+class spell_warl_grimoire_of_supremacy_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_supremacy_bonus() : SpellScriptLoader("spell_warl_grimoire_of_supremacy_bonus") { }
+
+        class spell_warl_grimoire_of_supremacy_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_grimoire_of_supremacy_bonus_AuraScript);
+
+            enum eSpells
+            {
+                GrimoireOfSupremacyBonus    = 115578,
+                GrimoireOfSupremacy         = 108499
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Owner = l_Target->GetOwner();
+
+                if (l_Owner->HasAura(eSpells::GrimoireOfSupremacy) && !l_Target->HasAura(eSpells::GrimoireOfSupremacyBonus))
+                    l_Target->CastSpell(l_Target, eSpells::GrimoireOfSupremacyBonus, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_grimoire_of_supremacy_bonus_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_grimoire_of_supremacy_bonus_AuraScript();
+        }
+};
+
+
 // Soulburn : Seed of Corruption - Damage - 87385
 class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
 {
@@ -1063,13 +1102,27 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_molten_core_dot_AuraScript);
 
-            void OnApplyAndOnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+                Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
                     return;
 
                 l_Caster->ModifyPower(POWER_DEMONIC_FURY, 2 * l_Caster->GetPowerCoeff(POWER_DEMONIC_FURY));
+                l_Caster->CastSpell(l_Target, 190187, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->ModifyPower(POWER_DEMONIC_FURY, 2 * l_Caster->GetPowerCoeff(POWER_DEMONIC_FURY));
+                if (l_Target->HasAura(190187, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(190187, l_Caster->GetGUID());
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -1092,8 +1145,8 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_molten_core_dot_AuraScript::OnApplyAndOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warl_molten_core_dot_AuraScript::OnApplyAndOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_warl_molten_core_dot_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_molten_core_dot_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_molten_core_dot_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
@@ -1101,6 +1154,49 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_molten_core_dot_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Molten Core - 122355
+class spell_warl_molten_core : public SpellScriptLoader
+{
+    public:
+        spell_warl_molten_core() : SpellScriptLoader("spell_warl_molten_core") { }
+
+        class spell_warl_molten_core_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_molten_core_AuraScript);
+
+            enum eSpells
+            {
+                MoltenCoreVisual = 126090
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->CastSpell(l_Target, eSpells::MoltenCoreVisual, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->RemoveAura(eSpells::MoltenCoreVisual);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_molten_core_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_warl_molten_core_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_molten_core_AuraScript();
         }
 };
 
@@ -2174,6 +2270,8 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
 
                 int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
+                if (AuraEffectPtr l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    l_TotalHeal += l_PreviousEffect->GetAmount() * (p_AurEff->GetBase()->GetDuration() / p_AurEff->GetAmplitude());
                 if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
@@ -3303,43 +3401,43 @@ class spell_warl_corruption : public SpellScriptLoader
 /// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
-public:
-    spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
+    public:
+        spell_warl_dark_soul() : SpellScriptLoader("spell_warl_dark_soul") { }
 
-    class spell_warl_dark_soul_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_dark_soul_SpellScript);
-
-        void HandleAfterCast()
+        class spell_warl_dark_soul_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_dark_soul_SpellScript);
+
+            void HandleAfterCast()
             {
-                uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
-                uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    uint32 l_OldCooldown = l_Player->GetSpellCooldownDelay(GetSpellInfo()->Id);
+                    uint32 l_NewCooldown = l_OldCooldown - CalculatePct(l_OldCooldown, 50);
 
-                l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                    l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
 
-                if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
-                else ///< Case of GLYPH_OF_DARK_SOUL
-                    l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
+                    if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
+                    else ///< Case of GLYPH_OF_DARK_SOUL
+                        l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
 
-                if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
-                    l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
+                    if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
+                        l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
 
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_warl_dark_soul_SpellScript::HandleAfterCast);
+            return new spell_warl_dark_soul_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_dark_soul_SpellScript();
-    }
 };
 
 /// last update : 6.1.2 19802
@@ -4064,7 +4162,6 @@ class spell_warl_glyph_of_life_tap : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                sLog->outError(LOG_FILTER_GENERAL, "PASSSSSSSSSSSSSSSSSSSSSSs");
                 if (!l_Player->HasAura(eSpells::GlyphofLifePactPeriodic))
                     l_Player->CastSpell(l_Player, eSpells::GlyphofLifePactPeriodic, true);
             }
@@ -4232,7 +4329,6 @@ class spell_warl_demonbolt : public SpellScriptLoader
                 float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
                 p_Amount *= l_HastePct;
-                p_AurEff->GetBase()->SetDuration(p_AurEff->GetBase()->GetDuration() * l_HastePct);
             }
 
             void Register()
@@ -4241,14 +4337,42 @@ class spell_warl_demonbolt : public SpellScriptLoader
             }
         };
 
+        class spell_warl_demonbolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demonbolt_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+                if (AuraPtr l_AuraPtr = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_AuraPtr->SetDuration(l_AuraPtr->GetDuration() * l_HastePct);
+
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_warl_demonbolt_SpellScript::HandleAfterHit);
+            }
+        };
+
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_demonbolt_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_demonbolt_SpellScript();
         }
 };
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_grimoire_of_supremacy_bonus();
+    new spell_warl_molten_core();
     new spell_warl_demonbolt();
     new spell_warl_incinerate();
     new spell_warl_glyph_of_life_tap_periodic();

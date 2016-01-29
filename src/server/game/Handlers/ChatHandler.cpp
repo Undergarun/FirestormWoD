@@ -168,7 +168,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 uint32 l_MessageLenght = 0;
                 std::string l_Message = "";
 
-                l_MessageLenght = p_RecvData.ReadBits(8);
+                l_MessageLenght = p_RecvData.ReadBits(8); ///< l_messageLenght is never read 01/18/16
                 p_RecvData >> l_Message;
 
                 if (l_Message.empty())
@@ -594,7 +594,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
 {
-    Player *    l_Sender = GetPlayer();
+    Player *    l_Sender = GetPlayer(); ///< l_sender is never read 01/18/16
     ChatMsg     l_Type;
 
     switch (p_RecvData.GetOpcode())

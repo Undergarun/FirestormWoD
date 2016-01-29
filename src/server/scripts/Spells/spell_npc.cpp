@@ -339,7 +339,6 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
             void Reset()
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
                 me->CastSpell(me, eSpells::SpellShadowReflectionAura, true);
             }
 

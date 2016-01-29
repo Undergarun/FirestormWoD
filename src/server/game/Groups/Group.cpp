@@ -652,8 +652,8 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
             uint64 l_LeaderGUID = GetLeaderGUID();
 
             uint32 l_MemberCount = 0;
-
-            bool l_HasJamCliPartyLFGInfo = isLFGGroup();
+ 
+            bool l_HasJamCliPartyLFGInfo = isLFGGroup(); ///< l_HasJamCliPartyLFGInfo is never read 01/18/16
 
             l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
@@ -899,7 +899,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
             uint32 l_MemberCount = 0;
 
-            bool l_HasJamCliPartyLFGInfo = isLFGGroup();
+            bool l_HasJamCliPartyLFGInfo = isLFGGroup(); ///< l_HasJamCliPartyLFGInfo is never read 01/18/16
 
             l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
@@ -2061,7 +2061,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
         else
         {
             // If player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
-            prevSubGroup = player->GetOriginalSubGroup();
+            prevSubGroup = player->GetOriginalSubGroup(); ///< prevSubGroup is never read 01/18/16
             player->GetOriginalGroupRef().setSubGroup(group);
         }
     }

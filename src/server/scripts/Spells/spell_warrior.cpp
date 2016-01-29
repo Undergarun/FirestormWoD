@@ -2411,8 +2411,6 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 {
                     if (l_ShieldCharge->GetEffect(EFFECT_0))
                         l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                    l_ShieldCharge->DropStack();
                 }
 
 
@@ -2919,8 +2917,6 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
                             {
                                 if (l_ShieldCharge->GetEffect(EFFECT_0))
                                     l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                                l_ShieldCharge->DropStack();
                             }
 
                             SetHitDamage(l_Damage);
@@ -3082,8 +3078,103 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Impending Victory - 103840
+class spell_warr_impending_victory : public SpellScriptLoader
+{
+    public:
+        spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
+
+        class spell_warr_impending_victory_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_impending_victory_SpellScript);
+
+            enum eSpells
+            {
+                ImpendingVictoryHeal = 118340
+            };
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::ImpendingVictoryHeal, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_impending_victory_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_impending_victory_SpellScript();
+        }
+};
+
+/// Mastery: Unshackled Fury - 76856
+/// Called by Enrage - 12880
+class spell_warr_mastery_unshackled_fury : public SpellScriptLoader
+{
+    public:
+        spell_warr_mastery_unshackled_fury() : SpellScriptLoader("spell_warr_mastery_unshackled_fury") { }
+
+        class spell_warr_mastery_unshackled_fury_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_mastery_unshackled_fury_AuraScript);
+
+            enum eSpells
+            {
+                UnshackledFury = 76856
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// On Enrage applying mastery start working
+                    if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(eSpells::UnshackledFury, EFFECT_0))
+                    {
+                        float l_MasteryPct = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
+                        float l_MasteryMultiplier = l_MasteryUnshackledFury->GetSpellEffectInfo()->BonusMultiplier;
+                        l_MasteryUnshackledFury->ChangeAmount((int32)(l_MasteryMultiplier * l_MasteryPct), true, true);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// If Enrage is removed, mastery doesn't work too
+                    if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(eSpells::UnshackledFury, EFFECT_0))
+                        l_MasteryUnshackledFury->ChangeAmount(0, true, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_mastery_unshackled_fury_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_mastery_unshackled_fury_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_mastery_unshackled_fury_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
     new spell_warr_glyph_of_crow_feast();
@@ -3142,6 +3233,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_activate_battle_stance();
     new spell_warr_shield_charge_damage();
     new spell_warr_weaponmaster();
+    new spell_warr_mastery_unshackled_fury();
 
     /// Playerscripts
     new PlayerScript_second_wind();

@@ -883,6 +883,7 @@ class World
             return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
         }
 
+        bool CanBeSaveInLoginDatabase() const;
         void setWorldState(uint32 index, uint64 value);
         uint64 getWorldState(uint32 index) const;
         void LoadWorldStates();

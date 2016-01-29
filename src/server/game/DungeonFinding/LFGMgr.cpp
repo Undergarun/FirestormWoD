@@ -3018,7 +3018,7 @@ uint32 LFGMgr::GetAugmentRuneID(Player const* p_Player) const
 {
     uint8 l_RuneCount = 3;
     uint32 l_AugmentRunes[3] = { 118630, 118631, 118632 };
-    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec()); ///< l_SpecID is never read 01/18/16
 
     for (uint8 l_I = 0; l_I < l_RuneCount; ++l_I)
     {

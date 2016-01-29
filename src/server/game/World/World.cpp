@@ -1879,6 +1879,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells invalid...");
     sObjectMgr->LoadSpellInvalid();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading disabled rankings...");
+    sObjectMgr->LoadDisabledEncounters();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
@@ -3760,6 +3763,24 @@ void World::LoadWorldStates()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+}
+
+bool World::CanBeSaveInLoginDatabase() const
+{
+    switch (m_int_configs[CONFIG_REALM_ZONE])
+    {
+        case REALM_ZONE_DEVELOPMENT:
+        case REALM_ZONE_TEST_SERVER:
+        case REALM_ZONE_TOURNAMENT_5:
+        case REALM_ZONE_TOURNAMENT_7:
+        case REALM_ZONE_TOURNAMENT_13:
+        case REALM_ZONE_TOURNAMENT_15:
+        case REALM_ZONE_TOURNAMENT_25:
+        case REALM_ZONE_TOURNAMENT_27:
+            return false;
+        default:
+            return true;
+    }
 }
 
 // Setting a worldstate will save it to DB

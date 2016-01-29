@@ -286,7 +286,7 @@ void WorldSession::HandleCalendarRemoveEvent(WorldPacket& p_RecvData)
 void WorldSession::HandleCalendarCopyEvent(WorldPacket& p_RecvData)
 {
     uint64 l_EventID = p_RecvData.read<uint64>();
-    uint64 l_InviteID = p_RecvData.read<uint64>();
+    uint64 l_InviteID = p_RecvData.read<uint64>(); ///< l_inviteID is never read 01/18/16
     uint32 l_EventTime = 0;
     p_RecvData.ReadPackedTime(l_EventTime);
 
@@ -317,7 +317,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& p_RecvData)
     std::string l_Name;
 
     uint64 l_EventID = p_RecvData.read<uint64>();
-    uint64 l_InviteID = p_RecvData.read<uint64>();
+    uint64 l_InviteID = p_RecvData.read<uint64>(); ///< l_inviteID is never read 01/18/16
     uint8 l_NameLen = p_RecvData.ReadBits(8) * 2;
     l_NameLen += p_RecvData.ReadBit();
     bool l_IsPreInvite = p_RecvData.ReadBit();

@@ -1580,7 +1580,8 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         }
 };
 
-// Dire Beast - 120679
+/// Last Update 6.2.3
+/// Dire Beast - 120679
 class spell_hun_dire_beast: public SpellScriptLoader
 {
     public:
@@ -1592,53 +1593,55 @@ class spell_hun_dire_beast: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* l_Target = GetHitUnit())
                     {
                         // Summon's skin is different function of Map or Zone ID
-                        switch (_player->GetZoneId())
+                        switch (l_Player->GetZoneId())
                         {
                             case 5785: // The Jade Forest
-                                _player->CastSpell(target, DIRE_BEAST_JADE_FOREST, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_JADE_FOREST, true);
                                 break;
                             case 5805: // Valley of the Four Winds
-                                _player->CastSpell(target, DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS, true);
                                 break;
                             case 5840: // Vale of Eternal Blossoms
-                                _player->CastSpell(target, DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM, true);
                                 break;
                             case 5841: // Kun-Lai Summit
-                                _player->CastSpell(target, DIRE_BEAST_KUN_LAI_SUMMIT, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_KUN_LAI_SUMMIT, true);
                                 break;
                             case 5842: // Townlong Steppes
-                                _player->CastSpell(target, DIRE_BEAST_TOWNLONG_STEPPES, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_TOWNLONG_STEPPES, true);
                                 break;
                             case 6134: // Krasarang Wilds
-                                _player->CastSpell(target, DIRE_BEAST_KRASARANG_WILDS, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_KRASARANG_WILDS, true);
                                 break;
                             case 6138: // Dread Wastes
-                                _player->CastSpell(target, DIRE_BEAST_DREAD_WASTES, true);
+                                l_Player->CastSpell(l_Target, DIRE_BEAST_DREAD_WASTES, true);
                                 break;
                             default:
                             {
-                                switch (_player->GetMapId())
+                                switch (l_Player->GetMapId())
                                 {
                                     case 0: // Eastern Kingdoms
-                                        _player->CastSpell(target, DIRE_BEAST_EASTERN_KINGDOMS, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_EASTERN_KINGDOMS, true);
                                         break;
                                     case 1: // Kalimdor
-                                        _player->CastSpell(target, DIRE_BEAST_KALIMDOR, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_KALIMDOR, true);
                                         break;
                                     case 8: // Outland
-                                        _player->CastSpell(target, DIRE_BEAST_OUTLAND, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_OUTLAND, true);
                                         break;
                                     case 10: // Northrend
-                                        _player->CastSpell(target, DIRE_BEAST_NORTHREND, true);
+                                        l_Player->CastSpell(l_Target, DIRE_BEAST_NORTHREND, true);
                                         break;
                                     default:
-                                        if (_player->GetMap()->IsDungeon() || _player->GetMap()->IsBattlegroundOrArena())
-                                            _player->CastSpell(target, DIRE_BEAST_DUNGEONS, true);
+                                        if (l_Player->GetMap()->IsDungeon() || l_Player->GetMap()->IsBattlegroundOrArena())
+                                            l_Player->CastSpell(l_Target, DIRE_BEAST_DUNGEONS, true);
+                                        else ///< Default beast in case there is not
+                                            l_Player->CastSpell(l_Target, DIRE_BEAST_KALIMDOR, true);
                                         break;
                                 }
                                 break;
@@ -1673,7 +1676,9 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
             enum eSpells
             {
-                FreezingTrap = 3355
+                FreezingTrap = 3355,
+                MurderOfCrowsVisualFirst = 131951,
+                MurderOfCrowsVisualSecond = 131952
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -1683,6 +1688,14 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
                 if (l_Caster == nullptr)
                     return;
+
+                /// Visual effect
+                /// Four crows fall from the sky to target
+                for (int8 i = 0; i < 2; ++i)
+                {
+                    l_Target->CastSpell(l_Target, eSpells::MurderOfCrowsVisualFirst, true);
+                    l_Target->CastSpell(l_Target, eSpells::MurderOfCrowsVisualSecond, true);
+                }
 
                 if (l_Caster->IsValidAttackTarget(l_Target))
                     l_Caster->CastSpell(l_Target, HUNTER_SPELL_A_MURDER_OF_CROWS_DAMAGE, true);
@@ -3309,8 +3322,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
                         int32 l_Damage = int32(l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
-                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                         SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
                         SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
@@ -3338,15 +3349,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
 
-                        // WoD: Apply factor on damages depending on creature level and expansion
-                        if (l_Pet->IsPetGuardianStuff() && GetHitUnit()->GetTypeId() == TYPEID_UNIT)
-                            l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, GetHitUnit()->ToCreature());
-                        else if (l_Pet->GetTypeId() == TYPEID_UNIT && (GetHitUnit()->GetTypeId() == TYPEID_PLAYER || GetHitUnit()->IsPetGuardianStuff()))
-                            l_Damage *= l_Pet->CalculateDamageTakenFactor(GetHitUnit(), l_Pet->ToCreature());
+                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
-                        /// Reduce damage by armor
-                        if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
-                            l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
                         SetHitDamage(l_Damage);
 
                         /// Invigoration - 53253
