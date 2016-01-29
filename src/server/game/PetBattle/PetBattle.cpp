@@ -808,6 +808,12 @@ uint8 PetBattleTeam::CanCatchOpponentTeamFrontPet()
     if (!l_TargetPet->IsAlive())
         return 0;
 
+    if (BattlePetSpeciesEntry const* l_Entry = sBattlePetSpeciesStore.LookupEntry(l_TargetPet->Species))
+    {
+        if ((l_Entry->flags & BATTLEPET_SPECIES_FLAG_UNTAMEABLE) != 0)
+            return 0;
+    }
+
     float l_TargetHealth    = l_TargetPet->Health;
     float l_TargetMaxHealth = l_TargetPet->InfoMaxHealth;
     float l_TargetHealthPct = (l_TargetHealth / l_TargetMaxHealth) * 100;
