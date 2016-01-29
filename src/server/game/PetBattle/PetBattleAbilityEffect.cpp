@@ -426,7 +426,7 @@ bool PetBattleAbilityEffect::Heal(uint32 p_Target, int32 p_Heal)
 /// @p_Apply    : Add or sub p_ModValue
 void PetBattleAbilityEffect::ModState(uint32 p_Target, uint32 p_StateID, int32 p_ModValue, bool p_Apply)
 {
-    SetState(p_Target, p_StateID, PetBattleInstance->Pets[Target]->States[p_StateID] + (p_Apply ? p_ModValue : -p_ModValue));
+    SetState(p_Target, p_StateID, PetBattleInstance->Pets[p_Target]->States[p_StateID] + (p_Apply ? p_ModValue : -p_ModValue));
 }
 
 int32 PetBattleAbilityEffect::CalculateDamage(int32 p_Damage)
@@ -922,19 +922,31 @@ bool PetBattleAbilityEffect::HandleRampingDamage()
 {
     CalculateHit(EffectInfo->prop[1]);
 
+    int32 l_BaseDamage              = EffectInfo->prop[0];
+    int32 l_DamageIncrementPerUse   = EffectInfo->prop[2];
+    int32 l_MaxDamage               = EffectInfo->prop[3];
+
     if (GetState(Caster, BATTLEPET_STATE_Ramping_DamageID) != AbilityID)
     {
         SetState(Caster, BATTLEPET_STATE_Ramping_DamageID, AbilityID);
         SetState(Caster, BATTLEPET_STATE_Ramping_DamageUses, 0);
     }
 
-    if (GetState(Caster, BATTLEPET_STATE_Ramping_DamageUses) < EffectInfo->prop[3])
-        ModState(Caster, BATTLEPET_STATE_Ramping_DamageUses, 1);
-    else if (EffectInfo->prop[4]) // StateToTriggerMaxPoints
-        SetState(Target, EffectInfo->prop[4], 1);
+    int32 l_CurrentUse  = GetState(Caster, BATTLEPET_STATE_Ramping_DamageUses);
+    int32 l_BonusDamage = l_DamageIncrementPerUse * l_CurrentUse;
 
-    // Damage
-    int32 damage = CalculateDamage(EffectInfo->prop[0] + EffectInfo->prop[2] * GetState(Caster, BATTLEPET_STATE_Ramping_DamageUses));
+    if ((l_BaseDamage + l_BonusDamage) >= l_MaxDamage)
+    {
+        l_BonusDamage = l_MaxDamage - l_BaseDamage;
+
+        if (EffectInfo->prop[4]) ///< StateToTriggerMaxPoints
+            SetState(Target, EffectInfo->prop[4], 1);
+    }
+
+    ModState(Caster, BATTLEPET_STATE_Ramping_DamageUses, 1);
+
+    /// Damage
+    int32 damage = CalculateDamage(l_BaseDamage + l_BonusDamage);
 
     return Damage(Target, damage);
 }
