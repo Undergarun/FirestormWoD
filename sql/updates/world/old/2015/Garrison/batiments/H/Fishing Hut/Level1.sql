@@ -68,3 +68,5 @@ INSERT INTO pool_quest VALUES
 -- Updates
 
 UPDATE creature_template SET scriptname = "npc_MakJin_Garr" WHERE entry = 79892;
+
+-- zone frostwall - 7004

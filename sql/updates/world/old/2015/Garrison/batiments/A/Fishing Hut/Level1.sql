@@ -67,3 +67,5 @@ INSERT INTO pool_quest VALUES
 (36514, 30006, "Blind Lake Sturgeon"),
 (36515, 30006, "Blackwater Whiptail"),
 (36517, 30006, "Abyssal Gulper Eel");
+
+-- zone lunarfall - 7078
