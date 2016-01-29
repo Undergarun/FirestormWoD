@@ -1567,7 +1567,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             /// Magic Damage can be block only by Paladin Proteccion
-            if (HasAura(152261)) ///< Holy Shield
+            if (victim->HasAura(152261)) ///< Holy Shield
             {
                 /// Get blocked status
                 blocked = isSpellBlocked(victim, spellInfo, attackType);
@@ -12804,6 +12804,13 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
         }
     }
 
+    /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
+    if (Player* l_ModOwner = GetSpellModOwner())
+    {
+        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
+            AddPct(DoneTotalMod, -15.0f);
+    }
+
     return DoneTotalMod;
 }
 
@@ -16696,15 +16703,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Fix Drop charge for Blindsight
     if (GetTypeId() == TYPEID_PLAYER && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
         RemoveAura(121153);
-
-    // Fix Drop charge for Fingers of Frost
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MAGE && procSpell && (procSpell->Id == 30455 || procSpell->Id == 44572) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
-    {
-        if (AuraPtr fingersOfFrost = GetAura(44544, GetGUID()))
-            fingersOfFrost->ModStackAmount(-1);
-        if (AuraPtr fingersVisual = GetAura(126084, GetGUID()))
-            fingersVisual->Remove();
-    }
 
     // Hack Fix Immolate - Critical strikes generate burning embers
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
@@ -22003,6 +22001,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Rip - In pvp, damages reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
             return -20.0f;
+        /// Starsurge - In pvp, damages reduce by 15%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x2000000)
+            return -15.0f;
         break;
     }
     case SPELLFAMILY_PRIEST:
@@ -22032,6 +22033,12 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Unstable ShadowBurn - In pvp, damages increase by 20%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
             return 20.0f;
+        /// Haunt - In pvp, damages reduce by 25%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
+            return -25.0f;
+        /// Chaos Bolt - In pvp, damages increase by 33%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x2000)
+            return 33.0f;
         break;
     }
     case SPELLFAMILY_SHAMAN:

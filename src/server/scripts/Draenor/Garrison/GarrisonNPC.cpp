@@ -49,6 +49,7 @@
 #include "Buildings/Horde/Small/HGemBoutique.hpp"
 #include "Buildings/Horde/Small/HScribeQuarters.hpp"
 #include "Buildings/Horde/Small/HEngineeringWorks.hpp"
+#include "Buildings/Horde/HFishingHut.hpp"
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
@@ -1216,6 +1217,9 @@ void AddSC_Garrison_NPC()
         /// Stables
         new MS::Garrison::npc_Tormak;
         new MS::Garrison::npc_SagePaluna;
+
+        /// Fishing Hut
+        new MS::Garrison::npc_MakJin_Garr;
     }
 
     /// General

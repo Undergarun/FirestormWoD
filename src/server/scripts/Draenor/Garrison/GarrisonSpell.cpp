@@ -263,7 +263,7 @@ namespace MS { namespace Garrison
         return new spell_garrison_shipyard_SpellScript();
     }
 
-    /// Stables Lassos - 173686
+    /// Stables Lassos - 173686/174070
     class spell_garrison_stables_lasso : public SpellScriptLoader
     {
         public:
@@ -273,7 +273,6 @@ namespace MS { namespace Garrison
             class spell_garrison_stables_lasso_AuraScript : public AuraScript
             {
                 PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
-
 
                 void OnTick(constAuraEffectPtr p_AurEff)
                 {
@@ -311,6 +310,55 @@ namespace MS { namespace Garrison
             AuraScript* GetAuraScript() const
             {
                 return new spell_garrison_stables_lasso_AuraScript();
+            }
+
+            class spell_garrison_stables_lasso_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_stables_lasso_SpellScript);
+
+                enum eEntries
+                {
+                    NpcSnarler       = 86851,
+                    NpcIcehoof       = 86847,
+                    NpcMeadowstomper = 86852,
+                    NpcRiverwallow   = 86848,
+                    NpcRocktusk      = 86850,
+                    NpcSilverpelt    = 86801
+                };
+
+                void HandleBeforeCast()
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                    {
+                        switch (l_Creature->GetEntry())
+                        {
+                            case eEntries::NpcSnarler:
+                            case eEntries::NpcIcehoof:
+                            case eEntries::NpcMeadowstomper:
+                            case eEntries::NpcRiverwallow:
+                            case eEntries::NpcRocktusk:
+                            case eEntries::NpcSilverpelt:
+                                break;
+                            default:
+                                FinishCast(SpellCastResult::SPELL_FAILED_BAD_TARGETS);
+                                break;
+                        }
+                    }
+                    else
+                        FinishCast(SpellCastResult::SPELL_FAILED_BAD_TARGETS);
+                }
+
+                void Register()
+                {
+                    BeforeCast += SpellCastFn(spell_garrison_stables_lasso_SpellScript::HandleBeforeCast);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_stables_lasso_SpellScript();
             }
     };
 

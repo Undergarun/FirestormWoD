@@ -2536,6 +2536,7 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Holy Shield - 152261
 class spell_pal_holy_shield: public SpellScriptLoader
 {
@@ -2546,14 +2547,31 @@ class spell_pal_holy_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_holy_shield_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+            enum eSpells
             {
-                amount = 0;
+                HolyShieldDamage = 157122
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+                Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+
+                if (l_Victim == nullptr || l_Attacker == nullptr)
+                    return;
+
+                l_Victim->CastSpell(l_Attacker, eSpells::HolyShieldDamage, true);
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_holy_shield_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectProc += AuraEffectProcFn(spell_pal_holy_shield_AuraScript::OnProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -2669,6 +2687,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Enhanced Holy Shock - 157478
 class spell_pal_enhanced_holy_shock : public SpellScriptLoader
 {
@@ -2678,6 +2697,12 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
         class spell_pal_enhanced_holy_shock_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pal_enhanced_holy_shock_AuraScript);
+
+            enum eSpells
+            {
+                FlasfofLight    = 19750,
+                HolyLight       = 82326
+            };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
@@ -2690,7 +2715,7 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
                 if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID() || p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
                     return;
 
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_FLASH_OF_LIGHT && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_HOLY_LIGHT)
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::FlasfofLight && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::HolyLight)
                     return;
 
                 l_Caster->CastSpell(l_Caster, PALADIN_ENHANCED_HOLY_SHOCK_PROC, true);
@@ -3464,9 +3489,13 @@ class spell_pal_avengers_shield : public SpellScriptLoader
                 GlyphofDazingShieldDaz  = 63529
             };
 
-            void HandleAfterCast()
+            void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 /// When you use Avenger's Shield, your block chance is increased by 12% for 5 sec.
                 if (l_Caster->HasAura(eSpells::T17Protection2P))
@@ -3474,12 +3503,12 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
                 /// Your Avenger's Shield now also dazes targets for 10 sec.
                 if (l_Caster->HasAura(eSpells::GlyphofDazingShield))
-                    l_Caster->CastSpell(l_Caster, eSpells::GlyphofDazingShieldDaz, true);
+                    l_Caster->CastSpell(l_Target, eSpells::GlyphofDazingShieldDaz, true);
             }
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_pal_avengers_shield_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_pal_avengers_shield_SpellScript::HandleAfterHit);
             }
         };
 

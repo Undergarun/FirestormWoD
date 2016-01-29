@@ -1587,7 +1587,8 @@ class spell_mage_alter_time_overrided: public SpellScriptLoader
         }
 };
 
-// Alter Time - 110909
+/// Last Update 6.2.3
+/// Alter Time - 110909
 class spell_mage_alter_time: public SpellScriptLoader
 {
     public:
@@ -1602,7 +1603,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                 if (Player* _player = GetTarget()->ToPlayer())
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
+                    if (removeMode != AURA_REMOVE_BY_EXPIRE)
                         return;
 
                     std::list<Creature*> mirrorList;
@@ -3118,6 +3119,51 @@ class spell_mage_arcane_missiles_visual : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Call by Ice Lance - 30455, Deep Freeze - 44572
+/// Fingers of Frost - 44544
+class spell_mage_finger_of_frost : public SpellScriptLoader
+{
+    public:
+        spell_mage_finger_of_frost() : SpellScriptLoader("spell_mage_finger_of_frost") { }
+
+        class spell_mage_finger_of_frost_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_finger_of_frost_SpellScript);
+
+            bool m_AlreadyDrop = false;
+
+            enum eSpells
+            {
+                FingerOfFrost           = 44544,
+                FingerOfFrostVisualUi   = 126084
+            };
+
+            void HandleOnHit()
+            {
+                if (m_AlreadyDrop)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+
+                m_AlreadyDrop = true; ///< With Glyph of Splitting Ice, Ice Lance hit too times, with should not consume 2 stack of Finger of Frost
+                if (AuraPtr l_FingersOfFrost = l_Caster->GetAura(eSpells::FingerOfFrost, l_Caster->GetGUID()))
+                    l_FingersOfFrost->ModStackAmount(-1);
+                if (AuraPtr l_FingersVisual = l_Caster->GetAura(eSpells::FingerOfFrostVisualUi, l_Caster->GetGUID()))
+                    l_FingersVisual->Remove();
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_finger_of_frost_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_finger_of_frost_SpellScript();
+        }
+};
 
 void AddSC_mage_spell_scripts()
 {
@@ -3125,6 +3171,7 @@ void AddSC_mage_spell_scripts()
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_finger_of_frost();
     new spell_mage_arcane_missiles_visual();
     new spell_mage_illusion();
     new spell_mage_glyph_of_illusion();

@@ -1243,28 +1243,37 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
         return p_Amount;
 
     /// Apply bonus absorption
-    float l_TotalMod = (float)p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+    float l_TotalMod = 1.0f;
+    
+    AddPct(l_TotalMod, (float)p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT));
 
     /// Apply Versatility absorb bonus
     if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
         m_spellInfo->Id != 47753) ///< Divine Aegis is already affected by Versatility because trigger by a healing spell
-        l_TotalMod += p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+        AddPct(l_TotalMod, p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     /// Apply Mastery: Discipline Shield
     if (p_Caster->HasAura(77484))
     {
         float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f; ///< last update: 6.1.2
-        l_TotalMod += l_Mastery;
+        AddPct(l_TotalMod, l_Mastery);
     }
 
     /// Fix Grace applying twice for Divine Aegis (as it affects both heal and absorption and Divine Aegis procs from heal)
     if (GetId() == 47753) ///< Divine Aegis
     {
         if (AuraEffectPtr l_Grace = p_Caster->GetAuraEffect(47517, SpellEffIndex::EFFECT_1))
-            l_TotalMod -= l_Grace->GetAmount();
+            AddPct(l_TotalMod, -l_Grace->GetAmount());
     }
 
-    p_Amount += CalculatePct(p_Amount, l_TotalMod);
+    /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
+    if (Player* l_ModOwner = p_Caster->GetSpellModOwner())
+    {
+        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
+            AddPct(l_TotalMod, -15.0f);
+    }
+
+    p_Amount *= l_TotalMod;
 
     return p_Amount;
 }

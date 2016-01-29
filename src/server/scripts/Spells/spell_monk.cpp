@@ -4760,7 +4760,8 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
         }
 };
 
-// Stance of the Fierce Tiger - 103985
+/// Last Update 6.2.3
+/// Stance of the Fierce Tiger - 103985
 class spell_monk_stance_of_tiger: public SpellScriptLoader
 {
     public:
@@ -4770,20 +4771,36 @@ class spell_monk_stance_of_tiger: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_stance_of_tiger_AuraScript);
 
+            enum eSpells
+            {
+                WindWalker = 166646
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                    caster->RemoveAura(166646);
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->RemoveAura(eSpells::WindWalker);
             }
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, 166646, true);
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::WindWalker, true);
+            }
+
+
+            void OnUpdate(uint32 diff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::WindWalker))
+                        l_Caster->CastSpell(l_Caster, eSpells::WindWalker, true);
+                }
             }
 
             void Register()
             {
+                OnAuraUpdate += AuraUpdateFn(spell_monk_stance_of_tiger_AuraScript::OnUpdate);
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_stance_of_tiger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_monk_stance_of_tiger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
