@@ -32662,11 +32662,11 @@ uint32 Player::GetUnlockedPetBattleSlot()
         l_SlotCount++;
 
     /// Newbie
-    if (GetAchievementMgr().HasAchieved(7433))
+    if (GetAchievementMgr().HasAccountAchieved(7433))
         l_SlotCount++;
 
     /// Just a Pup
-    if (GetAchievementMgr().HasAchieved(6566))
+    if (GetAchievementMgr().HasAccountAchieved(6566))
         l_SlotCount++;
 
     return l_SlotCount;
