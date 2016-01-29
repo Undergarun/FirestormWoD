@@ -257,7 +257,7 @@ bool BattlePetInstance::IsAlive()
 
 bool BattlePetInstance::CanAttack()
 {
-    return !States[BATTLEPET_STATE_turnLock] && !States[BATTLEPET_STATE_Mechanic_IsStunned] && !States[BATTLEPET_STATE_Mechanic_IsWebbed];
+    return !States[BATTLEPET_STATE_turnLock] && !States[BATTLEPET_STATE_Mechanic_IsStunned];
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -762,9 +762,6 @@ bool PetBattleTeam::CanCastAny()
     if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsStunned])
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed])
-        return false;
-
     return true;
 }
 /// Can swap
@@ -773,7 +770,9 @@ bool PetBattleTeam::CanSwap(int8 p_ReplacementPet)
     if (HasPendingMultiTurnCast())
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() && PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock])
+    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() 
+        &&  (  PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock]
+            || PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed]))
         return false;
 
     if (p_ReplacementPet != PETBATTLE_NULL_ID)
@@ -1261,6 +1260,15 @@ void PetBattle::ProceedRound()
 /// Finish the battle
 void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
 {
+    if (p_Aborted)
+    {
+        /// Webbed pet can't forfeit or swap out
+        if (Pets[Teams[p_WinnerTeamID]->ActivePetID]
+            && Pets[Teams[p_WinnerTeamID]->ActivePetID]->IsAlive()
+            && Pets[Teams[p_WinnerTeamID]->ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed])
+            return;
+    }
+
     RoundStatus     = PETBATTLE_ROUND_FINISHED;
     WinnerTeamId    = p_WinnerTeamID;
 
@@ -1957,8 +1965,10 @@ void PetBattleSystem::ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid)
     uint32 l_ForfeiterTeamID;
 
     for (l_ForfeiterTeamID = 0; l_ForfeiterTeamID < MAX_PETBATTLE_TEAM; ++l_ForfeiterTeamID)
+    {
         if (l_Battle->Teams[l_ForfeiterTeamID]->OwnerGuid == p_ForfeiterGuid)
             break;
+    }
 
     if (l_ForfeiterTeamID == MAX_PETBATTLE_TEAM)
         return;
