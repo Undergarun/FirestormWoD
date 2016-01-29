@@ -885,7 +885,7 @@ bool PetBattleAbilityEffect::HandleHeal()
 {
     CalculateHit(EffectInfo->prop[1]);
 
-    return Heal(Target, CalculateHeal(EffectInfo->prop[0]));
+    return Heal(Caster, CalculateHeal(EffectInfo->prop[0]));
 }
 
 bool PetBattleAbilityEffect::HandleCatch()
