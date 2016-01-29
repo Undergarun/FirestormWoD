@@ -1332,6 +1332,12 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                         BattlePetSpeciesEntry const* l_SpeciesInfo = sBattlePetSpeciesStore.LookupEntry(l_CurrentPet->Species);
                         if (l_SpeciesInfo)
                             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET, l_CurrentPet->Level, l_SpeciesInfo->type);
+
+                        if (l_CurrentPet->Level >= 3)
+                        {
+                            /// Quest progress for 12 x Level Up!
+                            l_Player->KilledMonsterCredit(65876);
+                        }
                     }
                     else
                         l_CurrentPet->XP += l_XpEarn;
@@ -1341,6 +1347,12 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                 }
 
                 l_CurrentPet->UpdateOriginalInstance();
+            }
+
+            if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_WILD)
+            {
+                /// Quest progress for 12 x Learning the Ropes
+                l_Player->KilledMonsterCredit(65355);
             }
 
             if (BattleType == PETBATTLE_TYPE_PVE && l_CurrentTeamID == p_WinnerTeamID && Teams[l_CurrentTeamID]->CapturedPet != PETBATTLE_NULL_ID)
@@ -1368,6 +1380,9 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                     l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_SPECIFIC_BATTLEPET, l_SpeciesInfo->id);
                     l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT, 1, Pets[Teams[l_CurrentTeamID]->CapturedPet]->Quality);
                 }
+
+                /// Quest progress for 12 x Got One!
+                l_Player->KilledMonsterCredit(65356);
             }
 
             if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_TRAINER && l_CurrentTeamID == p_WinnerTeamID)
