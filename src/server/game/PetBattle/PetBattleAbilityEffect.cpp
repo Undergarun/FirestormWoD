@@ -518,6 +518,22 @@ int32 PetBattleAbilityEffect::CalculateHit(int32 p_Accuracy)
 
 bool PetBattleAbilityEffect::SetState(uint32 p_Target, uint32 p_State, int32 p_Value)
 {
+    /// Passive : Critter
+    if (GetState(p_Target, BATTLEPET_STATE_Passive_Critter))
+    {
+        switch (p_State)
+        {
+            case BATTLEPET_STATE_Mechanic_IsStunned:
+            case BATTLEPET_STATE_Mechanic_IsWebbed:
+            case BATTLEPET_STATE_turnLock:
+                Flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
+                break;
+
+            default:
+                break;
+        }
+    }
+
     if (!(Flags & FailFlags))
     {
         PetBattleInstance->Pets[p_Target]->States[p_State] = p_Value;
@@ -835,22 +851,6 @@ bool PetBattleAbilityEffect::HandleStateDamage()
 
 bool PetBattleAbilityEffect::HandleSetState()
 {
-    // Passive: Critter
-    if (GetState(Target, BATTLEPET_STATE_Passive_Critter))
-    {
-        switch (EffectInfo->prop[0])
-        {
-            case BATTLEPET_STATE_Mechanic_IsStunned:
-            case BATTLEPET_STATE_Mechanic_IsWebbed:
-            case BATTLEPET_STATE_turnLock:
-                Flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
-                break;
-
-            default:
-                break;
-        }
-    }
-
     return SetState(Target, EffectInfo->prop[0], EffectInfo->prop[1]);
 }
 
