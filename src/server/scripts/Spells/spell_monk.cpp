@@ -664,7 +664,7 @@ class spell_monk_chi_brew: public SpellScriptLoader
         }
 };
 
-// Chi Wave (healing bolt) - 132464
+/// Chi Wave (healing bolt) - 173545
 class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
 {
     public:
@@ -821,6 +821,11 @@ class spell_monk_chi_wave: public SpellScriptLoader
             uint64 targetGUID;
             bool done;
 
+            enum eSpells
+            {
+                ChiWaveHealingBolt = 173545
+            };
+
             bool Load()
             {
                 targetGUID = 0;
@@ -843,7 +848,7 @@ class spell_monk_chi_wave: public SpellScriptLoader
                 {
                     if (Unit* target = sObjectAccessor->FindUnit(targetGUID))
                     {
-                        _player->CastSpell(target, _player->IsValidAttackTarget(target) ? SPELL_MONK_CHI_WAVE_DAMAGE : SPELL_MONK_CHI_WAVE_HEALING_BOLT, true);
+                        _player->CastSpell(target, _player->IsValidAttackTarget(target) ? SPELL_MONK_CHI_WAVE_DAMAGE : eSpells::ChiWaveHealingBolt, true);
                         done = true;
                     }
                 }

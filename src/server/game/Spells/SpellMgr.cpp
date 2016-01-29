@@ -5633,6 +5633,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134758: ///< Burning Cinders
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 173545: /// Chi Wave (healing bolt)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             case 115611: ///< Temporal Ripples
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
