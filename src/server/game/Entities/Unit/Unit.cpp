@@ -12804,6 +12804,13 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
         }
     }
 
+    /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
+    if (Player* l_ModOwner = GetSpellModOwner())
+    {
+        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
+            AddPct(DoneTotalMod, -15.0f);
+    }
+
     return DoneTotalMod;
 }
 
@@ -21994,6 +22001,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Rip - In pvp, damages reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
             return -20.0f;
+        /// Starsurge - In pvp, damages reduce by 15%
+        if (p_Spellproto->SpellFamilyFlags[2] & 0x2000000)
+            return -15.0f;
         break;
     }
     case SPELLFAMILY_PRIEST:
@@ -22023,6 +22033,12 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Unstable ShadowBurn - In pvp, damages increase by 20%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
             return 20.0f;
+        /// Haunt - In pvp, damages reduce by 25%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
+            return -25.0f;
+        /// Chaos Bolt - In pvp, damages increase by 33%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x2000)
+            return 33.0f;
         break;
     }
     case SPELLFAMILY_SHAMAN:

@@ -3221,6 +3221,10 @@ class spell_rog_main_gauche: public SpellScriptLoader
                 if (l_Victim == nullptr)
                     return;
 
+                /// Poison is considerate like a Mainhand attack, and Main Gauche should not proc from poison
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() && (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Dispel == DISPEL_POISON))
+                    return;
+
                 if (!(p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
                     return;
 

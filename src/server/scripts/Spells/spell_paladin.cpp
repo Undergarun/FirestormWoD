@@ -2687,6 +2687,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Enhanced Holy Shock - 157478
 class spell_pal_enhanced_holy_shock : public SpellScriptLoader
 {
@@ -2696,6 +2697,12 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
         class spell_pal_enhanced_holy_shock_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pal_enhanced_holy_shock_AuraScript);
+
+            enum eSpells
+            {
+                FlasfofLight    = 19750,
+                HolyLight       = 82326
+            };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
@@ -2708,7 +2715,7 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
                 if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID() || p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
                     return;
 
-                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_FLASH_OF_LIGHT && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_HOLY_LIGHT)
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::FlasfofLight && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::HolyLight)
                     return;
 
                 l_Caster->CastSpell(l_Caster, PALADIN_ENHANCED_HOLY_SHOCK_PROC, true);
@@ -3482,7 +3489,7 @@ class spell_pal_avengers_shield : public SpellScriptLoader
                 GlyphofDazingShieldDaz  = 63529
             };
 
-            void HandleAfterCast()
+            void HandleAfterHit()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -3501,7 +3508,7 @@ class spell_pal_avengers_shield : public SpellScriptLoader
 
             void Register() override
             {
-                AfterCast += SpellCastFn(spell_pal_avengers_shield_SpellScript::HandleAfterCast);
+                AfterHit += SpellHitFn(spell_pal_avengers_shield_SpellScript::HandleAfterHit);
             }
         };
 

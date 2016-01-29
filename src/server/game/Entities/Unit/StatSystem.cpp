@@ -928,7 +928,7 @@ void Player::UpdateMultistrikePercentage()
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
     float effect = 30.f; // Default value
     value += GetRatingBonusValue(CR_MULTISTRIKE);
-    effect += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT);
+    AddPct(effect, GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT));
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
 }
@@ -1047,6 +1047,7 @@ void Player::UpdateEnergyRegen()
         l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
     }
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
 }
 
 void Player::UpdateFocusRegen()
@@ -1055,6 +1056,7 @@ void Player::UpdateFocusRegen()
         return;
 
     SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_FOCUS));
 }
 
 void Player::UpdateAllRunesRegen()
@@ -1498,7 +1500,9 @@ void Guardian::UpdateMaxHealth()
     AuraEffectList const& l_ModPetStats = l_Owner->GetAuraEffectsByType(SPELL_AURA_MOD_PET_STATS);
     for (AuraEffectList::const_iterator l_Iterator = l_ModPetStats.begin(); l_Iterator != l_ModPetStats.end(); ++l_Iterator)
     {
-        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT && (*l_Iterator)->GetMiscValueB() && (int32)GetEntry() == (*l_Iterator)->GetMiscValueB())
+        if ((*l_Iterator)->GetMiscValueB() && (int32)GetEntry() != (*l_Iterator)->GetMiscValueB())
+            continue;
+        if ((*l_Iterator)->GetMiscValue() == INCREASE_HEALTH_PERCENT)
             l_Amount += float((*l_Iterator)->GetAmount());
     }
 
