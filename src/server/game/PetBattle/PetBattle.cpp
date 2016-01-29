@@ -1702,6 +1702,9 @@ bool PetBattle::AddAura(uint32 p_CasterPetID, uint32 p_TargetPetID, uint32 p_Abi
     uint32          l_Slot = 0;
     int32           l_AuraCount = 0;
 
+    if (!p_MaxAllowed)
+        p_MaxAllowed = 1;
+
     // Search same auras
     for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
     {
