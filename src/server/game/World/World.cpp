@@ -3754,6 +3754,24 @@ void World::LoadWorldStates()
 
 }
 
+bool World::CanBeSaveInLoginDatabase() const
+{
+    switch (m_int_configs[CONFIG_REALM_ZONE])
+    {
+        case REALM_ZONE_DEVELOPMENT:
+        case REALM_ZONE_TEST_SERVER:
+        case REALM_ZONE_TOURNAMENT_5:
+        case REALM_ZONE_TOURNAMENT_7:
+        case REALM_ZONE_TOURNAMENT_13:
+        case REALM_ZONE_TOURNAMENT_15:
+        case REALM_ZONE_TOURNAMENT_25:
+        case REALM_ZONE_TOURNAMENT_27:
+            return false;
+        default:
+            return true;
+    }
+}
+
 // Setting a worldstate will save it to DB
 void World::setWorldState(uint32 index, uint64 value)
 {
