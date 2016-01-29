@@ -6,12 +6,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
-#define GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
+# define GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
 
-#include "../GarrisonScriptData.hpp"
-#include "../GarrisonNPC.hpp"
-#include "GarrisonMgr.hpp"
-#include "SharedDefines.h"
+# include "../GarrisonScriptData.hpp"
+# include "../GarrisonNPC.hpp"
+# include "GarrisonMgr.hpp"
+# include "SharedDefines.h"
 
 namespace MS { namespace Garrison 
 {

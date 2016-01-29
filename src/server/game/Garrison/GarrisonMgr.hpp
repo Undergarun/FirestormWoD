@@ -183,7 +183,9 @@ namespace MS { namespace Garrison
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
             bool HasBuildingType(BuildingType::Type p_BuildingType) const;
+            /// Get building with type
             GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
+            /// Get Level of the building
             uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const;

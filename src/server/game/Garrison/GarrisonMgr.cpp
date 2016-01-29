@@ -2896,15 +2896,15 @@ namespace MS { namespace Garrison
     /// Get building with type
     GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType) const
     {
-        for (std::vector<GarrisonBuilding>::const_iterator l_Itr = m_Buildings.begin(); l_Itr != m_Buildings.end(); ++l_Itr)
+        for (GarrisonBuilding l_Building : m_Buildings)
         {
-            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Itr->BuildingID);
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->Type == p_BuildingType && (*l_Itr).Active == true)
-                return *l_Itr;
+            if (l_BuildingEntry->Type == p_BuildingType && l_Building.Active == true)
+                return l_Building;
         }
 
         return GarrisonBuilding();
