@@ -211,7 +211,7 @@ static PetBattleAbilityEffectHandler Handlers[MAX_PETBATTLE_EFFECT_TYPES] =
     /* EFFECT 175 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 176 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 177 */{&PetBattleAbilityEffect::HandleCheckState,                 PETBATTLE_TARGET_TARGET},
-    /* EFFECT 178 */{&PetBattleAbilityEffect::HandlePowerlessAura,              PETBATTLE_TARGET_CASTER},
+    /* EFFECT 178 */{&PetBattleAbilityEffect::HandlePowerlessAura,              PETBATTLE_TARGET_TARGET},
     /* EFFECT 179 */{&PetBattleAbilityEffect::HandleDamage,                     PETBATTLE_TARGET_TARGET},
     /* EFFECT 180 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
     /* EFFECT 181 */{&PetBattleAbilityEffect::HandleNull,                       PETBATTLE_TARGET_NONE},
@@ -1225,10 +1225,6 @@ bool PetBattleAbilityEffect::HandleControlAura()
 
 bool PetBattleAbilityEffect::HandlePowerlessAura()
 {
-    /// Hotfix for http://wowhead.com/petability=772
-    if (AbilityID == 772)
-        Target = GetActiveOpponent();
-
     if (EffectInfo->prop[5])
         ReportFailAsImmune = true;
 
