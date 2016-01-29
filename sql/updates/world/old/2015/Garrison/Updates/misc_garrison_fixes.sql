@@ -344,3 +344,11 @@
 #178444/Spell - Create Armor Enhancement
 
 	UPDATE spell_loot_template SET groupid = 1 WHERE entry = 178444;
+
+#34824-34822/Quest - What we got
+
+	UPDATE quest_template SET PrevQuestId = 0, NextQuestId = 0, ExclusiveGroup = 0, NextQuestIdChain = 0 WHERE id IN (34822, 34824);
+
+#36567/Quest - Bigger is better
+
+	UPDATE quest_template SET PrevQuestId =  34824 WHERE id = 36567;
