@@ -756,9 +756,6 @@ bool PetBattleTeam::CanCastAny()
     if (HasPendingMultiTurnCast())
         return false;
 
-    if (ActivePetID == PETBATTLE_NULL_ID || !PetBattleInstance->Pets[ActivePetID])
-        return false;
-
     if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_turnLock])
         return false;
 
