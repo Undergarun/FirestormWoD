@@ -463,7 +463,7 @@ std::shared_ptr<BattlePetInstance> WildBattlePetMgr::GetWildBattlePet(Creature* 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {
         if (l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.find(p_Creature->GetGUID()) != l_Pools->m_Templates[l_I].ReplacedBattlePetInstances.end())
-            return l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature->GetGUID()];
+            return BattlePetInstance::CloneForBattle(l_Pools->m_Templates[l_I].ReplacedBattlePetInstances[p_Creature->GetGUID()]);
     }
 
     return NULL;
