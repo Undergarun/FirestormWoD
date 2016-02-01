@@ -773,8 +773,7 @@ bool PetBattleTeam::CanSwap(int8 p_ReplacementPet)
     if (HasPendingMultiTurnCast())
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]
-        && PetBattleInstance->Pets[ActivePetID]->IsAlive()
+    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() 
         &&  (  PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock]
             || PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed]))
         return false;
