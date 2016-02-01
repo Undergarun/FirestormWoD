@@ -853,7 +853,7 @@ uint32 PetBattleTeam::GetTeamInputFlags()
     if (!CanSwap())
         l_Flags |= PETBATTLE_TEAM_INPUT_FLAG_LOCK_PET_SWAP;
 
-    if (PetBattleInstance->Pets[ActivePetID] && !PetBattleInstance->Pets[ActivePetID]->IsAlive())
+    if (!PetBattleInstance->Pets[ActivePetID]->IsAlive())
     {
         if (GetAvailablesPets().size() > 1)
             l_Flags |= PETBATTLE_TEAM_INPUT_FLAG_LOCK_ABILITIES_2 | PETBATTLE_TEAM_INPUT_FLAG_SELECT_NEW_PET;
