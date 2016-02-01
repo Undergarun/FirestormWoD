@@ -2888,9 +2888,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Ranged attacks can only miss, resist and deflect
     if (attType == WeaponAttackType::RangedAttack)
     {
-        canParry = false; ///< canParry is never read 01/18/16
-        canDodge = false; ///< can Dodge is never read 01/18/16
-
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
@@ -2899,7 +2896,14 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
             if (roll < tmp)
                 return SPELL_MISS_DEFLECT;
         }
-        return SPELL_MISS_NONE;
+
+        /// Since MoP, Hunter ranged attacks are dodgeable
+        /// http://www.mmo-champion.com/threads/1090757-Hunter-ranged-attacks-now-able-to-be-dodged-in-MOP
+        /// http://eu.battle.net/wow/en/forum/topic/9338743978
+        if (getClass() == CLASS_HUNTER)
+            canParry = false;
+        else
+            return SPELL_MISS_NONE;
     }
 
     // Check for attack from behind
