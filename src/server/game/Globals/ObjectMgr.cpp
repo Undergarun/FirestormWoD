@@ -9823,6 +9823,40 @@ void ObjectMgr::LoadBattlePetTemplate()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet template in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadBattlePetNpcTeamMember()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_BattlePetNpcTeamMembers.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT NpcID, Specie, Level, Ability1, Ability2, Ability3 FROM battlepet_npc_team_member");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battlepet npc team member. DB table `battlepet_npc_team_member` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        BattlePetNpcTeamMember l_Current;
+        l_Current.Specie        = l_Fields[1].GetUInt32();
+        l_Current.Level         = l_Fields[2].GetUInt32();
+        l_Current.Ability[0]    = l_Fields[2].GetUInt32();
+        l_Current.Ability[1]    = l_Fields[3].GetUInt32();
+        l_Current.Ability[2]    = l_Fields[4].GetUInt32();
+
+        m_BattlePetNpcTeamMembers[l_Fields[0].GetUInt32()].push_back(l_Current);
+        l_Count += 1;
+
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet npc team member in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
@@ -10493,6 +10527,7 @@ void ObjectMgr::LoadQuestObjectives()
 
         QuestObjective l_Objective;
         l_Objective.ID          = l_ObjectiveID;
+        l_Objective.QuestID     = l_ObjectiveQuestId;
         l_Objective.Type        = l_ObjectiveType;
         l_Objective.Index       = l_ObjectiveIndex;
         l_Objective.ObjectID    = l_ObjectiveObjectID;
@@ -10510,6 +10545,7 @@ void ObjectMgr::LoadQuestObjectives()
         }
 
         l_Quest->QuestObjectives.push_back(l_Objective);
+        m_QuestObjectiveByType[l_ObjectiveType].push_back(l_Objective);
         l_Quest->QuestObjecitveTypeCount[l_ObjectiveType]++;
 
         l_Count++;

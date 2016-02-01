@@ -433,6 +433,17 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Diff);
         }
 
+        /// Called when a spline step is done
+        /// @p_Player   : Player instance
+        /// @p_MoveType : Movement type
+        /// @p_ID       : Movement ID
+        virtual void OnMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MoveType);
+            UNUSED(p_ID);
+        }
+
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
         /// @p_Difficulty : Instance Difficulty ID

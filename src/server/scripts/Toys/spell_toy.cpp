@@ -10,7 +10,6 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "ScriptedCreature.h"
 
 /// Stonebound - 129755
 class spell_toy_stonebound : public SpellScriptLoader

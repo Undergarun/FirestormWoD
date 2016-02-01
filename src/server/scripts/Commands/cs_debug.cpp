@@ -138,6 +138,7 @@ class debug_commandscript: public CommandScript
                 { "splinesync",     SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,      "", NULL },
                 { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
                 { "pvelogs",        SEC_ADMINISTRATOR,  false, &HandleDebugPvELogsCommand,         "", NULL },
+                { "questlog",       SEC_ADMINISTRATOR,  false, &HandleDebugQuestLogsCommand,       "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -3357,6 +3358,23 @@ class debug_commandscript: public CommandScript
             l_Datas.RosterDatas.push_back(l_Data);
 
             sScriptMgr->OnEncounterEnd(&l_Datas);
+            return true;
+        }
+
+        static bool HandleDebugQuestLogsCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+            if (!l_Player->m_IsDebugQuestLogs)
+            {
+                p_Handler->PSendSysMessage(LANG_DEBUG_QUEST_LOGS_ON);
+                l_Player->m_IsDebugQuestLogs = true;
+            }
+            else
+            {
+                p_Handler->PSendSysMessage(LANG_DEBUG_QUEST_LOGS_OFF);
+                l_Player->m_IsDebugQuestLogs = false;
+            }
             return true;
         }
 };

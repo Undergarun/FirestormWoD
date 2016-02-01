@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Common.h"
 #include "Log.h"
 #include "WorldPacket.h"
@@ -129,6 +130,10 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         m_Player->PlayerTalkClass->SendCloseGossip();
         m_Player->SaveToDB();
         m_Player->SetDivider(0);
+
+        if (m_Player->m_IsDebugQuestLogs)
+            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_QUESTGIVER);
+
         return;
     }
 
@@ -320,6 +325,12 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
             return;
         }
+    }
+    else
+    {
+        /// Quest template is missing
+        if (m_Player->m_IsDebugQuestLogs)
+            ChatHandler(m_Player).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_TEMPLATE);
     }
 
     m_Player->PlayerTalkClass->SendCloseGossip();

@@ -1554,7 +1554,7 @@ enum Opcodes
     CMSG_PETBATTLE_REQUEST_UPDATE                  = 0x0000,
     CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING  = 0x0000,
     CMSG_PETBATTLE_INPUT                           = 0x01FC,   ///< 6.2.3 20726
-    CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x0000,
+    CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x1137,   ///< 6.2.3 20726
     CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x106C,   ///< 6.2.3 20726
 
     //////////////////////////////////////////////////////////////////////////

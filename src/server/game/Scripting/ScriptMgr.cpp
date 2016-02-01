@@ -1946,12 +1946,21 @@ void ScriptMgr::OnPlayerUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(p_Player, p_NewZoneID, p_OldZoneID, p_NewAreaID);
 }
-    
+
 /// Called when a player updates his movement
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
+}
+
+/// Called when a spline step is done
+/// @p_Player   : Player instance
+/// @p_MoveType : Movement type
+/// @p_ID       : Movement ID
+void ScriptMgr::OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovementInform(p_Player, p_MoveType, p_ID);
 }
 
 /// Called when player accepts some quest

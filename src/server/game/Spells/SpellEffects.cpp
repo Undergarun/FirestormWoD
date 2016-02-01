@@ -5805,6 +5805,13 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
+
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = player->GetInstanceScript())
+            l_InstanceScript->ConsumeCombatResurrectionCharge();
+    }
 }
 
 void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
@@ -5869,7 +5876,9 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
 
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), 42.0f, m_spellInfo->Id);
+        /// Try to find the target feet
+        unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
+        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, SPEED_CHARGE, m_spellInfo->Id);
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());

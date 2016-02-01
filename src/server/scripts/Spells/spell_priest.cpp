@@ -789,6 +789,7 @@ class spell_pri_shadowfiend: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Surge of Light - 114255
 class spell_pri_surge_of_light : public SpellScriptLoader
 {
@@ -826,9 +827,52 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             }
         };
 
+        class spell_pri_surge_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_surge_of_light_AuraScript);
+
+            enum eSpells
+            {
+                SurgeOfLightVisualUI = 128654
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::SurgeOfLightVisualUI))
+                    l_Caster->CastSpell(l_Caster, eSpells::SurgeOfLightVisualUI, true);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::SurgeOfLightVisualUI))
+                    l_Caster->RemoveAura(eSpells::SurgeOfLightVisualUI);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectRemoveFn(spell_pri_surge_of_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_surge_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_surge_of_light_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_surge_of_light_AuraScript();
         }
 };
 
@@ -1264,21 +1308,22 @@ public:
         void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
         {
             Unit* l_Target = GetTarget();
+            Unit* l_Caster = GetCaster();
             Unit* l_Owner = GetUnitOwner();
 
-            if (l_Target == nullptr || l_Owner == nullptr)
+            if (l_Target == nullptr || l_Caster == nullptr || l_Owner == nullptr)
                 return;
 
             if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
 
-            if (l_Owner->HasAura(eSpells::WordOfMendingAura))
+            if (l_Caster->HasAura(eSpells::WordOfMendingAura))
             {
-                if (!l_Owner->HasAura(eSpells::WordOfMendingProc))
-                    l_Owner->CastSpell(l_Owner, eSpells::WordOfMendingStack, true);
+                if (!l_Caster->HasAura(eSpells::WordOfMendingProc))
+                    l_Caster->CastSpell(l_Caster, eSpells::WordOfMendingStack, true);
             }
 
-            Player* l_OwnerPlayer = l_Owner->ToPlayer();
+            Player* l_OwnerPlayer = l_Caster->ToPlayer();
             Player* l_TargetPlayer = l_Target->ToPlayer();
 
             if (l_OwnerPlayer == nullptr || l_TargetPlayer == nullptr)
@@ -4157,6 +4202,7 @@ class spell_pri_focused_will : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Word of Mending - 152117
 class PlayerScript_word_of_mending : public PlayerScript
 {
@@ -4168,15 +4214,17 @@ class PlayerScript_word_of_mending : public PlayerScript
             WordOfMendingAura = 152117,
             WordOfMendingProc = 155363,
             WordOfMendingStack = 155362,
-            LiveSteal = 146347
+            LiveSteal = 146347,
+            FlashHeal = 2061,
+            SurgeOfLight = 114255
         };
 
         void OnSpellCast(Player* p_Player, Spell* p_Spell, bool skipCheck)
         {
-            if (p_Player == nullptr)
+            if (p_Player == nullptr || p_Spell == nullptr)
                 return;
 
-            if (skipCheck)
+            if (skipCheck && !(p_Spell->GetSpellInfo()->Id == eSpells::FlashHeal && p_Player->HasAura(eSpells::SurgeOfLight)))
                 return;
 
             if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)

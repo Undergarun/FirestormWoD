@@ -3356,6 +3356,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetAverageItemLevelTotal() const;
         uint32 GetAverageItemLevelTotalWithOrWithoutPvPBonus(bool p_PvP) const;
         bool isDebugAreaTriggers;
+        bool m_IsDebugQuestLogs;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
         void AddWhisperWhiteList(uint64 guid) { WhisperList.push_back(guid); }

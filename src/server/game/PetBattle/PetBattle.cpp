@@ -244,6 +244,7 @@ void BattlePet::UpdateStats()
 BattlePetInstance::BattlePetInstance()
 {
     OriginalBattlePet = BattlePet::Ptr();
+    OriginalCreature = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -256,7 +257,7 @@ bool BattlePetInstance::IsAlive()
 
 bool BattlePetInstance::CanAttack()
 {
-    return !States[BATTLEPET_STATE_turnLock] && !States[BATTLEPET_STATE_Mechanic_IsStunned] && !States[BATTLEPET_STATE_Mechanic_IsWebbed];
+    return !States[BATTLEPET_STATE_turnLock] && !States[BATTLEPET_STATE_Mechanic_IsStunned];
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -680,10 +681,14 @@ bool PetBattleTeam::Update()
         {
             PetBattleInstance->SwapPet(l_ThisTeamID, l_AvailablesPets[0]);
             //TODO send ClientPetBattleReplacementsMade opcode
+
+            if (PetBattleInstance->BattleType == PETBATTLE_TYPE_PVE && l_ThisTeamID == PETBATTLE_PVE_TEAM_ID)
+                PetBattleInstance->Teams[PETBATTLE_TEAM_1]->Ready = true;
         }
         else if (PetBattleInstance->BattleType == PETBATTLE_TYPE_PVE && l_ThisTeamID == PETBATTLE_PVE_TEAM_ID)
         {
             PetBattleInstance->SwapPet(l_ThisTeamID, l_AvailablesPets[rand() % l_AvailablesPets.size()]);
+            PetBattleInstance->Teams[PETBATTLE_TEAM_1]->Ready = true;
             Ready = true;
         }
     }
@@ -757,9 +762,6 @@ bool PetBattleTeam::CanCastAny()
     if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsStunned])
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed])
-        return false;
-
     return true;
 }
 /// Can swap
@@ -768,7 +770,9 @@ bool PetBattleTeam::CanSwap(int8 p_ReplacementPet)
     if (HasPendingMultiTurnCast())
         return false;
 
-    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() && PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock])
+    if (PetBattleInstance->Pets[ActivePetID]->IsAlive() 
+        &&  (  PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_swapOutLock]
+            || PetBattleInstance->Pets[ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed]))
         return false;
 
     if (p_ReplacementPet != PETBATTLE_NULL_ID)
@@ -790,7 +794,7 @@ uint8 PetBattleTeam::CanCatchOpponentTeamFrontPet()
 
     uint32 l_ThisTeamID = PetBattleInstance->Teams[PETBATTLE_TEAM_1] == this ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
 
-    if (PetBattleInstance->BattleType != PETBATTLE_TYPE_PVE)
+    if (PetBattleInstance->BattleType != PETBATTLE_TYPE_PVE || (PetBattleInstance->BattleType == PETBATTLE_TYPE_PVE && PetBattleInstance->PveBattleType == PVE_PETBATTLE_TRAINER))
         return 0;
 
     if (l_ThisTeamID == PETBATTLE_PVE_TEAM_ID)
@@ -803,6 +807,12 @@ uint8 PetBattleTeam::CanCatchOpponentTeamFrontPet()
 
     if (!l_TargetPet->IsAlive())
         return 0;
+
+    if (BattlePetSpeciesEntry const* l_Entry = sBattlePetSpeciesStore.LookupEntry(l_TargetPet->Species))
+    {
+        if ((l_Entry->flags & BATTLEPET_SPECIES_FLAG_UNTAMEABLE) != 0)
+            return 0;
+    }
 
     float l_TargetHealth    = l_TargetPet->Health;
     float l_TargetMaxHealth = l_TargetPet->InfoMaxHealth;
@@ -1213,7 +1223,6 @@ void PetBattle::ProceedRound()
         }
     }
 
-
     //////////////////////////////////////////////////////////////////////////
     /// Update abilities cooldown
 
@@ -1257,6 +1266,15 @@ void PetBattle::ProceedRound()
 /// Finish the battle
 void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
 {
+    if (p_Aborted)
+    {
+        /// Webbed pet can't forfeit or swap out
+        if (Pets[Teams[p_WinnerTeamID]->ActivePetID]
+            && Pets[Teams[p_WinnerTeamID]->ActivePetID]->IsAlive()
+            && Pets[Teams[p_WinnerTeamID]->ActivePetID]->States[BATTLEPET_STATE_Mechanic_IsWebbed])
+            return;
+    }
+
     RoundStatus     = PETBATTLE_ROUND_FINISHED;
     WinnerTeamId    = p_WinnerTeamID;
 
@@ -1314,6 +1332,12 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                         BattlePetSpeciesEntry const* l_SpeciesInfo = sBattlePetSpeciesStore.LookupEntry(l_CurrentPet->Species);
                         if (l_SpeciesInfo)
                             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_BATTLEPET, l_CurrentPet->Level, l_SpeciesInfo->type);
+
+                        if (l_CurrentPet->Level >= 3)
+                        {
+                            /// Quest progress for 12 x Level Up!
+                            l_Player->KilledMonsterCredit(65876);
+                        }
                     }
                     else
                         l_CurrentPet->XP += l_XpEarn;
@@ -1323,6 +1347,12 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                 }
 
                 l_CurrentPet->UpdateOriginalInstance();
+            }
+
+            if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_WILD)
+            {
+                /// Quest progress for 12 x Learning the Ropes
+                l_Player->KilledMonsterCredit(65355);
             }
 
             if (BattleType == PETBATTLE_TYPE_PVE && l_CurrentTeamID == p_WinnerTeamID && Teams[l_CurrentTeamID]->CapturedPet != PETBATTLE_NULL_ID)
@@ -1350,6 +1380,17 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                     l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_SPECIFIC_BATTLEPET, l_SpeciesInfo->id);
                     l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLEPET_IN_COMBAT, 1, Pets[Teams[l_CurrentTeamID]->CapturedPet]->Quality);
                 }
+
+                /// Quest progress for 12 x Got One!
+                l_Player->KilledMonsterCredit(65356);
+            }
+
+            if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_TRAINER && l_CurrentTeamID == p_WinnerTeamID)
+            {
+                Creature* l_Trainer = ObjectAccessor::GetObjectInOrOutOfWorld(Teams[PETBATTLE_PVE_TEAM_ID]->OwnerGuid, (Creature*)nullptr);
+
+                if (l_Trainer)
+                    l_Player->QuestObjectiveSatisfy(l_Trainer->GetEntry(), 1, QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER, l_Trainer->GetGUID());
             }
         }
     }
@@ -1378,15 +1419,27 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
         }
         else
         {
-            Creature* l_WildPet = ObjectAccessor::GetObjectInOrOutOfWorld(Teams[l_CurrentTeamID]->OwnerGuid, (Creature*)NULL);
+            if (BattleType == PETBATTLE_TYPE_PVE && PveBattleType == PVE_PETBATTLE_WILD)
+            {
+                for (size_t l_CurrentPetID = 0; l_CurrentPetID < Teams[l_CurrentTeamID]->TeamPetCount; ++l_CurrentPetID)
+                {
+                    BattlePetInstance::Ptr l_CurrentPet = Teams[l_CurrentTeamID]->TeamPets[l_CurrentPetID];
 
-            if (!l_WildPet)
-                continue;
+                    if (!l_CurrentPet || l_CurrentPet->OriginalCreature)
+                        continue;
 
-            l_WildPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
-            l_WildPet->SetControlled(false, UNIT_STATE_ROOT);
+                    Creature* l_WildPet = ObjectAccessor::GetObjectInOrOutOfWorld(l_CurrentPet->OriginalCreature, (Creature*)NULL);
 
-            sWildBattlePetMgr->LeaveBattle(l_WildPet, p_WinnerTeamID != PETBATTLE_PVE_TEAM_ID);
+                    if (!l_WildPet)
+                        continue;
+
+                    l_WildPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_PC);
+                    l_WildPet->SetControlled(false, UNIT_STATE_ROOT);
+                    l_WildPet->_petBattleId = 0;
+
+                    sWildBattlePetMgr->LeaveBattle(l_WildPet, p_WinnerTeamID != PETBATTLE_PVE_TEAM_ID);
+                }
+            }
         }
     }
 
@@ -1648,6 +1701,9 @@ bool PetBattle::AddAura(uint32 p_CasterPetID, uint32 p_TargetPetID, uint32 p_Abi
     PetBattleAura*  l_OldAura = NULL;
     uint32          l_Slot = 0;
     int32           l_AuraCount = 0;
+
+    if (!p_MaxAllowed)
+        p_MaxAllowed = 1;
 
     // Search same auras
     for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
@@ -1921,6 +1977,7 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
 /// Forfeit an battle
 void PetBattleSystem::ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid)
 {
@@ -1932,11 +1989,107 @@ void PetBattleSystem::ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid)
     uint32 l_ForfeiterTeamID;
 
     for (l_ForfeiterTeamID = 0; l_ForfeiterTeamID < MAX_PETBATTLE_TEAM; ++l_ForfeiterTeamID)
+    {
         if (l_Battle->Teams[l_ForfeiterTeamID]->OwnerGuid == p_ForfeiterGuid)
             break;
+    }
 
     if (l_ForfeiterTeamID == MAX_PETBATTLE_TEAM)
         return;
 
     l_Battle->Finish(!l_ForfeiterTeamID, true);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Can player enter in a pet battle
+eBattlePetRequests PetBattleSystem::CanPlayerEnterInPetBattle(Player* p_Player, PetBattleRequest* p_Request)
+{
+    if (!p_Player || !p_Player->IsInWorld())
+        return PETBATTLE_REQUEST_CREATE_FAILED;
+
+    if (p_Player->isDead())
+        return PETBATTLE_REQUEST_NOT_WHILE_DEAD;
+
+    // Player can't be already in battle
+    if (p_Player->_petBattleId)
+        return PETBATTLE_REQUEST_IN_BATTLE;
+
+    if (IS_PLAYER_GUID(p_Request->OpponentGuid))
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(p_Request->OpponentGuid))
+        {
+            if (l_Player->_petBattleId)
+                return PETBATTLE_REQUEST_IN_BATTLE;
+
+            if (!p_Player->IsWithinDist3d(l_Player, INTERACTION_DISTANCE))
+                return PETBATTLE_REQUEST_TARGET_OUT_OF_RANGE;
+
+            if (!p_Player->IsWithinLOSInMap(l_Player))
+                return PETBATTLE_REQUEST_NOT_HERE_OBSTRUCTED;
+        }
+    }
+    else if (IS_CREATURE_GUID(p_Request->OpponentGuid))
+    {
+        if (!p_Player->GetNPCIfCanInteractWith(p_Request->OpponentGuid, 0))
+            return PETBATTLE_REQUEST_TARGET_INVALID;
+
+        Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, p_Request->OpponentGuid);
+
+        if (l_Creature->_petBattleId != 0)
+            return PETBATTLE_REQUEST_WILD_PET_TAPPED;
+
+        if (!p_Player->IsWithinDist3d(l_Creature, INTERACTION_DISTANCE))
+            return PETBATTLE_REQUEST_TARGET_OUT_OF_RANGE;
+
+        if (!p_Player->IsWithinLOSInMap(l_Creature))
+            return PETBATTLE_REQUEST_NOT_HERE_OBSTRUCTED;
+    }
+
+    // Player can't be in combat
+    if (p_Player->isInCombat())
+        return PETBATTLE_REQUEST_NOT_WHILE_IN_COMBAT;
+
+    // Check positions
+    for (size_t l_CurrentTeamID = 0; l_CurrentTeamID < MAX_PETBATTLE_TEAM; ++l_CurrentTeamID)
+    {
+        if (p_Player->GetMap()->getObjectHitPos(p_Player->GetPhaseMask(), p_Request->PetBattleCenterPosition[0], p_Request->PetBattleCenterPosition[1], p_Request->PetBattleCenterPosition[2],
+                                                                          p_Request->TeamPosition[l_CurrentTeamID][0], p_Request->TeamPosition[l_CurrentTeamID][1], p_Request->TeamPosition[l_CurrentTeamID][2],
+                                                                          p_Request->TeamPosition[l_CurrentTeamID][0], p_Request->TeamPosition[l_CurrentTeamID][1], p_Request->TeamPosition[l_CurrentTeamID][2], 0.0f))
+        {
+            return PETBATTLE_REQUEST_NOT_HERE_UNEVEN_GROUND;
+        }
+    }
+
+    uint32 l_OpponentTeamID = PETBATTLE_PVE_TEAM_ID;
+
+    if (p_Request->RequestType != PETBATTLE_TYPE_PVE)
+        l_OpponentTeamID = (p_Request->OpponentGuid == p_Player->GetGUID()) ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
+
+    // Load player pets
+    BattlePet::Ptr * l_PetSlots = p_Player->GetBattlePetCombatTeam();
+    size_t l_PlayerPetCount = 0;
+    size_t l_PlayerDeadPetCount = 0;
+
+    for (size_t l_CurrentPetSlot = 0; l_CurrentPetSlot < MAX_PETBATTLE_SLOTS; ++l_CurrentPetSlot)
+    {
+        if (!l_PetSlots[l_CurrentPetSlot])
+            continue;
+
+        if (l_PlayerPetCount >= MAX_PETBATTLE_SLOTS || l_PlayerPetCount >= p_Player->GetUnlockedPetBattleSlot())
+            break;
+
+        if (l_PetSlots[l_CurrentPetSlot]->Health < 1)
+            l_PlayerDeadPetCount++;
+
+        ++l_PlayerPetCount;
+    }
+
+    if (!l_PlayerPetCount)
+        return PETBATTLE_REQUEST_NO_PETS_IN_SLOT;
+
+    if (l_PlayerPetCount == l_PlayerDeadPetCount)
+        return PETBATTLE_REQUEST_ALL_PETS_DEAD;
+
+    return PETBATTLE_REQUEST_OK;
 }

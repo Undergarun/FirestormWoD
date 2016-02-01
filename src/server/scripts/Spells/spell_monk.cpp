@@ -664,7 +664,7 @@ class spell_monk_chi_brew: public SpellScriptLoader
         }
 };
 
-// Chi Wave (healing bolt) - 132464
+/// Chi Wave (healing bolt) - 173545
 class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
 {
     public:
@@ -821,6 +821,11 @@ class spell_monk_chi_wave: public SpellScriptLoader
             uint64 targetGUID;
             bool done;
 
+            enum eSpells
+            {
+                ChiWaveHealingBolt = 173545
+            };
+
             bool Load()
             {
                 targetGUID = 0;
@@ -843,7 +848,7 @@ class spell_monk_chi_wave: public SpellScriptLoader
                 {
                     if (Unit* target = sObjectAccessor->FindUnit(targetGUID))
                     {
-                        _player->CastSpell(target, _player->IsValidAttackTarget(target) ? SPELL_MONK_CHI_WAVE_DAMAGE : SPELL_MONK_CHI_WAVE_HEALING_BOLT, true);
+                        _player->CastSpell(target, _player->IsValidAttackTarget(target) ? SPELL_MONK_CHI_WAVE_DAMAGE : eSpells::ChiWaveHealingBolt, true);
                         done = true;
                     }
                 }
@@ -4760,7 +4765,8 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
         }
 };
 
-// Stance of the Fierce Tiger - 103985
+/// Last Update 6.2.3
+/// Stance of the Fierce Tiger - 103985
 class spell_monk_stance_of_tiger: public SpellScriptLoader
 {
     public:
@@ -4770,20 +4776,36 @@ class spell_monk_stance_of_tiger: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_stance_of_tiger_AuraScript);
 
+            enum eSpells
+            {
+                WindWalker = 166646
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                    caster->RemoveAura(166646);
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->RemoveAura(eSpells::WindWalker);
             }
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, 166646, true);
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpells::WindWalker, true);
+            }
+
+
+            void OnUpdate(uint32 diff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::WindWalker))
+                        l_Caster->CastSpell(l_Caster, eSpells::WindWalker, true);
+                }
             }
 
             void Register()
             {
+                OnAuraUpdate += AuraUpdateFn(spell_monk_stance_of_tiger_AuraScript::OnUpdate);
                 AfterEffectApply += AuraEffectApplyFn(spell_monk_stance_of_tiger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_monk_stance_of_tiger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
@@ -4962,7 +4984,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
 
                 uint8 l_Chi = l_Caster->GetPower(POWER_CHI) + 1;    /// 1 was already consumed
                 int32 l_HealAmount = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HEAL)->Effects[EFFECT_0].CalcValue(l_Caster, nullptr, l_Target) * (l_Chi); /// 1 applied in calcvalue
-                int32 l_HotTotalHealAmount = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HEAL)->Effects[EFFECT_0].CalcValue(l_Caster, nullptr, l_Target) * (l_Chi + 1);
+                int32 l_HotTotalHealAmount = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HEAL)->Effects[EFFECT_0].CalcValue(l_Caster, nullptr, l_Target) * (l_Chi);  /// 1 applied in calcvalue
                 int32 l_NullBP = 0;
 
                 if (l_Chi <= 2)
