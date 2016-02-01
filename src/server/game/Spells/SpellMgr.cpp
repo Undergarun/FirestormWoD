@@ -3480,7 +3480,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ChainTarget = 2;
                 break;
             case 155196: ///< Fixate (Slag Elemental)
-            case 154952: ///< Fixate (Cinder Wolf)
                 spellInfo->MaxAffectedTargets = 1;
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -3511,7 +3510,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155200: ///< Burn (Slag Elemental)
             case 155890: ///< Molten Torrent (Dummy visual - Molten Torrent Stalker)
-            case 155049: ///< Singe (Cinder Wolf)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
@@ -3560,6 +3558,26 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
                 spellInfo->Effects[EFFECT_0].MiscValueB = 300;
                 break;
+            case 155074: ///< Charring Breath (Cinder Wolf)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 155049: ///< Singe (Cinder Wolf)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 154938: ///< Molten Torrent (AoE Damage - 154938)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
+                spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                break;
+            case 154952: ///< Fixate (Cinder Wolf)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
@@ -3605,7 +3623,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134169:
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->AttributesCu &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Attributes &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
                 break;
             case 140016: ///< Drop Feathers (Ji Kun - Throne of Thunder) (ToT - #6 Ji Kun)
                 spellInfo->Effects[EFFECT_0].MiscValue = 218543;
