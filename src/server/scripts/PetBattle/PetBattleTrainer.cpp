@@ -67,17 +67,17 @@ class npc_PetBattleTrainer : public CreatureScript
                 if (me->isQuestGiver())
                     p_Player->PrepareQuestMenu(me->GetGUID());
 
-                if (m_IsTrainer && p_Player->HasQuest(m_QuestID))
-                {
-                  /*  const char* localizedEntry;
-                    switch (p_Player->GetSession()->GetSessionDbcLocale())
-                    {
-                        case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
-                        case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
-                    }*/
-
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "GO FIGHT !!", GOSSIP_SENDER_MAIN, PetBattleTrainerFightActionID);
-                }
+                ///if (m_IsTrainer && p_Player->HasQuest(m_QuestID))
+                ///{
+                ///  /*  const char* localizedEntry;
+                ///    switch (p_Player->GetSession()->GetSessionDbcLocale())
+                ///    {
+                ///        case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
+                ///        case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
+                ///    }*/
+                ///
+                ///    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "GO FIGHT !!", GOSSIP_SENDER_MAIN, PetBattleTrainerFightActionID);
+                ///}
 
                 p_Player->TalkedToCreature(me->GetEntry(), me->GetGUID());
                 p_Player->SEND_GOSSIP_MENU(p_Player->GetGossipTextId(me), me->GetGUID());
