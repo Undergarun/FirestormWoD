@@ -1150,19 +1150,21 @@ class spell_rog_hemorrhage: public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
                     l_Caster->CastSpell(l_Target, eSpells::GlyphOfHemorrhagingVeins, true);
+            }
 
-                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhage))
-                {
-                    if (!l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                        return;
+            void HandleApplyBleed(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                    SetHitDamage(0);
-                }
+                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhage) && !l_Target->HasAuraState(AURA_STATE_BLEEDING))
+                    PreventHitAura();
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_rog_hemorrhage_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_hemorrhage_SpellScript::HandleApplyBleed, EFFECT_3, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

@@ -691,7 +691,7 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive())
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()))
                             l_Caster->RemoveAura(itr.first);
                     }
                 }
@@ -3271,7 +3271,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 float l_HealthPct = 0.0f;
                 AuraPtr l_AuraSetBonus = l_Caster->GetAura(eSpells::ItemWodPvpRestoration4PBonus);
-                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_2))
+                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_0))
                     l_HealthPct = (float)l_AuraEffectHealthPct->GetAmount();
 
                 if (p_EventInfo.GetDamageInfo() == nullptr || l_AuraSetBonus == nullptr)
@@ -3281,7 +3281,8 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = GetTarget();
-                if (l_Target->GetHealthPct() <= l_HealthPct)
+                ///< Should proc only when the target pass from > 50% health to < 50% health
+                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
                 {
                     if (AuraEffectPtr l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
