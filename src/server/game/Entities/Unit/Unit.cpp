@@ -669,17 +669,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (plr && plr->getClass() == CLASS_WARLOCK && plr->HasSpellCooldown(5484) && damage)
         plr->ReduceSpellCooldown(5484, 1000);
 
-    /// Custom MoP Script - Glyph of Fortuitous Spheres
+    /// Custom WoD Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
-        if (victim->CountPctFromMaxHealth(25))
-        {
-            if (!plr->HasSpellCooldown(147494))
-            {
-                victim->CastSpell(victim, 115460, true);
-                victim->ToPlayer()->AddSpellCooldown(147494, 0, 30 * IN_MILLISECONDS);
-            }
-        }
+        if (victim->GetHealthPct() >= 25.0f && victim->HealthBelowPctDamaged(25, damage))
+            victim->CastSpell(victim, 115460, true);
     }
 
     // Custom MoP Script - Cloak of Shadows
