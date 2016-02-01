@@ -284,8 +284,46 @@ namespace MS { namespace Garrison
         {
 
         };
+    }
 
-        char gScriptName[] = "npc_RonAshton_Garr";
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_RonAshton::npc_RonAshton()
+        : CreatureScript("npc_RonAshton_Garr")
+    {
+
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI * npc_RonAshton::GetAI(Creature * p_Creature) const
+    {
+        return new npc_RonAshtonAI(p_Creature);
+    }
+
+    bool npc_RonAshton::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    {
+        if (p_Quest->GetQuestId() == Quests::Alliance_AnglinInOurGarrison)
+        {
+            if (p_Player && p_Creature)
+            {
+                if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                {
+                    CreatureAI* l_AI = p_Creature->AI();
+
+                    if (l_AI == nullptr)
+                        return true;
+
+                    if (GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(l_AI))
+                        l_GarrisonMgr->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
+                }
+            }
+        }
+
+        return true;
     }
 
 }   ///< namespace Garrison

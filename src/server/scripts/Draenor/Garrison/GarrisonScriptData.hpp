@@ -107,6 +107,8 @@ namespace MS { namespace Garrison
             Alliance_ThingsAreNotGorenOurWay            = 34192,
             /// Mage Tower
             Alliance_PortablePortals                    = 38354,
+            /// Fishing Hut
+            Alliance_AnglinInOurGarrison                = 36202,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -134,7 +136,9 @@ namespace MS { namespace Garrison
             Horde_ThingsAreNotGorenOurWay               = 35154,
             Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
-            Horde_PortablePortals                       = 38351
+            Horde_PortablePortals                       = 38351,
+            /// Fishing Hut
+            Horde_AnglinInOurGarrison                   = 36132
         };
     }   ///< namespace Quests
 

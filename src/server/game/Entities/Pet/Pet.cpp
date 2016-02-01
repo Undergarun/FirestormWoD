@@ -639,10 +639,17 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
-    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
-        CastSpell(this, 157863, true);
-    else if (HasAura(157863))
-        RemoveAura(157863);
+    if (getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+    {
+        Player* l_Owner = GetOwner();
+        if (l_Owner != nullptr)
+        {
+            if (getDeathState() == ALIVE && !l_Owner->HasAura(157863))
+                l_Owner->CastSpell(l_Owner, 157863, true);
+            else if (HasAura(157863) && getDeathState() != ALIVE)
+                RemoveAura(157863);
+        }
+    }
     switch (m_deathState)
     {
         case CORPSE:
@@ -1005,14 +1012,14 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     if (l_PetType == HUNTER_PET && !ToPet()->m_Stampeded)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
-    UpdateAllStats();
-
     if (l_Owner != nullptr)
     {
         SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
         SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
-    
+
+    UpdateAllStats();
+
     SetFullHealth();
 
     if (IsWarlockPet())
