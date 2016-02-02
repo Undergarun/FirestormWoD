@@ -2998,6 +2998,8 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
             RuptureDoT = 156932
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnCreate(AreaTrigger* p_AreaTrigger) override
         {
             uint32 l_Duration = (1 * TimeConstants::MINUTE + 30) * TimeConstants::IN_MILLISECONDS;
@@ -3010,24 +3012,42 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 6.0f;
+                float l_Radius = 2.5f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.5f)
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::RuptureDoT))
                     {
-                        if (!l_Unit->HasAura(eSpell::RuptureDoT))
-                            l_Caster->CastSpell(l_Unit, eSpell::RuptureDoT, true);
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::RuptureDoT, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.5f))
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
                     {
-                        if (l_Unit->HasAura(eSpell::RuptureDoT))
-                            l_Unit->RemoveAura(eSpell::RuptureDoT);
+                        ++l_Iter;
+                        continue;
                     }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::RuptureDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
                 }
             }
         }
@@ -3036,20 +3056,10 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 2.5f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
+                for (uint64 l_Guid : m_AffectedPlayers)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), l_Radius))
-                    {
-                        if (l_Unit->HasAura(eSpell::RuptureDoT))
-                            l_Unit->RemoveAura(eSpell::RuptureDoT);
-                    }
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::RuptureDoT);
                 }
             }
         }
@@ -3183,29 +3193,49 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
             MeltDoT = 155223
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 15.0f;
+                float l_Radius = 5.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 5.0f)
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::MeltDoT))
                     {
-                        if (!l_Unit->HasAura(eSpell::MeltDoT))
-                            l_Caster->CastSpell(l_Unit, eSpell::MeltDoT, true);
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::MeltDoT, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 5.0f))
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
                     {
-                        if (l_Unit->HasAura(eSpell::MeltDoT))
-                            l_Unit->RemoveAura(eSpell::MeltDoT);
+                        ++l_Iter;
+                        continue;
                     }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::MeltDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
                 }
             }
         }
@@ -3214,20 +3244,10 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 15.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
+                for (uint64 l_Guid : m_AffectedPlayers)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 5.0f))
-                    {
-                        if (l_Unit->HasAura(eSpell::MeltDoT))
-                            l_Unit->RemoveAura(eSpell::MeltDoT);
-                    }
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::MeltDoT);
                 }
             }
         }

@@ -762,31 +762,49 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 CaveInDoT = 173192
             };
 
+            std::set<uint64> m_AffectedPlayers;
+
             void OnUpdate(uint32 p_Diff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     std::list<Unit*> l_TargetList;
-                    float l_Radius = 15.0f;
+                    float l_Radius = 4.5f;
 
                     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                     JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
                     l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
-                    l_TargetList.remove(l_Caster);
+                    std::set<uint64> l_Targets;
 
                     for (Unit* l_Iter : l_TargetList)
                     {
-                        if (l_Iter->GetDistance(l_Caster) <= 4.5f)
+                        l_Targets.insert(l_Iter->GetGUID());
+
+                        if (!l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
                         {
-                            if (!l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
-                                l_Caster->CastSpell(l_Iter, eSpell::CaveInDoT, true);
+                            m_AffectedPlayers.insert(l_Iter->GetGUID());
+                            l_Caster->CastSpell(l_Iter, eSpell::CaveInDoT, true);
                         }
-                        else
+                    }
+
+                    for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                    {
+                        if (l_Targets.find((*l_Iter)) != l_Targets.end())
                         {
-                            if (l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
-                                l_Iter->RemoveAura(eSpell::CaveInDoT, l_Caster->GetGUID());
+                            ++l_Iter;
+                            continue;
                         }
+
+                        if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                        {
+                            l_Iter = m_AffectedPlayers.erase(l_Iter);
+                            l_Unit->RemoveAura(eSpell::CaveInDoT, l_Caster->GetGUID());
+
+                            continue;
+                        }
+
+                        ++l_Iter;
                     }
                 }
             }
@@ -795,19 +813,10 @@ class spell_foundry_cave_in : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    std::list<Unit*> l_TargetList;
-                    float l_Radius = 15.0f;
-
-                    JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
-                    l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
-
-                    l_TargetList.remove(l_Caster);
-
-                    for (Unit* l_Iter : l_TargetList)
+                    for (uint64 l_Guid : m_AffectedPlayers)
                     {
-                        if (l_Iter->HasAura(eSpell::CaveInDoT, l_Caster->GetGUID()))
-                            l_Iter->RemoveAura(eSpell::CaveInDoT, l_Caster->GetGUID());
+                        if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                            l_Unit->RemoveAura(eSpell::CaveInDoT, l_Caster->GetGUID());
                     }
                 }
             }
