@@ -6021,7 +6021,6 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     /// Save Leap Back spell ID
     m_caster->SetLastUsedLeapBackSpell(m_spellInfo->Id);
-    uint32 l_SpellId = m_caster->GetLastUsedLeapBackSpell();
 
     m_caster->JumpTo(speedxy, speedz, back);
 }
@@ -7722,6 +7721,9 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
     m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
+
+    /// Save Leap Back spell ID
+    m_caster->SetLastUsedLeapBackSpell(m_spellInfo->Id);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)

@@ -376,3 +376,6 @@ INSERT INTO `spell_script_names` VALUES (115654, 'spell_pal_glyph_of_denounce');
 
 -- fix Sword of Light
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_sword_of_light_damage' AND spell_id IN (157048, 53385);
+
+-- fix Improved Death Grip
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_improved_death_grip';
