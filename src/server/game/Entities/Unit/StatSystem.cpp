@@ -1608,7 +1608,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
-// WoD updated
+/// WoD updated
 void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     UnitMods l_UnitMod;
@@ -1627,9 +1627,6 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     }
 
     float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
-    /// Hunter's pets got 2.8 from normalized ranged weapons speed
-    if (isHunterPet())
-        l_AttackSpeed = 2.8f;
 
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
