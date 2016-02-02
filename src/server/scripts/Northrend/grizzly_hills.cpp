@@ -575,7 +575,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (killer->ToPlayer() && killer->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
+            if (killer->IsPlayer() && killer->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
             {
                 if (me->FindNearestCreature(NPC_WAR_GOLEM, 10.0f, true))
                 {

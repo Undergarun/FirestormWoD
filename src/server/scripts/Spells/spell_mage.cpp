@@ -875,7 +875,7 @@ class spell_mage_frostbolt: public SpellScriptLoader
                     return SPELL_FAILED_BAD_TARGETS;
                 else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && !GetExplTargetUnit()->IsPvP())
                 {
-                    if (GetCaster()->ToPlayer() && GetCaster()->ToPlayer()->m_Duel)
+                    if (GetCaster()->IsPlayer() && GetCaster()->ToPlayer()->m_Duel)
                     if (GetCaster()->ToPlayer()->m_Duel->opponent->GetGUID() == GetExplTargetUnit()->GetGUID())
                             return SPELL_CAST_OK;
 
@@ -2510,12 +2510,16 @@ class spell_mage_blizzard : public SpellScriptLoader
                 if (l_Target->GetGUID() == l_Caster->GetGUID())
                     return;
 
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
                 /// Slowing enemies by 50%
                 l_Caster->CastSpell(l_Target, SPELL_MAGE_CHILLED, true);
 
                 /// Improved Blizzard
-                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
-                    l_Caster->ToPlayer()->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
+                if (l_Player->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
+                    l_Player->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
             }
 
             void HandleAfterHit()

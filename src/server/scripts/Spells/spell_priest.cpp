@@ -2474,7 +2474,11 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        Player* l_Player = l_Caster->ToPlayer();
+                        if (l_Player == nullptr)
+                            return;
+
+                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Player->GetSpecializationId() == SPEC_PRIEST_SHADOW)
                         {
                             /// +1s per Shadow Orb consumed
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))

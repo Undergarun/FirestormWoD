@@ -670,7 +670,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         plr->ReduceSpellCooldown(5484, 1000);
 
     /// Custom WoD Script - Glyph of Fortuitous Spheres
-    if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
+    if (plr && IsPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
         if (victim->GetHealthPct() >= 25.0f && victim->HealthBelowPctDamaged(25, damage))
             victim->CastSpell(victim, 115460, true);
@@ -685,7 +685,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         CastSpell(this, 115192, true);
 
     /// Custom MoP Script - Desperate Measures
-    if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(126060))
+    if (plr && IsPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(126060))
     {
         if (victim->CountPctFromMaxHealth(35) > (victim->GetHealth() - damage))
         {
@@ -698,7 +698,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     /// Custom MoP Script - Focused Will
-    if (ToPlayer() && victim->getClass() == CLASS_PRIEST)
+    if (IsPlayer() && victim->getClass() == CLASS_PRIEST)
     {
         if (plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
         {
@@ -709,7 +709,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     /// @todo update me ?
     /// Custom MoP Script
-    if (ToPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER && HasAura(115315))
+    if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER && HasAura(115315))
     {
         if (damage > 0)
         {
@@ -2400,7 +2400,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     *absorb = dmgInfo.GetAbsorb();
 
     /// Stagger handler
-    if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK && damagetype != DamageEffectType::SELF_DAMAGE)
+    if (victim && victim->IsPlayer() && victim->getClass() == CLASS_MONK && damagetype != DamageEffectType::SELF_DAMAGE)
     {
         if (!victim->HasSpell(157533))
         {
@@ -2814,7 +2814,7 @@ bool Unit::isBlockCritical()
     if (roll_chance_i(GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_CRIT_CHANCE)))
     {
         // Critical Blocks (spe Protection) enrage the warrior
-        if (ToPlayer() != nullptr && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_PROTECTION)
+        if (ToPlayer() != nullptr && ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_PROTECTION)
             CastSpell(this, 12880, true);
         return true;
     }
@@ -11715,7 +11715,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 AddPct(DoneTotalMod, (*i)->GetAmount());
             else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
                 AddPct(DoneTotalMod, (*i)->GetAmount());
-            else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
+            else if (IsPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 AddPct(DoneTotalMod, (*i)->GetAmount());
         }
     }

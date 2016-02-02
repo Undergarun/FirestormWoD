@@ -598,7 +598,7 @@ public:
         {
             Unit* target = GetTarget();
             Unit* caster = GetCaster();
-            if (target && target->ToPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            if (target && target->IsPlayer() && caster && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                 target->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
         }
 

@@ -609,7 +609,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         m_caster->CastSpell(m_caster, 131476, true);
 
     // Capture point
-    if ((m_spellInfo->Id == 97388 || m_spellInfo->Id == 97372) && m_caster->ToPlayer() && m_caster->ToPlayer()->GetBattleground())
+    if ((m_spellInfo->Id == 97388 || m_spellInfo->Id == 97372) && m_caster->IsPlayer() && m_caster->ToPlayer()->GetBattleground())
         m_caster->ToPlayer()->GetBattleground()->EventPlayerClickedOnFlag(m_caster->ToPlayer(), unitTarget);
 
     // selection by spell family
@@ -2571,7 +2571,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         guid = gameObjTarget->GetGUID();
 
         GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(gameObjTarget->GetEntry());
-        if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+        if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
             l_OverridePlayerCondition = true;
     }
     else if (itemTarget)
@@ -3147,7 +3147,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
 
     /// Handler for dispel cooldown
     /// If nothing to dispel we should remove cooldown from spell
-    if (m_caster->ToPlayer() && l_DispelList.empty())
+    if (m_caster->IsPlayer() && l_DispelList.empty())
         m_caster->SetDispelSuccessful(false);
 
     if (l_DispelList.empty())

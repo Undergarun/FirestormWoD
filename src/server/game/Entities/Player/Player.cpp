@@ -24728,7 +24728,7 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
     // Soul Link
     if (Unit* owner = pet->GetOwner())
     {
-        if (owner->ToPlayer() && owner->ToPlayer()->HasSpell(108415))
+        if (owner->IsPlayer() && owner->ToPlayer()->HasSpell(108415))
         {
             owner->RemoveAura(108446);
             pet->RemoveAura(108446);

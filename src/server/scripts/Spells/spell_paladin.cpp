@@ -3646,9 +3646,18 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
-                    if (roll_chance_i(30))
-                        l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
+                    {
+                        /// Spell works from 50 lvl
+                        if (l_Player->getLevel() >= 50)
+                        {
+                            if (roll_chance_i(30))
+                                l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+                        }
+                    }
+                }
             }
         }
 

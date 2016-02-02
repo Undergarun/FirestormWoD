@@ -4031,7 +4031,7 @@ void Spell::cast(bool skipCheck)
         m_caster->ToCreature()->AI()->OnSpellCasted(m_spellInfo);
 
     /// Soul Swap - if we have copied DOTs and cast any other spell, soul swap will refresh duration of all DOTs
-    if (m_caster->ToPlayer() && m_caster->getClass() == CLASS_WARLOCK && m_caster->ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
+    if (m_caster->IsPlayer() && m_caster->getClass() == CLASS_WARLOCK && m_caster->ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
     {
         /// Ignore generic proc spells like Soul Shards (visual), Life Steal etc, also ignore Soul Swap spell
         if (m_spellInfo && m_spellInfo->Id != 86121 && m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && _triggeredCastFlags == TRIGGERED_NONE && m_caster->HasAura(86211))
@@ -6621,7 +6621,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_BAD_TARGETS;
 
                     GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(go->GetEntry());
-                    if (l_Template && l_Template->chest.conditionID1 && m_caster->ToPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
+                    if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
                         l_OverridePlayerCondition = true;
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
@@ -7038,7 +7038,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         case 23517: ///< Create Healthstone
         {
-            if (m_caster->ToPlayer() && m_caster->ToPlayer()->HasItemCount(5512, 1))
+            if (m_caster->IsPlayer() && m_caster->ToPlayer()->HasItemCount(5512, 1))
                 m_caster->ToPlayer()->DestroyItemCount(5512, 1, true);
             break;
         }
