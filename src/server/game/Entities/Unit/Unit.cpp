@@ -13194,7 +13194,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if ((*i)->GetMiscValue() == INCREASE_MELEE_DAMAGE_PERCENT)
                 amount += float((*i)->GetAmount());
 
-            DoneTotalMod += CalculatePct(1.0, amount);
+            AddPct(DoneTotalMod, amount);
     }
 
     /// Custom WoD Script - Glyph of Frostbrand Weapon
@@ -13214,7 +13214,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             if (owner->HasAura(76613) && owner->GetTypeId() == TYPEID_PLAYER)
             {
                 float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-                DoneTotalMod += CalculatePct(1.0, Mastery);
+                AddPct(DoneTotalMod, Mastery);
             }
         }
     }
@@ -13223,7 +13223,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (GetTypeId() == TYPEID_UNIT && HasAura(91342))
         if (AuraPtr stacks = GetAura(91342))
             if (AuraEffectPtr shadowInfusion = stacks->GetEffect(0))
-                DoneTotalMod += CalculatePct(1.0, shadowInfusion->GetAmount());
+                AddPct(DoneTotalMod, shadowInfusion->GetAmount());
 
     if (spellProto)
     {
@@ -13235,11 +13235,11 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
                 {
                     if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                        DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+                        AddPct(DoneTotalMod, (*i)->GetAmount());
                     else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                        DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+                        AddPct(DoneTotalMod, (*i)->GetAmount());
                     else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
-                        DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+                        AddPct(DoneTotalMod, (*i)->GetAmount());
                 }
             }
         }
@@ -13249,26 +13249,26 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         AuraEffectList const& mModDamagePercentDone = GetSpellModOwner()->GetAuraEffectsByType(SPELL_AURA_MOD_PET_DAMAGE_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
-            DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+            AddPct(DoneTotalMod, (*i)->GetAmount());
     }
 
     AuraEffectList const& mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
         if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-            DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+            AddPct(DoneTotalMod, (*i)->GetAmount());
 
     // bonus against aurastate
     AuraEffectList const& mDamageDoneVersusAurastate = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE);
     for (AuraEffectList::const_iterator i = mDamageDoneVersusAurastate.begin(); i != mDamageDoneVersusAurastate.end(); ++i)
         if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
-            DoneTotalMod += CalculatePct(1.0, (*i)->GetAmount());
+            AddPct(DoneTotalMod, (*i)->GetAmount());
 
     if (GetSpellModOwner())
-        DoneTotalMod += CalculatePct(1.0f, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        AddPct(DoneTotalMod, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
-        DoneTotalMod += CalculatePct(1.0, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
+        AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this; ///< owner is never read 01/18/16
