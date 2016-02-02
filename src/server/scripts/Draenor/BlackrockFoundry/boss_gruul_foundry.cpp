@@ -306,6 +306,23 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eSpells::OverheadSmash:
                     {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            if (!me->HasAura(eSpells::SpellDestructiveRampage))
+                            {
+                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                {
+                                    AttackStart(l_Target);
+
+                                    me->GetMotionMaster()->Clear();
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                                }
+                            }
+                        });
+
                         me->CastSpell(me, eSpells::OverheadSmashAoE, true);
                         break;
                     }
@@ -324,26 +341,6 @@ class boss_gruul_foundry : public CreatureScript
                     case eSpells::PetrifyingSlam:
                     {
                         m_PetrifiedTargets.push_back(p_Target->GetGUID());
-                        break;
-                    }
-                    case eSpells::OverheadSmash:
-                    {
-                        AddTimedDelayedOperation(100, [this]() -> void
-                        {
-                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-
-                            if (!me->HasAura(eSpells::SpellDestructiveRampage))
-                            {
-                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                {
-                                    AttackStart(l_Target);
-
-                                    me->GetMotionMaster()->Clear();
-                                    me->GetMotionMaster()->MoveChase(l_Target);
-                                }
-                            }
-                        });
-
                         break;
                     }
                     default:
@@ -380,8 +377,12 @@ class boss_gruul_foundry : public CreatureScript
 
                         me->SetFacingTo(l_O);
                         me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
-                        me->CastSpell(me, eSpells::OverheadSmash, false);
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::OverheadSmash, false);
+                        });
 
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventOverheadSmash, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -485,9 +486,14 @@ class boss_gruul_foundry : public CreatureScript
 
                             me->SetFacingTo(l_O);
                             me->SetReactState(ReactStates::REACT_PASSIVE);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                me->CastSpell(me, eSpells::OverheadSmash, false);
+                            });
                         }
 
-                        me->CastSpell(me, eSpells::OverheadSmash, false);
                         m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 34 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
