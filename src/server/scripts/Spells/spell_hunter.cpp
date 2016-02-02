@@ -3428,7 +3428,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
                     if (Unit* l_Owner = l_Caster->GetOwner())
                     {
                         if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
-                            l_Amount = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2.0f);
+                            l_Amount = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.6f * 2.0f);
                     }
                 }
             }
