@@ -140,7 +140,7 @@ public:
             me->SetInt32Value(EUnitFields::UNIT_FIELD_POWER, 100);
             me->SetMaxPower(Powers::POWER_MANA, 100);
             me->SetInt32Value(EUnitFields::UNIT_FIELD_MAX_POWER, 100);
-            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             me->AddAura(eWitherbarkSpells::SpellPertifiedBark, me);
             if (m_First)
             {
@@ -260,7 +260,7 @@ public:
             me->RemoveAura(eWitherbarkSpells::SpellBrittleBarkAura);
             me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
             m_CountPerRegeneration = 4 * TimeConstants::IN_MILLISECONDS;
-            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             events.ScheduleEvent(eWitherbarkEvents::EventParchedGrasp,       8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eWitherbarkEvents::EventUncheckedGrowth,    12 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eWitherbarkEvents::EventBarrageOfLeaves,    10 * TimeConstants::IN_MILLISECONDS);
@@ -813,7 +813,7 @@ public:
             m_Time = 2 * TimeConstants::IN_MILLISECONDS;
             me->CastSpell(me, eLivingLeavesSpells::SpellLivingLeavesAreaTrigger);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
 
         void UpdateAI(const uint32 p_Diff) override

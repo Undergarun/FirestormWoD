@@ -237,7 +237,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eOmenOfDeathSpells::SpellOmenOfDeathVisualRune);
             me->CastSpell(me, eOmenOfDeathSpells::SpellOmenOfDeathLightning);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
     };
@@ -277,7 +277,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FORWARD);
             me->CastSpell(me, eRitualOfBonesSpells::SpellRitualOfBonesWeirdVisualPoop);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);    
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
 
         void UpdateAI(uint32 const p_Diff) override
