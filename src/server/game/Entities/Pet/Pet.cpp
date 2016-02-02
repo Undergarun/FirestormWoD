@@ -646,8 +646,8 @@ void Pet::Update(uint32 diff)
         {
             if (getDeathState() == ALIVE && !l_Owner->HasAura(157863))
                 l_Owner->CastSpell(l_Owner, 157863, true);
-            else if (HasAura(157863) && getDeathState() != ALIVE)
-                RemoveAura(157863);
+            else if (l_Owner->HasAura(157863) && getDeathState() != ALIVE)
+                l_Owner->RemoveAura(157863);
         }
     }
     switch (m_deathState)

@@ -4555,7 +4555,7 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
 
     // Blizz uses 100 duration for breaking out of mechanic without the attributes
     if (apply && (GetSpellInfo()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY || aurApp->GetBase()->GetDuration() <= 100))
-        target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
+        target->RemoveEffectsWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
 }
 
 void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const

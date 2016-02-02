@@ -122,11 +122,19 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION      = 159407
 };
 
-// Tiger Eye Brew - 123980 & Mana Tea - 123766
+/// Last Update 6.2.3
+/// Tiger Eye Brew - 123980 & Mana Tea - 123766
 class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 {
     public:
         PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
+
+        enum eSpells
+        {
+            Serenity        = 152173,
+            TigereyeBrew    = 123980,
+            ManaTea         = 123766
+        };
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
@@ -135,10 +143,13 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 
             if (p_Power == POWER_CHI && l_DiffValue < 0)
             {
-                if (AuraPtr tigereyeBrew = p_Player->GetAura(123980))
+                if (AuraPtr tigereyeBrew = p_Player->GetAura(eSpells::TigereyeBrew))
                     tigereyeBrew->SetScriptData(0, -l_DiffValue);
-                else if (AuraPtr manaTea = p_Player->GetAura(123766))
+                else if (AuraPtr manaTea = p_Player->GetAura(eSpells::ManaTea))
                     manaTea->SetScriptData(0, -l_DiffValue);
+
+                if (p_Player->HasAura(eSpells::Serenity))
+                    p_NewValue = p_OldValue;
             }
         }
 };
@@ -1605,7 +1616,6 @@ class spell_monk_eminence_heal : public SpellScriptLoader
                 p_Targets.sort(JadeCore::HealthPctOrderPred());
                 p_Targets.resize(1);
             }
-
         }
 
         void Register()
@@ -4482,34 +4492,6 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
         }
 };
 
-enum SerenitySpells
-{
-    SPELL_MONK_SERENITY = 152173
-};
-
-// Serenity - 152173
-class spell_monk_serenity: public PlayerScript
-{
-    public:
-        spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
-
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
-        {
-            if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY) || p_Regen)
-                return;
-
-            // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_diffValue = p_NewValue - p_OldValue;
-
-            // Only get spended chi
-            if (l_diffValue > 0)
-                return;
-
-            // No cost
-            p_NewValue = p_OldValue;
-        }
-};
-
 enum VitalMistsSpell
 {
     SPELL_MONK_VITALS_MISTS = 118674
@@ -5875,7 +5857,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_expel_harm();
     new spell_monk_hurricane_strike_damage();
     new spell_monk_hurricane_strike();
-    new spell_monk_serenity();
     new spell_monk_detox();
     new spell_monk_glyph_of_rapid_rolling();
     new spell_monk_afterlife();

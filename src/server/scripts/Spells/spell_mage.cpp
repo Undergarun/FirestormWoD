@@ -1603,7 +1603,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                 if (Player* _player = GetTarget()->ToPlayer())
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                    if (removeMode != AURA_REMOVE_BY_EXPIRE && removeMode != AURA_REMOVE_BY_DEFAULT)
                         return;
 
                     std::list<Creature*> mirrorList;

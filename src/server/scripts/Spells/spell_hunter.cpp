@@ -3578,7 +3578,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                for (int8 l_I = 3; l_I >= 0; l_I--)
+                for (int8 l_I = 2; l_I >= 0; l_I--)
                     l_Caster->RemoveAura(g_VisualSpells[l_I]);
             }
 
@@ -3591,7 +3591,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 
                 for (; p_AurEff->GetBase()->GetCharges() < m_ActualCharges; m_ActualCharges--)
                 {
-                    for (int8 l_I = 3; l_I >= 0; l_I--)
+                    for (int8 l_I = 2; l_I >= 0; l_I--)
                     {
                         if (l_Caster->HasAura(g_VisualSpells[l_I]))
                         {

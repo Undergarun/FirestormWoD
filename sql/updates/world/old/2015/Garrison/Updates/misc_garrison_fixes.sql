@@ -15,7 +15,8 @@
 	(91025, 38293),
 	(91034, 38293);
 
-#91034/NPC - Calvo Klyne <Fur Trader>
+	-- garrison lvl 3
+/*#91034/NPC - Calvo Klyne <Fur Trader>
 
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91034;
 	DELETE FROM creature WHERE id = 91034;
@@ -63,7 +64,7 @@
 	(91404, 122600, 5810),
 	(91404, 122605, 5810),
 	(91404, 128160, 5810),
-	(91404, 120945, 5296); -- 5 Talador Orchid (5822 seems okay also)
+	(91404, 120945, 5296); -- 5 Talador Orchid (5822 seems okay also)*/
 
 #38296/Quest - Herbs Galore
 
@@ -72,7 +73,8 @@
 	(91404, 38296),
 	(91031, 38296);
 
-#91031/NPC - Nicholas Mitrik
+	-- garrison lvl 3
+/*#91031/NPC - Nicholas Mitrik
 
 	UPDATE creature_template SET npcflag = 131 WHERE entry = 91031;
 	DELETE FROM creature WHERE id = 91031;
@@ -96,7 +98,7 @@
 	(91031, 122600, 5810),
 	(91031, 122605, 5810),
 	(91031, 128160, 5810),
-	(91031, 120945, 5296); -- 5 Talador Orchid (5822 seems okay also)
+	(91031, 120945, 5296); -- 5 Talador Orchid (5822 seems okay also)*/
 
 #37961/Quest - Bringing the Bass -- Horde
 

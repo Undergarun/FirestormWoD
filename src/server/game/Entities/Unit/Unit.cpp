@@ -2888,9 +2888,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Ranged attacks can only miss, resist and deflect
     if (attType == WeaponAttackType::RangedAttack)
     {
-        canParry = false; ///< canParry is never read 01/18/16
-        canDodge = false; ///< can Dodge is never read 01/18/16
-
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
@@ -2899,7 +2896,14 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
             if (roll < tmp)
                 return SPELL_MISS_DEFLECT;
         }
-        return SPELL_MISS_NONE;
+
+        /// Since MoP, Hunter ranged attacks are dodgeable
+        /// http://www.mmo-champion.com/threads/1090757-Hunter-ranged-attacks-now-able-to-be-dodged-in-MOP
+        /// http://eu.battle.net/wow/en/forum/topic/9338743978
+        if (getClass() == CLASS_HUNTER)
+            canParry = false;
+        else
+            return SPELL_MISS_NONE;
     }
 
     // Check for attack from behind
@@ -4373,6 +4377,50 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
     }
 }
 
+void Unit::RemoveEffectsByType(AuraType auraType, uint64 casterGUID, AuraPtr exceptAura, uint32 exceptAuraId, bool negative, bool positive)
+{
+    for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
+    {
+        AuraPtr aura = (*iter)->GetBase();
+        AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
+
+        if (!aurApp)
+        {
+            ++iter;
+            continue;
+        }
+
+        ++iter;
+
+        if (aura != exceptAura && aura->GetId() != exceptAuraId && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+            && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
+        {
+            uint32 removedAuras = m_removedAurasCount;
+            uint8 l_NbAuraEffectType = 0;
+            uint8 l_NbAuraEffect = 0;
+
+            for (; l_NbAuraEffect < SpellEffIndex::MAX_EFFECTS; ++l_NbAuraEffect)
+            {
+                if (AuraEffectPtr l_AuraEffect = GetAuraEffect(aurApp->GetBase()->GetSpellInfo()->Id, l_NbAuraEffect))
+                {
+                    if (l_AuraEffect->GetAuraType() == auraType)
+                    {
+                        l_AuraEffect->ChangeAmount(0);
+                        ++l_NbAuraEffectType;
+                    }
+                }
+            }
+
+            if (l_NbAuraEffectType == l_NbAuraEffect)
+            {
+                RemoveAura(aurApp);
+                if (m_removedAurasCount > removedAuras + 1)
+                    iter = m_modAuras[auraType].begin();
+            }
+        }
+    }
+}
+
 void Unit::RemoveAurasWithAttribute(uint32 flags)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
@@ -4557,6 +4605,41 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemo
                     break;
 
                 continue;
+            }
+        }
+        ++iter;
+    }
+}
+
+void Unit::RemoveEffectsWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        uint8 aurasCount = 0;
+        constAuraPtr aura = iter->second->GetBase();
+
+        if (!except || aura->GetId() != except)
+        {
+            if (aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanic_mask)
+            {
+                uint8 l_NbAuraEffectType = 0;
+                uint8 l_NbAuraEffect = 0;
+
+                for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
+                {
+                    if (AuraEffectPtr l_AuraEffect = GetAuraEffect(iter->second->GetBase()->GetSpellInfo()->Id, i))
+                    {
+                        ++l_NbAuraEffect;
+                        if (aura->GetSpellInfo()->GetEffectMechanicMask(i) & mechanic_mask)
+                        {
+                            l_AuraEffect->ChangeAmount(0);
+                            ++l_NbAuraEffectType;
+                        }
+                    }
+                }
+
+                if (l_NbAuraEffectType == l_NbAuraEffect)
+                    RemoveAura(iter, removemode);
             }
         }
         ++iter;
