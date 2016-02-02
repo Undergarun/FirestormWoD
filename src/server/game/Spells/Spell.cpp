@@ -1781,6 +1781,51 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
             if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsVehicle())
                 target = m_caster->GetVehicleKit()->GetPassenger(targetType.GetTarget() - TARGET_UNIT_PASSENGER_0);
             break;
+        case TARGET_UNIT_CASTER_AREA_RAID: /// Raids buffs
+        {
+            CleanupTargetList();
+
+            for (uint8 l_I = 0; l_I < m_spellInfo->EffectCount; ++l_I)
+            {
+                if (!m_spellInfo->Effects[l_I].IsEffect())
+                    continue;
+
+                Position const* l_Center = m_caster;
+                std::list<WorldObject*> l_Targets;
+                float l_Radius = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+
+                SearchAreaTargets(l_Targets, l_Radius, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
+
+                std::list<Unit*> l_UnitTargets;
+
+                if (!l_Targets.empty())
+                {
+                    for (std::list<WorldObject*>::iterator l_Iterator = l_Targets.begin(); l_Iterator != l_Targets.end(); ++l_Iterator)
+                    {
+                        if ((*l_Iterator))
+                        {
+                            if (Unit* unitTarget = (*l_Iterator)->ToUnit())
+                            {
+                                /// Raid buffs work just on Players
+                                if (unitTarget->ToPlayer())
+                                    l_UnitTargets.push_back(unitTarget);
+                            }
+                        }
+                    }
+                }
+
+                if (!l_UnitTargets.empty())
+                {
+                    // /Other special target selection goes here
+                    if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
+                        JadeCore::Containers::RandomResizeList(l_UnitTargets, l_MaxTargets);
+
+                    for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end(); ++l_Iterator)
+                        AddUnitTarget(*l_Iterator, 1 << l_I, false);
+                }
+            }
+            break;
+        }
         default:
             break;
     }
