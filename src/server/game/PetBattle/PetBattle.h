@@ -347,6 +347,38 @@ class BattlePetInstance : public BattlePet
         /// Constructor
         BattlePetInstance();
 
+        static Ptr CloneForBattle(Ptr const& p_BattlePet)
+        {
+            Ptr l_Ptr = Ptr(new BattlePetInstance());
+            l_Ptr->JournalID        = p_BattlePet->JournalID;
+            l_Ptr->Slot             = p_BattlePet->Slot;
+            l_Ptr->Name             = p_BattlePet->Name;
+            l_Ptr->NameTimeStamp    = p_BattlePet->NameTimeStamp;
+            l_Ptr->Species          = p_BattlePet->Species;
+            l_Ptr->Quality          = p_BattlePet->Quality;
+            l_Ptr->Breed            = p_BattlePet->Breed;
+            l_Ptr->Level            = p_BattlePet->Level;
+            l_Ptr->XP               = p_BattlePet->XP;
+            l_Ptr->DisplayModelID   = p_BattlePet->DisplayModelID;
+            l_Ptr->Health           = p_BattlePet->Health;
+            l_Ptr->Flags            = p_BattlePet->Flags;
+            l_Ptr->InfoPower        = p_BattlePet->InfoPower;
+            l_Ptr->InfoMaxHealth    = p_BattlePet->InfoMaxHealth;
+            l_Ptr->InfoSpeed        = p_BattlePet->InfoSpeed;
+            l_Ptr->InfoGender       = p_BattlePet->InfoGender;
+            l_Ptr->AccountID        = p_BattlePet->AccountID;
+            l_Ptr->DeclinedNames[0] = p_BattlePet->DeclinedNames[0];
+            l_Ptr->DeclinedNames[1] = p_BattlePet->DeclinedNames[1];
+            l_Ptr->DeclinedNames[2] = p_BattlePet->DeclinedNames[2];
+            l_Ptr->DeclinedNames[3] = p_BattlePet->DeclinedNames[3];
+            l_Ptr->DeclinedNames[4] = p_BattlePet->DeclinedNames[4];
+
+            for (uint8 l_I = 0; l_I < MAX_PETBATTLE_ABILITIES; ++l_I)
+                l_Ptr->Abilities[l_I] = p_BattlePet->Abilities[l_I];
+
+            return l_Ptr;
+        }
+
         /// Is alive ?
         bool IsAlive();
         bool CanAttack();

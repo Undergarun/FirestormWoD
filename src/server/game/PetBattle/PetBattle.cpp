@@ -803,9 +803,12 @@ uint8 PetBattleTeam::CanCatchOpponentTeamFrontPet()
     if (CapturedPet != PETBATTLE_NULL_ID)
         return PETBATTLE_TEAM_CATCH_FLAG_ONE_CATCH_PER_FIGHT;
 
+    if (PetBattleInstance->Teams[!l_ThisTeamID]->ActivePetID == PETBATTLE_NULL_ID)
+        return 0;
+
     std::shared_ptr<BattlePetInstance> l_TargetPet = PetBattleInstance->Pets[PetBattleInstance->Teams[!l_ThisTeamID]->ActivePetID];
 
-    if (!l_TargetPet->IsAlive())
+    if (!l_TargetPet || !l_TargetPet->IsAlive())
         return 0;
 
     if (BattlePetSpeciesEntry const* l_Entry = sBattlePetSpeciesStore.LookupEntry(l_TargetPet->Species))
