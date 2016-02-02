@@ -484,7 +484,7 @@ void Creature::Update(uint32 diff)
         m_LOSCheckTimer -= diff;
 
     // Zone Skip Update
-    if ((sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
+    if ((sObjectMgr->IsSkipZoneEnabled() && sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
     {
         _skipCount++;
         _skipDiff += diff;

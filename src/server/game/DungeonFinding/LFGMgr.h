@@ -423,15 +423,15 @@ class LFGMgr
         bool CheckGroupRoles(LfgRolesMap &groles, LfgCategory type, bool removeLeaderFlag = true);
         bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal, LfgCategory type);
         void GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& players, LfgLockPartyMap& lockMap);
-        void SetCompatibles(std::string concatenatedGuids, bool compatibles);
-        LfgAnswer GetCompatibles(std::string concatenatedGuids);
+        void SetCompatibles(std::string const& concatenatedGuids, bool compatibles);
+        LfgAnswer GetCompatibles(std::string const& concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
 
         // Generic
         const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon, bool check = false);
         LfgType GetDungeonType(uint32 dungeon);
         LfgCategory GetLfgCategorie(uint32 dungeon);
-        std::string ConcatenateGuids(LfgGuidList check);
+        std::string ConcatenateGuids(LfgGuidList const& check);
 
         // General variablesUpdateProposal
         bool m_debug;                                      ///< Num of players minimum is 1, for debug only (.lfg debug command)

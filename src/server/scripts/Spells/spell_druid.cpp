@@ -1779,7 +1779,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
                 std::list<Creature*> l_Mushroomlist;
 
-                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, eWildMushroomDatas::NpcWildMushroom, 500.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, eWildMushroomDatas::NpcWildMushroom, 200.0f);
 
                 /// Remove other player mushrooms
                 for (std::list<Creature*>::iterator i = l_Mushroomlist.begin(); i != l_Mushroomlist.end(); ++i)

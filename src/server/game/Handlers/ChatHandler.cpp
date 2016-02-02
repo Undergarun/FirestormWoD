@@ -245,7 +245,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 
     /// Check if silenced http://wowhead.com/spell=1852
-    if (l_Sender->HasAura(1852) && l_Type != CHAT_MSG_WHISPER)
+    if (l_Type != CHAT_MSG_WHISPER && l_Sender->HasAura(1852))
     {
         p_RecvData.rfinish();
         SendNotification(GetTrinityString(LANG_GM_SILENCE), l_Sender->GetName());
@@ -382,7 +382,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             }
 
             /// Check if silenced http://wowhead.com/spell=1852
-            if (GetPlayer()->HasAura(1852) && !l_Receiver->isGameMaster())
+            if (!l_Receiver->isGameMaster() && GetPlayer()->HasAura(1852))
             {
                 SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
                 return;

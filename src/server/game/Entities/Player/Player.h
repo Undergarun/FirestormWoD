@@ -2327,6 +2327,8 @@ class Player : public Unit, public GridObject<Player>
         {
             _talentMgr->SpecInfo[GetActiveSpec()].Glyphs[slot] = glyph;
             SetUInt32Value(PLAYER_FIELD_GLYPHS + slot, glyph);
+
+            m_glyphsChanged = true;
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
         bool HasGlyph(uint32 spell_id);
@@ -3868,6 +3870,8 @@ class Player : public Unit, public GridObject<Player>
         prohibited_struct prohibited[MAX_SPELL_SCHOOL];
 
         PlayerTalentInfo* _talentMgr;
+
+        bool m_glyphsChanged;
 
         ActionButtonList m_actionButtons;
 

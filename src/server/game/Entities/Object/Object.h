@@ -32,6 +32,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_set>
+#include <unordered_map>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -124,7 +125,7 @@ class Unit;
 class Transport;
 
 typedef std::unordered_set<uint64> GuidUnorderedSet;
-typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
+typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 class DynamicFields
 {
@@ -377,6 +378,7 @@ class Object
 
         Player* ToPlayer() { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(this); else return NULL; }
         Player const* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(this); else return NULL; }
+        bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
 
         Creature* ToCreature() { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
         Creature const* ToCreature() const { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(this); else return NULL; }

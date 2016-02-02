@@ -3308,7 +3308,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
 {
     for (uint8 effIndex = 0; effIndex < m_EffectCount; ++effIndex)
     {
-        if (!HasEffect(effIndex))
+        if (!m_effects[effIndex])
             continue;
         UnitList targetList;
         // non-area aura

@@ -770,6 +770,9 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
     if (l_Vendor->HasUnitState(UNIT_STATE_MOVING))
         l_Vendor->StopMoving();
 
+    int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES);
+    std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
+
     VendorItemData const* vendorItems = l_Vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
@@ -824,10 +827,9 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                     (l_ItemTemplate->Flags2 & ITEM_FLAG2_ALLIANCE_ONLY && m_Player->GetTeam() == HORDE))
                     continue;
 
-                std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
                 bool guildRewardCheckPassed = true;
 
-                for (auto reward: rewards)
+                for (auto const& reward : rewards)
                 {
                     if (l_ItemTemplate->ItemId != reward.Entry)
                         continue;
@@ -888,8 +890,8 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             int32 l_Price = l_OverridePrice || l_VendorItem->IsGoldRequired(l_ItemTemplate) ? uint32(floor((l_OverridePrice ? l_OverridePrice : l_ItemTemplate->BuyPrice) * l_DiscountMod)) : 0;
 
             // reputation discount
-            if (int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
-                 l_Price -= CalculatePct(l_Price, l_PriceMod);
+            if (l_PriceMod)
+                l_Price -= CalculatePct(l_Price, l_PriceMod);
 
             bool l_BypassFilter = l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER;
 

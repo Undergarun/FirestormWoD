@@ -935,6 +935,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
 
+    m_glyphsChanged = false;
+
     for (uint8 i = 0; i < BASEMOD_END; ++i)
     {
         m_auraBaseMod[i][FLAT_MOD] = 0.0f;
@@ -2039,7 +2041,7 @@ void Player::Update(uint32 p_time)
     }
 
     // Zone Skip Update
-    if (sObjectMgr->IsSkipZone(GetZoneId()) || isAFK())
+    if ((sObjectMgr->IsSkipZoneEnabled() && sObjectMgr->IsSkipZone(GetZoneId())) || isAFK())
     {
         _skipCount++;
         _skipDiff += p_time;
@@ -3473,13 +3475,13 @@ void Player::RegenerateAll()
         m_chiPowerRegenTimerCount -= 15000;
     }
 
-    if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
+    if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (GetSpecializationId() == SPEC_WARLOCK_DEMONOLOGY))
     {
         Regenerate(POWER_DEMONIC_FURY);
         m_demonicFuryPowerRegenTimerCount -= 100;
     }
 
-    if (m_soulShardsRegenTimerCount >= 20000 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION))
+    if (m_soulShardsRegenTimerCount >= 20000 && l_Class == CLASS_WARLOCK && (GetSpecializationId() == SPEC_WARLOCK_AFFLICTION))
     {
         Regenerate(POWER_SOUL_SHARDS);
         m_soulShardsRegenTimerCount -= 20000;
@@ -3500,7 +3502,7 @@ void Player::Regenerate(Powers power)
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
         return;
 
-    /// Skip regeneration for power type we cannot have
+    /// Skip regeneration for power type we cannot have // Custom MoP script
     uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
@@ -7840,6 +7842,10 @@ void Player::UpdateLocalChannels(uint32 newZone)
         if (ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i))
         {
             Channel* usedChannel = NULL;
+
+			auto itr = std::find_if(m_channels.begin(), m_channels.end(), [&i](Channel const* var) { return var && var->GetChannelId() == i; });
+			if (itr != m_channels.end())
+				usedChannel = *itr;
 
             for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
             {
@@ -15701,7 +15707,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
     // Custom MoP script
     // Jab Override Driver
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+    if (getClass() == CLASS_MONK)
     {
         Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -15710,7 +15716,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         {
             RemoveAura(108561); // 2H Staff Override
             RemoveAura(115697); // 2H Polearm Override
-            RemoveAura(115689); // D/W Axes
+            RemoveAura(115689); // D/W Axes// Way of the Monk - 120277
             RemoveAura(115694); // D/W Maces
             RemoveAura(115696); // D/W Swords
 
@@ -15745,59 +15751,50 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         }
     }
     // Way of the Monk - 120277
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (getClass() == CLASS_MONK && HasAura(120277))
     {
-        if (getClass() == CLASS_MONK && HasAura(120277))
-        {
-            RemoveAurasDueToSpell(120275);
-            RemoveAurasDueToSpell(108977);
+        RemoveAurasDueToSpell(120275);
+        RemoveAurasDueToSpell(108977);
 
-            uint32 trigger = 0;
-            if (IsTwoHandUsed())
-                trigger = 120275;
-            else
-            {
-                Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                    trigger = 108977;
-            }
-
-            if (trigger)
-                CastSpell(this, trigger, true);
-
-            ToPlayer()->UpdateRating(CR_HASTE_MELEE);
-        }
-    }
-    // Assassin's Resolve - 84601
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
+        uint32 trigger = 0;
+        if (IsTwoHandUsed())
+            trigger = 120275;
+        else
         {
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-            {
-                if (HasAura(84601))
-                    RemoveAura(84601);
-
-                CastSpell(this, 84601, true);
-            }
-            else
-                RemoveAura(84601);
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                trigger = 108977;
         }
+
+        if (trigger)
+            CastSpell(this, trigger, true);
+
+        UpdateRating(CR_HASTE_MELEE);
+    }
+    // Assassin's Resolve - 84601
+    if (getClass() == CLASS_ROGUE && GetSpecializationId() == SPEC_ROGUE_ASSASSINATION)
+    {
+        Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+        if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
+        {
+            if (HasAura(84601))
+                RemoveAura(84601);
+
+            CastSpell(this, 84601, true);
+        }
+        else
+            RemoveAura(84601);
     }
     /// Single-Minded Fury - 81099
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
     {
-        if (getClass() == CLASS_WARRIOR && ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_FURY)
+        if (HasAura(81099))
         {
-            if (HasAura(81099))
-            {
-                RemoveAura(81099);
-                AddAura(81099, this);
-            }
+            RemoveAura(81099);
+            AddAura(81099, this);
         }
     }
 
@@ -16637,7 +16634,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
         // Custom MoP script
         // Jab Override Driver
-        if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+        if (getClass() == CLASS_MONK)
         {
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -16680,48 +16677,42 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
         // Way of the Monk - 120277
-        if (GetTypeId() == TYPEID_PLAYER)
+        if (getClass() == CLASS_MONK && HasAura(120277))
         {
-            if (getClass() == CLASS_MONK && HasAura(120277))
-            {
-                RemoveAurasDueToSpell(120275);
-                RemoveAurasDueToSpell(108977);
+            RemoveAurasDueToSpell(120275);
+            RemoveAurasDueToSpell(108977);
 
-                uint32 trigger = 0;
-                if (IsTwoHandUsed())
-                    trigger = 120275;
-                else
-                {
-                    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                    Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                    if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                        trigger = 108977;
-                }
-
-                if (trigger)
-                    CastSpell(this, trigger, true);
-
-                ToPlayer()->UpdateRating(CR_HASTE_MELEE);
-            }
-        }
-        // Assassin's Resolve - 84601
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
+            uint32 trigger = 0;
+            if (IsTwoHandUsed())
+                trigger = 120275;
+            else
             {
                 Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
                 Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-                if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-                {
-                    if (HasAura(84601))
-                        RemoveAura(84601);
-
-                    CastSpell(this, 84601, true);
-                }
-                else
-                    RemoveAura(84601);
+                if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                    trigger = 108977;
             }
+
+            if (trigger)
+                CastSpell(this, trigger, true);
+
+            UpdateRating(CR_HASTE_MELEE);
+        }
+        // Assassin's Resolve - 84601
+        if (getClass() == CLASS_ROGUE && GetSpecializationId() == SPEC_ROGUE_ASSASSINATION)
+        {
+            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
+            {
+                if (HasAura(84601))
+                    RemoveAura(84601);
+
+                CastSpell(this, 84601, true);
+            }
+            else
+                RemoveAura(84601);
         }
 
         return;
@@ -30839,14 +30830,18 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
             _talentMgr->SpecInfo[spec].Glyphs[i] = fields[i + 1].GetUInt16();
     }
     while (result->NextRow());
+
+    m_glyphsChanged = false;
 }
 
 void Player::_SaveGlyphs(SQLTransaction& trans)
 {
+    if (!m_glyphsChanged)
+        return;
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-
 
     for (uint8 spec = 0; spec < GetSpecsCount(); ++spec)
     {
@@ -30862,6 +30857,8 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
 
         trans->Append(stmt);
     }
+
+    m_glyphsChanged = false;
 }
 
 void Player::_LoadTalents(PreparedQueryResult result)

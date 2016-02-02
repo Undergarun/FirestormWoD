@@ -1593,7 +1593,7 @@ void LFGMgr::RemoveFromCompatibles(uint64 guid)
    @param[in]     key String concatenation of guids (| used as separator)
    @param[in]     compatibles Compatibles or not
 */
-void LFGMgr::SetCompatibles(std::string key, bool compatibles)
+void LFGMgr::SetCompatibles(std::string const& key, bool compatibles)
 {
     m_CompatibleMap[key] = LfgAnswer(compatibles);
 }
@@ -1604,7 +1604,7 @@ void LFGMgr::SetCompatibles(std::string key, bool compatibles)
    @param[in]     key String concatenation of guids (| used as separator)
    @return 1 (Compatibles), 0 (Not compatibles), -1 (Not set)
 */
-LfgAnswer LFGMgr::GetCompatibles(std::string key)
+LfgAnswer LFGMgr::GetCompatibles(std::string const& key)
 {
     LfgAnswer answer = LFG_ANSWER_PENDING;
     LfgCompatibleMap::iterator it = m_CompatibleMap.find(key);
@@ -2669,7 +2669,7 @@ LfgCategory LFGMgr::GetLfgCategorie(uint32 dungeonId)
    @param[in]     check list of guids
    @returns Concatenated string
 */
-std::string LFGMgr::ConcatenateGuids(LfgGuidList check)
+std::string LFGMgr::ConcatenateGuids(LfgGuidList const& check)
 {
     if (check.empty())
         return "";

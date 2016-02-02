@@ -1558,6 +1558,11 @@ class ObjectMgr
             return false;
         }
 
+        bool IsSkipZoneEnabled()
+        {
+            return !skipData.empty();
+        }
+
         uint32 GetSkipUpdateCount()
         {
             return _skipUpdateCount;

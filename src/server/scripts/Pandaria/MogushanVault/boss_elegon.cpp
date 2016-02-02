@@ -525,7 +525,7 @@ class boss_elegon : public CreatureScript
                             titanCircle->SetGoState(GO_STATE_ACTIVE);
 
                         for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
-                            if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                            if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                 moguRune->SetGoState(GO_STATE_ACTIVE);
 
                         // Reset Cho
@@ -599,7 +599,7 @@ class boss_elegon : public CreatureScript
 
                 _JustDied();
 
-                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 400.0f, true))
+                if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
                 {
                     cho->AI()->Talk(28);
                     cho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
@@ -786,7 +786,7 @@ class boss_elegon : public CreatureScript
                                     titanCircle->SetGoState(GO_STATE_ACTIVE);
 
                                 for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
-                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                         moguRune->SetGoState(GO_STATE_ACTIVE);
                             }
                         }
@@ -823,7 +823,7 @@ class boss_elegon : public CreatureScript
                                     titanCircle->SetGoState(GO_STATE_READY);
 
                                 for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; ++entry)
-                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                    if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                         moguRune->SetGoState(GO_STATE_READY);
                             }
 
@@ -1471,7 +1471,7 @@ class mob_infinite_energy : public CreatureScript
                                 titanCircle->SetGoState(GO_STATE_READY);
 
                             for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; ++entry)
-                                if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
+                                if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 200.0f))
                                     moguRune->SetGoState(GO_STATE_READY);
 
                             events.ScheduleEvent(EVENT_CHECK_AURAS, 500);

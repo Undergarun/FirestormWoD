@@ -1140,7 +1140,7 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
                     std::list<Creature*> tempList;
                     std::list<Creature*> blackOxList;
 
-                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_BLACK_OX_STATUE, 500.0f);
+                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_BLACK_OX_STATUE, 200.0f);
 
                     for (auto itr : tempList)
                         blackOxList.push_back(itr);
@@ -1650,8 +1650,8 @@ class spell_monk_jade_serpent_statue: public SpellScriptLoader
                     std::list<Creature*> tempList;
                     std::list<Creature*> jadeSerpentlist;
 
-                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
-                    player->GetCreatureListWithEntryInGrid(jadeSerpentlist, MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
+                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_JADE_SERPENT_STATUE, 200.0f);
+                    player->GetCreatureListWithEntryInGrid(jadeSerpentlist, MONK_NPC_JADE_SERPENT_STATUE, 200.0f);
 
                     // Remove other players jade statue
                     for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)

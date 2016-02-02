@@ -82,14 +82,14 @@ void Pet::AddToWorld()
     }
 
     // Hack fix for Soul link, we need to buff pet and player if player has a talent
-    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->HasSpell(108415))
+    if (m_owner && m_owner->IsPlayer() && m_owner->ToPlayer()->HasSpell(108415))
     {
         CastSpell(m_owner, 108446, true);
         m_owner->CastSpell(this, 108446, true);
     }
 
     /// Command Demon
-    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->getClass() == CLASS_WARLOCK)
+    if (m_owner && m_owner->IsPlayer() && m_owner->ToPlayer()->getClass() == CLASS_WARLOCK)
     {
         if (m_owner->HasAura(108503))
             m_owner->RemoveAura(108503);
@@ -160,11 +160,11 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    if (owner->ToPlayer())
+    if (owner->IsPlayer())
     {
         /// Hack for water elemental
         /// Pet should be saved for all specs, but can be summoned only by frost mages
-        if (owner->getClass() == CLASS_MAGE && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_MAGE_FROST)
+        if (owner->getClass() == CLASS_MAGE && owner->ToPlayer()->GetSpecializationId() != SPEC_MAGE_FROST)
         {
             m_loading = false;
             p_Callback(this, false);
@@ -172,7 +172,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         }
         /// Hack for Raise dead
         /// Pet should be saved for all specs, but can be summoned only by unholy dk
-        if (owner->getClass() == CLASS_DEATH_KNIGHT && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
+        if (owner->getClass() == CLASS_DEATH_KNIGHT && owner->ToPlayer()->GetSpecializationId() != SPEC_DK_UNHOLY)
         {
             m_loading = false;
             p_Callback(this, false);
@@ -305,7 +305,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
             if (cinfo && cinfo->Entry == 17252)
             {
-                if (owner && owner->HasAura(56246) && owner->ToPlayer())
+                if (owner && owner->IsPlayer() && owner->HasAura(56246))
                 {
                     /// Get item template for Fel Guard weapon
                     if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(12784))
