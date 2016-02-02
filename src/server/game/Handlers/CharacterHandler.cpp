@@ -850,7 +850,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         Field* fields = result->Fetch();
         accountId     = fields[0].GetUInt32();
         name          = fields[1].GetString();
-        atLogin       = fields[2].GetUInt32();
+        atLogin       = fields[2].GetUInt16();
     }
 
     // prevent deleting other players' characters using cheating tools
