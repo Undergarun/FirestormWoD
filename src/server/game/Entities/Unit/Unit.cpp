@@ -11593,7 +11593,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         /// Default is 5% of crit
         float crit_chance = 5.0f;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
-        DoneTotal += CalculatePct(pdamage, crit_chance);
+        AddPct(l_Multiplier, crit_chance);
     }
 
     // Fingers of Frost - 112965
@@ -22187,6 +22187,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     }
     case SPELLFAMILY_WARLOCK:
     {
+        /// Chaos Bolt - In pvp, damages increase by 33%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x2000)
+            return 33.0f;
         /// Corruption - In pvp, damages reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x2)
             return -10.0f;
@@ -22202,9 +22205,6 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Haunt - In pvp, damages reduce by 25%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
             return -25.0f;
-        /// Chaos Bolt - In pvp, damages increase by 33%
-        if (p_Spellproto->SpellFamilyFlags[1] & 0x2000)
-            return 33.0f;
         break;
     }
     case SPELLFAMILY_SHAMAN:
