@@ -312,7 +312,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                             case EncounterState::DONE:
                             {
                                 if (m_SteelHasBeenBrought && !instance->IsLFR())
+                                {
                                     DoCompleteAchievement(eFoundryAchievements::TheSteelHasBeenBrought);
+                                    DoCastSpellOnPlayers(eFoundrySpells::FollowerAknorSteelbringer);
+                                }
 
                                 break;
                             }

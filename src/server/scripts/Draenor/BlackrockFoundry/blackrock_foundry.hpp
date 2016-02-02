@@ -188,7 +188,8 @@ enum eFoundryDatas
 
 enum eFoundrySpells
 {
-    Berserker = 26662
+    Berserker                   = 26662,
+    FollowerAknorSteelbringer   = 174973
 };
 
 enum eFoundryAchievements
