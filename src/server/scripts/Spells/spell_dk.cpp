@@ -833,18 +833,35 @@ class spell_dk_blood_tap: public SpellScriptLoader
                     else
                         return SPELL_FAILED_DONT_REPORT;
 
+                    Player* l_Player = GetCaster()->ToPlayer();
+                    if (l_Player == nullptr)
+                        return SPELL_FAILED_DONT_REPORT;
+
                     bool cooldown = false;
+                    uint8 l_Counter = 0;
+                    RuneType l_RuneOnCooldown = RuneType::NUM_RUNE_TYPES;
 
                     for (uint8 i = 0; i < MAX_RUNES; ++i)
                     {
-                        if (GetCaster()->ToPlayer()->GetCurrentRune(i) == RUNE_DEATH || !GetCaster()->ToPlayer()->GetRuneCooldown(i))
+                        if (l_Player->GetCurrentRune(i) == RuneType::RUNE_DEATH || !l_Player->GetRuneCooldown(i))
                             continue;
 
-                        cooldown = true;
+                        /// First rune on cooldown, save it
+                        if (l_RuneOnCooldown == RuneType::NUM_RUNE_TYPES)
+                            l_RuneOnCooldown = l_Player->GetCurrentRune(i);
+
+                        if (l_RuneOnCooldown != l_Player->GetCurrentRune(i))
+                            l_Counter = 0;
+
+                        if (l_Player->GetCurrentRune(i) != l_RuneOnCooldown || !l_Player->GetRuneCooldown(i))
+                            continue;
+
+                        l_Counter++;
+                        l_RuneOnCooldown = l_Player->GetCurrentRune(i);
                     }
 
-                    if (!cooldown)
-                        return SPELL_FAILED_DONT_REPORT;
+                    if (l_Counter < 2)
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 }
 
                 return SPELL_CAST_OK;
