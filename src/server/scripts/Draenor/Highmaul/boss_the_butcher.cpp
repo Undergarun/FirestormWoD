@@ -137,7 +137,7 @@ class boss_the_butcher : public CreatureScript
             /// Frenzy (30%)
             SpellFrenzy         = 156598,
             /// Loot
-            ButcherBonusLoot    = 177504
+            ButcherBonusLoot    = 177522
         };
 
         enum eEvents

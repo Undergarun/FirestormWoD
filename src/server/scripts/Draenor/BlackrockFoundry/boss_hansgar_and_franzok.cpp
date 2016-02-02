@@ -40,6 +40,7 @@ class boss_hansgar : public CreatureScript
             NotReady                = 158656,
             ScorchingBurnsDoT       = 155818,
             SearingPlatesDoT        = 161570,
+            HansgarAndFranzokBonus  = 177533,
             /// Body Slam
             JumpSlamSearcher        = 157922,
             JumpSlamCast            = 157923,
@@ -237,6 +238,8 @@ class boss_hansgar : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AftershockDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
                 }
 
                 AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
