@@ -24224,7 +24224,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+                    && sWorld->CanBeSaveInLoginDatabase())
                 {
                     /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
@@ -24248,7 +24248,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE) == 0))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+                    && sWorld->CanBeSaveInLoginDatabase())
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -32826,11 +32826,11 @@ uint32 Player::GetUnlockedPetBattleSlot()
         l_SlotCount++;
 
     /// Newbie
-    if (GetAchievementMgr().HasAchieved(7433))
+    if (GetAchievementMgr().HasAccountAchieved(7433))
         l_SlotCount++;
 
     /// Just a Pup
-    if (GetAchievementMgr().HasAchieved(6566))
+    if (GetAchievementMgr().HasAccountAchieved(6566))
         l_SlotCount++;
 
     return l_SlotCount;
@@ -33154,7 +33154,7 @@ void Player::SendToyBox()
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
     /// Save toys to database only for live realms
-    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+    if (sWorld->CanBeSaveInLoginDatabase())
     {
         PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
         l_Statement->setUInt32(0, GetSession()->GetAccountId());
@@ -34104,7 +34104,7 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
 
-    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return true;
 
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_HEIRLOOM);

@@ -33,6 +33,8 @@ class Field;
 #define MAX_PETBATTLE_ABILITIES 3
 #define MAX_PETBATTLE_ABILITY_TURN 10
 
+#define PETBATTLE_ENTER_MOVE_SPLINE_ID 0xA42BA70B
+
 #define PETBATTLE_NULL_ID -1
 #define PETBATTLE_NULL_SLOT -1
 #define PETBATTLE_UPDATE_INTERVAL 300
@@ -49,6 +51,12 @@ enum PetBattleType
     PETBATTLE_TYPE_PVE,
     PETBATTLE_TYPE_PVP_DUEL,
     PETBATTLE_TYPE_PVP_MATCHMAKING
+};
+
+enum PvePetBattleType
+{
+    PVE_PETBATTLE_WILD,
+    PVE_PETBATTLE_TRAINER
 };
 
 enum ePetBattleStatus
@@ -113,7 +121,10 @@ enum eBattlePetRequests
     PETBATTLE_REQUEST_ALL_PETS_DEAD          = 15,
     PETBATTLE_REQUEST_NO_PETS_IN_SLOT        = 16,
     PETBATTLE_REQUEST_NO_ACCOUNT_LOCK        = 17,
-    PETBATTLE_REQUEST_WILD_PET_TAPPED        = 18
+    PETBATTLE_REQUEST_WILD_PET_TAPPED        = 18,
+
+    /// Custom value
+    PETBATTLE_REQUEST_OK                     = 0xFF
 };
 
 enum BattlePetState
@@ -366,6 +377,7 @@ class BattlePetInstance : public BattlePet
         uint32      OldXP;
 
         BattlePet::Ptr  OriginalBattlePet;
+        uint64          OriginalCreature;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -502,6 +514,7 @@ typedef std::list<PetBattleEvent> PetBattleEventList;
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
 /// Pet battle request
 struct PetBattleRequest
 {
@@ -522,6 +535,7 @@ struct PetBattleRequest
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
 /// Pet aura
 class PetBattleAura
 {
@@ -670,6 +684,7 @@ class PetBattle
     public:
         uint32 ID;                                                              ///< Battle global unique ID
         PetBattleType BattleType;                                               ///< Battle type (PETBATTLE_TYPE_PVE / PETBATTLE_TYPE_PVP_DUEL / PETBATTLE_TYPE_PVP_MATCHMAKING)
+        PvePetBattleType PveBattleType;                                         ///< Pve battle type (PVE_PETBATTLE_WILD / PVE_PETBATTLE_TRAINER)
         uint32 Turn;                                                            ///< Battle current turn id
         PetBattleResult CombatResult;                                           ///< Combat result (PETBATTLE_RESULT_WON, PETBATTLE_RESULT_LOOSE, PETBATTLE_RESULT_ABANDON)
 
@@ -701,6 +716,7 @@ class PetBattle
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
 /// Pet battle system main class (singleton)
 class PetBattleSystem
 {
@@ -735,9 +751,12 @@ class PetBattleSystem
         /// Forfeit an battle
         void ForfeitBattle(uint64 p_BattleID, uint64 p_ForfeiterGuid);
 
+        /// Can player enter in a pet battle
+        eBattlePetRequests CanPlayerEnterInPetBattle(Player* p_Player, PetBattleRequest* p_Request);
+
     private:
         uint32                              m_MaxPetBattleID;       ///< Global battle unique id
-        std::map<uint64, PetBattle*>        m_PetBattles;          ///< All running battles
+        std::map<uint64, PetBattle*>        m_PetBattles;           ///< All running battles
         std::map<uint64, PetBattleRequest*> m_Requests;             ///< All pending battles request
 
         IntervalTimer                               m_DeleteUpdateTimer;        ///< Deletion queue update timer

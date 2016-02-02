@@ -70,6 +70,12 @@ void WildBattlePetZonePools::Populate()
         if (l_Template->Max <= l_Template->Replaced.size())
             continue;
 
+        if (BattlePetSpeciesEntry const* l_Entry = sBattlePetSpeciesStore.LookupEntry(l_Template->Species))
+        {
+            if ((l_Entry->flags & BATTLEPET_SPECIES_FLAG_UNTAMEABLE) != 0)
+                continue;
+        }
+
         uint32 l_ToReplaceCount = l_Template->Max - l_Template->Replaced.size();
 
         std::vector<Creature*> l_AvailableForReplacement;
