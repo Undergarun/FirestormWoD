@@ -122,7 +122,7 @@ public:
                 me->setFaction(FriendlyFaction);
                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             }
             m_Count  = 0;
             m_Visual = 1 * TimeConstants::IN_MILLISECONDS;;
@@ -171,7 +171,7 @@ public:
                         eUnitFlags::UNIT_FLAG_UNK_15
                         | eUnitFlags::UNIT_FLAG_UNK_6 |
                         eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2,
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2,
                         eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                     me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                     DespawnCreaturesInArea(eArchmageCreatures::CreatureTriggerArcaneBeam, me);
