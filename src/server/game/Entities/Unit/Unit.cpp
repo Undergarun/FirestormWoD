@@ -672,8 +672,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     /// Custom WoD Script - Glyph of Fortuitous Spheres
     if (plr && ToPlayer() && victim->getClass() == CLASS_MONK && victim->HasAura(146953))
     {
-        if (victim->GetHealthPct() >= 25.0f && victim->HealthBelowPctDamaged(25, damage))
+        if (victim->GetHealthPct() >= 25.0f && victim->HealthBelowPctDamaged(25, damage) && !ToPlayer()->HasSpellCooldown(115460))
+        {
             victim->CastSpell(victim, 115460, true);
+            ToPlayer()->AddSpellCooldown(115460, 0, 30 * IN_MILLISECONDS); ///<  This effect cannot occur more often than once every 30 seconds.
+        }
     }
 
     // Custom MoP Script - Cloak of Shadows
