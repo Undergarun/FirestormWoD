@@ -73,6 +73,10 @@ enum eFoundryCreatures
     BossFranzok             = 76974,
     /// Flamebender Ka'graz
     BossFlamebenderKagraz   = 76814,
+    AknorSteelbringer       = 77337,
+    LavaStalker             = 77043,
+    MoltenTorrentStalker    = 77253,
+    CinderWolf              = 76794,
     /// Kromog
     BossKromog              = 77692,
     /// Iron Assembly - Part 3
@@ -130,6 +134,12 @@ enum eFoundryGameObjects
     StampingPress01             = 229591,
     StampingPress02             = 229592,
     StampingPress03             = 229593,
+    ConveyorBelt006             = 233238,
+    ConveyorBelt007             = 233239,
+    ConveyorBelt008             = 233240,
+    ConveyorBelt009             = 236843,
+    ConveyorBelt010             = 236844,
+    FirewallDoor                = 236845,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     /// Blackhand's Crucible - Part 4
@@ -157,9 +167,11 @@ enum eFoundryDatas
 
     /// Misc
     PristineTrueIronOres    = 0,
-    VolatileOreGrinded      = 1,
-    PrimalElementalistTime  = 2,
-    PlayerStamped           = 3,
+    VolatileOreGrinded,
+    PrimalElementalistTime,
+    PlayerStamped,
+    IronTaskmasterAggro,
+    AknorDied,
 
     /// Counters
     /// Gruul
@@ -176,7 +188,8 @@ enum eFoundryDatas
 
 enum eFoundrySpells
 {
-    Berserker = 26662
+    Berserker                   = 26662,
+    FollowerAknorSteelbringer   = 174973
 };
 
 enum eFoundryAchievements
@@ -184,14 +197,17 @@ enum eFoundryAchievements
     TheIronPrince           = 8978,
     HeShootsHeOres          = 8979,
     YaWeveGotTime           = 8930,
-    StampStampRevolution    = 8980
+    StampStampRevolution    = 8980,
+    TheSteelHasBeenBrought  = 8929
 };
 
 enum eFoundryVisuals
 {
     CrucibleVisuals = 6922,
     ConveyorsStart  = 7621,
-    ConveyorsStop   = 7336
+    ConveyorsStop   = 7336,
+    ConveyorsStart2 = 6975,
+    ConveyorsStart3 = 6974
 };
 
 #endif
