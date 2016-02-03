@@ -1297,7 +1297,7 @@ public:
                 std::list<Creature*> l_TempList;
                 std::list<Creature*> l_LightsHammerlist;
 
-                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 500.0f);
+                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 200.0f);
 
                 l_TempList = l_LightsHammerlist;
 

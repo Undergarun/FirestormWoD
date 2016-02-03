@@ -21,7 +21,10 @@
 
 #include "LootMgr.h"
 #include <ace/Singleton.h>
+#include <array>
+#include <vector>
 
+class Creature;
 class Player;
 class Unit;
 class WorldObject;
@@ -91,7 +94,7 @@ enum ConditionTypes
 
     Step 6: Determine how you are going to store your conditions. You need to add a new storage container
             for it in ConditionMgr class, along with a function like:
-            ConditionList GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
+            ConditionContainer GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
 
             The above function should be placed in upper level (practical) code that actually
             checks the conditions.
@@ -160,7 +163,7 @@ enum
 struct ConditionSourceInfo
 {
     WorldObject* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
-    Condition* mLastFailedCondition;
+    Condition const* mLastFailedCondition;
     ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = NULL, WorldObject* target2 = NULL)
     {
         mConditionTargets[0] = target0;
@@ -204,10 +207,10 @@ struct Condition
         NegativeCondition  = false;
     }
 
-    bool Meets(ConditionSourceInfo& sourceInfo);
-    uint32 GetSearcherTypeMaskForCondition();
+    bool Meets(ConditionSourceInfo& sourceInfo) const;
+    uint32 GetSearcherTypeMaskForCondition() const;
     bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
-    uint32 GetMaxAvailableConditionTargets();
+    uint32 GetMaxAvailableConditionTargets() const;
 };
 
 typedef std::list<Condition*> ConditionList;

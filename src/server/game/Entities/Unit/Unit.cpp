@@ -677,11 +677,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     // Custom MoP Script - Cloak of Shadows
-    if (HasAura(31224) && victim && damagetype == SPELL_DIRECT_DAMAGE)
+    if (victim && victim->getClass() == CLASS_ROGUE && damagetype == SPELL_DIRECT_DAMAGE && HasAura(31224))
         damage = 0;
 
     /// Custom MoP Script - Subterfuge , should be called from normal hit
-    if (HasAura(108208) && HasAura(115191) && !HasAura(115192) && victim && (damagetype == DIRECT_DAMAGE || HasAura(121471)))
+    if (victim && HasAura(108208) && HasAura(115191) && !HasAura(115192) && (damagetype == DIRECT_DAMAGE || HasAura(121471)))
         CastSpell(this, 115192, true);
 
     /// Custom MoP Script - Desperate Measures
@@ -700,7 +700,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     /// Custom MoP Script - Focused Will
     if (IsPlayer() && victim->getClass() == CLASS_PRIEST)
     {
-        if (plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
+        if (plr->GetSpecializationId() == SPEC_PRIEST_DISCIPLINE)
         {
             if (victim->CountPctFromMaxHealth(15) < damage) ///< last update 6.0.1 (Tue Oct 14 2014) Build 18379
                 victim->CastSpell(victim, 45242, true);
@@ -709,7 +709,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     /// @todo update me ?
     /// Custom MoP Script
-    if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MONK_BREWMASTER && HasAura(115315))
+    if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId() == SPEC_MONK_BREWMASTER && HasAura(115315))
     {
         if (damage > 0)
         {
@@ -722,8 +722,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (GetEntry() == 62982 || GetEntry() == 67236)
     {
         /// Caster receives 0.75% mana when the Mindbender attacks
-        if (GetOwner())
-            GetOwner()->ModifyPower(POWER_MANA, CalculatePct(GetOwner()->GetPower(POWER_MANA), 0.75f));
+        if (Unit* l_Owner = GetOwner())
+            l_Owner->ModifyPower(POWER_MANA, CalculatePct(l_Owner->GetPower(POWER_MANA), 0.75f));
     }
 
     // Stagger handler
@@ -744,16 +744,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    // Temporal Shield - 115610
-    if (victim->IsPlayer() && victim->HasAura(115610) && damage != 0)
+    /// Temporal Shield - 115610
+    if (victim->IsPlayer() && damage != 0 && victim->HasAura(115610))
     {
-        int32 bp = damage / 3;
+        int32 l_Bp = damage / 3;
 
-        // Temporal Ripples : Add remaining amount to the basepoints
-        if (victim->HasAura(115611))
-            bp += victim->GetRemainingPeriodicAmount(victim->GetGUID(), 115611, SPELL_AURA_PERIODIC_HEAL, 0);
+        /// Temporal Ripples : Add remaining amount to the basepoints
+        l_Bp += victim->GetRemainingPeriodicAmount(victim->GetGUID(), 115611, SPELL_AURA_PERIODIC_HEAL, 0);
 
-        victim->CastCustomSpell(victim, 115611, &bp, NULL, NULL, true);
+        victim->CastCustomSpell(victim, 115611, &l_Bp, NULL, NULL, true);
     }
 
     /// last update : 6.1.2 19802
@@ -811,18 +810,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
-    if (victim->IsPlayer())
+    if (Player* l_Player = ToPlayer())
     {
-        if (victim->ToPlayer()->GetCommandStatus(CHEAT_GOD))
+        if (!l_Player || l_Player->GetCommandStatus(CHEAT_GOD))
             return 0;
 
-        // Signal to pets that their owner was attacked
-        Pet* pet = victim->ToPlayer()->GetPet();
+        /// Signal to pets that their owner was attacked
+        Pet* l_Pet = l_Player->GetPet();
 
-        if (pet && pet->isAlive())
-            pet->AI()->OwnerDamagedBy(this);
+        if (l_Pet && l_Pet->isAlive())
+            l_Pet->AI()->OwnerDamagedBy(this);
 
-        sScriptMgr->OnPlayerTakeDamage(victim->ToPlayer(), damagetype, damage, damageSchoolMask, cleanDamage);
+        sScriptMgr->OnPlayerTakeDamage(l_Player, damagetype, damage, damageSchoolMask, cleanDamage);
     }
 
     if (damagetype != NODAMAGE)
@@ -908,7 +907,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             {
                 l_RageGain = 5.00f;
             }
-            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            else if (l_Player->GetSpecializationId() == SPEC_WARRIOR_ARMS)
             {
                 if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE)
                 {
@@ -1003,7 +1002,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
     else if (GetTypeId() == TYPEID_UNIT && this != victim && isPet())
     {
-        if (GetOwner() && GetOwner()->ToPlayer())
+        if (GetOwner() && GetOwner()->IsPlayer())
         {
             Player* killerOwner = GetOwner()->ToPlayer();
 
@@ -1078,7 +1077,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         /// Mastery: Primal Tenacity - 155783
         /// Proc just from physical attack
-        if (damage && cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && victim->IsPlayer() && victim->getClass() == CLASS_DRUID && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_GUARDIAN)
+        if (damage && cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && victim->IsPlayer() && victim->getClass() == CLASS_DRUID && victim->ToPlayer()->GetSpecializationId() == SPEC_DRUID_GUARDIAN)
         {
             /// Apply absorb just in case if this damage not absorbed
             if (cleanDamage->absorbed_damage == 0)
@@ -1184,7 +1183,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 /// Last Update 6.1.2
 uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMask p_DamageSchoolMask, SpellInfo const* p_SpellProto)
 {
-    if (p_Victim->GetSpecializationId(p_Victim->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
+    if (p_Victim->GetSpecializationId() != SPEC_MONK_BREWMASTER)
         return p_Damage;
 
     /// Stance of the Sturdy Ox
@@ -9568,7 +9567,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id == 4143 || procSpell->Id == 7268)
                 return false;
 
-            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_MAGE_ARCANE)
+            if (ToPlayer()->GetSpecializationId() != SPEC_MAGE_ARCANE)
                 return false;
 
             if (AuraPtr arcaneMissiles = GetAura(79683))
@@ -9701,7 +9700,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (procSpell->Id != 403 && procSpell->Id != 421)
                 return false;
 
-            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
+            if (ToPlayer()->GetSpecializationId() != SPEC_DK_UNHOLY)
                 return false;
 
             break;
@@ -9916,7 +9915,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!procSpell || (procSpell->Id != 17962 && procSpell->Id != 108685))
                 return false;
 
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_WARLOCK || ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
+            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_WARLOCK || ToPlayer()->GetSpecializationId() != SPEC_WARLOCK_DESTRUCTION)
                 return false;
 
             break;
@@ -11560,7 +11559,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     // Fingers of Frost - 112965
-    if (IsPlayer() && pdamage != 0 && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
+    if (IsPlayer() && pdamage != 0 && ToPlayer()->GetSpecializationId() == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
     {
         bool l_HasFingerOfFrostProc = false;
 
@@ -16066,15 +16065,15 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_RUNES:
             return 0;
         case POWER_SHADOW_ORB:
-            return (IsPlayer() && ToPlayer()->getClass() == CLASS_PRIEST && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW) ? 3 : 0);
+            return (IsPlayer() && ToPlayer()->getClass() == CLASS_PRIEST && (ToPlayer()->GetSpecializationId() == SPEC_PRIEST_SHADOW) ? 3 : 0);
         case POWER_BURNING_EMBERS:
-            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION) ? 40 : 0);
+            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION) ? 40 : 0);
         case POWER_DEMONIC_FURY:
-            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY) ? 1000 : 0);
+            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId()) == SPEC_WARLOCK_DEMONOLOGY) ? 1000 : 0);
         case POWER_SOUL_SHARDS:
-            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION) ? 400 : 0);
+            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION) ? 400 : 0);
         case POWER_ECLIPSE:
-            return (IsPlayer() && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE) ? 100 : 0);
+            return (IsPlayer() && ToPlayer()->getClass() == CLASS_DRUID && (ToPlayer()->GetSpecializationId() == SPEC_DRUID_BALANCE) ? 100 : 0);
         case POWER_HOLY_POWER:
             return (IsPlayer() && ToPlayer()->getClass() == CLASS_PALADIN ? 3 : 0);
         case POWER_HEALTH:

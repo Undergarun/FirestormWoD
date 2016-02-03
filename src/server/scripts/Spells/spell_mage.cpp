@@ -2109,7 +2109,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                     std::list<Creature*> l_FrozenRinglist;
 
                     // Get all of the Frozen Ring in Area
-                    l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 500.0f);
+                    l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 200.0f);
 
                     l_TempList = l_FrozenRinglist;
 

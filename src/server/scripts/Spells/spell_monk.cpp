@@ -1925,7 +1925,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                if (l_Player->GetSpecializationId() == SPEC_MONK_MISTWEAVER)
                     m_BasePowerConsume = 4.7f;
                 else
                     m_BasePowerConsume = 30.0f;

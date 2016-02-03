@@ -233,7 +233,7 @@ class boss_stone_guard_controler : public CreatureScript
                             jasperCrystal->DespawnOrUnsummon();
 
                         // Making Cho moves
-                        if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 500.0f))
+                        if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f))
                             cho->AI()->DoAction(ACTION_OPEN_STONEGUARD_DOOR);
 
                         // Removing energized tiles
@@ -262,7 +262,7 @@ class boss_stone_guard_controler : public CreatureScript
                             // Removing Tiles & deactivating them
                             me->RemoveAllDynObjects();
                             std::list<Creature*> tileList;
-                            GetCreatureListWithEntryInGrid(tileList, me, NPC_TILING_CREATURE, 500.0f);
+                            GetCreatureListWithEntryInGrid(tileList, me, NPC_TILING_CREATURE, 200.0f);
 
                             for (auto tile : tileList)
                                 tile->AI()->DoAction(ACTION_UNTILING);
@@ -293,7 +293,7 @@ class boss_stone_guard_controler : public CreatureScript
                                 me->RemoveAllDynObjects();
                                 std::list<Creature*> tileList;
 
-                                GetCreatureListWithEntryInGrid(tileList, me, NPC_TILING_CREATURE, 500.0f);
+                                GetCreatureListWithEntryInGrid(tileList, me, NPC_TILING_CREATURE, 200.0f);
 
                                 for (auto tile : tileList)
                                     tile->AI()->DoAction(ACTION_UNTILING);
@@ -591,7 +591,7 @@ class boss_generic_guardian : public CreatureScript
                         std::list<Player*> playerList;
                         playerList.clear();
 
-                        GetPlayerListInGrid(playerList, me, 500.0f);
+                        GetPlayerListInGrid(playerList, me, 200.0f);
                         if (playerList.empty())
                         {
                             uint8 point = me->GetEntry() == NPC_JASPER ? 0 : (me->GetEntry() == NPC_JADE ? 1 : (me->GetEntry() == NPC_AMETHYST ? 2 : 3));

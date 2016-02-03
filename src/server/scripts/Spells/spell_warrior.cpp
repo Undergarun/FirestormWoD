@@ -1258,7 +1258,7 @@ class spell_warr_deep_wounds: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                if (l_Caster->IsPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_PROTECTION)
+                if (l_Caster->IsPlayer() && l_Caster->ToPlayer()->GetSpecializationId() != SPEC_WARRIOR_PROTECTION)
                     return;
 
                 if (l_Target->GetGUID() == l_Caster->GetGUID())

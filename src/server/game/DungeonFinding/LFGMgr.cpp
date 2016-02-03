@@ -2825,7 +2825,7 @@ void LFGMgr::AutomaticLootDistribution(Creature* p_Creature, Group* p_Group)
         if (l_Member == nullptr)
             continue;
 
-        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
+        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId();
         std::list<uint32> l_Items;
 
         for (ItemTemplate const* l_ItemTemplate : l_LootTable)
@@ -2874,7 +2874,7 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
         if (l_Member == nullptr || l_Member->BossAlreadyLooted(p_Creature))
             continue;
 
-        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
+        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId();
         std::list<uint32> l_Items;
 
         for (ItemTemplate const* l_ItemTemplate : l_LootTable)
@@ -2968,13 +2968,13 @@ uint32 LFGMgr::GetAugmentRuneID(Player const* p_Player) const
 {
     uint8 l_RuneCount = 3;
     uint32 l_AugmentRunes[3] = { 118630, 118631, 118632 };
-    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec()); ///< l_SpecID is never read 01/18/16
+    uint32 l_SpecID = p_Player->GetSpecializationId();
 
     for (uint8 l_I = 0; l_I < l_RuneCount; ++l_I)
     {
         if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_AugmentRunes[l_I]))
         {
-            if (l_Template->HasSpec((SpecIndex)p_Player->GetSpecializationId(p_Player->GetActiveSpec()), p_Player->getLevel()))
+            if (l_Template->HasSpec((SpecIndex)l_SpecID, p_Player->getLevel()))
                 return l_AugmentRunes[l_I];
         }
     }

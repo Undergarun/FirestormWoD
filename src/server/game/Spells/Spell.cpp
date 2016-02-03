@@ -1587,7 +1587,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         }
 
         if (m_caster->IsPlayer() && m_spellInfo->Id == 1449)
-            if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_MAGE_ARCANE)
+            if (m_caster->ToPlayer()->GetSpecializationId() == SPEC_MAGE_ARCANE)
                 if (roll_chance_i(30))
                     m_caster->AddAura(36032, m_caster);
 

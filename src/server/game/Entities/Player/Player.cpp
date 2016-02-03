@@ -2225,7 +2225,7 @@ void Player::Update(uint32 p_time)
                         }
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
+                    else if (getClass() == CLASS_ROGUE && HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
                         if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                             return;
@@ -2233,7 +2233,7 @@ void Player::Update(uint32 p_time)
                         CastSpell(victim, 121473, true);
                         resetAttackTimer(WeaponAttackType::BaseAttack);
                     }
-                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
+                    else if (getClass() == CLASS_ROGUE && HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
                         if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                             return;
@@ -3393,7 +3393,7 @@ void Player::RegenerateAll()
             break;
         case Classes::CLASS_WARLOCK:
         {
-            switch (GetSpecializationId(GetActiveSpec()))
+            switch (GetSpecializationId())
             {
                 case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
                     m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
@@ -4811,7 +4811,7 @@ void Player::InitSpellForLevel()
         l_SpellList.insert(l_TalentPlaceHolderSpell);
 
     uint8 l_Level = getLevel();
-    uint32 l_SpecializationId = GetSpecializationId(GetActiveSpec());
+    uint32 l_SpecializationId = GetSpecializationId();
 
     for (uint32 l_SpellId : l_SpellList)
     {
@@ -6458,7 +6458,7 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
         return;
     }
 
-    if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
+    if (GetSpecializationId() == SpecIndex::SPEC_NONE)
         return;
 
     /// Remove specialization Glyphs
@@ -6647,7 +6647,7 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
 uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
     if (!specializationId)
-        specializationId = GetSpecializationId(GetActiveSpec());
+        specializationId = GetSpecializationId();
 
     return GetRoleBySpecializationId(specializationId);
 }
@@ -6664,11 +6664,11 @@ uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 
 bool Player::IsActiveSpecTankSpec() const
 {
-    if (GetSpecializationId(GetActiveSpec()) == SPEC_PALADIN_PROTECTION ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_WARRIOR_PROTECTION ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_GUARDIAN ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_DK_BLOOD ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+    if (GetSpecializationId() == SPEC_PALADIN_PROTECTION ||
+        GetSpecializationId() == SPEC_WARRIOR_PROTECTION ||
+        GetSpecializationId() == SPEC_DRUID_GUARDIAN ||
+        GetSpecializationId() == SPEC_DK_BLOOD ||
+        GetSpecializationId() == SPEC_MONK_BREWMASTER)
         return true;
     return false;
 }
@@ -10674,7 +10674,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                     break;
                 case ITEM_MOD_AGILITY:
                 {
-                    if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10683,7 +10683,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                 }
                 case ITEM_MOD_STRENGTH:
                 {
-                    if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10692,7 +10692,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                 }
                 case ITEM_MOD_INTELLECT:
                 {
-                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10701,7 +10701,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                 }
                 case ITEM_MOD_SPIRIT:
                 {
-                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10887,7 +10887,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 break;
             case ITEM_MOD_AGILITY:
             {
-                if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats); 
@@ -10896,7 +10896,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
             case ITEM_MOD_STRENGTH:
             {
-                if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), applyStats);
@@ -10905,7 +10905,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
             case ITEM_MOD_INTELLECT:
             {
-                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), applyStats);
@@ -10914,7 +10914,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
             case ITEM_MOD_SPIRIT:
             {
-                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), applyStats);
@@ -11232,7 +11232,7 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
     {
         case CLASS_DEATH_KNIGHT:
         {
-            switch (GetSpecializationId(GetActiveSpec()))
+            switch (GetSpecializationId())
             {
                 case SPEC_DK_FROST:
                     if (getLevel() < 74)
@@ -18575,7 +18575,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                 return true;
             }
 
-            uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
+            uint32 l_Specialization = GetSpecializationId();
             if (!l_Specialization)
                 l_Specialization = GetDefaultSpecId();
 
@@ -18847,7 +18847,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec()), getLevel()) && !l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(), getLevel()) && !l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         continue;
                     break;
                 }
@@ -30472,7 +30472,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
 
             if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty() && itr->second->state != PLAYERSPELL_REMOVED)
             {
-                uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
+                uint32 l_SpecID = GetSpecializationId();
                 uint16 l_Talent = 0;
 
                 for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
@@ -32468,7 +32468,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
             learnSpell(111896, false);  ///< WARLOCK_GRIMOIRE_SUCCUBUS
             learnSpell(111897, false);  ///< WARLOCK_GRIMOIRE_FELHUNTER
 
-            if (GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+            if (GetSpecializationId() == SPEC_WARLOCK_DEMONOLOGY)
             {
                 learnSpell(111898, false);  ///< WARLOCK_GRIMOIRE_FELGUARD
                 if (HasAura(152107)) ///< Demonic Servitude
@@ -33341,7 +33341,7 @@ void Player::DeleteGarrison()
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;
-    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(GetSpecializationId(GetActiveSpec())))
+    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(GetSpecializationId()))
         magicNumber = spec->MainStat;
     else if (ChrClassesEntry const* playerClass = sChrClassesStore.LookupEntry(getClass()))
         magicNumber = playerClass->MainStat;

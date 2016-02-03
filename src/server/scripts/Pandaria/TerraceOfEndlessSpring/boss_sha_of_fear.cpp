@@ -911,7 +911,7 @@ class boss_sha_of_fear : public CreatureScript
                             isInTeleport = false;
 
                             std::list<Player*> playerList;
-                            GetPlayerListInGrid(playerList, me, 500.0f);
+                            GetPlayerListInGrid(playerList, me, 200.0f);
 
                             for (Player* player : playerList)
                                 me->AddThreat(player, 0.0f);
@@ -2243,7 +2243,7 @@ class spell_sha_waterspout : public SpellScriptLoader
                     return;
 
                 std::list<Player*> playerList;
-                GetPlayerListInGrid(playerList, caster, 500.0f);
+                GetPlayerListInGrid(playerList, caster, 200.0f);
 
                 if (playerList.empty())
                     return;

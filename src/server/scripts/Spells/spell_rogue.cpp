@@ -1369,7 +1369,7 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
                         if (!l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
                             return;
 
-                        if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SpecIndex::SPEC_ROGUE_ASSASSINATION)
+                        if (l_Caster->ToPlayer()->GetSpecializationId() != SpecIndex::SPEC_ROGUE_ASSASSINATION)
                             return;
 
                         l_Caster->CastSpell(l_Target, eSpells::VenomousWoundsDamage, true);

@@ -1003,7 +1003,7 @@ class mob_gale_winds_stalker : public CreatureScript
                                 Position pos = {tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f};
 
                                 std::list<Player*> playerList;
-                                GetPlayerListInGrid(playerList, me, 500.0f);
+                                GetPlayerListInGrid(playerList, me, 200.0f);
 
                                 for (Player* player : playerList)
                                 {

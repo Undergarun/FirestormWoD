@@ -493,7 +493,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     case 34428: // Victory Rush
                     {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                        if (m_caster->ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_ARMS)
                             damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 67.2f);
                         else
                             damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 56.0f);
@@ -2828,7 +2828,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             std::list<Creature*> tempList;
             std::list<Creature*> gatewayList;
 
-            m_caster->GetCreatureListWithEntryInGrid(tempList, m_spellInfo->Id == 113890 ? 59271 : 59262, 500.0f);
+            m_caster->GetCreatureListWithEntryInGrid(tempList, m_spellInfo->Id == 113890 ? 59271 : 59262, 200.0f);
 
             if (!tempList.empty())
             {
@@ -3327,7 +3327,7 @@ void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
 
     // Mistweaver monks cannot dual wield
     if (unitTarget->ToPlayer())
-        if (unitTarget->ToPlayer()->GetSpecializationId(unitTarget->ToPlayer()->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+        if (unitTarget->ToPlayer()->GetSpecializationId() == SPEC_MONK_MISTWEAVER)
             return;
 
     unitTarget->SetCanDualWield(true);
@@ -7620,7 +7620,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
 
     float l_DropChance = l_IsBGReward ? 100 : sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE) + (l_Player->GetBonusRollFails() * 2);
-    uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+    uint32 l_SpecID = l_Player->GetLootSpecId() ? l_Player->GetLootSpecId() : l_Player->GetSpecializationId();
 
     if (l_IsBGReward)
     {
