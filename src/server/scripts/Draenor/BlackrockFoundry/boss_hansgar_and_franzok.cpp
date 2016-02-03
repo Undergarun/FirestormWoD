@@ -511,8 +511,11 @@ class boss_hansgar : public CreatureScript
                         }
                         else
                         {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                AttackStart(l_Target);
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                if (Unit* l_Target = me->getVictim())
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                            });
                         }
 
                         break;
@@ -1261,6 +1264,9 @@ class boss_franzok : public CreatureScript
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
 
+                            m_Events.CancelEvent(eEvents::EventDisruptingRoar);
+                            m_Events.CancelEvent(eEvents::EventSkullcracker);
+
                             uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
@@ -1289,6 +1295,9 @@ class boss_franzok : public CreatureScript
                             me->CastSpell(me, eSpells::NotReady, true);
 
                             m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                            m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
+                            m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             {
@@ -1415,8 +1424,11 @@ class boss_franzok : public CreatureScript
                         }
                         else
                         {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                AttackStart(l_Target);
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                if (Unit* l_Target = me->getVictim())
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                            });
                         }
 
                         break;
