@@ -11754,6 +11754,18 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
         }
     }
 
+    /// Custom WoD Script - Mastery: Unshackled Fury
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(76856) && HasAura(12880))
+    {
+        Player const* l_Player = ToPlayer();
+        if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(76856, EFFECT_0))
+        {
+            float l_MasteryPct = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
+            float l_MasteryMultiplier = l_MasteryUnshackledFury->GetSpellEffectInfo()->BonusMultiplier;
+            int32 l_MasteryValue = (int32)(l_MasteryMultiplier * l_MasteryPct);
+            AddPct(DoneTotalMod, l_MasteryValue);
+        }
+    }
 
     AuraEffectList const& mModDamageFromPercentPower = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_FROM_PCT_POWER);
     for (AuraEffectList::const_iterator i = mModDamageFromPercentPower.begin(); i != mModDamageFromPercentPower.end(); ++i)
@@ -13312,6 +13324,19 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                 amount += float((*i)->GetAmount());
 
             AddPct(DoneTotalMod, amount);
+    }
+
+    ///  Custom WoD Script - Mastery: Unshackled Fury
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(76856) && HasAura(12880))
+    {
+        Player* l_Player = ToPlayer();
+        if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(76856, EFFECT_0))
+        {
+            float l_MasteryPct = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
+            float l_MasteryMultiplier = l_MasteryUnshackledFury->GetSpellEffectInfo()->BonusMultiplier;
+            int32 l_MasteryValue = (int32)(l_MasteryMultiplier * l_MasteryPct);
+            AddPct(DoneTotalMod, l_MasteryValue);
+        }
     }
 
     /// Custom WoD Script - Glyph of Frostbrand Weapon
