@@ -21003,8 +21003,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
             AddAura(26013, this);
         if (DungeonDesert)
             AddAura(71041, this);
-        if (MalDeRez)
-            AddAura(15007, this);
+        /*if (MalDeRez)
+            AddAura(15007, this);*/
 
         mustResurrectFromUnlock = HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST);
         RelocateToHomebind();
