@@ -1984,6 +1984,14 @@ void Creature::DespawnCreaturesInArea(uint32 p_Entry, float p_Range)
     DespawnCreaturesInArea(l_Entries, p_Range);
 }
 
+void Creature::DespawnAreaTriggersInArea(uint32 p_SpellID, float p_Range)
+{
+    std::vector<uint32> l_SpellIDs;
+    l_SpellIDs.push_back(p_SpellID);
+
+    DespawnAreaTriggersInArea(l_SpellIDs, p_Range);
+}
+
 void Creature::DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range)
 {
     std::list<Creature*> l_CreatureList;
@@ -1993,6 +2001,17 @@ void Creature::DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range
 
     for (std::list<Creature*>::iterator l_Itr = l_CreatureList.begin(); l_Itr != l_CreatureList.end(); ++l_Itr)
         (*l_Itr)->DespawnOrUnsummon();
+}
+
+void Creature::DespawnAreaTriggersInArea(std::vector<uint32> p_SpellIDs, float p_Range)
+{
+    std::list<AreaTrigger*> l_AreaTriggerList;
+
+    for (uint32 l_SpellID : p_SpellIDs)
+        GetAreaTriggerListWithSpellIDInRange(l_AreaTriggerList, l_SpellID, p_Range);
+
+    for (AreaTrigger* l_AT : l_AreaTriggerList)
+        l_AT->SetDuration(0);
 }
 
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)

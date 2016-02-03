@@ -37,6 +37,7 @@ class boss_flamebender_kagraz : public CreatureScript
             AllowMoltenTorrentCast      = 155912,
             CharringBreathDamage        = 155074,
             Singe                       = 155049,
+            FirestormMoltenBolt         = 163630,
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
@@ -143,6 +144,8 @@ class boss_flamebender_kagraz : public CreatureScript
                 me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
                 me->DespawnCreaturesInArea(eCreatures::OverheatedCinderWolf, 200.0f);
 
+                me->DespawnAreaTriggersInArea(eSpells::FirestormMoltenBolt, 200.0f);
+
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
                 _Reset();
@@ -219,6 +222,15 @@ class boss_flamebender_kagraz : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                m_Firestorm = false;
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
+                ClearDelayedOperations();
+
                 Talk(eTalks::TalkWipe);
 
                 if (m_Instance != nullptr)
@@ -441,12 +453,12 @@ class boss_flamebender_kagraz : public CreatureScript
                         break;
                 }
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || m_Firestorm)
                     return;
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_Firestorm)
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
                 switch (m_Events.ExecuteEvent())
@@ -515,7 +527,12 @@ class boss_flamebender_kagraz : public CreatureScript
                                 l_Wolf->AI()->DoAction(eActions::ActionFirestorm);
                         }
 
-                        me->CastSpell(me, eSpells::FirestormSelfAura, false);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                        me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                        me->CastSpell(me, eSpells::FirestormSelfAura, true);
 
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
@@ -531,6 +548,11 @@ class boss_flamebender_kagraz : public CreatureScript
                         AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             m_Firestorm = false;
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
                         });
 
                         m_Events.CancelEvent(eEvents::EventMoltenTorrent);
