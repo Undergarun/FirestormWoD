@@ -3113,8 +3113,49 @@ class spell_warr_impending_victory : public SpellScriptLoader
         }
 };
 
+
+/// Raging Blow! - 131116
+class spell_warr_raging_blow_proc : public SpellScriptLoader
+{
+    public:
+        spell_warr_raging_blow_proc() : SpellScriptLoader("spell_warr_raging_blow_proc") { }
+
+        class spell_warr_raging_blow_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_raging_blow_proc_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target->HasAura(154326))
+                    l_Target->CastSpell(l_Target, 154326, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(154326))
+                    l_Target->RemoveAura(154326);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_raging_blow_proc_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_raging_blow_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_raging_blow_proc_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_raging_blow_proc();
     new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
