@@ -488,7 +488,7 @@ void LFGMgr::AddToQueue(uint64 guid, uint8 queueId)
         queueId = 0;
 
     LfgGuidList& list = m_newToQueue[queueId];
-    if (std::find(list.begin(), list.end(), guid) == list.end())
+    if (std::find(list.begin(), list.end(), guid) != list.end())
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::AddToQueue: [" UI64FMTD "] already in new queue. ignoring", guid);
     else
     {
