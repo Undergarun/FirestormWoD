@@ -102,7 +102,9 @@ enum PriestSpells
     PRIEST_SPELL_SOUL_OF_DIAMOND                    = 96219,
     PRIEST_SPELL_4P_S12_HEAL                        = 131566,
     PRIEST_SPELL_HOLY_SPARK                         = 131567,
-    PRIEST_SPELL_LEVITATE                           = 111758,
+    PRIEST_SPELL_LEVITATE_EFFECT                    = 111758,
+    PRIEST_SPELL_PATH_OF_DEVOUT                     = 111757,
+    PRIEST_SPELL_GLYPH_OF_LEVITATE                  = 108939,
     PRIEST_SPELL_VOID_TENDRILS_SUMMON               = 127665,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
@@ -2619,7 +2621,7 @@ class spell_pri_renew: public SpellScriptLoader
         }
 };
 
-// Levitate - 1706
+/// Levitate - 1706
 class spell_pri_levitate: public SpellScriptLoader
 {
     public:
@@ -2631,9 +2633,13 @@ class spell_pri_levitate: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster())
-                    if (GetHitUnit())
-                        GetCaster()->CastSpell(GetHitUnit(), PRIEST_SPELL_LEVITATE, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, PRIEST_SPELL_LEVITATE_EFFECT, true);
             }
 
             void Register()
@@ -4148,6 +4154,95 @@ class spell_pri_shadowform : public SpellScriptLoader
         }
 };
 
+/// Called by Levitate (effect) - 111758
+class spell_pri_path_of_devout : public SpellScriptLoader
+{
+public:
+    spell_pri_path_of_devout() : SpellScriptLoader("spell_pri_path_of_devout") { }
+
+    class spell_pri_path_of_devout_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_path_of_devout_AuraScript);
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetUnitOwner();
+
+            if (l_Caster == nullptr || l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                if (l_Caster->HasAura(PRIEST_SPELL_GLYPH_OF_LEVITATE))
+                    l_Caster->CastSpell(l_Target, PRIEST_SPELL_PATH_OF_DEVOUT, true);
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Target = GetUnitOwner())
+            {
+                if (AuraPtr l_PathOfDevout = l_Target->GetAura(PRIEST_SPELL_PATH_OF_DEVOUT))
+                {
+                    l_PathOfDevout->SetMaxDuration(10 * IN_MILLISECONDS);
+                    l_PathOfDevout->SetDuration(l_PathOfDevout->GetMaxDuration());
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_path_of_devout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_pri_path_of_devout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_path_of_devout_AuraScript();
+    }
+};
+
+/// Called by Glyph of Levitate - 108939
+class spell_pri_glyph_of_levitate : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_levitate() : SpellScriptLoader("spell_pri_glyph_of_levitate") { }
+
+    class spell_pri_glyph_of_levitate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyph_of_levitate_AuraScript);
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                    l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                    l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_levitate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_levitate_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyph_of_levitate_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowform();
@@ -4209,6 +4304,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_renew();
     new spell_pri_evangelism();
     new spell_pri_levitate();
+    new spell_pri_path_of_devout();
+    new spell_pri_glyph_of_levitate();
     new spell_pri_flash_heal();
     new spell_pri_words_of_mending();
     new spell_pri_twist_of_fate();

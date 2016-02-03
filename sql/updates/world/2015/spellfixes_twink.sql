@@ -379,3 +379,9 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_sword_of_light_da
 
 -- fix Improved Death Grip
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_improved_death_grip';
+
+-- fix Glyph of Levitate
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_pri_path_of_devout';
+INSERT INTO spell_script_names VALUE (111758, 'spell_pri_path_of_devout');
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_pri_glyph_of_levitate';
+INSERT INTO spell_script_names VALUE (108939, 'spell_pri_glyph_of_levitate');
