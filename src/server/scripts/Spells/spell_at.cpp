@@ -63,7 +63,7 @@ class spell_at_dk_defile : public AreaTriggerEntityScript
                                     /// Update damage
                                     if (SpellInfo const* l_DefileDamage = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefileDamage))
                                     {
-                                        int32 l_BasePoints = l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100;
+                                        int32 l_BasePoints = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * float((l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100) / 100);
 
                                         l_Caster->CastCustomSpell(l_Unit, eDefilebSpell::SpellDefileDamage, &l_BasePoints, nullptr, nullptr, true);
                                     }
