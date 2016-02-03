@@ -840,6 +840,7 @@ class spell_dk_blood_tap: public SpellScriptLoader
                     bool cooldown = false;
                     uint8 l_Counter = 0;
                     RuneType l_RuneOnCooldown = RuneType::NUM_RUNE_TYPES;
+                    l_Player->SetCurrentRuneForBloodTap(l_RuneOnCooldown);
 
                     for (uint8 i = 0; i < MAX_RUNES; ++i)
                     {
@@ -850,14 +851,20 @@ class spell_dk_blood_tap: public SpellScriptLoader
                         if (l_RuneOnCooldown == RuneType::NUM_RUNE_TYPES)
                             l_RuneOnCooldown = l_Player->GetCurrentRune(i);
 
-                        if (l_RuneOnCooldown != l_Player->GetCurrentRune(i))
-                            l_Counter = 0;
-
                         if (l_Player->GetCurrentRune(i) != l_RuneOnCooldown || !l_Player->GetRuneCooldown(i))
+                        {
+                            l_RuneOnCooldown = l_Player->GetCurrentRune(i);
                             continue;
+                        }
 
                         l_Counter++;
-                        l_RuneOnCooldown = l_Player->GetCurrentRune(i);
+
+                        /// If we have already found 2 spent runes - we can use Blood Tap
+                        if (l_Counter == 2)
+                        {
+                            l_Player->SetCurrentRuneForBloodTap(l_RuneOnCooldown);
+                            break;
+                        }
                     }
 
                     if (l_Counter < 2)

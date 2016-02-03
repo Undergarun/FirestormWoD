@@ -29712,6 +29712,7 @@ void Player::InitRunes()
     }
 
     UpdateAllRunesRegen();
+    SetCurrentRuneForBloodTap(NUM_RUNE_TYPES);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const

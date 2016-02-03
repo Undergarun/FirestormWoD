@@ -3308,6 +3308,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetRunesState() const { return m_runes.runeState; }
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes.runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes.runes[index].CurrentRune); }
+        RuneType GetCurrentRuneForBloodTap() const { return m_BloodTapRune; }
         uint32 GetRuneCooldown(uint8 index) const { return m_runes.runes[index].Cooldown; }
         uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
         uint32 GetRuneConvertSpell(uint8 index) const { return m_runes.runes[index].spell_id; }
@@ -3318,6 +3319,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsRunePermanentlyConverted(uint8 index) { return m_runes.runes[index].Permanently; }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes.runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes.runes[index].CurrentRune = currentRune; }
+        void SetCurrentRuneForBloodTap(RuneType currentRune) { m_BloodTapRune = currentRune; }
         void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes.runes[index].Cooldown = cooldown; m_runes.SetRuneState(index, cooldown == 0); }
         void SetRuneConvertSpell(uint8 index, uint32 spell_id) { m_runes.runes[index].spell_id = spell_id; }
         void SetRuneConvertType(uint8 index, bool permanently) { m_runes.runes[index].Permanently = permanently; }
@@ -3962,6 +3964,7 @@ class Player : public Unit, public GridObject<Player>
 
         DeclinedName *m_declinedname;
         Runes m_runes;
+        RuneType m_BloodTapRune;
         EquipmentSets m_EquipmentSets;
 
         bool CanAlwaysSee(WorldObject const* obj) const;
