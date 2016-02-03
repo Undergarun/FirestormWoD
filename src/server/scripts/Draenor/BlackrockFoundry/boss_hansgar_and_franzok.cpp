@@ -40,6 +40,7 @@ class boss_hansgar : public CreatureScript
             NotReady                = 158656,
             ScorchingBurnsDoT       = 155818,
             SearingPlatesDoT        = 161570,
+            HansgarAndFranzokBonus  = 177533,
             /// Body Slam
             JumpSlamSearcher        = 157922,
             JumpSlamCast            = 157923,
@@ -237,6 +238,8 @@ class boss_hansgar : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AftershockDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
                 }
 
                 AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -323,8 +326,6 @@ class boss_hansgar : public CreatureScript
                         case eStates::HansgarOut1:
                         case eStates::HansgarOut2:
                         {
-                            me->RemoveAura(eSpells::NotReady);
-
                             me->InterruptNonMeleeSpells(true);
 
                             m_BodySlamTarget = 0;
@@ -356,6 +357,8 @@ class boss_hansgar : public CreatureScript
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
                                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                me->CastSpell(me, eSpells::NotReady, true);
 
                                 me->GetMotionMaster()->Clear();
                                 me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
@@ -498,16 +501,14 @@ class boss_hansgar : public CreatureScript
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
 
                         if (m_State == eStates::BothInArena2 || m_State == eStates::BothInArenaFinal)
-                        {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-
-                            m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
-                        }
 
                         me->RemoveAura(eSpells::NotReady);
 
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
+                            me->CastSpell(me, eSpells::NotReady, true);
+
                             AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->GetMotionMaster()->Clear();
@@ -516,10 +517,19 @@ class boss_hansgar : public CreatureScript
                         }
                         else
                         {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                AttackStart(l_Target);
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                if (Unit* l_Target = me->getVictim())
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                            });
                         }
 
+                        break;
+                    }
+                    case eSpells::TacticalRetreat:
+                    case eSpells::TacticalRetreatOther:
+                    {
+                        me->RemoveAura(eSpells::NotReady);
                         break;
                     }
                     default:
@@ -906,9 +916,9 @@ class boss_hansgar : public CreatureScript
             {
                 Talk(eTalks::ReturningFromControls);
 
-                me->CastSpell(me, eSpells::NotReady, true);
-
                 m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                me->CastSpell(me, eSpells::NotReady, true);
 
                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                 {
@@ -1266,6 +1276,9 @@ class boss_franzok : public CreatureScript
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
 
+                            m_Events.CancelEvent(eEvents::EventDisruptingRoar);
+                            m_Events.CancelEvent(eEvents::EventSkullcracker);
+
                             uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
@@ -1277,6 +1290,8 @@ class boss_franzok : public CreatureScript
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
                                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                me->CastSpell(me, eSpells::NotReady, true);
 
                                 me->GetMotionMaster()->Clear();
                                 me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
@@ -1291,9 +1306,12 @@ class boss_franzok : public CreatureScript
                         {
                             Talk(eTalks::ReturningFromControls);
 
-                            me->CastSpell(me, eSpells::NotReady, true);
-
                             m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                            m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
+                            m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
+
+                            me->CastSpell(me, eSpells::NotReady, true);
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             {
@@ -1412,6 +1430,8 @@ class boss_franzok : public CreatureScript
 
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
+                            me->CastSpell(me, eSpells::NotReady, true);
+
                             AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->GetMotionMaster()->Clear();
@@ -1420,10 +1440,19 @@ class boss_franzok : public CreatureScript
                         }
                         else
                         {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                AttackStart(l_Target);
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                if (Unit* l_Target = me->getVictim())
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                            });
                         }
 
+                        break;
+                    }
+                    case eSpells::TacticalRetreat:
+                    case eSpells::TacticalRetreatOther:
+                    {
+                        me->RemoveAura(eSpells::NotReady);
                         break;
                     }
                     default:
@@ -1518,8 +1547,6 @@ class boss_franzok : public CreatureScript
                     }
                     case eEvents::EventBodySlam:
                     {
-                        me->CastSpell(me, eSpells::NotReady, true);
-
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
                             m_BodySlamTarget = l_Target->GetGUID();
@@ -1528,6 +1555,9 @@ class boss_franzok : public CreatureScript
                             me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
                         }
 
+                        me->CastSpell(me, eSpells::NotReady, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
