@@ -411,7 +411,7 @@ class boss_steelbreaker : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     Talk(SAY_STEELBREAKER_SLAY);
 
@@ -710,7 +710,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_MOLGEIM_SLAY);
             }
 
@@ -992,7 +992,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->IsPlayer())
                     if (couldNotDoThat)
                         switch (spell->Id)
                         {
@@ -1050,7 +1050,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_BRUNDIR_SLAY);
             }
 

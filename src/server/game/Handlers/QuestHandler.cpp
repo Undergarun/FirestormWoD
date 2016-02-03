@@ -125,7 +125,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
     // no or incorrect quest giver (probably missing quest relation)
     if ((object->GetTypeId() != TYPEID_PLAYER && !object->hasQuest(questId)) ||
-        (object->GetTypeId() == TYPEID_PLAYER && object != m_Player && !object->ToPlayer()->CanShareQuest(questId)))
+        (object->IsPlayer() && object != m_Player && !object->ToPlayer()->CanShareQuest(questId)))
     {
         m_Player->PlayerTalkClass->SendCloseGossip();
         m_Player->SaveToDB();
@@ -137,7 +137,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (object && object->GetTypeId() == TYPEID_PLAYER && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+    if (object && object->IsPlayer() && object->ToPlayer()->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         return;
 
     // some kind of WPE protection
@@ -154,7 +154,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             return;
         }
 
-        if (object && object->GetTypeId() == TYPEID_PLAYER && !quest->HasFlag(QUEST_FLAGS_SHARABLE))
+        if (object && object->IsPlayer() && !quest->HasFlag(QUEST_FLAGS_SHARABLE))
             return;
 
         if (m_Player->GetDivider() != 0)

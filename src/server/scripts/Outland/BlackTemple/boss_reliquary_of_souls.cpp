@@ -458,7 +458,7 @@ public:
             for (; itr != m_threatlist.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                if (unit && unit->isAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
+                if (unit && unit->isAlive() && (unit->IsPlayer())) // Only alive players
                     targets.push_back(unit);
             }
             if (targets.empty())

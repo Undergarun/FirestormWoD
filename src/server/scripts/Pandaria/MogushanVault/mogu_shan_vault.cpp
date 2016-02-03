@@ -211,7 +211,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 if (!who->IsWithinDist(me, 15.0f))
                     return;
 
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     playerActivate = who->GetGUID();
                     switch (me->GetEntry())

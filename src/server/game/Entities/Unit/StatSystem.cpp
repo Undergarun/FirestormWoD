@@ -162,7 +162,7 @@ bool Player::UpdateAllStats()
 
     // Custom MoP script
     // Jab Override Driver
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+    if (IsPlayer() && getClass() == CLASS_MONK)
     {
         Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -205,7 +205,7 @@ bool Player::UpdateAllStats()
         }
     }
     // Way of the Monk - 120277
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
     {
         if (getClass() == CLASS_MONK && HasAura(120277))
         {
@@ -1583,7 +1583,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    if (l_Owner->GetTypeId() == TYPEID_PLAYER && GetEntry() != ENTRY_FROZEN_ORB)
+    if (l_Owner->IsPlayer() && GetEntry() != ENTRY_FROZEN_ORB)
         l_Owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
 
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);

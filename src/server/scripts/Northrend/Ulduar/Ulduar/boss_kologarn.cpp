@@ -199,7 +199,7 @@ class boss_kologarn : public CreatureScript
                 if (!urand(0,5))
                     Talk(SAY_SLAY);
 
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     who->ExitVehicle();
             }
 

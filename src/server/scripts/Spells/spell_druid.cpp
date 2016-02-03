@@ -2875,7 +2875,7 @@ class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2890,7 +2890,7 @@ class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
                     targets.remove(GetExplTargetUnit());
                     std::list<Unit*> tempTargets;
                     for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                        if ((*itr)->GetTypeId() == TYPEID_PLAYER && GetCaster()->IsInRaidWith((*itr)->ToUnit()))
+                        if ((*itr)->IsPlayer() && GetCaster()->IsInRaidWith((*itr)->ToUnit()))
                             tempTargets.push_back((*itr)->ToUnit());
 
                     if (tempTargets.empty())
@@ -3268,7 +3268,7 @@ class spell_dru_travel_form: public SpellScriptLoader
             void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                if (GetTarget()->IsPlayer())
                     sScriptMgr->OnPlayerUpdateMovement(GetTarget()->ToPlayer());
             }
 
@@ -3409,7 +3409,7 @@ class spell_dru_swift_flight_passive: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
@@ -3443,7 +3443,7 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3835,7 +3835,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 if (l_Damage == 0)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                if (l_Caster->IsPlayer())
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage

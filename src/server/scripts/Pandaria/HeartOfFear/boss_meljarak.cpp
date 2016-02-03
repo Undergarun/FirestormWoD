@@ -398,7 +398,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 Talk(SAY_SLAY);
         }
 

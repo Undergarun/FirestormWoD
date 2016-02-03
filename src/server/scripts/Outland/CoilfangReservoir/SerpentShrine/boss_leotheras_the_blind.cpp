@@ -530,7 +530,7 @@ public:
                     for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
                         Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                        if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
+                        if (tempTarget && tempTarget->IsPlayer() && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
                     //SpellInfo* spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);

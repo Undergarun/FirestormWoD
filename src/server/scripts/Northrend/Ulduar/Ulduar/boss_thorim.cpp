@@ -472,7 +472,7 @@ class boss_thorim : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -565,7 +565,7 @@ class boss_thorim : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == 62466)
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         doNotStandInTheLighting = false;
             }
 

@@ -199,7 +199,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 DoScriptText(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2), me);
         }
 

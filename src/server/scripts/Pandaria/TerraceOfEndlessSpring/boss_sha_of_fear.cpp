@@ -478,7 +478,7 @@ class boss_sha_of_fear : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 

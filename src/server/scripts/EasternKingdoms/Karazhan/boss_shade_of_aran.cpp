@@ -197,7 +197,7 @@ public:
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
-                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->isAlive() && target->IsPlayer())
                     targets.push_back(target);
             }
 

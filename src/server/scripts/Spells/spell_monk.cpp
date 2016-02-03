@@ -1212,7 +1212,7 @@ class spell_monk_guard: public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                if (l_Caster->IsPlayer())
                     p_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
@@ -3352,7 +3352,7 @@ class spell_monk_provoke: public SpellScriptLoader
                     Unit* l_Target = GetExplTargetUnit();
                     if (!l_Target)
                         return SPELL_FAILED_NO_VALID_TARGETS;
-                    else if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    else if (l_Target->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                     else if (!l_Target->IsWithinLOSInMap(GetCaster()))
                         return SPELL_FAILED_LINE_OF_SIGHT;
@@ -3412,7 +3412,7 @@ class spell_monk_provoke_launch : public SpellScriptLoader
                         return true;
 
                     /// Unusable on pvp
-                    if (p_Object->GetTypeId() == TYPEID_PLAYER)
+                    if (p_Object->IsPlayer())
                         return true;
 
                     return false;
@@ -3489,13 +3489,13 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                         {
                             if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth()))
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->GetTypeId() == TYPEID_PLAYER) &&
+                            else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->IsPlayer()) &&
                                 (target->GetHealthPct() > 10.0f))
                                 return SPELL_FAILED_BAD_TARGETS;
                         }
                         else
                         {
-                            if ((target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer())) && target->GetHealthPct() > 10.0f)
+                            if ((target->IsPlayer() || (target->GetOwner() && target->GetOwner()->ToPlayer())) && target->GetHealthPct() > 10.0f)
                                 return SPELL_FAILED_BAD_TARGETS;
                             else if (target->GetTypeId() == TYPEID_UNIT && target->GetHealthPct() > 10.0f && target->GetHealth() > caster->GetMaxHealth())
                                 return SPELL_FAILED_BAD_TARGETS;
@@ -3532,7 +3532,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                if (caster && caster->IsPlayer())
                     caster->CastSpell(caster, SPELL_MONK_FORTIFYING_BREW, true);
             }
 

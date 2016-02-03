@@ -310,13 +310,13 @@ class boss_tayak : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!entranceDone && me->IsWithinDistInMap(who, 50) && who->GetTypeId() == TYPEID_PLAYER)
+                if (!entranceDone && me->IsWithinDistInMap(who, 50) && who->IsPlayer())
                 {
                     Talk(SAY_ENTER_ROOM);
                     entranceDone = true;
                 }
 
-                if (entranceDone && !introDone && me->IsWithinDistInMap(who, 30) && who->GetTypeId() == TYPEID_PLAYER && CheckTrash())
+                if (entranceDone && !introDone && me->IsWithinDistInMap(who, 30) && who->IsPlayer() && CheckTrash())
                 {
                     Talk(SAY_INTRO);
                     introDone = true;
@@ -372,7 +372,7 @@ class boss_tayak : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_SLAY);
             }
 

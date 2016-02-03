@@ -584,7 +584,7 @@ class boss_generic_guardian : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                 {
                     if (pInstance)
                     {
@@ -906,7 +906,7 @@ class boss_generic_guardian : public CreatureScript
                                                 {
                                                     if (Unit* target = guardian->getVictim())
                                                     {
-                                                        if (target->GetTypeId() == TYPEID_PLAYER)
+                                                        if (target->IsPlayer())
                                                         {
                                                             if (target->ToPlayer() == firstPlayer)
                                                                 tank1 = true;

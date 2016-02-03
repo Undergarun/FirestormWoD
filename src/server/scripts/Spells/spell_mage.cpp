@@ -365,7 +365,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
                         l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
 
                     /// Comet Storm (Frost) damage has increased by 94% but deals 33.3% less damage in PvP combat. - 6.1
-                    if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                    if (GetHitUnit() && GetHitUnit()->IsPlayer())
                         l_Damage = l_Damage - CalculatePct(l_Damage, 33.3f);
 
                     SetHitDamage(l_Damage);
@@ -873,7 +873,7 @@ class spell_mage_frostbolt: public SpellScriptLoader
                     return SPELL_FAILED_NO_VALID_TARGETS;
                 else if (GetExplTargetUnit()->GetGUID() == GetCaster()->GetGUID())
                     return SPELL_FAILED_BAD_TARGETS;
-                else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && !GetExplTargetUnit()->IsPvP())
+                else if (GetExplTargetUnit()->IsPlayer() && !GetExplTargetUnit()->IsPvP())
                 {
                     if (GetCaster()->IsPlayer() && GetCaster()->ToPlayer()->m_Duel)
                     if (GetCaster()->ToPlayer()->m_Duel->opponent->GetGUID() == GetExplTargetUnit()->GetGUID())
@@ -1186,7 +1186,7 @@ class spell_mage_frostjaw: public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                         {
                             if (AuraPtr frostjaw = target->GetAura(SPELL_MAGE_FROSTJAW, _player->GetGUID()))
                             {
@@ -1656,7 +1656,7 @@ class spell_mage_cold_snap: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

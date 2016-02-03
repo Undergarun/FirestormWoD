@@ -762,7 +762,7 @@ class npc_injured_patient : public CreatureScript
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
+                if (caster->IsPlayer() && me->isAlive() && spell->Id == 20804)
                 {
                     if ((CAST_PLR(caster)->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (CAST_PLR(caster)->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
                         if (DoctorGUID)
@@ -2162,7 +2162,7 @@ class npc_lightwell : public CreatureScript
 
                 m_RenewTimer = 1000;
 
-                if (p_Owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner->IsPlayer())
                     m_OwnerGUID = p_Owner->GetGUID();
 
                 me->SetMaxHealth(p_Owner->GetMaxHealth());
@@ -3695,7 +3695,7 @@ class npc_past_self : public CreatureScript
 
             void IsSummonedBy(Unit* p_Owner)
             {
-                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner && p_Owner->IsPlayer())
                 {
                     m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
                     m_Health = p_Owner->GetHealth();
@@ -3870,7 +3870,7 @@ class npc_void_tendrils : public CreatureScript
             void IsSummonedBy(Unit* owner)
             {
 
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                 {
                     me->SetLevel(owner->getLevel());
 
@@ -3935,7 +3935,7 @@ class npc_spectral_guise : public CreatureScript
 
             void IsSummonedBy(Unit* owner)
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                 {
                     me->SetLevel(owner->getLevel());
                     me->SetMaxHealth(owner->GetMaxHealth() / 2);

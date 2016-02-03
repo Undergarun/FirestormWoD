@@ -2197,7 +2197,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 int32 l_Damage = GetHitDamage() * float(l_Caster->GetDistance(l_Target) / l_Radius);
 
                 /// July 7th 2015 Cascade now deals 20% less damage in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                if (l_Target->IsPlayer())
                     l_Damage *= 0.80f;
 
                 SetHitDamage(l_Damage);
@@ -2600,7 +2600,7 @@ class spell_pri_penance: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* spellEntry)
@@ -3019,7 +3019,7 @@ class spell_pri_void_tendrils: public SpellScriptLoader
 
                         if (AuraPtr voidTendrils = target->GetAura(GetSpellInfo()->Id, _player->GetGUID()))
                         {
-                            if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->IsPlayer())
                                 voidTendrils->SetMaxDuration(8000);
                             else
                                 voidTendrils->SetMaxDuration(20000);

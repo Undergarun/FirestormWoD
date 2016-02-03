@@ -115,7 +115,7 @@ public:
             {
                 if (Player* player = GetPlayerForEscort())
                 {
-                    if (player->GetTypeId() == TYPEID_PLAYER)
+                    if (player->IsPlayer())
                         CAST_PLR(player)->GroupEventHappens(QUEST_MISSING_DIPLO_PT11, me);
 
                     uiDamage = 0;

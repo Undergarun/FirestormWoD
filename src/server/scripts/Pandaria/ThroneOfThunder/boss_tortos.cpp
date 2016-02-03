@@ -111,7 +111,7 @@ class ShellConcussionTargetSelector
 
         bool operator()(WorldObject* object) const
         {
-            return object->GetTypeId() == TYPEID_PLAYER || (object->ToUnit() && object->ToUnit()->IsControlledByPlayer());
+            return object->IsPlayer() || (object->ToUnit() && object->ToUnit()->IsControlledByPlayer());
         }
 };
 

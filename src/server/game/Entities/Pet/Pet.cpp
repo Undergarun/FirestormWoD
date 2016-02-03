@@ -379,7 +379,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     _LoadAuras(auraResult, auraEffectResult, timediff);
 
-    if (owner->GetTypeId() == TYPEID_PLAYER && owner->ToPlayer()->InArena())
+    if (owner->IsPlayer() && owner->ToPlayer()->InArena())
         RemoveArenaAuras();
 
     // load action bar, if data broken will fill later by default spells.
@@ -417,12 +417,12 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     //set last used pet number (for use in BG's)
-    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
+    if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
 
-    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
+    if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
     {
         uint32 l_SpecializationID = GetSpecializationId();
         if (owner->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
@@ -921,7 +921,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     PetType l_PetType = MAX_PET_TYPE;
 
     Unit* l_Owner = GetSummoner();
-    if (l_Owner && isPet() && l_Owner->GetTypeId() == TYPEID_PLAYER)
+    if (l_Owner && isPet() && l_Owner->IsPlayer())
     {
         switch (l_Owner->getClass())
         {
@@ -1587,7 +1587,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         {
             // need update action bar for last removed rank
             if (Unit* owner = GetOwner())
-                if (owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner->IsPlayer())
                     owner->ToPlayer()->PetSpellInitialize();
         }
     }

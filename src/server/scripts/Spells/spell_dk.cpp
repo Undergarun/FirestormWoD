@@ -2980,12 +2980,12 @@ class spell_dk_control_undead : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return SPELL_FAILED_SUCCESS;
 
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                if (l_Target->IsPlayer())
                     return SPELL_FAILED_BAD_TARGETS;
 
                 if (Unit* l_Owner = l_Target->GetOwner())
                 {
-                    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Owner->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                 }
 

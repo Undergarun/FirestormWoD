@@ -458,7 +458,7 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
 {
     // mark the credit as pvp if victim is player
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->IsPlayer())
         _isPvP = true;
     // or if its owned by player and its not a vehicle
     else if (IS_PLAYER_GUID(victim->GetCharmerOrOwnerGUID()))
@@ -582,7 +582,7 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
         // 4.1. Give honor (player must be alive and not on BG).
         _RewardHonor(player);
         // 4.1.1 Send player killcredit for quests with PlayerSlain
-        if (_victim->GetTypeId() == TYPEID_PLAYER)
+        if (_victim->IsPlayer())
             player->KilledPlayerCredit();
     }
     // Give XP only in PvE or in battlegrounds.
@@ -1637,7 +1637,7 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount, ItemC
 
 void Player::RewardCurrencyAtKill(Unit* p_Victim)
 {
-    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+    if (!p_Victim || p_Victim->IsPlayer())
         return;
 
     if (!p_Victim->ToCreature())
@@ -9177,7 +9177,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
 //Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
-    if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
+    if (!victim || victim->IsPlayer())
         return;
 
     if (victim->ToCreature()->IsReputationGainDisabled())
@@ -9526,7 +9526,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         if (!victim || victim == this || victim ->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
 
-        if (victim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->IsPlayer())
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
@@ -18696,7 +18696,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         uint32 limittime = quest->GetLimitTime();
 
         // shared timed quest
-        if (questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
+        if (questGiver && questGiver->IsPlayer())
             limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
 
         AddTimedQuest(quest_id);
@@ -28651,7 +28651,7 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 
 void Player::RewardPersonnalCurrencies(Unit* p_Victim)
 {
-    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+    if (!p_Victim || p_Victim->IsPlayer())
         return;
 
     if (!p_Victim->ToCreature())

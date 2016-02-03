@@ -136,7 +136,7 @@ class mob_master_shang_xi : public CreatureScript
             {
                 if (pSpell->Id == 114746) // Attraper la flamme
                 {
-                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                    if (caster->IsPlayer())
                     {
                         if (caster->ToPlayer()->GetQuestStatus(29408) == QUEST_STATUS_INCOMPLETE)
                         {
@@ -296,7 +296,7 @@ class mob_tushui_trainee : public CreatureScript
                 {
                     me->setFaction(35);
 
-                    if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
+                    if(attacker && attacker->IsPlayer())
                         attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
 
                     damage = 0;
@@ -1202,7 +1202,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                 me->DespawnOrUnsummon(2000);
 
-                if (attacker->GetTypeId() == TYPEID_PLAYER)
+                if (attacker->IsPlayer())
                     if (Player* player = attacker->ToPlayer())
                     {
                             player->KilledMonsterCredit(54734, 0);
@@ -1215,7 +1215,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
             {
                 victim->ToPlayer()->SetQuestStatus(QUEST_ONLY_THE_WORTHY_SHALL_PASS, QUEST_STATUS_FAILED);
 
@@ -1584,7 +1584,7 @@ class mob_huojin_trainee : public CreatureScript
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
                     damage = 0;
-                    if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
+                    if(attacker && attacker->IsPlayer())
                         attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
                     me->CombatStop();
                     me->setFaction(35);
