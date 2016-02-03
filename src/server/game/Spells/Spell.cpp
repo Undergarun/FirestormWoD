@@ -1794,34 +1794,27 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
                 std::list<WorldObject*> l_Targets;
                 float l_Radius = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
-                SearchAreaTargets(l_Targets, l_Radius, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
+                SearchAreaTargets(l_Targets, l_Radius, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, SpellTargetCheckTypes::TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
 
                 std::list<Unit*> l_UnitTargets;
 
-                if (!l_Targets.empty())
+                for (WorldObject* l_Iterator : l_Targets)
                 {
-                    for (std::list<WorldObject*>::iterator l_Iterator = l_Targets.begin(); l_Iterator != l_Targets.end(); ++l_Iterator)
+                    if (Unit* l_UnitTarget = l_Iterator->ToUnit())
                     {
-                        if ((*l_Iterator))
-                        {
-                            if (Unit* unitTarget = (*l_Iterator)->ToUnit())
-                            {
-                                /// Raid buffs work just on Players
-                                if (unitTarget->ToPlayer())
-                                    l_UnitTargets.push_back(unitTarget);
-                            }
-                        }
+                        /// Raid buffs work just on Players
+                        if (l_UnitTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
+                            l_UnitTargets.push_back(l_UnitTarget);
                     }
                 }
 
                 if (!l_UnitTargets.empty())
                 {
-                    // /Other special target selection goes here
                     if (uint32 l_MaxTargets = m_spellValue->MaxAffectedTargets)
                         JadeCore::Containers::RandomResizeList(l_UnitTargets, l_MaxTargets);
 
-                    for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end(); ++l_Iterator)
-                        AddUnitTarget(*l_Iterator, 1 << l_I, false);
+                    for (Unit* l_Iterator : l_UnitTargets)
+                        AddUnitTarget(l_Iterator, 1 << l_I, false);
                 }
             }
             break;
