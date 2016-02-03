@@ -3483,6 +3483,47 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
         }
 };
 
+/// Glyph of Rain of Frogs - 147707
+class spell_sha_glyph_of_rain_of_frogs : public SpellScriptLoader
+{
+public:
+    spell_sha_glyph_of_rain_of_frogs() : SpellScriptLoader("spell_sha_glyph_of_rain_of_frogs") { }
+
+    class spell_sha_glyph_of_rain_of_frogs_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_glyph_of_rain_of_frogs_AuraScript);
+
+        enum eSpells
+        {
+            GlyphOfRaingOfFrogsSpell = 147709
+        };
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Player* l_Player = GetTarget()->ToPlayer())
+                l_Player->learnSpell(eSpells::GlyphOfRaingOfFrogsSpell, false);
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Player* l_Player = GetTarget()->ToPlayer())
+                if (l_Player->HasSpell(eSpells::GlyphOfRaingOfFrogsSpell))
+                    l_Player->removeSpell(eSpells::GlyphOfRaingOfFrogsSpell, false, false);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_sha_glyph_of_rain_of_frogs_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_sha_glyph_of_rain_of_frogs_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_glyph_of_rain_of_frogs_AuraScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_glyph_of_ascendance();
@@ -3545,4 +3586,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_soothing_wind();
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
+    new spell_sha_glyph_of_rain_of_frogs();
 }
