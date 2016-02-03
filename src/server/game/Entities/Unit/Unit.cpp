@@ -17650,6 +17650,33 @@ void Unit::GetAreatriggerListInRange(std::list<AreaTrigger*>& p_List, float p_Ra
     l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
 }
 
+void Unit::GetAreaTriggerListWithSpellIDInRange(std::list<AreaTrigger*>& p_List, uint32 p_SpellID, float p_Range) const
+{
+    CellCoord l_Coords(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell l_Cell(l_Coords);
+    l_Cell.SetNoCreate();
+
+    JadeCore::AnyAreatriggerInObjectRangeCheck l_Check(this, p_Range);
+    JadeCore::AreaTriggerListSearcher<JadeCore::AnyAreatriggerInObjectRangeCheck> searcher(this, p_List, l_Check);
+
+    TypeContainerVisitor<JadeCore::AreaTriggerListSearcher<JadeCore::AnyAreatriggerInObjectRangeCheck>, WorldTypeMapContainer> l_WorldSearcher(searcher);
+    TypeContainerVisitor<JadeCore::AreaTriggerListSearcher<JadeCore::AnyAreatriggerInObjectRangeCheck>, GridTypeMapContainer>  l_GridSearcher(searcher);
+
+    l_Cell.Visit(l_Coords, l_WorldSearcher, *GetMap(), *this, p_Range);
+    l_Cell.Visit(l_Coords, l_GridSearcher, *GetMap(), *this, p_Range);
+
+    if (!p_List.empty())
+    {
+        p_List.remove_if([p_SpellID](AreaTrigger* p_AreaTrigger) -> bool
+        {
+            if (p_AreaTrigger == nullptr || p_AreaTrigger->GetSpellId() != p_SpellID)
+                return true;
+
+            return false;
+        });
+    }
+}
+
 Unit* Unit::SelectNearbyTarget(Unit* exclude /*= NULL*/, float dist /*= NOMINAL_MELEE_RANGE*/, uint32 p_ExludeAuraID /*= 0*/, bool p_ExcludeVictim /*= true*/, bool p_Alive /*= true*/, bool p_ExcludeStealthVictim /*=false*/, bool p_CheckValidAttack /*= false*/) const
 {
     std::list<Unit*> l_Targets;
