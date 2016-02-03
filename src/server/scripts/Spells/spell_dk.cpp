@@ -1331,7 +1331,8 @@ class spell_dk_anti_magic_shell_raid: public SpellScriptLoader
         }
 };
 
-// 48707 - Anti-Magic Shell (on self)
+/// Last Update 6.2.3
+/// Anti-Magic Shell (on self) - 48707
 class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 {
     public:
@@ -1376,7 +1377,6 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), m_AbsorbPct), GetTarget()->CountPctFromMaxHealth(m_HpPct));
                 m_Absorbed += absorbAmount;
             }
 
@@ -1437,7 +1437,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster || m_AmountAbsorb == 0)
+                if (!l_Caster || m_AmountAbsorb == 0 || m_Absorbed == 0)
                     return;
 
                 if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
@@ -1450,8 +1450,10 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
-                    /// If we have absorbed more than 50% we set value to 50%
-                    l_RemainingPct = l_AbsorbedPct > l_Amount ? l_Amount : (l_Amount - l_AbsorbedPct);
+                    l_RemainingPct = CalculatePct(l_Amount, l_AbsorbedPct);
+
+                    if (l_RemainingPct > l_Aura->GetEffect(EFFECT_0)->GetAmount())
+                        l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount();
 
                     uint32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
 
