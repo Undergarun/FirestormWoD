@@ -241,11 +241,6 @@ class boss_hansgar : public CreatureScript
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
                 }
-
-                AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    Talk(eTalks::Death);
-                });
             }
 
             void OnSpellCasted(SpellInfo const* p_SpellInfo) override

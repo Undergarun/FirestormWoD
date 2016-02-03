@@ -3509,10 +3509,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
             case 155200: ///< Burn (Slag Elemental)
+            case 155890: ///< Molten Torrent (Dummy visual - Molten Torrent Stalker)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
+            case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
@@ -3527,6 +3530,57 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->EffectCount = 1;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                break;
+            case 177858: ///< Ember in the Wind (Mol'dana Two Blade)
+                spellInfo->TargetAuraSpell = 177855;    ///< Ember in the Wind (aura)
+                break;
+            case 177891: ///< Rising Flame Kick (Mol'dana Two Blade)
+            case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
+            case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 156039: ///< Drop the Hammer (Aknor Steelbringer)
+            case 155571: ///< Jump Out of Lava (Cinder Wolf)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                break;
+            case 174215: ///< Summon Armament (Flamebender Ka'graz)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_BACK;
+                break;
+            case 163644: ///< Summon Enchanted Armament (Flamebender Ka'graz)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_NEARBY_ENTRY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(187);  ///< 300y
+                break;
+            case 174217: ///< Summon Enchanted Armament (Enchanted Armament)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(187);  ///< 300y
+                break;
+            case 163153: ///< Enchant Armament (Jump - Enchanted Armament)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 300;
+                break;
+            case 155074: ///< Charring Breath (Cinder Wolf)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 155049: ///< Singe (Cinder Wolf)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 154938: ///< Molten Torrent (AoE Damage - 154938)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
+                spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                break;
+            case 154952: ///< Fixate (Cinder Wolf)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
+                break;
+            case 163633: ///< Magma Monsoon
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3573,7 +3627,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134169:
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->AttributesCu &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Attributes &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
                 break;
             case 140016: ///< Drop Feathers (Ji Kun - Throne of Thunder) (ToT - #6 Ji Kun)
                 spellInfo->Effects[EFFECT_0].MiscValue = 218543;

@@ -275,7 +275,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS    Battle pet Healing  125439, 125801
     &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE           Battle pet first slot and track
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202                     Unk 5.4.0
-    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203                     Unk 5.4.0
+    &Spell::EffectRemoveAura,                               //203 SPELL_EFFECT_REMOVE_AURA_2
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     &Spell::EffectNULL,                                     //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
     &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206                     used for TimelessIsle 5.4.0
@@ -8011,7 +8011,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     if (l_Target == nullptr)
         l_Target = m_caster;
 
-    m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
+    m_caster->CastSpell(l_Target, l_SpellInfo->Id, false);
 }
 
 void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
