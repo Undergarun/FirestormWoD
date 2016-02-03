@@ -3435,8 +3435,58 @@ class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Shadow Infusion - 49572
+class spell_dk_shadow_infusion : public SpellScriptLoader
+{
+    public:
+        spell_dk_shadow_infusion() : SpellScriptLoader("spell_dk_shadow_infusion") { }
+
+        class spell_dk_shadow_infusion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_shadow_infusion_AuraScript);
+
+            enum eSpells
+            {
+                DeathCoilDamage = 47632,
+                DeathCoilHeal   = 47633,
+                ShadowInfusion  = 91342
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
+                    return;
+                
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::DeathCoilDamage && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::DeathCoilHeal)
+                    return;
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_shadow_infusion_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_shadow_infusion_AuraScript();
+        }
+};
+
+
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_shadow_infusion();
     new spell_dk_army_of_the_death_taunt();
     new spell_dk_defile_absorb_effect();
     new spell_dk_soul_reaper_bonus();
