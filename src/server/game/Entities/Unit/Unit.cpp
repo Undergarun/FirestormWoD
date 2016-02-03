@@ -756,6 +756,40 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         victim->CastCustomSpell(victim, 115611, &bp, NULL, NULL, true);
     }
 
+    /// last update : 6.2.3
+    /// Atonement
+    /// Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
+    if (spellProto && (spellProto->Id == 14914 || spellProto->Id == 585 || spellProto->Id == 47666 || spellProto->Id == 129250) && HasAura(81749))
+    {
+        if (Player* l_Player = ToPlayer())
+        {
+            int32 l_Bp = damage;
+            std::list<Unit*> l_GroupList;
+
+            l_Player->GetRaidMembers(l_GroupList);
+
+            SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(81749);
+            l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
+            {
+                return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
+            });
+
+            if (l_GroupList.size() > 1)
+            {
+                l_GroupList.sort(JadeCore::HealthPctOrderPred());
+                l_GroupList.resize(1);
+            }
+
+            for (auto itr : l_GroupList)
+            {
+                if (itr->GetGUID() == l_Player->GetGUID())
+                    l_Bp /= 2;
+
+                l_Player->CastCustomSpell(itr, 81751, &l_Bp, NULL, NULL, true);
+            }
+        }
+    }
+
     /// last update : 6.1.2 19802
     /// Stance of the Spirited Crane - 154436
     if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436))

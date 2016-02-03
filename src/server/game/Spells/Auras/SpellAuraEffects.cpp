@@ -7468,31 +7468,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         if (GetSpellInfo()->Id == 8050 && GetCaster() && GetCaster()->HasAura(55447))
             GetCaster()->HealBySpell(GetCaster(), GetSpellInfo(), CalculatePct(damage, 45), false);
 
-        // Holy Fire ticks can trigger Atonement
-        if (GetSpellInfo()->Id == 14914 && GetCaster() && GetCaster()->HasAura(81749))
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-            {
-                int32 bp = CalculatePct(damage, 90);
-                std::list<Unit*> groupList;
-
-                _player->GetRaidMembers(groupList);
-
-                if (groupList.size() > 1)
-                {
-                    groupList.sort(JadeCore::HealthPctOrderPred());
-                    groupList.resize(1);
-                }
-
-                for (auto itr : groupList)
-                {
-                    if (itr->GetGUID() == _player->GetGUID())
-                        bp /= 2;
-
-                    _player->CastCustomSpell(itr, 81751, &bp, NULL, NULL, true);
-                }
-            }
-        }
         if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
         {
             switch (GetId())
