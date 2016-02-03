@@ -3599,10 +3599,10 @@ void SpellInfo::SetCastTimeIndex(uint32 index)
 
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
-    // find the same instances of ConditionList and delete them.
+    // find the same instances of ConditionContainer and delete them.
     for (uint8 i = 0; i < EffectCount; ++i)
     {
-        ConditionList* cur = Effects[i].ImplicitTargetConditions;
+        ConditionContainer* cur = Effects[i].ImplicitTargetConditions;
         if (!cur)
             continue;
 

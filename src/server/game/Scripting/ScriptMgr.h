@@ -582,7 +582,7 @@ class ScriptMgr
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo);
+        bool OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo& p_SourceInfo);
 
     /// PlayerScript
     public:

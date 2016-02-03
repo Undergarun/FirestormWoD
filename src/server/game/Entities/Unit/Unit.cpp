@@ -16069,7 +16069,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_BURNING_EMBERS:
             return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION) ? 40 : 0);
         case POWER_DEMONIC_FURY:
-            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId()) == SPEC_WARLOCK_DEMONOLOGY) ? 1000 : 0);
+            return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DEMONOLOGY) ? 1000 : 0);
         case POWER_SOUL_SHARDS:
             return (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION) ? 400 : 0);
         case POWER_ECLIPSE:
@@ -16847,9 +16847,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
 
         // do checks using conditions table
-        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id);
-        ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
-        if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+        if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id, eventInfo.GetActor(), eventInfo.GetActionTarget()))
             continue;
 
         // AuraScript Hook
@@ -20873,9 +20871,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             return false;
 
         //! Check database conditions
-        ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(spellClickEntry, itr->second.spellId);
-        ConditionSourceInfo info = ConditionSourceInfo(clicker, this);
-        if (!sConditionMgr->IsObjectMeetToConditions(info, conds))
+        if (!sConditionMgr->IsObjectMeetingSpellClickConditions(spellClickEntry, itr->second.spellId, clicker, this))
             return false;
 
         Unit* caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;

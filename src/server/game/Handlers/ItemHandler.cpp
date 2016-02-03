@@ -799,8 +799,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             uint32 l_AvailableInStock = !l_VendorItem->maxcount ? 0xFFFFFFFF : l_Vendor->GetVendorItemCurrentCount(l_VendorItem);
             if (!m_Player->isGameMaster()) // ignore conditions if GM on
             {
-                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(l_Vendor->GetEntry(), l_VendorItem->item);
-                if (!sConditionMgr->IsObjectMeetToConditions(m_Player, l_Vendor, conditions))
+                if (!sConditionMgr->IsObjectMeetingVendorItemConditions(l_Vendor->GetEntry(), l_VendorItem->item, m_Player, l_Vendor))
                 {
                     sLog->outDebug(LOG_FILTER_CONDITIONSYS, "SendListInventory: conditions not met for creature entry %u item %u", l_Vendor->GetEntry(), l_VendorItem->item);
                     continue;

@@ -1672,7 +1672,7 @@ bool ScriptMgr::OnCriteriaCheck(uint32 p_ScriptID, Player * p_Source, Unit * p_T
 /// Called when a single condition is checked for a player.
 /// @p_Condition  : Condition instance
 /// @p_SourceInfo : Condition  source
-bool ScriptMgr::OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo)
+bool ScriptMgr::OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo & p_SourceInfo)
 {
     ASSERT(p_Condition);
 
