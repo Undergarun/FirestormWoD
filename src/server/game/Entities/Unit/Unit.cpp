@@ -11593,7 +11593,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         /// Default is 5% of crit
         float crit_chance = 5.0f;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
-        AddPct(l_Multiplier, crit_chance);
+        DoneTotal += CalculatePct(pdamage, crit_chance);
     }
 
     // Fingers of Frost - 112965
