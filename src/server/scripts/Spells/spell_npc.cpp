@@ -1030,6 +1030,9 @@ class spell_npc_warl_wild_imp : public CreatureScript
                     return;
                 }
 
+                if (!me->IsValidAttackTarget(me->getVictim()))
+                    return;
+
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
                 m_Charges--;
 
