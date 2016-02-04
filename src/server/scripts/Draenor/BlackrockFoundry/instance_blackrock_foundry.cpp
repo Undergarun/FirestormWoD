@@ -304,6 +304,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                             default:
                                 break;
                         }
+
+                        break;
                     }
                     case eFoundryDatas::DataFlamebenderKagraz:
                     {
@@ -325,6 +327,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 break;
                             }
                         }
+
+                        break;
                     }
                     default:
                         break;

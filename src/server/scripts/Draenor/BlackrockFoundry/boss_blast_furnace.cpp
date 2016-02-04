@@ -46,6 +46,36 @@ Position const g_PrimalElementalistsMoves[eFoundryDatas::MaxPrimalElementalists]
     217.771f, 3546.35f, 217.408f, 0.0f
 };
 
+void ResetEncounter(Creature* p_Source, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Instance == nullptr)
+        return;
+
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain))
+    {
+        if (l_Other->isDead())
+        {
+            l_Other->Respawn();
+            l_Other->GetMotionMaster()->MoveTargetedHome();
+        }
+        else if (!l_Other->HasUnitState(UnitState::UNIT_STATE_EVADE) && l_Other->IsAIEnabled)
+            l_Other->AI()->EnterEvadeMode();
+    }
+}
+
+void StartEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
+        return;
+
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
+    {
+        if (l_Other->IsAIEnabled)
+            l_Other->AI()->AttackStart(p_Target);
+    }
+}
+
 /// Heart of the Mountain - 76806
 class boss_heart_of_the_mountain : public CreatureScript
 {
@@ -218,7 +248,11 @@ class boss_heart_of_the_mountain : public CreatureScript
                 _EnterCombat();
 
                 if (m_Instance != nullptr)
+                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+                    StartEncounter(me, p_Attacker, m_Instance);
+                }
 
                 me->CastSpell(me, eSpells::HeartOfTheFurnace, true);
 
@@ -242,6 +276,11 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                summons.DespawnAll();
+
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
+
                 if (me->HasReactState(ReactStates::REACT_AGGRESSIVE))
                     Talk(eTalks::Wipe);
 
@@ -250,6 +289,8 @@ class boss_heart_of_the_mountain : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
+
+                    ResetEncounter(me, m_Instance);
                 }
 
                 me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
@@ -881,11 +922,7 @@ class boss_foreman_feldspar : public CreatureScript
 
                     CallAddsInCombat(p_Attacker);
 
-                    if (Creature* l_HeartOfTheMountain = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
-                    {
-                        if (l_HeartOfTheMountain->IsAIEnabled)
-                            l_HeartOfTheMountain->SetInCombatWithZone();
-                    }
+                    StartEncounter(me, p_Attacker, m_Instance);
                 }
 
                 m_Events.ScheduleEvent(eEvents::EventBerserker, 780 * TimeConstants::IN_MILLISECONDS);
@@ -899,6 +936,14 @@ class boss_foreman_feldspar : public CreatureScript
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (m_Instance != nullptr)
+                    ResetEncounter(me, m_Instance);
+
+                CreatureAI::EnterEvadeMode();
             }
 
             void JustReachedHome() override
