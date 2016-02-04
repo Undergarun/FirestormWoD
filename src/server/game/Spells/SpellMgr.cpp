@@ -5356,6 +5356,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); ///< 10 Yards
                 break;
+            case 118779: ///< Victory Rush
+            case 118340: ///< Impending Victory
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
             case 89523: ///< Glyph of Grounding Totem
                 spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
                 break;
