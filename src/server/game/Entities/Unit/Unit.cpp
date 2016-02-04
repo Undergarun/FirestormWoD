@@ -20676,8 +20676,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             /// Glyph of Stars
             if (HasAura(114301))
             {
-                CastSpell(this, 114302, true); ///< Astral Form
-                return 0;
+                return GetNativeDisplayId();
             }
 
             bool l_ChosenOfElune = HasAura(102560);

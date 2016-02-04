@@ -5276,6 +5276,9 @@ class spell_dru_astral_form : public SpellScriptLoader
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
 
+                if (l_Target->HasAura(eSpells::MoonkinForm) || l_Target->HasAura(eSpells::ChosenofElune))
+                    return;
+
                 if (l_SpellInfo != nullptr && l_Target->HasAura(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                     l_Target->RemoveAura(l_SpellInfo->Effects[EFFECT_0].BasePoints);
             }
