@@ -282,11 +282,14 @@ class boss_heart_of_the_mountain : public CreatureScript
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
-                if (me->HasReactState(ReactStates::REACT_AGGRESSIVE))
-                    Talk(eTalks::Wipe);
+                me->ClearAllUnitState();
+
+                CreatureAI::EnterEvadeMode();
 
                 if (m_Instance != nullptr)
                 {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
+
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
@@ -294,12 +297,9 @@ class boss_heart_of_the_mountain : public CreatureScript
                     ResetEncounter(me, m_Instance);
                 }
 
-                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
-
-                CreatureAI::EnterEvadeMode();
-
                 me->StopMoving();
-                me->ClearUnitState(UnitState::UNIT_STATE_EVADE);
+
+                me->ClearAllUnitState();
 
                 me->NearTeleportTo(me->GetHomePosition());
 
@@ -941,10 +941,10 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                CreatureAI::EnterEvadeMode();
+
                 if (m_Instance != nullptr)
                     ResetEncounter(me, m_Instance);
-
-                CreatureAI::EnterEvadeMode();
             }
 
             void JustReachedHome() override
