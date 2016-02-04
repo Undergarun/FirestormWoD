@@ -422,7 +422,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
 
             if (l_Caster && l_CreateSpell)
             {
-                float l_Radius = 5.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
@@ -471,7 +471,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
 
             if (l_Caster && l_CreateSpell)
             {
-                float l_Radius = 5.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
@@ -574,7 +574,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = 2.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
@@ -622,7 +622,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = 2.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
