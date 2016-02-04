@@ -795,7 +795,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     /// last update : 6.1.2 19802
     /// Stance of the Spirited Crane - 154436
-    if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436))
+    if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
         if (!spellProto || (spellProto
         && spellProto->Id != 115129 && spellProto->Id != 125033 && spellProto->Id != 124098 && spellProto->Id != 132467
         && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Chi Wave, Chi Burst, Chi Torpedo and Expel Harm
@@ -11758,7 +11758,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     }
 
     /// Custom WoD Script - Mastery: Unshackled Fury
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(76856) && HasAura(12880))
+    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR && HasAura(76856) && HasAura(12880))
     {
         Player const* l_Player = ToPlayer();
         if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(76856, EFFECT_0))
