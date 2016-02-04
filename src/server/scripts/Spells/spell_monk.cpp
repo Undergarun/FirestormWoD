@@ -1189,8 +1189,8 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
 
 };
 
-/// last update : 6.1.2 19802
-/// Guard - 115295
+/// last update : 6.2.3
+/// Guard - 115295, Guard (override) - 123402
 class spell_monk_guard: public SpellScriptLoader
 {
     public:
@@ -1216,6 +1216,9 @@ class spell_monk_guard: public SpellScriptLoader
                     p_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+
+                if (AuraEffectPtr l_GlyphofGuardAura = l_Caster->GetAuraEffect(123401, EFFECT_0))
+                    AddPct(p_Amount, l_GlyphofGuardAura->GetAmount());
 
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
                 {
