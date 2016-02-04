@@ -2987,6 +2987,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
         if (PowerType == POWER_RAGE && Id == 100130 && caster->HasAura(46916))
             powerCost = 0;
 
+        /// Hack fix: Drain Life shouldn't take mana if warlock is on Metamorphis form
+        if (PowerType == POWER_MANA && Id == 689 && caster->HasAura(103958))
+            powerCost = 0;
+
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
 }
