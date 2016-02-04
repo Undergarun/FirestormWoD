@@ -51,7 +51,8 @@ void ResetEncounter(Creature* p_Source, InstanceScript* p_Instance)
     if (p_Source == nullptr || p_Instance == nullptr)
         return;
 
-    if (Creature* l_Other = Creature::GetCreature(*p_Source, (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain))
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
     {
         if (l_Other->isDead())
         {
