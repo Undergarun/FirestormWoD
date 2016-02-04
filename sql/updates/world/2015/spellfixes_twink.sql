@@ -390,4 +390,13 @@ INSERT INTO spell_script_names VALUE (108939, 'spell_pri_glyph_of_levitate');
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sha_glyph_of_rain_of_frogs';
 INSERT INTO `spell_script_names` VALUES (147707, 'spell_sha_glyph_of_rain_of_frogs');
 
+
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_sword_of_light_damage' AND spell_id IN (157048, 53385);
+
+-- fix Shadow Infusion
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_shadow_infusion';
+
+-- fix Might of the Frozen
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_might_of_the_frozen_wastes';
+INSERT INTO `spell_script_names` VALUES (81333, 'spell_dk_might_of_the_frozen_wastes');
+
