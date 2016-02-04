@@ -185,6 +185,7 @@ class boss_heart_of_the_mountain : public CreatureScript
             EventMap m_CosmeticEvents;
 
             bool m_Enabled;
+            bool m_FightStarted;
 
             uint8 m_ElementalistMoveIndex;
             uint8 m_ElementalistKilled;
@@ -213,6 +214,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 m_Enabled = false;
+                m_FightStarted = false;
 
                 m_ElementalistMoveIndex = 0;
                 m_ElementalistKilled = 0;
@@ -246,6 +248,11 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_FightStarted)
+                    return;
+
+                m_FightStarted = true;
+
                 _EnterCombat();
 
                 if (m_Instance != nullptr)
@@ -849,6 +856,8 @@ class boss_foreman_feldspar : public CreatureScript
 
             std::vector<uint64> m_GuardiansGuids;
 
+            bool m_FightStarted;
+
             bool m_RegulatorDestroyed;
 
             void Reset() override
@@ -892,6 +901,8 @@ class boss_foreman_feldspar : public CreatureScript
                         }
                     });
                 }
+
+                m_FightStarted = false;
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -904,6 +915,11 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_FightStarted)
+                    return;
+
+                m_FightStarted = true;
+
                 me->CastSpell(me, eSpells::HotBlooded, true);
 
                 Talk(eTalks::Aggro);
