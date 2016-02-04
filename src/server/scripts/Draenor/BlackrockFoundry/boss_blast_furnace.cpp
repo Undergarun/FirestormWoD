@@ -72,8 +72,8 @@ void StartEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instan
     uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain;
     if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
     {
-        if (l_Other->IsAIEnabled)
-            l_Other->AI()->AttackStart(p_Target);
+        if (l_Other->IsAIEnabled && !l_Other->isInCombat())
+            l_Other->AI()->EnterCombat(p_Target);
     }
 }
 
