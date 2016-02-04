@@ -2092,7 +2092,18 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
 
                 if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
                 {
-                    l_AuraNecroticPlague->ModStackAmount(1);
+                    if (l_AuraNecroticPlague->GetEffect(EFFECT_0))
+                    {
+                        uint32 l_LeftDuration = l_AuraNecroticPlague->GetDuration();
+                        uint32 l_MaxDuration = l_AuraNecroticPlague->GetMaxDuration();
+                        uint32 l_Amplitude = l_AuraNecroticPlague->GetEffect(EFFECT_0)->GetAmplitude();
+                        int8 l_TicksLeft = int8(l_LeftDuration / l_Amplitude);
+                        int8 l_MaxTicks = int8(l_MaxDuration / l_Amplitude);
+                        /// Shouldn't add 1 tick on the first tick, just after second
+                        if (l_MaxTicks - l_TicksLeft != 2)
+                            l_AuraNecroticPlague->ModStackAmount(1);
+                    }
+
                     l_CurrentDuration = l_AuraNecroticPlague->GetDuration();
                     l_CurrentStacks = l_AuraNecroticPlague->GetStackAmount();
                 }
