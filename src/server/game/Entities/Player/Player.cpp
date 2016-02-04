@@ -1002,7 +1002,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     _lastTargetedGO = 0;
 
-    m_PersonnalXpRate = 0;
+    m_PersonnalXpRate = sWorld->getRate(RATE_XP_KILL);
 
     m_knockBackTimer = 0;
 
