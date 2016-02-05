@@ -2039,6 +2039,10 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
         return false;
     if (spellInfo)
     {
+        /// Chaos spells, even if changing school mask, don't get reduced by armor
+        if (spellInfo->SchoolMask == SPELL_SCHOOL_MASK_ALL)
+            return false;
+
         // there are spells with no specific attribute but they have "ignores armor" in tooltip
         if (spellInfo->AttributesCu & SPELL_ATTR0_CU_IGNORE_ARMOR)
             return false;
