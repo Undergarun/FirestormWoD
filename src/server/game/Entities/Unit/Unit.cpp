@@ -15200,6 +15200,9 @@ int32 Unit::CalcSpellDuration(SpellInfo const* p_SpellInfo)
 {
     int32 l_Combo = m_movedPlayer ? m_movedPlayer->GetPower(Powers::POWER_COMBO_POINT) : 0;
 
+    if (l_Combo == 0 && GetEntry() == 77726) ///< Shadow Reflection
+        l_Combo = GetPower(Powers::POWER_COMBO_POINT);
+
     int32 l_MinDur = p_SpellInfo->GetDuration();
     int32 l_MaxDur = p_SpellInfo->GetMaxDuration();
 
@@ -22164,10 +22167,10 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         if (p_Spellproto->SpellFamilyFlags[0] & 0x1000)
             return -20.0f;
         /// Rip - In pvp, damages reduce by 20%
-        if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
+        else if (p_Spellproto->SpellFamilyFlags[0] & 0x800000 && p_Spellproto->SpellFamilyFlags[2] & 0x200000)
             return -20.0f;
         /// Starsurge - In pvp, damages reduce by 15%
-        if (p_Spellproto->SpellFamilyFlags[2] & 0x2000000)
+        else if (p_Spellproto->SpellFamilyFlags[2] & 0x2000000)
             return -15.0f;
         break;
     }
@@ -22177,10 +22180,10 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         if (p_Spellproto->SpellFamilyFlags[3] & 0x10)
             return -10.0f;
         /// Mind Blast - In pvp, damages reduce by 10%
-        if (p_Spellproto->SpellFamilyFlags[0] & 0x2000)
+        else if (p_Spellproto->SpellFamilyFlags[0] & 0x2000)
             return -10.0f;
         /// Mind Spike - In pvp, damages reduce by 10%
-        if (p_Spellproto->SpellFamilyFlags[2] & 0x10000)
+        else if (p_Spellproto->SpellFamilyFlags[2] & 0x10000)
             return -10.0f;
         break;
     }
@@ -22190,19 +22193,19 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         if (p_Spellproto->SpellFamilyFlags[1] & 0x2000)
             return 33.0f;
         /// Corruption - In pvp, damages reduce by 10%
-        if (p_Spellproto->SpellFamilyFlags[0] & 0x2)
+        else if (p_Spellproto->SpellFamilyFlags[0] & 0x2)
             return -10.0f;
         /// Agnoy - In pvp, damages reduce by 10%
-        if (p_Spellproto->SpellFamilyFlags[0] & 0x400)
+        else if (p_Spellproto->SpellFamilyFlags[0] & 0x400)
             return -10.0f;
         /// Unstable Affliction - In pvp, damages reduce by 10%
-        if (p_Spellproto->SpellFamilyFlags[1] & 0x100)
+        else if (p_Spellproto->SpellFamilyFlags[1] & 0x100)
             return -10.0f;
         /// Unstable ShadowBurn - In pvp, damages increase by 20%
-        if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
+        else if (p_Spellproto->SpellFamilyFlags[3] & 0x400000)
             return 20.0f;
         /// Haunt - In pvp, damages reduce by 25%
-        if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
+        else if (p_Spellproto->SpellFamilyFlags[3] & 0x20)
             return -25.0f;
         break;
     }

@@ -443,11 +443,12 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                                 if (!l_Creature->IsAIEnabled)
                                     break;
 
-                                uint64 l_Data;
-                                ((uint32*)(&l_Data))[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
-                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration() - m_OldDataTimeSpell;
+                                uint32 l_Data[3];
+                                l_Data[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+                                l_Data[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration() - m_OldDataTimeSpell;
+                                l_Data[2] = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                                 m_OldDataTimeSpell = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
-                                l_Creature->AI()->SetGUID(l_Data, eDatas::AddSpellToQueue);
+                                l_Creature->AI()->AddHitQueue(l_Data, eDatas::AddSpellToQueue);
                                 break;
                             }
                         }
@@ -471,8 +472,8 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                                 if (!l_Creature->IsAIEnabled)
                                     break;
 
-                                l_Creature->AI()->SetGUID(0, eDatas::FinishFirstPhase);
-                                return;
+                                l_Creature->AI()->AddHitQueue(nullptr, eDatas::FinishFirstPhase);
+                                break;
                             }
                         }
                     }
