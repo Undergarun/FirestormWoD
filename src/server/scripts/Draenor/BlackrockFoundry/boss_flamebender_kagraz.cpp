@@ -46,7 +46,6 @@ class boss_flamebender_kagraz : public CreatureScript
             EnchantedArmamentsSearcher  = 163644,
             EnchantedArmamentsDummy     = 156725,
             /// Molten Torrent
-            MoltenTorrentSearcher       = 155402,
             MoltenTorrentAura           = 154932,
             /// Summon Cinder Wolves
             SummonCinderWolves          = 155776,
@@ -338,11 +337,6 @@ class boss_flamebender_kagraz : public CreatureScript
 
                         break;
                     }
-                    case eSpells::MoltenTorrentSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::MoltenTorrentAura, false);
-                        break;
-                    }
                     case eSpells::MoltenTorrentAura:
                     {
                         if (m_Instance != nullptr)
@@ -468,12 +462,14 @@ class boss_flamebender_kagraz : public CreatureScript
                         Unit* l_Target = nullptr;
                         if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                                me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
-                        m_LavaSlashTarget = l_Target->GetGUID();
+                        m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
 
                         m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlashAgain);
                         break;
@@ -489,7 +485,16 @@ class boss_flamebender_kagraz : public CreatureScript
                         if (me->GetPower(Powers::POWER_ENERGY) < 25)
                             break;
 
-                        me->CastSpell(me, eSpells::MoltenTorrentSearcher, true);
+                        Unit* l_Target = nullptr;
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+
                         m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, eTimers::TimerMoltenTorrentAgain);
                         break;
                     }
