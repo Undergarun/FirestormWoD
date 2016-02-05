@@ -3381,6 +3381,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 168361: ///< Test
+                spellInfo->Effects[0].MiscValue = 500;
+                break;
             case 105157: ///< See Quest Invis 14, Wandering Island spell
                 spellInfo->AreaGroupId = 0;
                 break;

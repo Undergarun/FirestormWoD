@@ -15,6 +15,7 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
+#include "Buildings/Alliance/Large/AGnomishGearworks.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Large/AMageTower.hpp"
 #include "Buildings/Alliance/Large/AStables.hpp"
@@ -35,6 +36,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HGoblinWorkshop.hpp"
 #include "Buildings/Horde/Large/HStables.hpp"
 #include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
@@ -300,7 +302,6 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-
         switch (p_ID)
         {
             case CreatureAIDataIDs::PlotInstanceID:
@@ -1141,6 +1142,9 @@ void AddSC_Garrison_NPC()
         /// Stables
         new MS::Garrison::npc_FannyFirebeard;
         new MS::Garrison::npc_KeeganFirebeard;
+
+        /// Gnomish Gearworks
+        new MS::Garrison::npc_Zee_Garrison;
     }
 
     /// Horde
@@ -1220,6 +1224,9 @@ void AddSC_Garrison_NPC()
 
         /// Fishing Hut
         new MS::Garrison::npc_MakJin_Garr;
+
+        /// Goblin Workshop
+        new MS::Garrison::npc_Vee_Garrison;
     }
 
     /// General
