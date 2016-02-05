@@ -5280,8 +5280,61 @@ class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Demon Hunter's Aspect - 113095
+class spell_gen_demon_hunters_aspect : public SpellScriptLoader
+{
+    public:
+        spell_gen_demon_hunters_aspect() : SpellScriptLoader("spell_gen_demon_hunters_aspect") { }
+
+        class  spell_gen_demon_hunters_aspect_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_demon_hunters_aspect_AuraScript);
+
+            enum eDatas
+            {
+                MorphMale = 35911
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->getGender() == GENDER_MALE)
+                    l_Player->SetDisplayId(eDatas::MorphMale);
+                else ///< TODO : Fine display ID female
+                    l_Player->SetDisplayId(eDatas::MorphMale);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_demon_hunters_aspect_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_demon_hunters_aspect_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_demon_hunters_aspect_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_demon_hunters_aspect();
     new spell_gen_wyrmhunter_hooks();
     new spell_gen_blood_elfe_illusion();
     new spell_gen_kilroggs_dead_eye();
