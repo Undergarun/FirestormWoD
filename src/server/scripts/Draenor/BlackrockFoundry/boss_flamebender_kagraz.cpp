@@ -41,6 +41,7 @@ class boss_flamebender_kagraz : public CreatureScript
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
+            LavaSlashMissileTriggered   = 155318,
             LavaSlashAreaTrigger        = 154915,
             /// Summon Enchanted Armaments
             EnchantedArmamentsSearcher  = 163644,
@@ -295,34 +296,6 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
-                    case eSpells::LavaSlashMissile:
-                    {
-                        Position l_Dest = *p_Target;
-                        Position l_Src  = *me;
-
-                        AddTimedDelayedOperation(500, [this, l_Dest, l_Src]() -> void
-                        {
-                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
-                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
-                            {
-                                Position l_Target;
-
-                                float l_O = l_Src.GetAngle(&l_Dest);
-                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
-                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
-                                float l_Z = l_Src.m_positionZ;
-
-                                l_Target.m_positionX    = l_X;
-                                l_Target.m_positionY    = l_Y;
-                                l_Target.m_positionZ    = l_Z;
-                                l_Target.m_orientation  = l_O;
-
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
-                            }
-                        });
-
-                        break;
-                    }
                     case eSpells::EnchantedArmamentsSearcher:
                     {
                         me->CastSpell(p_Target, eSpells::EnchantedArmamentsDummy, true);
@@ -367,6 +340,46 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eSpells::BlazingRadianceSearcher:
                     {
                         me->CastSpell(p_Target, eSpells::BlazingRadianceAura, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::LavaSlashMissileTriggered:
+                    {
+                        Position l_Dest = p_Dest->_position;
+                        Position l_Src  = *me;
+
+                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
+                        {
+                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            {
+                                Position l_Target;
+
+                                float l_O = l_Src.GetAngle(&l_Dest);
+                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
+                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
+                                float l_Z = l_Src.m_positionZ;
+
+                                l_Target.m_positionX    = l_X;
+                                l_Target.m_positionY    = l_Y;
+                                l_Target.m_positionZ    = l_Z;
+                                l_Target.m_orientation  = l_O;
+
+                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                            }
+                        });
+
                         break;
                     }
                     default:
@@ -752,9 +765,10 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
 
         enum eSpells
         {
-            LavaSlashSearcherSecond = 155357,
-            LavaSlashMissile        = 155297,
-            LavaSlashAreaTrigger    = 154915
+            LavaSlashSearcherSecond     = 155357,
+            LavaSlashMissile            = 155297,
+            LavaSlashMissileTriggered   = 155318,
+            LavaSlashAreaTrigger        = 154915
         };
 
         enum eCreature
@@ -831,9 +845,21 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
                         me->CastSpell(p_Target, eSpells::LavaSlashMissile, true);
                         break;
                     }
-                    case eSpells::LavaSlashMissile:
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::LavaSlashMissileTriggered:
                     {
-                        Position l_Dest = *p_Target;
+                        Position l_Dest = p_Dest->_position;
                         Position l_Src  = *me;
 
                         AddTimedDelayedOperation(200, [this, l_Dest, l_Src]() -> void

@@ -1224,6 +1224,9 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         }
     }
 
+    if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION && m_caster->GetTypeId() == TypeID::TYPEID_UNIT && m_caster->IsAIEnabled)
+        m_caster->ToCreature()->AI()->SpellHitDest(m_targets.GetDst(), spellInfo);
+
     CustomSpellValues values;
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE)
