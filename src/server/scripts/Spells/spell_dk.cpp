@@ -2294,6 +2294,7 @@ class spell_dk_death_pact: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Chains of Ice - 45524
 class spell_dk_chain_of_ice: public SpellScriptLoader
 {
@@ -2308,22 +2309,40 @@ class spell_dk_chain_of_ice: public SpellScriptLoader
             {
                 ChainOfIceRoot = 96294,
                 chilblains = 50041,
-                chilblainsAura = 50435
+                chilblainsAura = 50435,
+                GlyphoftheIceReaper = 159416
             };
 
             void HandleOnHit()
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (l_Caster->HasAura(eSpells::chilblains))
-                    l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
+                if (l_Player->HasAura(eSpells::chilblains))
+                    l_Player->CastSpell(l_Target, eSpells::chilblainsAura, true);
 
-                if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
-                    l_Caster->CastSpell(l_Target, eSpells::ChainOfIceRoot, true);
+                if (l_Player->HasAura(DK_SPELL_CHILBLAINS))
+                    l_Player->CastSpell(l_Target, eSpells::ChainOfIceRoot, true);
+
+                if (l_Player->HasAura(eSpells::GlyphoftheIceReaper))
+                {
+                    for (uint8 i = 0; i < MAX_RUNES; ++i)
+                    {
+                        if (l_Player->GetCurrentRune(i) == RUNE_DEATH
+                            || l_Player->GetCurrentRune(i) == RUNE_BLOOD
+                            || l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
+                            continue;
+
+                        if (l_Player->GetRuneCooldown(i))
+                        {
+                            if (l_Player->GetCurrentRune(i) == RUNE_FROST)
+                                l_Player->ConvertRune(i, RUNE_DEATH);
+                        }
+                    }
+                }
             }
 
             void Register()
