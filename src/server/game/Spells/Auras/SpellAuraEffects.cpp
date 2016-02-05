@@ -7525,7 +7525,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 if (l_CritAdditional)
                     damage = caster->SpellCriticalDamageBonus(m_spellInfo, l_LeftDamage, target);
 
-                caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
+                SpellSchoolMask schoolMask = caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, l_LeftDamage, &l_AbsorbAdditional, &l_ResistAdditional, GetSpellInfo());
 
                 caster->DealDamageMods(target, damage, &l_AbsorbAdditional);
 
@@ -7549,7 +7549,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
                 caster->ProcDamageAndSpell(target, l_ProcAttacker, l_ProcVictim, l_ProcEx, l_LeftDamage, l_AbsorbAdditional, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
 
-                caster->DealDamage(target, l_LeftDamage, NULL, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
+                caster->DealDamage(target, l_LeftDamage, NULL, DOT, schoolMask, GetSpellInfo(), true);
             }
         }
     }
@@ -7566,7 +7566,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         caster->ApplyResilience(target, &dmg);
     damage = dmg;
 
-    caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, GetSpellInfo());
+    SpellSchoolMask schoolMask = caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, GetSpellInfo());
 
     caster->DealDamageMods(target, damage, &absorb);
 
@@ -7650,9 +7650,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     caster->ApplyResilience(target, &dmg);
     damage = dmg;
 
-    caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, m_spellInfo);
+    SpellSchoolMask schoolMask = caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, m_spellInfo);
 
-    caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
+    caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, schoolMask, absorb, resist, false, 0, crit);
 
     // Set trigger flag
     uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
@@ -7663,7 +7663,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
     if (caster->isAlive())
         caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, absorb, WeaponAttackType::BaseAttack, GetSpellInfo(), NULL, CONST_CAST(AuraEffect, shared_from_this()));
-    int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), false);
+    int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, schoolMask, GetSpellInfo(), false);
     if (caster->isAlive())
     {
         float gainMultiplier = GetSpellInfo()->Effects[GetEffIndex()].CalcValueMultiplier(caster);

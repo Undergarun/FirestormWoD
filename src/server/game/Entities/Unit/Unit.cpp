@@ -1634,7 +1634,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     // Calculate absorb resist
     if (damage > 0)
     {
-        CalcAbsorbResist(victim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
+        damageInfo->schoolMask = CalcAbsorbResist(victim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
         damage -= damageInfo->absorb + damageInfo->resist;
     }
     else
@@ -2152,10 +2152,10 @@ bool Unit::IsSpellResisted(Unit* victim, SpellSchoolMask schoolMask, SpellInfo c
     return false;
 }
 
-void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
+SpellSchoolMask Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
 {
     if (!victim || !victim->isAlive() || !damage)
-        return;
+        return schoolMask;
 
     DamageInfo dmgInfo = DamageInfo(this, victim, damage, spellInfo, schoolMask, damagetype);
 
@@ -2330,8 +2330,16 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (!aurApp)
             continue;
         // check damage school mask
-        if (!(absorbAurEff->GetMiscValue() & schoolMask))
+
+        uint32 absorbMask = absorbAurEff->GetMiscValue();
+        if (!(absorbMask & schoolMask))
             continue;
+
+        if ((schoolMask & ~absorbMask) == SPELL_SCHOOL_MASK_NORMAL)
+        {
+            schoolMask = SPELL_SCHOOL_MASK_NORMAL;
+            continue;
+        }
 
         // get amount which can be still absorbed by the aura
         int32 currentAbsorb = absorbAurEff->GetAmount();
@@ -2457,6 +2465,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             }
         }
     }
+    return schoolMask;
 }
 
 void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &healAmount, uint32 &absorb)
