@@ -138,7 +138,8 @@ enum PaladinSpells
     PALADIN_PVP_RETRIBUTION_2P_BONUS            = 165886,
     PALADIN_SPELL_RIGHTEOUS_DETERMINATION       = 165889,
     PALADIN_PVP_RETRIBUTION_4P_BONUS            = 165895,
-    PALADIN_VINDICATORS_FURY                    = 165903
+    PALADIN_VINDICATORS_FURY                    = 165903,
+    PALADIN_HOLY_POWER_ENERGIZE                 = 138248
 };
 
 /// Glyph of devotion aura - 146955
@@ -411,7 +412,7 @@ class spell_pal_daybreak: public SpellScriptLoader
                     if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_AURA))
                         l_Caster->CastSpell(l_Caster, PALADIN_SPELL_DAYBREAK_PROC, true);
 
-                    l_Caster->CastSpell(l_Caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                    l_Caster->CastSpell(l_Caster, PALADIN_HOLY_POWER_ENERGIZE, true);
                 }
             }
 
