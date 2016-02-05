@@ -881,7 +881,7 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
         {
             SummonEnchantedArmament = 174217,
             EnchantArmamentJump     = 163153,
-            UnquenchableFlame       = 156713
+            UnquenchableFlame       = 156689
         };
 
         enum eVisual
@@ -925,11 +925,6 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                     me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
                     me->CastSpell(me, eSpells::UnquenchableFlame, false);
-
-                    AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                    {
-                        me->CastSpell(me, eSpells::UnquenchableFlame, false);
-                    });
                 }
             }
 
@@ -938,18 +933,7 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                 p_Damage = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                UpdateOperations(p_Diff);
-            }
-
-            void LastOperationCalled() override
-            {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    me->CastSpell(me, eSpells::UnquenchableFlame, false);
-                });
-            }
+            void UpdateAI(uint32 const p_Diff) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -2028,6 +2012,39 @@ class spell_foundry_firestorm_v2_pick_stalker_to_fire : public SpellScriptLoader
         }
 };
 
+/// Unquenchable Flame - 156689
+class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
+{
+    public:
+        spell_foundry_unquenchable_flame_periodic() : SpellScriptLoader("spell_foundry_unquenchable_flame_periodic") { }
+
+        class spell_foundry_unquenchable_flame_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_unquenchable_flame_periodic_AuraScript);
+
+            enum eSpell
+            {
+                UnquenchableFlameAoE = 156713
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpell::UnquenchableFlameAoE, false);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_unquenchable_flame_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_unquenchable_flame_periodic_AuraScript();
+        }
+};
+
 /// Lava Slash - 154915
 class areatrigger_foundry_lava_slash_pool : public AreaTriggerEntityScript
 {
@@ -2149,6 +2166,7 @@ void AddSC_boss_flamebender_kagraz()
     new spell_foundry_firestorm_aura();
     new spell_foundry_firestorm_v2_periodic_lava_stalker();
     new spell_foundry_firestorm_v2_pick_stalker_to_fire();
+    new spell_foundry_unquenchable_flame_periodic();
 
     /// AreaTriggers
     new areatrigger_foundry_lava_slash_pool();
