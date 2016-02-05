@@ -828,6 +828,7 @@ class spell_at_mage_meteor_burn : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update
 /// Meteor - 177345
 class spell_at_mage_meteor_timestamp : public AreaTriggerEntityScript
 {
@@ -836,8 +837,19 @@ class spell_at_mage_meteor_timestamp : public AreaTriggerEntityScript
 
         enum eSpells
         {
-            MeteorDamage = 153564
+            MeteorDamage = 153564,
+            MeteorVisualEffect = 174556
         };
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(p_AreaTrigger->m_positionX, p_AreaTrigger->m_positionY, p_AreaTrigger->m_positionZ, eSpells::MeteorVisualEffect, true);
+        }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
