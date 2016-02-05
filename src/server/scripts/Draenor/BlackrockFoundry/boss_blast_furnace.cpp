@@ -73,7 +73,7 @@ void StartEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instan
     if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
     {
         if (l_Other->IsAIEnabled && !l_Other->isInCombat())
-            l_Other->AI()->EnterCombat(p_Target);
+            l_Other->SetInCombatWith(p_Target);
     }
 }
 
@@ -257,8 +257,6 @@ class boss_heart_of_the_mountain : public CreatureScript
                 m_FightStarted = true;
 
                 _EnterCombat();
-
-                me->SetInCombatWith(p_Attacker);
 
                 if (m_Instance != nullptr)
                 {
