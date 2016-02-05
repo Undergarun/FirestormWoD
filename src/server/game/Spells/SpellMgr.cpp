@@ -6100,6 +6100,17 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157048:///< Final Verdict
                 spellInfo->Effects[0].BasePoints = 259; ///< 6.2.3 hotfix: Final Verdict (Retribution) damage has been increased by 8%
                 break;
+            case 152107:///< Demonic Servitude
+                spellInfo->Effects[3].BasePoints = 157899;
+                spellInfo->Effects[3].MiscValue = 157899;
+                spellInfo->Effects[3].SpellClassMask[0] = 0;
+                spellInfo->Effects[3].SpellClassMask[1] |= 0x00100000;
+                break;
+            case 12723: ///< Sweeping Strikes (damage)
+            case 94009: ///< Rend (final damage)
+            case 174736:///< Enhanced Rend
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)

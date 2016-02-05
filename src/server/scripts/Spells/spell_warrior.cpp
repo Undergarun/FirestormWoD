@@ -3070,7 +3070,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->IsPlayer() || l_DamageTarget->IsPetGuardianStuff()))
                     l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
 
-                Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
+                Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_DamageTarget, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
 
                 if (l_NewTarget == nullptr)
                     return;
