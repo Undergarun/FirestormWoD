@@ -1030,18 +1030,36 @@ class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_TriggeredBySpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
-                if (!l_TriggeredBySpell)
+                SpellInfo const* l_RagingBlowEffectSpell = sSpellMgr->GetSpellInfo(p_AurEff->GetTriggerSpell());
+                if (!l_TriggeredBySpell || !l_RagingBlowEffectSpell)
                     return;
 
                 /// Should proc when Raging Blow (main hand and offhand)...
-                if (l_TriggeredBySpell->Id != eSpells::RagingBlow)
+                if (l_TriggeredBySpell->Id != eSpells::RagingBlow && l_TriggeredBySpell->Id != eSpells::RagingBlowOffHand)
                     return;
 
-                /// ...are both critical
+                /// Can't proc from multistrike
+                if (p_ProcEventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE)
+                    return;
+
+                /// Should be critical
                 if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
                     return;
 
-                l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
+                /// If both of your attacks from a single Raging Blow are critical strikes...
+                if (l_TriggeredBySpell->Id == eSpells::RagingBlow)
+                {
+                    l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
+                    /// Set aura effect basepoints to null, because it's just first crit, if offhand spell won't crit, this spell shouldn't increase heal
+                    if (AuraEffectPtr l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
+                        l_RagingBlowEffect->SetAmount(0);
+                }
+                else
+                {
+                    /// Restore aura effect basepoints, to increase heal of Bloodthirst
+                    if (AuraEffectPtr l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
+                        l_RagingBlowEffect->SetAmount(l_RagingBlowEffect->GetBaseAmount());
+                }
             }
 
             void Register()
@@ -1132,7 +1150,7 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
 
                 if (AuraEffectPtr l_GlyphOfRagingBlow = l_Caster->GetAuraEffect(eSpells::GlyphOfRagingBlowHealMod, EFFECT_0))
                 {
-                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetBaseAmount());
+                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetAmount());
                     l_GlyphOfRagingBlow->GetBase()->Remove();
                 }
 

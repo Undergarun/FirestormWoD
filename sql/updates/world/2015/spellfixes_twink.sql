@@ -400,3 +400,6 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_shadow_infusion';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_might_of_the_frozen_wastes';
 INSERT INTO `spell_script_names` VALUES (81333, 'spell_dk_might_of_the_frozen_wastes');
 
+-- fix Glyph of Raging Blow
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_glyph_of_raging_blow';
+INSERT INTO `spell_script_names` VALUES (159740, 'spell_warr_glyph_of_raging_blow');
