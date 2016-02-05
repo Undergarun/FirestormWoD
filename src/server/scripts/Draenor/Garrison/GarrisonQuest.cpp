@@ -40,6 +40,13 @@ namespace MS { namespace Garrison
             return;
         }
 
+        if ((p_Player->HasQuest(Quests::Horde_UnconventionalInventions) || p_Player->HasQuest(Quests::Alliance_UnconventionalInventions)) && p_Item->GetEntry() == WorkshopGearworks::InventionItemIDs::ItemStickyGrenades)
+        {
+            p_Player->QuestObjectiveSatisfy(39320, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            p_Player->QuestObjectiveSatisfy(39307, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            return;
+        }
+
         switch (p_Item->GetVisibleEntry())
         {
             case Items::ItemGarrisonResources:
@@ -94,6 +101,15 @@ namespace MS { namespace Garrison
 
                 break;
             }
+            case WorkshopGearworks::InventionItemIDs::ItemStickyGrenades:
+            case WorkshopGearworks::InventionItemIDs::ItemRoboBooster:
+            case WorkshopGearworks::InventionItemIDs::ItemPneumaticPowerGauntlet:
+            case WorkshopGearworks::InventionItemIDs::ItemSkyTerrorPersonnalDeliverySystem:
+            case WorkshopGearworks::InventionItemIDs::ItemNukularTargetPainter:
+            case WorkshopGearworks::InventionItemIDs::ItemXD57BullseyeGuidedRocketKit:
+            case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
+            case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
+                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, 0);
             default:
                 break;
         }

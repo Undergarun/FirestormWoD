@@ -4535,8 +4535,6 @@ namespace MS { namespace Garrison
     void Manager::AddGarrisonTavernData(uint32 p_Data)
     {
         SetGarrisonTavernData(p_Data);
-
-        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
         m_Owner->SaveToDB(false);
     }
 

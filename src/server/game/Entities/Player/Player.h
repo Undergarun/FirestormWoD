@@ -193,8 +193,9 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest  = 1,
-    CharWorldStateGarrisonStablesSecondQuest = 2
+    CharWorldStateGarrisonStablesFirstQuest          = 1,
+    CharWorldStateGarrisonStablesSecondQuest         = 2,
+    CharWorldStateGarrisonWorkshopGearworksInvention = 3
 };
 
 // Spell modifier (used for modify other spells)
