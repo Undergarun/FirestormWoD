@@ -251,9 +251,14 @@ class boss_heart_of_the_mountain : public CreatureScript
                 if (m_FightStarted)
                     return;
 
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
+
                 m_FightStarted = true;
 
                 _EnterCombat();
+
+                me->SetInCombatWith(p_Attacker);
 
                 if (m_Instance != nullptr)
                 {
@@ -606,7 +611,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
                     return;
 
                 m_Events.Update(p_Diff);
@@ -1031,7 +1036,7 @@ class boss_foreman_feldspar : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
                     return;
 
                 m_Events.Update(p_Diff);
