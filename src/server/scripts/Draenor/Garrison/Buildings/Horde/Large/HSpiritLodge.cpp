@@ -93,22 +93,28 @@ namespace MS { namespace Garrison
                     switch (l_QuestID)
                     {
                         case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, l_GobPos[0].X, l_GobPos[0].Y, l_GobPos[0].Z, l_GobPos[0].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::FrostfireRidgeBuildingGob, l_GobPos[0].X, l_GobPos[0].Y, l_GobPos[0].Z, l_GobPos[0].O))
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalFrostfireRidge, true);
                             break;
                         case GarrisonPortals::PortalsQuests::QuestGorgrond:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::GorgrondBuildingGob, l_GobPos[1].X, l_GobPos[1].Y, l_GobPos[1].Z, l_GobPos[1].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::GorgrondBuildingGob, l_GobPos[1].X, l_GobPos[1].Y, l_GobPos[1].Z, l_GobPos[1].O))
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalGorgrond, true);
                             break;
                         case GarrisonPortals::PortalsQuests::QuestNagrand:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::NagrandBuildingGob, l_GobPos[2].X, l_GobPos[2].Y, l_GobPos[2].Z, l_GobPos[2].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::NagrandBuildingGob, l_GobPos[2].X, l_GobPos[2].Y, l_GobPos[2].Z, l_GobPos[2].O))
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalNagrand, true);
                             break;
                         case GarrisonPortals::PortalsQuests::QuestShadowmoon:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::ShadowmoonBuildingGob, l_GobPos[3].X, l_GobPos[3].Y, l_GobPos[3].Z, l_GobPos[3].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::ShadowmoonBuildingGob, l_GobPos[3].X, l_GobPos[3].Y, l_GobPos[3].Z, l_GobPos[3].O))
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalShadowmoon, true);
                             break;
                         case GarrisonPortals::PortalsQuests::QuestSpiresOfArak:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::SpiresOfArakBuildingGob, l_GobPos[4].X, l_GobPos[4].Y, l_GobPos[4].Z, l_GobPos[4].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::SpiresOfArakBuildingGob, l_GobPos[4].X, l_GobPos[4].Y, l_GobPos[4].Z, l_GobPos[4].O))
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalSpiresOfArak, true);
                             break;
                         case GarrisonPortals::PortalsQuests::QuestTalador:
-                            SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::TaladorBuildingGob, l_GobPos[5].X, l_GobPos[5].Y, l_GobPos[5].Z, l_GobPos[5].O);
+                            if (GameObject* l_Gob = SummonRelativeGameObject(GarrisonPortals::GarrisonGobs::TaladorBuildingGob, l_GobPos[5].X, l_GobPos[5].Y, l_GobPos[5].Z, l_GobPos[5].O))
+                                l_Gob->SetPhaseMask(GarrisonPhases::PhaseMagePortalTalador, true);
                             break;
                         default:
                             break;

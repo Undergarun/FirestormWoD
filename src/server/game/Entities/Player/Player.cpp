@@ -987,6 +987,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     isDebugAreaTriggers = false;
 
+    m_IsDebugQuestLogs = false;
+
     m_WeeklyQuestChanged = false;
 
     m_MonthlyQuestChanged = false;
@@ -1542,7 +1544,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if (msg == EQUIP_ERR_OK)
                 {
                     RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                    pItem = StoreItem(sDest, pItem, true);
+                    pItem = StoreItem(sDest, pItem, true); ///< pItem is never read 01/18/16
                 }
             }
         }
@@ -2333,7 +2335,7 @@ void Player::Update(uint32 p_time)
                     uint32 l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area;
 
                     l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry(); ///< l_garrisonSiteEntry is never read 01/18/16
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
@@ -3726,7 +3728,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!inFight || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = HealthIncreaseRate;
+        addvalue = HealthIncreaseRate; ///< addvalue is never read 01/18/16
         if (getLevel() < 15)
             addvalue = (0.20f*((float)GetMaxHealth())/getLevel()*HealthIncreaseRate);
         else
@@ -4220,7 +4222,13 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 p_Guid, uint32 p_NpcFlagMask)
 
     /// Appropriate npc type
     if (p_NpcFlagMask && !l_Creature->HasFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, p_NpcFlagMask))
+    {
+        /// Targetted object doesn't have required flag.
+        if (m_IsDebugQuestLogs)
+            ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_NO_FLAG);
+
         return nullptr;
+    }
 
     /// Not allow interaction under control, but allow with own pets
     if (l_Creature->GetCharmerGUID())
@@ -9779,7 +9787,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
     if (!p_IgnoreMultipliers)
         p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
 
-    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1; ///< l_precision is never read 01/18/16
     uint32 l_OldTotalCount          = 0;
     uint32 l_OldWeekCount           = 0;
     uint32 l_OldSeasonTotalCount    = 0;
@@ -16948,7 +16956,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                     if (bagItem->m_lootGenerated)
                     {
                         m_session->DoLootRelease(GetLootGUID());
-                        released = true;                    // not realy needed here
+                        released = true;                    // not realy needed here ///< yeah because released is never read 01/18/16
                         break;
                     }
                 }
@@ -16974,7 +16982,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
                 // found empty
                 if (!m_items[i])
                 {
-                    slot = i;
+                    slot = i; ///< slot is never read 01/18/16
                     break;
                 }
 
@@ -18371,6 +18379,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
 
 bool Player::CanTakeQuest(Quest const* quest, bool msg)
 {
+    ///
     return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
         && SatisfyQuestTeam(quest)
@@ -18797,7 +18806,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -19163,7 +19173,12 @@ bool Player::SatisfyQuestSkill(Quest const* qInfo, bool msg) const
     if (GetSkillValue(skill) < skill_value)
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+            if (m_IsDebugQuestLogs && GetSession())
+                ChatHandler(GetSession()).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_MISSING_SKILL);
+        }
 
         return false;
     }
@@ -19176,13 +19191,25 @@ bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg)
     if (getLevel() < qInfo->GetMinLevel())
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_QUEST_FAILED_LOW_LEVEL);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_TOO_LOW_LVL);
+        }
+
         return false;
     }
     else if (qInfo->GetMaxLevel() > 0 && getLevel() > qInfo->GetMaxLevel())
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ); // There doesn't seem to be a specific response for too high player level
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_TOO_HIGH_LVL);
+        }
+
         return false;
     }
     return true;
@@ -19198,7 +19225,11 @@ bool Player::SatisfyQuestLog(bool msg)
     {
         WorldPacket data(SMSG_QUEST_LOG_FULL, 0);
         GetSession()->SendPacket(&data);
+
+        if (m_IsDebugQuestLogs)
+            ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_QUEST_LOG);
     }
+
     return false;
 }
 
@@ -19242,7 +19273,13 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (m_RewardedQuests.find(exclude_Id) == m_RewardedQuests.end())
                     {
                         if (msg)
+                        {
                             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                            if (m_IsDebugQuestLogs)
+                                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_EXCL_GRP_ALT_COMP);
+                        }
+
                         return false;
                     }
                 }
@@ -19259,7 +19296,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                 // each-from-all exclusive group (< 0)
                 // can be start if only all quests in prev quest exclusive group active
                 ObjectMgr::ExclusiveQuestGroups::iterator iter2 = sObjectMgr->mExclusiveQuestGroups.lower_bound(qPrevInfo->GetExclusiveGroup());
-                ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr->mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
+                ObjectMgr::ExclusiveQuestGroups::iterator end   = sObjectMgr->mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
 
                 ASSERT(iter2 != end);                         // always must be found if qPrevInfo->ExclusiveGroup != 0
 
@@ -19275,7 +19312,13 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE)
                     {
                         if (msg)
+                        {
                             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                            if (m_IsDebugQuestLogs)
+                                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_EXCL_GRP_ALT_ACTIVE);
+                        }
+
                         return false;
                     }
                 }
@@ -19287,7 +19330,12 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
     // Has only positive prev. quests in non-rewarded state
     // and negative prev. quests in non-active state
     if (msg)
+    {
         SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+        if (m_IsDebugQuestLogs)
+            ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_PREV_QUEST);
+    }
 
     return false;
 }
@@ -19295,10 +19343,17 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 bool Player::SatisfyQuestTeam(Quest const* qInfo)
 {
     int8 reqteam = qInfo->GetRequiredTeam();
+
     if (reqteam < 0)
         return true;
 
-    return reqteam == GetTeamId();
+    if (reqteam == GetTeamId())
+        return true;
+
+    if (m_IsDebugQuestLogs)
+        ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_FACTION);
+
+    return false;
 }
 
 bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
@@ -19314,7 +19369,12 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
         if ((reqClass & getClassMask()) == 0)
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                if (m_IsDebugQuestLogs && GetSession())
+                    ChatHandler(GetSession()).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_CLASS);
+            }
 
             return false;
         }
@@ -19327,7 +19387,12 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
         if (reqClass & getClassMask())
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                if (m_IsDebugQuestLogs && GetSession())
+                    ChatHandler(GetSession()).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_CLASS);
+            }
 
             return false;
         }
@@ -19348,7 +19413,13 @@ bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg)
         if ((reqraces & getRaceMask()) == 0)
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_QUEST_FAILED_WRONG_RACE);
+
+                if (m_IsDebugQuestLogs)
+                    ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_RACE);
+            }
+
             return false;
         }
     }
@@ -19360,7 +19431,13 @@ bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg)
         if (reqraces & getRaceMask())
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_QUEST_FAILED_WRONG_RACE);
+
+                if (m_IsDebugQuestLogs)
+                    ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_RACE);
+            }
+
             return false;
         }
     }
@@ -19374,7 +19451,13 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
     if (fIdMin && GetReputationMgr().GetReputation(fIdMin) < qInfo->GetRequiredMinRepValue())
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_MIN_REP);
+        }
+
         return false;
     }
 
@@ -19382,7 +19465,13 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
     if (fIdMax && GetReputationMgr().GetReputation(fIdMax) >= qInfo->GetRequiredMaxRepValue())
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_MAX_REP);
+        }
+
         return false;
     }
 
@@ -19397,7 +19486,12 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
         if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2 && GetReputationMgr().GetReputation(l_Objective.ObjectID) >= l_Objective.Amount)
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                if (m_IsDebugQuestLogs)
+                    ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_OBJ_REP);
+            }
 
             return false;
         }
@@ -19406,12 +19500,18 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
     return true;
 }
 
-bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestStatus(Quest const* p_QInfo, bool p_Msg)
 {
-    if (GetQuestStatus(qInfo->GetQuestId()) != QUEST_STATUS_NONE)
+    if (GetQuestStatus(p_QInfo->GetQuestId()) != QUEST_STATUS_NONE)
     {
-        if (msg)
+        if (p_Msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_QUEST_ALREADY_ON);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_STATUS);
+        }
+
         return false;
     }
     return true;
@@ -19419,12 +19519,19 @@ bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg)
 
 bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg)
 {
-    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_ACCEPT, qInfo->GetQuestId());
-    if (!sConditionMgr->IsObjectMeetToConditions(this, conditions))
+    ConditionList l_Conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_ACCEPT, qInfo->GetQuestId());
+    if (!sConditionMgr->IsObjectMeetToConditions(this, l_Conditions))
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_CONDITION);
+        }
+
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Player::SatisfyQuestConditions: conditions not met for quest %u", qInfo->GetQuestId());
+
         return false;
     }
     return true;
@@ -19435,7 +19542,13 @@ bool Player::SatisfyQuestTimed(Quest const* qInfo, bool msg)
     if (!m_timedquests.empty() && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_QUEST_ONLY_ONE_TIMED);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WRONG_TIME);
+        }
+
         return false;
     }
     return true;
@@ -19465,7 +19578,12 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
         if (!SatisfyQuestDay(Nquest) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                if (m_IsDebugQuestLogs)
+                    ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_DOUBLE_EXCL);
+            }
 
             return false;
         }
@@ -19474,7 +19592,13 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
         if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && (m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())))
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                if (m_IsDebugQuestLogs)
+                    ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_ALT_QUEST);
+            }
+
             return false;
         }
     }
@@ -19491,7 +19615,13 @@ bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg)
     if (GetQuestStatus(nextQuest) != QUEST_STATUS_NONE) // GetQuestStatus returns QUEST_STATUS_COMPLETED for rewarded quests
     {
         if (msg)
+        {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_CHAIN_NEXT);
+        }
+
         return false;
     }
 
@@ -19515,7 +19645,13 @@ bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
         if (itr != m_QuestStatus.end() && itr->second.Status != QUEST_STATUS_NONE)
         {
             if (msg)
+            {
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+
+                if (m_IsDebugQuestLogs)
+                    ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_CHAIN_PREV);
+            }
+
             return false;
         }
 
@@ -19537,13 +19673,23 @@ bool Player::SatisfyQuestDay(Quest const* qInfo)
     for (auto id : m_dailyQuestStorage)
     {
         if (qInfo->GetQuestId() == id)
+        {
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_DAILY_DONE);
+
             return false;
+        }
     }
 
     if (qInfo->IsDFQuest())
     {
         if (!m_DFQuests.empty())
+        {
+            if (m_IsDebugQuestLogs)
+                ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_DF_DAILY);
+
             return false;
+        }
 
         return true;
     }
@@ -19556,8 +19702,15 @@ bool Player::SatisfyQuestWeek(Quest const* qInfo, bool /*msg*/)
     if (!qInfo->IsWeekly() || m_weeklyquests.empty())
         return true;
 
-    // if not found in cooldown list
-    return m_weeklyquests.find(qInfo->GetQuestId()) == m_weeklyquests.end();
+
+    if (m_weeklyquests.find(qInfo->GetQuestId()) == m_weeklyquests.end())
+        return true;
+
+    /// if not found in cooldown list
+    if (m_IsDebugQuestLogs)
+        ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_WEEKLY_DONE);
+
+    return false;
 }
 
 bool Player::SatisfyQuestSeasonal(Quest const* qInfo, bool /*msg*/)
@@ -19565,12 +19718,18 @@ bool Player::SatisfyQuestSeasonal(Quest const* qInfo, bool /*msg*/)
     if (!qInfo->IsSeasonal() || m_seasonalquests.empty())
         return true;
 
-    uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
-    if (m_seasonalquests.find(eventId) == m_seasonalquests.end() || m_seasonalquests[eventId].empty())
+    uint16 l_EventId = sGameEventMgr->GetEventIdForQuest(qInfo);
+    if (m_seasonalquests.find(l_EventId) == m_seasonalquests.end() || m_seasonalquests[l_EventId].empty())
         return true;
 
-    // if not found in cooldown list
-    return m_seasonalquests[eventId].find(qInfo->GetQuestId()) == m_seasonalquests[eventId].end();
+    if (m_seasonalquests[l_EventId].find(qInfo->GetQuestId()) == m_seasonalquests[l_EventId].end())
+        return true;
+
+    /// if not found in cooldown list
+    if (m_IsDebugQuestLogs)
+        ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_SEASONNAL_DONE);
+
+    return false;
 }
 
 bool Player::SatisfyQuestMonth(Quest const* qInfo, bool /*msg*/)
@@ -19578,8 +19737,14 @@ bool Player::SatisfyQuestMonth(Quest const* qInfo, bool /*msg*/)
     if (!qInfo->IsMonthly() || m_monthlyquests.empty())
         return true;
 
-    // if not found in cooldown list
-    return m_monthlyquests.find(qInfo->GetQuestId()) == m_monthlyquests.end();
+    if (m_monthlyquests.find(qInfo->GetQuestId()) == m_monthlyquests.end())
+        return true;
+
+    /// if not found in cooldown list
+    if (m_IsDebugQuestLogs)
+        ChatHandler(this).PSendSysMessage(LANG_DEBUG_QUEST_LOGS_MONTHLY_DONE);
+
+    return false;
 }
 
 bool Player::GiveQuestSourceItem(Quest const* quest)
@@ -19737,8 +19902,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
-                    DestroyItemCount(l_Objective.ObjectID, GetItemCount(l_Objective.ObjectID), true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
             }
         }
 
@@ -20838,8 +21003,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
             AddAura(26013, this);
         if (DungeonDesert)
             AddAura(71041, this);
-        if (MalDeRez)
-            AddAura(15007, this);
+        /*if (MalDeRez)
+            AddAura(15007, this);*/
 
         mustResurrectFromUnlock = HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST);
         RelocateToHomebind();
@@ -22134,7 +22299,7 @@ void Player::_LoadMail(PreparedQueryResult p_MailResult)
             m->receiver       = fields[3].GetUInt32();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
-            bool has_items    = fields[6].GetBool();
+            bool has_items    = fields[6].GetBool(); ///< hasitem is never read 01/18/16
             m->expire_time    = time_t(fields[7].GetUInt32());
             m->deliver_time   = time_t(fields[8].GetUInt32());
             m->money          = fields[9].GetUInt64();
@@ -24059,7 +24224,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+                    && sWorld->CanBeSaveInLoginDatabase())
                 {
                     /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
@@ -24083,7 +24248,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE) == 0))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+                    && sWorld->CanBeSaveInLoginDatabase())
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -32661,11 +32826,11 @@ uint32 Player::GetUnlockedPetBattleSlot()
         l_SlotCount++;
 
     /// Newbie
-    if (GetAchievementMgr().HasAchieved(7433))
+    if (GetAchievementMgr().HasAccountAchieved(7433))
         l_SlotCount++;
 
     /// Just a Pup
-    if (GetAchievementMgr().HasAchieved(6566))
+    if (GetAchievementMgr().HasAccountAchieved(6566))
         l_SlotCount++;
 
     return l_SlotCount;
@@ -32989,7 +33154,7 @@ void Player::SendToyBox()
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
     /// Save toys to database only for live realms
-    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+    if (sWorld->CanBeSaveInLoginDatabase())
     {
         PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
         l_Statement->setUInt32(0, GetSession()->GetAccountId());
@@ -33163,6 +33328,14 @@ void Player::DeleteGarrison()
     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
     m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
+
+    if (IsInGarrison())
+    {
+        if (GetTeamId() == TEAM_ALLIANCE)
+            TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
+        else if (GetTeamId() == TEAM_HORDE)
+            TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
+    }
 
     delete m_Garrison;
     m_Garrison = nullptr;
@@ -33931,7 +34104,7 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
 
-    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return true;
 
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_HEIRLOOM);

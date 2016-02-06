@@ -2419,7 +2419,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
     if (GetCaster() && existingAura->GetCaster())
     {
         if (GetCaster()->isPet() || existingAura->GetCaster()->isPet())
-            casterIsPet = true;
+            casterIsPet = true; ///< casterisPet is never read 01/18/16
     }
 
     if (!sameCaster)

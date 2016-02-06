@@ -1409,7 +1409,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
 void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 {
-    if (!p_EncounterID)
+    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_START);
@@ -1417,10 +1417,6 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
-
-    /// Temp disable PvE ranking for Hans'gar & Franzok
-    if (p_EncounterID == 1693)
-        return;
 
     /// Reset datas before each attempt
     m_EncounterDatas = EncounterDatas();
@@ -1459,7 +1455,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
 {
-    if (!p_EncounterID)
+    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);
@@ -1469,10 +1465,6 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.WriteBit(p_Success);
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
-
-    /// Temp disable PvE ranking for Hans'gar & Franzok
-    if (p_EncounterID == 1693)
-        return;
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
     m_EncounterDatas.EndTime        = time(nullptr);

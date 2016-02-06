@@ -850,7 +850,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         Field* fields = result->Fetch();
         accountId     = fields[0].GetUInt32();
         name          = fields[1].GetString();
-        atLogin       = fields[2].GetUInt32();
+        atLogin       = fields[2].GetUInt16();
     }
 
     // prevent deleting other players' characters using cheating tools
@@ -1310,9 +1310,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     else
         pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
-    uint32 time9 = getMSTime() - time8;
+    uint32 time9 = getMSTime() - time8; ///> time9 is never read 01/18/16
 
-    uint32 totalTime = getMSTime() - time0;
+    uint32 totalTime = getMSTime() - time0; ///< totaltime is never read 01/18/16
     //if (totalTime > 50)
     //    sLog->outAshran("HandlePlayerLogin |****---> time1 : %u | time 2 : %u | time 3 : %u | time 4 : %u | time 5: %u | time 6 : %u | time 7 : %u | time 8 : %u | time 9 : %u | totaltime : %u", time1, time2, time3, time4, time5, time6, time7, time8, time9, totalTime);
 
@@ -1435,7 +1435,7 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
 {
-    bool showing = recvData.ReadBit();
+    bool showing = recvData.ReadBit(); ///< showing is never read 01/18/16
 }
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
@@ -1894,7 +1894,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& p_RecvData)
 
     p_RecvData >> l_SetGuid;
     p_RecvData >> l_SetID;
-    uint32 l_Unk = p_RecvData.read<uint32>();
+    uint32 l_Unk = p_RecvData.read<uint32>(); ///< l_unk is never read 01/18/16
 
     std::vector<uint64> l_ItemsGuids(EQUIPMENT_SLOT_END, 0);
     for (uint32 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
@@ -2039,7 +2039,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     std::string l_Name;
     size_t      l_NameSize;
 
-    l_FactionChange        = p_Packet.ReadBit();
+    l_FactionChange        = p_Packet.ReadBit(); ///< l_FactionChange is never read 01/18/16
     l_NameSize             = p_Packet.ReadBits(6);
     l_HasSkinID            = p_Packet.ReadBit();
     l_HasHairColor         = p_Packet.ReadBit();
@@ -2103,7 +2103,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     uint32 l_AtLoginFlag    = l_Fields[3].GetUInt16();
     auto   l_KnownTitlesStr = l_Fields[4].GetCString();
     uint32 l_PlayerBytes    = l_Fields[5].GetUInt32();
-    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32();
+    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///w L_playerbyte2 is never read 01/18/16
 
     /// - If client doesn't send value, get the old from database & use it
     {

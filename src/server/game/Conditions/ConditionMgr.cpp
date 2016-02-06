@@ -26,6 +26,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#include "GarrisonMgr.hpp"
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: SmartAI)
@@ -293,6 +294,33 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
             break;
         }
+        case CONDITION_HAS_BUILDING_TYPE:
+        {
+            if (Player* l_Player = object->ToPlayer())
+            {
+                if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+                {
+                    if (!ConditionValue2)
+                        condMeets = l_GarrisonMgr->HasBuildingType((MS::Garrison::BuildingType::Type)ConditionValue1);
+                    else
+                    {
+                        MS::Garrison::GarrisonBuilding l_Building = l_GarrisonMgr->GetBuildingWithType((MS::Garrison::BuildingType::Type)ConditionValue1);
+
+                        if (!l_Building.BuildingID)
+                        {
+                            condMeets = false;
+                            break;
+                        }
+
+                        if (l_GarrisonMgr->GetBuildingLevel(l_Building) == ConditionValue2)
+                            condMeets = true;
+                        else
+                            condMeets = false;
+                    }
+                }
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -454,6 +482,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_SPAWNMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_HAS_BUILDING_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2002,6 +2033,12 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         case CONDITION_UNUSED_24:
             sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_24 in `conditions` table - ignoring");
             return false;
+        case CONDITION_HAS_BUILDING_TYPE:
+        {
+            if (cond->ConditionValue3)
+                sLog->outError(LOG_FILTER_SQL, "HasBuilding condition has useless data in value3 (%u)!", cond->ConditionValue3);
+            break;
+        }
         default:
             break;
     }

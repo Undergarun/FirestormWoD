@@ -344,7 +344,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 127
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 128
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 129 TARGET_UNIT_CONE_ENEMY_129
-    { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 130
+    { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 130 TARGET_UNIT_CONE_ENEMY_130
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 131
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 132
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 133
@@ -962,7 +962,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 200 SPELL_EFFECT_RESURECT_BATTLE_PETS
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 201 SPELL_EFFECT_CAN_PETBATTLE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 202 SPELL_EFFECT_202
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_203
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_REMOVE_AURA_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 204 SPELL_EFFECT_204
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 205 SPELL_EFFECT_205
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 206 SPELL_EFFECT_206
@@ -1285,10 +1285,9 @@ bool SpellInfo::IsExplicitDiscovery() const
 
 bool SpellInfo::IsLootCrafting() const
 {
-    return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+    return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM) ||
+    HasEffect(SPELL_EFFECT_CREATE_ITEM_2);
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -3423,6 +3422,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 p_TargetA, uint32 p_TargetB)
         case Targets::TARGET_UNIT_CONE_ENEMY_104:
         case Targets::TARGET_UNIT_CONE_ENEMY_110:
         case Targets::TARGET_UNIT_CONE_ENEMY_129:
+        case Targets::TARGET_UNIT_CONE_ENEMY_130:
         case Targets::TARGET_DEST_DYNOBJ_ENEMY:
         case Targets::TARGET_DEST_TARGET_ENEMY:
         case Targets::TARGET_ENNEMIES_AROUND_CASTER:
@@ -4083,6 +4083,7 @@ bool SpellInfo::IsCanBeStolen() const
         case 633:   ///< Lay on Hands
         case 22812: ///< Barkskin
         case 24275: ///< Hammer of Wrath
+        case 158392: ///< Hammer of Wrath
         case 31935: ///< Avenger's Shield
         case 53563: ///< Beacon of Light
             return false;
@@ -4393,14 +4394,15 @@ bool SpellInfo::IsNeedToCheckSchoolImmune() const
 
     switch (Id)
     {
-        case 879:   // Exorcism
-        case 24275: // Hammer of Wrath
-        case 25912: // Holy Shock damage
-        case 25914: // Holy Shock heal
-        case 35395: // Crusader Strike
-        case 42292: // Pvp Trinket
-        case 59752: // Every Man for Himself (racical)
-        case 82327: // Holy Radiance
+        case 879:   ///< Exorcism
+        case 24275: ///< Hammer of Wrath
+        case 158392: ///< Hammer of Wrath
+        case 25912: ///< Holy Shock damage
+        case 25914: ///< Holy Shock heal
+        case 35395: ///< Crusader Strike
+        case 42292: ///< Pvp Trinket
+        case 59752: ///< Every Man for Himself (racical)
+        case 82327: ///< Holy Radiance
             return false;
         default:
             break;

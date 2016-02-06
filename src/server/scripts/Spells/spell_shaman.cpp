@@ -691,7 +691,7 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive())
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()))
                             l_Caster->RemoveAura(itr.first);
                     }
                 }
@@ -2189,7 +2189,8 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
 
             enum eSpells
             {
-                LavaLash = 60103
+                LavaLash = 60103,
+                LavaLashHighlight = 144967
             };
 
             void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -2211,7 +2212,10 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                     return;;
 
                 if (SpellInfo const* l_LavaLash = sSpellMgr->GetSpellInfo(eSpells::LavaLash))
+                {
                     l_Player->RestoreCharge(l_LavaLash->ChargeCategoryEntry);
+                    l_Player->CastSpell(l_Player, LavaLashHighlight, true);
+                }
             }
 
             void Register()
@@ -3260,30 +3264,49 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                if (l_Caster == nullptr || !l_Caster->HasAura(eSpells::ItemWodPvpRestoration4PBonus))
+                if (l_Caster == nullptr || l_Player == nullptr || !l_Caster->HasAura(eSpells::ItemWodPvpRestoration4PBonus))
                     return;
 
                 float l_HealthPct = 0.0f;
                 AuraPtr l_AuraSetBonus = l_Caster->GetAura(eSpells::ItemWodPvpRestoration4PBonus);
-                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_2))
+                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_0))
                     l_HealthPct = (float)l_AuraEffectHealthPct->GetAmount();
 
                 if (p_EventInfo.GetDamageInfo() == nullptr || l_AuraSetBonus == nullptr)
                     return;
 
+                if (l_Player->HasSpellCooldown(eSpells::EarthShieldProc))
+                    return;
+
                 Unit* l_Target = GetTarget();
-                if (l_Target->GetHealthPct() >= l_HealthPct && (100.f * (l_Target->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) < l_HealthPct)
+                ///< Should proc only when the target pass from > 50% health to < 50% health
+                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
                 {
                     if (AuraEffectPtr l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
-                        for (int8 i = 0; i < l_AuraEffectNbrProc->GetAmount(); ++i)
+                        /// If we have less than 4 stacks, to prevent crash
+                        if (p_AurEff->GetBase() && (p_AurEff->GetBase()->GetCharges() < l_AuraEffectNbrProc->GetAmount()))
                         {
-                            l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
-                            p_AurEff->GetBase()->DropCharge();
+                            for (int8 i = 0; i < p_AurEff->GetBase()->GetCharges(); ++i)
+                            {
+                                l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
+                                p_AurEff->GetBase()->DropCharge();
+                            }
+                        }
+                        else
+                        {
+                            for (int8 i = 0; i < l_AuraEffectNbrProc->GetAmount(); ++i)
+                            {
+                                l_Caster->CastSpell(l_Target, eSpells::EarthShieldProc, true);
+                                p_AurEff->GetBase()->DropCharge();
+                            }
                         }
                     }
-
+                    
+                    /// To prevent multiprocs, blizzlike cooldown 3 seconds
+                    l_Player->AddSpellCooldown(eSpells::EarthShieldProc, 0, 3 * IN_MILLISECONDS);
                 }
             }
 

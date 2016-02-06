@@ -137,7 +137,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     p_RecvPacket.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag      = p_RecvPacket.ReadBits(5);
+    l_SendCastFlag      = p_RecvPacket.ReadBits(5); ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos  = p_RecvPacket.ReadBit();
     l_SpellWeightCount  = p_RecvPacket.ReadBits(2);
 
@@ -530,7 +530,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     p_RecvPacket.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag      = p_RecvPacket.ReadBits(5);
+    l_SendCastFlag      = p_RecvPacket.ReadBits(5); ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos  = p_RecvPacket.ReadBit();
     l_SpellWeightCount  = p_RecvPacket.ReadBits(2);
 
@@ -648,10 +648,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         caster = m_Player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER &&
-        !caster->ToPlayer()->HasActiveSpell(l_SpellID) && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) &&
-        l_SpellID != 101603 && // Hack for Throw Totem, Echo of Baine
-        l_SpellID != 1843 && !spellInfo->IsRaidMarker()) // Hack for disarm. Client sends the spell instead of gameobjectuse.
+    if (caster->GetTypeId() == TYPEID_PLAYER
+        && !caster->ToPlayer()->HasActiveSpell(l_SpellID) 
+        && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) 
+        && !spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ALWAYS_ACTIVE) 
+        && !spellInfo->IsRaidMarker())
     {
         // GameObject Use
         if (IS_GAMEOBJECT_GUID(l_TargetGUID))
@@ -707,7 +708,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
                 {
                     spellInfo = newInfo;
-                    l_SpellID = newInfo->Id;
+                    l_SpellID = newInfo->Id; ///< l_SpellID is never read 01/18/16
                 }
                 break;
             }
@@ -906,7 +907,7 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
     bool l_TryAutoDismount = false;
 
     p_Packet.readPackGUID(l_NpcGuid);
-    l_TryAutoDismount = p_Packet.ReadBit();
+    l_TryAutoDismount = p_Packet.ReadBit(); ///< l_tryAutoDismount is never read 01/18/16
 
     // this will get something not in world. crash
     Creature * l_Unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_NpcGuid);
@@ -928,7 +929,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     uint64 guid;
 
     recvData.readPackGUID(guid);
-    uint32 displayId = recvData.read<uint32>();
+    uint32 displayId = recvData.read<uint32>(); ///< displayId is never read 01/18/16
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -1141,7 +1142,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_UnkGUID);
 
-    l_SendCastFlag = p_RecvData.ReadBits(5);
+    l_SendCastFlag = p_RecvData.ReadBits(5); ///< l_SendCastFlag is never read 01/18/16
     l_HasMovementInfos = p_RecvData.ReadBit();
     l_SpellWeightCount = p_RecvData.ReadBits(2);
 

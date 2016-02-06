@@ -1038,9 +1038,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 int32 resist = caster->getLevel();
 
                 if (resist > 70 && resist < 81)
-                    resist += (resist - 70) * 5;
+                    resist += (resist - 70) * 5; ///< resist is never read 01/18/16
                 else if (resist > 80)
-                    resist += ((resist-70) * 5 + (resist - 80) * 7);
+                    resist += ((resist-70) * 5 + (resist - 80) * 7); ///< resist is never read 01/18/16
                 break;
             }
         }
@@ -1225,7 +1225,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
             {
-                l_IsCrit = true;
+                l_IsCrit = true; ///< l_IsCrit is never read 01/18/16
                 amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
             }
         }
@@ -1243,28 +1243,37 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
         return p_Amount;
 
     /// Apply bonus absorption
-    float l_TotalMod = (float)p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+    float l_TotalMod = 1.0f;
+    
+    AddPct(l_TotalMod, (float)p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT));
 
     /// Apply Versatility absorb bonus
     if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
         m_spellInfo->Id != 47753) ///< Divine Aegis is already affected by Versatility because trigger by a healing spell
-        l_TotalMod += p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+        AddPct(l_TotalMod, p_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + p_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     /// Apply Mastery: Discipline Shield
     if (p_Caster->HasAura(77484))
     {
         float l_Mastery = p_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f; ///< last update: 6.1.2
-        l_TotalMod += l_Mastery;
+        AddPct(l_TotalMod, l_Mastery);
     }
 
     /// Fix Grace applying twice for Divine Aegis (as it affects both heal and absorption and Divine Aegis procs from heal)
     if (GetId() == 47753) ///< Divine Aegis
     {
         if (AuraEffectPtr l_Grace = p_Caster->GetAuraEffect(47517, SpellEffIndex::EFFECT_1))
-            l_TotalMod -= l_Grace->GetAmount();
+            AddPct(l_TotalMod, -l_Grace->GetAmount());
     }
 
-    p_Amount += CalculatePct(p_Amount, l_TotalMod);
+    /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
+    if (Player* l_ModOwner = p_Caster->GetSpellModOwner())
+    {
+        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
+            AddPct(l_TotalMod, -15.0f);
+    }
+
+    p_Amount *= l_TotalMod;
 
     return p_Amount;
 }
@@ -2082,8 +2091,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             // Use the new aura to see on what stance the target will be
             uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
 
-            // If the stances are not compatible with the spell, remove it
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
+            /// If the stances are not compatible with the spell, remove it, but not on periodic aura apply on you (aura should continue to tick)
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic())
                 target->RemoveAura(itr);
             else
                 ++itr;
@@ -2527,7 +2536,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
         if (PowerType != POWER_MANA)
         {
-            int32 oldPower = target->GetPower(PowerType);
+            int32 oldPower = target->GetPower(PowerType); ///< oldPower is never read 01/18/16
             // reset power to default values only at power change
             if (target->getPowerType() != PowerType)
                 target->setPowerType(PowerType);
@@ -5933,7 +5942,7 @@ void AuraEffect::HandleModCategoryCooldown(AuraApplication const* aurApp, uint8 
     uint32 categoryId = uint32(GetMiscValue());
     int32 value = apply ? -GetAmount() : 0;
 
-    SpellCategoriesEntry* spellCategory = const_cast<SpellCategoriesEntry*>(sSpellCategoriesStore.LookupEntry(categoryId));
+    SpellCategoriesEntry* spellCategory = const_cast<SpellCategoriesEntry*>(sSpellCategoriesStore.LookupEntry(categoryId)); ///< spellCategory is never read 01/18/16
     if (!sSpellCategoriesStore.LookupEntry(categoryId))
         return;
 
@@ -6462,7 +6471,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
         return;
 
     Player* plCaster = caster->ToPlayer();
-    Unit* target = aurApp->GetTarget();
+    Unit* target = aurApp->GetTarget(); ///< target is never read 01/18/16
 
     // Item amount
     if (GetAmount() <= 0)
@@ -8548,7 +8557,7 @@ void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode
     if (!p_Apply)
         return;
 
-    uint32 l_MiscValue = GetMiscValue();
+    uint32 l_MiscValue = GetMiscValue(); ///< l_miscValue is never read 01/18/16
     Position l_Position;
     l_Target->GetPosition(&l_Position);
 

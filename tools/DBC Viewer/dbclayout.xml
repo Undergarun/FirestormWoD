@@ -3244,17 +3244,17 @@
   </BattlePetVisual>
   <BattlePetSpecies build="0">
     <index>
-      <primary>field0</primary>
+      <primary>id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
+    <field type="int" name="id" />
+    <field type="int" name="entry" />
+    <field type="int" name="iconId" />
+    <field type="int" name="spellId" />
+    <field type="int" name="type" />
+    <field type="int" name="obtainmentCategoryDescription" />
+    <field type="int" name="flags" />
+    <field type="string" name="source" />
+    <field type="string" name="description" />
   </BattlePetSpecies>
   <Cfg_Configs build="0">
     <index>

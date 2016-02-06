@@ -275,7 +275,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectResurectPetBattles,                       //200 SPELL_EFFECT_RESURECT_BATTLE_PETS    Battle pet Healing  125439, 125801
     &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE           Battle pet first slot and track
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202                     Unk 5.4.0
-    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203                     Unk 5.4.0
+    &Spell::EffectRemoveAura,                               //203 SPELL_EFFECT_REMOVE_AURA_2
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     &Spell::EffectNULL,                                     //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
     &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206                     used for TimelessIsle 5.4.0
@@ -305,7 +305,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL   Upgrade follower iLvL
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+    &Spell::EffectRerollFollowerAbilities,                  //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
     &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
@@ -316,7 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
-    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+    &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
@@ -500,51 +500,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                         break;
                     }
-                    case 46968: // Shockwave
-                    {
-                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
-                        int32 pct = 0;
-
-                        switch (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()))
-                        {
-                            case SPEC_WARRIOR_ARMS:
-                                pct = 90;
-                                break;
-                            case SPEC_WARRIOR_FURY:
-                            case SPEC_WARRIOR_PROTECTION:
-                                pct = 75;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        damage = int32(CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), pct));
-
-                        break;
-                    }
-                    case 103840:// Impending Victory
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 70.0f);
-                        else
-                            damage = CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 56.0f);
-
-                        // Impending Victory heals you for 10% of your maximum health
-                        m_caster->CastSpell(m_caster, 118340, true);
-
-                        break;
-                    }
-                    case 118000:// Dragon Roar
-                    {
-                        if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 168);
-                        else
-                            damage += CalculatePct(m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), 140);
-
-                        break;
-                    }
                 }
 
                 break;
@@ -694,7 +649,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     if (stat < strength)
                     {
-                        stat = strength;
+                        stat = strength; ///< stat is never read 01/18/16
                         usedStat = STAT_STRENGTH;
                     }
 
@@ -3540,9 +3495,12 @@ void Spell::EffectTradeSkill(SpellEffIndex /*effIndex*/)
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    // uint32 skillid =  m_spellInfo->Effects[i].MiscValue;
-    // uint16 skillmax = unitTarget->ToPlayer()->(skillid);
-    // m_caster->ToPlayer()->SetSkill(skillid, skillval?skillval:1, skillmax+75);
+
+    if (LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
+    {
+        /// Create some random items
+        m_caster->ToPlayer()->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+    }
 }
 
 void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
@@ -5847,6 +5805,13 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
+
+    /// Combat Resurrection spell
+    if (m_spellInfo->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = player->GetInstanceScript())
+            l_InstanceScript->ConsumeCombatResurrectionCharge();
+    }
 }
 
 void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
@@ -5911,7 +5876,9 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
 
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), 42.0f, m_spellInfo->Id);
+        /// Try to find the target feet
+        unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
+        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, SPEED_CHARGE, m_spellInfo->Id);
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
@@ -7081,6 +7048,11 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         summon->AI()->EnterEvadeMode();
 
         ExecuteLogEffectSummonObject(i, summon);
+
+        if (summon->IsWarlockPet())
+            summon->CastSpell(summon, 32233, true);  ///< Avoidance Warlock
+        else if (summon->isHunterPet())
+            summon->CastSpell(summon, 65220, true); ///< Avoidance Hunter
     }
 }
 
@@ -7849,8 +7821,6 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-
-
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -7860,12 +7830,38 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
         return;
 
     Player* l_Player = unitTarget->ToPlayer();
-    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
 
-    if (!l_Player || !l_GarrisonMgr)
+    if (l_Player == nullptr)
         return;
 
-    l_Player->GetGarrison()->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
+}
+
+void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (l_Player == nullptr)
+        return;
+
+    MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+
+    if (l_GarrisonMgr == nullptr)
+        return;
+
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
+        l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
 }
 
 void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
@@ -8015,7 +8011,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     if (l_Target == nullptr)
         l_Target = m_caster;
 
-    m_caster->CastSpell(l_Target, l_SpellInfo->Id, true);
+    m_caster->CastSpell(l_Target, l_SpellInfo->Id, false);
 }
 
 void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)

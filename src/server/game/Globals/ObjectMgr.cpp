@@ -2730,6 +2730,14 @@ void ObjectMgr::LoadItemTemplateCorrections()
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
+            case 115759: ///< Primal Gladiator's Badge of Victory
+            case 111232: ///< Primal Gladiator's Badge of Victory
+            case 111227: ///< Primal Gladiator's Badge of Dominance
+            case 115754: ///< Primal Gladiator's Badge of Dominance
+            case 111222: ///< Primal Gladiator's Badge of Conquest
+            case 115749: ///< Primal Gladiator's Badge of Conquest
+                l_ItemTemplate.Spells[0].SpellCooldown = 60000;
+                break;
         }
     }
 }
@@ -4217,7 +4225,7 @@ void ObjectMgr::LoadQuests()
         // RequiredClasses, can be 0/CLASSMASK_ALL_PLAYABLE to allow any class
         if (qinfo->RequiredClasses)
         {
-            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses : -(qinfo->RequiredClasses);
+            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses : -(qinfo->RequiredClasses); ///< RequiredclassCheck is never read 01/18/16
 
             if (!(qinfo->RequiredClasses & CLASSMASK_ALL_PLAYABLE))
             {
@@ -4228,7 +4236,7 @@ void ObjectMgr::LoadQuests()
         // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
         if (qinfo->RequiredRaces)
         {
-            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces : -(qinfo->RequiredRaces);
+            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces : -(qinfo->RequiredRaces); ///< RequiredRacesCheck is never read 01/18/16
 
             if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
             {
@@ -9815,6 +9823,40 @@ void ObjectMgr::LoadBattlePetTemplate()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet template in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadBattlePetNpcTeamMember()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_BattlePetNpcTeamMembers.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT NpcID, Specie, Level, Ability1, Ability2, Ability3 FROM battlepet_npc_team_member");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 battlepet npc team member. DB table `battlepet_npc_team_member` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        BattlePetNpcTeamMember l_Current;
+        l_Current.Specie        = l_Fields[1].GetUInt32();
+        l_Current.Level         = l_Fields[2].GetUInt32();
+        l_Current.Ability[0]    = l_Fields[2].GetUInt32();
+        l_Current.Ability[1]    = l_Fields[3].GetUInt32();
+        l_Current.Ability[2]    = l_Fields[4].GetUInt32();
+
+        m_BattlePetNpcTeamMembers[l_Fields[0].GetUInt32()].push_back(l_Current);
+        l_Count += 1;
+
+    } while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet npc team member in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);
@@ -10479,6 +10521,7 @@ void ObjectMgr::LoadQuestObjectives()
 
         QuestObjective l_Objective;
         l_Objective.ID          = l_ObjectiveID;
+        l_Objective.QuestID     = l_ObjectiveQuestId;
         l_Objective.Type        = l_ObjectiveType;
         l_Objective.Index       = l_ObjectiveIndex;
         l_Objective.ObjectID    = l_ObjectiveObjectID;
@@ -10496,6 +10539,7 @@ void ObjectMgr::LoadQuestObjectives()
         }
 
         l_Quest->QuestObjectives.push_back(l_Objective);
+        m_QuestObjectiveByType[l_ObjectiveType].push_back(l_Objective);
         l_Quest->QuestObjecitveTypeCount[l_ObjectiveType]++;
 
         l_Count++;
@@ -10778,5 +10822,34 @@ void ObjectMgr::LoadSpellInvalid()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Spell Invalid in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadDisabledEncounters()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_DisabledEncounters.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID FROM instance_disabled_rankings");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 disabled ranking. DB table `instance_disabled_rankings` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields         = l_Result->Fetch();
+        uint32 l_EncounterID    = l_Fields[0].GetUInt32();
+
+        m_DisabledEncounters.insert(l_EncounterID);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disabled ranking in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }

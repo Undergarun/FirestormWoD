@@ -707,7 +707,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
     }
     else
     {
-        uint32 messageLength = strlen(what) + 1;
+        uint32 messageLength = strlen(what) + 1; ///< messageLenght is never read 01/18/16
 
         WorldPacket data;
         player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);

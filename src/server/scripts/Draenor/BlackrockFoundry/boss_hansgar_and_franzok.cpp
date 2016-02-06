@@ -238,11 +238,6 @@ class boss_hansgar : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
                 }
-
-                AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    Talk(eTalks::Death);
-                });
             }
 
             void OnSpellCasted(SpellInfo const* p_SpellInfo) override
@@ -323,7 +318,17 @@ class boss_hansgar : public CreatureScript
                         case eStates::HansgarOut1:
                         case eStates::HansgarOut2:
                         {
+                            me->InterruptNonMeleeSpells(true);
+
+                            m_BodySlamTarget = 0;
+                            m_BodySlamJumps  = 0;
+
+                            if (m_Instance != nullptr)
+                                m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BodySlamRedArrowAura);
+
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                            me->AttackStop();
 
                             me->GetMotionMaster()->Clear();
                             me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -344,6 +349,8 @@ class boss_hansgar : public CreatureScript
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
                                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                me->CastSpell(me, eSpells::NotReady, true);
 
                                 me->GetMotionMaster()->Clear();
                                 me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
@@ -486,23 +493,35 @@ class boss_hansgar : public CreatureScript
                             me->CastSpell(me, eSpells::JumpSlamSearcher, true);
 
                         if (m_State == eStates::BothInArena2 || m_State == eStates::BothInArenaFinal)
-                        {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-
-                            m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
-                        }
 
                         me->RemoveAura(eSpells::NotReady);
 
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
+                            me->CastSpell(me, eSpells::NotReady, true);
+
                             AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->GetMotionMaster()->Clear();
                                 me->CastSpell(g_HansgarJumpPosRetreat, eSpells::TacticalRetreatOther, true);
                             });
                         }
+                        else
+                        {
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                if (Unit* l_Target = me->getVictim())
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                            });
+                        }
 
+                        break;
+                    }
+                    case eSpells::TacticalRetreat:
+                    case eSpells::TacticalRetreatOther:
+                    {
+                        me->RemoveAura(eSpells::NotReady);
                         break;
                     }
                     default:
@@ -889,9 +908,9 @@ class boss_hansgar : public CreatureScript
             {
                 Talk(eTalks::ReturningFromControls);
 
-                me->CastSpell(me, eSpells::NotReady, true);
-
                 m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                me->CastSpell(me, eSpells::NotReady, true);
 
                 if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                 {
@@ -1237,13 +1256,20 @@ class boss_franzok : public CreatureScript
                     {
                         case eStates::FranzokOut:
                         {
+                            me->InterruptNonMeleeSpells(true);
+
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+  
+                            me->AttackStop();
 
                             me->GetMotionMaster()->Clear();
                             me->SetReactState(ReactStates::REACT_PASSIVE);
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                                 me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
+
+                            m_Events.CancelEvent(eEvents::EventDisruptingRoar);
+                            m_Events.CancelEvent(eEvents::EventSkullcracker);
 
                             uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
                             AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -1256,6 +1282,8 @@ class boss_franzok : public CreatureScript
                             AddTimedDelayedOperation(l_Time, [this]() -> void
                             {
                                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                                me->CastSpell(me, eSpells::NotReady, true);
 
                                 me->GetMotionMaster()->Clear();
                                 me->CastSpell(g_HansgarJumpPosOut, eSpells::TacticalRetreat, true);
@@ -1270,9 +1298,12 @@ class boss_franzok : public CreatureScript
                         {
                             Talk(eTalks::ReturningFromControls);
 
-                            me->CastSpell(me, eSpells::NotReady, true);
-
                             m_Events.CancelEvent(eEvents::EventBodySlam);
+
+                            m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
+                            m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
+
+                            me->CastSpell(me, eSpells::NotReady, true);
 
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             {
@@ -1391,13 +1422,29 @@ class boss_franzok : public CreatureScript
 
                         if (p_ID == eSpells::BodySlamOut && me->HasReactState(ReactStates::REACT_PASSIVE))
                         {
+                            me->CastSpell(me, eSpells::NotReady, true);
+
                             AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
                                 me->GetMotionMaster()->Clear();
                                 me->CastSpell(g_HansgarJumpPosRetreat, eSpells::TacticalRetreatOther, true);
                             });
                         }
+                        else
+                        {
+                            AddTimedDelayedOperation(50, [this]() -> void
+                            {
+                                if (Unit* l_Target = me->getVictim())
+                                    me->GetMotionMaster()->MoveChase(l_Target);
+                            });
+                        }
 
+                        break;
+                    }
+                    case eSpells::TacticalRetreat:
+                    case eSpells::TacticalRetreatOther:
+                    {
+                        me->RemoveAura(eSpells::NotReady);
                         break;
                     }
                     default:
@@ -1492,8 +1539,6 @@ class boss_franzok : public CreatureScript
                     }
                     case eEvents::EventBodySlam:
                     {
-                        me->CastSpell(me, eSpells::NotReady, true);
-
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
                             m_BodySlamTarget = l_Target->GetGUID();
@@ -1502,6 +1547,9 @@ class boss_franzok : public CreatureScript
                             me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
                         }
 
+                        me->CastSpell(me, eSpells::NotReady, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1737,6 +1785,8 @@ class npc_foundry_forge_overdrive : public CreatureScript
 
             void Reset() override
             {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
                 me->CastSpell(me, eSpells::SearingPlatesAT, true);
 
                 AddTimedDelayedOperation(100, [this]() -> void
@@ -1751,6 +1801,11 @@ class npc_foundry_forge_overdrive : public CreatureScript
                 });
 
                 m_AffectedPlayers.clear();
+            }
+            
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1878,6 +1933,8 @@ class npc_foundry_scorching_burns : public CreatureScript
 
             void Reset() override
             {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
                 m_Events.Reset();
 
                 summons.DespawnAll();
@@ -1893,6 +1950,11 @@ class npc_foundry_scorching_burns : public CreatureScript
                 m_BeltEntry = 0;
 
                 ClearDelayedOperations();
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
             }
 
             void SetData(uint32 p_ID, uint32 p_Value) override
@@ -2058,6 +2120,16 @@ class npc_foundry_stamping_presses : public CreatureScript
             }
 
             uint32 m_StampTimer;
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
+            }
 
             void SetData(uint32 p_ID, uint32 p_Value) override
             {
@@ -2235,6 +2307,10 @@ class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
+                    return;
+
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetTarget())

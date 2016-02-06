@@ -1117,6 +1117,9 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
         case TARGET_UNIT_CONE_ENEMY_129:
             l_ConeAngle = M_PI / 1.40f;
             break;
+        case TARGET_UNIT_CONE_ENEMY_130:
+            l_ConeAngle = M_PI / 1.385f;
+            break;
         default:
             break;
     }
@@ -1137,6 +1140,13 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
             break;
         default:
             break;
+    }
+
+    /// Handle ConeAngle calculation in a generic way, overriding hardcoded values if needed
+    if (SpellTargetRestrictionsEntry const* l_Restrictions = m_spellInfo->GetSpellTargetRestrictions())
+    {
+        if (l_Restrictions->ConeAngle != 0.0f)
+            l_ConeAngle = l_Restrictions->ConeAngle;
     }
 
     float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
@@ -2100,7 +2110,7 @@ void Spell::SelectImplicitTrajTargets()
                 y += factor * ((*itr)->GetPositionY() - y);
                 z += factor * ((*itr)->GetPositionZ() - z);
 
-                distSq = (*itr)->GetExactDistSq(x, y, z);
+                distSq = (*itr)->GetExactDistSq(x, y, z); ///< distSq is never read 01/18/16
             }
         }
 
@@ -2296,6 +2306,8 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
         case SPELL_DAMAGE_CLASS_RANGED:
             // 7.5y for multi shot
             jumpRadius = 7.5f;
+            if (m_spellInfo->SpellFamilyFlags[2] & 0x1)
+                jumpRadius = 2.5f; ///< Chimaera Shot has smaller radius
             break;
         case SPELL_DAMAGE_CLASS_MELEE:
             // 5y for swipe, cleave and similar
@@ -2606,12 +2618,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
                 targetInfo.timeDelay = 100LL;
                 m_delayMoment = 100LL;
             }
-        /// Comet Storm
-        else if (m_spellInfo->Id == 153596)
-        {
-            targetInfo.timeDelay = 200LL;
-            m_delayMoment = 200LL;
-        }
         }
     }
     // Removing Death Grip cooldown
@@ -3321,7 +3327,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
                             if (m_spellAura->GetEffect(i))
                                 if (m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
-                                    periodicDamage = true;
+                                    periodicDamage = true; ///< periodicDamage is never read 01/18/16
                     }
 
                     if (duration != m_spellAura->GetMaxDuration())

@@ -759,6 +759,14 @@ struct BattlePetTemplate
 };
 typedef std::map<uint32, BattlePetTemplate> BattlePetTemplateContainer;
 
+struct BattlePetNpcTeamMember
+{
+    uint32 Specie;
+    uint32 Level;
+    uint32 Ability[3];
+};
+typedef std::map<uint32, std::vector<BattlePetNpcTeamMember>> BattlePetNpcTeamMembers;
+
 struct ResearchPOIPoint
 {
     ResearchPOIPoint(int32 _x, int32 _y) { x = _x; y = _y; }
@@ -1212,7 +1220,9 @@ class ObjectMgr
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
         void LoadSpellInvalid();
+        void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
+        void LoadBattlePetNpcTeamMember();
 
         void LoadGuildChallengeRewardInfo();
 
@@ -1222,6 +1232,11 @@ class ObjectMgr
         void LoadCharacterTemplateData();
         void LoadRealmCompletedChallenges();
         void LoadChallengeRewards();
+
+        std::vector<BattlePetNpcTeamMember> GetPetBattleTrainerTeam(uint32 p_NpcID)
+        {
+            return m_BattlePetNpcTeamMembers[p_NpcID];
+        }
 
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
@@ -1607,6 +1622,10 @@ class ObjectMgr
 
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
+        std::vector<QuestObjective> GetQuestObjectivesByType(uint8 p_Type)
+        {
+            return m_QuestObjectiveByType[p_Type];
+        }
 
         uint32 GetNewGarrisonID()
         {
@@ -1667,6 +1686,11 @@ class ObjectMgr
                 return true;
 
             return false;
+        }
+
+        bool IsDisabledEncounter(uint32 p_EncounterID) const
+        {
+            return m_DisabledEncounters.find(p_EncounterID) != m_DisabledEncounters.end();
         }
 
     private:
@@ -1829,7 +1853,10 @@ class ObjectMgr
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
         BattlePetTemplateContainer _battlePetTemplateStore;
+        BattlePetNpcTeamMembers m_BattlePetNpcTeamMembers;
         QuestObjectiveLocaleContainer m_questObjectiveLocaleStore;
+
+        std::map<uint8, std::vector<QuestObjective>> m_QuestObjectiveByType;
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
@@ -1855,6 +1882,8 @@ class ObjectMgr
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
         TaxiNodes _taxiNodes;
+
+        std::set<uint32> m_DisabledEncounters;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

@@ -183,7 +183,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (slotID == PET_SLOT_ACTUAL_PET_SLOT)
         slotID = owner->m_currentPetSlot;
 
-    uint32 ownerid = owner->GetGUIDLow();
+    uint32 ownerid = owner->GetGUIDLow(); ///< ownerID is never read 01/18/16
 
     PreparedQueryResult result = holder->GetPetResult();
 
@@ -282,10 +282,10 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     switch (cinfo->unit_class)
     {
         case CLASS_WARRIOR:
-            powerType = POWER_RAGE;
+            powerType = POWER_RAGE;  ///< powertype is never read 01/18/16
             break;
         case CLASS_ROGUE:
-            powerType = POWER_ENERGY;
+            powerType = POWER_ENERGY; ///< powertype is never read 01/18/16
             break;
     }
 
@@ -603,11 +603,6 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
 {
     Creature::setDeathState(s);
 
-    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
-        CastSpell(this, 157863, true);
-    else if (HasAura(157863))
-        RemoveAura(157863);
-
     if (getDeathState() == CORPSE)
     {
         if (getPetType() == HUNTER_PET)
@@ -644,6 +639,17 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
+    if (getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+    {
+        Player* l_Owner = GetOwner();
+        if (l_Owner != nullptr)
+        {
+            if (getDeathState() == ALIVE && !l_Owner->HasAura(157863))
+                l_Owner->CastSpell(l_Owner, 157863, true);
+            else if (l_Owner->HasAura(157863) && getDeathState() != ALIVE)
+                l_Owner->RemoveAura(157863);
+        }
+    }
     switch (m_deathState)
     {
         case CORPSE:
@@ -730,7 +736,7 @@ void Creature::Regenerate(Powers power)
         return;
 
     float addvalue = 0.0f;
-    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f;
+    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f; ///< rangedHaste is never read 01/18/16
 
     switch (power)
     {
@@ -1006,14 +1012,14 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     if (l_PetType == HUNTER_PET && !ToPet()->m_Stampeded)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
-    UpdateAllStats();
-
     if (l_Owner != nullptr)
     {
         SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
         SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
-    
+
+    UpdateAllStats();
+
     SetFullHealth();
 
     if (IsWarlockPet())

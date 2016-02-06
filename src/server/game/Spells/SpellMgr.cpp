@@ -3371,6 +3371,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
+            case 101603:    ///< Hack for Throw Totem, Echo of Baine
+            case 161710:    ///< Garrison enchanter study
+            case 160201:    ///< Garrison enchanter study
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
+                break;
+        }
+
+        switch (spellInfo->Id)
+        {
             case 105157: ///< See Quest Invis 14, Wandering Island spell
                 spellInfo->AreaGroupId = 0;
                 break;
@@ -3446,6 +3456,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155224: ///< Melt (Heart of the Mountain)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 114956: ///< Nether Tempest (launcher visual)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 155819: ///< Hunger Drive (Oregorger)
                 spellInfo->Attributes &= ~SPELL_ATTR0_DEBUFF;
                 break;
@@ -3496,10 +3509,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 break;
             case 155200: ///< Burn (Slag Elemental)
+            case 155890: ///< Molten Torrent (Dummy visual - Molten Torrent Stalker)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
+            case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
@@ -3514,6 +3530,57 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->EffectCount = 1;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
+                break;
+            case 177858: ///< Ember in the Wind (Mol'dana Two Blade)
+                spellInfo->TargetAuraSpell = 177855;    ///< Ember in the Wind (aura)
+                break;
+            case 177891: ///< Rising Flame Kick (Mol'dana Two Blade)
+            case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
+            case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 156039: ///< Drop the Hammer (Aknor Steelbringer)
+            case 155571: ///< Jump Out of Lava (Cinder Wolf)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                break;
+            case 174215: ///< Summon Armament (Flamebender Ka'graz)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_BACK;
+                break;
+            case 163644: ///< Summon Enchanted Armament (Flamebender Ka'graz)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_NEARBY_ENTRY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(187);  ///< 300y
+                break;
+            case 174217: ///< Summon Enchanted Armament (Enchanted Armament)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(187);  ///< 300y
+                break;
+            case 163153: ///< Enchant Armament (Jump - Enchanted Armament)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 300;
+                break;
+            case 155074: ///< Charring Breath (Cinder Wolf)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 155049: ///< Singe (Cinder Wolf)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 154938: ///< Molten Torrent (AoE Damage - 154938)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
+                spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                break;
+            case 154952: ///< Fixate (Cinder Wolf)
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->InterruptFlags &= ~SPELL_INTERRUPT_FLAG_MOVEMENT;
+                break;
+            case 163633: ///< Magma Monsoon
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3560,7 +3627,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134169:
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->AttributesCu &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Attributes &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
                 break;
             case 140016: ///< Drop Feathers (Ji Kun - Throne of Thunder) (ToT - #6 Ji Kun)
                 spellInfo->Effects[EFFECT_0].MiscValue = 218543;
@@ -3873,6 +3940,9 @@ void SpellMgr::LoadSpellCustomAttr()
             /// Second try to fix, didn't help too.
             case 157701:///< Chaos Bolt
                 spellInfo->SpellVisual[0] = 45351; ///< Set a visual id from working Chaos Bolt.
+                break;
+            case 153626:///< Arcane Orb
+                spellInfo->SpellVisual[0] = 42341;
                 break;
             case 162472:///< Earth Breaker (Vul'gor)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
@@ -4509,6 +4579,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 119539: ///< Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
+                break;
+            case 152261: ///< Holy Shield
+                spellInfo->Effects[2].Effect = 0;
                 break;
             case 139139: ///< Insanity
                 spellInfo->ProcChance = 0;
@@ -5153,6 +5226,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 703: ///< Garrote
                 spellInfo->ProcChance = 100;
                 break;
+            case 158392: ///< Hammer of Wrath (override)
             case 24275: ///< Hammer of Wrath
                 spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
@@ -5260,6 +5334,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 34428: ///< Victory Rush
                 spellInfo->OverrideSpellList.push_back(103840); ///< Impending Victory
                 break;
+            case 157633: ///< Improved Scorch
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_FIRE;
+                break;
             case 91342: ///< Shadow Infusion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -5359,6 +5436,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123811: ///< Pheromones of Zeal (HoF - #1 Zor'lok)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENTRY;
                 break;
+            case 178153: ///< Death from Above
+                spellInfo->Effects[1].TargetA = TARGET_DEST_TARGET_FRONT;
+                break;
             case 97817: ///< Leap of Faith
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
                 spellInfo->Effects[0].MiscValue = 25;
@@ -5399,6 +5479,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = 0;
                 spellInfo->Effects[0].Amplitude = 500;
+                break;
+            case 12043:
+                spellInfo->Effects[1].Effect = 0;
                 break;
             case 122786: ///< Broken leg (HoF - #3 Garalon)
                 spellInfo->Effects[0].MiscValue = -15;
@@ -5604,6 +5687,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 134758: ///< Burning Cinders
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 173545: /// Chi Wave (healing bolt)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             case 115611: ///< Temporal Ripples
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
@@ -5760,6 +5846,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
+            case 20578: ///< Cannibalize
+            case 20577: ///< Cannibalize
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
             case 13812: ///< Explosive Trap
             case 3355: ///< Freezing Trap
             case 57879: ///< Snake Trap
@@ -5862,7 +5952,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 153596:///< Comet Storm
-                spellInfo->Speed = 0;
+                spellInfo->Speed = 0.05f;
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
@@ -5981,6 +6071,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 95861: ///< Meditation
                 spellInfo->Effects[1].Effect = 0;  ///< On retail priests don't have this bonus, also in tooltip nothing said about that
+                break;
+            case 157048:///< Final Verdict
+                spellInfo->Effects[0].BasePoints = 259; ///< 6.2.3 hotfix: Final Verdict (Retribution) damage has been increased by 8%
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
@@ -7007,7 +7100,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
 
             /// Our targetting system is weird as fuck - would need a full rewrite for this to work properly, do not touch - hours of debugging
-            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY))
+            if (spellInfo->HasEffect(SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL) || spellInfo->HasEffect(SPELL_EFFECT_TEACH_FOLLOWER_ABILITY) || spellInfo->HasEffect(SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES))
                 spellInfo->ExplicitTargetMask = TARGET_FLAG_NONE;
 
             spellInfo->UpdateSpellEffectCount(); ///< Re-cache the maximum number of effects

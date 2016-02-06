@@ -120,7 +120,7 @@ namespace MS { namespace Garrison
     {
         if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
         {
-            p_Player->QuestObjectiveSatisfy(NPCs::NPC_ASSISTANT_BRIGHTSTONE, 1, QUEST_OBJECTIVE_TYPE_NPC, p_Creature->GetGUID());
+            p_Player->QuestObjectiveSatisfy(NPCs::NPC_ASSISTANT_BRIGHTSTONE, 1, QUEST_OBJECTIVE_TYPE_NPC_INTERACT, p_Creature->GetGUID());
 
             // @TODO move peon arround
 

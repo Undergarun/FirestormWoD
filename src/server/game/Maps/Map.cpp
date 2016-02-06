@@ -677,7 +677,7 @@ void Map::Update(const uint32 t_diff)
 
     sScriptMgr->OnMapUpdate(this, t_diff);
 
-    uint32 l_TimeElapsed = getMSTime() - l_Time;
+    uint32 l_TimeElapsed = getMSTime() - l_Time; ///< l_TimeElapsed is never read 01/18/16
     //if (l_TimeElapsed > 10)
     //    sMapMgr->RegisterMapDelay(GetId(), l_TimeElapsed);
 }
