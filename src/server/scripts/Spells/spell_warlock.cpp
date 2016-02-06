@@ -1451,8 +1451,10 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
                 int32 l_Bp = l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, GetSpellInfo()->Id);
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_AFFLICTION)
+                /// Affliction - 30%
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_WARLOCK_AFFLICTION)
                     l_Bp = CalculatePct(l_Bp, 30);
+                /// Demonology and Destruction - 15%
                 else
                     l_Bp = CalculatePct(l_Bp, 15);
 
