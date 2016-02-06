@@ -329,6 +329,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            /// Necrotic Plague
+            if (spellproto->Id == 155159)
+                return DIMINISHING_LIMITONLY;
             // Strangulate -- 47476
             if (spellproto->SpellFamilyFlags[0] & 0x200)
                 return DIMINISHING_SILENCE;
@@ -450,6 +453,13 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            /// Necrotic Plague - 24 seconds in PvP
+            if (spellproto->Id == 155159)
+                return 24 * IN_MILLISECONDS;
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
