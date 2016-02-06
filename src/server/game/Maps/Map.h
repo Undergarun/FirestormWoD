@@ -518,6 +518,8 @@ class Map : public GridRefManager<NGridType>
 
         void LoadAllGrids(float p_MinX, float p_MaxX, float p_MinY, float p_MaxY, Player* p_Player);
 
+        void RemoveCreatureFromMoveList(Creature* p_Creature, bool p_Force = false);
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -533,7 +535,6 @@ class Map : public GridRefManager<NGridType>
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
-        void RemoveCreatureFromMoveList(Creature* c);
         void AddGameObjectToMoveList(GameObject* go, float x, float y, float z, float ang);
         void RemoveGameObjectFromMoveList(GameObject* go);
 

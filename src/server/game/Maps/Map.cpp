@@ -908,13 +908,25 @@ void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float an
     c->SetNewCellPosition(x, y, z, ang);
 }
 
-void Map::RemoveCreatureFromMoveList(Creature* c)
+void Map::RemoveCreatureFromMoveList(Creature* p_Creature, bool p_Force)
 {
     if (_creatureToMoveLock) //can this happen?
         return;
 
-    if (c->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
-        c->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
+    if (p_Creature->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
+        p_Creature->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
+
+    if (p_Force)
+    {
+        for (uint32 l_I = 0; l_I < _creaturesToMove.size(); l_I++)
+        {
+            if (_creaturesToMove[l_I] == p_Creature)
+            {
+                _creaturesToMove[l_I] = nullptr;
+                break;
+            }
+        }
+    }
 }
 
 void Map::AddGameObjectToMoveList(GameObject* go, float x, float y, float z, float ang)
@@ -942,6 +954,10 @@ void Map::MoveAllCreaturesInMoveList()
     for (std::vector<Creature*>::iterator itr = _creaturesToMove.begin(); itr != _creaturesToMove.end(); ++itr)
     {
         Creature* c = *itr;
+
+        if (c == nullptr)
+            continue;
+
         if (c->FindMap() != this) //pet is teleported to another map
             continue;
 
