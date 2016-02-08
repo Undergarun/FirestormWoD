@@ -6029,11 +6029,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
                 spellInfo->Effects[1].MiscValue = 11;
                 break;
-            case 603:   ///< Doom
-            case 103964:///< Touch of Chaos
-            case 124915:///< Chaos Wave
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
-                break;
             case 77535: ///< Blood Shield
             case 127802: ///< Touch of The Grave (trigger)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;

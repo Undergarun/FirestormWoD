@@ -190,7 +190,7 @@ struct boss_twin_baseAI : public BossAI
 
     void KilledUnit(Unit* who)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (who->IsPlayer())
         {
             Talk(SAY_KILL_PLAYER);
             if (instance)

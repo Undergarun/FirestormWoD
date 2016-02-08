@@ -415,6 +415,12 @@ namespace JadeCore
                     (spellProtoB->SpellIconID == 693))
                     return false;
 
+                /// Makes sure physical school absorb get to the end (to be applied after magic absorbs, see CalcAbsorbResist)
+                if (spellProtoA->SchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+                    return false;
+                if (spellProtoB->SchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+                    return true;
+
                 return false;
             }
     };

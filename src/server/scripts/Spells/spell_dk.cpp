@@ -2294,6 +2294,7 @@ class spell_dk_death_pact: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Chains of Ice - 45524
 class spell_dk_chain_of_ice: public SpellScriptLoader
 {
@@ -2308,22 +2309,40 @@ class spell_dk_chain_of_ice: public SpellScriptLoader
             {
                 ChainOfIceRoot = 96294,
                 chilblains = 50041,
-                chilblainsAura = 50435
+                chilblainsAura = 50435,
+                GlyphoftheIceReaper = 159416
             };
 
             void HandleOnHit()
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (l_Caster->HasAura(eSpells::chilblains))
-                    l_Caster->CastSpell(l_Target, eSpells::chilblainsAura, true);
+                if (l_Player->HasAura(eSpells::chilblains))
+                    l_Player->CastSpell(l_Target, eSpells::chilblainsAura, true);
 
-                if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
-                    l_Caster->CastSpell(l_Target, eSpells::ChainOfIceRoot, true);
+                if (l_Player->HasAura(DK_SPELL_CHILBLAINS))
+                    l_Player->CastSpell(l_Target, eSpells::ChainOfIceRoot, true);
+
+                if (l_Player->HasAura(eSpells::GlyphoftheIceReaper))
+                {
+                    for (uint8 i = 0; i < MAX_RUNES; ++i)
+                    {
+                        if (l_Player->GetCurrentRune(i) == RUNE_DEATH
+                            || l_Player->GetCurrentRune(i) == RUNE_BLOOD
+                            || l_Player->GetCurrentRune(i) == RUNE_UNHOLY)
+                            continue;
+
+                        if (l_Player->GetRuneCooldown(i))
+                        {
+                            if (l_Player->GetCurrentRune(i) == RUNE_FROST)
+                                l_Player->ConvertRune(i, RUNE_DEATH);
+                        }
+                    }
+                }
             }
 
             void Register()
@@ -2969,12 +2988,12 @@ class spell_dk_control_undead : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return SPELL_FAILED_SUCCESS;
 
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                if (l_Target->IsPlayer())
                     return SPELL_FAILED_BAD_TARGETS;
 
                 if (Unit* l_Owner = l_Target->GetOwner())
                 {
-                    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Owner->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                 }
 
@@ -3020,11 +3039,11 @@ class spell_dk_presences : public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
+                if (l_Target->GetSpecializationId() == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
                     l_Target->CastSpell(l_Target, ImprovedBloodPresence, true, nullptr, p_AurEff);
-                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
+                if (l_Target->GetSpecializationId() == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
                     l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true, nullptr, p_AurEff);
-                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
+                if (l_Target->GetSpecializationId() == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
                     l_Target->CastSpell(l_Target, ImprovedFrostPresence, true, nullptr, p_AurEff);
             }
 

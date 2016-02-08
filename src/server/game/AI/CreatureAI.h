@@ -30,6 +30,8 @@ class Creature;
 class Player;
 class SpellInfo;
 
+struct SpellDestination;
+
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
 
@@ -138,6 +140,9 @@ class CreatureAI : public UnitAI
 
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
+
+        /// Called when spell hits a destination
+        virtual void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) { }
 
         /// Called when spell miss a target
         virtual void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }

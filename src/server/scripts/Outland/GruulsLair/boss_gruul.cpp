@@ -128,7 +128,7 @@ public:
             //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
             if (pSpell->Id == SPELL_GROUND_SLAM)
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->IsPlayer())
                 {
                     switch (urand(0, 1))
                     {

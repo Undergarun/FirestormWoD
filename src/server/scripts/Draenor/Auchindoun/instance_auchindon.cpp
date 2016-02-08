@@ -20,7 +20,7 @@ public:
 
     bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
     {
-        if (m_Obj && m_Obj->GetTypeId() == TYPEID_PLAYER)
+        if (m_Obj && m_Obj->IsPlayer())
         {
                 switch (m_Modifier)
                 {

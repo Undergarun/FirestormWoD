@@ -147,7 +147,7 @@ class boss_lich_king_hor : public CreatureScript
                 if (!_instance || !who || NonFight)
                     return;
 
-                if (_instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS || who->GetTypeId() == TYPEID_PLAYER)
+                if (_instance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS || who->IsPlayer())
                     return;
 
                 me->Attack(who, true);

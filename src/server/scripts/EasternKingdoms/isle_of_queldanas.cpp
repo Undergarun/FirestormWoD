@@ -125,7 +125,7 @@ public:
             if (!caster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !me->HasAura(ENRAGE))
+            if (caster->IsPlayer() && spell->Id == ORB && !me->HasAura(ENRAGE))
             {
                 PlayerGUID = caster->GetGUID();
                 if (PlayerGUID)

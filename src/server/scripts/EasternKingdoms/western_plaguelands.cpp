@@ -191,7 +191,7 @@ public:
             if (!who || who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 switch (me->GetAreaId())
                 {

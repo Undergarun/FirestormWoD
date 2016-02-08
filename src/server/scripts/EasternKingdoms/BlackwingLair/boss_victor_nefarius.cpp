@@ -262,7 +262,7 @@ public:
         {
             //We simply use this function to find players until we can use map->GetPlayers()
 
-            if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
+            if (who && who->IsPlayer() && me->IsHostileTo(who))
             {
                 //Add them to our threat list
                 me->AddThreat(who, 0.0f);

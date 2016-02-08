@@ -511,7 +511,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     {
         // Teleport players, they need to know it
         for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
-            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+            if ((*itr)->IsPlayer())
                 (*itr)->ToUnit()->NearTeleportTo(x, y, z, GetOrientation());
     }
 

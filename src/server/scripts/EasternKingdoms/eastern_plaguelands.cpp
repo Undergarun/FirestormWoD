@@ -49,7 +49,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (killer->GetTypeId() == TYPEID_PLAYER)
+            if (killer->IsPlayer())
                 me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
         }
     };

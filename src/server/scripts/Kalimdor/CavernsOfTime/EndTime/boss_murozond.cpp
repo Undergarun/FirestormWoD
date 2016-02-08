@@ -193,7 +193,7 @@ class boss_murozond : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -399,7 +399,7 @@ class npc_murozond_mirror_image : public CreatureScript
             void IsSummonedBy(Unit* owner)
             {
                 if (owner && owner->isAlive() && owner->IsInWorld())
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
+                    if (owner->IsPlayer())
                         m_owner = owner->ToPlayer();
             }
 

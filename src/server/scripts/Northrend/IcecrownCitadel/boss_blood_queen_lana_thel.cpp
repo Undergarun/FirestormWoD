@@ -262,7 +262,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -472,7 +472,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     if (Unit* refTarget = (*itr)->getTarget())
-                        if (refTarget != me->getVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank ? true : (refTarget != _offtank)))
+                        if (refTarget != me->getVictim() && refTarget->IsPlayer() && (includeOfftank ? true : (refTarget != _offtank)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())

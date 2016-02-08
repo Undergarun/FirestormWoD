@@ -109,7 +109,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!HasTaunted && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
+            if (!HasTaunted && who->IsPlayer() && me->IsWithinDistInMap(who, 100.0f))
             {
                 DoScriptText(SAY_INTRO, me);
                 HasTaunted = true;

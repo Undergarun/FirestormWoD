@@ -1709,7 +1709,7 @@ class npc_gunship_mage : public CreatureScript
                     case EVENT_FREEZE_CANNON:
                     {
                         std::list<Creature*> cannons;
-                        GetCreatureListWithEntryInGrid(cannons, me, _instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_GB_ALLIANCE_CANON : NPC_GB_HORDE_CANON, 500.0f);
+                        GetCreatureListWithEntryInGrid(cannons, me, _instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_GB_ALLIANCE_CANON : NPC_GB_HORDE_CANON, 200.0f);
                         for (std::list<Creature*>::iterator itr = cannons.begin(); itr != cannons.end(); ++itr)
                         {
                             if (Vehicle* veh = (*itr)->GetVehicleKit())

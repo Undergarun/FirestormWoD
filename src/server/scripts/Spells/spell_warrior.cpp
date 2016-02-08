@@ -1258,7 +1258,7 @@ class spell_warr_deep_wounds: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_PROTECTION)
+                if (l_Caster->IsPlayer() && l_Caster->ToPlayer()->GetSpecializationId() != SPEC_WARRIOR_PROTECTION)
                     return;
 
                 if (l_Target->GetGUID() == l_Caster->GetGUID())
@@ -3047,9 +3047,9 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
 
                 int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
 
-                if ((l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
+                if ((l_Target->IsPlayer() || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
                     l_Damage /= l_Target->CalculateDamageDealtFactor(l_Target, l_DamageTarget->ToCreature());
-                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->GetTypeId() == TYPEID_PLAYER || l_DamageTarget->IsPetGuardianStuff()))
+                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->IsPlayer() || l_DamageTarget->IsPetGuardianStuff()))
                     l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
 
                 Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);

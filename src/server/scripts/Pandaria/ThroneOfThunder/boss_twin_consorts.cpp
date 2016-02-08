@@ -636,7 +636,7 @@ class boss_lulin : public CreatureScript
 
             void KilledUnit(Unit* p_Victim)
             {
-                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                if (p_Victim->IsPlayer())
                     Talk(TALK_LULIN_SLAY);
             }
 
@@ -986,7 +986,7 @@ class boss_suen : public CreatureScript
 
             void KilledUnit(Unit* p_Victim)
             {
-                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                if (p_Victim->IsPlayer())
                     Talk(TALK_SUEN_SLAY);
             }
 

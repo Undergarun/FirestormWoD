@@ -270,7 +270,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && me->canCreatureAttack(who))
+            if (!Intro && who->IsPlayer() && me->canCreatureAttack(who))
             {
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
@@ -484,7 +484,7 @@ public:
                 if (!target)
                    target = me->getVictim();
 
-                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->isAlive() && target->IsPlayer())
                 {
                     DoCast(target, SPELL_SHADOW_OF_DEATH);
                     GhostGUID = target->GetGUID();

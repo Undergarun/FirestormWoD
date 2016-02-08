@@ -1488,7 +1488,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                if (GetTarget()->IsPlayer())
                     GetTarget()->ToPlayer()->SetClientControl(GetTarget(), 0);
             }
 
@@ -1497,7 +1497,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                if (GetTarget()->IsPlayer())
                     GetTarget()->ToPlayer()->SetClientControl(GetTarget(), 1);
             }
             

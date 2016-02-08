@@ -328,7 +328,7 @@ class boss_echo_of_tyrande : public CreatureScript
                             break;
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Player* pPlayer = me->FindNearestPlayer(500.0f))
+                            if (Player* pPlayer = me->FindNearestPlayer(200.0f))
                             {
                                 Position pos;
                                 pPlayer->GetRandomNearPosition(pos, frand(15.0f, 20.0f));

@@ -1297,7 +1297,7 @@ public:
                 std::list<Creature*> l_TempList;
                 std::list<Creature*> l_LightsHammerlist;
 
-                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 500.0f);
+                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 200.0f);
 
                 l_TempList = l_LightsHammerlist;
 
@@ -1866,7 +1866,7 @@ class spell_pal_ardent_defender: public SpellScriptLoader
             {
                 m_HealPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                 m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
+                return GetUnitOwner()->IsPlayer();
             }
 
             void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & canBeRecalculated)
@@ -2977,7 +2977,7 @@ class spell_pal_denounce : public SpellScriptLoader
                 }
                 else
                 {
-                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         l_CritPctOfTarget = int32(l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
 
                     if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
@@ -3013,7 +3013,7 @@ class spell_pal_turn_evil : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetExplTargetUnit())
                 {
-                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                     return SPELL_CAST_OK;
                 }
@@ -3646,9 +3646,18 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
-                    if (roll_chance_i(30))
-                        l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
+                    {
+                        /// Spell works from 50 lvl
+                        if (l_Player->getLevel() >= 50)
+                        {
+                            if (roll_chance_i(30))
+                                l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+                        }
+                    }
+                }
             }
         }
 

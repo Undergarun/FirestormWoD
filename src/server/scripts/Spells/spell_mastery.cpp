@@ -692,7 +692,7 @@ class spell_mastery_ignite: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
+                        if (l_Caster->IsPlayer() && l_Caster->HasAura(MASTERY_SPELL_IGNITE) && l_Caster->getLevel() >= 80)
                         {
                             const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(MASTERY_SPELL_IGNITE_AURA);
                             if (GetSpellInfo()->Id != MASTERY_SPELL_IGNITE_AURA && l_SpellInfo != nullptr)
@@ -844,7 +844,7 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
                     {
                         if (Unit* unitTarget = GetHitUnit())
                         {
-                            if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(77222))
+                            if (caster->IsPlayer() && caster->HasAura(77222))
                             {
                                 // Every Lightning Bolt, Chain Lightning and Lava Burst spells have duplicate vs 75% damage and no cost
                                 switch (procSpell->Id)

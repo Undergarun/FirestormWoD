@@ -79,7 +79,7 @@ typedef std::chrono::system_clock Clock;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
-#define PLAYER_EXPLORED_ZONES_SIZE  200
+#define PLAYER_EXPLORED_ZONES_SIZE  256
 
 /// 6.2.3 20726
 enum ToastTypes
@@ -2328,6 +2328,8 @@ class Player : public Unit, public GridObject<Player>
         {
             _talentMgr->SpecInfo[GetActiveSpec()].Glyphs[slot] = glyph;
             SetUInt32Value(PLAYER_FIELD_GLYPHS + slot, glyph);
+
+            m_glyphsChanged = true;
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
         bool HasGlyph(uint32 spell_id);
@@ -3871,6 +3873,8 @@ class Player : public Unit, public GridObject<Player>
         prohibited_struct prohibited[MAX_SPELL_SCHOOL];
 
         PlayerTalentInfo* _talentMgr;
+
+        bool m_glyphsChanged;
 
         ActionButtonList m_actionButtons;
 

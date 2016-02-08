@@ -13,7 +13,7 @@ AnticheatMgr::~AnticheatMgr()
     m_Players.clear();
 }
 
-void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo movementInfo,uint32 opcode)
+void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & JUMP_HACK_DETECTION) == 0)
         return;
@@ -27,7 +27,7 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo movementInfo,u
     }
 }
 
-void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo movementInfo)
+void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& movementInfo)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & WALK_WATER_HACK_DETECTION) == 0)
         return;
@@ -50,7 +50,7 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo movemen
 
 }
 
-void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo movementInfo)
+void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo const& movementInfo)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & FLY_HACK_DETECTION) == 0)
         return;
@@ -68,7 +68,7 @@ void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo movementInfo)
     BuildReport(player,FLY_HACK_REPORT);
 }
 
-void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo movementInfo)
+void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo const& movementInfo)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & TELEPORT_PLANE_HACK_DETECTION) == 0)
         return;
@@ -99,7 +99,7 @@ void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo movem
 }
 
 
-void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos, uint32 p_Opcode)
+void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo const& p_MoveInfos, uint32 p_Opcode)
 {
     if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         return;
@@ -130,7 +130,7 @@ void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos
 }
 
 // basic detection
-void AnticheatMgr::ClimbHackDetection(Player *player, MovementInfo movementInfo, uint32 opcode)
+void AnticheatMgr::ClimbHackDetection(Player *player, MovementInfo const& movementInfo, uint32 opcode)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & CLIMB_HACK_DETECTION) == 0)
         return;
@@ -162,7 +162,7 @@ void AnticheatMgr::ClimbHackDetection(Player *player, MovementInfo movementInfo,
     }
 }
 
-void AnticheatMgr::SpeedHackDetection(Player* player,MovementInfo movementInfo)
+void AnticheatMgr::SpeedHackDetection(Player* player, MovementInfo const& movementInfo)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & SPEED_HACK_DETECTION) == 0)
         return;

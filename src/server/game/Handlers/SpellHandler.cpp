@@ -285,7 +285,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     }
 
     Unit* mover = pUser->m_mover;
-    if (mover != pUser && mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover != pUser && mover->IsPlayer())
         return;
 
     SpellCastTargets targets;
@@ -581,7 +581,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     // ignore for remote control state (for player case)
     Unit* mover = m_Player->m_mover;
-    if (mover != m_Player && mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover != m_Player && mover->IsPlayer())
     {
         p_RecvPacket.rfinish(); // prevent spam at ignore packet
         return;
@@ -622,7 +622,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
-    if (mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover->IsPlayer())
     {
         if (mover->ToPlayer()->GetEmoteState())
             mover->ToPlayer()->SetEmoteState(0);
@@ -648,7 +648,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         caster = m_Player;
     }
 
-    if (caster->GetTypeId() == TYPEID_PLAYER
+    if (caster->IsPlayer()
         && !caster->ToPlayer()->HasActiveSpell(l_SpellID) 
         && !spellInfo->HasEffect(SPELL_EFFECT_LOOT_BONUS) 
         && !spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_ALWAYS_ACTIVE) 
@@ -857,7 +857,7 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
 
     /// ignore for remote control state (for player case)
     Unit * l_Mover = m_Player->m_mover;
-    if (l_Mover != m_Player && l_Mover->GetTypeId() == TYPEID_PLAYER)
+    if (l_Mover != m_Player && l_Mover->IsPlayer())
         return;
 
     l_Mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -949,7 +949,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 
     WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 76);
 
-    if (creator->GetTypeId() == TYPEID_PLAYER)
+    if (creator->IsPlayer())
     {
         Player* player = creator->ToPlayer();
         Guild* guild = NULL;
@@ -1193,7 +1193,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     // ignore for remote control state (for player case)
     Unit* l_Mover = m_Player->m_mover;
-    if (l_Mover != m_Player && l_Mover->GetTypeId() == TYPEID_PLAYER)
+    if (l_Mover != m_Player && l_Mover->IsPlayer())
     {
         p_RecvData.rfinish();
         return;

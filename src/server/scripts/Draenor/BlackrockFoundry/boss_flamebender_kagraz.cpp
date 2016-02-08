@@ -41,12 +41,12 @@ class boss_flamebender_kagraz : public CreatureScript
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
+            LavaSlashMissileTriggered   = 155318,
             LavaSlashAreaTrigger        = 154915,
             /// Summon Enchanted Armaments
             EnchantedArmamentsSearcher  = 163644,
             EnchantedArmamentsDummy     = 156725,
             /// Molten Torrent
-            MoltenTorrentSearcher       = 155402,
             MoltenTorrentAura           = 154932,
             /// Summon Cinder Wolves
             SummonCinderWolves          = 155776,
@@ -296,34 +296,6 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
-                    case eSpells::LavaSlashMissile:
-                    {
-                        Position l_Dest = *p_Target;
-                        Position l_Src  = *me;
-
-                        AddTimedDelayedOperation(500, [this, l_Dest, l_Src]() -> void
-                        {
-                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
-                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
-                            {
-                                Position l_Target;
-
-                                float l_O = l_Src.GetAngle(&l_Dest);
-                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
-                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
-                                float l_Z = l_Src.m_positionZ;
-
-                                l_Target.m_positionX    = l_X;
-                                l_Target.m_positionY    = l_Y;
-                                l_Target.m_positionZ    = l_Z;
-                                l_Target.m_orientation  = l_O;
-
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
-                            }
-                        });
-
-                        break;
-                    }
                     case eSpells::EnchantedArmamentsSearcher:
                     {
                         me->CastSpell(p_Target, eSpells::EnchantedArmamentsDummy, true);
@@ -336,11 +308,6 @@ class boss_flamebender_kagraz : public CreatureScript
                         if (Creature* l_Old = p_Target->ToCreature())
                             l_Old->DespawnOrUnsummon();
 
-                        break;
-                    }
-                    case eSpells::MoltenTorrentSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::MoltenTorrentAura, false);
                         break;
                     }
                     case eSpells::MoltenTorrentAura:
@@ -373,6 +340,46 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eSpells::BlazingRadianceSearcher:
                     {
                         me->CastSpell(p_Target, eSpells::BlazingRadianceAura, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::LavaSlashMissileTriggered:
+                    {
+                        Position l_Dest = p_Dest->_position;
+                        Position l_Src  = *me;
+
+                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
+                        {
+                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            {
+                                Position l_Target;
+
+                                float l_O = l_Src.GetAngle(&l_Dest);
+                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
+                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
+                                float l_Z = l_Src.m_positionZ;
+
+                                l_Target.m_positionX    = l_X;
+                                l_Target.m_positionY    = l_Y;
+                                l_Target.m_positionZ    = l_Z;
+                                l_Target.m_orientation  = l_O;
+
+                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                            }
+                        });
+
                         break;
                     }
                     default:
@@ -468,12 +475,14 @@ class boss_flamebender_kagraz : public CreatureScript
                         Unit* l_Target = nullptr;
                         if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                                me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
-                        m_LavaSlashTarget = l_Target->GetGUID();
+                        m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
 
                         m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlashAgain);
                         break;
@@ -489,7 +498,16 @@ class boss_flamebender_kagraz : public CreatureScript
                         if (me->GetPower(Powers::POWER_ENERGY) < 25)
                             break;
 
-                        me->CastSpell(me, eSpells::MoltenTorrentSearcher, true);
+                        Unit* l_Target = nullptr;
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
+
                         m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, eTimers::TimerMoltenTorrentAgain);
                         break;
                     }
@@ -747,9 +765,10 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
 
         enum eSpells
         {
-            LavaSlashSearcherSecond = 155357,
-            LavaSlashMissile        = 155297,
-            LavaSlashAreaTrigger    = 154915
+            LavaSlashSearcherSecond     = 155357,
+            LavaSlashMissile            = 155297,
+            LavaSlashMissileTriggered   = 155318,
+            LavaSlashAreaTrigger        = 154915
         };
 
         enum eCreature
@@ -826,9 +845,21 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
                         me->CastSpell(p_Target, eSpells::LavaSlashMissile, true);
                         break;
                     }
-                    case eSpells::LavaSlashMissile:
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitDest(SpellDestination const* p_Dest, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Dest == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::LavaSlashMissileTriggered:
                     {
-                        Position l_Dest = *p_Target;
+                        Position l_Dest = p_Dest->_position;
                         Position l_Src  = *me;
 
                         AddTimedDelayedOperation(200, [this, l_Dest, l_Src]() -> void
@@ -881,7 +912,7 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
         {
             SummonEnchantedArmament = 174217,
             EnchantArmamentJump     = 163153,
-            UnquenchableFlame       = 156713
+            UnquenchableFlame       = 156689
         };
 
         enum eVisual
@@ -925,11 +956,6 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                     me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
                     me->CastSpell(me, eSpells::UnquenchableFlame, false);
-
-                    AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                    {
-                        me->CastSpell(me, eSpells::UnquenchableFlame, false);
-                    });
                 }
             }
 
@@ -938,18 +964,7 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                 p_Damage = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                UpdateOperations(p_Diff);
-            }
-
-            void LastOperationCalled() override
-            {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    me->CastSpell(me, eSpells::UnquenchableFlame, false);
-                });
-            }
+            void UpdateAI(uint32 const p_Diff) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -2028,6 +2043,39 @@ class spell_foundry_firestorm_v2_pick_stalker_to_fire : public SpellScriptLoader
         }
 };
 
+/// Unquenchable Flame - 156689
+class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
+{
+    public:
+        spell_foundry_unquenchable_flame_periodic() : SpellScriptLoader("spell_foundry_unquenchable_flame_periodic") { }
+
+        class spell_foundry_unquenchable_flame_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_unquenchable_flame_periodic_AuraScript);
+
+            enum eSpell
+            {
+                UnquenchableFlameAoE = 156713
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpell::UnquenchableFlameAoE, false);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_unquenchable_flame_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_unquenchable_flame_periodic_AuraScript();
+        }
+};
+
 /// Lava Slash - 154915
 class areatrigger_foundry_lava_slash_pool : public AreaTriggerEntityScript
 {
@@ -2149,6 +2197,7 @@ void AddSC_boss_flamebender_kagraz()
     new spell_foundry_firestorm_aura();
     new spell_foundry_firestorm_v2_periodic_lava_stalker();
     new spell_foundry_firestorm_v2_pick_stalker_to_fire();
+    new spell_foundry_unquenchable_flame_periodic();
 
     /// AreaTriggers
     new areatrigger_foundry_lava_slash_pool();
