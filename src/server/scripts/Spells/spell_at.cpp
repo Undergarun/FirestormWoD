@@ -741,7 +741,10 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
+                {
+                    if (l_Caster->IsValidAttackTarget(l_Unit))
+                        l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
+                }
             }
         }
 
