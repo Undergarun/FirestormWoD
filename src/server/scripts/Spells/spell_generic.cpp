@@ -5257,11 +5257,18 @@ class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_wyrmhunter_hooks_SpellScript);
 
+            enum eData
+            {
+                NpcObsidianPyrewing = 46141
+            };
+
             SpellCastResult CheckTarget()
             {
                 if (Unit* l_Target = GetExplTargetUnit())
                 {
                     if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                    else if (l_Target->ToCreature() && l_Target->ToCreature()->GetEntry() != eData::NpcObsidianPyrewing)
                         return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
                 }
 
