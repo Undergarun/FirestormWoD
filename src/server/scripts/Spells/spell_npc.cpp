@@ -504,7 +504,7 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
 
             void Reset()
             {
-                if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                if (me->GetOwner() && me->GetOwner()->IsPlayer())
                 {
                     me->CastSpell(me, 98007, false);
                     me->CastSpell(me, 98017, true);
@@ -515,7 +515,7 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
             {
                 if (CastTimer >= diff)
                 {
-                    if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                    if (me->GetOwner() && me->GetOwner()->IsPlayer())
                     {
                         if (me->GetEntry() == 53006)
                         {

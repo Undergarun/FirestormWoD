@@ -290,7 +290,7 @@ void DespawnJiKunAdds(Creature* me)
     for (uint8 l_Idx = 0; l_Idx < l_MaxEntryToDespawn; ++l_Idx)
     {
         l_addList.clear();
-        GetCreatureListWithEntryInGrid(l_addList, me, l_addEntries[l_Idx], 500.0f);
+        GetCreatureListWithEntryInGrid(l_addList, me, l_addEntries[l_Idx], 200.0f);
 
         for (Creature* l_Add : l_addList)
         {
@@ -412,7 +412,7 @@ class boss_ji_kun : public CreatureScript
             {
                 /// Retrieving nest;
                 std::list<Creature*> l_IncubaterList;
-                GetCreatureListWithEntryInGrid(l_IncubaterList, me, NPC_INCUBATER, 500.0f);
+                GetCreatureListWithEntryInGrid(l_IncubaterList, me, NPC_INCUBATER, 200.0f);
 
                 /// 10 Man cycle
                 if (!Is25ManRaid())

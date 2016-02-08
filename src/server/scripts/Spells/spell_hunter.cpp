@@ -2426,7 +2426,7 @@ class spell_hun_powershot: public SpellScriptLoader
                     if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
                         continue;
 
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->IsPlayer())
                     if (itr->ToPlayer()->GetKnockBackTime())
                         continue;
 
@@ -2445,7 +2445,7 @@ class spell_hun_powershot: public SpellScriptLoader
 
                     itr->KnockbackFrom(l_X, l_Y, l_Speedxy, l_Speedz);
 
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->IsPlayer())
                         itr->ToPlayer()->SetKnockBackTime(getMSTime());
                 }
             }

@@ -2295,7 +2295,7 @@ class debug_commandscript: public CommandScript
 
             updateIndex = atoi(index);
             //check updateIndex
-            if (unit->GetTypeId() == TYPEID_PLAYER)
+            if (unit->IsPlayer())
             {
                 if (updateIndex >= PLAYER_END)
                     return true;
@@ -2401,7 +2401,7 @@ class debug_commandscript: public CommandScript
         {
             Unit* unit = handler->getSelectedUnit();
             Player* player = handler->GetSession()->GetPlayer();
-            if (unit && unit->GetTypeId() == TYPEID_PLAYER)
+            if (unit && unit->IsPlayer())
                 player = unit->ToPlayer();
 
             player->GetPhaseMgr().SendDebugReportToPlayer(handler->GetSession()->GetPlayer());

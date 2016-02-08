@@ -80,7 +80,7 @@ Channel* ChannelMgr::GetChannel(std::string name, Player* p, bool pkt)
         return i->second;
 }
 
-void ChannelMgr::LeftChannel(std::string name)
+void ChannelMgr::LeftChannel(std::string const& name)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);

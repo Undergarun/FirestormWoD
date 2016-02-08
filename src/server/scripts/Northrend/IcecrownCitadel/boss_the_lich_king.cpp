@@ -585,7 +585,7 @@ class boss_the_lich_king : public CreatureScript
                 if (!victim)
                     return;
 
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     if (!victim->GetVehicle() && !victim->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) && victim->GetPositionZ() >= 835.0f && victim->GetPositionZ() <= 870.0f && !me->IsWithinLOS(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ()))
                         victim->ToPlayer()->TeleportTo(631, 503.6282f, -2124.655f, 841.0f, 0.0f, TELE_TO_NOT_LEAVE_COMBAT);
 
@@ -636,7 +636,7 @@ class boss_the_lich_king : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO)) 
+                if (victim->IsPlayer() && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO)) 
                     Talk(SAY_LK_KILL);
             }
 
@@ -1850,7 +1850,7 @@ class npc_lich_king_spirit : public CreatureScript
                 // - In non heroic, Vile Spirits only select targets not in Frostmourne
                 // - In heroic, Vile Spirits only select targets not in Frostmourne
                 // - In heroic, Wicked Spirits only select targets in Frostmourne
-                return target->GetTypeId() == TYPEID_PLAYER && target->GetPositionZ() > 830.0f && ((!IsHeroic() && !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM)) || (IsHeroic() && ((target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && me->GetEntry() == NPC_WICKED_SPIRIT) || (!target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && me->GetEntry() == NPC_VILE_SPIRIT))));
+                return target->IsPlayer() && target->GetPositionZ() > 830.0f && ((!IsHeroic() && !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM)) || (IsHeroic() && ((target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && me->GetEntry() == NPC_WICKED_SPIRIT) || (!target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && me->GetEntry() == NPC_VILE_SPIRIT))));
             }
 
             void SetData(uint32 type, uint32 value)
@@ -2199,7 +2199,7 @@ class npc_spirit_warden : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     victim->RemoveAurasDueToSpell(IsHeroic() ? SPELL_HARVEST_SOULS_TELEPORT : SPELL_HARVEST_SOUL_TELEPORT);
             }
 

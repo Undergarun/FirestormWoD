@@ -2065,7 +2065,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 int32 l_Damage = GetHitDamage() * float(l_Caster->GetDistance(l_Target) / l_Radius);
 
                 /// July 7th 2015 Cascade now deals 20% less damage in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                if (l_Target->IsPlayer())
                     l_Damage *= 0.80f;
 
                 SetHitDamage(l_Damage);
@@ -2342,7 +2342,11 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        Player* l_Player = l_Caster->ToPlayer();
+                        if (l_Player == nullptr)
+                            return;
+
+                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Player->GetSpecializationId() == SPEC_PRIEST_SHADOW)
                         {
                             /// +1s per Shadow Orb consumed
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
@@ -2464,7 +2468,7 @@ class spell_pri_penance: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* spellEntry)
@@ -2887,7 +2891,7 @@ class spell_pri_void_tendrils: public SpellScriptLoader
 
                         if (AuraPtr voidTendrils = target->GetAura(GetSpellInfo()->Id, _player->GetGUID()))
                         {
-                            if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->IsPlayer())
                                 voidTendrils->SetMaxDuration(8000);
                             else
                                 voidTendrils->SetMaxDuration(20000);

@@ -272,7 +272,7 @@ public:
                                 //So instead we instant kill our target
 
                                 //WORKAROUND
-                                if (unit->GetTypeId() == TYPEID_PLAYER)
+                                if (unit->IsPlayer())
                                     unit->CastSpell(unit, 5, false);
                             }
                         }

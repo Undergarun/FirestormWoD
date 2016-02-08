@@ -2988,12 +2988,12 @@ class spell_dk_control_undead : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return SPELL_FAILED_SUCCESS;
 
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                if (l_Target->IsPlayer())
                     return SPELL_FAILED_BAD_TARGETS;
 
                 if (Unit* l_Owner = l_Target->GetOwner())
                 {
-                    if (l_Owner->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Owner->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                 }
 
@@ -3039,11 +3039,11 @@ class spell_dk_presences : public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
+                if (l_Target->GetSpecializationId() == SPEC_DK_BLOOD && !l_Target->HasAura(ImprovedBloodPresence))
                     l_Target->CastSpell(l_Target, ImprovedBloodPresence, true, nullptr, p_AurEff);
-                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
+                if (l_Target->GetSpecializationId() == SPEC_DK_UNHOLY && !l_Target->HasAura(ImprovedUnholyPresence))
                     l_Target->CastSpell(l_Target, ImprovedUnholyPresence, true, nullptr, p_AurEff);
-                if (l_Target->GetSpecializationId(l_Target->GetActiveSpec()) == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
+                if (l_Target->GetSpecializationId() == SPEC_DK_FROST && !l_Target->HasAura(ImprovedFrostPresence))
                     l_Target->CastSpell(l_Target, ImprovedFrostPresence, true, nullptr, p_AurEff);
             }
 

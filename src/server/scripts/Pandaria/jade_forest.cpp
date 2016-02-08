@@ -2750,7 +2750,7 @@ class mob_chi_ji_student : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
-                if (attacker->GetTypeId() == TYPEID_PLAYER)
+                if (attacker->IsPlayer())
                     playerGuid = CAST_PLR(attacker)->GetGUID();
             }
 

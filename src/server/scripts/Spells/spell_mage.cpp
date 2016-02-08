@@ -365,7 +365,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
                         l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
 
                     /// Comet Storm (Frost) damage has increased by 94% but deals 33.3% less damage in PvP combat. - 6.1
-                    if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                    if (GetHitUnit() && GetHitUnit()->IsPlayer())
                         l_Damage = l_Damage - CalculatePct(l_Damage, 33.3f);
 
                     SetHitDamage(l_Damage);
@@ -873,9 +873,9 @@ class spell_mage_frostbolt: public SpellScriptLoader
                     return SPELL_FAILED_NO_VALID_TARGETS;
                 else if (GetExplTargetUnit()->GetGUID() == GetCaster()->GetGUID())
                     return SPELL_FAILED_BAD_TARGETS;
-                else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && !GetExplTargetUnit()->IsPvP())
+                else if (GetExplTargetUnit()->IsPlayer() && !GetExplTargetUnit()->IsPvP())
                 {
-                    if (GetCaster()->ToPlayer() && GetCaster()->ToPlayer()->m_Duel)
+                    if (GetCaster()->IsPlayer() && GetCaster()->ToPlayer()->m_Duel)
                     if (GetCaster()->ToPlayer()->m_Duel->opponent->GetGUID() == GetExplTargetUnit()->GetGUID())
                             return SPELL_CAST_OK;
 
@@ -1186,7 +1186,7 @@ class spell_mage_frostjaw: public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                         {
                             if (AuraPtr frostjaw = target->GetAura(SPELL_MAGE_FROSTJAW, _player->GetGUID()))
                             {
@@ -1656,7 +1656,7 @@ class spell_mage_cold_snap: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2109,7 +2109,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                     std::list<Creature*> l_FrozenRinglist;
 
                     // Get all of the Frozen Ring in Area
-                    l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 500.0f);
+                    l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 200.0f);
 
                     l_TempList = l_FrozenRinglist;
 
@@ -2510,12 +2510,16 @@ class spell_mage_blizzard : public SpellScriptLoader
                 if (l_Target->GetGUID() == l_Caster->GetGUID())
                     return;
 
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
                 /// Slowing enemies by 50%
                 l_Caster->CastSpell(l_Target, SPELL_MAGE_CHILLED, true);
 
                 /// Improved Blizzard
-                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
-                    l_Caster->ToPlayer()->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
+                if (l_Player->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
+                    l_Player->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
             }
 
             void HandleAfterHit()

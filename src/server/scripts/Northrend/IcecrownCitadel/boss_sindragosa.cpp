@@ -278,7 +278,7 @@ class boss_sindragosa : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -1380,7 +1380,7 @@ class spell_sindragosa_icy_grip: public SpellScriptLoader
 
                 if (unit && caster)
                 {
-                    if (caster->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && caster->getVictim() && !unit->HasAura(SPELL_FROST_BEACON))
+                    if (caster->GetTypeId() == TYPEID_UNIT && unit->IsPlayer() && caster->getVictim() && !unit->HasAura(SPELL_FROST_BEACON))
                     {
                         if (caster->getVictim()->GetGUID() != unit->GetGUID())
                         {

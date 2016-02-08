@@ -129,7 +129,7 @@ class boss_sha_of_anger : public CreatureScript
 
             void KilledUnit(Unit* u)
             {
-                if (u->GetTypeId() == TYPEID_PLAYER)
+                if (u->IsPlayer())
                     Talk(TALK_SLAY);
             }
 

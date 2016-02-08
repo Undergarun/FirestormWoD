@@ -445,7 +445,7 @@ public:
             return false;
         }
 
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->IsPlayer())
         {
             // check online security
             if (handler->HasLowerSecurity(target->ToPlayer(), 0))
@@ -457,7 +457,7 @@ public:
         else if (target->ToCreature()->isPet())
         {
             Unit* owner = target->GetOwner();
-            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet*)target)->IsPermanentPetFor(owner->ToPlayer()))
+            if (owner && owner->IsPlayer() && ((Pet*)target)->IsPermanentPetFor(owner->ToPlayer()))
             {
                 // check online security
                 if (handler->HasLowerSecurity(owner->ToPlayer(), 0))
@@ -1267,7 +1267,7 @@ public:
         }
 
         // check online security
-        if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        if (target->IsPlayer() && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
         char* pField = strtok((char*)args, " ");
@@ -1460,7 +1460,7 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         // check online security
-        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        else if (target->IsPlayer() && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
         target->SetDisplayId(display_id);
@@ -1479,7 +1479,7 @@ public:
         Unit* target = handler->getSelectedUnit();
         if (target)
         {
-            if (target->GetTypeId() == TYPEID_PLAYER)
+            if (target->IsPlayer())
                 target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
             else
                 target->SetPhaseMask(phasemask, true);
@@ -1602,7 +1602,7 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         // check online security
-        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        else if (target->IsPlayer() && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
         target->DeMorph();

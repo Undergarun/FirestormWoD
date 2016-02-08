@@ -74,7 +74,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !uiSpeech_counter)
+            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->IsPlayer() && me->isAlive() && !uiSpeech_counter)
             {
                 if (CAST_PLR(caster)->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
                 {

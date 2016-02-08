@@ -73,7 +73,7 @@ void StartEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instan
     if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
     {
         if (l_Other->IsAIEnabled && !l_Other->isInCombat())
-            l_Other->AI()->EnterCombat(p_Target);
+            l_Other->SetInCombatWith(p_Target);
     }
 }
 
@@ -250,6 +250,9 @@ class boss_heart_of_the_mountain : public CreatureScript
             {
                 if (m_FightStarted)
                     return;
+
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 m_FightStarted = true;
 
@@ -606,7 +609,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
                     return;
 
                 m_Events.Update(p_Diff);
@@ -1031,7 +1034,7 @@ class boss_foreman_feldspar : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
                     return;
 
                 m_Events.Update(p_Diff);

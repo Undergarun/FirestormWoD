@@ -79,7 +79,7 @@ class npc_jeron_emberfall : public CreatureScript
 
             void KilledUnit(Unit* p_Who) override
             {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                if (p_Who->IsPlayer())
                     Talk(eTalk::TalkSlay);
             }
 
