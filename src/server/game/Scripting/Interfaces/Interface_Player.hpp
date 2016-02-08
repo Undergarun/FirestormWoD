@@ -123,7 +123,7 @@ class ConditionScript : public ScriptObjectImpl<true>
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        virtual bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo)
+        virtual bool OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo& p_SourceInfo)
         {
             UNUSED(p_Condition);
             UNUSED(p_SourceInfo);

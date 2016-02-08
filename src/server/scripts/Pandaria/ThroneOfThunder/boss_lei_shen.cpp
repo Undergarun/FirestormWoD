@@ -2116,7 +2116,7 @@ class spell_bouncing_bolt : public SpellScriptLoader
                                 if (!p_Object)
                                     return true;
 
-                                if (p_Object->GetTypeId() == TYPEID_PLAYER)
+                                if (p_Object->IsPlayer())
                                     return false;
 
                                 if (p_Object->ToUnit() && p_Object->ToUnit()->GetOwner() && p_Object->ToUnit()->GetOwner()->ToPlayer())
@@ -2201,7 +2201,7 @@ class spell_overwhelming_power : public SpellScriptLoader
                 {
                     if (Unit* l_Victim = l_Caster->getVictim())
                     {
-                        if (l_Victim->GetTypeId() == TYPEID_PLAYER)
+                        if (l_Victim->IsPlayer())
                             l_Caster->CastSpell(l_Victim, SPELL_OVERWHELMING_POWER_AURA, true);
                     }
 

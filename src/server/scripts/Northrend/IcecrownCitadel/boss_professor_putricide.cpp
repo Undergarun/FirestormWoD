@@ -270,7 +270,7 @@ class boss_professor_putricide : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -480,7 +480,7 @@ class boss_professor_putricide : public CreatureScript
                                 {
                                     const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                                     for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER)
+                                        if ((*itr)->getTarget()->IsPlayer())
                                             targetList.push_back((*itr)->getTarget());
                                 }
 

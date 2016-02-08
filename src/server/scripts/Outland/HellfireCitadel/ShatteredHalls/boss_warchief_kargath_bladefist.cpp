@@ -133,7 +133,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                 {
                     DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
                 }

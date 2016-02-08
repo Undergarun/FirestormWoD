@@ -207,7 +207,7 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32& uiDamage, SpellInfo const* p_SpellInfo)
         {
-            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            if (uiDamage > me->GetHealth() && pDoneBy->IsPlayer())
             {
                 uiDamage = 0;
                 pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);

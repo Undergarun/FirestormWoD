@@ -1021,7 +1021,7 @@ class boss_spirit_kings : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     switch (me->GetEntry())
                     {

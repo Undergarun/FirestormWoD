@@ -292,7 +292,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 std::list<Creature*> addList;
-                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 200.0f);
 
                 if (!addList.empty())
                     for (Creature* add : addList)
@@ -368,7 +368,7 @@ public:
 
             Talk(SAY_AGGRO);
             std::list<GameObject*> l_DoorList;
-            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 200.0f);
 
             for (GameObject* l_Door : l_DoorList)
                 l_Door->SetGoState(GO_STATE_READY);
@@ -398,7 +398,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
                 Talk(SAY_SLAY);
         }
 
@@ -482,7 +482,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 std::list<Creature*> addList;
-                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 300.0f);
+                GetCreatureListWithEntryInGrid(addList, me, addEntries[i], 200.0f);
 
                 if (!addList.empty())
                     for (Creature* add : addList)
@@ -499,7 +499,7 @@ public:
             _JustDied();
 
             std::list<GameObject*> l_DoorList;
-            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 200.0f);
 
             for (GameObject* l_Door : l_DoorList)
                 l_Door->SetGoState(GO_STATE_ACTIVE);

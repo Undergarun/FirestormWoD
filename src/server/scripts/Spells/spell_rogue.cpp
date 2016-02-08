@@ -1370,7 +1370,7 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
                         if (!l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
                             return;
 
-                        if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SpecIndex::SPEC_ROGUE_ASSASSINATION)
+                        if (l_Caster->ToPlayer()->GetSpecializationId() != SpecIndex::SPEC_ROGUE_ASSASSINATION)
                             return;
 
                         l_Caster->CastSpell(l_Target, eSpells::VenomousWoundsDamage, true);
@@ -1813,7 +1813,7 @@ class spell_rog_deadly_poison: public SpellScriptLoader
             {
                 _stackAmount = 0;
                 // at this point CastItem must already be initialized
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+                return GetCaster()->IsPlayer() && GetCastItem();
             }
 
             void HandleBeforeHit()
@@ -2320,7 +2320,7 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                             {
                                 int32 l_Duration = l_ModSpell->GetDuration();
                                 AddPct(l_Duration, l_RevealingStrike->GetAmount());
-                                if (l_Duration >= 6 * IN_MILLISECONDS && l_Target->GetTypeId() == TYPEID_PLAYER) ///< Can't be more than 6s on pvp
+                                if (l_Duration >= 6 * IN_MILLISECONDS && l_Target->IsPlayer()) ///< Can't be more than 6s on pvp
                                     l_Duration = 6 * IN_MILLISECONDS;
                                 l_ModSpell->SetDuration(l_Duration);
                             }

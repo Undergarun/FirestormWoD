@@ -201,7 +201,7 @@ public:
 
         void SpellHitTarget(Unit* who, SpellInfo const* spell)
         {
-            if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
+            if (who && who->IsPlayer() && spell->Id == 59302)
                 kingsBane = false;
         }
 

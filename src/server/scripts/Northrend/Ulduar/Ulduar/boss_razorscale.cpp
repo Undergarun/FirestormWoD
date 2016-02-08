@@ -700,7 +700,7 @@ class npc_expedition_commander : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
+                if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->IsPlayer())
                 {
                     Talk(SAY_GREET);
                     Greet = true;

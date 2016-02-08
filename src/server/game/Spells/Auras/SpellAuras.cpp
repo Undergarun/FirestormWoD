@@ -718,7 +718,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
     m_applications[target->GetGUID()] = auraApp;
 
     // set infinity cooldown state for spells
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+    if (caster && caster->IsPlayer())
     {
         if (m_spellInfo->IsCooldownStartedOnEvent())
         {
@@ -765,7 +765,7 @@ void Aura::_UnapplyForTarget(Unit* p_Target, Unit* p_Caster, AuraApplication * p
     m_removedApplications.push_back(p_AuraApp);
 
     // reset cooldown state for spells
-    if (p_Caster && p_Caster->GetTypeId() == TYPEID_PLAYER)
+    if (p_Caster && p_Caster->IsPlayer())
     {
         bool l_MisdirectionGlyph = (GetSpellInfo()->Id == 34477 && p_Caster->HasAura(56829) && (p_Caster->GetPetGUID() == p_Target->GetGUID()));
 
@@ -1653,12 +1653,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 {
                     // PvP Trinket
                     case 42292:
-                        if (target && target->GetTypeId() == TYPEID_PLAYER)
+                        if (target && target->IsPlayer())
                             target->CastSpell(target, (target->ToPlayer()->GetTeam() == ALLIANCE ? 97403 : 97404), true);
                         break;
                     // Magma, Echo of Baine
                     case 101619:
-                        if (target && target->GetTypeId() == TYPEID_PLAYER && !target->HasAura(101866))
+                        if (target && target->IsPlayer() && !target->HasAura(101866))
                             target->CastSpell(target, 101866, true);
                         break;
                     // Burning Rage, Item - Warrior T12 DPS 2P Bonus
@@ -1693,7 +1693,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasDueToSpell(83500);
                         break;
                     case 32474: // Buffeting Winds of Susurrus
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             target->ToPlayer()->ActivateTaxiPathTo(506, GetId());
                         break;
                     case 33572: // Gronn Lord's Grasp, becomes stoned
@@ -1705,7 +1705,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->CastSpell(target, 50812, true);
                         break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             target->ToPlayer()->RemoveSpellCooldown(20252, true);
                         break;
                     case 105785:    // Stolen Time mage T13 set bonus
@@ -2018,7 +2018,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             break;
 
                         // Mage water elemental gains invisibility as mage
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             if (Pet* pet = target->ToPlayer()->GetPet())
                                 pet->CastSpell(pet, 32612, true, NULL, GetEffect(1));
 
@@ -2033,7 +2033,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     case 32612: // Invisibility (triggered)
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             if (Pet* pet = target->ToPlayer()->GetPet())
                                 if (pet->HasAura(32612))
                                     pet->RemoveAurasDueToSpell(32612);
@@ -2631,9 +2631,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
         return false;
 
     // do checks using conditions table
-    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, GetId());
-    ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
-    if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL_PROC, GetId(), eventInfo.GetActor(), eventInfo.GetActionTarget()))
         return false;
 
     // AuraScript Hook
@@ -2650,7 +2648,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     // do that only for passive spells
     // TODO: this needs to be unified for all kinds of auras
     Unit* target = aurApp->GetTarget();
-    if (IsPassive() && target->GetTypeId() == TYPEID_PLAYER)
+    if (IsPassive() && target->IsPlayer())
     {
         if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
@@ -3308,7 +3306,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
 {
     for (uint8 effIndex = 0; effIndex < m_EffectCount; ++effIndex)
     {
-        if (!HasEffect(effIndex))
+        if (!m_effects[effIndex])
             continue;
         UnitList targetList;
         // non-area aura
@@ -3318,7 +3316,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
         }
         else if (GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AURA_ON_PET)
         {
-            if (GetUnitOwner()->GetTypeId() == TYPEID_PLAYER)
+            if (GetUnitOwner()->IsPlayer())
             {
                 Pet* l_Pet = GetUnitOwner()->ToPlayer()->GetPet();
                 if (l_Pet != nullptr)

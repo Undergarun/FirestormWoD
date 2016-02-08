@@ -288,7 +288,7 @@ class boss_shekzeer : public CreatureScript
                 if (introDone)
                     return;
 
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     if (who->GetDistance(me) < 240.7f)
                     {
@@ -392,7 +392,7 @@ class boss_shekzeer : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -1409,7 +1409,7 @@ class mob_dissonance_field : public CreatureScript
             // Can't be wounded directly by player attacks
             void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
-                if (attacker->GetTypeId() == TYPEID_PLAYER || attacker->GetEntry() == me->GetEntry())
+                if (attacker->IsPlayer() || attacker->GetEntry() == me->GetEntry())
                     damage = 0;
             }
 

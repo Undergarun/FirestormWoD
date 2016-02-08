@@ -33,6 +33,7 @@
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
 
+#include <unordered_map>
 #include <map>
 #include <set>
 #include <list>
@@ -633,14 +634,14 @@ struct CliCommandHolder
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
 
-struct CharacterNameData
+struct CharacterInfo
 {
-    std::string m_name;
-    uint8 m_class;
-    uint8 m_race;
-    uint8 m_gender;
-    uint8 m_level;
-    uint32 m_AccountId;
+    std::string Name;
+    uint32 AccountId;
+    uint8 Class;
+    uint8 Race;
+    uint8 Sex;
+    uint8 Level;
 };
 
 struct BuildInfo
@@ -935,13 +936,13 @@ class World
 
         bool isEventKillStart;
 
-        CharacterNameData const* GetCharacterNameData(uint32 guid) const;
-        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID);
-        void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
-        void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
-        void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
-        bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
-        uint64 GetCharacterGuidByName(std::string p_Name);
+        CharacterInfo const* GetCharacterInfo(uint32 guid) const;
+        void AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void UpdateCharacterInfoLevel(uint32 guid, uint8 level);
+        void DeleteCharacterInfo(uint32 guid) { _characterInfoStore.erase(guid); }
+        bool HasCharacterInfo(uint32 guid) { return _characterInfoStore.find(guid) != _characterInfoStore.end(); }
+        uint64 GetCharacterGuidByName(std::string const& p_Name);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -1102,8 +1103,9 @@ class World
 
         std::list<AutoBroadcastText> m_Autobroadcasts;
 
-        std::map<uint32, CharacterNameData> _characterNameDataMap;
-        void LoadCharacterNameData();
+        typedef std::unordered_map<uint32, CharacterInfo> CharacterInfoContainer;
+        CharacterInfoContainer _characterInfoStore;
+        void LoadCharacterInfoStore();
 
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;

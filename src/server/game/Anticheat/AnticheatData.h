@@ -15,7 +15,7 @@ public:
     uint32 GetLastOpcode() const;
 
     const MovementInfo& GetLastMovementInfo() const;
-    void SetLastMovementInfo(MovementInfo& moveInfo);
+    void SetLastMovementInfo(MovementInfo const& moveInfo);
 
     void SetPosition(float x, float y, float z, float o);
 

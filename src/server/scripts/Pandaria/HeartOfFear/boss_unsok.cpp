@@ -305,7 +305,7 @@ class boss_unsok : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
@@ -331,7 +331,7 @@ class boss_unsok : public CreatureScript
                     EnterCombat(attacker);
 
                 // Damage taken from mutated construct leads to a 40 loss of power for the mutated construct
-                if (attacker->HasAura(SPELL_RESHAPE_LIFE) && attacker->GetTypeId() == TYPEID_PLAYER)
+                if (attacker->HasAura(SPELL_RESHAPE_LIFE) && attacker->IsPlayer())
                     attacker->ModifyPower(POWER_ALTERNATE_POWER, -40);
 
                 if (phase == 1 && me->HealthBelowPctDamaged(70, damage))
@@ -1041,7 +1041,7 @@ class mob_amber_globule : public CreatureScript
                 {
                     if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER && target->IsWithinDist2d(me, 1.5f))
+                        if (target->IsPlayer() && target->IsWithinDist2d(me, 1.5f))
                         {
                             me->GetMotionMaster()->Clear();
                             DoCast(SPELL_AMBERGEDDON);

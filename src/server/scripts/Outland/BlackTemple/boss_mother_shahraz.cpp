@@ -167,7 +167,7 @@ public:
             for (uint8 i = 0; i < 3; ++i)
             {
                 Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (unit && unit->isAlive() && (unit->GetTypeId() == TYPEID_PLAYER))
+                if (unit && unit->isAlive() && (unit->IsPlayer()))
                 {
                     TargetGUID[i] = unit->GetGUID();
                     unit->CastSpell(unit, SPELL_TELEPORT_VISUAL, true);

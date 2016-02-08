@@ -266,7 +266,7 @@ public:
 
         void AnnounceChampion(Unit* champion)
         {
-            if (champion->GetTypeId() == TYPEID_PLAYER)
+            if (champion->IsPlayer())
             {
                 if (!playersGUID.empty())
                 {

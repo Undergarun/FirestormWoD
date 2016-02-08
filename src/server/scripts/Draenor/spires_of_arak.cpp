@@ -179,7 +179,7 @@ class boss_rukhmar : public CreatureScript
                 uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
-                    return l_Unit && l_Unit->GetTypeId() == TYPEID_PLAYER;
+                    return l_Unit && l_Unit->IsPlayer();
                 });
 
                 if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
@@ -346,7 +346,7 @@ class npc_energized_phoenix : public CreatureScript
                 uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
                 {
                     Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
-                    return l_Unit && l_Unit->GetTypeId() == TYPEID_PLAYER;
+                    return l_Unit && l_Unit->IsPlayer();
                 });
 
                 if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))

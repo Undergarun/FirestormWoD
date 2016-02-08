@@ -136,7 +136,7 @@ class boss_arcurion : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                     Talk(SAY_KILL);
             }
 

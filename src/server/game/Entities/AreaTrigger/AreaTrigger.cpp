@@ -96,7 +96,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
         {
-            AreaTriggerTemplate const l_AreaTriggerTemplate = *l_Itr;
+            AreaTriggerTemplate const& l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
                 m_Templates.push_back(l_AreaTriggerTemplate);
         }

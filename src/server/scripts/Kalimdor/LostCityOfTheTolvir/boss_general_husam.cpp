@@ -140,7 +140,7 @@ public:
 
 		void KilledUnit(Unit* victim)
 		{
-			if (victim->GetTypeId() == TYPEID_PLAYER)
+			if (victim->IsPlayer())
 				DoScriptText(YELL_KILL_PLAYER_1, me);
 		}
 
