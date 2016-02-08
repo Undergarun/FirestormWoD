@@ -5468,7 +5468,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     // Archaeology
     if (m_spellInfo->Id == 80451)
     {
-        if (m_caster->ToPlayer())
+        if (m_caster->ToPlayer() && m_caster->ToPlayer()->HasSkill(SKILL_ARCHAEOLOGY))
             go_id = m_caster->ToPlayer()->GetArchaeologyMgr().GetSurveyBotEntry(o);
 
         duration = 5000;

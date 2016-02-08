@@ -731,7 +731,8 @@ namespace MS { namespace Skill { namespace Archaeology
         l_Data.WriteBit(p_Finished);
         l_Data.FlushBits();
 
-        m_Player->GetSession()->SendPacket(&l_Data);
+        if (m_Player->GetSession())
+            m_Player->GetSession()->SendPacket(&l_Data);
     }
 
     /// Build & send SMSG_RESEARCH_COMPLETE
