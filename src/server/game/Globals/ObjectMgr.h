@@ -548,25 +548,25 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32          MenuId;
-    uint32          OptionIndex;
-    uint8           OptionIcon;
-    std::string     OptionText;
-    uint32          OptionType;
-    uint32          OptionNpcflag;
-    uint32          ActionMenuId;
-    uint32          ActionPoiId;
-    bool            BoxCoded;
-    uint32          BoxMoney;
-    std::string     BoxText;
-    ConditionList   Conditions;
+    uint32             MenuId;
+    uint32             OptionIndex;
+    uint8              OptionIcon;
+    std::string        OptionText;
+    uint32             OptionType;
+    uint32             OptionNpcflag;
+    uint32             ActionMenuId;
+    uint32             ActionPoiId;
+    bool               BoxCoded;
+    uint32             BoxMoney;
+    std::string        BoxText;
+    ConditionContainer Conditions;
 };
 
 struct GossipMenus
 {
-    uint32          entry;
-    uint32          text_id;
-    ConditionList   conditions;
+    uint32             entry;
+    uint32             text_id;
+    ConditionContainer conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
@@ -1556,6 +1556,11 @@ class ObjectMgr
                 return skipData[zone];
 
             return false;
+        }
+
+        bool IsSkipZoneEnabled()
+        {
+            return !skipData.empty();
         }
 
         uint32 GetSkipUpdateCount()

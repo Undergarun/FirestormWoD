@@ -394,7 +394,7 @@ class boss_freya : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_SLAY);
             }
 
@@ -921,7 +921,7 @@ class boss_elder_brightleaf : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_BRIGHTLEAF_SLAY);
             }
 
@@ -930,7 +930,7 @@ class boss_elder_brightleaf : public CreatureScript
                 _JustDied();
                 Talk(SAY_BRIGHTLEAF_DEATH);
 
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                 {
                     if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -1050,7 +1050,7 @@ class boss_elder_stonebark : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_STONEBARK_SLAY);
             }
 
@@ -1059,7 +1059,7 @@ class boss_elder_stonebark : public CreatureScript
                 _JustDied();
                 Talk(SAY_STONEBARK_DEATH);
 
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                 {
                     if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -1180,7 +1180,7 @@ class boss_elder_ironbranch : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(SAY_IRONBRANCH_SLAY);
             }
 
@@ -1189,7 +1189,7 @@ class boss_elder_ironbranch : public CreatureScript
                 _JustDied();
                 Talk(SAY_IRONBRANCH_DEATH);
 
-                if (who && who->GetTypeId() == TYPEID_PLAYER)
+                if (who && who->IsPlayer())
                 {
                     if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);

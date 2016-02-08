@@ -81,16 +81,17 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature& creature)
     creature.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
     m_isArrivalDone = true;
 
-    if (i_path->at(i_currentNode)->event_id && urand(0, 99) < i_path->at(i_currentNode)->event_chance)
+    WaypointData const* l_Waypoint = i_path->at(i_currentNode);
+    if (l_Waypoint->event_id && urand(0, 99) < l_Waypoint->event_chance)
     {
-        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Creature movement start script %u at point %u for " UI64FMTD ".", i_path->at(i_currentNode)->event_id, i_currentNode, creature.GetGUID());
-        creature.GetMap()->ScriptsStart(sWaypointScripts, i_path->at(i_currentNode)->event_id, &creature, NULL);
+        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Creature movement start script %u at point %u for " UI64FMTD ".", l_Waypoint->event_id, i_currentNode, creature.GetGUID());
+        creature.GetMap()->ScriptsStart(sWaypointScripts, l_Waypoint->event_id, &creature, nullptr);
     }
 
     // Inform script
     MovementInform(creature);
     creature.UpdateWaypointID(i_currentNode);
-    Stop(i_path->at(i_currentNode)->delay);
+    Stop(l_Waypoint->delay);
 }
 
 bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)

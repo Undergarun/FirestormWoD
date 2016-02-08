@@ -1,0 +1,1 @@
+UPDATE characters SET xprate = 5 WHERE xprate = 0;

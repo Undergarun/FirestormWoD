@@ -145,7 +145,7 @@ class spell_rock_jump: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (!caster->ToPlayer() || caster->ToPlayer()->GetQuestStatus(29678) != QUEST_STATUS_INCOMPLETE)
+                    if (!caster->IsPlayer() || caster->ToPlayer()->GetQuestStatus(29678) != QUEST_STATUS_INCOMPLETE)
                         return;
 
                     if (caster->GetPositionZ() < 90.0f)

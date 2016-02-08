@@ -165,7 +165,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
+            if (done_by->IsPlayer())
                 if (me->HealthBelowPctDamaged(20, damage))
             {
                 CAST_PLR(done_by)->GroupEventHappens(QUEST_10004, me);
@@ -404,7 +404,7 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 if (CAST_PLR(who)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
                 {

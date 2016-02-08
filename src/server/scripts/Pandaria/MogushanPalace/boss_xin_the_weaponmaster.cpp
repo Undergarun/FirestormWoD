@@ -317,7 +317,7 @@ class spell_dart: public SpellScriptLoader
 
                 //See if we intersect with any players.
                 for (auto object : targets)
-                    if (object->GetTypeId() == TYPEID_PLAYER)
+                    if (object->IsPlayer())
                         for (auto trigger : targetList)
                             if (object->IsInBetween(GetCaster(), trigger, 2.0f))
                             {

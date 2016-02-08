@@ -1365,7 +1365,7 @@ void Battleground::BuildArenaOpponentSpecializations(WorldPacket* p_Packet, uint
     {
         if (Player * l_Player = _GetPlayerForTeam(p_Team, l_It, "BuildArenaOpponentSpecializations"))
         {
-            *p_Packet << uint32(l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
+            *p_Packet << uint32(l_Player->GetSpecializationId());
             *p_Packet << uint32(0);
             p_Packet->appendPackGUID(l_Player->GetGUID());
         }

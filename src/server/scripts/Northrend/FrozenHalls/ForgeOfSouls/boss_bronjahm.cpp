@@ -119,7 +119,7 @@ class boss_bronjahm : public CreatureScript
 
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 

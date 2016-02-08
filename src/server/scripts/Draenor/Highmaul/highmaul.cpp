@@ -4339,6 +4339,8 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
             RuneOfDisintegration = 175654
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
@@ -4350,8 +4352,49 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eSpell::RuneOfDisintegration, true);
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::RuneOfDisintegration))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::RuneOfDisintegration, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::RuneOfDisintegration);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::RuneOfDisintegration);
+                }
             }
         }
 

@@ -46,6 +46,37 @@ Position const g_PrimalElementalistsMoves[eFoundryDatas::MaxPrimalElementalists]
     217.771f, 3546.35f, 217.408f, 0.0f
 };
 
+void ResetEncounter(Creature* p_Source, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Instance == nullptr)
+        return;
+
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
+    {
+        if (l_Other->isDead())
+        {
+            l_Other->Respawn();
+            l_Other->GetMotionMaster()->MoveTargetedHome();
+        }
+        else if (!l_Other->HasUnitState(UnitState::UNIT_STATE_EVADE) && l_Other->IsAIEnabled)
+            l_Other->AI()->EnterEvadeMode();
+    }
+}
+
+void StartEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Target == nullptr || p_Instance == nullptr)
+        return;
+
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
+    {
+        if (l_Other->IsAIEnabled && !l_Other->isInCombat())
+            l_Other->SetInCombatWith(p_Target);
+    }
+}
+
 /// Heart of the Mountain - 76806
 class boss_heart_of_the_mountain : public CreatureScript
 {
@@ -154,6 +185,7 @@ class boss_heart_of_the_mountain : public CreatureScript
             EventMap m_CosmeticEvents;
 
             bool m_Enabled;
+            bool m_FightStarted;
 
             uint8 m_ElementalistMoveIndex;
             uint8 m_ElementalistKilled;
@@ -182,6 +214,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 m_Enabled = false;
+                m_FightStarted = false;
 
                 m_ElementalistMoveIndex = 0;
                 m_ElementalistKilled = 0;
@@ -215,10 +248,22 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_FightStarted)
+                    return;
+
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
+
+                m_FightStarted = true;
+
                 _EnterCombat();
 
                 if (m_Instance != nullptr)
+                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+                    StartEncounter(me, p_Attacker, m_Instance);
+                }
 
                 me->CastSpell(me, eSpells::HeartOfTheFurnace, true);
 
@@ -242,22 +287,29 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             void EnterEvadeMode() override
             {
-                if (me->HasReactState(ReactStates::REACT_AGGRESSIVE))
-                    Talk(eTalks::Wipe);
+                summons.DespawnAll();
 
-                if (m_Instance != nullptr)
-                {
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
-                }
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
-                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
+                me->ClearAllUnitState();
 
                 CreatureAI::EnterEvadeMode();
 
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me, 1);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Heat);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
+
+                    ResetEncounter(me, m_Instance);
+                }
+
                 me->StopMoving();
-                me->ClearUnitState(UnitState::UNIT_STATE_EVADE);
+
+                me->ClearAllUnitState();
 
                 me->NearTeleportTo(me->GetHomePosition());
 
@@ -557,7 +609,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
                     return;
 
                 m_Events.Update(p_Diff);
@@ -807,6 +859,8 @@ class boss_foreman_feldspar : public CreatureScript
 
             std::vector<uint64> m_GuardiansGuids;
 
+            bool m_FightStarted;
+
             bool m_RegulatorDestroyed;
 
             void Reset() override
@@ -850,6 +904,8 @@ class boss_foreman_feldspar : public CreatureScript
                         }
                     });
                 }
+
+                m_FightStarted = false;
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -862,6 +918,11 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_FightStarted)
+                    return;
+
+                m_FightStarted = true;
+
                 me->CastSpell(me, eSpells::HotBlooded, true);
 
                 Talk(eTalks::Aggro);
@@ -881,11 +942,7 @@ class boss_foreman_feldspar : public CreatureScript
 
                     CallAddsInCombat(p_Attacker);
 
-                    if (Creature* l_HeartOfTheMountain = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
-                    {
-                        if (l_HeartOfTheMountain->IsAIEnabled)
-                            l_HeartOfTheMountain->SetInCombatWithZone();
-                    }
+                    StartEncounter(me, p_Attacker, m_Instance);
                 }
 
                 m_Events.ScheduleEvent(eEvents::EventBerserker, 780 * TimeConstants::IN_MILLISECONDS);
@@ -899,6 +956,14 @@ class boss_foreman_feldspar : public CreatureScript
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
+            void EnterEvadeMode() override
+            {
+                CreatureAI::EnterEvadeMode();
+
+                if (m_Instance != nullptr)
+                    ResetEncounter(me, m_Instance);
             }
 
             void JustReachedHome() override
@@ -969,7 +1034,7 @@ class boss_foreman_feldspar : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || (m_Instance != nullptr && m_Instance->IsWipe()))
                     return;
 
                 m_Events.Update(p_Diff);
@@ -2998,6 +3063,8 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
             RuptureDoT = 156932
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnCreate(AreaTrigger* p_AreaTrigger) override
         {
             uint32 l_Duration = (1 * TimeConstants::MINUTE + 30) * TimeConstants::IN_MILLISECONDS;
@@ -3010,24 +3077,42 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 6.0f;
+                float l_Radius = 2.5f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.5f)
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::RuptureDoT))
                     {
-                        if (!l_Unit->HasAura(eSpell::RuptureDoT))
-                            l_Caster->CastSpell(l_Unit, eSpell::RuptureDoT, true);
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::RuptureDoT, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 2.5f))
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
                     {
-                        if (l_Unit->HasAura(eSpell::RuptureDoT))
-                            l_Unit->RemoveAura(eSpell::RuptureDoT);
+                        ++l_Iter;
+                        continue;
                     }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::RuptureDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
                 }
             }
         }
@@ -3036,20 +3121,10 @@ class areatrigger_foundry_rupture : public AreaTriggerEntityScript
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 2.5f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
+                for (uint64 l_Guid : m_AffectedPlayers)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), l_Radius))
-                    {
-                        if (l_Unit->HasAura(eSpell::RuptureDoT))
-                            l_Unit->RemoveAura(eSpell::RuptureDoT);
-                    }
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::RuptureDoT);
                 }
             }
         }
@@ -3183,29 +3258,49 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
             MeltDoT = 155223
         };
 
+        std::set<uint64> m_AffectedPlayers;
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 15.0f;
+                float l_Radius = 5.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 5.0f)
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::MeltDoT))
                     {
-                        if (!l_Unit->HasAura(eSpell::MeltDoT))
-                            l_Caster->CastSpell(l_Unit, eSpell::MeltDoT, true);
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::MeltDoT, true);
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 5.0f))
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
                     {
-                        if (l_Unit->HasAura(eSpell::MeltDoT))
-                            l_Unit->RemoveAura(eSpell::MeltDoT);
+                        ++l_Iter;
+                        continue;
                     }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::MeltDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
                 }
             }
         }
@@ -3214,20 +3309,10 @@ class areatrigger_foundry_melt : public AreaTriggerEntityScript
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 15.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
+                for (uint64 l_Guid : m_AffectedPlayers)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 5.0f))
-                    {
-                        if (l_Unit->HasAura(eSpell::MeltDoT))
-                            l_Unit->RemoveAura(eSpell::MeltDoT);
-                    }
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::MeltDoT);
                 }
             }
         }

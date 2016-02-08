@@ -143,7 +143,7 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 if (who->HasAura(34877) && CAST_PLR(who)->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
                 {

@@ -1221,7 +1221,7 @@ class mob_dark_winds : public CreatureScript
 
                 for (auto itr : playerList)
                 {
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->IsPlayer())
                         continue;
 
                     unitToRemove.push_back(itr);
@@ -3116,7 +3116,7 @@ class mob_iron_qon_disciple : CreatureScript
 
             void MoveInLineOfSight(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                if (p_Who->IsPlayer())
                 {
                     if (me->GetDistance(p_Who) < 20.0f && !m_IntroDone)
                     {

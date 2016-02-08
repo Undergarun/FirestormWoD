@@ -271,7 +271,7 @@ public:
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128   SpellClassMask;
-    std::list<Condition*>* ImplicitTargetConditions;
+    std::vector<Condition*>* ImplicitTargetConditions;
     
     /// SpellScalingEntry
     float     ScalingMultiplier;

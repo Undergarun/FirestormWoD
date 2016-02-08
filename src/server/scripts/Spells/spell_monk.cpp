@@ -122,11 +122,19 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION      = 159407
 };
 
-// Tiger Eye Brew - 123980 & Mana Tea - 123766
+/// Last Update 6.2.3
+/// Tiger Eye Brew - 123980 & Mana Tea - 123766
 class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 {
     public:
         PlayerScript_TigereEyeBrew_ManaTea() :PlayerScript("PlayerScript_TigereEyeBrew_ManaTea") {}
+
+        enum eSpells
+        {
+            Serenity        = 152173,
+            TigereyeBrew    = 123980,
+            ManaTea         = 123766
+        };
 
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
         {
@@ -135,10 +143,13 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 
             if (p_Power == POWER_CHI && l_DiffValue < 0)
             {
-                if (AuraPtr tigereyeBrew = p_Player->GetAura(123980))
+                if (AuraPtr tigereyeBrew = p_Player->GetAura(eSpells::TigereyeBrew))
                     tigereyeBrew->SetScriptData(0, -l_DiffValue);
-                else if (AuraPtr manaTea = p_Player->GetAura(123766))
+                else if (AuraPtr manaTea = p_Player->GetAura(eSpells::ManaTea))
                     manaTea->SetScriptData(0, -l_DiffValue);
+
+                if (p_Player->HasAura(eSpells::Serenity))
+                    p_NewValue = p_OldValue;
             }
         }
 };
@@ -1129,7 +1140,7 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
                     std::list<Creature*> tempList;
                     std::list<Creature*> blackOxList;
 
-                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_BLACK_OX_STATUE, 500.0f);
+                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_BLACK_OX_STATUE, 200.0f);
 
                     for (auto itr : tempList)
                         blackOxList.push_back(itr);
@@ -1178,8 +1189,8 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
 
 };
 
-/// last update : 6.1.2 19802
-/// Guard - 115295
+/// last update : 6.2.3
+/// Guard - 115295, Guard (override) - 123402
 class spell_monk_guard: public SpellScriptLoader
 {
     public:
@@ -1201,10 +1212,13 @@ class spell_monk_guard: public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                if (l_Caster->IsPlayer())
                     p_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+
+                if (AuraEffectPtr l_GlyphofGuardAura = l_Caster->GetAuraEffect(123401, EFFECT_0))
+                    AddPct(p_Amount, l_GlyphofGuardAura->GetAmount());
 
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
                 {
@@ -1605,7 +1619,6 @@ class spell_monk_eminence_heal : public SpellScriptLoader
                 p_Targets.sort(JadeCore::HealthPctOrderPred());
                 p_Targets.resize(1);
             }
-
         }
 
         void Register()
@@ -1640,8 +1653,8 @@ class spell_monk_jade_serpent_statue: public SpellScriptLoader
                     std::list<Creature*> tempList;
                     std::list<Creature*> jadeSerpentlist;
 
-                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
-                    player->GetCreatureListWithEntryInGrid(jadeSerpentlist, MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
+                    player->GetCreatureListWithEntryInGrid(tempList, MONK_NPC_JADE_SERPENT_STATUE, 200.0f);
+                    player->GetCreatureListWithEntryInGrid(jadeSerpentlist, MONK_NPC_JADE_SERPENT_STATUE, 200.0f);
 
                     // Remove other players jade statue
                     for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
@@ -1915,7 +1928,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                if (l_Player->GetSpecializationId() == SPEC_MONK_MISTWEAVER)
                     m_BasePowerConsume = 4.7f;
                 else
                     m_BasePowerConsume = 30.0f;
@@ -3342,7 +3355,7 @@ class spell_monk_provoke: public SpellScriptLoader
                     Unit* l_Target = GetExplTargetUnit();
                     if (!l_Target)
                         return SPELL_FAILED_NO_VALID_TARGETS;
-                    else if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    else if (l_Target->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                     else if (!l_Target->IsWithinLOSInMap(GetCaster()))
                         return SPELL_FAILED_LINE_OF_SIGHT;
@@ -3402,7 +3415,7 @@ class spell_monk_provoke_launch : public SpellScriptLoader
                         return true;
 
                     /// Unusable on pvp
-                    if (p_Object->GetTypeId() == TYPEID_PLAYER)
+                    if (p_Object->IsPlayer())
                         return true;
 
                     return false;
@@ -3479,13 +3492,13 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                         {
                             if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth()))
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->GetTypeId() == TYPEID_PLAYER) &&
+                            else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->IsPlayer()) &&
                                 (target->GetHealthPct() > 10.0f))
                                 return SPELL_FAILED_BAD_TARGETS;
                         }
                         else
                         {
-                            if ((target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer())) && target->GetHealthPct() > 10.0f)
+                            if ((target->IsPlayer() || (target->GetOwner() && target->GetOwner()->ToPlayer())) && target->GetHealthPct() > 10.0f)
                                 return SPELL_FAILED_BAD_TARGETS;
                             else if (target->GetTypeId() == TYPEID_UNIT && target->GetHealthPct() > 10.0f && target->GetHealth() > caster->GetMaxHealth())
                                 return SPELL_FAILED_BAD_TARGETS;
@@ -3522,7 +3535,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                if (caster && caster->IsPlayer())
                     caster->CastSpell(caster, SPELL_MONK_FORTIFYING_BREW, true);
             }
 
@@ -4479,34 +4492,6 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_hurricane_strike_damage_SpellScript();
-        }
-};
-
-enum SerenitySpells
-{
-    SPELL_MONK_SERENITY = 152173
-};
-
-// Serenity - 152173
-class spell_monk_serenity: public PlayerScript
-{
-    public:
-        spell_monk_serenity() :PlayerScript("spell_monk_serenity") {}
-
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
-        {
-            if (p_Player->getClass() != CLASS_MONK || p_Power != POWER_CHI || !p_Player->HasAura(SPELL_MONK_SERENITY) || p_Regen)
-                return;
-
-            // Get the power earn (if > 0 ) or consum (if < 0)
-            int32 l_diffValue = p_NewValue - p_OldValue;
-
-            // Only get spended chi
-            if (l_diffValue > 0)
-                return;
-
-            // No cost
-            p_NewValue = p_OldValue;
         }
 };
 
@@ -5875,7 +5860,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_expel_harm();
     new spell_monk_hurricane_strike_damage();
     new spell_monk_hurricane_strike();
-    new spell_monk_serenity();
     new spell_monk_detox();
     new spell_monk_glyph_of_rapid_rolling();
     new spell_monk_afterlife();

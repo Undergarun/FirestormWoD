@@ -270,7 +270,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,         TARGET_DIR_NONE         },  ///< 53 TARGET_DEST_TARGET_ENEMY
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 54 TARGET_UNIT_CONE_ENEMY_54
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 55 TARGET_DEST_CASTER_FRONT_LEAP
-    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
+    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 57 TARGET_UNIT_TARGET_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 58 TARGET_UNIT_NEARBY_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_RAID,          TARGET_DIR_FRONT        },  ///< 59 TARGET_UNIT_CONE_ALLY
@@ -344,7 +344,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 127
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 128
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 129 TARGET_UNIT_CONE_ENEMY_129
-    { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 130
+    { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 130 TARGET_UNIT_CONE_ENEMY_130
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 131
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 132
     { TARGET_OBJECT_TYPE_NONE,      TARGET_REFERENCE_TYPE_NONE,     TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 133
@@ -962,7 +962,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 200 SPELL_EFFECT_RESURECT_BATTLE_PETS
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 201 SPELL_EFFECT_CAN_PETBATTLE
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 202 SPELL_EFFECT_202
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_203
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 203 SPELL_EFFECT_REMOVE_AURA_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 204 SPELL_EFFECT_204
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 205 SPELL_EFFECT_205
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 206 SPELL_EFFECT_206
@@ -2100,7 +2100,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
         if (caster != unitTarget)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (caster->IsPlayer())
             {
                 // Do not allow these spells to target creatures not tapped by us (Banish, Polymorph, many quest spells)
                 if (AttributesEx2 & SPELL_ATTR2_CANT_TARGET_TAPPED)
@@ -2110,7 +2110,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
                 if (AttributesCu & SPELL_ATTR0_CU_PICKPOCKET)
                 {
-                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                     if (unitTarget->IsPlayer())
                          return SPELL_FAILED_BAD_TARGETS;
                      else if ((unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                          return SPELL_FAILED_TARGET_NO_POCKETS;
@@ -2119,7 +2119,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                 // Not allow disarm unarmed player
                 if (Mechanic == MECHANIC_DISARM)
                 {
-                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (unitTarget->IsPlayer())
                     {
                         Player const* player = unitTarget->ToPlayer();
                         if (!player->GetWeaponForAttack(WeaponAttackType::BaseAttack) || !player->IsUseEquipedWeapon(true))
@@ -2166,14 +2166,14 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     if (!CheckTargetCreatureType(unitTarget))
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->IsPlayer())
             return SPELL_FAILED_TARGET_IS_PLAYER;
         else
             return SPELL_FAILED_BAD_TARGETS;
     }
 
     // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
-    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
+    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->IsPlayer())
     {
         if (!unitTarget->ToPlayer()->IsVisible())
             return SPELL_FAILED_BM_OR_INVISGOD;
@@ -2304,7 +2304,7 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
     if (SpellFamilyName == SPELLFAMILY_WARLOCK && GetCategory() == 1179)
     {
         // not allow cast at player
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->IsPlayer())
             return false;
         else
             return true;
@@ -2992,6 +2992,10 @@ void SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, in
         if (PowerType == POWER_RAGE && Id == 100130 && caster->HasAura(46916))
             powerCost = 0;
 
+        /// Hack fix: Drain Life shouldn't take mana if warlock is on Metamorphis form
+        if (PowerType == POWER_MANA && Id == 689 && caster->HasAura(103958))
+            powerCost = 0;
+
         m_powerCost[POWER_TO_INDEX(PowerType)] += powerCost;
     }
 }
@@ -3427,6 +3431,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 p_TargetA, uint32 p_TargetB)
         case Targets::TARGET_UNIT_CONE_ENEMY_104:
         case Targets::TARGET_UNIT_CONE_ENEMY_110:
         case Targets::TARGET_UNIT_CONE_ENEMY_129:
+        case Targets::TARGET_UNIT_CONE_ENEMY_130:
         case Targets::TARGET_DEST_DYNOBJ_ENEMY:
         case Targets::TARGET_DEST_TARGET_ENEMY:
         case Targets::TARGET_ENNEMIES_AROUND_CASTER:
@@ -3604,10 +3609,10 @@ void SpellInfo::SetCastTimeIndex(uint32 index)
 
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
-    // find the same instances of ConditionList and delete them.
+    // find the same instances of ConditionContainer and delete them.
     for (uint8 i = 0; i < EffectCount; ++i)
     {
-        ConditionList* cur = Effects[i].ImplicitTargetConditions;
+        ConditionContainer* cur = Effects[i].ImplicitTargetConditions;
         if (!cur)
             continue;
 

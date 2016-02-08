@@ -610,7 +610,7 @@ class boss_king_malakk : public CreatureScript
                                         }
 
                                         /// For first LFR part, this door should not be opened
-                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                             l_Door->SetGoState(GO_STATE_READY);
                                     }
                                 }
@@ -944,7 +944,7 @@ class boss_kazra_jin : public CreatureScript
                                         }
 
                                         /// For first LFR part, this door should not be opened
-                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                             l_Door->SetGoState(GO_STATE_READY);
                                     }
                                 }
@@ -1414,7 +1414,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                                     }
 
                                     /// For first LFR part, this door should not be opened
-                                    if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                    if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                         l_Door->SetGoState(GO_STATE_READY);
                                 }
                             }
@@ -1977,7 +1977,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                                         }
 
                                         /// For first LFR part, this door should not be opened
-                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 500.0f))
+                                        if (GameObject* l_Door = l_KillCredit->FindNearestGameObject(eMiscs::LastDoor, 200.0f))
                                             l_Door->SetGoState(GO_STATE_READY);
                                     }
                                 }

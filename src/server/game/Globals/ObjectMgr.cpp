@@ -2130,15 +2130,9 @@ bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string &name) const
         return true;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
-
-    stmt->setUInt32(0, GUID_LOPART(guid));
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
+    if (CharacterInfo const* l_CharacterInfo = sWorld->GetCharacterInfo(guid))
     {
-        name = (*result)[0].GetString();
+        name = l_CharacterInfo->Name;
         return true;
     }
 
@@ -2147,46 +2141,16 @@ bool ObjectMgr::GetPlayerNameByGUID(uint64 guid, std::string &name) const
 
 uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
 {
-    // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
-    {
-        return Player::TeamForRace(player->getRace());
-    }
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
-
-    stmt->setUInt32(0, GUID_LOPART(guid));
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint8 race = (*result)[0].GetUInt8();
-        return Player::TeamForRace(race);
-    }
+    if (CharacterInfo const* l_CharacterInfo = sWorld->GetCharacterInfo(guid))
+        return Player::TeamForRace(l_CharacterInfo->Race);
 
     return 0;
 }
 
 uint32 ObjectMgr::GetPlayerAccountIdByGUID(uint64 guid) const
 {
-    // prevent DB access for online player
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
-    {
-        return player->GetSession()->GetAccountId();
-    }
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
-
-    stmt->setUInt32(0, GUID_LOPART(guid));
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        uint32 acc = (*result)[0].GetUInt32();
-        return acc;
-    }
+    if (CharacterInfo const* l_CharacterInfo = sWorld->GetCharacterInfo(guid))
+        return l_CharacterInfo->AccountId;
 
     return 0;
 }
@@ -8091,7 +8055,7 @@ static LanguageType GetRealmLanguageType(bool create)
     }
 }
 
-bool isValidString(std::wstring wstr, uint32 strictMask, bool numericOrSpace, bool create = false)
+bool isValidString(std::wstring& wstr, uint32 strictMask, bool numericOrSpace, bool create = false)
 {
     if (strictMask == 0)                                       // any language, ignore realm
     {

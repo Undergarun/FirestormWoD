@@ -79,7 +79,7 @@ typedef std::chrono::system_clock Clock;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
-#define PLAYER_EXPLORED_ZONES_SIZE  200
+#define PLAYER_EXPLORED_ZONES_SIZE  256
 
 /// 6.2.3 20726
 enum ToastTypes
@@ -193,8 +193,9 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest  = 1,
-    CharWorldStateGarrisonStablesSecondQuest = 2
+    CharWorldStateGarrisonStablesFirstQuest          = 1,
+    CharWorldStateGarrisonStablesSecondQuest         = 2,
+    CharWorldStateGarrisonWorkshopGearworksInvention = 3
 };
 
 // Spell modifier (used for modify other spells)
@@ -2328,6 +2329,8 @@ class Player : public Unit, public GridObject<Player>
         {
             _talentMgr->SpecInfo[GetActiveSpec()].Glyphs[slot] = glyph;
             SetUInt32Value(PLAYER_FIELD_GLYPHS + slot, glyph);
+
+            m_glyphsChanged = true;
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
         bool HasGlyph(uint32 spell_id);
@@ -3309,6 +3312,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetRunesState() const { return m_runes.runeState; }
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes.runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes.runes[index].CurrentRune); }
+        RuneType GetCurrentRuneForBloodTap() const { return m_BloodTapRune; }
         uint32 GetRuneCooldown(uint8 index) const { return m_runes.runes[index].Cooldown; }
         uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
         uint32 GetRuneConvertSpell(uint8 index) const { return m_runes.runes[index].spell_id; }
@@ -3319,6 +3323,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsRunePermanentlyConverted(uint8 index) { return m_runes.runes[index].Permanently; }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes.runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes.runes[index].CurrentRune = currentRune; }
+        void SetCurrentRuneForBloodTap(RuneType currentRune) { m_BloodTapRune = currentRune; }
         void SetRuneCooldown(uint8 index, uint32 cooldown) { m_runes.runes[index].Cooldown = cooldown; m_runes.SetRuneState(index, cooldown == 0); }
         void SetRuneConvertSpell(uint8 index, uint32 spell_id) { m_runes.runes[index].spell_id = spell_id; }
         void SetRuneConvertType(uint8 index, bool permanently) { m_runes.runes[index].Permanently = permanently; }
@@ -3882,6 +3887,8 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerTalentInfo* _talentMgr;
 
+        bool m_glyphsChanged;
+
         ActionButtonList m_actionButtons;
 
         float m_auraBaseMod[BASEMOD_END][MOD_END];
@@ -3975,6 +3982,7 @@ class Player : public Unit, public GridObject<Player>
 
         DeclinedName *m_declinedname;
         Runes m_runes;
+        RuneType m_BloodTapRune;
         EquipmentSets m_EquipmentSets;
 
         bool CanAlwaysSee(WorldObject const* obj) const;

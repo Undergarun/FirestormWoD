@@ -676,7 +676,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->IsPlayer())
             {
                 if (apply)
                     Start(false, true, who->GetGUID());

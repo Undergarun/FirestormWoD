@@ -738,7 +738,7 @@ class boss_jin_qin_xi : public CreatureScript
                             std::list<Player*> aliveList;
                             std::list<Player*> plyrList;
                             aliveList.clear();
-                            GetPlayerListInGrid(plyrList, me, 500.0f);
+                            GetPlayerListInGrid(plyrList, me, 200.0f);
                             for (auto plyr : plyrList)
                                 if (plyr->isAlive())
                                     aliveList.push_back(plyr);
@@ -1556,7 +1556,7 @@ class spell_cosmetic_lightning : public SpellScriptLoader
                     targets.clear();
 
                     std::list<Creature*> focus;
-                    GetCreatureListWithEntryInGrid(focus, caster, NPC_GENERAL_PURPOSE_BUNNY_JMF, 500.0f);
+                    GetCreatureListWithEntryInGrid(focus, caster, NPC_GENERAL_PURPOSE_BUNNY_JMF, 200.0f);
 
                     focus.remove(caster->ToCreature());
                 

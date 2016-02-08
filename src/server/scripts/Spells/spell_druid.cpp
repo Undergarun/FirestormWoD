@@ -1727,37 +1727,6 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// Faerie Swarm (decrease speed aura) - 102354
-class spell_dru_faerie_swarm_speed_aura : public SpellScriptLoader
-{
-    public:
-        spell_dru_faerie_swarm_speed_aura() : SpellScriptLoader("spell_dru_faerie_swarm_speed_aura") { }
-
-        class spell_dru_faerie_swarm_speed_aura_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_faerie_swarm_speed_aura_AuraScript);
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Target = GetTarget();
-
-                if (l_Target->HasAura(FaerieSwarmSpells::SPELL_DRUID_FAERIE_SWARM))
-                    l_Target->RemoveAura(FaerieSwarmSpells::SPELL_DRUID_FAERIE_SWARM);
-            }
-
-            void Register()
-            {
-                OnEffectRemove += AuraEffectRemoveFn(spell_dru_faerie_swarm_speed_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_faerie_swarm_speed_aura_AuraScript();
-        }
-};
-
 enum eWildMushroomSpells
 {
     Heal                      = 81269,
@@ -1810,7 +1779,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
 
                 std::list<Creature*> l_Mushroomlist;
 
-                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, eWildMushroomDatas::NpcWildMushroom, 500.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, eWildMushroomDatas::NpcWildMushroom, 200.0f);
 
                 /// Remove other player mushrooms
                 for (std::list<Creature*>::iterator i = l_Mushroomlist.begin(); i != l_Mushroomlist.end(); ++i)
@@ -2906,7 +2875,7 @@ class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2921,7 +2890,7 @@ class spell_dru_t10_restoration_4p_bonus: public SpellScriptLoader
                     targets.remove(GetExplTargetUnit());
                     std::list<Unit*> tempTargets;
                     for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                        if ((*itr)->GetTypeId() == TYPEID_PLAYER && GetCaster()->IsInRaidWith((*itr)->ToUnit()))
+                        if ((*itr)->IsPlayer() && GetCaster()->IsInRaidWith((*itr)->ToUnit()))
                             tempTargets.push_back((*itr)->ToUnit());
 
                     if (tempTargets.empty())
@@ -3299,7 +3268,7 @@ class spell_dru_travel_form: public SpellScriptLoader
             void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                if (GetTarget()->IsPlayer())
                     sScriptMgr->OnPlayerUpdateMovement(GetTarget()->ToPlayer());
             }
 
@@ -3440,7 +3409,7 @@ class spell_dru_swift_flight_passive: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
@@ -3474,7 +3443,7 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3866,7 +3835,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 if (l_Damage == 0)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                if (l_Caster->IsPlayer())
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
@@ -5307,6 +5276,9 @@ class spell_dru_astral_form : public SpellScriptLoader
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
 
+                if (l_Target->HasAura(eSpells::MoonkinForm) || l_Target->HasAura(eSpells::ChosenofElune))
+                    return;
+
                 if (l_SpellInfo != nullptr && l_Target->HasAura(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                     l_Target->RemoveAura(l_SpellInfo->Effects[EFFECT_0].BasePoints);
             }
@@ -5760,7 +5732,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_glyph_of_cat_form();
     new spell_dru_skull_bash();
     new spell_dru_faerie_swarm();
-    new spell_dru_faerie_swarm_speed_aura();
     new spell_dru_wild_mushroom();
     new spell_dru_stampeding_roar();
     new spell_dru_lacerate();

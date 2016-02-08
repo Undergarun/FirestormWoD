@@ -322,7 +322,10 @@ namespace MS { namespace Garrison
             MageTower_SpiritLodge_Level3                = 39,
             Stables_Stables_Level1                      = 65,
             Stables_Stables_Level2                      = 66,
-            Stables_Stables_Level3                      = 67
+            Stables_Stables_Level3                      = 67,
+            GnomishGearworks_GoblinWorkshop_Level1      = 162,
+            GnomishGearworks_GoblinWorkshop_Level2      = 163,
+            GnomishGearworks_GoblinWorkshop_Level3      = 164,
         };
     }
 

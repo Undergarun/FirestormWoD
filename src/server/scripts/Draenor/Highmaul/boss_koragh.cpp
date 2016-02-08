@@ -1825,43 +1825,68 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
             SuppressionFieldSilence = 162595
         };
 
+        std::set<uint64> m_AffectedTargets;
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 15.0f;
+                float l_Radius = 6.0f;
 
                 JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                for (Unit* l_Unit : l_TargetList)
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 6.0f)
+                    if (l_Iter->GetEntry() == eHighmaulCreatures::VolatileAnomaly)
                     {
-                        if (l_Unit->GetEntry() == eHighmaulCreatures::VolatileAnomaly)
+                        if (!l_Iter->HasAura(eSpells::SuppressionFieldSilence))
                         {
-                            if (!l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                                l_Caster->AddAura(eSpells::SuppressionFieldSilence, l_Unit);
-                        }
-                        else if (l_Unit->IsHostileTo(l_Caster))
-                        {
-                            if (!l_Unit->HasAura(eSpells::SuppressionFieldDoT))
-                                l_Caster->CastSpell(l_Unit, eSpells::SuppressionFieldDoT, true);
-
-                            if (!l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                                l_Caster->CastSpell(l_Unit, eSpells::SuppressionFieldSilence, true);
+                            m_AffectedTargets.insert(l_Iter->GetGUID());
+                            l_Caster->AddAura(eSpells::SuppressionFieldSilence, l_Iter);
                         }
                     }
-                    else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 6.0f))
+                    else if (l_Iter->IsHostileTo(l_Caster))
                     {
-                        if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
-                            l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
+                        if (!l_Iter->HasAura(eSpells::SuppressionFieldDoT))
+                        {
+                            m_AffectedTargets.insert(l_Iter->GetGUID());
+                            l_Caster->CastSpell(l_Iter, eSpells::SuppressionFieldDoT, true);
+                        }
 
-                        if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                            l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
+                        if (!l_Iter->HasAura(eSpells::SuppressionFieldSilence))
+                        {
+                            m_AffectedTargets.insert(l_Iter->GetGUID());
+                            l_Caster->CastSpell(l_Iter, eSpells::SuppressionFieldSilence, true);
+                        }
                     }
+                    else
+                        continue;
+
+                    l_Targets.insert(l_Iter->GetGUID());
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedTargets.begin(); l_Iter != m_AffectedTargets.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedTargets.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
                 }
             }
         }
@@ -1870,22 +1895,12 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 15.0f;
-
-                JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
+                for (uint64 l_Guid : m_AffectedTargets)
                 {
-                    if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 6.0f))
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
                     {
-                        if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
-                            l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
-
-                        if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
-                            l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
+                        l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
+                        l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
                     }
                 }
             }

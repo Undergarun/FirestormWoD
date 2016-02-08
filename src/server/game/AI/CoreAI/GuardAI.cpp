@@ -40,7 +40,7 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
     if (!obj->isType(TYPEMASK_UNIT))
         return false;
 
-    std::list<HostileReference*> threatList = me->getThreatManager().getThreatList();
+    std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
     for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         if ((*itr)->getUnitGuid() == obj->GetGUID())
             return true;

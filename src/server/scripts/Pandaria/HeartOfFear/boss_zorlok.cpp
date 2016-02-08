@@ -520,7 +520,7 @@ class boss_zorlok : public CreatureScript
                 if (isEcho)
                     return;
 
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(TALK_SLAY_01 + urand(0, 1));
             }
 

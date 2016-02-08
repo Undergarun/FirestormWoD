@@ -138,7 +138,7 @@ public:
                     me->SetWalk(true);
                     break;
                 case 30:
-                    if (player->GetTypeId() == TYPEID_PLAYER)
+                    if (player->IsPlayer())
                         CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
                     break;
                 case 32:

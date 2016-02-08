@@ -141,7 +141,7 @@ public:
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
+                    if (target && target->IsPlayer())
                         me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
                 }
 

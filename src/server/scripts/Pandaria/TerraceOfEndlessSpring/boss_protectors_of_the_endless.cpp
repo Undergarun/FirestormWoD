@@ -371,7 +371,7 @@ class boss_ancient_regail : public CreatureScript
 			
 			void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_REGAIL_SLAY);
             }
 			
@@ -433,7 +433,7 @@ class boss_ancient_regail : public CreatureScript
                         case 0:
                         {
                             pInstance->SetBossState(DATA_PROTECTORS, DONE);
-                            if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                            if (killer && killer->IsPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->ToPlayer());
                             else if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetOwner() && killer->GetOwner()->ToPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->GetOwner()->ToPlayer());
@@ -715,7 +715,7 @@ class boss_ancient_asani : public CreatureScript
 			
 			void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_ASANI_SLAY);
             }
 			
@@ -779,7 +779,7 @@ class boss_ancient_asani : public CreatureScript
                         case 0:
                         {
                             pInstance->SetBossState(DATA_PROTECTORS, DONE);
-                            if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                            if (killer && killer->IsPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->ToPlayer());
                             else if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetOwner() && killer->GetOwner()->ToPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->GetOwner()->ToPlayer());
@@ -1076,7 +1076,7 @@ class boss_protector_kaolan : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (IntroDone(pInstance, me) && !introDone && who->GetTypeId() == TYPEID_PLAYER)
+                if (IntroDone(pInstance, me) && !introDone && who->IsPlayer())
                 {
                     Talk(TALK_INTRO);
                     introDone = true;
@@ -1085,7 +1085,7 @@ class boss_protector_kaolan : public CreatureScript
 			
             void KilledUnit(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     Talk(TALK_KAOLAN_SLAY);
             }
 			
@@ -1148,7 +1148,7 @@ class boss_protector_kaolan : public CreatureScript
                         case 0:
                         {
                             pInstance->SetBossState(DATA_PROTECTORS, DONE);
-                            if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                            if (killer && killer->IsPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->ToPlayer());
                             else if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetOwner() && killer->GetOwner()->ToPlayer())
                                 me->GetMap()->ToInstanceMap()->PermBindAllPlayers(killer->GetOwner()->ToPlayer());

@@ -725,6 +725,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
         void DespawnCreaturesInArea(uint32 p_Entry, float p_Range = 100.0f);
         void DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range = 100.0f);
+        void DespawnAreaTriggersInArea(uint32 p_SpellID, float p_Range = 100.0f);
+        void DespawnAreaTriggersInArea(std::vector<uint32> p_SpellIDs, float p_Range = 100.0f);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;

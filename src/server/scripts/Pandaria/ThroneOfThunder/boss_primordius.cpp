@@ -243,7 +243,7 @@ class boss_primordius : public CreatureScript
                 if (m_IntroDone)
                     return;
 
-                if (p_Who->GetTypeId() == TYPEID_PLAYER && p_Who->GetDistance(me) <= 60.f)
+                if (p_Who->IsPlayer() && p_Who->GetDistance(me) <= 60.f)
                 {
                     Talk(TALK_INTRO_01);
                     m_IntroDone = true;
@@ -273,7 +273,7 @@ class boss_primordius : public CreatureScript
 
             void KilledUnit(Unit* p_Victim)
             {
-                if (p_Victim->GetTypeId() == TYPEID_PLAYER)
+                if (p_Victim->IsPlayer())
                     Talk(TALK_SLAY);
             }
 
