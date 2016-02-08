@@ -127,7 +127,7 @@ struct LootStoreItem
     bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
     uint32   maxcount;                                      // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
     std::vector<uint32> itemBonuses;                        // item bonuses >= WoD
-    std::list<Condition*>  conditions;                               // additional loot condition
+    ConditionContainer conditions;                               // additional loot condition
 
     // Constructor, converting ChanceOrQuestChance -> (chance, needs_quest)
     // displayid is filled in IsValid() which must be called after
@@ -152,7 +152,7 @@ struct LootItem
     uint8   type;                                           // 0 = item, 1 = currency
     uint32  randomSuffix;
     int32   randomPropertyId;
-    std::list<Condition*> conditions;                       // additional loot condition
+    ConditionContainer conditions;                       // additional loot condition
     std::vector<uint32> itemBonuses;
     AllowedLooterSet allowedGUIDs;
     uint32   count;
@@ -249,7 +249,7 @@ class LootTemplate
         void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
-        void CopyConditions(std::list<Condition*>  conditions);
+        void CopyConditions(ConditionContainer conditions);
         void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player = nullptr, bool p_IsBGReward = false) const;
 
         // True if template includes at least 1 quest drop entry

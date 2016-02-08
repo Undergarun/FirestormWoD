@@ -123,7 +123,7 @@ class ConditionScript : public ScriptObjectImpl<true>
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        virtual bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo)
+        virtual bool OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo& p_SourceInfo)
         {
             UNUSED(p_Condition);
             UNUSED(p_SourceInfo);
@@ -431,6 +431,17 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
             UNUSED(p_Diff);
+        }
+
+        /// Called when a spline step is done
+        /// @p_Player   : Player instance
+        /// @p_MoveType : Movement type
+        /// @p_ID       : Movement ID
+        virtual void OnMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MoveType);
+            UNUSED(p_ID);
         }
 
         /// Called when a player is bound to an instance

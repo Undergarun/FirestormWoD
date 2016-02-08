@@ -226,7 +226,7 @@ void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
 void
 MessageDistDeliverer::VisitObject(Player* player)
 {
-    if (!i_ownTeamOnly || (i_source.GetTypeId() == TYPEID_PLAYER && player->GetTeam() == ((Player&)i_source).GetTeam()))
+    if (!i_ownTeamOnly || (i_source.IsPlayer() && player->GetTeam() == ((Player&)i_source).GetTeam()))
     {
         SendPacket(player);
     }

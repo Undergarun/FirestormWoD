@@ -197,7 +197,7 @@ public:
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
                             Unit* temp = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                            if (temp && temp->GetTypeId() == TYPEID_PLAYER && temp->getClass() == Healer)
+                            if (temp && temp->IsPlayer() && temp->getClass() == Healer)
                             {
                                 target = temp;
                                 break;

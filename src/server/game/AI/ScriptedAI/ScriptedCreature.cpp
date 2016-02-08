@@ -573,7 +573,7 @@ void BossAI::TeleportCheaters()
     std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
     for (std::list<HostileReference*>::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         if (Unit* target = (*itr)->getTarget())
-            if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
+            if (target->IsPlayer() && !CheckBoundary(target))
                 target->NearTeleportTo(x, y, z, 0);
 }
 

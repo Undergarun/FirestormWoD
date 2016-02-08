@@ -183,6 +183,10 @@ namespace MS { namespace Garrison
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
             bool HasBuildingType(BuildingType::Type p_BuildingType) const;
+            /// Get building with type
+            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
+            /// Get Level of the building
+            uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order
             uint32 GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const;
             /// Get in progress work order count
@@ -212,6 +216,7 @@ namespace MS { namespace Garrison
             /// Check if the players has the right mount
             bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
 
+            /// Tavern System
             void AddGarrisonTavernData(uint32 p_Data);
             void SetGarrisonTavernData(uint32 p_Data);
             void CleanGarrisonTavernData();
@@ -349,7 +354,6 @@ namespace MS { namespace Garrison
             uint32      m_NumFollowerActivationRegenTimestamp;
             uint32      m_CacheLastUsage;
             uint32      m_MissionDistributionLastUpdate;
-
             uint64      m_LastUsedActivationGameObject;
             uint64      m_CacheGameObjectGUID;
 

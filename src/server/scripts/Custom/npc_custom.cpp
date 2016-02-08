@@ -97,7 +97,7 @@ class npc_world_boss_gossip : public CreatureScript
 
             for (Unit* l_GroupMember : l_PlayerList)
             {
-                if (l_GroupMember->GetTypeId() == TYPEID_PLAYER)
+                if (l_GroupMember->IsPlayer())
                 {
                     switch (p_Destination)
                     {

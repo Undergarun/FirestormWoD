@@ -2893,6 +2893,31 @@ namespace MS { namespace Garrison
         return false;
     }
 
+    /// Get building with type
+    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType) const
+    {
+        for (GarrisonBuilding l_Building : m_Buildings)
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+
+            if (!l_BuildingEntry)
+                continue;
+
+            if (l_BuildingEntry->Type == p_BuildingType && l_Building.Active == true)
+                return l_Building;
+        }
+
+        return GarrisonBuilding();
+    }
+
+    uint32 Manager::GetBuildingLevel(GarrisonBuilding p_Building) const
+    {
+        if (GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_Building.BuildingID))
+            return l_BuildingEntry->Level;
+
+        return 0;
+    }
+
     /// Get building max work order
     uint32 Manager::GetBuildingMaxWorkOrder(uint32 p_PlotInstanceID) const
     {
@@ -4510,8 +4535,6 @@ namespace MS { namespace Garrison
     void Manager::AddGarrisonTavernData(uint32 p_Data)
     {
         SetGarrisonTavernData(p_Data);
-
-        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
         m_Owner->SaveToDB(false);
     }
 

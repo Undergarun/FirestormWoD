@@ -309,6 +309,7 @@ class spell_mage_prysmatic_crystal_damage : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Comet Storm - 153595 and Comet Storm damage spel - 153596
 class spell_mage_comet_storm : public SpellScriptLoader
 {
@@ -325,29 +326,36 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 CometStorm  = 153596
             };
 
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (WorldLocation const* l_Dest = GetExplTargetDest())
-                    {
-                        int32 l_AmountOfUsedComets = l_Caster->GetAmountOfComets();
-                        if (GetSpellInfo()->Id == 153596 && l_AmountOfUsedComets >= 1 && l_AmountOfUsedComets <= 7)
-                        {
-                            l_Caster->SetAmountOfComets(l_AmountOfUsedComets + 1);
-                            /// It's done, all comets are used
-                            if (l_AmountOfUsedComets >= 7)
-                                l_Caster->SetAmountOfComets(0);
-                            else
-                            {
-                                float l_X = l_Caster->GetCometStartCoordinateX() + frand(-4.0f, 4.0f);
-                                float l_Y = l_Caster->GetCometStartCoordinateY() + frand(-4.0f, 4.0f);
+            bool m_AlreadyLaunch = false;
 
-                                l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
-                            }
+            void HandleAfterHit()
+            {
+                if (m_AlreadyLaunch) ///< Prevent to enter on each targets hit
+                    return;
+
+                m_AlreadyLaunch = true;
+
+                Unit* l_Caster = GetCaster();
+
+                if (WorldLocation const* l_Dest = GetExplTargetDest())
+                {
+                    int32 l_AmountOfUsedComets = l_Caster->GetAmountOfComets();
+                    if (GetSpellInfo()->Id == 153596 && l_AmountOfUsedComets >= 1 && l_AmountOfUsedComets <= 7)
+                    {
+                        l_Caster->SetAmountOfComets(l_AmountOfUsedComets + 1);
+                        /// It's done, all comets are used
+                        if (l_AmountOfUsedComets >= 7)
+                            l_Caster->SetAmountOfComets(0);
+                        else
+                        {
+                            float l_X = l_Caster->GetCometStartCoordinateX() + frand(-4.0f, 4.0f);
+                            float l_Y = l_Caster->GetCometStartCoordinateY() + frand(-4.0f, 4.0f);
+
+                            l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
                         }
                     }
                 }
+
                 if (GetSpellInfo()->Id == eCometDatas::CometStorm)
                 {
                     int32 l_Damage = GetHitDamage();;
@@ -357,7 +365,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
                         l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
 
                     /// Comet Storm (Frost) damage has increased by 94% but deals 33.3% less damage in PvP combat. - 6.1
-                    if (GetHitUnit() && GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                    if (GetHitUnit() && GetHitUnit()->IsPlayer())
                         l_Damage = l_Damage - CalculatePct(l_Damage, 33.3f);
 
                     SetHitDamage(l_Damage);
@@ -385,7 +393,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
             }
         };
@@ -620,6 +628,7 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                     if (AuraPtr arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
                         arcaneMissiles->DropCharge();
             }
+
 
             void Register()
             {
@@ -864,9 +873,9 @@ class spell_mage_frostbolt: public SpellScriptLoader
                     return SPELL_FAILED_NO_VALID_TARGETS;
                 else if (GetExplTargetUnit()->GetGUID() == GetCaster()->GetGUID())
                     return SPELL_FAILED_BAD_TARGETS;
-                else if (GetExplTargetUnit()->GetTypeId() == TYPEID_PLAYER && !GetExplTargetUnit()->IsPvP())
+                else if (GetExplTargetUnit()->IsPlayer() && !GetExplTargetUnit()->IsPvP())
                 {
-                    if (GetCaster()->ToPlayer() && GetCaster()->ToPlayer()->m_Duel)
+                    if (GetCaster()->IsPlayer() && GetCaster()->ToPlayer()->m_Duel)
                     if (GetCaster()->ToPlayer()->m_Duel->opponent->GetGUID() == GetExplTargetUnit()->GetGUID())
                             return SPELL_CAST_OK;
 
@@ -996,6 +1005,7 @@ class CheckNetherImpactPredicate
         Unit* _mainTarget;
 };
 
+/// Last Update 6.2.3
 /// Nether Tempest - 114954
 class spell_mage_nether_tempest_damage : public SpellScriptLoader
 {
@@ -1006,9 +1016,10 @@ class spell_mage_nether_tempest_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_nether_tempest_damage_SpellScript);
 
-            enum eSpell
+            enum eSpells
             {
-                NetherTempestAura = 114923
+                NetherTempestAura           = 114923,
+                NetherTempestLuncherVisual  = 114956
             };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
@@ -1016,20 +1027,35 @@ class spell_mage_nether_tempest_damage : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
+                Unit* l_FirstTarget = nullptr;
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
                     return;
+
+                for (WorldObject* l_Unit : p_Targets)
+                {
+                    if (l_Unit->ToUnit() && l_Unit->ToUnit()->HasAura(eSpells::NetherTempestAura, l_Caster->GetGUID()))
+                        l_FirstTarget = l_Unit->ToUnit();
+                }
 
                 p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
                         return true;
 
-                    if (p_Object->ToUnit()->HasAura(eSpell::NetherTempestAura, l_Caster->GetGUID()))
+                    if (p_Object->ToUnit()->HasAura(eSpells::NetherTempestAura, l_Caster->GetGUID()))
                         return true;
 
                     return false;
                 });
+
+                if (l_FirstTarget == nullptr)
+                    return;
+
+                for (WorldObject* l_Unit : p_Targets)
+                {
+                    l_FirstTarget->CastSpell(l_Unit->ToUnit(), eSpells::NetherTempestLuncherVisual, true);
+                }
             }
 
             void HandleDamage()
@@ -1160,7 +1186,7 @@ class spell_mage_frostjaw: public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                         {
                             if (AuraPtr frostjaw = target->GetAura(SPELL_MAGE_FROSTJAW, _player->GetGUID()))
                             {
@@ -1561,7 +1587,8 @@ class spell_mage_alter_time_overrided: public SpellScriptLoader
         }
 };
 
-// Alter Time - 110909
+/// Last Update 6.2.3
+/// Alter Time - 110909
 class spell_mage_alter_time: public SpellScriptLoader
 {
     public:
@@ -1576,7 +1603,7 @@ class spell_mage_alter_time: public SpellScriptLoader
                 if (Player* _player = GetTarget()->ToPlayer())
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (removeMode == AURA_REMOVE_BY_DEATH)
+                    if (removeMode != AURA_REMOVE_BY_EXPIRE && removeMode != AURA_REMOVE_BY_DEFAULT)
                         return;
 
                     std::list<Creature*> mirrorList;
@@ -1629,7 +1656,7 @@ class spell_mage_cold_snap: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2082,7 +2109,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                     std::list<Creature*> l_FrozenRinglist;
 
                     // Get all of the Frozen Ring in Area
-                    l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 500.0f);
+                    l_Caster->GetCreatureListWithEntryInGrid(l_FrozenRinglist, 44199, 200.0f);
 
                     l_TempList = l_FrozenRinglist;
 
@@ -2483,12 +2510,16 @@ class spell_mage_blizzard : public SpellScriptLoader
                 if (l_Target->GetGUID() == l_Caster->GetGUID())
                     return;
 
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
                 /// Slowing enemies by 50%
                 l_Caster->CastSpell(l_Target, SPELL_MAGE_CHILLED, true);
 
                 /// Improved Blizzard
-                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
-                    l_Caster->ToPlayer()->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
+                if (l_Player->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
+                    l_Player->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
             }
 
             void HandleAfterHit()
@@ -3042,12 +3073,110 @@ class spell_mage_illusion : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Arcane Missiles! - 79683
+class spell_mage_arcane_missiles_visual : public SpellScriptLoader
+{
+    public:
+        spell_mage_arcane_missiles_visual() : SpellScriptLoader("spell_mage_arcane_missiles_visual") { }
+
+        class spell_mage_arcane_missiles_visual_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_arcane_missiles_visual_AuraScript);
+
+            enum eSpells
+            {
+                ArcaneMissilesVisualUI = 79808
+            };
+
+            void OnRemove(constAuraEffectPtr p_AuraPtr, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::ArcaneMissilesVisualUI);
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetCharges() > 0 || GetStackAmount() > 0)
+                    l_Caster->CastSpell(l_Caster, eSpells::ArcaneMissilesVisualUI, true);
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_mage_arcane_missiles_visual_AuraScript::OnUpdate);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_visual_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_arcane_missiles_visual_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Call by Ice Lance - 30455, Deep Freeze - 44572
+/// Fingers of Frost - 44544
+class spell_mage_finger_of_frost : public SpellScriptLoader
+{
+    public:
+        spell_mage_finger_of_frost() : SpellScriptLoader("spell_mage_finger_of_frost") { }
+
+        class spell_mage_finger_of_frost_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_finger_of_frost_SpellScript);
+
+            bool m_AlreadyDrop = false;
+
+            enum eSpells
+            {
+                FingerOfFrost           = 44544,
+                FingerOfFrostVisualUi   = 126084
+            };
+
+            void HandleOnHit()
+            {
+                if (m_AlreadyDrop)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+
+                m_AlreadyDrop = true; ///< With Glyph of Splitting Ice, Ice Lance hit too times, with should not consume 2 stack of Finger of Frost
+                if (AuraPtr l_FingersOfFrost = l_Caster->GetAura(eSpells::FingerOfFrost, l_Caster->GetGUID()))
+                    l_FingersOfFrost->ModStackAmount(-1);
+                if (AuraPtr l_FingersVisual = l_Caster->GetAura(eSpells::FingerOfFrostVisualUi, l_Caster->GetGUID()))
+                    l_FingersVisual->Remove();
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_finger_of_frost_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_finger_of_frost_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_finger_of_frost();
+    new spell_mage_arcane_missiles_visual();
     new spell_mage_illusion();
     new spell_mage_glyph_of_illusion();
     new spell_mage_ring_of_frost_trigger();

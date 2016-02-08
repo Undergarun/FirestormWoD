@@ -681,9 +681,9 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             for (Unit::AttackerSet::const_iterator itr = m_Player->getAttackers().begin(); itr != m_Player->getAttackers().end(); ++itr)
             {
                 Unit* owner = (*itr)->GetOwner();           // including player controlled case
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                     aset.insert(owner->ToPlayer());
-                else if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                else if ((*itr)->IsPlayer())
                     aset.insert((Player*)(*itr));
             }
 

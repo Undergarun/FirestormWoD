@@ -105,7 +105,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
         for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->IsPlayer())
                     me->AddAura(spellid, unit);
         }
     }
@@ -119,7 +119,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->IsPlayer())
                     me->CastSpell(unit, spellid, triggered);
         }
     }

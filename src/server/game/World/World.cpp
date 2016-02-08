@@ -2188,7 +2188,7 @@ void World::SetInitialWorldSettings()
 
     ///InitServerAutoRestartTime();
 
-    LoadCharacterNameData();
+    LoadCharacterInfoStore();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     InitOpcodes();
@@ -2220,6 +2220,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet template...");
     sObjectMgr->LoadBattlePetTemplate();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet npc team member...");
+    sObjectMgr->LoadBattlePetNpcTeamMember();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Wild BattlePet pools...");
     sWildBattlePetMgr->Load();
@@ -3910,11 +3913,11 @@ void World::ProcessQueryCallbacks()
     }
 }
 
-void World::LoadCharacterNameData()
+void World::LoadCharacterInfoStore()
 {
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level, account FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters WHERE deleteDate IS NULL OR deleteDate = 0");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "No character name data loaded, empty query");
@@ -3927,8 +3930,8 @@ void World::LoadCharacterNameData()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
-            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/, fields[6].GetUInt32() /*accountid*/);
+        AddCharacterInfo(fields[0].GetUInt32(), fields[1].GetString(), fields[2].GetUInt32() /*accountid*/,
+                         fields[3].GetUInt8() /*gender*/, fields[4].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
         ++count;
     }
     while (result->NextRow());
@@ -3936,55 +3939,55 @@ void World::LoadCharacterNameData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters in %u ms.", count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, uint32 p_AccountID)
+void World::AddCharacterInfo(uint32 guid, std::string const& name, uint32 accountId, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
-    CharacterNameData& data = _characterNameDataMap[guid];
-    data.m_name = name;
-    data.m_race = race;
-    data.m_gender = gender;
-    data.m_class = playerClass;
-    data.m_level = level;
-    data.m_AccountId = p_AccountID;
+    CharacterInfo& data = _characterInfoStore[guid];
+    data.Name       = name;
+    data.AccountId  = accountId;
+    data.Race       = race;
+    data.Sex        = gender;
+    data.Class      = playerClass;
+    data.Level      = level;
 }
 
-void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+void World::UpdateCharacterInfo(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
-    if (itr == _characterNameDataMap.end())
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
         return;
 
-    itr->second.m_name = name;
+    itr->second.Name = name;
 
     if (gender != GENDER_NONE)
-        itr->second.m_gender = gender;
+        itr->second.Sex = gender;
 
     if (race != RACE_NONE)
-        itr->second.m_race = race;
+        itr->second.Race = race;
 }
 
-void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
+void World::UpdateCharacterInfoLevel(uint32 guid, uint8 level)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
-    if (itr == _characterNameDataMap.end())
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
         return;
 
-    itr->second.m_level = level;
+    itr->second.Level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
+CharacterInfo  const* World::GetCharacterInfo(uint32 guid) const
 {
-    std::map<uint32, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
-    if (itr != _characterNameDataMap.end())
+    CharacterInfoContainer::const_iterator itr = _characterInfoStore.find(guid);
+    if (itr != _characterInfoStore.end())
         return &itr->second;
     else
         return NULL;
 }
 
-uint64 World::GetCharacterGuidByName(std::string p_Name)
+uint64 World::GetCharacterGuidByName(std::string const& p_Name)
 {
-    for (std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.begin(); itr != _characterNameDataMap.end(); ++itr)
+    for (CharacterInfoContainer::iterator itr = _characterInfoStore.begin(); itr != _characterInfoStore.end(); ++itr)
     {
-        if (itr->second.m_name == p_Name)
+        if (itr->second.Name == p_Name)
             return MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER);
     }
 

@@ -56,7 +56,7 @@ void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
 
     if (l_TextDatas->uiEmote)
     {
-        if (p_Source->GetTypeId() == TYPEID_UNIT || p_Source->GetTypeId() == TYPEID_PLAYER)
+        if (p_Source->GetTypeId() == TYPEID_UNIT || p_Source->IsPlayer())
             ((Unit*)p_Source)->HandleEmoteCommand(l_TextDatas->uiEmote);
         else
             sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i tried to process emote for invalid TypeId (%u).", p_ItemTextEntry, p_Source->GetTypeId());
@@ -78,7 +78,7 @@ void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
             break;
         case CHAT_TYPE_WHISPER:
         {
-            if (p_Target && p_Target->GetTypeId() == TYPEID_PLAYER)
+            if (p_Target && p_Target->IsPlayer())
                 p_Source->MonsterWhisper(p_ItemTextEntry, p_Target->GetGUID());
             else
                 sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", p_ItemTextEntry);
@@ -87,7 +87,7 @@ void DoScriptText(int32 p_ItemTextEntry, WorldObject* p_Source, Unit* p_Target)
         }
         case CHAT_TYPE_BOSS_WHISPER:
         {
-            if (p_Target && p_Target->GetTypeId() == TYPEID_PLAYER)
+            if (p_Target && p_Target->IsPlayer())
                 p_Source->MonsterWhisper(p_ItemTextEntry, p_Target->GetGUID(), true);
             else
                 sLog->outError(LOG_FILTER_TSCR, "DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", p_ItemTextEntry);
@@ -1672,7 +1672,7 @@ bool ScriptMgr::OnCriteriaCheck(uint32 p_ScriptID, Player * p_Source, Unit * p_T
 /// Called when a single condition is checked for a player.
 /// @p_Condition  : Condition instance
 /// @p_SourceInfo : Condition  source
-bool ScriptMgr::OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo)
+bool ScriptMgr::OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo & p_SourceInfo)
 {
     ASSERT(p_Condition);
 
@@ -1946,12 +1946,21 @@ void ScriptMgr::OnPlayerUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(p_Player, p_NewZoneID, p_OldZoneID, p_NewAreaID);
 }
-    
+
 /// Called when a player updates his movement
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
+}
+
+/// Called when a spline step is done
+/// @p_Player   : Player instance
+/// @p_MoveType : Movement type
+/// @p_ID       : Movement ID
+void ScriptMgr::OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovementInform(p_Player, p_MoveType, p_ID);
 }
 
 /// Called when player accepts some quest

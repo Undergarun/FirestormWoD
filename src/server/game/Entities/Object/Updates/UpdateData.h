@@ -57,6 +57,12 @@ class UpdateData
 {
     public:
         UpdateData(uint16 map);
+        UpdateData(UpdateData&& right) : m_blockCount(right.m_blockCount),
+            m_outOfRangeGUIDs(std::move(right.m_outOfRangeGUIDs)),
+            m_data(std::move(right.m_data)),
+            m_map(right.m_map)
+        {
+        }
 
         void AddOutOfRangeGUID(std::set<uint64>& guids);
         void AddOutOfRangeGUID(uint64 guid);
@@ -72,6 +78,9 @@ class UpdateData
         uint32 m_blockCount;
         std::set<uint64> m_outOfRangeGUIDs;
         ByteBuffer m_data;
+
+        UpdateData(UpdateData const& right) = delete;
+        UpdateData& operator=(UpdateData const& right) = delete;
 };
 #endif
 

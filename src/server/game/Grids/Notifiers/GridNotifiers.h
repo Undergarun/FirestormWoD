@@ -145,7 +145,7 @@ namespace JadeCore
         GuidUnorderedSet m_IgnoredGUIDs;
         MessageDistDeliverer(WorldObject* src, WorldPacket* msg, float dist, bool own_team_only = false, Player const* skipped = NULL, GuidUnorderedSet p_IgnoredSet = GuidUnorderedSet())
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
-            , team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
+            , team((own_team_only && src->IsPlayer()) ? ((Player*)src)->GetTeam() : 0)
             , skipped_receiver(skipped), m_IgnoredGUIDs(p_IgnoredSet)
         {
         }
@@ -1218,7 +1218,7 @@ namespace JadeCore
                 Unit const* owner = i_funit->GetOwner();
                 if (owner)
                     check = owner;
-                i_targetForPlayer = (check->GetTypeId() == TYPEID_PLAYER);
+                i_targetForPlayer = (check->IsPlayer());
                 if (i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
                     _spellInfo = sSpellMgr->GetSpellInfo(((DynamicObject*)i_obj)->GetSpellId());
             }

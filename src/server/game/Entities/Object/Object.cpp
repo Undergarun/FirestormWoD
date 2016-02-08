@@ -217,7 +217,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_THIS_IS_YOU;
-    //else if (GetTypeId() == TYPEID_PLAYER && target != this)
+    //else if (IsPlayer() && target != this)
         //valCount = PLAYER_END_NOT_SELF;
 
     /// /!\ @TODO private player field are actually broadcasted /!\ FIX IT
@@ -947,7 +947,7 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
 
     if (iter == data_map.end())
     {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData(player->GetMapId())));
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData(player->GetMapId()));
         ASSERT(p.second);
         iter = p.first;
     }
@@ -1738,7 +1738,7 @@ void WorldObject::setActive(bool on)
     if (m_isActive == on)
         return;
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
         return;
 
     m_isActive = on;
@@ -1852,7 +1852,7 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     // Hack fix for Alysrazor
     if (GetMapId() == 720 && GetAreaId() == 5766)
-        if ((GetTypeId() == TYPEID_PLAYER) || (obj->GetTypeId() == TYPEID_PLAYER))
+        if ((IsPlayer()) || (obj->IsPlayer()))
             return true;
 
     // AoE spells
@@ -2547,7 +2547,7 @@ void WorldObject::SendPlaySound(uint32 p_SoundKitID, bool p_OnlySelf)
     l_Data << p_SoundKitID;
     l_Data.appendPackGUID(GetGUID());
 
-    if (p_OnlySelf && GetTypeId() == TYPEID_PLAYER)
+    if (p_OnlySelf && IsPlayer())
         ToPlayer()->GetSession()->SendPacket(&l_Data);
     else
         SendMessageToSet(&l_Data, true); ///< ToSelf ignored in this case
@@ -2909,7 +2909,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (summoner)
     {
         phase = summoner->GetPhaseMask();
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
+        if (summoner->IsPlayer())
             team = summoner->ToPlayer()->GetTeam();
     }
 
@@ -3315,7 +3315,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     if (p_GarrisonPlotObject)
         go->SetDynamicValue(GAMEOBJECT_DYNAMIC_FIELD_ENABLE_DOODAD_SETS, 0, 1);
 
-    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
+    if (IsPlayer() || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
@@ -3346,7 +3346,7 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
         return NULL;
 
     //summon->SetName(GetName());
-    if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT)
+    if (IsPlayer() || GetTypeId() == TYPEID_UNIT)
     {
         summon->setFaction(((Unit*)this)->getFaction());
         summon->SetLevel(((Unit*)this)->getLevel());

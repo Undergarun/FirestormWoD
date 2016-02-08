@@ -941,7 +941,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            if (target->GetTypeId() == TYPEID_PLAYER)
+            if (target->IsPlayer())
             {
                 if (handler->HasLowerSecurity((Player*)target, 0, false))
                     return false;
@@ -2191,7 +2191,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUIDLow());
+            handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->IsPlayer() ? "Player" : "Creature"), unit->GetGUIDLow());
 
             MotionMaster* motionMaster = unit->GetMotionMaster();
             float x, y, z;
@@ -2226,14 +2226,14 @@ class misc_commandscript: public CommandScript
                 case CHASE_MOTION_TYPE:
                 {
                                           Unit* target = NULL;
-                                          if (unit->GetTypeId() == TYPEID_PLAYER)
+                                          if (unit->IsPlayer())
                                               target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                                           else
                                               target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
                                           if (!target)
                                               handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                                          else if (target->GetTypeId() == TYPEID_PLAYER)
+                                          else if (target->IsPlayer())
                                               handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUIDLow());
                                           else
                                               handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUIDLow());
@@ -2242,14 +2242,14 @@ class misc_commandscript: public CommandScript
                 case FOLLOW_MOTION_TYPE:
                 {
                                            Unit* target = NULL;
-                                           if (unit->GetTypeId() == TYPEID_PLAYER)
+                                           if (unit->IsPlayer())
                                                target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
                                            else
                                                target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
                                            if (!target)
                                                handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                                           else if (target->GetTypeId() == TYPEID_PLAYER)
+                                           else if (target->IsPlayer())
                                                handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUIDLow());
                                            else
                                                handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUIDLow());
@@ -2390,7 +2390,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            if (target->GetTypeId() == TYPEID_PLAYER)
+            if (target->IsPlayer())
             {
                 if (handler->HasLowerSecurity((Player*)target, 0, false))
                     return false;
@@ -2751,7 +2751,7 @@ class misc_commandscript: public CommandScript
             Player* player = handler->GetSession()->GetPlayer();
             Creature* creatureTarget = handler->getSelectedCreature();
 
-            if (!creatureTarget || creatureTarget->isPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
+            if (!creatureTarget || creatureTarget->isPet() || creatureTarget->IsPlayer())
             {
                 handler->PSendSysMessage(LANG_SELECT_CREATURE);
                 handler->SetSentErrorMessage(true);

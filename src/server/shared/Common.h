@@ -299,4 +299,17 @@ extern ACE_Based::LockedQueue<ArenaLog*,  ACE_Thread_Mutex> ArenaLogQueue;
   ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
     if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
+namespace std
+{
+    template<class K, class V>
+    struct hash<std::pair<K, V>>
+    {
+    public:
+        size_t operator()(std::pair<K, V> const& key) const
+        {
+            return std::hash<K>()(key.first) ^ std::hash<V>()(key.second);
+        }
+    };
+}
+
 #endif

@@ -1258,7 +1258,7 @@ class spell_warr_deep_wounds: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_PROTECTION)
+                if (l_Caster->IsPlayer() && l_Caster->ToPlayer()->GetSpecializationId() != SPEC_WARRIOR_PROTECTION)
                     return;
 
                 if (l_Target->GetGUID() == l_Caster->GetGUID())
@@ -3047,9 +3047,9 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
 
                 int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
 
-                if ((l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
+                if ((l_Target->IsPlayer() || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
                     l_Damage /= l_Target->CalculateDamageDealtFactor(l_Target, l_DamageTarget->ToCreature());
-                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->GetTypeId() == TYPEID_PLAYER || l_DamageTarget->IsPetGuardianStuff()))
+                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->IsPlayer() || l_DamageTarget->IsPetGuardianStuff()))
                     l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
 
                 Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
@@ -3113,67 +3113,49 @@ class spell_warr_impending_victory : public SpellScriptLoader
         }
 };
 
-/// Mastery: Unshackled Fury - 76856
-/// Called by Enrage - 12880
-class spell_warr_mastery_unshackled_fury : public SpellScriptLoader
+
+/// Raging Blow! - 131116
+class spell_warr_raging_blow_proc : public SpellScriptLoader
 {
     public:
-        spell_warr_mastery_unshackled_fury() : SpellScriptLoader("spell_warr_mastery_unshackled_fury") { }
+        spell_warr_raging_blow_proc() : SpellScriptLoader("spell_warr_raging_blow_proc") { }
 
-        class spell_warr_mastery_unshackled_fury_AuraScript : public AuraScript
+        class spell_warr_raging_blow_proc_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warr_mastery_unshackled_fury_AuraScript);
-
-            enum eSpells
-            {
-                UnshackledFury = 76856
-            };
+            PrepareAuraScript(spell_warr_raging_blow_proc_AuraScript);
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster())
-                    return;
+                Unit* l_Target = GetTarget();
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    /// On Enrage applying mastery start working
-                    if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(eSpells::UnshackledFury, EFFECT_0))
-                    {
-                        float l_MasteryPct = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
-                        float l_MasteryMultiplier = l_MasteryUnshackledFury->GetSpellEffectInfo()->BonusMultiplier;
-                        l_MasteryUnshackledFury->ChangeAmount((int32)(l_MasteryMultiplier * l_MasteryPct), true, true);
-                    }
-                }
+                if (!l_Target->HasAura(154326))
+                    l_Target->CastSpell(l_Target, 154326, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetCaster())
-                    return;
+                Unit* l_Target = GetTarget();
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    /// If Enrage is removed, mastery doesn't work too
-                    if (AuraEffectPtr l_MasteryUnshackledFury = l_Player->GetAuraEffect(eSpells::UnshackledFury, EFFECT_0))
-                        l_MasteryUnshackledFury->ChangeAmount(0, true, true);
-                }
+                if (l_Target->HasAura(154326))
+                    l_Target->RemoveAura(154326);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_warr_mastery_unshackled_fury_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warr_mastery_unshackled_fury_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_warr_raging_blow_proc_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_raging_blow_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_warr_mastery_unshackled_fury_AuraScript();
+            return new spell_warr_raging_blow_proc_AuraScript();
         }
 };
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_raging_blow_proc();
     new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
@@ -3233,7 +3215,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_activate_battle_stance();
     new spell_warr_shield_charge_damage();
     new spell_warr_weaponmaster();
-    new spell_warr_mastery_unshackled_fury();
 
     /// Playerscripts
     new PlayerScript_second_wind();

@@ -484,7 +484,7 @@ void Creature::Update(uint32 diff)
         m_LOSCheckTimer -= diff;
 
     // Zone Skip Update
-    if ((sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
+    if ((sObjectMgr->IsSkipZoneEnabled() && sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
     {
         _skipCount++;
         _skipDiff += diff;
@@ -677,7 +677,7 @@ void Creature::RegenerateMana()
 
         /// - Pet have 60 % of owner mana regen
         Unit* l_Owner = GetOwner();
-        if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
+        if (l_Owner && l_Owner->IsPlayer())
             l_Addvalue = 0.6f * (isInCombat() ? l_Owner->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) : l_Owner->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER)) * 5.0f;
     }
     else
@@ -1720,8 +1720,8 @@ bool Creature::canStartAttack(Unit const* p_Who, bool p_Forced) const
 
     // This set of checks is should be done only for creatures
     if ((HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC) && p_Who->GetTypeId() != TYPEID_PLAYER)                                   // flag is valid only for non player characters
-        || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) && p_Who->GetTypeId() == TYPEID_PLAYER)                                 // immune to PC and target is a player, return false
-        || (p_Who->GetOwner() && p_Who->GetOwner()->GetTypeId() == TYPEID_PLAYER && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))) // player pets are immune to pc as well
+        || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC) && p_Who->IsPlayer())                                 // immune to PC and target is a player, return false
+        || (p_Who->GetOwner() && p_Who->GetOwner()->IsPlayer() && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))) // player pets are immune to pc as well
         return false;
 
     // Do not attack non-combat pets
@@ -1984,6 +1984,14 @@ void Creature::DespawnCreaturesInArea(uint32 p_Entry, float p_Range)
     DespawnCreaturesInArea(l_Entries, p_Range);
 }
 
+void Creature::DespawnAreaTriggersInArea(uint32 p_SpellID, float p_Range)
+{
+    std::vector<uint32> l_SpellIDs;
+    l_SpellIDs.push_back(p_SpellID);
+
+    DespawnAreaTriggersInArea(l_SpellIDs, p_Range);
+}
+
 void Creature::DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range)
 {
     std::list<Creature*> l_CreatureList;
@@ -1993,6 +2001,17 @@ void Creature::DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range
 
     for (std::list<Creature*>::iterator l_Itr = l_CreatureList.begin(); l_Itr != l_CreatureList.end(); ++l_Itr)
         (*l_Itr)->DespawnOrUnsummon();
+}
+
+void Creature::DespawnAreaTriggersInArea(std::vector<uint32> p_SpellIDs, float p_Range)
+{
+    std::list<AreaTrigger*> l_AreaTriggerList;
+
+    for (uint32 l_SpellID : p_SpellIDs)
+        GetAreaTriggerListWithSpellIDInRange(l_AreaTriggerList, l_SpellID, p_Range);
+
+    for (AreaTrigger* l_AT : l_AreaTriggerList)
+        l_AT->SetDuration(0);
 }
 
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
@@ -2991,7 +3010,7 @@ float Creature::GetAggroRange(Unit const* target) const
     {
         uint32 targetLevel = 0;
 
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->IsPlayer())
             targetLevel = target->getLevelForTarget(this);
         else if (target->GetTypeId() == TYPEID_UNIT)
             targetLevel = target->ToCreature()->getLevelForTarget(this);

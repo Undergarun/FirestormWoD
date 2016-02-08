@@ -483,7 +483,7 @@ void GameObject::Update(uint32 diff)
                     {
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
-                        if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                        if (caster && caster->IsPlayer())
                         {
                             SetGoState(GO_STATE_ACTIVE);
                             SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NODESPAWN);
@@ -536,7 +536,7 @@ void GameObject::Update(uint32 diff)
                         case GAMEOBJECT_TYPE_FISHINGNODE:   //  can't fish now
                         {
                             Unit* caster = GetOwner();
-                            if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                            if (caster && caster->IsPlayer())
                             {
                                 caster->FinishSpell(CURRENT_CHANNELED_SPELL);
 
@@ -644,7 +644,7 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.charges == 1)
                             SetLootState(GO_JUST_DEACTIVATED);
 
-                        if (IsBattlegroundTrap && ok->GetTypeId() == TYPEID_PLAYER)
+                        if (IsBattlegroundTrap && ok->IsPlayer())
                         {
                             //Battleground gameobjects case
                             if (ok->ToPlayer()->InBattleground())
@@ -1451,7 +1451,7 @@ void GameObject::Use(Unit* p_User)
             if (!l_Info)
                 break;
 
-            if (p_User->GetTypeId() == TYPEID_PLAYER)
+            if (p_User->IsPlayer())
             {
                 Player* l_Player = p_User->ToPlayer();
                 if (!l_Player)
@@ -1895,7 +1895,7 @@ void GameObject::Use(Unit* p_User)
         case GAMEOBJECT_TYPE_NEW_FLAG:
         case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
         {
-            if (p_User->GetTypeId() == TYPEID_PLAYER)
+            if (p_User->IsPlayer())
             {
                 if (Battleground* bg = p_User->ToPlayer()->GetBattleground())
                     bg->EventPlayerClickedOnFlag(p_User->ToPlayer(), this);
@@ -2568,6 +2568,9 @@ void GameObject::SendTransportToOutOfRangePlayers() const
 
 void GameObject::SendGameObjectActivateAnimKit(uint32 p_AnimKitID, bool p_Maintain /*= true*/, Player* p_Target /*= nullptr*/)
 {
+    /// It'll be sent in CreateObject
+    SetAIAnimKitId(p_AnimKitID, false);
+
     WorldPacket l_Data(Opcodes::SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_AnimKitID);

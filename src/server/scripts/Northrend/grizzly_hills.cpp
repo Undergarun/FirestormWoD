@@ -494,7 +494,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
+            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->IsPlayer()
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
             {
                 caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
@@ -575,7 +575,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (killer->ToPlayer() && killer->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
+            if (killer->IsPlayer() && killer->ToPlayer()->IsPlayer())
             {
                 if (me->FindNearestCreature(NPC_WAR_GOLEM, 10.0f, true))
                 {
@@ -678,7 +678,7 @@ class npc_venture_co_straggler : public CreatureScript
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
+                if (spell->Id == SPELL_SMOKE_BOMB && caster->IsPlayer())
                 {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetReactState(REACT_PASSIVE);

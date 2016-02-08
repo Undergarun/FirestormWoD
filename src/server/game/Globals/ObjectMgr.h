@@ -548,25 +548,25 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
-    uint32          MenuId;
-    uint32          OptionIndex;
-    uint8           OptionIcon;
-    std::string     OptionText;
-    uint32          OptionType;
-    uint32          OptionNpcflag;
-    uint32          ActionMenuId;
-    uint32          ActionPoiId;
-    bool            BoxCoded;
-    uint32          BoxMoney;
-    std::string     BoxText;
-    ConditionList   Conditions;
+    uint32             MenuId;
+    uint32             OptionIndex;
+    uint8              OptionIcon;
+    std::string        OptionText;
+    uint32             OptionType;
+    uint32             OptionNpcflag;
+    uint32             ActionMenuId;
+    uint32             ActionPoiId;
+    bool               BoxCoded;
+    uint32             BoxMoney;
+    std::string        BoxText;
+    ConditionContainer Conditions;
 };
 
 struct GossipMenus
 {
-    uint32          entry;
-    uint32          text_id;
-    ConditionList   conditions;
+    uint32             entry;
+    uint32             text_id;
+    ConditionContainer conditions;
 };
 
 typedef std::multimap<uint32, GossipMenus> GossipMenusContainer;
@@ -758,6 +758,14 @@ struct BattlePetTemplate
     uint32 Level;
 };
 typedef std::map<uint32, BattlePetTemplate> BattlePetTemplateContainer;
+
+struct BattlePetNpcTeamMember
+{
+    uint32 Specie;
+    uint32 Level;
+    uint32 Ability[3];
+};
+typedef std::map<uint32, std::vector<BattlePetNpcTeamMember>> BattlePetNpcTeamMembers;
 
 struct ResearchPOIPoint
 {
@@ -1214,6 +1222,7 @@ class ObjectMgr
         void LoadSpellInvalid();
         void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
+        void LoadBattlePetNpcTeamMember();
 
         void LoadGuildChallengeRewardInfo();
 
@@ -1223,6 +1232,11 @@ class ObjectMgr
         void LoadCharacterTemplateData();
         void LoadRealmCompletedChallenges();
         void LoadChallengeRewards();
+
+        std::vector<BattlePetNpcTeamMember> GetPetBattleTrainerTeam(uint32 p_NpcID)
+        {
+            return m_BattlePetNpcTeamMembers[p_NpcID];
+        }
 
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
@@ -1545,6 +1559,11 @@ class ObjectMgr
             return false;
         }
 
+        bool IsSkipZoneEnabled()
+        {
+            return !skipData.empty();
+        }
+
         uint32 GetSkipUpdateCount()
         {
             return _skipUpdateCount;
@@ -1609,6 +1628,10 @@ class ObjectMgr
 
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
+        std::vector<QuestObjective> GetQuestObjectivesByType(uint8 p_Type)
+        {
+            return m_QuestObjectiveByType[p_Type];
+        }
 
         uint32 GetNewGarrisonID()
         {
@@ -1836,7 +1859,10 @@ class ObjectMgr
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
         BattlePetTemplateContainer _battlePetTemplateStore;
+        BattlePetNpcTeamMembers m_BattlePetNpcTeamMembers;
         QuestObjectiveLocaleContainer m_questObjectiveLocaleStore;
+
+        std::map<uint8, std::vector<QuestObjective>> m_QuestObjectiveByType;
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;

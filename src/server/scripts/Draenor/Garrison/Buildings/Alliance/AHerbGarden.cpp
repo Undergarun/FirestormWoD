@@ -222,6 +222,12 @@ namespace MS { namespace Garrison
             };
             static const uint32 s_PositionCount = sizeof(s_Position) / sizeof(s_Position[0]);
 
+            std::list<Creature*> l_CreatureList;
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.f);
+
+            for (Creature* l_Creature : l_CreatureList)
+                l_Creature->DespawnOrUnsummon();
+
             for (uint32 l_I = 0; l_I < s_PositionCount; ++l_I)
             {
                 SequencePosition const& l_CurrentPosition = s_Position[l_I];

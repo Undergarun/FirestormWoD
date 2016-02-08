@@ -63,7 +63,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (caster->IsPlayer())
             {
                                                                 //Yenniku's Release
                 if (!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
@@ -97,7 +97,7 @@ public:
 
                 if (me->isInCombat() && me->getVictim())
                 {
-                    if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+                    if (me->getVictim()->IsPlayer())
                     {
                         Unit* victim = me->getVictim();
                         if (CAST_PLR(victim)->GetTeam() == HORDE)

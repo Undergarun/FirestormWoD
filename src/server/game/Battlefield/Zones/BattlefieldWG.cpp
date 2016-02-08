@@ -691,7 +691,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     bool again = false;
     TeamId killerTeam = killer->GetTeamId();
 
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->IsPlayer())
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))

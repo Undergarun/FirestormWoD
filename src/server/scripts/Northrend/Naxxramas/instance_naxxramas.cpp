@@ -272,7 +272,7 @@ public:
 
         void OnUnitDeath(Unit* unit)
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
+            if (unit->IsPlayer() && IsEncounterInProgress())
             {
                 playerDied = 1;
                 SaveToDB();

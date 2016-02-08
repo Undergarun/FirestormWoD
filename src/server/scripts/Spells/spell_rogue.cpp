@@ -443,11 +443,12 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                                 if (!l_Creature->IsAIEnabled)
                                     break;
 
-                                uint64 l_Data;
-                                ((uint32*)(&l_Data))[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
-                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration() - m_OldDataTimeSpell;
+                                uint32 l_Data[3];
+                                l_Data[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+                                l_Data[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration() - m_OldDataTimeSpell;
+                                l_Data[2] = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                                 m_OldDataTimeSpell = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
-                                l_Creature->AI()->SetGUID(l_Data, eDatas::AddSpellToQueue);
+                                l_Creature->AI()->AddHitQueue(l_Data, eDatas::AddSpellToQueue);
                                 break;
                             }
                         }
@@ -471,8 +472,8 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                                 if (!l_Creature->IsAIEnabled)
                                     break;
 
-                                l_Creature->AI()->SetGUID(0, eDatas::FinishFirstPhase);
-                                return;
+                                l_Creature->AI()->AddHitQueue(nullptr, eDatas::FinishFirstPhase);
+                                break;
                             }
                         }
                     }
@@ -1150,19 +1151,21 @@ class spell_rog_hemorrhage: public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
                     l_Caster->CastSpell(l_Target, eSpells::GlyphOfHemorrhagingVeins, true);
+            }
 
-                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhage))
-                {
-                    if (!l_Target->HasAuraState(AURA_STATE_BLEEDING))
-                        return;
+            void HandleApplyBleed(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                    SetHitDamage(0);
-                }
+                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhage) && !l_Target->HasAuraState(AURA_STATE_BLEEDING))
+                    PreventHitAura();
             }
 
             void Register()
             {
                 OnHit += SpellHitFn(spell_rog_hemorrhage_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_hemorrhage_SpellScript::HandleApplyBleed, EFFECT_3, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1367,7 +1370,7 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
                         if (!l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
                             return;
 
-                        if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SpecIndex::SPEC_ROGUE_ASSASSINATION)
+                        if (l_Caster->ToPlayer()->GetSpecializationId() != SpecIndex::SPEC_ROGUE_ASSASSINATION)
                             return;
 
                         l_Caster->CastSpell(l_Target, eSpells::VenomousWoundsDamage, true);
@@ -1810,7 +1813,7 @@ class spell_rog_deadly_poison: public SpellScriptLoader
             {
                 _stackAmount = 0;
                 // at this point CastItem must already be initialized
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+                return GetCaster()->IsPlayer() && GetCastItem();
             }
 
             void HandleBeforeHit()
@@ -2317,7 +2320,7 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                             {
                                 int32 l_Duration = l_ModSpell->GetDuration();
                                 AddPct(l_Duration, l_RevealingStrike->GetAmount());
-                                if (l_Duration >= 6 * IN_MILLISECONDS && l_Target->GetTypeId() == TYPEID_PLAYER) ///< Can't be more than 6s on pvp
+                                if (l_Duration >= 6 * IN_MILLISECONDS && l_Target->IsPlayer()) ///< Can't be more than 6s on pvp
                                     l_Duration = 6 * IN_MILLISECONDS;
                                 l_ModSpell->SetDuration(l_Duration);
                             }
@@ -3221,6 +3224,10 @@ class spell_rog_main_gauche: public SpellScriptLoader
                 if (l_Victim == nullptr)
                     return;
 
+                /// Poison is considerate like a Mainhand attack, and Main Gauche should not proc from poison
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() && (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Dispel == DISPEL_POISON))
+                    return;
+
                 if (!(p_EventInfo.GetTypeMask() & PROC_FLAG_DONE_MAINHAND_ATTACK))
                     return;
 
@@ -3240,8 +3247,60 @@ class spell_rog_main_gauche: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Distract - 1725
+class spell_rog_distract : public SpellScriptLoader
+{
+    public:
+        spell_rog_distract() : SpellScriptLoader("spell_rog_distract") { }
+
+        class spell_rog_distract_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_distract_SpellScript);
+
+            enum eDatas
+            {
+                GlyphofImprovedDistraction = 146961,
+                DistractionNPC = 73544
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* spell = GetSpellInfo();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eDatas::GlyphofImprovedDistraction))
+                {
+                    Position l_Pos;
+                    GetExplTargetDest()->GetPosition(&l_Pos);
+                    TempSummon* summon = l_Player->SummonCreature(eDatas::DistractionNPC, l_Pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS);
+                    if (!summon)
+                        return;
+
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Player->GetGUID());
+                    summon->setFaction(l_Player->getFaction());
+                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_rog_distract_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_distract_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_distract();
     new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
     new spell_rog_dagger_bonus();

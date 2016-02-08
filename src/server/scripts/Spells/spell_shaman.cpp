@@ -691,7 +691,7 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive())
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()))
                             l_Caster->RemoveAura(itr.first);
                     }
                 }
@@ -3271,7 +3271,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 float l_HealthPct = 0.0f;
                 AuraPtr l_AuraSetBonus = l_Caster->GetAura(eSpells::ItemWodPvpRestoration4PBonus);
-                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_2))
+                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_0))
                     l_HealthPct = (float)l_AuraEffectHealthPct->GetAmount();
 
                 if (p_EventInfo.GetDamageInfo() == nullptr || l_AuraSetBonus == nullptr)
@@ -3281,7 +3281,8 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = GetTarget();
-                if (l_Target->GetHealthPct() <= l_HealthPct)
+                ///< Should proc only when the target pass from > 50% health to < 50% health
+                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
                 {
                     if (AuraEffectPtr l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
@@ -3482,6 +3483,47 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
         }
 };
 
+/// Glyph of Rain of Frogs - 147707
+class spell_sha_glyph_of_rain_of_frogs : public SpellScriptLoader
+{
+public:
+    spell_sha_glyph_of_rain_of_frogs() : SpellScriptLoader("spell_sha_glyph_of_rain_of_frogs") { }
+
+    class spell_sha_glyph_of_rain_of_frogs_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_glyph_of_rain_of_frogs_AuraScript);
+
+        enum eSpells
+        {
+            GlyphOfRaingOfFrogsSpell = 147709
+        };
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Player* l_Player = GetTarget()->ToPlayer())
+                l_Player->learnSpell(eSpells::GlyphOfRaingOfFrogsSpell, false);
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Player* l_Player = GetTarget()->ToPlayer())
+                if (l_Player->HasSpell(eSpells::GlyphOfRaingOfFrogsSpell))
+                    l_Player->removeSpell(eSpells::GlyphOfRaingOfFrogsSpell, false, false);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_sha_glyph_of_rain_of_frogs_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_sha_glyph_of_rain_of_frogs_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_glyph_of_rain_of_frogs_AuraScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_glyph_of_ascendance();
@@ -3544,4 +3586,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_soothing_wind();
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
+    new spell_sha_glyph_of_rain_of_frogs();
 }

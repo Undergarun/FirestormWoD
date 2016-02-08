@@ -143,7 +143,7 @@ class boss_lord_marrowgar : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
             }
 
@@ -541,9 +541,9 @@ class spell_marrowgar_coldflame_damage: public SpellScriptLoader
             void OnPeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 if (DynamicObject* owner = GetDynobjOwner())
-                    if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED) || (GetTarget()->GetTypeId() == TYPEID_PLAYER && GetTarget()->ToPlayer()->HasSpellCooldown(69146)))
+                    if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED) || (GetTarget()->IsPlayer() && GetTarget()->ToPlayer()->HasSpellCooldown(69146)))
                         PreventDefaultAction();
-                    else if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                    else if (GetTarget()->IsPlayer())
                         GetTarget()->ToPlayer()->AddSpellCooldown(69146, 0, 1100);
             }
 
