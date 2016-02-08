@@ -1297,7 +1297,7 @@ public:
                 std::list<Creature*> l_TempList;
                 std::list<Creature*> l_LightsHammerlist;
 
-                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 500.0f);
+                l_Caster->GetCreatureListWithEntryInGrid(l_LightsHammerlist, PALADIN_NPC_LIGHTS_HAMMER, 200.0f);
 
                 l_TempList = l_LightsHammerlist;
 
@@ -1866,7 +1866,7 @@ class spell_pal_ardent_defender: public SpellScriptLoader
             {
                 m_HealPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                 m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
+                return GetUnitOwner()->IsPlayer();
             }
 
             void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & canBeRecalculated)
@@ -2977,7 +2977,7 @@ class spell_pal_denounce : public SpellScriptLoader
                 }
                 else
                 {
-                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         l_CritPctOfTarget = int32(l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
 
                     if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
@@ -3013,7 +3013,7 @@ class spell_pal_turn_evil : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetExplTargetUnit())
                 {
-                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         return SPELL_FAILED_BAD_TARGETS;
                     return SPELL_CAST_OK;
                 }
@@ -3646,9 +3646,18 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
-                    if (roll_chance_i(30))
-                        l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->GetSpecializationId() == SPEC_PALADIN_PROTECTION)
+                    {
+                        /// Spell works from 50 lvl
+                        if (l_Player->getLevel() >= 50)
+                        {
+                            if (roll_chance_i(30))
+                                l_Caster->CastSpell(l_Caster, eSpells::GrandCrusaderEffect, true);
+                        }
+                    }
+                }
             }
         }
 
@@ -3710,6 +3719,89 @@ public:
     AuraScript* GetAuraScript() const
     {
         return new spell_pal_glyph_of_pillar_of_light_AuraScript();
+    }
+};
+
+/// Sword of Light - 53503
+/// Called by Judgment - 20271, Hammer of Wrath - 24275, 158392
+class spell_pal_sword_of_light_damage : public SpellScriptLoader
+{
+public:
+    spell_pal_sword_of_light_damage() : SpellScriptLoader("spell_pal_sword_of_light_damage") { }
+
+    class spell_pal_sword_of_light_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_sword_of_light_damage_SpellScript);
+
+        enum eSpells
+        {
+            SwordOfLight = 53503,
+            SwordOfLightBonus = 20113
+        };
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                /// Retribution paladin has increased damage for 30%
+                if (l_Player->GetSpecializationId() == SPEC_PALADIN_RETRIBUTION && l_Player->HasAura(eSpells::SwordOfLightBonus))
+                {
+                    Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    SpellInfo const* l_SwordOfLightBonus = sSpellMgr->GetSpellInfo(eSpells::SwordOfLightBonus);
+
+                    if (l_SwordOfLightBonus && l_SwordOfLightBonus->Effects[0].BasePoints && mainItem && mainItem->GetTemplate()->IsTwoHandedWeapon())
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SwordOfLightBonus->Effects[0].BasePoints));
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_pal_sword_of_light_damage_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_sword_of_light_damage_SpellScript();
+    }
+};
+
+/// Glyph of Denounce - 115654
+class spell_pal_glyph_of_denounce : public SpellScriptLoader
+{
+public:
+    spell_pal_glyph_of_denounce() : SpellScriptLoader("spell_pal_glyph_of_denounce") { }
+
+    class spell_pal_glyph_of_denounce_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_glyph_of_denounce_AuraScript);
+
+        void HandleDispel(DispelInfo* p_DispelInfo)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            uint8 l_RemovedCharges = 1;
+            if (AuraPtr l_GlyphOfDenounce = l_Caster->GetAura(GetSpellInfo()->Id))
+                l_RemovedCharges = l_GlyphOfDenounce->GetStackAmount();
+
+            if (p_DispelInfo && p_DispelInfo->GetRemovedCharges())
+                p_DispelInfo->SetRemovedCharges(l_RemovedCharges);
+        }
+
+
+        void Register()
+        {
+            OnDispel += AuraDispelFn(spell_pal_glyph_of_denounce_AuraScript::HandleDispel);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_glyph_of_denounce_AuraScript();
     }
 };
 
@@ -3775,6 +3867,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_selfless_healer_proc();
     new spell_pal_gyph_of_contemplation();
     new spell_pal_sword_of_light();
+    new spell_pal_sword_of_light_damage();
     new spell_pal_glyph_of_the_liberator();
     new spell_pal_glyph_of_flash_light();
     new spell_pal_avenging_wrath();

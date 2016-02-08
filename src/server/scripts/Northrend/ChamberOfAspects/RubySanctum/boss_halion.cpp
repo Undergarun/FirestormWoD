@@ -328,7 +328,7 @@ class boss_halion : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && me->IsInRange(who, 0, 10, false) && !me->isInCombat())
+                if (who->IsPlayer() && me->IsInRange(who, 0, 10, false) && !me->isInCombat())
                 {
                     me->AI()->AttackStart(who);
                     me->AddThreat(who, 1.0f);
@@ -527,7 +527,7 @@ class boss_twilight_halion : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->IsPlayer())
                     Talk(SAY_KILL);
 
                 // Victims should not be in the Twilight Realm

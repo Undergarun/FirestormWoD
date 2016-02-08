@@ -102,7 +102,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->IsPlayer())
             {
                 ++KillCount;
                 Talk(YELL_TWILIGHTCORRUPTOR_KILL, victim->GetGUID());

@@ -279,7 +279,7 @@ void EncounterDone(Creature* me)
     for (uint8 l_Idx = 0; l_Idx < 6; ++l_Idx)
     {
         std::list<Creature*> l_AddList;
-        GetCreatureListWithEntryInGrid(l_AddList, me, l_AddEntries[l_Idx], 500.0f);
+        GetCreatureListWithEntryInGrid(l_AddList, me, l_AddEntries[l_Idx], 200.0f);
         for (Creature* l_Add : l_AddList)
             l_Add->DespawnOrUnsummon();
     }
@@ -415,7 +415,7 @@ public:
             for (uint8 l_Idx = 0; l_Idx < 4; ++l_Idx)
             {
                 std::list<Creature*> l_AddList;
-                GetCreatureListWithEntryInGrid(l_AddList, me, l_AddEntries[l_Idx], 500.0f);
+                GetCreatureListWithEntryInGrid(l_AddList, me, l_AddEntries[l_Idx], 200.0f);
                 for (Creature* l_Add : l_AddList)
                     l_Add->DespawnOrUnsummon();
             }
@@ -496,7 +496,7 @@ public:
 
                         // Retreiving cyclone list
                         std::list<Creature*> l_CycloneList;
-                        GetCreatureListWithEntryInGrid(l_CycloneList, me, NPC_RUSHING_WINDS_B, 500.0f);
+                        GetCreatureListWithEntryInGrid(l_CycloneList, me, NPC_RUSHING_WINDS_B, 200.0f);
                         // Reminding Guids
                         for (Creature* l_Cyclone : l_CycloneList)
                             m_CycloneList.push_back(l_Cyclone->GetGUID());
@@ -544,7 +544,7 @@ public:
         Creature* GetActiveSpear()
         {
             std::list<Creature*> l_SpearList;
-            GetCreatureListWithEntryInGrid(l_SpearList, me, NPC_IRON_QON_SPEAR, 500.0f);
+            GetCreatureListWithEntryInGrid(l_SpearList, me, NPC_IRON_QON_SPEAR, 200.0f);
             uint32 l_IndexMax = 0;
             Creature* l_AltSpear = nullptr;
 

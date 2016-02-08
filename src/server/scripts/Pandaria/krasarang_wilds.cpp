@@ -415,7 +415,7 @@ class mob_champion_of_chi_ji : public CreatureScript
 
             void MoveInLineOfSight(Unit* who) // Dynamic Aggro !
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                 {
                     if (CAST_PLR(who)->GetQuestStatus(30740) == QUEST_STATUS_INCOMPLETE)
                     {

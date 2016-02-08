@@ -2426,7 +2426,7 @@ class spell_hun_powershot: public SpellScriptLoader
                     if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
                         continue;
 
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->IsPlayer())
                     if (itr->ToPlayer()->GetKnockBackTime())
                         continue;
 
@@ -2445,7 +2445,7 @@ class spell_hun_powershot: public SpellScriptLoader
 
                     itr->KnockbackFrom(l_X, l_Y, l_Speedxy, l_Speedz);
 
-                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->IsPlayer())
                         itr->ToPlayer()->SetKnockBackTime(getMSTime());
                 }
             }
@@ -3428,7 +3428,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
                     if (Unit* l_Owner = l_Caster->GetOwner())
                     {
                         if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
-                            l_Amount = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2.0f);
+                            l_Amount = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.6f * 2.0f);
                     }
                 }
             }

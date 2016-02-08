@@ -192,7 +192,7 @@ class boss_general_vezax : public CreatureScript
 
             void SpellHitTarget(Unit* who, SpellInfo const* spell)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
+                if (who && who->IsPlayer() && spell->Id == SPELL_SHADOW_CRASH_HIT)
                     _shadowDodger = false;
             }
 

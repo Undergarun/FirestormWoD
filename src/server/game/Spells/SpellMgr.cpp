@@ -3381,6 +3381,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 168361: ///< Test
+                spellInfo->Effects[0].MiscValue = 500;
+                break;
             case 105157: ///< See Quest Invis 14, Wandering Island spell
                 spellInfo->AreaGroupId = 0;
                 break;
@@ -3706,7 +3709,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
                 /// Shadowmoon Burial Grounds
+            case 153068: ///< Void Devestation
+                spellInfo->Effects[0].TargetA = Targets::TARGET_DEST_CASTER;
+                spellInfo->Effects[0].TargetB = Targets::TARGET_DEST_DEST_RADIUS;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
+                break;
             case 152962: ///< Soul Steal
+                spellInfo->Effects[0].TriggerSpell = 0;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
@@ -3715,8 +3724,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 164693: ///< Lunar Runes
-            case 164695: ///< Lunar Runes 02
-            case 164696: ///< Lunar Runes 03
+            case 164695:
+            case 164696:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
                 break;
             case 154327: ///< Domination
@@ -3747,6 +3756,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 153236: ///< DaggerFall
                 spellInfo->Effects[0].TargetA = 0;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 164685: ///< Dark Eclipse
+                spellInfo->Effects[0].Amplitude = 600;
                 break;
                 /// Everbloom
             case 164643: ///< Rending Charge
@@ -5347,6 +5359,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_DEST_AREA_ENEMY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(13); ///< 10 Yards
                 break;
+            case 118779: ///< Victory Rush
+            case 118340: ///< Impending Victory
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
             case 89523: ///< Glyph of Grounding Totem
                 spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
                 break;
@@ -6012,11 +6028,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 56242: ///< Glyph of Imp Swarm
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
                 spellInfo->Effects[1].MiscValue = 11;
-                break;
-            case 603:   ///< Doom
-            case 103964:///< Touch of Chaos
-            case 124915:///< Chaos Wave
-                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
                 break;
             case 77535: ///< Blood Shield
             case 127802: ///< Touch of The Grave (trigger)

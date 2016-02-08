@@ -110,7 +110,7 @@ struct VehicleAI : public CreatureAI
         bool m_IsVehicleInUse;
         void LoadConditions();
         void CheckConditions(const uint32 diff);
-        ConditionList conditions;
+        bool m_HasConditions;
         uint32 m_ConditionsTimer;
         bool m_DoDismiss;
         uint32 m_DismissTimer;

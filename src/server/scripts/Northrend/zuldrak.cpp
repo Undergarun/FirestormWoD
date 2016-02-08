@@ -700,7 +700,7 @@ public:
                 if (Creature* pWhisker = me->GetCreature(*me, uiWhisker))
                     pWhisker->RemoveFromWorld();
 
-            if (killer->GetTypeId() == TYPEID_PLAYER)
+            if (killer->IsPlayer())
                 killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, killer);
 
         }

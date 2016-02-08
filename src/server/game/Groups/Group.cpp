@@ -2802,7 +2802,7 @@ uint32 Group::GetActiveMarkers() const
 {
     uint32 l_Mask = eRaidMarkersFlags::RaidMarkerNone;
 
-    for (RaidMarker l_Marker : GetRaidMarkers())
+    for (RaidMarker const& l_Marker : GetRaidMarkers())
     {
         if (l_Marker.Mask)
             l_Mask |= l_Marker.Mask;
@@ -2815,7 +2815,7 @@ uint32 Group::CountActiveMarkers() const
 {
     uint32 l_Count = 0;
 
-    for (RaidMarker l_Marker : GetRaidMarkers())
+    for (RaidMarker const& l_Marker : GetRaidMarkers())
     {
         if (l_Marker.Mask)
             ++l_Count;
@@ -2835,7 +2835,7 @@ void Group::SendRaidMarkersUpdate()
     l_Data.WriteBits(CountActiveMarkers(), 4);
     l_Data.FlushBits();
 
-    for (RaidMarker l_Marker : l_RaidMarkers)
+    for (RaidMarker const& l_Marker : l_RaidMarkers)
     {
         if (!l_Marker.Mask)
             continue;

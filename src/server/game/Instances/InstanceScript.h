@@ -228,6 +228,11 @@ enum eInstanceSpells
     HunterInsanity              = 95809,
     MageTemporalDisplacement    = 80354,
     ShamanExhaustion            = 57723,
+    Bloodlust                   = 2825,
+    Heroism                     = 32182,
+    TempralDisplacement         = 80354,
+    AncientHysteria             = 90355,
+    MaxBloodlustSpells          = 4,
     /// Battle resurrection spells
     Rebirth                     = 20484,
     Soulstone                   = 20707,
@@ -246,6 +251,14 @@ uint32 const g_BattleResSpells[eInstanceSpells::MaxBattleResSpells] =
     eInstanceSpells::EternalGuardian,
     eInstanceSpells::GiftOfChiJi,
     eInstanceSpells::DustOfLife
+};
+
+uint32 const g_BloodlustSpells[eInstanceSpells::MaxBloodlustSpells] =
+{
+    eInstanceSpells::Bloodlust,
+    eInstanceSpells::Heroism,
+    eInstanceSpells::TempralDisplacement,
+    eInstanceSpells::AncientHysteria
 };
 
 class InstanceScript : public ZoneScript

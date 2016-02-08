@@ -170,7 +170,7 @@ class boss_kologarn : public CreatureScript
             void MoveInLineOfSight(Unit* who)
             {
                 // Birth animation
-                if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
+                if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->IsPlayer() && !who->ToPlayer()->isGameMaster())
                 {
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -199,7 +199,7 @@ class boss_kologarn : public CreatureScript
                 if (!urand(0,5))
                     Talk(SAY_SLAY);
 
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->IsPlayer())
                     who->ExitVehicle();
             }
 

@@ -438,6 +438,11 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     /// It was nerfed due to people intentionally reseting the boss to gain max stack to kill the boss faster.
                     if (m_EncounterTime && instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
                         DoCastSpellOnPlayers(eInstanceSpells::SpellDetermination);
+
+                    /// Upon reseting a boss, all combat bloodlust spells will have their cooldowns reset
+                    for (uint8 l_I = 0; l_I < eInstanceSpells::MaxBloodlustSpells; ++l_I)
+                        DoRemoveSpellCooldownOnPlayers(g_BloodlustSpells[l_I]);
+
                     break;
                 }
                 default:

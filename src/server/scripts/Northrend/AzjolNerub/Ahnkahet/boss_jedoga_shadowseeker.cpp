@@ -169,7 +169,7 @@ public:
             if (!instance || !who || (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_JEDOGA_CONTROLLER))
                 return;
 
-            if (!bPreDone && who->GetTypeId() == TYPEID_PLAYER && me->GetDistance(who) < 100.0f)
+            if (!bPreDone && who->IsPlayer() && me->GetDistance(who) < 100.0f)
             {
                 Talk(TEXT_PREACHING);
                 bPreDone = true;
@@ -396,7 +396,7 @@ public:
                     if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
                         CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
 
-                    if (killer->GetTypeId() == TYPEID_PLAYER)
+                    if (killer->IsPlayer())
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
@@ -404,7 +404,7 @@ public:
 
                 bWalking = false;
             }
-            if (killer->GetTypeId() == TYPEID_PLAYER)
+            if (killer->IsPlayer())
                 instance->SetData64(DATA_PL_JEDOGA_TARGET, killer->GetGUID());
         }
 

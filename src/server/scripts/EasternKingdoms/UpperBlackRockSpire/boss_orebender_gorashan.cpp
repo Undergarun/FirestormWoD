@@ -130,7 +130,7 @@ class boss_orebender_gorashan : public CreatureScript
 
             void KilledUnit(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                if (p_Who->IsPlayer())
                     Talk(TALK_SLAY);
             }
 

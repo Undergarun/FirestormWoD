@@ -227,7 +227,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
-            if (apply && who->GetTypeId() == TYPEID_PLAYER)
+            if (apply && who->IsPlayer())
             {
                 SlipstreamPlayer new_player;
                 new_player.uiPlayerGUID = who->GetGUID();

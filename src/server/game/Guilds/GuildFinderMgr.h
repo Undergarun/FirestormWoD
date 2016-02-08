@@ -84,14 +84,14 @@ struct MembershipRequest
 
         uint8 GetClass() const
         {
-            const CharacterNameData *nameData = sWorld->GetCharacterNameData(GetPlayerGUID());
-            return nameData ? nameData->m_class : 0;
+            const CharacterInfo* l_NameData = sWorld->GetCharacterInfo(GetPlayerGUID());
+            return l_NameData ? l_NameData->Class : 0;
         }
 
         uint8 GetLevel() const
         {
-            const CharacterNameData *nameData = sWorld->GetCharacterNameData(GetPlayerGUID());
-            return nameData ? nameData->m_level : 1;
+            const CharacterInfo* l_NameData = sWorld->GetCharacterInfo(GetPlayerGUID());
+            return l_NameData ? l_NameData->Level : 1;
         }
 
         time_t GetSubmitTime() const   { return _time; }
@@ -99,9 +99,9 @@ struct MembershipRequest
         std::string const& GetComment() const { return _comment; }
         std::string const& GetName() const
         {
-            const CharacterNameData *nameData = sWorld->GetCharacterNameData(GetPlayerGUID());
+            const CharacterInfo  *l_NameData = sWorld->GetCharacterInfo(GetPlayerGUID());
             static const std::string name = "";
-            return nameData ? nameData->m_name : name;
+            return l_NameData ? l_NameData->Name : name;
         }
 
     private:

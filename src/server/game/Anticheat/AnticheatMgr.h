@@ -45,7 +45,7 @@ class AnticheatMgr
 
 public:
 
-    void StartHackDetection(Player* player, MovementInfo movementInfo, uint32 opcode);
+    void StartHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode);
     void DeletePlayerReport(Player* player, bool login);
     void DeletePlayerData(Player* player);
     void CreatePlayerData(Player* player);
@@ -65,12 +65,12 @@ public:
 
     void ResetDailyReportStates();
 private:
-    void SpeedHackDetection(Player* player, MovementInfo movementInfo);
-    void FlyHackDetection(Player* player, MovementInfo movementInfo);
-    void WalkOnWaterHackDetection(Player* player, MovementInfo movementInfo);
-    void JumpHackDetection(Player* player, MovementInfo movementInfo,uint32 opcode);
-    void TeleportPlaneHackDetection(Player* player, MovementInfo);
-    void ClimbHackDetection(Player* player,MovementInfo movementInfo,uint32 opcode);
+    void SpeedHackDetection(Player* player, MovementInfo const& movementInfo);
+    void FlyHackDetection(Player* player, MovementInfo const& movementInfo);
+    void WalkOnWaterHackDetection(Player* player, MovementInfo const& movementInfo);
+    void JumpHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode);
+    void TeleportPlaneHackDetection(Player* player, MovementInfo const&);
+    void ClimbHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode);
 
     void BuildReport(Player* player,uint8 reportType);
 

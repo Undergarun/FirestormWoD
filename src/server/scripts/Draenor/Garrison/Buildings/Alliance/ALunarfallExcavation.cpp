@@ -171,6 +171,9 @@ namespace MS { namespace Garrison
 
         if (!l_Owner->IsQuestRewarded(Quests::Alliance_ThingsAreNotGorenOurWay))
         {
+            std::vector<uint32> l_CreatureEntries = { NPCs::NpcLunarfallGoren, NPCs::NpcLunarfallGorenHatchling, NPCs::NpcStonetooth };
+            me->DespawnCreaturesInArea(l_CreatureEntries, 100.0f);
+
             for (SequencePosition l_Pos : g_GorenHatchlingPositions)
             {
                 if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcLunarfallGoren, l_Pos.X, l_Pos.Y, l_Pos.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))

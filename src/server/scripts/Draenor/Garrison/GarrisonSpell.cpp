@@ -362,6 +362,72 @@ namespace MS { namespace Garrison
             }
     };
 
+    /// 168655 / Sticky Grenade
+    class spell_aura_sticky_grenade : public SpellScriptLoader
+    {
+        public:
+            spell_aura_sticky_grenade() : SpellScriptLoader("spell_aura_sticky_grenade") { }
+
+            class spell_aura_sticky_grenade_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_aura_sticky_grenade_AuraScript);
+
+                enum eDatas
+                {
+                    SpellStickyGrenadeTargetDmg = 168659
+                };
+
+                void OnRemove(constAuraEffectPtr /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+                {
+                    if (Unit* l_Caster = GetCaster())
+                        l_Caster->CastSpell(l_Caster, eDatas::SpellStickyGrenadeTargetDmg, true);
+                }
+
+                void Register()
+                {
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_aura_sticky_grenade_AuraScript::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_PERIODIC_TRIGGER_SPELL, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+                }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_aura_sticky_grenade_AuraScript();
+        }
+    };
+
+    /// Pneumatic Power Gauntlet - 168555
+    class spell_pneumatic_power_gauntlet : public SpellScriptLoader
+    {
+        public:
+            spell_pneumatic_power_gauntlet() : SpellScriptLoader("spell_pneumatic_power_gauntlet") { }
+
+            class spell_pneumatic_power_gauntlet_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_pneumatic_power_gauntlet_SpellScript);
+
+                void OnSpellHit(SpellEffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (l_Caster == nullptr || l_Target == nullptr)
+                        return;
+
+                    l_Target->GetMotionMaster()->MoveJump(l_Caster->m_positionX, l_Caster->m_positionY, l_Caster->m_positionZ, 15.0f, 10.0f);
+                }
+
+                void Register()
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_pneumatic_power_gauntlet_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_pneumatic_power_gauntlet_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -371,4 +437,6 @@ void AddSC_Garrison()
     new MS::Garrison::spell_garrison_hearthstone();
     new MS::Garrison::spell_garrison_portal();
     new MS::Garrison::spell_garrison_shipyard();
+    new MS::Garrison::spell_aura_sticky_grenade();
+    new MS::Garrison::spell_pneumatic_power_gauntlet();
 }

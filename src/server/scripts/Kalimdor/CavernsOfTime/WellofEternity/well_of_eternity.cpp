@@ -998,7 +998,7 @@ class npc_well_of_eternity_doomguard_annihilator : public CreatureScript
                     return;
 
                 std::list<Creature*> creatures;
-                GetCreatureListWithEntryInGrid(creatures, me, me->GetEntry(), 500.0f);
+                GetCreatureListWithEntryInGrid(creatures, me, me->GetEntry(), 200.0f);
                 if (!creatures.empty())
                     for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
                         if (!(*itr)->isInCombat())

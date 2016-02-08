@@ -913,7 +913,7 @@ void AddSC_instance_everbloom();
 void AddSC_boss_ancient_protectors();
 void AddSC_boss_witherbark();
 void AddSC_boss_xeritac();
-void AddSC_boss_sol();
+void AddSC_boss_archmage_sol();
 void AddSC_boss_yalnu();
 
 // battlegrounds
@@ -1881,7 +1881,7 @@ void AddDraenorScripts()
     AddSC_boss_ancient_protectors();
     AddSC_boss_witherbark();
     AddSC_boss_xeritac();
-    AddSC_boss_sol();
+    AddSC_boss_archmage_sol();
     AddSC_boss_yalnu();
 
     /// Battlegrounds strongbox

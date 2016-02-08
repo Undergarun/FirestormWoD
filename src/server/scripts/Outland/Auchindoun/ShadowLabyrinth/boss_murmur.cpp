@@ -86,7 +86,7 @@ public:
             for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-               if (target && target->GetTypeId() == TYPEID_PLAYER)
+               if (target && target->IsPlayer())
                {
                    //Not do anything without aura, spell can be resisted!
                    if (target->HasAura(SPELL_SONIC_BOOM_CAST) && me->IsWithinDistInMap(target, 34.0f))
@@ -159,7 +159,7 @@ public:
             if (MagneticPull_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                    if (target->IsPlayer() && target->isAlive())
                     {
                         DoCast(target, SPELL_MAGNETIC_PULL);
                         MagneticPull_Timer = 15000+rand()%15000;

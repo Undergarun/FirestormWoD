@@ -162,7 +162,7 @@ bool Player::UpdateAllStats()
 
     // Custom MoP script
     // Jab Override Driver
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+    if (IsPlayer() && getClass() == CLASS_MONK)
     {
         Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -205,7 +205,7 @@ bool Player::UpdateAllStats()
         }
     }
     // Way of the Monk - 120277
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
     {
         if (getClass() == CLASS_MONK && HasAura(120277))
         {
@@ -230,23 +230,20 @@ bool Player::UpdateAllStats()
         }
     }
     // Assassin's Resolve - 84601
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (getClass() == CLASS_ROGUE && GetSpecializationId() == SPEC_ROGUE_ASSASSINATION)
     {
-        if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
+        Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+        if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
         {
-            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-            Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-            {
-                if (HasAura(84601))
-                    RemoveAura(84601);
-
-                CastSpell(this, 84601, true);
-            }
-            else
+            if (HasAura(84601))
                 RemoveAura(84601);
+
+            CastSpell(this, 84601, true);
         }
+        else
+            RemoveAura(84601);
     }
 
     UpdateAllRatings();
@@ -433,8 +430,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;
-        int32 spellPower = ToPlayer()->GetBaseSpellPowerBonus(); // SpellPower from Weapon
-        spellPower += std::max(0, int32(ToPlayer()->GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
+        int32 spellPower = GetBaseSpellPowerBonus(); // SpellPower from Weapon
+        spellPower += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10); // SpellPower from intellect
 
         AuraEffectList const& mAPFromSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT);
         for (AuraEffectList::const_iterator i = mAPFromSpellPowerPct.begin(); i != mAPFromSpellPowerPct.end(); ++i)
@@ -905,7 +902,7 @@ void Player::UpdateMasteryPercentage()
                 {
                     l_AurEff->SetCanBeRecalculated(true);
                     if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form
-                        || (l_SpellInfo->Id == 76856 && !HasAura(12880))) ///< Mastery : Unshackled Fury
+                        || (l_SpellInfo->Id == 76856)) ///< Mastery : Unshackled Fury
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
@@ -1586,7 +1583,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, l_BaseAttackPower);
 
-    if (l_Owner->GetTypeId() == TYPEID_PLAYER && GetEntry() != ENTRY_FROZEN_ORB)
+    if (l_Owner->IsPlayer() && GetEntry() != ENTRY_FROZEN_ORB)
         l_Owner->SetUInt32Value(PLAYER_FIELD_PET_SPELL_POWER, l_SpellPower);
 
     l_BaseAttackPower      *= GetModifierValue(l_UnitMod, BASE_PCT);
@@ -1608,7 +1605,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
         UpdateDamagePhysical(WeaponAttackType::OffAttack);
 }
 
-// WoD updated
+/// WoD updated
 void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     UnitMods l_UnitMod;
@@ -1627,9 +1624,6 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     }
 
     float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
-    /// Hunter's pets got 2.8 from normalized ranged weapons speed
-    if (isHunterPet())
-        l_AttackSpeed = 2.8f;
 
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
