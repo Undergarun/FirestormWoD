@@ -5062,6 +5062,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159623: ///< Leap of Faith (Glyph of Restored Faith)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_RAID;
                 break;
+            case 114108: ///< Soul of the Forst (Resto)
+                spellInfo->ProcFlags = 0;
+                break;
             case 73325: ///< Leap of Faith
                 spellInfo->OverrideSpellList.push_back(159623); ///< Leap of Faith (Glyph of Restored Faith)
                 break;

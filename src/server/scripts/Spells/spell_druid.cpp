@@ -1036,7 +1036,10 @@ class spell_dru_regrowth : public SpellScriptLoader
                 {
                     ///If soul of the forest is activated we increase the heal by 100%
                     if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                    {
+                        l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
                         SetHitHeal(GetHitHeal() * 2);
+                    }
                 }
             }
 
@@ -4399,10 +4402,21 @@ class spell_dru_healing_touch: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
             }
 
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+            }
+
             void Register()
             {
                 OnPrepare += SpellOnPrepareFn(spell_dru_healing_touch_SpellScript::HandleOnPrepare);
                 OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
+                AfterCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleAfterCast);
             }
         };
 
