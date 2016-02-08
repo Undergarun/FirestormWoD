@@ -550,26 +550,30 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         catch(ByteBufferException &)
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
+            if (deletePacket)
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                     packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
-            packet->hexlike();
+                packet->hexlike();
+            }
         }
 
         nbPacket++;
 
-        std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(packet->GetOpcode());
-        if (itr == pktHandle.end())
-            pktHandle.insert(std::make_pair(packet->GetOpcode(), OpcodeInfo(1, getMSTime() - pktTime)));
-        else
-        {
-            OpcodeInfo& data = (*itr).second;
-            data.nbPkt += 1;
-            data.totalTime += getMSTime() - pktTime;
-        }
-
-
         if (deletePacket)
+        {
+            std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(packet->GetOpcode());
+            if (itr == pktHandle.end())
+                pktHandle.insert(std::make_pair(packet->GetOpcode(), OpcodeInfo(1, getMSTime() - pktTime)));
+            else
+            {
+                OpcodeInfo& data = (*itr).second;
+                data.nbPkt += 1;
+                data.totalTime += getMSTime() - pktTime;
+            }
+
             delete packet;
+        }
 
 #define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 50
         processedPackets++;
