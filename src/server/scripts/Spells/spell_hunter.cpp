@@ -3457,7 +3457,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
                 if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
-                int32 l_Heal = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f);
+                int32 l_Heal = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.6f * 3.0f);
                 l_Heal = l_Owner->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, l_Idx, SPELL_DIRECT_DAMAGE);
                 l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, SPELL_DIRECT_DAMAGE);
                 SetHitHeal(l_Heal);
