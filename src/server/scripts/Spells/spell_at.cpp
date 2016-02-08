@@ -818,7 +818,10 @@ class spell_at_mage_meteor_burn : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eMeteorSpell::MeteorDoT, true);
+                {
+                    if (l_Caster->IsValidAttackTarget(l_Unit))
+                        l_Caster->CastSpell(l_Unit, eMeteorSpell::MeteorDoT, true);
+                }
             }
         }
 
