@@ -135,7 +135,7 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                 if (l_Target == nullptr)
                     return;
 
-                if (!l_Target->HasAura(eWildMushroomSpells::FungalCloud))
+                if (!l_Target->HasAura(eWildMushroomSpells::FungalCloud) && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
                 {
                     l_AreaTriggerCaster->CastSpell(l_Target, eWildMushroomSpells::FungalCloud, true);
                     m_Targets.push_back(l_Target->GetGUID());
