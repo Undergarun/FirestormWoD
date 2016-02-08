@@ -654,7 +654,7 @@ namespace MS
 
                         /// If the actual ratio in the battleground is good enough and we are not making too much instances of this battleground, we choose it.
                         float l_Ratio = std::abs(1 - l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] / l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE]);
-                        if (l_Ratio < 0.15f && l_Occurences[i].first < (1.0f / BattlegroundType::NumBattlegrounds) + 0.05f)
+                        if (l_Ratio < 0.15f && l_Occurences[i].first < ((1.0f / BattlegroundType::NumBattlegrounds) + 0.05f))
                         {
                             l_BestType = l_BGType;
                             break;
@@ -711,14 +711,16 @@ namespace MS
 
                         /// Update stats.
                         l_TotalOccurences++;
-                        m_BattlegroundOccurences[l_BracketId][l_DecidedBg].first = (m_BattlegroundOccurences[l_BracketId][l_DecidedBg].first * (l_TotalOccurences - 1) + 1) / l_TotalOccurences;
 
                         for (std::size_t i = 0; i < BattlegroundType::Max; i++)
                         {
-                            if (i == l_DecidedBg)
-                                continue;
+                            float l_OldFrequency = m_BattlegroundOccurences[l_BracketId][i].first;
+                            float l_OldNumProc = m_BattlegroundOccurences[l_BracketId][i].first / (1.0f / BattlegroundType::NumBattlegrounds);
 
-                            m_BattlegroundOccurences[l_BracketId][i].first = (m_BattlegroundOccurences[l_BracketId][i].first * (l_TotalOccurences - 1)) / l_TotalOccurences;
+                            if (i == l_DecidedBg)
+                                l_OldNumProc += 1.0f;
+
+                            m_BattlegroundOccurences[l_BracketId][i].first = l_OldNumProc / l_TotalOccurences;
                         }
 
                         /// Add groups to the battleground and remove them from waiting groups list.
