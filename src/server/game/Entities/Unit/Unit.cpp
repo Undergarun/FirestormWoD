@@ -1231,7 +1231,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
     if (p_Damage <= 0)
         return p_Damage;
 
-    float l_Stagger = 0.70f;
+    float l_Stagger = 0.80f;
     /// Mastery increases stagger amount - Mastery: Elusive Brawler
     if (p_Victim->HasAura(117906))
     {
