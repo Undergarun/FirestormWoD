@@ -1254,7 +1254,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
 
     /// If it's not a physical attack, such that 30% of your normal stagger amount works against magic damage.
     if (!(!p_SpellProto || ((p_SpellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || p_SpellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && p_DamageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)))
-        l_Stagger = CalculatePct(l_Stagger, 30);
+        l_Stagger += CalculatePct(1.0f - l_Stagger, 70);
 
     int32 l_Bp = CalculatePct(p_Damage, ((1.0f - l_Stagger) * 100.0f));
 
