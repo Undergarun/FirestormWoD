@@ -4815,7 +4815,8 @@ void Unit::RemoveArenaAuras()
         constAuraPtr aura = aurApp->GetBase();
         if (!(aura->GetSpellInfo()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                               // don't remove passive auras
-            && (aurApp->IsPositive() || !(aura->GetSpellInfo()->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT))) // not negative death persistent auras
+            && (aurApp->IsPositive() || !(aura->GetSpellInfo()->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT))
+            && !aurApp->GetRemoveMode()) // not negative death persistent auras
             RemoveAura(iter);
         else
             ++iter;
@@ -4830,7 +4831,8 @@ void Unit::RemoveNegativeAuras()
         constAuraPtr aura = aurApp->GetBase();
         if (!aurApp->IsPositive()                                       // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                                       // don't remove passive auras
-            && !aura->IsDeathPersistent())                              // don't remove death persistent auras
+            && !aura->IsDeathPersistent()                               // don't remove death persistent auras
+            && !aurApp->GetRemoveMode())
             RemoveAura(iter);
         else
             ++iter;
@@ -16245,6 +16247,12 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+
+    if (GetTypeId() == TYPEID_UNIT)
+    {
+        if (Map* l_Map = GetMap())
+            l_Map->RemoveCreatureFromMoveList(ToCreature(), true);
+    }
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)
