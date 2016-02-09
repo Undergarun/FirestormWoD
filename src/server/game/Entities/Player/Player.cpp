@@ -19544,8 +19544,7 @@ bool Player::SatisfyQuestStatus(Quest const* p_QInfo, bool p_Msg)
 
 bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg)
 {
-    ConditionList l_Conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_ACCEPT, qInfo->GetQuestId());
-    if (!sConditionMgr->IsObjectMeetToConditions(this, l_Conditions))
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_ACCEPT, qInfo->GetQuestId(), this))
     {
         if (msg)
         {
