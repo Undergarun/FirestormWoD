@@ -2059,9 +2059,14 @@ class npc_tanaan_khadgar_bridge : public CreatureScript
 
         struct npc_tanaan_khadgar_bridgeAI : public ScriptedAI
         {
-            npc_tanaan_khadgar_bridgeAI(Creature* creature) : ScriptedAI(creature) { m_SpectatorGuid = 0; }
+            npc_tanaan_khadgar_bridgeAI(Creature* creature) : ScriptedAI(creature)
+            {
+                m_SpectatorGuid = 0;
+                m_MovementTimer = 0;
+            }
 
             uint64 m_SpectatorGuid;
+            uint32 m_MovementTimer;
 
             void IsSummonedBy(Unit* p_Summoner) override
             {
@@ -2079,7 +2084,7 @@ class npc_tanaan_khadgar_bridge : public CreatureScript
                     return;
 
                 if (p_Id == 1)
-                    me->GetMotionMaster()->MovePoint(2, 4229.7402f, -2812.96f, 17.2016f);
+                    m_MovementTimer = 200;
                 else
                 {
                     Player* l_Player = sObjectAccessor->GetPlayer(*me, m_SpectatorGuid);
@@ -2089,7 +2094,20 @@ class npc_tanaan_khadgar_bridge : public CreatureScript
 
                     me->DespawnOrUnsummon();
                 }
+            }
 
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (m_MovementTimer)
+                {
+                    if (m_MovementTimer <= p_Diff)
+                    {
+                        m_MovementTimer = 0;
+                        me->GetMotionMaster()->MovePoint(2, 4229.7402f, -2812.96f, 17.2016f);
+                    }
+                    else
+                        m_MovementTimer -= p_Diff;
+                }
             }
 
         };
