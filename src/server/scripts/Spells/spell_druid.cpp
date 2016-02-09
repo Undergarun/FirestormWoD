@@ -4755,6 +4755,7 @@ class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// WoD PvP Balance 4P Bonus - 180717
 class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
 {
@@ -4777,14 +4778,17 @@ class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
+                    Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
                     SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
-                    if (l_SpellInfo == nullptr)
+
+                    if (l_SpellInfo == nullptr || l_Victim == nullptr)
                         return;
 
                     if (l_SpellInfo->Id != eSpells::Starsurge)
                         return;
 
-                    l_Caster->CastSpell(l_Caster, eSpells::CelestialFury, true);
+                    if (l_Victim->GetTypeId() == TYPEID_PLAYER)
+                        l_Caster->CastSpell(l_Caster, eSpells::CelestialFury, true);
                 }
             }
 
