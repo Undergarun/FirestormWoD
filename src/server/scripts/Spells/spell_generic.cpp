@@ -5339,8 +5339,97 @@ class spell_gen_demon_hunters_aspect : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Jewel of Hellfire - 187150
+class spell_gen_jewel_of_hellfire_trigger : public SpellScriptLoader
+{
+    public:
+        spell_gen_jewel_of_hellfire_trigger() : SpellScriptLoader("spell_gen_jewel_of_hellfire_trigger") { }
+
+        class spell_gen_jewel_of_hellfire_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_jewel_of_hellfire_trigger_SpellScript);
+
+            enum eSpells
+            {
+                JewelAura = 187174
+            };
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                l_Caster->CastSpell(l_Caster, eSpells::JewelAura, false);
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_gen_jewel_of_hellfire_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_jewel_of_hellfire_trigger_SpellScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Jewel of Hellfire - 187174
+class spell_gen_jewel_of_hellfire : public SpellScriptLoader
+{
+    public:
+        spell_gen_jewel_of_hellfire() : SpellScriptLoader("spell_gen_jewel_of_hellfire") { }
+
+        class  spell_gen_jewel_of_hellfire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_jewel_of_hellfire_AuraScript);
+
+            enum eDatas
+            {
+                MorphMale = 63130,
+                MorphFemale = 63138
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->getGender() == GENDER_MALE)
+                    l_Player->SetDisplayId(eDatas::MorphMale);
+                else
+                    l_Player->SetDisplayId(eDatas::MorphFemale);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_jewel_of_hellfire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_jewel_of_hellfire_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_jewel_of_hellfire_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_jewel_of_hellfire();
+    new spell_gen_jewel_of_hellfire_trigger();
     new spell_gen_demon_hunters_aspect();
     new spell_gen_wyrmhunter_hooks();
     new spell_gen_blood_elfe_illusion();
