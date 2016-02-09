@@ -40,7 +40,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
     uint8 l_PartyIndex = 0;
     bool l_QueueAsGroup = false;
 
-    l_QueueAsGroup  = p_Packet.ReadBit();
+    l_QueueAsGroup  = p_Packet.ReadBit(); ///> l_QueueAsGroup is never read 01/18/16
     l_CommentLenght = p_Packet.ReadBits(8);
 
     p_Packet >> l_PartyIndex;

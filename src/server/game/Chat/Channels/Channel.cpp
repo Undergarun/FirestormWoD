@@ -29,6 +29,8 @@
 Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
  : m_announce(true), _special(false), m_ownership(true), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(0), m_Team(Team)
 {
+    sLog->outAshran("Create channel %s", name.c_str());
+
     m_IsSaved = false;
 
     if (IsWorld())
@@ -707,7 +709,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
     }
     else
     {
-        uint32 messageLength = strlen(what) + 1;
+        uint32 messageLength = strlen(what) + 1; ///< messageLenght is never read 01/18/16
 
         WorldPacket data;
         player->BuildPlayerChat(&data, nullptr, CHAT_MSG_CHANNEL, what, lang, NULL, m_name);

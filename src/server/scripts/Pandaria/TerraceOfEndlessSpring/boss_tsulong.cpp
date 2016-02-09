@@ -1215,7 +1215,7 @@ class spell_sunbeam : public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                if (GetTarget()->IsPlayer())
                 {
                     if (Unit* l_Caster = GetCaster())
                     {
@@ -1233,7 +1233,7 @@ class spell_sunbeam : public SpellScriptLoader
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                if (GetTarget()->IsPlayer())
                 {
                     if (Pet* pet = GetTarget()->ToPlayer()->GetPet())
                         pet->RemoveAurasDueToSpell(SPELL_SUNBEAM_PROTECTION);

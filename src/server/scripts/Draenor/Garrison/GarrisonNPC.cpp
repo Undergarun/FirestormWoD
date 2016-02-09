@@ -15,6 +15,7 @@
 #include "GarrisonMgr.hpp"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
+#include "Buildings/Alliance/Large/AGnomishGearworks.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Large/AMageTower.hpp"
 #include "Buildings/Alliance/Large/AStables.hpp"
@@ -35,6 +36,7 @@
 #include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Large/HGoblinWorkshop.hpp"
 #include "Buildings/Horde/Large/HStables.hpp"
 #include "Buildings/Horde/Large/HSpiritLodge.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
@@ -49,6 +51,7 @@
 #include "Buildings/Horde/Small/HGemBoutique.hpp"
 #include "Buildings/Horde/Small/HScribeQuarters.hpp"
 #include "Buildings/Horde/Small/HEngineeringWorks.hpp"
+#include "Buildings/Horde/HFishingHut.hpp"
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
@@ -299,7 +302,6 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-
         switch (p_ID)
         {
             case CreatureAIDataIDs::PlotInstanceID:
@@ -684,7 +686,7 @@ namespace MS { namespace Garrison
 
     bool npc_garrison_atheeru_palestar::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        p_Player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_CHAT, "Bring back the assemblies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1, "Do you want to respawn the assemblies ?", 10000, false);
         p_Player->SEND_GOSSIP_MENU(MiscDatas::NpcTextID, p_Creature->GetGUID());
 
         return true;
@@ -692,8 +694,11 @@ namespace MS { namespace Garrison
 
     bool npc_garrison_atheeru_palestar::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI())
+        if (p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Creature->AI() && p_Player->HasEnoughMoney((int64)10000))
+        {
+            p_Player->ModifyMoney(-10000);
             p_Creature->AI()->DoAction(1);
+        }
         return true;
     }
 
@@ -798,7 +803,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                m_CheckTimer = 500;
+                m_CheckTimer = 1000;
             }
             else
                 m_CheckTimer -= p_Diff;
@@ -1137,6 +1142,9 @@ void AddSC_Garrison_NPC()
         /// Stables
         new MS::Garrison::npc_FannyFirebeard;
         new MS::Garrison::npc_KeeganFirebeard;
+
+        /// Gnomish Gearworks
+        new MS::Garrison::npc_Zee_Garrison;
     }
 
     /// Horde
@@ -1213,6 +1221,12 @@ void AddSC_Garrison_NPC()
         /// Stables
         new MS::Garrison::npc_Tormak;
         new MS::Garrison::npc_SagePaluna;
+
+        /// Fishing Hut
+        new MS::Garrison::npc_MakJin_Garr;
+
+        /// Goblin Workshop
+        new MS::Garrison::npc_Vee_Garrison;
     }
 
     /// General

@@ -63,7 +63,7 @@ class spell_at_dk_defile : public AreaTriggerEntityScript
                                     /// Update damage
                                     if (SpellInfo const* l_DefileDamage = sSpellMgr->GetSpellInfo(eDefilebSpell::SpellDefileDamage))
                                     {
-                                        int32 l_BasePoints = l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100;
+                                        int32 l_BasePoints = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * float((l_DefileDamage->Effects[EFFECT_0].BasePoints + m_StackDefile * float(l_Defile->Effects[EFFECT_1].BasePoints) / 100) / 100);
 
                                         l_Caster->CastCustomSpell(l_Unit, eDefilebSpell::SpellDefileDamage, &l_BasePoints, nullptr, nullptr, true);
                                     }
@@ -422,7 +422,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
 
             if (l_Caster && l_CreateSpell)
             {
-                float l_Radius = 5.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
@@ -471,7 +471,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
 
             if (l_Caster && l_CreateSpell)
             {
-                float l_Radius = 5.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
@@ -524,7 +524,7 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 
             for (auto itr : targetList)
             {
-                if (l_Caster->IsValidAttackTarget(itr))
+                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && !itr->HasAura(eSpells::IceTrapEffect))
                     itr->CastSpell(itr, IceTrapEffect, true);
             }
 
@@ -574,7 +574,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = 2.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
@@ -622,7 +622,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = 2.0f;
+                float l_Radius = MELEE_RANGE;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
@@ -828,6 +828,7 @@ class spell_at_mage_meteor_burn : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update
 /// Meteor - 177345
 class spell_at_mage_meteor_timestamp : public AreaTriggerEntityScript
 {
@@ -836,8 +837,19 @@ class spell_at_mage_meteor_timestamp : public AreaTriggerEntityScript
 
         enum eSpells
         {
-            MeteorDamage = 153564
+            MeteorDamage = 153564,
+            MeteorVisualEffect = 174556
         };
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(p_AreaTrigger->m_positionX, p_AreaTrigger->m_positionY, p_AreaTrigger->m_positionZ, eSpells::MeteorVisualEffect, true);
+        }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {

@@ -1223,7 +1223,7 @@ bool Guild::SetName(std::string const& name)
 void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
 {
     ByteBuffer memberData;
-    uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
+    uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP)); ///< weekyRepCap is never read 01/18/16
 
     WorldPacket l_Data(SMSG_GUILD_ROSTER, 500 * 1024);
 
@@ -3478,7 +3478,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
         data << uint32(tabId);
         data << uint64(m_bankMoney);
 
-        size_t rempos = data.wpos();
+        size_t rempos = data.wpos(); ///< rempos is never read 01/18/16
         data << uint32(-1);                                      // Item withdraw amount, will be filled later
 
         /*for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)

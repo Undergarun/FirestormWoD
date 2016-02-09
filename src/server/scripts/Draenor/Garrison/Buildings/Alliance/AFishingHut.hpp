@@ -58,11 +58,26 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
-
-        extern char gScriptName[];
     }
 
-    using npc_RonAshton = SimpleSequenceCosmeticScript<npc_RonAshtonData::gScriptName, &npc_RonAshtonData::FnLevel1, &npc_RonAshtonData::FnLevel2, &npc_RonAshtonData::FnLevel3>;
+    using npc_RonAshtonAI = SimpleSequenceCosmeticScriptAI<&npc_RonAshtonData::FnLevel1, &npc_RonAshtonData::FnLevel2, &npc_RonAshtonData::FnLevel3>;
+
+    class npc_RonAshton : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_RonAshton();
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            /// @p_Creature   : Target GameObject instance
+            virtual bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
+
+    };
 
 }   ///< namespace Garrison
 }   ///< namespace MS

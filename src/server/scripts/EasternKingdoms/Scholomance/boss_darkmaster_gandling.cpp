@@ -133,7 +133,7 @@ public:
                 {
                     Unit* target = NULL;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target && target->GetTypeId() == TYPEID_PLAYER)
+                    if (target && target->IsPlayer())
                     {
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);

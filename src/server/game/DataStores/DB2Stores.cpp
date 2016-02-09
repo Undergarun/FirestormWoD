@@ -868,7 +868,7 @@ TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, P
 
         if (node == connectedNode)
         {
-            dist = 0.0f;
+            dist = 0.0f; ///< dist is never read 01/18/16
             heuristic = connectedNode;
             break;
         }

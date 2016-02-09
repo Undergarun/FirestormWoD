@@ -459,7 +459,7 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
 {
     // mark the credit as pvp if victim is player
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->IsPlayer())
         _isPvP = true;
     // or if its owned by player and its not a vehicle
     else if (IS_PLAYER_GUID(victim->GetCharmerOrOwnerGUID()))
@@ -583,7 +583,7 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
         // 4.1. Give honor (player must be alive and not on BG).
         _RewardHonor(player);
         // 4.1.1 Send player killcredit for quests with PlayerSlain
-        if (_victim->GetTypeId() == TYPEID_PLAYER)
+        if (_victim->IsPlayer())
             player->KilledPlayerCredit();
     }
     // Give XP only in PvE or in battlegrounds.
@@ -936,6 +936,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
 
+    m_glyphsChanged = false;
+
     for (uint8 i = 0; i < BASEMOD_END; ++i)
     {
         m_auraBaseMod[i][FLAT_MOD] = 0.0f;
@@ -1003,7 +1005,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     _lastTargetedGO = 0;
 
-    m_PersonnalXpRate = 0;
+    m_PersonnalXpRate = sWorld->getRate(RATE_XP_KILL);
 
     m_knockBackTimer = 0;
 
@@ -1562,7 +1564,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
                 if (msg == EQUIP_ERR_OK)
                 {
                     RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                    pItem = StoreItem(sDest, pItem, true);
+                    pItem = StoreItem(sDest, pItem, true); ///< pItem is never read 01/18/16
                 }
             }
         }
@@ -1653,7 +1655,7 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount, ItemC
 
 void Player::RewardCurrencyAtKill(Unit* p_Victim)
 {
-    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+    if (!p_Victim || p_Victim->IsPlayer())
         return;
 
     if (!p_Victim->ToCreature())
@@ -2057,7 +2059,7 @@ void Player::Update(uint32 p_time)
     }
 
     // Zone Skip Update
-    if (sObjectMgr->IsSkipZone(GetZoneId()) || isAFK())
+    if ((sObjectMgr->IsSkipZoneEnabled() && sObjectMgr->IsSkipZone(GetZoneId())) || isAFK())
     {
         _skipCount++;
         _skipDiff += p_time;
@@ -2241,7 +2243,7 @@ void Player::Update(uint32 p_time)
                         }
                     }
                     // Shadow Blade - Main Hand
-                    else if (HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
+                    else if (getClass() == CLASS_ROGUE && HasAura(121471) && !HasAura(137586) && IsWithinLOSInMap(victim))
                     {
                         if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                             return;
@@ -2249,7 +2251,7 @@ void Player::Update(uint32 p_time)
                         CastSpell(victim, 121473, true);
                         resetAttackTimer(WeaponAttackType::BaseAttack);
                     }
-                    else if (HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
+                    else if (getClass() == CLASS_ROGUE && HasAura(137586) && HasAura(121471) && IsWithinLOSInMap(victim))
                     {
                         if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
                             return;
@@ -2353,7 +2355,7 @@ void Player::Update(uint32 p_time)
                     uint32 l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area;
 
                     l_Map->GetZoneAndAreaId(l_DraenorBaseMap_Zone, l_DraenorBaseMap_Area, m_positionX, m_positionY, m_positionZ);
-                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry();
+                    const GarrSiteLevelEntry * l_GarrisonSiteEntry = m_Garrison->GetGarrisonSiteLevelEntry(); ///< l_garrisonSiteEntry is never read 01/18/16
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
@@ -3409,7 +3411,7 @@ void Player::RegenerateAll()
             break;
         case Classes::CLASS_WARLOCK:
         {
-            switch (GetSpecializationId(GetActiveSpec()))
+            switch (GetSpecializationId())
             {
                 case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
                     m_demonicFuryPowerRegenTimerCount += m_RegenPowerTimer;
@@ -3491,13 +3493,13 @@ void Player::RegenerateAll()
         m_chiPowerRegenTimerCount -= 15000;
     }
 
-    if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY))
+    if (m_demonicFuryPowerRegenTimerCount >= 100 && l_Class == CLASS_WARLOCK && (GetSpecializationId() == SPEC_WARLOCK_DEMONOLOGY))
     {
         Regenerate(POWER_DEMONIC_FURY);
         m_demonicFuryPowerRegenTimerCount -= 100;
     }
 
-    if (m_soulShardsRegenTimerCount >= 20000 && l_Class == CLASS_WARLOCK && (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION))
+    if (m_soulShardsRegenTimerCount >= 20000 && l_Class == CLASS_WARLOCK && (GetSpecializationId() == SPEC_WARLOCK_AFFLICTION))
     {
         Regenerate(POWER_SOUL_SHARDS);
         m_soulShardsRegenTimerCount -= 20000;
@@ -3518,7 +3520,7 @@ void Player::Regenerate(Powers power)
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
         return;
 
-    /// Skip regeneration for power type we cannot have
+    /// Skip regeneration for power type we cannot have // Custom MoP script
     uint32 powerIndex = GetPowerIndex(power, getClass());
     if (powerIndex == MAX_POWERS)
         return;
@@ -3746,7 +3748,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!inFight || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = HealthIncreaseRate;
+        addvalue = HealthIncreaseRate; ///< addvalue is never read 01/18/16
         if (getLevel() < 15)
             addvalue = (0.20f*((float)GetMaxHealth())/getLevel()*HealthIncreaseRate);
         else
@@ -4827,7 +4829,7 @@ void Player::InitSpellForLevel()
         l_SpellList.insert(l_TalentPlaceHolderSpell);
 
     uint8 l_Level = getLevel();
-    uint32 l_SpecializationId = GetSpecializationId(GetActiveSpec());
+    uint32 l_SpecializationId = GetSpecializationId();
 
     for (uint32 l_SpellId : l_SpellList)
     {
@@ -6474,7 +6476,7 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
         return;
     }
 
-    if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
+    if (GetSpecializationId() == SpecIndex::SPEC_NONE)
         return;
 
     /// Remove specialization Glyphs
@@ -6663,7 +6665,7 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
 uint32 Player::GetRoleForGroup(uint32 specializationId)
 {
     if (!specializationId)
-        specializationId = GetSpecializationId(GetActiveSpec());
+        specializationId = GetSpecializationId();
 
     return GetRoleBySpecializationId(specializationId);
 }
@@ -6680,11 +6682,11 @@ uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 
 bool Player::IsActiveSpecTankSpec() const
 {
-    if (GetSpecializationId(GetActiveSpec()) == SPEC_PALADIN_PROTECTION ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_WARRIOR_PROTECTION ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_DRUID_GUARDIAN ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_DK_BLOOD ||
-        GetSpecializationId(GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+    if (GetSpecializationId() == SPEC_PALADIN_PROTECTION ||
+        GetSpecializationId() == SPEC_WARRIOR_PROTECTION ||
+        GetSpecializationId() == SPEC_DRUID_GUARDIAN ||
+        GetSpecializationId() == SPEC_DK_BLOOD ||
+        GetSpecializationId() == SPEC_MONK_BREWMASTER)
         return true;
     return false;
 }
@@ -7858,6 +7860,10 @@ void Player::UpdateLocalChannels(uint32 newZone)
         if (ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i))
         {
             Channel* usedChannel = NULL;
+
+			auto itr = std::find_if(m_channels.begin(), m_channels.end(), [&i](Channel const* var) { return var && var->GetChannelId() == i; });
+			if (itr != m_channels.end())
+				usedChannel = *itr;
 
             for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
             {
@@ -9189,7 +9195,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
 //Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
-    if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
+    if (!victim || victim->IsPlayer())
         return;
 
     if (victim->ToCreature()->IsReputationGainDisabled())
@@ -9538,7 +9544,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         if (!victim || victim == this || victim ->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
 
-        if (victim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->IsPlayer())
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
@@ -9808,7 +9814,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
     if (!p_IgnoreMultipliers)
         p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
 
-    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1; ///< l_precision is never read 01/18/16
     uint32 l_OldTotalCount          = 0;
     uint32 l_OldWeekCount           = 0;
     uint32 l_OldSeasonTotalCount    = 0;
@@ -10696,7 +10702,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                     break;
                 case ITEM_MOD_AGILITY:
                 {
-                    if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10705,7 +10711,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                 }
                 case ITEM_MOD_STRENGTH:
                 {
-                    if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10714,7 +10720,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                 }
                 case ITEM_MOD_INTELLECT:
                 {
-                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10723,7 +10729,7 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                 }
                 case ITEM_MOD_SPIRIT:
                 {
-                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                    if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                         break;
 
                     HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10909,7 +10915,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 break;
             case ITEM_MOD_AGILITY:
             {
-                if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats); 
@@ -10918,7 +10924,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
             case ITEM_MOD_STRENGTH:
             {
-                if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_STRENGTH && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), applyStats);
@@ -10927,7 +10933,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
             case ITEM_MOD_INTELLECT:
             {
-                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), applyStats);
@@ -10936,7 +10942,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
             case ITEM_MOD_SPIRIT:
             {
-                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId(GetActiveSpec()))
+                if (GetPrimaryStat() != STAT_INTELLECT && GetSpecializationId())
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), applyStats);
@@ -11254,7 +11260,7 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
     {
         case CLASS_DEATH_KNIGHT:
         {
-            switch (GetSpecializationId(GetActiveSpec()))
+            switch (GetSpecializationId())
             {
                 case SPEC_DK_FROST:
                     if (getLevel() < 74)
@@ -15735,7 +15741,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
     // Custom MoP script
     // Jab Override Driver
-    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+    if (getClass() == CLASS_MONK)
     {
         Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -15744,7 +15750,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         {
             RemoveAura(108561); // 2H Staff Override
             RemoveAura(115697); // 2H Polearm Override
-            RemoveAura(115689); // D/W Axes
+            RemoveAura(115689); // D/W Axes// Way of the Monk - 120277
             RemoveAura(115694); // D/W Maces
             RemoveAura(115696); // D/W Swords
 
@@ -15779,59 +15785,50 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         }
     }
     // Way of the Monk - 120277
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (getClass() == CLASS_MONK && HasAura(120277))
     {
-        if (getClass() == CLASS_MONK && HasAura(120277))
-        {
-            RemoveAurasDueToSpell(120275);
-            RemoveAurasDueToSpell(108977);
+        RemoveAurasDueToSpell(120275);
+        RemoveAurasDueToSpell(108977);
 
-            uint32 trigger = 0;
-            if (IsTwoHandUsed())
-                trigger = 120275;
-            else
-            {
-                Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                    trigger = 108977;
-            }
-
-            if (trigger)
-                CastSpell(this, trigger, true);
-
-            ToPlayer()->UpdateRating(CR_HASTE_MELEE);
-        }
-    }
-    // Assassin's Resolve - 84601
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
+        uint32 trigger = 0;
+        if (IsTwoHandUsed())
+            trigger = 120275;
+        else
         {
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-            {
-                if (HasAura(84601))
-                    RemoveAura(84601);
-
-                CastSpell(this, 84601, true);
-            }
-            else
-                RemoveAura(84601);
+            if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                trigger = 108977;
         }
+
+        if (trigger)
+            CastSpell(this, trigger, true);
+
+        UpdateRating(CR_HASTE_MELEE);
+    }
+    // Assassin's Resolve - 84601
+    if (getClass() == CLASS_ROGUE && GetSpecializationId() == SPEC_ROGUE_ASSASSINATION)
+    {
+        Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+        if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
+        {
+            if (HasAura(84601))
+                RemoveAura(84601);
+
+            CastSpell(this, 84601, true);
+        }
+        else
+            RemoveAura(84601);
     }
     /// Single-Minded Fury - 81099
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
     {
-        if (getClass() == CLASS_WARRIOR && ToPlayer()->GetSpecializationId() == SPEC_WARRIOR_FURY)
+        if (HasAura(81099))
         {
-            if (HasAura(81099))
-            {
-                RemoveAura(81099);
-                AddAura(81099, this);
-            }
+            RemoveAura(81099);
+            AddAura(81099, this);
         }
     }
 
@@ -16671,7 +16668,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
         // Custom MoP script
         // Jab Override Driver
-        if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
+        if (getClass() == CLASS_MONK)
         {
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
@@ -16714,48 +16711,42 @@ void Player::SwapItem(uint16 src, uint16 dst)
             }
         }
         // Way of the Monk - 120277
-        if (GetTypeId() == TYPEID_PLAYER)
+        if (getClass() == CLASS_MONK && HasAura(120277))
         {
-            if (getClass() == CLASS_MONK && HasAura(120277))
-            {
-                RemoveAurasDueToSpell(120275);
-                RemoveAurasDueToSpell(108977);
+            RemoveAurasDueToSpell(120275);
+            RemoveAurasDueToSpell(108977);
 
-                uint32 trigger = 0;
-                if (IsTwoHandUsed())
-                    trigger = 120275;
-                else
-                {
-                    Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                    Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                    if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                        trigger = 108977;
-                }
-
-                if (trigger)
-                    CastSpell(this, trigger, true);
-
-                ToPlayer()->UpdateRating(CR_HASTE_MELEE);
-            }
-        }
-        // Assassin's Resolve - 84601
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
+            uint32 trigger = 0;
+            if (IsTwoHandUsed())
+                trigger = 120275;
+            else
             {
                 Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
                 Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-                if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-                {
-                    if (HasAura(84601))
-                        RemoveAura(84601);
-
-                    CastSpell(this, 84601, true);
-                }
-                else
-                    RemoveAura(84601);
+                if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
+                    trigger = 108977;
             }
+
+            if (trigger)
+                CastSpell(this, trigger, true);
+
+            UpdateRating(CR_HASTE_MELEE);
+        }
+        // Assassin's Resolve - 84601
+        if (getClass() == CLASS_ROGUE && GetSpecializationId() == SPEC_ROGUE_ASSASSINATION)
+        {
+            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
+            {
+                if (HasAura(84601))
+                    RemoveAura(84601);
+
+                CastSpell(this, 84601, true);
+            }
+            else
+                RemoveAura(84601);
         }
 
         return;
@@ -16990,7 +16981,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                     if (bagItem->m_lootGenerated)
                     {
                         m_session->DoLootRelease(GetLootGUID());
-                        released = true;                    // not realy needed here
+                        released = true;                    // not realy needed here ///< yeah because released is never read 01/18/16
                         break;
                     }
                 }
@@ -17016,7 +17007,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
                 // found empty
                 if (!m_items[i])
                 {
-                    slot = i;
+                    slot = i; ///< slot is never read 01/18/16
                     break;
                 }
 
@@ -18618,7 +18609,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
                 return true;
             }
 
-            uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
+            uint32 l_Specialization = GetSpecializationId();
             if (!l_Specialization)
                 l_Specialization = GetDefaultSpecId();
 
@@ -18739,7 +18730,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         uint32 limittime = quest->GetLimitTime();
 
         // shared timed quest
-        if (questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
+        if (questGiver && questGiver->IsPlayer())
             limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
 
         AddTimedQuest(quest_id);
@@ -18840,7 +18831,8 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
         {
             case QUEST_OBJECTIVE_TYPE_ITEM:
             {
-                DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                if (!(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
                 break;
             }
             case QUEST_OBJECTIVE_TYPE_CURRENCY:
@@ -18889,7 +18881,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
                 {
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec()), getLevel()) && !l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(), getLevel()) && !l_ItemTemplate->HasClassSpec(getClass(), getLevel()))
                         continue;
                     break;
                 }
@@ -19935,8 +19927,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
             {
                 m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM)
-                    DestroyItemCount(l_Objective.ObjectID, GetItemCount(l_Objective.ObjectID), true);
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
             }
         }
 
@@ -21036,8 +21028,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
             AddAura(26013, this);
         if (DungeonDesert)
             AddAura(71041, this);
-        if (MalDeRez)
-            AddAura(15007, this);
+        /*if (MalDeRez)
+            AddAura(15007, this);*/
 
         mustResurrectFromUnlock = HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST);
         RelocateToHomebind();
@@ -22340,7 +22332,7 @@ void Player::_LoadMail(PreparedQueryResult p_MailResult)
             m->receiver       = fields[3].GetUInt32();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
-            bool has_items    = fields[6].GetBool();
+            bool has_items    = fields[6].GetBool(); ///< hasitem is never read 01/18/16
             m->expire_time    = time_t(fields[7].GetUInt32());
             m->deliver_time   = time_t(fields[8].GetUInt32());
             m->money          = fields[9].GetUInt64();
@@ -24293,7 +24285,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && !(spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+                    && sWorld->CanBeSaveInLoginDatabase())
                 {
                     /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, itr->first);
@@ -24317,7 +24309,7 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
             {
                 if (GetSession() && ((spell->IsAbilityOfSkillType(SKILL_MOUNT) && ((spell->AttributesEx10 & SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE) == 0))
                     || spell->IsAbilityOfSkillType(SKILL_MINIPET))
-                    && sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+                    && sWorld->CanBeSaveInLoginDatabase())
                 {
                     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_SPELL);
                     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -24806,7 +24798,7 @@ void Player::RemovePet(Pet* pet, PetSlot mode, bool returnreagent, bool stampede
     // Soul Link
     if (Unit* owner = pet->GetOwner())
     {
-        if (owner->ToPlayer() && owner->ToPlayer()->HasSpell(108415))
+        if (owner->IsPlayer() && owner->ToPlayer()->HasSpell(108415))
         {
             owner->RemoveAura(108446);
             pet->RemoveAura(108446);
@@ -25155,8 +25147,7 @@ void Player::VehicleSpellInitialize()
             continue;
         }
 
-        ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(l_Vehicle->GetEntry(), l_SpellId);
-        if (!sConditionMgr->IsObjectMeetToConditions(this, l_Vehicle, conditions))
+        if (!sConditionMgr->IsObjectMeetingVehicleSpellConditions(l_Vehicle->GetEntry(), l_SpellId, this, l_Vehicle))
         {
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", l_Vehicle->ToCreature()->GetEntry(), l_SpellId);
             l_Data << uint16(0) << uint8(0) << uint8(l_I + 8);
@@ -28186,13 +28177,24 @@ void Player::ResetGarrisonDatas()
         if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
         {
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
-            {
                 SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
-                GetBattleground();
-            }
 
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
                 SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+        }
+
+        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::GnomishGearworks_GoblinWorkshop_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(MS::Garrison::BuildingType::Workshop);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
         }
     }
 }
@@ -28429,16 +28431,18 @@ void Player::UpdateForQuestWorldObjects()
             {
                 //! This code doesn't look right, but it was logically converted to condition system to do the exact
                 //! same thing it did before. It definitely needs to be overlooked for intended functionality.
-                ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), _itr->second.spellId);
-                bool buildUpdateBlock = false;
-                for (ConditionList::const_iterator jtr = conds.begin(); jtr != conds.end() && !buildUpdateBlock; ++jtr)
-                    if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN)
-                        buildUpdateBlock = true;
-
-                if (buildUpdateBlock)
+                if (ConditionContainer const* conds = sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), _itr->second.spellId))
                 {
-                    obj->BuildCreateUpdateBlockForPlayer(&udata, this);
-                    break;
+                    bool buildUpdateBlock = false;
+                    for (ConditionContainer::const_iterator jtr = conds->begin(); jtr != conds->end() && !buildUpdateBlock; ++jtr)
+                        if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN)
+                            buildUpdateBlock = true;
+
+                    if (buildUpdateBlock)
+                    {
+                        obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+                        break;
+                    }
                 }
             }
         }
@@ -28729,7 +28733,7 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 
 void Player::RewardPersonnalCurrencies(Unit* p_Victim)
 {
-    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+    if (!p_Victim || p_Victim->IsPlayer())
         return;
 
     if (!p_Victim->ToCreature())
@@ -29781,6 +29785,7 @@ void Player::InitRunes()
     }
 
     UpdateAllRunesRegen();
+    SetCurrentRuneForBloodTap(NUM_RUNE_TYPES);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
@@ -30322,6 +30327,22 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
         CastSpell(this, 118922, true);
 
+    if (GetLastUsedLeapBackSpell() != 0)
+    {
+        /// Disengage, give PostHaste just after landing
+        if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
+            CastSpell(this, 118922, true);
+
+        /// Death Grip, trigger Chains of Ice after landing
+        if (GetLastUsedLeapBackSpell() == 49575)
+        {
+            if (AuraPtr l_DeathGrip = GetAura(49560))
+                if (Unit* l_Caster = l_DeathGrip->GetCaster())
+                    if (l_Caster->getClass() == CLASS_DEATH_KNIGHT && l_Caster->HasSpell(157367))
+                        l_Caster->CastSpell(this, 45524, true);
+        }
+    }
+
     ClearLastUsedLeapBackSpell();
 }
 
@@ -30523,9 +30544,7 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
         if (!itr->second.IsFitToRequirements(this, c))
             return false;
 
-        ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(c->GetEntry(), itr->second.spellId);
-        ConditionSourceInfo info = ConditionSourceInfo(const_cast<Player*>(this), const_cast<Creature*>(c));
-        if (!sConditionMgr->IsObjectMeetToConditions(info, conds))
+        if (!sConditionMgr->IsObjectMeetingSpellClickConditions(c->GetEntry(), itr->second.spellId, const_cast<Player*>(this), const_cast<Creature*>(c)))
             return false;
     }
 
@@ -30554,7 +30573,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
 
             if (l_SpellInfo && !l_SpellInfo->m_TalentIDs.empty() && itr->second->state != PLAYERSPELL_REMOVED)
             {
-                uint32 l_SpecID = GetSpecializationId(GetActiveSpec());
+                uint32 l_SpecID = GetSpecializationId();
                 uint16 l_Talent = 0;
 
                 for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
@@ -30917,14 +30936,18 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
             _talentMgr->SpecInfo[spec].Glyphs[i] = fields[i + 1].GetUInt16();
     }
     while (result->NextRow());
+
+    m_glyphsChanged = false;
 }
 
 void Player::_SaveGlyphs(SQLTransaction& trans)
 {
+    if (!m_glyphsChanged)
+        return;
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-
 
     for (uint8 spec = 0; spec < GetSpecsCount(); ++spec)
     {
@@ -30940,6 +30963,8 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
 
         trans->Append(stmt);
     }
+
+    m_glyphsChanged = false;
 }
 
 void Player::_LoadTalents(PreparedQueryResult result)
@@ -32549,7 +32574,7 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
             learnSpell(111896, false);  ///< WARLOCK_GRIMOIRE_SUCCUBUS
             learnSpell(111897, false);  ///< WARLOCK_GRIMOIRE_FELHUNTER
 
-            if (GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+            if (GetSpecializationId() == SPEC_WARLOCK_DEMONOLOGY)
             {
                 learnSpell(111898, false);  ///< WARLOCK_GRIMOIRE_FELGUARD
                 if (HasAura(152107)) ///< Demonic Servitude
@@ -32904,11 +32929,11 @@ uint32 Player::GetUnlockedPetBattleSlot()
         l_SlotCount++;
 
     /// Newbie
-    if (GetAchievementMgr().HasAchieved(7433))
+    if (GetAchievementMgr().HasAccountAchieved(7433))
         l_SlotCount++;
 
     /// Just a Pup
-    if (GetAchievementMgr().HasAchieved(6566))
+    if (GetAchievementMgr().HasAccountAchieved(6566))
         l_SlotCount++;
 
     return l_SlotCount;
@@ -33232,7 +33257,7 @@ void Player::SendToyBox()
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
     /// Save toys to database only for live realms
-    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) != REALM_ZONE_DEVELOPMENT)
+    if (sWorld->CanBeSaveInLoginDatabase())
     {
         PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
         l_Statement->setUInt32(0, GetSession()->GetAccountId());
@@ -33407,6 +33432,14 @@ void Player::DeleteGarrison()
     m_Garrison->DeleteFromDB(GetGUID(), l_Transaction);
     CharacterDatabase.CommitTransaction(l_Transaction);
 
+    if (IsInGarrison())
+    {
+        if (GetTeamId() == TEAM_ALLIANCE)
+            TeleportTo(0, -8866.55f, 671.93f, 97.90f, 5.31f);
+        else if (GetTeamId() == TEAM_HORDE)
+            TeleportTo(1, 1577.30f, -4453.64f, 15.68f, 1.84f);
+    }
+
     delete m_Garrison;
     m_Garrison = nullptr;
 }
@@ -33414,7 +33447,7 @@ void Player::DeleteGarrison()
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;
-    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(GetSpecializationId(GetActiveSpec())))
+    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(GetSpecializationId()))
         magicNumber = spec->MainStat;
     else if (ChrClassesEntry const* playerClass = sChrClassesStore.LookupEntry(getClass()))
         magicNumber = playerClass->MainStat;
@@ -34174,7 +34207,7 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
 
-    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
+    if (!sWorld->CanBeSaveInLoginDatabase())
         return true;
 
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_HEIRLOOM);

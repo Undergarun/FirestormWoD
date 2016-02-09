@@ -762,7 +762,7 @@ class npc_injured_patient : public CreatureScript
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
+                if (caster->IsPlayer() && me->isAlive() && spell->Id == 20804)
                 {
                     if ((CAST_PLR(caster)->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (CAST_PLR(caster)->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
                         if (DoctorGUID)
@@ -1153,10 +1153,11 @@ class npc_guardian : public CreatureScript
         }
 };
 
-/*######
-## npc_mount_vendor
-######*/
+/////////////////////////
+/// npc_mount_vendor
+/////////////////////////
 
+/// Used for faction restriction on mount vendor.
 class npc_mount_vendor : public CreatureScript
 {
     public:
@@ -1173,69 +1174,78 @@ class npc_mount_vendor : public CreatureScript
 
             switch (vendor)
             {
-                case 384:                                           //Katie Hunter
-                case 1460:                                          //Unger Statforth
-                case 2357:                                          //Merideth Carlson
-                case 4885:                                          //Gregor MacVince
+                case 384:                                           ///< Katie Hunter
+                case 1460:                                          ///< Unger Statforth
+                case 2357:                                          ///< Merideth Carlson
+                case 4885:                                          ///< Gregor MacVince
                     if (player->GetReputationRank(72) != REP_EXALTED && race != RACE_HUMAN)
                         player->SEND_GOSSIP_MENU(5855, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 1261:                                          //Veron Amberstill
+                case 1261:                                          ///< Veron Amberstill
                     if (player->GetReputationRank(47) != REP_EXALTED && race != RACE_DWARF)
                         player->SEND_GOSSIP_MENU(5856, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 3362:                                          //Ogunaro Wolfrunner
+                case 3362:                                          ///< Ogunaro Wolfrunner
                     if (player->GetReputationRank(76) != REP_EXALTED && race != RACE_ORC)
                         player->SEND_GOSSIP_MENU(5841, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 3685:                                          //Harb Clawhoof
+                case 3685:                                          ///< Harb Clawhoof
                     if (player->GetReputationRank(81) != REP_EXALTED && race != RACE_TAUREN)
                         player->SEND_GOSSIP_MENU(5843, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 4730:                                          //Lelanai
+                case 4730:                                          ///< Lelanai
                     if (player->GetReputationRank(69) != REP_EXALTED && race != RACE_NIGHTELF)
                         player->SEND_GOSSIP_MENU(5844, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 4731:                                          //Zachariah Post
+                case 4731:                                          ///< Zachariah Post
                     if (player->GetReputationRank(68) != REP_EXALTED && race != RACE_UNDEAD_PLAYER)
                         player->SEND_GOSSIP_MENU(5840, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 7952:                                          //Zjolnir
+                case 7952:                                          ///< Zjolnir
                     if (player->GetReputationRank(530) != REP_EXALTED && race != RACE_TROLL)
                         player->SEND_GOSSIP_MENU(5842, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 7955:                                          //Milli Featherwhistle
+                case 7955:                                          ///< Milli Featherwhistle
                     if (player->GetReputationRank(54) != REP_EXALTED && race != RACE_GNOME)
                         player->SEND_GOSSIP_MENU(5857, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 16264:                                         //Winaestra
+                case 16264:                                         ///< Winaestra
                     if (player->GetReputationRank(911) != REP_EXALTED && race != RACE_BLOODELF)
                         player->SEND_GOSSIP_MENU(10305, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 17584:                                         //Torallius the Pack Handler
+                case 17584:                                         ///< Torallius the Pack Handler
                     if (player->GetReputationRank(930) != REP_EXALTED && race != RACE_DRAENEI)
                         player->SEND_GOSSIP_MENU(10239, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 48510:                                         //Kall Worthalon
+                case 48510:                                         ///< Kall Worthalon
                     if (player->GetReputationRank(1133) != REP_EXALTED && race != RACE_GOBLIN)
                         player->SEND_GOSSIP_MENU(30002, creature->GetGUID());
                     else canBuy = true;
                     break;
-                case 65068:                                         //Old Whitenose
-                    canBuy = true;
+                case 55285:                                         ///< Astrid Langstrump
+                    if (player->GetReputationRank(1134) != REP_EXALTED && race != RACE_WORGEN)
+                        player->SEND_GOSSIP_MENU(30002, creature->GetGUID());
+                    else canBuy = true;
                     break;
-                case 66022:                                         //Turtlemaster Odai
-                    canBuy = true;
+                case 65068:                                         ///< Old Whitenose
+                    if (player->GetReputationRank(1353) != REP_EXALTED && race != RACE_PANDAREN_ALLI)
+                        player->SEND_GOSSIP_MENU(300002, creature->GetGUID()); ///< unk id
+                    else canBuy = true;
+                    break;
+                case 66022:                                         ///< Turtlemaster Odai
+                    if (player->GetReputationRank(1352) != REP_EXALTED && race != RACE_PANDAREN_HORDE)
+                        player->SEND_GOSSIP_MENU(300002, creature->GetGUID()); ///< unk id
+                    else canBuy = true;
                     break;
             }
 
@@ -1945,6 +1955,10 @@ class npc_mirror_image : public CreatureScript
                 events.Update(p_Diff);
 
                 Unit* l_Victim = me->getVictim();
+                Player* l_Owner = me->GetOwner()->ToPlayer();
+                if (!l_Owner)
+                    return;
+
                 if (l_Victim)
                 {
                     if (CanAIAttack(l_Victim))
@@ -1954,9 +1968,9 @@ class npc_mirror_image : public CreatureScript
                         {
                             if (uint32 l_SpellId = events.ExecuteEvent())
                             {
-                                DoCast(l_SpellId);
+                                me->CastSpell(l_Victim, l_SpellId, false);
                                 uint32 l_CastTime = me->GetCurrentSpellCastTime(l_SpellId);
-                                events.ScheduleEvent(l_SpellId, (l_CastTime ? l_CastTime : 500) + GetAISpellInfo(l_SpellId)->realCooldown);
+                                events.ScheduleEvent(l_SpellId, 0);
                             }
                         }
                     }
@@ -1978,7 +1992,12 @@ class npc_mirror_image : public CreatureScript
                         /// No target? Let's see if our owner has a better target for us
                         if (Unit* l_Owner = me->GetOwner())
                         {
-                            Unit* l_OwnerVictim = l_Owner->getVictim();
+                            Unit* l_OwnerVictim = nullptr;
+                            if (Player* l_Player = l_Owner->ToPlayer())
+                                l_OwnerVictim = l_Player->GetSelectedUnit();
+                            else
+                                l_OwnerVictim = l_Owner->getVictim();
+
                             if (l_OwnerVictim && me->canCreatureAttack(l_OwnerVictim))
                                 l_Target = l_OwnerVictim;
                         }
@@ -2143,7 +2162,7 @@ class npc_lightwell : public CreatureScript
 
                 m_RenewTimer = 1000;
 
-                if (p_Owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner->IsPlayer())
                     m_OwnerGUID = p_Owner->GetGUID();
 
                 me->SetMaxHealth(p_Owner->GetMaxHealth());
@@ -3676,7 +3695,7 @@ class npc_past_self : public CreatureScript
 
             void IsSummonedBy(Unit* p_Owner)
             {
-                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner && p_Owner->IsPlayer())
                 {
                     m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
                     m_Health = p_Owner->GetHealth();
@@ -3851,7 +3870,7 @@ class npc_void_tendrils : public CreatureScript
             void IsSummonedBy(Unit* owner)
             {
 
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                 {
                     me->SetLevel(owner->getLevel());
 
@@ -3916,7 +3935,7 @@ class npc_spectral_guise : public CreatureScript
 
             void IsSummonedBy(Unit* owner)
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->IsPlayer())
                 {
                     me->SetLevel(owner->getLevel());
                     me->SetMaxHealth(owner->GetMaxHealth() / 2);

@@ -526,7 +526,7 @@ class ScriptMgr
         /// @p_Entry              : Auction who expired
         void OnAuctionExpire(AuctionHouseObject* p_AuctionHouseObject, AuctionEntry* p_Entry);
 
-        /// FormulaScript
+    /// FormulaScript
     public:
         /// Called after calculating honor.
         /// @p_Honor      : Dest honor
@@ -569,7 +569,7 @@ class ScriptMgr
         /// @p_IsRaid : Is a raid group
         void OnGroupRateCalculation(float& p_Rate, uint32 p_Count, bool p_IsRaid);
 
-        /// AchievementCriteriaScript
+    /// AchievementCriteriaScript
     public:
         /// Called when an additional criteria is checked.
         /// @p_ScriptID : Script ID
@@ -577,14 +577,14 @@ class ScriptMgr
         /// @p_Target   : Target instance
         bool OnCriteriaCheck(uint32 p_ScriptID, Player* p_Source, Unit* p_Target);
 
-        /// ConditionScript
+    /// ConditionScript
     public:
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo);
+        bool OnConditionCheck(Condition const* p_Condition, ConditionSourceInfo& p_SourceInfo);
 
-        /// PlayerScript
+    /// PlayerScript
     public:
         
         /// Called when a player kills another player
@@ -756,6 +756,11 @@ class ScriptMgr
         /// Called when a player updates his movement
         /// @p_Player : Player instance
         void OnPlayerUpdateMovement(Player* p_Player);
+        /// Called when a spline step is done
+        /// @p_Player   : Player instance
+        /// @p_MoveType : Movement type
+        /// @p_ID       : Movement ID
+        void OnPlayerMovementInform(Player* p_Player, uint32 p_MoveType, uint32 p_ID);
 
         /// Called when player accepts some quest
         /// @p_Player : Player instance

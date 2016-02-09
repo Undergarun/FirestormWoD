@@ -93,7 +93,7 @@ class spell_item_deviate_fish: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -263,7 +263,7 @@ class spell_item_make_a_wish: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -427,7 +427,7 @@ class spell_item_noggenfogger_elixir: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -483,7 +483,7 @@ class spell_item_savory_deviate_delight: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -611,7 +611,7 @@ class spell_item_underbelly_elixir: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -823,7 +823,7 @@ class spell_item_book_of_glyph_mastery: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             SpellCastResult CheckRequirement()
@@ -1074,7 +1074,7 @@ class spell_item_purify_helboar_meat: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -1090,7 +1090,7 @@ class spell_item_purify_helboar_meat: public SpellScriptLoader
                 if (roll_chance_i(50))
                     caster->CastSpell(caster, SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
                 else
-                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                    if (caster->IsPlayer())
                         caster->ToPlayer()->AddItem(ITEM_PURIFIED_HELBOAR_MEAT, 1);
             }
 
@@ -1382,7 +1382,7 @@ class spell_item_demon_broiled_surprise: public SpellScriptLoader
 
             bool Load()
             {
-               return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+               return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -1633,7 +1633,7 @@ class spell_item_teach_language: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -1679,7 +1679,7 @@ class spell_item_rocket_boots: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -1821,7 +1821,7 @@ class spell_item_chicken_cover: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -2082,14 +2082,14 @@ class spell_item_gen_alchemy_mop: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleOnHit()
             {
                 uint8 chance = urand(1,5); // not official, todo: find the rate
                 Player* caster = GetCaster()->ToPlayer();
-                if (caster && GetCaster()->GetTypeId() == TYPEID_PLAYER && !HasDiscoveredAllSpells(114751, GetCaster()->ToPlayer()) && chance == 1)
+                if (caster && GetCaster()->IsPlayer() && !HasDiscoveredAllSpells(114751, GetCaster()->ToPlayer()) && chance == 1)
                 {
                     if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(114751, caster->ToPlayer()))
                         caster->learnSpell(discoveredSpellId, false);
@@ -2119,7 +2119,7 @@ class spell_alchemist_rejuvenation: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleOnHit()
@@ -2203,7 +2203,7 @@ class spell_item_amber_prison: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -2217,7 +2217,7 @@ class spell_item_amber_prison: public SpellScriptLoader
             {
                 if (Unit* target = GetExplTargetUnit())
                 {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         return SPELL_FAILED_TARGET_IS_PLAYER;
                     if (target->GetTypeId() == TYPEID_UNIT && target->getLevel() > 94)
                         return SPELL_FAILED_HIGHLEVEL;
@@ -2731,7 +2731,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                    if (Creature* l_Chauffeur = sObjectAccessor->FindCreature(l_Target->GetPersonnalChauffeur()))
                         l_Chauffeur->EnterVehicle(l_Target);
                 }
             }
@@ -2740,7 +2740,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (Creature* l_Chauffeur = Creature::GetCreature(*l_Target, l_Target->GetPersonnalChauffeur()))
+                    if (Creature* l_Chauffeur = sObjectAccessor->FindCreature(l_Target->GetPersonnalChauffeur()))
                         l_Chauffeur->DespawnOrUnsummon();
                 }
             }

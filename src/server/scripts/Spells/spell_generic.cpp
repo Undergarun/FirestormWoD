@@ -289,7 +289,7 @@ class spell_gen_pet_summoned: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -636,7 +636,7 @@ class spell_pvp_trinket_wotf_shared_cd: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -731,7 +731,7 @@ class spell_gen_divine_storm_cd_reset: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/)
@@ -771,7 +771,7 @@ class spell_gen_gunship_portal: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -879,7 +879,7 @@ class spell_gen_profession_research: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             SpellCastResult CheckRequirement()
@@ -1306,7 +1306,7 @@ class spell_gen_vehicle_scaling: public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 if (Unit* target = GetExplTargetUnit())
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsPlayer())
                         return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
@@ -1329,7 +1329,7 @@ class spell_gen_vehicle_scaling: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster() && GetCaster()->IsPlayer();
             }
 
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -1383,7 +1383,7 @@ class spell_gen_oracle_wolvar_reputation: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex effIndex)
@@ -1428,7 +1428,7 @@ class spell_gen_luck_of_the_draw: public SpellScriptLoader
 
             bool Load()
             {
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
+                return GetUnitOwner()->IsPlayer();
             }
 
             // cheap hax to make it have update calls
@@ -1535,7 +1535,7 @@ class spell_gen_spirit_healer_res: public SpellScriptLoader
 
             bool Load()
             {
-                return GetOriginalCaster() && GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetOriginalCaster() && GetOriginalCaster()->IsPlayer();
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -2114,7 +2114,7 @@ class spell_gen_tournament_duel: public SpellScriptLoader
                     }
                     else if (Unit* unitTarget = GetHitUnit())
                     {
-                        if (unitTarget->GetCharmer() && unitTarget->GetCharmer()->GetTypeId() == TYPEID_PLAYER && unitTarget->GetCharmer()->HasAura(SPELL_ON_TOURNAMENT_MOUNT))
+                        if (unitTarget->GetCharmer() && unitTarget->GetCharmer()->IsPlayer() && unitTarget->GetCharmer()->HasAura(SPELL_ON_TOURNAMENT_MOUNT))
                             rider->CastSpell(unitTarget->GetCharmer(), SPELL_MOUNTED_DUEL, true);
                     }
                 }
@@ -2288,7 +2288,7 @@ class spell_gen_on_tournament_mount: public SpellScriptLoader
             bool Load()
             {
                 _pennantSpellId = 0;
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster() && GetCaster()->IsPlayer();
             }
 
             void HandleApplyEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2443,7 +2443,7 @@ class spell_gen_tournament_pennant: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster() && GetCaster()->IsPlayer();
             }
 
             void HandleApplyEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -5261,7 +5261,7 @@ class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetExplTargetUnit())
                 {
-                    if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    if (l_Target->IsPlayer())
                         return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
                 }
 
@@ -5280,8 +5280,61 @@ class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Demon Hunter's Aspect - 113095
+class spell_gen_demon_hunters_aspect : public SpellScriptLoader
+{
+    public:
+        spell_gen_demon_hunters_aspect() : SpellScriptLoader("spell_gen_demon_hunters_aspect") { }
+
+        class  spell_gen_demon_hunters_aspect_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_demon_hunters_aspect_AuraScript);
+
+            enum eDatas
+            {
+                MorphMale = 35911
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->getGender() == GENDER_MALE)
+                    l_Player->SetDisplayId(eDatas::MorphMale);
+                else ///< TODO : Fine display ID female
+                    l_Player->SetDisplayId(eDatas::MorphMale);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_demon_hunters_aspect_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_demon_hunters_aspect_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_demon_hunters_aspect_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_demon_hunters_aspect();
     new spell_gen_wyrmhunter_hooks();
     new spell_gen_blood_elfe_illusion();
     new spell_gen_kilroggs_dead_eye();

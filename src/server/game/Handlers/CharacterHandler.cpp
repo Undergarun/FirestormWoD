@@ -379,8 +379,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
             Player::BuildEnumData(p_Result, &l_Data);
 
             /// This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-            if (!sWorld->HasCharacterNameData(l_GuidLow))
-                sWorld->AddCharacterNameData(l_GuidLow, (*p_Result)[1].GetString(), (*p_Result)[4].GetUInt8(), (*p_Result)[2].GetUInt8(), (*p_Result)[3].GetUInt8(), (*p_Result)[7].GetUInt8(), GetAccountId());
+            if (!sWorld->HasCharacterInfo(l_GuidLow))
+                sWorld->AddCharacterInfo(l_GuidLow, (*p_Result)[1].GetString(), GetAccountId(), (*p_Result)[4].GetUInt8(), (*p_Result)[2].GetUInt8(), (*p_Result)[3].GetUInt8(), (*p_Result)[7].GetUInt8());
 
             _allowedCharsToLogin.insert(l_GuidLow);
         } while (p_Result->NextRow());
@@ -809,7 +809,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel(), GetAccountId());
+            sWorld->AddCharacterInfo(newChar.GetGUIDLow(), std::string(newChar.GetName()), GetAccountId(), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
 
             newChar.CleanupsBeforeDelete();
             delete createInfo;
@@ -850,7 +850,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         Field* fields = result->Fetch();
         accountId     = fields[0].GetUInt32();
         name          = fields[1].GetString();
-        atLogin       = fields[2].GetUInt32();
+        atLogin       = fields[2].GetUInt16();
     }
 
     // prevent deleting other players' characters using cheating tools
@@ -868,7 +868,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     std::string IP_str = GetRemoteAddress();
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(charGuid));
     sScriptMgr->OnPlayerDelete(charGuid);
-    sWorld->DeleteCharacterNameData(GUID_LOPART(charGuid));
+    sWorld->DeleteCharacterInfo(GUID_LOPART(charGuid));
 
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(charGuid);
     Player::DeleteFromDB(charGuid, GetAccountId());
@@ -1316,14 +1316,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     else
         pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
-    uint32 time9 = getMSTime() - time8;
+    uint32 time9 = getMSTime() - time8; ///> time9 is never read 01/18/16
 
-    uint32 totalTime = getMSTime() - time0;
+    uint32 totalTime = getMSTime() - time0; ///< totaltime is never read 01/18/16
     //if (totalTime > 50)
     //    sLog->outAshran("HandlePlayerLogin |****---> time1 : %u | time 2 : %u | time 3 : %u | time 4 : %u | time 5: %u | time 6 : %u | time 7 : %u | time 8 : %u | time 9 : %u | totaltime : %u", time1, time2, time3, time4, time5, time6, time7, time8, time9, totalTime);
 
     // Fix chat with transfert / rename
-    sWorld->AddCharacterNameData(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel(), GetAccountId());
+    sWorld->AddCharacterInfo(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), GetAccountId(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel());
 
     /// Remove title due to exploit with first achievement
     pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(139), true);
@@ -1441,7 +1441,7 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
 {
-    bool showing = recvData.ReadBit();
+    bool showing = recvData.ReadBit(); ///< showing is never read 01/18/16
 }
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
@@ -1570,7 +1570,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     BuildCharacterRename(&data, guid, RESPONSE_SUCCESS, newName);
     SendPacket(&data);
 
-    sWorld->UpdateCharacterNameData(guidLow, newName);
+    sWorld->UpdateCharacterInfo(guidLow, newName);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& p_RecvData)
@@ -1875,7 +1875,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& p_RecvData)
 
     CharacterDatabase.Execute(l_Statement);
 
-    sWorld->UpdateCharacterNameData(GUID_LOPART(l_PlayerGuid), l_NewName, l_CharacterGender);
+    sWorld->UpdateCharacterInfo(GUID_LOPART(l_PlayerGuid), l_NewName, l_CharacterGender);
 
     WorldPacket l_Data(SMSG_CHAR_CUSTOMIZE);
     l_Data.appendPackGUID(l_PlayerGuid);
@@ -1900,7 +1900,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& p_RecvData)
 
     p_RecvData >> l_SetGuid;
     p_RecvData >> l_SetID;
-    uint32 l_Unk = p_RecvData.read<uint32>();
+    uint32 l_Unk = p_RecvData.read<uint32>(); ///< l_unk is never read 01/18/16
 
     std::vector<uint64> l_ItemsGuids(EQUIPMENT_SLOT_END, 0);
     for (uint32 l_Iter = 0; l_Iter < EQUIPMENT_SLOT_END; ++l_Iter)
@@ -2045,7 +2045,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     std::string l_Name;
     size_t      l_NameSize;
 
-    l_FactionChange        = p_Packet.ReadBit();
+    l_FactionChange        = p_Packet.ReadBit(); ///< l_FactionChange is never read 01/18/16
     l_NameSize             = p_Packet.ReadBits(6);
     l_HasSkinID            = p_Packet.ReadBit();
     l_HasHairColor         = p_Packet.ReadBit();
@@ -2078,7 +2078,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     uint32 l_LowGuid = GUID_LOPART(l_Guid);
 
     // get the players old (at this moment current) race
-    CharacterNameData const* l_NameData = sWorld->GetCharacterNameData(l_LowGuid);
+    CharacterInfo const* l_NameData = sWorld->GetCharacterInfo(l_LowGuid);
     if (!l_NameData)
     {
         WorldPacket l_Data(SMSG_CHAR_FACTION_CHANGE, 1);
@@ -2109,7 +2109,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     uint32 l_AtLoginFlag    = l_Fields[3].GetUInt16();
     auto   l_KnownTitlesStr = l_Fields[4].GetCString();
     uint32 l_PlayerBytes    = l_Fields[5].GetUInt32();
-    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32();
+    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///w L_playerbyte2 is never read 01/18/16
 
     /// - If client doesn't send value, get the old from database & use it
     {
@@ -2289,12 +2289,12 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     {
         l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
         l_Statement->setUInt32(0, l_LowGuid);
-        l_Statement->setString(1, l_NameData->m_name);
+        l_Statement->setString(1, l_NameData->Name);
         l_Statement->setString(2, l_Name);
         l_Transaction->Append(l_Statement);
     }
 
-    sWorld->UpdateCharacterNameData(GUID_LOPART(l_Guid), l_Name, l_SexID, l_RaceID);
+    sWorld->UpdateCharacterInfo(GUID_LOPART(l_Guid), l_Name, l_SexID, l_RaceID);
 
     // Switch Languages
     // delete all languages first

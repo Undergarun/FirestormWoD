@@ -1258,7 +1258,7 @@ class spell_warr_deep_wounds: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SPEC_WARRIOR_PROTECTION)
+                if (l_Caster->IsPlayer() && l_Caster->ToPlayer()->GetSpecializationId() != SPEC_WARRIOR_PROTECTION)
                     return;
 
                 if (l_Target->GetGUID() == l_Caster->GetGUID())
@@ -2411,8 +2411,6 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 {
                     if (l_ShieldCharge->GetEffect(EFFECT_0))
                         l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                    l_ShieldCharge->DropStack();
                 }
 
 
@@ -2919,8 +2917,6 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
                             {
                                 if (l_ShieldCharge->GetEffect(EFFECT_0))
                                     l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
-
-                                l_ShieldCharge->DropStack();
                             }
 
                             SetHitDamage(l_Damage);
@@ -3051,9 +3047,9 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
 
                 int32 l_Damage = CalculatePct(p_ProcInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
 
-                if ((l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
+                if ((l_Target->IsPlayer() || l_Target->IsPetGuardianStuff()) && l_DamageTarget->GetTypeId() == TYPEID_UNIT)
                     l_Damage /= l_Target->CalculateDamageDealtFactor(l_Target, l_DamageTarget->ToCreature());
-                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->GetTypeId() == TYPEID_PLAYER || l_DamageTarget->IsPetGuardianStuff()))
+                else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->IsPlayer() || l_DamageTarget->IsPetGuardianStuff()))
                     l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
 
                 Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
@@ -3082,8 +3078,85 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Impending Victory - 103840
+class spell_warr_impending_victory : public SpellScriptLoader
+{
+    public:
+        spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
+
+        class spell_warr_impending_victory_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_impending_victory_SpellScript);
+
+            enum eSpells
+            {
+                ImpendingVictoryHeal = 118340
+            };
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, eSpells::ImpendingVictoryHeal, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_impending_victory_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_impending_victory_SpellScript();
+        }
+};
+
+
+/// Raging Blow! - 131116
+class spell_warr_raging_blow_proc : public SpellScriptLoader
+{
+    public:
+        spell_warr_raging_blow_proc() : SpellScriptLoader("spell_warr_raging_blow_proc") { }
+
+        class spell_warr_raging_blow_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_raging_blow_proc_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target->HasAura(154326))
+                    l_Target->CastSpell(l_Target, 154326, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(154326))
+                    l_Target->RemoveAura(154326);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_raging_blow_proc_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_raging_blow_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_raging_blow_proc_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_raging_blow_proc();
+    new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();
     new spell_warr_revenge();
     new spell_warr_glyph_of_crow_feast();

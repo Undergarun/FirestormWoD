@@ -219,7 +219,7 @@ public:
                             {
                                 target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                 // exclude pets & totems
-                                if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+                                if (target && target->IsPlayer() && target->isAlive())
                                     target_list.push_back(target);
                                 target = NULL;
                             }

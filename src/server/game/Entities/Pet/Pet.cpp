@@ -82,14 +82,14 @@ void Pet::AddToWorld()
     }
 
     // Hack fix for Soul link, we need to buff pet and player if player has a talent
-    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->HasSpell(108415))
+    if (m_owner && m_owner->IsPlayer() && m_owner->ToPlayer()->HasSpell(108415))
     {
         CastSpell(m_owner, 108446, true);
         m_owner->CastSpell(this, 108446, true);
     }
 
     /// Command Demon
-    if (m_owner && m_owner->ToPlayer() && m_owner->ToPlayer()->getClass() == CLASS_WARLOCK)
+    if (m_owner && m_owner->IsPlayer() && m_owner->ToPlayer()->getClass() == CLASS_WARLOCK)
     {
         if (m_owner->HasAura(108503))
             m_owner->RemoveAura(108503);
@@ -160,11 +160,11 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 {
     m_loading = true;
 
-    if (owner->ToPlayer())
+    if (owner->IsPlayer())
     {
         /// Hack for water elemental
         /// Pet should be saved for all specs, but can be summoned only by frost mages
-        if (owner->getClass() == CLASS_MAGE && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_MAGE_FROST)
+        if (owner->getClass() == CLASS_MAGE && owner->ToPlayer()->GetSpecializationId() != SPEC_MAGE_FROST)
         {
             m_loading = false;
             p_Callback(this, false);
@@ -172,7 +172,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         }
         /// Hack for Raise dead
         /// Pet should be saved for all specs, but can be summoned only by unholy dk
-        if (owner->getClass() == CLASS_DEATH_KNIGHT && owner->ToPlayer()->GetSpecializationId(owner->ToPlayer()->GetActiveSpec()) != SPEC_DK_UNHOLY)
+        if (owner->getClass() == CLASS_DEATH_KNIGHT && owner->ToPlayer()->GetSpecializationId() != SPEC_DK_UNHOLY)
         {
             m_loading = false;
             p_Callback(this, false);
@@ -183,7 +183,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (slotID == PET_SLOT_ACTUAL_PET_SLOT)
         slotID = owner->m_currentPetSlot;
 
-    uint32 ownerid = owner->GetGUIDLow();
+    uint32 ownerid = owner->GetGUIDLow(); ///< ownerID is never read 01/18/16
 
     PreparedQueryResult result = holder->GetPetResult();
 
@@ -282,10 +282,10 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     switch (cinfo->unit_class)
     {
         case CLASS_WARRIOR:
-            powerType = POWER_RAGE;
+            powerType = POWER_RAGE;  ///< powertype is never read 01/18/16
             break;
         case CLASS_ROGUE:
-            powerType = POWER_ENERGY;
+            powerType = POWER_ENERGY; ///< powertype is never read 01/18/16
             break;
     }
 
@@ -305,7 +305,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
             if (cinfo && cinfo->Entry == 17252)
             {
-                if (owner && owner->HasAura(56246) && owner->ToPlayer())
+                if (owner && owner->IsPlayer() && owner->HasAura(56246))
                 {
                     /// Get item template for Fel Guard weapon
                     if (ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(12784))
@@ -379,7 +379,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     _LoadAuras(auraResult, auraEffectResult, timediff);
 
-    if (owner->GetTypeId() == TYPEID_PLAYER && owner->ToPlayer()->InArena())
+    if (owner->IsPlayer() && owner->ToPlayer()->InArena())
         RemoveArenaAuras();
 
     // load action bar, if data broken will fill later by default spells.
@@ -417,12 +417,12 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     //set last used pet number (for use in BG's)
-    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
+    if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
 
-    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
+    if (owner->IsPlayer() && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
     {
         uint32 l_SpecializationID = GetSpecializationId();
         if (owner->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
@@ -603,11 +603,6 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
 {
     Creature::setDeathState(s);
 
-    if (getDeathState() == ALIVE && getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
-        CastSpell(this, 157863, true);
-    else if (HasAura(157863))
-        RemoveAura(157863);
-
     if (getDeathState() == CORPSE)
     {
         if (getPetType() == HUNTER_PET)
@@ -644,6 +639,17 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
+    if (getPetType() == HUNTER_PET) ///< Mend pet override (revive pet)
+    {
+        Player* l_Owner = GetOwner();
+        if (l_Owner != nullptr)
+        {
+            if (getDeathState() == ALIVE && !l_Owner->HasAura(157863))
+                l_Owner->CastSpell(l_Owner, 157863, true);
+            else if (l_Owner->HasAura(157863) && getDeathState() != ALIVE)
+                l_Owner->RemoveAura(157863);
+        }
+    }
     switch (m_deathState)
     {
         case CORPSE:
@@ -730,7 +736,7 @@ void Creature::Regenerate(Powers power)
         return;
 
     float addvalue = 0.0f;
-    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f;
+    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f; ///< rangedHaste is never read 01/18/16
 
     switch (power)
     {
@@ -914,7 +920,7 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     PetType l_PetType = MAX_PET_TYPE;
 
     Unit* l_Owner = GetSummoner();
-    if (l_Owner && isPet() && l_Owner->GetTypeId() == TYPEID_PLAYER)
+    if (l_Owner && isPet() && l_Owner->IsPlayer())
     {
         switch (l_Owner->getClass())
         {
@@ -1005,14 +1011,14 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     if (l_PetType == HUNTER_PET && !ToPet()->m_Stampeded)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
-    UpdateAllStats();
-
     if (l_Owner != nullptr)
     {
         SetCreateHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
         SetMaxHealth(l_Owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
     }
-    
+
+    UpdateAllStats();
+
     SetFullHealth();
 
     if (IsWarlockPet())
@@ -1580,7 +1586,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         {
             // need update action bar for last removed rank
             if (Unit* owner = GetOwner())
-                if (owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner->IsPlayer())
                     owner->ToPlayer()->PetSpellInitialize();
         }
     }

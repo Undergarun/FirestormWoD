@@ -180,6 +180,12 @@ class UnitAI
             UNUSED(id);
         }
 
+        virtual void AddHitQueue(uint32 *p_Data, int32 id = 0)
+        {
+            UNUSED(p_Data);
+            UNUSED(id);
+        }
+
         virtual uint64 GetGUID(int32 id = 0) { return 0; }
 
         virtual void SetDestTarget(WorldLocation const* dest) 

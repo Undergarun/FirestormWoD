@@ -157,7 +157,7 @@ public:
     {
         npc_ancestral_wolfAI(Creature* creature) : npc_escortAI(creature)
         {
-            if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            if (creature->GetOwner() && creature->GetOwner()->IsPlayer())
                 Start(false, false, creature->GetOwner()->GetGUID());
             else
                 sLog->outError(LOG_FILTER_TSCR, "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");

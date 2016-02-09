@@ -1059,7 +1059,7 @@ class npc_unstable_twilight : public CreatureScript
                     case EVENT_UNSTABLE_TWILIGHT:
                         if (Unit* target = me->SelectNearestTarget(3.0f))
                         {
-                            if (target->GetTypeId() == TYPEID_PLAYER && !target->HasAura(SPELL_TWILIGHT_PROTECTION_BUFF))
+                            if (target->IsPlayer() && !target->HasAura(SPELL_TWILIGHT_PROTECTION_BUFF))
                             {
                                 DoCast(me, SPELL_UNSTABLE_TWILIGHT_DMG);
                                 events.ScheduleEvent(EVENT_UNSTABLE_TWILIGHT_DESPAWN, 800);
@@ -1373,7 +1373,7 @@ class spell_valiona_twilight_flame_dmg_1: public SpellScriptLoader
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
-                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                if (GetHitUnit()->IsPlayer())
                 {
                     GetHitUnit()->AddAura(SPELL_TWILIGHT_SHIFT_AURA_1, GetHitUnit());
                     GetHitUnit()->AddAura(SPELL_TWILIGHT_PROTECTION_BUFF, GetHitUnit());
@@ -1477,7 +1477,7 @@ class spell_theralion_dazzling_destruction_dmg: public SpellScriptLoader
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
-                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                if (GetHitUnit()->IsPlayer())
                 {
                     GetHitUnit()->AddAura(SPELL_TWILIGHT_SHIFT_AURA_2, GetHitUnit());
                     GetHitUnit()->AddAura(SPELL_TWILIGHT_PROTECTION_BUFF, GetHitUnit());

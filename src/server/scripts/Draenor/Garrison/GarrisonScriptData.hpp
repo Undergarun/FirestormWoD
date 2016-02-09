@@ -39,6 +39,7 @@ namespace MS { namespace Garrison
         PhaseMagePortalNagrand        = 0x00000040,
         PhaseMagePortalShadowmoon     = 0x00000080,
         PhaseMagePortalGorgrond       = 0x00000100,
+        PhaseLostInTransitionQuest    = 0x00000200
     };
 
     /// Instance data common IDs
@@ -65,7 +66,8 @@ namespace MS { namespace Garrison
         SpellIronTrap                          = 180609,
         SpellApprenticeLogging                 = 167911,
         SpellSummonStump                       = 170079,
-        SpellGarrisonPortal                    = 182464
+        SpellGarrisonPortal                    = 182464,
+        SpellAuraRunesOfPower                  = 178777
     };
 
     enum DisplayIDs
@@ -105,6 +107,10 @@ namespace MS { namespace Garrison
             Alliance_ThingsAreNotGorenOurWay            = 34192,
             /// Mage Tower
             Alliance_PortablePortals                    = 38354,
+            /// Fishing Hut
+            Alliance_AnglinInOurGarrison                = 36202,
+            /// Gnomish Gearworks
+            Alliance_UnconventionalInventions           = 37091,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -132,7 +138,11 @@ namespace MS { namespace Garrison
             Horde_ThingsAreNotGorenOurWay               = 35154,
             Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
-            Horde_PortablePortals                       = 38351
+            Horde_PortablePortals                       = 38351,
+            /// Fishing Hut
+            Horde_AnglinInOurGarrison                   = 36132,
+            /// GOblin Workshop
+            Horde_UnconventionalInventions              = 37044
         };
     }   ///< namespace Quests
 
@@ -172,6 +182,89 @@ namespace MS { namespace Garrison
         NpcAllianceMiner                                = 77361,
         NpcHordeMiner                                   = 79837
     };
+
+    namespace WorkshopGearworks
+    {
+        enum InventionsGobIDs
+        {
+            /// Level 1
+            GobStickyGrenades                   = 234146,
+            GobRoboBooster                      = 235078,
+            GobPneumaticPowerGauntlet           = 234095,
+            GobSkyTerrorPersonnalDeliverySystem = 233900,
+
+            /// Level 2
+            GobPrototypeMechanoHog              = 234018, ///< Guessed Horde
+            GobPrototypeMekgineersChopper       = 234019, ///< Guessed Alliance
+            GobNukularTargetPainter             = 235126,
+            GobXD57BullseyeGuidedRocketKit      = 233899,
+            GobGG117MicroJetpack                = 233901,
+            GobSentryTurretDispenser            = 234017,
+
+            /// Level 3
+            GobWorkshopWorkorder                = 238756
+        };
+
+        enum InventionItemIDs
+        {
+            /// Level 1
+            ItemStickyGrenades                   = 114983,
+            ItemRoboBooster                      = 119158,
+            ItemPneumaticPowerGauntlet           = 114974,
+            ItemSkyTerrorPersonnalDeliverySystem = 114246,
+
+            /// Level 2
+            ItemPrototypeMechanoHog           = 114925, ///< Guessed Horde
+            ItemPrototypeMekgineersChopper    = 114924, ///< Guessed Alliance
+            ItemNukularTargetPainter          = 115530,
+            ItemXD57BullseyeGuidedRocketKit   = 114633,
+            ItemGG117MicroJetpack             = 114244,
+            ItemSentryTurretDispenser         = 114744,
+
+            /// Level 3
+            ItemOverchargedSiegeEngine        = 119436,
+            ItemOverchargedDemolkisher        = 119437
+        };
+
+        static std::vector<uint32> const g_FirstLevelInventions =
+        {
+            GobStickyGrenades,
+            GobRoboBooster,
+            GobPneumaticPowerGauntlet,
+            GobSkyTerrorPersonnalDeliverySystem
+        };
+
+        static std::vector<uint32> const g_SecondLevelInventions =
+        {
+            GobPrototypeMechanoHog,
+            GobPrototypeMekgineersChopper,
+            GobNukularTargetPainter,
+            GobXD57BullseyeGuidedRocketKit,
+            GobGG117MicroJetpack,
+            GobSentryTurretDispenser,
+        };
+
+        static uint32 const g_ThirdLevelInvention = GobWorkshopWorkorder;
+        
+        static std::map<uint32, uint32> g_GobItemRelations = 
+        {
+            /// Level 1
+            { InventionsGobIDs::GobStickyGrenades,                   InventionItemIDs::ItemStickyGrenades },
+            { InventionsGobIDs::GobRoboBooster,                      InventionItemIDs::ItemRoboBooster },
+            { InventionsGobIDs::GobPneumaticPowerGauntlet,           InventionItemIDs::ItemPneumaticPowerGauntlet },
+            { InventionsGobIDs::GobSkyTerrorPersonnalDeliverySystem, InventionItemIDs::ItemSkyTerrorPersonnalDeliverySystem },
+
+            /// Level 2
+            { InventionsGobIDs::GobPrototypeMechanoHog,         InventionItemIDs::ItemPrototypeMechanoHog },
+            { InventionsGobIDs::GobPrototypeMekgineersChopper,  InventionItemIDs::ItemPrototypeMekgineersChopper },
+            { InventionsGobIDs::GobNukularTargetPainter,        InventionItemIDs::ItemNukularTargetPainter },
+            { InventionsGobIDs::GobXD57BullseyeGuidedRocketKit, InventionItemIDs::ItemXD57BullseyeGuidedRocketKit },
+            { InventionsGobIDs::GobGG117MicroJetpack,           InventionItemIDs::ItemGG117MicroJetpack },
+            { InventionsGobIDs::GobSentryTurretDispenser,       InventionItemIDs::ItemSentryTurretDispenser },
+
+            /// Level 3 needs custom handling, 1 gob 2 items
+        };
+    }
 
     namespace StablesData
     {
@@ -505,7 +598,7 @@ namespace MS { namespace Garrison
                 enum TalbukQuests
                 {
                     /// Initial Quest
-                    QuestTamingATalbuk = 36917,
+                    QuestTamingATalbuk    = 36917,
                     /// Progression Quests
                     TalbukTrainingQuest1  = 37093,
                     TalbukTrainingQuest2  = 37094,

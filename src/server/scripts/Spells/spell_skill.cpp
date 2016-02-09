@@ -817,6 +817,11 @@ namespace MS { namespace Skill
                                 m_ItemID    = ItemIDs::TemporalCrystal;
                             }
                         }
+                        else
+                        {
+                            m_ItemID = ItemIDs::TemporalCrystal;
+                            m_Count = 1;
+                        }
 
                         ItemPosCountVec l_Destination;
                         InventoryResult l_Message = l_Player->CanStoreNewItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Destination, m_ItemID, m_Count);

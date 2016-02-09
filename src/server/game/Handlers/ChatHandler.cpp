@@ -168,7 +168,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 uint32 l_MessageLenght = 0;
                 std::string l_Message = "";
 
-                l_MessageLenght = p_RecvData.ReadBits(8);
+                l_MessageLenght = p_RecvData.ReadBits(8); ///< l_messageLenght is never read 01/18/16
                 p_RecvData >> l_Message;
 
                 if (l_Message.empty())
@@ -245,7 +245,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 
     /// Check if silenced http://wowhead.com/spell=1852
-    if (l_Sender->HasAura(1852) && l_Type != CHAT_MSG_WHISPER)
+    if (l_Type != CHAT_MSG_WHISPER && l_Sender->HasAura(1852))
     {
         p_RecvData.rfinish();
         SendNotification(GetTrinityString(LANG_GM_SILENCE), l_Sender->GetName());
@@ -382,7 +382,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
             }
 
             /// Check if silenced http://wowhead.com/spell=1852
-            if (GetPlayer()->HasAura(1852) && !l_Receiver->isGameMaster())
+            if (!l_Receiver->isGameMaster() && GetPlayer()->HasAura(1852))
             {
                 SendNotification(GetTrinityString(LANG_GM_SILENCE), GetPlayer()->GetName());
                 return;
@@ -594,7 +594,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
 {
-    Player *    l_Sender = GetPlayer();
+    Player *    l_Sender = GetPlayer(); ///< l_sender is never read 01/18/16
     ChatMsg     l_Type;
 
     switch (p_RecvData.GetOpcode())

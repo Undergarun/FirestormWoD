@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include "GarrisonQuest.hpp"
+#include "Buildings/BuildingScripts.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -36,6 +37,13 @@ namespace MS { namespace Garrison
         if (p_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
         {
             p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            return;
+        }
+
+        if ((p_Player->HasQuest(Quests::Horde_UnconventionalInventions) || p_Player->HasQuest(Quests::Alliance_UnconventionalInventions)) && p_Item->GetEntry() == WorkshopGearworks::InventionItemIDs::ItemStickyGrenades)
+        {
+            p_Player->QuestObjectiveSatisfy(39320, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
+            p_Player->QuestObjectiveSatisfy(39307, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
             return;
         }
 
@@ -93,6 +101,15 @@ namespace MS { namespace Garrison
 
                 break;
             }
+            case WorkshopGearworks::InventionItemIDs::ItemStickyGrenades:
+            case WorkshopGearworks::InventionItemIDs::ItemRoboBooster:
+            case WorkshopGearworks::InventionItemIDs::ItemPneumaticPowerGauntlet:
+            case WorkshopGearworks::InventionItemIDs::ItemSkyTerrorPersonnalDeliverySystem:
+            case WorkshopGearworks::InventionItemIDs::ItemNukularTargetPainter:
+            case WorkshopGearworks::InventionItemIDs::ItemXD57BullseyeGuidedRocketKit:
+            case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
+            case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
+                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, 0);
             default:
                 break;
         }
@@ -428,12 +445,56 @@ namespace MS { namespace Garrison
                 break;
         }
     }
+
+    void playerScript_Garrison_Quests_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        if ((p_Player->GetTeamId() == TEAM_ALLIANCE && p_Player->HasQuest(Quests::Alliance_LostInTransition)) ||
+            (p_Player->GetTeamId() == TEAM_HORDE && p_Player->HasQuest(Quests::Horde_LostInTransition)))
+        {
+            uint32 l_PhaseMask = p_Player->GetPhaseMask();
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+            p_Player->SetPhaseMask(l_PhaseMask, true);
+        }
+    }
+
+    void playerScript_Garrison_Quests_Phases::OnQuestAccept(Player* p_Player, const Quest* p_Quest)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition ||
+            p_Player->GetTeamId() == TEAM_HORDE && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+        {
+            uint32 l_PhaseMask = p_Player->GetPhaseMask();
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+            p_Player->SetPhaseMask(l_PhaseMask, true);
+        }
+    }
+
+    void playerScript_Garrison_Quests_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition ||
+            p_Player->GetTeamId() == TEAM_HORDE && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+        {
+            uint32 l_PhaseMask = p_Player->GetPhaseMask();
+            l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
+            p_Player->SetPhaseMask(l_PhaseMask, true);
+        }
+    }
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison_Quest()
 {
+    new MS::Garrison::GarrisonBuildingAuraPlayerScript;
     new MS::Garrison::GarrisonQuestPlayerScript;
     new MS::Garrison::playerScript_Garrison_Portals_Phases;
+    new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
 }

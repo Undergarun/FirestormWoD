@@ -67,7 +67,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
         LootStoreItemList* GetExplicitlyChancedItemList() { return &ExplicitlyChanced; }
         LootStoreItemList* GetEqualChancedItemList() { return &EqualChanced; }
-        void CopyConditions(ConditionList conditions);
+        void CopyConditions(ConditionContainer conditions);
     private:
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
@@ -201,7 +201,7 @@ void LootStore::ResetConditions()
 {
     for (LootTemplateMap::iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
     {
-        ConditionList empty;
+        ConditionContainer empty;
         (*itr).second->CopyConditions(empty);
     }
 }
@@ -1450,22 +1450,22 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     switch (lv.permission)
                     {
                         case MASTER_PERMISSION:
-                            slottype = uint8(LOOT_SLOT_TYPE_MASTER);
+                            slottype = uint8(LOOT_SLOT_TYPE_MASTER); ///< slottype is never read 01/18/16
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
                             if (!item.is_blocked)
-                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                                slottype = uint8(LOOT_SLOT_TYPE_ALLOW_LOOT); ///< slottype is never read 01/18/16
                             else
-                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING);
+                                slottype = uint8(LOOT_SLOT_TYPE_ROLL_ONGOING); ///< slottype is never read 01/18/16
                             break;
                         default:
-                            slottype = uint8(slotType);
+                            slottype = uint8(slotType); ///< slottype is never read 01/18/16
                             break;
                     }
                 }
                 else
-                    slottype = uint8(slotType);
+                    slottype = uint8(slotType); ///< slottype is never read 01/18/16
 
                 uint8 l_ItemListType = LOOT_LIST_ITEM;
 
@@ -1603,7 +1603,7 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const* player) const
     return false;
 }
 
-void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
+void LootTemplate::LootGroup::CopyConditions(ConditionContainer /*conditions*/)
 {
     for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
     {
@@ -1850,7 +1850,7 @@ void LootTemplate::AddEntry(LootStoreItem& item)
         Entries.push_back(item);
 }
 
-void LootTemplate::CopyConditions(ConditionList conditions)
+void LootTemplate::CopyConditions(ConditionContainer conditions)
 {
     for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
         i->conditions.clear();

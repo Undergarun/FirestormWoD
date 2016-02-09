@@ -321,14 +321,16 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
 
             struct SpellData
             {
-                SpellData(uint32 p_ID, uint32 p_Time)
+                SpellData(uint32 p_ID, uint32 p_Time, uint32 p_ComboPoints)
                 {
                     ID = p_ID;
                     Time = p_Time;
+                    ComboPoints = p_ComboPoints;
                 }
 
                 uint32 ID;
                 uint32 Time;
+                uint32 ComboPoints;
             };
 
             bool m_Queuing;
@@ -338,12 +340,12 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
 
             void Reset()
             {
+                me->SetCanDualWield(true);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
                 me->CastSpell(me, eSpells::SpellShadowReflectionAura, true);
             }
 
-            void SetGUID(uint64 p_Data, int32 p_ID)
+            void AddHitQueue(uint32 *p_Data, int32 p_ID)
             {
                 switch (p_ID)
                 {
@@ -352,9 +354,10 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                         if (!m_Queuing)
                             break;
 
-                        uint32 l_SpellID = ((uint32*)(&p_Data))[0];
-                        uint32 l_Time = ((uint32*)(&p_Data))[1];
-                        m_SpellQueue.push(SpellData(l_SpellID, l_Time));
+                        uint32 l_SpellID = p_Data[0];
+                        uint32 l_Time = p_Data[1];
+                        uint32 l_ComboPoints = p_Data[2];
+                        m_SpellQueue.push(SpellData(l_SpellID, l_Time, l_ComboPoints));
                         break;
                     }
                     case eDatas::FinishFirstPhase:
@@ -412,6 +415,7 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                 {
                     if (l_SpellData->Time <= p_Diff)
                     {
+                        me->SetPower(Powers::POWER_COMBO_POINT, l_SpellData->ComboPoints);
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, l_SpellData->ID, true);
 
@@ -500,7 +504,7 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
 
             void Reset()
             {
-                if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                if (me->GetOwner() && me->GetOwner()->IsPlayer())
                 {
                     me->CastSpell(me, 98007, false);
                     me->CastSpell(me, 98017, true);
@@ -511,7 +515,7 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
             {
                 if (CastTimer >= diff)
                 {
-                    if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                    if (me->GetOwner() && me->GetOwner()->IsPlayer())
                     {
                         if (me->GetEntry() == 53006)
                         {
@@ -1030,13 +1034,14 @@ class spell_npc_warl_wild_imp : public CreatureScript
                     return;
                 }
 
+                if (!me->IsValidAttackTarget(me->getVictim()))
+                    return;
+
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
                 m_Charges--;
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
-                    me->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
-
                     if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
                         if (roll_chance_i(l_MoltenCore->GetAmount()))
                             l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);

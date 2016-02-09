@@ -53,8 +53,11 @@ void AddSC_npc_spell_scripts();
 void AddSC_areatrigger_spell_scripts();
 void AddSC_spell_item_enchantment();
 void AddSC_spell_toy();
+void AddSC_npc_toy();
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
+void AddSC_npc_PetBattleTrainer();
+void AddSC_PetBattlePlayerScript();
 
 //Commands
 void AddSC_anticheat_commandscript();
@@ -911,7 +914,7 @@ void AddSC_instance_everbloom();
 void AddSC_boss_ancient_protectors();
 void AddSC_boss_witherbark();
 void AddSC_boss_xeritac();
-void AddSC_boss_sol();
+void AddSC_boss_archmage_sol();
 void AddSC_boss_yalnu();
 
 // battlegrounds
@@ -1004,8 +1007,11 @@ void AddSpellScripts()
     AddSC_areatrigger_spell_scripts();
     AddSC_spell_item_enchantment();
     AddSC_spell_toy();
+    AddSC_npc_toy();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
+    AddSC_npc_PetBattleTrainer();
+    AddSC_PetBattlePlayerScript();
 #endif
 }
 
@@ -1887,7 +1893,7 @@ void AddDraenorScripts()
     AddSC_boss_ancient_protectors();
     AddSC_boss_witherbark();
     AddSC_boss_xeritac();
-    AddSC_boss_sol();
+    AddSC_boss_archmage_sol();
     AddSC_boss_yalnu();
 
     /// Battlegrounds strongbox

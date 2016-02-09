@@ -102,7 +102,9 @@ enum PriestSpells
     PRIEST_SPELL_SOUL_OF_DIAMOND                    = 96219,
     PRIEST_SPELL_4P_S12_HEAL                        = 131566,
     PRIEST_SPELL_HOLY_SPARK                         = 131567,
-    PRIEST_SPELL_LEVITATE                           = 111758,
+    PRIEST_SPELL_LEVITATE_EFFECT                    = 111758,
+    PRIEST_SPELL_PATH_OF_DEVOUT                     = 111757,
+    PRIEST_SPELL_GLYPH_OF_LEVITATE                  = 108939,
     PRIEST_SPELL_VOID_TENDRILS_SUMMON               = 127665,
     PRIEST_SPELL_SPECTRAL_GUISE_CHARGES             = 119030,
     PRIEST_SPELL_POWER_WORD_SHIELD                  = 17,
@@ -789,6 +791,7 @@ class spell_pri_shadowfiend: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Surge of Light - 114255
 class spell_pri_surge_of_light : public SpellScriptLoader
 {
@@ -826,9 +829,52 @@ class spell_pri_surge_of_light : public SpellScriptLoader
             }
         };
 
+        class spell_pri_surge_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_surge_of_light_AuraScript);
+
+            enum eSpells
+            {
+                SurgeOfLightVisualUI = 128654
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::SurgeOfLightVisualUI))
+                    l_Caster->CastSpell(l_Caster, eSpells::SurgeOfLightVisualUI, true);
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::SurgeOfLightVisualUI))
+                    l_Caster->RemoveAura(eSpells::SurgeOfLightVisualUI);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectRemoveFn(spell_pri_surge_of_light_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_surge_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_surge_of_light_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_surge_of_light_AuraScript();
         }
 };
 
@@ -1264,21 +1310,22 @@ public:
         void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
         {
             Unit* l_Target = GetTarget();
+            Unit* l_Caster = GetCaster();
             Unit* l_Owner = GetUnitOwner();
 
-            if (l_Target == nullptr || l_Owner == nullptr)
+            if (l_Target == nullptr || l_Caster == nullptr || l_Owner == nullptr)
                 return;
 
             if (l_Owner->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 l_Owner->CastCustomSpell(l_Target, PRIEST_GLYPH_OF_POWER_WORD_SHIELD_PROC, &m_HealByGlyph, NULL, NULL, true, NULL, p_AurEff);
 
-            if (l_Owner->HasAura(eSpells::WordOfMendingAura))
+            if (l_Caster->HasAura(eSpells::WordOfMendingAura))
             {
-                if (!l_Owner->HasAura(eSpells::WordOfMendingProc))
-                    l_Owner->CastSpell(l_Owner, eSpells::WordOfMendingStack, true);
+                if (!l_Caster->HasAura(eSpells::WordOfMendingProc))
+                    l_Caster->CastSpell(l_Caster, eSpells::WordOfMendingStack, true);
             }
 
-            Player* l_OwnerPlayer = l_Owner->ToPlayer();
+            Player* l_OwnerPlayer = l_Caster->ToPlayer();
             Player* l_TargetPlayer = l_Target->ToPlayer();
 
             if (l_OwnerPlayer == nullptr || l_TargetPlayer == nullptr)
@@ -1412,140 +1459,6 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_lightwell_renew_SpellScript();
-        }
-};
-
-/// Last Update 6.1.2
-/// Called by Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
-/// Atonement - 81749
-class spell_pri_atonement: public SpellScriptLoader
-{
-    public:
-        spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") { }
-
-        class spell_pri_atonement_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_atonement_SpellScript);
-
-            void HandleOnHit()
-            {
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
-                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
-                    return;
-
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
-                    return;
-
-                std::list<Unit*> l_GroupList;
-                l_Player->GetRaidMembers(l_GroupList);
-
-                l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
-                {
-                    return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
-                });
-
-                if (l_GroupList.size() > 1)
-                {
-                    l_GroupList.sort(JadeCore::HealthPctOrderPred());
-                    l_GroupList.resize(1);
-                }
-
-                int32 l_Heal = CalculatePct(GetHitDamage(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
-                for (Unit* l_Unit : l_GroupList)
-                {
-                    if (l_Unit->GetGUID() == l_Player->GetGUID())
-                        l_Heal /= 2;
-
-                    CustomSpellValues l_Values;
-
-                    if (GetSpell()->IsCritForTarget(GetHitUnit()))
-                    {
-                        l_Values.SetCustomCritChance(100.f);
-                        l_Heal /= 2; ///< Since we are going critical again
-                    }
-
-                    l_Values.AddSpellMod(SPELLVALUE_BASE_POINT0, l_Heal);
-
-                    l_Player->CastCustomSpell(PriestSpells::PRIEST_ATONEMENT_HEAL, l_Values, l_Unit, true);
-                }
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_pri_atonement_SpellScript::HandleOnHit);
-            }
-        };
-
-        class spell_pri_atonement_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_atonement_AuraScript);
-
-            enum eSpells
-            {
-                PowerWordSolace = 129250
-            };
-
-            void OnTick(constAuraEffectPtr p_AurEff)
-            {
-                if (GetCaster() == nullptr)
-                    return;
-
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
-                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
-                    return;
-
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
-                    return;
-
-                std::list<Unit*> l_GroupList;
-                l_Player->GetRaidMembers(l_GroupList);
-
-                l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
-                {
-                    return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
-                });
-
-                if (l_GroupList.size() > 1)
-                {
-                    l_GroupList.sort(JadeCore::HealthPctOrderPred());
-                    l_GroupList.resize(1);
-                }
-
-                int32 l_Heal = CalculatePct(p_AurEff->GetAmount(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
-                for (auto itr : l_GroupList)
-                {
-                    if (itr->GetGUID() == l_Player->GetGUID())
-                        l_Heal /= 2;
-
-                    l_Player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &l_Heal, NULL, NULL, true);
-                }
-            }
-
-            void Register() override
-            {
-                if (m_scriptSpellId == eSpells::PowerWordSolace)
-                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_atonement_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_atonement_AuraScript();
-        }
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_atonement_SpellScript();
         }
 };
 
@@ -2152,7 +2065,7 @@ class spell_pri_cascade_trigger_shadow : public SpellScriptLoader
                 int32 l_Damage = GetHitDamage() * float(l_Caster->GetDistance(l_Target) / l_Radius);
 
                 /// July 7th 2015 Cascade now deals 20% less damage in PvP combat.
-                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                if (l_Target->IsPlayer())
                     l_Damage *= 0.80f;
 
                 SetHitDamage(l_Damage);
@@ -2429,7 +2342,11 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        Player* l_Player = l_Caster->ToPlayer();
+                        if (l_Player == nullptr)
+                            return;
+
+                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Player->GetSpecializationId() == SPEC_PRIEST_SHADOW)
                         {
                             /// +1s per Shadow Orb consumed
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
@@ -2551,7 +2468,7 @@ class spell_pri_penance: public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->IsPlayer();
             }
 
             bool Validate(SpellInfo const* spellEntry)
@@ -2708,7 +2625,7 @@ class spell_pri_renew: public SpellScriptLoader
         }
 };
 
-// Levitate - 1706
+/// Levitate - 1706
 class spell_pri_levitate: public SpellScriptLoader
 {
     public:
@@ -2720,9 +2637,13 @@ class spell_pri_levitate: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster())
-                    if (GetHitUnit())
-                        GetCaster()->CastSpell(GetHitUnit(), PRIEST_SPELL_LEVITATE, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, PRIEST_SPELL_LEVITATE_EFFECT, true);
             }
 
             void Register()
@@ -2970,7 +2891,7 @@ class spell_pri_void_tendrils: public SpellScriptLoader
 
                         if (AuraPtr voidTendrils = target->GetAura(GetSpellInfo()->Id, _player->GetGUID()))
                         {
-                            if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->IsPlayer())
                                 voidTendrils->SetMaxDuration(8000);
                             else
                                 voidTendrils->SetMaxDuration(20000);
@@ -4157,6 +4078,7 @@ class spell_pri_focused_will : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Word of Mending - 152117
 class PlayerScript_word_of_mending : public PlayerScript
 {
@@ -4168,15 +4090,17 @@ class PlayerScript_word_of_mending : public PlayerScript
             WordOfMendingAura = 152117,
             WordOfMendingProc = 155363,
             WordOfMendingStack = 155362,
-            LiveSteal = 146347
+            LiveSteal = 146347,
+            FlashHeal = 2061,
+            SurgeOfLight = 114255
         };
 
         void OnSpellCast(Player* p_Player, Spell* p_Spell, bool skipCheck)
         {
-            if (p_Player == nullptr)
+            if (p_Player == nullptr || p_Spell == nullptr)
                 return;
 
-            if (skipCheck)
+            if (skipCheck && !(p_Spell->GetSpellInfo()->Id == eSpells::FlashHeal && p_Player->HasAura(eSpells::SurgeOfLight)))
                 return;
 
             if (p_Player->HasAura(eSpells::WordOfMendingAura) && p_Spell->GetSpellInfo() && (p_Spell->GetSpellInfo()->IsHealingSpell() || p_Spell->GetSpellInfo()->IsShieldingSpell()) && p_Spell->GetSpellInfo()->Id != 146347)
@@ -4234,6 +4158,95 @@ class spell_pri_shadowform : public SpellScriptLoader
         }
 };
 
+/// Called by Levitate (effect) - 111758
+class spell_pri_path_of_devout : public SpellScriptLoader
+{
+public:
+    spell_pri_path_of_devout() : SpellScriptLoader("spell_pri_path_of_devout") { }
+
+    class spell_pri_path_of_devout_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_path_of_devout_AuraScript);
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetUnitOwner();
+
+            if (l_Caster == nullptr || l_Target == nullptr)
+                return;
+
+            if (l_Target->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                if (l_Caster->HasAura(PRIEST_SPELL_GLYPH_OF_LEVITATE))
+                    l_Caster->CastSpell(l_Target, PRIEST_SPELL_PATH_OF_DEVOUT, true);
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Target = GetUnitOwner())
+            {
+                if (AuraPtr l_PathOfDevout = l_Target->GetAura(PRIEST_SPELL_PATH_OF_DEVOUT))
+                {
+                    l_PathOfDevout->SetMaxDuration(10 * IN_MILLISECONDS);
+                    l_PathOfDevout->SetDuration(l_PathOfDevout->GetMaxDuration());
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_path_of_devout_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_pri_path_of_devout_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_path_of_devout_AuraScript();
+    }
+};
+
+/// Called by Glyph of Levitate - 108939
+class spell_pri_glyph_of_levitate : public SpellScriptLoader
+{
+public:
+    spell_pri_glyph_of_levitate() : SpellScriptLoader("spell_pri_glyph_of_levitate") { }
+
+    class spell_pri_glyph_of_levitate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_glyph_of_levitate_AuraScript);
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                    l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(PRIEST_SPELL_LEVITATE_EFFECT))
+                    l_Caster->RemoveAura(PRIEST_SPELL_LEVITATE_EFFECT);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_levitate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_levitate_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_glyph_of_levitate_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowform();
@@ -4279,7 +4292,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_word_sanctuary_heal();
     new spell_pri_smite();
     new spell_pri_lightwell_renew();
-    new spell_pri_atonement();
     new spell_pri_purify();
     new spell_pri_devouring_plague();
     new spell_pri_devouring_plague_aura();
@@ -4296,6 +4308,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_renew();
     new spell_pri_evangelism();
     new spell_pri_levitate();
+    new spell_pri_path_of_devout();
+    new spell_pri_glyph_of_levitate();
     new spell_pri_flash_heal();
     new spell_pri_words_of_mending();
     new spell_pri_twist_of_fate();

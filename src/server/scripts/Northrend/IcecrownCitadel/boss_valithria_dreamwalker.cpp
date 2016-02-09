@@ -538,13 +538,13 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void AttackStart(Unit* target)
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->IsPlayer())
                     BossAI::AttackStart(target);
             }
 
             bool CanAIAttack(Unit const* target) const
             {
-                return target->GetTypeId() == TYPEID_PLAYER;
+                return target->IsPlayer();
             }
 
             void JustReachedHome()
@@ -582,7 +582,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 // check if there is any player on threatlist, if not - evade
                 for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Unit* target = (*itr)->getTarget())
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->IsPlayer())
                             return; // found any player, return
 
                 EnterEvadeMode();

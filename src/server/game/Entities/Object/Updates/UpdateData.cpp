@@ -48,11 +48,11 @@ void UpdateData::AddUpdateBlock(const ByteBuffer &block)
 bool UpdateData::BuildPacket(WorldPacket* p_Packet)
 {
     ASSERT(p_Packet->empty());                                // shouldn't happen
-    p_Packet->Initialize(SMSG_UPDATE_OBJECT, 4 + 2 + 1 + ((!m_outOfRangeGUIDs.empty()) ? (2 + 4 + (m_outOfRangeGUIDs.size() * (16 + 2))) : 0) + 4 + m_data.wpos() + 4);
 
     if (!HasData())
         return false;
 
+    p_Packet->Initialize(SMSG_UPDATE_OBJECT, 4 + 2 + 1 + ((!m_outOfRangeGUIDs.empty()) ? (2 + 4 + (m_outOfRangeGUIDs.size() * (16 + 2))) : 0) + 4 + m_data.wpos() + 4);
     *p_Packet << uint32(m_blockCount);
     *p_Packet << uint16(m_map);
 

@@ -652,8 +652,8 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
             uint64 l_LeaderGUID = GetLeaderGUID();
 
             uint32 l_MemberCount = 0;
-
-            bool l_HasJamCliPartyLFGInfo = isLFGGroup();
+ 
+            bool l_HasJamCliPartyLFGInfo = isLFGGroup(); ///< l_HasJamCliPartyLFGInfo is never read 01/18/16
 
             l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
@@ -899,7 +899,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
             uint32 l_MemberCount = 0;
 
-            bool l_HasJamCliPartyLFGInfo = isLFGGroup();
+            bool l_HasJamCliPartyLFGInfo = isLFGGroup(); ///< l_HasJamCliPartyLFGInfo is never read 01/18/16
 
             l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
@@ -2061,7 +2061,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
         else
         {
             // If player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
-            prevSubGroup = player->GetOriginalSubGroup();
+            prevSubGroup = player->GetOriginalSubGroup(); ///< prevSubGroup is never read 01/18/16
             player->GetOriginalGroupRef().setSubGroup(group);
         }
     }
@@ -2802,7 +2802,7 @@ uint32 Group::GetActiveMarkers() const
 {
     uint32 l_Mask = eRaidMarkersFlags::RaidMarkerNone;
 
-    for (RaidMarker l_Marker : GetRaidMarkers())
+    for (RaidMarker const& l_Marker : GetRaidMarkers())
     {
         if (l_Marker.Mask)
             l_Mask |= l_Marker.Mask;
@@ -2815,7 +2815,7 @@ uint32 Group::CountActiveMarkers() const
 {
     uint32 l_Count = 0;
 
-    for (RaidMarker l_Marker : GetRaidMarkers())
+    for (RaidMarker const& l_Marker : GetRaidMarkers())
     {
         if (l_Marker.Mask)
             ++l_Count;
@@ -2835,7 +2835,7 @@ void Group::SendRaidMarkersUpdate()
     l_Data.WriteBits(CountActiveMarkers(), 4);
     l_Data.FlushBits();
 
-    for (RaidMarker l_Marker : l_RaidMarkers)
+    for (RaidMarker const& l_Marker : l_RaidMarkers)
     {
         if (!l_Marker.Mask)
             continue;
