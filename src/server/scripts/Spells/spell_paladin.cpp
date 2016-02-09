@@ -3806,6 +3806,55 @@ public:
     }
 };
 
+/// Glyph of the Luminous Charger - 89401
+/// Called by: Summon Warhorse - 13819, Summon Sunwalker Kodo - 69820, Summon Thalassian Warhorse - 34769, Summon Exarch's Elekk - 73629, Summon Great Sunwalker Kodo - 69826.
+/// Called by: Summon Charger - 23214, Summon Thalassian Charger - 34767, Summon Great Exarch's Elekk - 73630.
+class spell_pal_glyph_of_the_luminous_charger : public SpellScriptLoader
+{
+public:
+    spell_pal_glyph_of_the_luminous_charger() : SpellScriptLoader("spell_pal_glyph_of_the_luminous_charger") { }
+
+    class spell_pal_glyph_of_the_luminous_charger_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_glyph_of_the_luminous_charger_AuraScript);
+
+        enum eSpells
+        {
+            SpellPaladinLuminousCharger = 126666,
+            SpellPaladinGlyphOfTheLuminousCharger = 89401,
+        };
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(eSpells::SpellPaladinGlyphOfTheLuminousCharger))
+                    l_Caster->CastSpell(l_Caster, eSpells::SpellPaladinLuminousCharger, true);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(eSpells::SpellPaladinLuminousCharger))
+                    l_Caster->RemoveAura(eSpells::SpellPaladinLuminousCharger);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pal_glyph_of_the_luminous_charger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pal_glyph_of_the_luminous_charger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_glyph_of_the_luminous_charger_AuraScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_pillar_of_light();
@@ -3875,6 +3924,9 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avengers_shield();
     new spell_pal_t17_protection_4p();
     new spell_pal_grand_crusader();
+    new spell_pal_sword_of_light_damage();
+    new spell_pal_glyph_of_denounce();
+    new spell_pal_glyph_of_the_luminous_charger();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();

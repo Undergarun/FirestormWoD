@@ -403,3 +403,14 @@ INSERT INTO `spell_script_names` VALUES (81333, 'spell_dk_might_of_the_frozen_wa
 -- fix Glyph of Raging Blow
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_glyph_of_raging_blow';
 INSERT INTO `spell_script_names` VALUES (159740, 'spell_warr_glyph_of_raging_blow');
+
+-- fix Glyph of the Luminous Charges
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (13819, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (69820, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (34769, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (73629, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (69826, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (23214, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (34767, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (73630, 'spell_pal_glyph_of_the_luminous_charger');
