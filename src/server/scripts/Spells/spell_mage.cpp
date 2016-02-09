@@ -3175,6 +3175,52 @@ class spell_mage_finger_of_frost : public SpellScriptLoader
         }
 };
 
+/// Glyph of Arcane Language - 57925
+/// Called by Arcane Brilliance: 1459
+class spell_mage_glyph_of_arcane_language : public SpellScriptLoader
+{
+public:
+    spell_mage_glyph_of_arcane_language() : SpellScriptLoader("spell_mage_glyph_of_arcane_language") { }
+
+    class spell_mage_glyph_of_arcane_language_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_glyph_of_arcane_language_AuraScript);
+
+        enum eSpells
+        {
+            SpellMageGlyphOfArcaneLanguage = 57925,
+            ArcaneLanguageAlliance = 122998,
+            ArcaneLanguageHorde = 122999,
+        };
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->HasAura(eSpells::SpellMageGlyphOfArcaneLanguage))
+            {
+                if (l_Player->GetTeamId() == TEAM_ALLIANCE)
+                    l_Player->CastSpell(l_Player, eSpells::ArcaneLanguageAlliance, true);
+                else if (l_Player->GetTeamId() == TEAM_HORDE)
+                    l_Player->CastSpell(l_Player, eSpells::ArcaneLanguageHorde, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_mage_glyph_of_arcane_language_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SPELL_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_glyph_of_arcane_language_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
@@ -3238,6 +3284,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cone_of_frost();
     new spell_mage_item_t17_fire_4p_bonus();
     new spell_mage_item_t17_arcane_4p_bonus();
+    new spell_mage_glyph_of_arcane_language();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

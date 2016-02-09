@@ -405,7 +405,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_glyph_of_raging_
 INSERT INTO `spell_script_names` VALUES (159740, 'spell_warr_glyph_of_raging_blow');
 
 -- fix Glyph of the Luminous Charges
-DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_pal_glyph_of_the_luminous_charger');
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_pal_glyph_of_the_luminous_charger';
 INSERT INTO spell_script_names VALUE (13819, 'spell_pal_glyph_of_the_luminous_charger');
 INSERT INTO spell_script_names VALUE (69820, 'spell_pal_glyph_of_the_luminous_charger');
 INSERT INTO spell_script_names VALUE (34769, 'spell_pal_glyph_of_the_luminous_charger');
@@ -414,3 +414,7 @@ INSERT INTO spell_script_names VALUE (69826, 'spell_pal_glyph_of_the_luminous_ch
 INSERT INTO spell_script_names VALUE (23214, 'spell_pal_glyph_of_the_luminous_charger');
 INSERT INTO spell_script_names VALUE (34767, 'spell_pal_glyph_of_the_luminous_charger');
 INSERT INTO spell_script_names VALUE (73630, 'spell_pal_glyph_of_the_luminous_charger');
+
+-- fix Glyph of Arcane Language
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_mage_glyph_of_arcane_language';
+INSERT INTO spell_script_names VALUE (1459, 'spell_mage_glyph_of_arcane_language');
