@@ -3456,9 +3456,10 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
 
             enum eSpells
             {
-                DeathCoilDamage = 47632,
-                DeathCoilHeal   = 47633,
-                ShadowInfusion  = 91342
+                DeathCoilDamage     = 47632,
+                DeathCoilHeal       = 47633,
+                ShadowInfusion      = 91342,
+                DarkTransformation  = 93426
             };
 
             void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
@@ -3477,6 +3478,15 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                     return;
 
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);
+
+                if (Pet* l_Pet = l_Player->GetPet())
+                {
+                    if (AuraPtr l_AuraPtr = l_Pet->GetAura(eSpells::ShadowInfusion))
+                    {
+                        if (l_AuraPtr->GetStackAmount() > 4) /// Apply Dark Transformation
+                            l_Player->CastSpell(l_Player, eSpells::DarkTransformation, true);
+                    }
+                }
             }
 
             void Register() override
