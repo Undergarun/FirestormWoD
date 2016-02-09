@@ -2544,9 +2544,12 @@ class spell_highmaul_branded : public SpellScriptLoader
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
                                         uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+
+                                        CustomSpellValues l_Values;
+                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
+
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, true);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -2660,9 +2663,12 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
                                         uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+
+                                        CustomSpellValues l_Values;
+                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
+
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, true);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
@@ -2753,9 +2759,12 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
                                         uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+
+                                        CustomSpellValues l_Values;
+                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
+
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, true);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -2844,9 +2853,12 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        l_Margok->CastSpell(l_Target, eSpells::ArcaneWrathDamage, true);
-
                                         uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+
+                                        CustomSpellValues l_Values;
+                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
+
+                                        l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, true);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 25%.
@@ -2934,40 +2946,13 @@ class spell_highmaul_arcane_wrath_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_arcane_wrath_damage_SpellScript);
 
-            enum eData
-            {
-                BrandedStacks
-            };
-
-            uint8 m_Stacks;
-
-            bool Load() override
-            {
-                m_Stacks = 0;
-
-                /// We must save the stacks amount before the spell hit the player
-                /// It'll be reset before if it doesn't jump anymore
-                if (GetCaster() == nullptr)
-                    return false;
-
-                if (Creature* l_Margok = GetCaster()->ToCreature())
-                {
-                    if (!l_Margok->IsAIEnabled)
-                        return false;
-
-                    m_Stacks = l_Margok->AI()->GetData(eData::BrandedStacks);
-                    return true;
-                }
-
-                return false;
-            }
-
             void HandleDamage()
             {
                 /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                 /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
                 int32 l_Damage = GetHitDamage();
-                AddPct(l_Damage, int32(25 * m_Stacks));
+                uint8 l_Stacks = GetSpell()->GetSpellValue(SpellValueMod::SPELLVALUE_AURA_STACK);
+                AddPct(l_Damage, int32(25 * l_Stacks));
 
                 SetHitDamage(l_Damage);
             }
