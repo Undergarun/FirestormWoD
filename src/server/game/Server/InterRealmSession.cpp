@@ -780,6 +780,8 @@ void InterRealmSession::Handle_BattlefieldLeave(WorldPacket& p_Packet)
     {
         /// Logout player ...
         WorldSession* l_Session = l_Player->GetSession();
+        l_Session->SetBackFromCross(true);
+
         l_Session->LogoutPlayer(false, true);
         l_Player = nullptr;
 

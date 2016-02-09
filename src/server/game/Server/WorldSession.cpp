@@ -109,7 +109,8 @@ m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServ
 timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
 m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
 {
-    m_InterRealmBG = 0;
+    m_InterRealmZoneId = 0;
+    m_BackFromCross    = false;
 
     _warden = NULL;
     _filterAddonMessages = false;
@@ -426,7 +427,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
-                    else if (m_InterRealmBG)
+                    else if (m_InterRealmZoneId)
                     {
                         //sLog->outError(LOG_FILTER_SERVER_LOADING, "Packet received when in IRBG: %x (%s)", packet->GetOpcode(), opcodeTable[packet->GetOpcode()]->Name);
                         // To do: find better way
@@ -663,7 +664,7 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
             tunPacket << uint64(m_Player->GetGUID());
             sIRTunnel->SendPacket(&tunPacket);
-            m_InterRealmBG = 0;
+            m_InterRealmZoneId = 0;
         }
 
         ///- If the player just died before logging out, make him appear as a ghost
