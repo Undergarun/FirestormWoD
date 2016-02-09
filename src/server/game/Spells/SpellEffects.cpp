@@ -5877,6 +5877,9 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         float angle = unitTarget->GetRelativeAngle(m_caster);
         Position pos;
 
+        if (m_caster->IsInRange(unitTarget, 0.0f, unitTarget->GetObjectSize()))
+            return;
+
         unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
 
