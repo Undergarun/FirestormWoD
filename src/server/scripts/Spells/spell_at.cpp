@@ -1411,10 +1411,85 @@ class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.2.3
+/// Anti-Magic Zone - 51052
+class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_dk_anti_magic_zone() : AreaTriggerEntityScript("spell_at_dk_anti_magic_zone") { }
+
+        std::list<uint64> m_TargetList;
+
+        enum eSpells
+        {
+            antiMagicAura = 145629
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            float l_Radius = 6.50f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            std::list<Unit*> l_NewTargetList;
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_NewTargetList, l_Checker);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Target : l_NewTargetList)
+            {
+                if (l_Caster->IsValidAssistTarget(l_Target) && l_Caster->IsInRaidWith(l_Target) && std::find(m_TargetList.begin(), m_TargetList.end(), l_Target->GetGUID()) == m_TargetList.end())
+                {
+                    m_TargetList.push_back(l_Target->GetGUID());
+                    l_Target->CastSpell(l_Target, eSpells::antiMagicAura, true);
+                    if (AuraPtr l_AntiMagicAura = l_Caster->GetAura(eSpells::antiMagicAura))
+                        l_AntiMagicAura->SetDuration(p_AreaTrigger->GetDuration());
+                }
+            }
+
+            for (auto l_It = m_TargetList.begin(); l_It != m_TargetList.end();)
+            {
+                Unit* l_Target = ObjectAccessor::FindUnit(*l_It);
+                if (!l_Target || (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end()))
+                {
+                    if (l_Target)
+                        l_Target->RemoveAura(eSpells::antiMagicAura);
+
+                    l_It = m_TargetList.erase(l_It);
+                }
+                else
+                    ++l_It;
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            for (uint64 l_TargetGUID : m_TargetList)
+            {
+                Unit* l_Target = ObjectAccessor::FindUnit(l_TargetGUID);
+                if (l_Target)
+                    l_Target->RemoveAura(eSpells::antiMagicAura);
+            }
+        }
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+        {
+            ;
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_dk_anti_magic_zone();
+        }
+};
+
 void AddSC_areatrigger_spell_scripts()
 {
     /// Deathknight Area Trigger
     new spell_at_dk_defile();
+    new spell_at_dk_anti_magic_zone();
 
     /// Druid Area Trigger
     new spell_at_druid_fungal_growth();
