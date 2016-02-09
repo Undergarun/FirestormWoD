@@ -2814,6 +2814,46 @@ class spell_dk_glyph_of_the_skeleton : public SpellScriptLoader
         }
 };
 
+/// Improved Death Grip - 157367
+class spell_dk_improved_death_grip : public SpellScriptLoader
+{
+    public:
+        spell_dk_improved_death_grip() : SpellScriptLoader("spell_dk_improved_death_grip") { }
+
+        class spell_dk_improved_death_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_improved_death_grip_SpellScript);
+
+            enum ImprovedDeathGrip
+            {
+                Spell       = 157367,
+                ChainsOfIce = 45524
+            };
+
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasSpell(ImprovedDeathGrip::Spell))
+                        return;
+
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, ImprovedDeathGrip::ChainsOfIce, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_dk_improved_death_grip_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_improved_death_grip_SpellScript();
+        }
+};
+
 /// Army Transform - 127517
 class spell_dk_army_transform : public SpellScriptLoader
 {
@@ -3555,6 +3595,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_dark_succor();
     new spell_dk_glyph_of_the_geist();
     new spell_dk_glyph_of_the_skeleton();
+    new spell_dk_improved_death_grip();
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_will_of_the_necropolis();
     new spell_dk_enhanced_death_coil();
