@@ -2797,6 +2797,10 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             l_CastTime /= 2;
     }
 
+    /// Glyph of Demon Training with Imp
+    if (p_Caster->GetEntry() == 416 && p_Caster->GetOwner() && p_Caster->GetOwner()->HasAura(56249) && Id == 3110)
+        l_CastTime /= 2;
+
     /// Flayer
     if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
         l_CastTime = CalculatePct(l_CastTime, 66);
