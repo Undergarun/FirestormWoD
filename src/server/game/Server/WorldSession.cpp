@@ -795,7 +795,8 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         }
 
         ///- Leave all channels before player delete...
-        m_Player->CleanupChannels();
+        if (!IsBackFromCross())
+            m_Player->CleanupChannels();
 
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         m_Player->UninviteFromGroup();
