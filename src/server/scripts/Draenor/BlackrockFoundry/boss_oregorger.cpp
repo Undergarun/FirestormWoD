@@ -22,6 +22,7 @@ class boss_oregorger : public CreatureScript
             RollingBox                  = 160665,
             WallshakingRoar             = 160662,
             EarthshakingStomp           = 159958,
+            CarryingVolatileBlackrock   = 163454,
             /// Phase 1
             /// Acid Maw
             AcidMawDoT                  = 173471,
@@ -79,11 +80,6 @@ class boss_oregorger : public CreatureScript
             DarkshardGnasher        = 78978,
             BlackrockOre            = 77261,
             UnstableSlag            = 77299
-        };
-
-        enum eGameObject
-        {
-            VolatileBlackrockOre = 237308
         };
 
         enum eDatas
@@ -493,6 +489,7 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidTorrentDmgAndDebuff);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidMawDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CarryingVolatileBlackrock);
 
                     CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
                 }
@@ -525,6 +522,7 @@ class boss_oregorger : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidTorrentDmgAndDebuff);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AcidMawDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExplosiveShardAoE);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CarryingVolatileBlackrock);
                 }
             }
 
@@ -1602,10 +1600,9 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
 
         struct go_foundry_volatile_blackrock_oreAI : public GameObjectAI
         {
-            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Activated(false), m_Deleted(false) { }
+            go_foundry_volatile_blackrock_oreAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject), m_Activated(false) { }
 
             bool m_Activated;
-            bool m_Deleted;
 
             bool GossipHello(Player* p_Player) override
             {
@@ -1620,14 +1617,13 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
 
             void OnStateChanged(uint32 p_State) override
             {
-                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                if (m_Activated)
                 {
-                    if (m_Activated && !m_Deleted)
+                    AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        m_Deleted = true;
-                        go->Delete();
-                    }
-                });
+                        go->SetFlag(EGameObjectFields::GAMEOBJECT_FIELD_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+                    });
+                }
             }
 
             void UpdateAI(uint32 p_Diff) override
