@@ -5257,11 +5257,18 @@ class spell_gen_wyrmhunter_hooks : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_wyrmhunter_hooks_SpellScript);
 
+            enum eData
+            {
+                NpcObsidianPyrewing = 46141
+            };
+
             SpellCastResult CheckTarget()
             {
                 if (Unit* l_Target = GetExplTargetUnit())
                 {
                     if (l_Target->IsPlayer())
+                        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                    else if (l_Target->ToCreature() && l_Target->ToCreature()->GetEntry() != eData::NpcObsidianPyrewing)
                         return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
                 }
 
@@ -5332,8 +5339,50 @@ class spell_gen_demon_hunters_aspect : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Wyrmhunter Hooks - 88914
+class spell_reconfigured_remote_shock : public SpellScriptLoader
+{
+    public:
+        spell_reconfigured_remote_shock() : SpellScriptLoader("spell_reconfigured_remote_shock") {}
+
+        class spell_reconfigured_remote_shock_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_reconfigured_remote_shock_SpellScript);
+
+            enum eData
+            {
+                NpcJungleShredder = 67285
+            };
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->IsPlayer())
+                        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                    else if (l_Target->ToCreature() && l_Target->ToCreature()->GetEntry() != eData::NpcJungleShredder)
+                        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
+                }
+
+                return SpellCastResult::SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_reconfigured_remote_shock_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_reconfigured_remote_shock_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_reconfigured_remote_shock();
     new spell_gen_demon_hunters_aspect();
     new spell_gen_wyrmhunter_hooks();
     new spell_gen_blood_elfe_illusion();

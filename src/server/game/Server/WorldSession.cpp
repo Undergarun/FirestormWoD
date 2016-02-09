@@ -109,7 +109,8 @@ m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServ
 timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
 m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
 {
-    m_InterRealmBG = 0;
+    m_InterRealmZoneId = 0;
+    m_BackFromCross    = false;
 
     _warden = NULL;
     _filterAddonMessages = false;
@@ -426,7 +427,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
-                    else if (m_InterRealmBG)
+                    else if (m_InterRealmZoneId)
                     {
                         //sLog->outError(LOG_FILTER_SERVER_LOADING, "Packet received when in IRBG: %x (%s)", packet->GetOpcode(), opcodeTable[packet->GetOpcode()]->Name);
                         // To do: find better way
@@ -550,26 +551,30 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         catch(ByteBufferException &)
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
+            if (deletePacket)
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                     packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
-            packet->hexlike();
+                packet->hexlike();
+            }
         }
 
         nbPacket++;
 
-        std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(packet->GetOpcode());
-        if (itr == pktHandle.end())
-            pktHandle.insert(std::make_pair(packet->GetOpcode(), OpcodeInfo(1, getMSTime() - pktTime)));
-        else
-        {
-            OpcodeInfo& data = (*itr).second;
-            data.nbPkt += 1;
-            data.totalTime += getMSTime() - pktTime;
-        }
-
-
         if (deletePacket)
+        {
+            std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(packet->GetOpcode());
+            if (itr == pktHandle.end())
+                pktHandle.insert(std::make_pair(packet->GetOpcode(), OpcodeInfo(1, getMSTime() - pktTime)));
+            else
+            {
+                OpcodeInfo& data = (*itr).second;
+                data.nbPkt += 1;
+                data.totalTime += getMSTime() - pktTime;
+            }
+
             delete packet;
+        }
 
 #define MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE 50
         processedPackets++;
@@ -659,7 +664,7 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
             WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
             tunPacket << uint64(m_Player->GetGUID());
             sIRTunnel->SendPacket(&tunPacket);
-            m_InterRealmBG = 0;
+            m_InterRealmZoneId = 0;
         }
 
         ///- If the player just died before logging out, make him appear as a ghost
@@ -790,7 +795,8 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         }
 
         ///- Leave all channels before player delete...
-        m_Player->CleanupChannels();
+        if (!IsBackFromCross())
+            m_Player->CleanupChannels();
 
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         m_Player->UninviteFromGroup();

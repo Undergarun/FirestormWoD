@@ -343,22 +343,6 @@ class WorldSession
 
         void InitWarden(BigNumber* k, std::string os);
 
-        uint32 GetInterRealmBG() { return m_InterRealmBG; }
-        void SetInterRealmBG(uint32 value) { m_InterRealmBG = value; }
-        
-        void SetBattlegroundPortData(uint64 guid, uint32 time, uint32 queueslot, uint8 action)
-        {
-            _battlegroundPortData.PlayerGuid = guid;
-            _battlegroundPortData.Time = time;
-            _battlegroundPortData.QueueSlot = queueslot;
-            _battlegroundPortData.Action = action;
-        }
-
-        BattlegroundPortData const& GetBattlegroundPortData() const { return _battlegroundPortData; }
-
-        void SetCrossPartyInfo(CrossPartyInfo p_CrossPartyInfo) { m_CrossPartyInfo = p_CrossPartyInfo; }
-        CrossPartyInfo const& GetCrossPartyInfo() const { return m_CrossPartyInfo; }
-
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
 
@@ -557,6 +541,28 @@ class WorldSession
         /// @p_Data1 : Additional data 1
         /// @p_Data2 : Additional data 2
         void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
+
+        /// ============== Cross realm ========================= ///
+        uint32 GetInterRealmBG() { return m_InterRealmZoneId; }
+        void SetInterRealmBG(uint32 value) { m_InterRealmZoneId = value; }
+
+        void SetBattlegroundPortData(uint64 guid, uint32 time, uint32 queueslot, uint8 action)
+        {
+            _battlegroundPortData.PlayerGuid = guid;
+            _battlegroundPortData.Time = time;
+            _battlegroundPortData.QueueSlot = queueslot;
+            _battlegroundPortData.Action = action;
+        }
+
+        BattlegroundPortData const& GetBattlegroundPortData() const { return _battlegroundPortData; }
+
+        void SetCrossPartyInfo(CrossPartyInfo p_CrossPartyInfo) { m_CrossPartyInfo = p_CrossPartyInfo; }
+        CrossPartyInfo const& GetCrossPartyInfo() const { return m_CrossPartyInfo; }
+
+        void SetBackFromCross(bool p_Back) { m_BackFromCross = p_Back; }
+        bool IsBackFromCross() const { return m_BackFromCross; }
+
+        /// ==================================================== ///
 
     public:                                                 // opcodes handlers
 
@@ -1294,6 +1300,8 @@ class WorldSession
         /// Cross realm sync data
         BattlegroundPortData _battlegroundPortData;
         CrossPartyInfo m_CrossPartyInfo;
+        uint32 m_InterRealmZoneId;
+        bool m_BackFromCross;
 
     private:
         // private trade methods
@@ -1342,9 +1350,6 @@ class WorldSession
         uint32 m_VoteSyncTimer;
 
         typedef std::list<AddonInfo> AddonsList;
-
-        // Zone id for interrealm battleground
-        uint32 m_InterRealmBG;
 
         // Warden
         Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config

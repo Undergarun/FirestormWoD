@@ -995,6 +995,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     uint32 time2 = getMSTime() - time1;
 
     /// Send MOTD
+    if (!IsBackFromCross())
     {
         MotdText const l_MotdText = sWorld->GetMotd();
         std::string l_MotdStr = "";
@@ -1180,7 +1181,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     sObjectAccessor->AddObject(pCurrChar);
     //sLog->outDebug(LOG_FILTER_GENERAL, "Player %s added to Map.", pCurrChar->GetName());
 
-    if (pCurrChar->GetGuildId() != 0)
+    if (pCurrChar->GetGuildId() != 0 && !IsBackFromCross())
     {
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             guild->SendLoginInfo(this);
@@ -1211,7 +1212,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     }
 
     // friend status
-    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUIDLow(), true);
+    if (!IsBackFromCross())
+        sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUIDLow(), true);
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse();
@@ -1331,7 +1333,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(122), true);
     pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(159), true);
 
-    sScriptMgr->OnPlayerLogin(pCurrChar);
+    if (!IsBackFromCross())
+        sScriptMgr->OnPlayerLogin(pCurrChar);
 
     PreparedQueryResult l_ItemResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM);
     PreparedQueryResult l_GoldResult = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD);
@@ -1347,6 +1350,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     if (l_ItemResult || l_GoldResult || l_TitleResult || l_LevelResult || l_ProfessionResult)
         pCurrChar->SaveToDB();
+
+    SetBackFromCross(false);
 
     delete l_CharacterHolder;
     delete l_LoginHolder;
