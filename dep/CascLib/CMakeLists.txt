@@ -47,3 +47,5 @@ set(TOMCRYPT_FILES
 include_directories(${CMAKE_SOURCE_DIR}/dep)
 
 add_library(casc STATIC ${SRC_FILES} ${TOMCRYPT_FILES})
+
+set_property(TARGET casc PROPERTY FOLDER "dep")

@@ -39,6 +39,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/zlib
   ${CMAKE_SOURCE_DIR}/dep/bzip2
@@ -51,6 +52,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
   ${CMAKE_SOURCE_DIR}/src/server/shared/Collision
   ${CMAKE_SOURCE_DIR}/src/server/shared/Collision/Management
@@ -58,21 +60,25 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Collision/Models
   ${ZLIB_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${CURL_INCLUDE_DIR}
 )
 
 add_executable(mmaps_generator ${mmap_gen_sources})
 
 target_link_libraries(mmaps_generator
-  common
+  shared
   g3dlib
+  collision
   Recast
   Detour
-  format
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${ACE_LIBRARY}
   ${ZLIB_LIBRARIES}
+  ${CURL_LIBRARIES}
+  ${MYSQL_LIBRARY}
 )
 
 if( UNIX )
@@ -80,3 +86,5 @@ if( UNIX )
 elseif( WIN32 )
   install(TARGETS mmaps_generator DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
+
+set_property(TARGET mmaps_generator PROPERTY FOLDER "tools")

@@ -27,3 +27,5 @@ endif()
 add_library(Detour STATIC ${Detour_STAT_SRCS})
 
 target_link_libraries(Detour ${ZLIB_LIBRARIES})
+
+set_property(TARGET Detour PROPERTY FOLDER "dep")
