@@ -30,11 +30,11 @@ class Unit;
 
 enum MonsterMoveType
 {
-    MonsterMoveNormal = 0,
-    MonsterMoveStop = 1,
-    MonsterMoveFacingSpot = 2,
+    MonsterMoveNormal       = 0,
+    MonsterMoveStop         = 1,
+    MonsterMoveFacingSpot   = 2,
     MonsterMoveFacingTarget = 3,
-    MonsterMoveFacingAngle = 4
+    MonsterMoveFacingAngle  = 4
 };
 
 namespace Movement
