@@ -21631,12 +21631,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
     if (HasPendingBind())
         return false;
 
-    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
-    auto l_TrackingQuestId = creature->GetCreatureTemplate()->TrackingQuestID;
-    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-    if (l_TrackingQuestId && IsQuestBitFlaged(l_QuestBit))
-        return false;
-
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
         return false;
