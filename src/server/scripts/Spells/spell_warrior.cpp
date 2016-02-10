@@ -2812,7 +2812,7 @@ class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = p_ProcEventInfo.GetDamageInfo()->GetVictim();
+                Unit* l_Target = p_ProcEventInfo.GetDamageInfo()->getVictim();
                 SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
 
                 if (l_Caster == nullptr || l_Target == nullptr || l_SpellInfoTriggerSpell == nullptr)
@@ -2867,10 +2867,10 @@ class spell_warr_revenge : public SpellScriptLoader
                 if (!(p_ProcInfos.GetHitMask() & (PROC_EX_PARRY | PROC_EX_DODGE)))
                     return;
 
-                if (p_ProcInfos.GetDamageInfo() == nullptr || p_ProcInfos.GetDamageInfo()->GetVictim() == nullptr)
+                if (p_ProcInfos.GetDamageInfo() == nullptr || p_ProcInfos.GetDamageInfo()->getVictim() == nullptr)
                     return;
 
-                Player* l_Player = p_ProcInfos.GetDamageInfo()->GetVictim()->ToPlayer();
+                Player* l_Player = p_ProcInfos.GetDamageInfo()->getVictim()->ToPlayer();
 
                 if (l_Player == nullptr)
                     return;
@@ -3037,7 +3037,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 if (p_ProcInfo.GetDamageInfo() == nullptr)
                     return;
 
-                Unit* l_DamageTarget = p_ProcInfo.GetDamageInfo()->GetVictim();
+                Unit* l_DamageTarget = p_ProcInfo.GetDamageInfo()->getVictim();
 
                 if (l_DamageTarget == nullptr)
                     return;

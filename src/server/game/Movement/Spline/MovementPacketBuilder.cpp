@@ -35,15 +35,6 @@ namespace Movement
         b >> v.x >> v.y >> v.z;
     }
 
-    enum MonsterMoveType
-    {
-        MonsterMoveNormal       = 0,
-        MonsterMoveStop         = 1,
-        MonsterMoveFacingSpot   = 2,
-        MonsterMoveFacingTarget = 3,
-        MonsterMoveFacingAngle  = 4
-    };
-
     void PacketBuilder::WriteCommonMonsterMovePart(const MoveSpline& move_spline, WorldPacket& data)
     {
         MoveSplineFlag splineflags = move_spline.splineflags;
@@ -184,7 +175,7 @@ namespace Movement
             if (splineFlags.parabolic || splineFlags.animation)
                 data << moveSpline.effect_start_time;       // added in 3.1
 
-            data << moveSpline.TimePassed();
+            data << moveSpline.time_passed;
             data << moveSpline.Duration();
         }
 

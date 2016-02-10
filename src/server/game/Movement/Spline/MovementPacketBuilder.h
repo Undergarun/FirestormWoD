@@ -28,6 +28,15 @@ class ByteBuffer;
 class WorldPacket;
 class Unit;
 
+enum MonsterMoveType
+{
+    MonsterMoveNormal = 0,
+    MonsterMoveStop = 1,
+    MonsterMoveFacingSpot = 2,
+    MonsterMoveFacingTarget = 3,
+    MonsterMoveFacingAngle = 4
+};
+
 namespace Movement
 {
     class MoveSpline;

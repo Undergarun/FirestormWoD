@@ -1816,7 +1816,7 @@ class mob_rushing_winds : public CreatureScript
                 // spinning around the central point
                 if (Creature* l_InvisibleMan = GetClosestCreatureWithEntry(me, NPC_IRON_QON_INVISIBLE_MAN, 100.0f))
                 {
-                    Movement::MoveSplineInit l_Init(*me);
+                    Movement::MoveSplineInit l_Init(me);
                     FillCirclePath(g_WindstormPoint, me->GetExactDist2d(g_WindstormPoint.m_positionX, g_WindstormPoint.m_positionY), me->GetPositionZ(), l_Init.Path(), m_Index % 2);
                     l_Init.SetWalk(true);
                     l_Init.SetCyclic();

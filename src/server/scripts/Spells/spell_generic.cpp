@@ -4430,7 +4430,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
-                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->getVictim();
                 if (l_Attacker == nullptr || l_Victim == nullptr)
                     return;
 
@@ -5003,7 +5003,7 @@ class spell_gen_inge_trigger_enchant : public SpellScriptLoader
                 if (l_DamageInfo == nullptr)
                     return;
 
-                Unit* l_Target = l_DamageInfo->GetVictim();
+                Unit* l_Target = l_DamageInfo->getVictim();
                 Unit* l_Caster = l_DamageInfo->GetAttacker();
 
                 if (l_Target == nullptr || l_Caster == nullptr)

@@ -533,7 +533,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 p_Data->WriteBit(l_HasFilterKeys);                          ///< Has unk spline part
                 p_Data->FlushBits();
 
-                *p_Data << uint32(l_Spline->TimePassed());                  ///< Time passed
+                *p_Data << uint32(l_Spline->time_passed);                   ///< Time passed
                 *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
                 *p_Data << float(1.0f);                                     ///< DurationMod
                 *p_Data << float(1.0f);                                     ///< DurationModNext
@@ -3713,7 +3713,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     desty = pos.m_positionY + dist * std::sin(angle);
 
     // Prevent invalid coordinates here, position is unchanged
-    if (!JadeCore::IsValidMapCoord(destx, desty))
+    if (!JadeCore::IsValidMapCoord(destx, desty, pos.m_positionZ))
     {
         sLog->outFatal(LOG_FILTER_GENERAL, "WorldObject::MovePosition invalid coordinates X: %f and Y: %f were passed!", destx, desty);
         return;

@@ -21,7 +21,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
-#include "VMapManager2.h"
+#include "World.h"
 
 namespace DisableMgr
 {
@@ -182,29 +182,57 @@ void LoadDisables()
                 switch (mapEntry->instanceType)
                 {
                     case MAP_COMMON:
-                        if (flags & VMAP_DISABLE_AREAFLAG)
+                        if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Areaflag disabled for world map %u.", entry);
-                        if (flags & VMAP_DISABLE_LIQUIDSTATUS)
+                        if (flags & VMAP::VMAP_DISABLE_LIQUIDSTATUS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Liquid status disabled for world map %u.", entry);
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for instance map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for instance map %u.", entry);
                         break;
                     case MAP_BATTLEGROUND:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for battleground map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for battleground map %u.", entry);
                         break;
                     case MAP_ARENA:
-                        if (flags & VMAP_DISABLE_HEIGHT)
+                        if (flags & VMAP::VMAP_DISABLE_HEIGHT)
                             sLog->outInfo(LOG_FILTER_GENERAL, "Height disabled for arena map %u.", entry);
-                        if (flags & VMAP_DISABLE_LOS)
+                        if (flags & VMAP::VMAP_DISABLE_LOS)
                             sLog->outInfo(LOG_FILTER_GENERAL, "LoS disabled for arena map %u.", entry);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case DISABLE_TYPE_MMAP:
+            {
+                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                if (!mapEntry)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    continue;
+                }
+                switch (mapEntry->instanceType)
+                {
+                    case MAP_COMMON:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for world map %u.", entry);
+                        break;
+                    case MAP_INSTANCE:
+                    case MAP_RAID:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for instance map %u.", entry);
+                        break;
+                    case MAP_BATTLEGROUND:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for battleground map %u.", entry);
+                        break;
+                    case MAP_ARENA:
+                        sLog->outInfo(LOG_FILTER_GENERAL, "Pathfinding disabled for arena map %u.", entry);
                         break;
                     default:
                         break;
@@ -221,7 +249,17 @@ void LoadDisables()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
+}
 
+bool IsVMAPDisabledFor(uint32 entry, uint8 flags)
+{
+    return IsDisabledFor(DISABLE_TYPE_VMAP, entry, NULL, flags);
+}
+
+bool IsPathfindingEnabled(uint32 mapId)
+{
+    return sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS)
+        && !IsDisabledFor(DISABLE_TYPE_MMAP, mapId, NULL, MMAP_DISABLE_PATHFINDING);
 }
 
 void CheckQuestDisables()

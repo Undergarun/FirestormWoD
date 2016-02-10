@@ -1258,6 +1258,8 @@ class PlayerTaxi
             m_TaxiDestinations = p_Destinations;
         }
 
+        std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
+
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
         TaxiMask m_taximask;

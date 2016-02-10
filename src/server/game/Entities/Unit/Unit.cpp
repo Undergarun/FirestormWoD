@@ -451,10 +451,10 @@ bool Unit::haveOffhandWeapon() const
         return m_canDualWield;
 }
 
-void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
+void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath, bool forceDestination)
 {
-    Movement::MoveSplineInit init(*this);
-    init.MoveTo(x,y,z);
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(x, y, z, generatePath, forceDestination);
     init.SetVelocity(speed);
     init.Launch();
 }
@@ -484,7 +484,7 @@ void Unit::UpdateSplineMovement(uint32 p_Diff)
         float l_Percent = 1.0f;
         float l_TotalTime = movespline->spline.length();
         if (l_TotalTime > 0.0f)
-            l_Percent = (float)movespline->m_TimePassed / l_TotalTime;
+            l_Percent = (float)movespline->time_passed / l_TotalTime;
 
         SendFlightSplineSync(l_Percent);
         m_FlightSplineSyncTimer.Reset(g_FlightSplineSyncDelay);
@@ -17508,7 +17508,7 @@ void Unit::StopMoving()
 
     // Update position using old spline
     UpdateSplinePosition();
-    Movement::MoveSplineInit(*this).Stop();
+    Movement::MoveSplineInit(this).Stop();
 }
 
 void Unit::SendMovementFlagUpdate(bool self /* = false */)
@@ -21176,8 +21176,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         SendMessageToSet(&data, false);
     }
 
-    Movement::MoveSplineInit init(*this);
-    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();
@@ -21599,7 +21599,7 @@ void Unit::SetInFront(WorldObject const* target)
 
 void Unit::SetFacingTo(float ori)
 {
-    Movement::MoveSplineInit init(*this);
+    Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
     if (GetTransGUID())
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
@@ -21616,7 +21616,7 @@ void Unit::SetFacingToObject(WorldObject* object)
         return;
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    Movement::MoveSplineInit init(*this);
+    Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
     init.SetFacing(GetAngle(object));   // when on transport, GetAngle will still return global coordinates (and angle) that needs transforming
     init.Launch();
