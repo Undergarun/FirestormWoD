@@ -494,7 +494,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        float l_MaxDepth = -500.0f;
+        /*float l_MaxDepth = -500.0f;
 
         /// Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)
@@ -513,8 +513,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
             default:
                 break;
         }
-
-        if (l_MovementInfo.pos.GetPositionZ() < l_MaxDepth)
+        */
+        if (l_MovementInfo.pos.GetPositionZ() < l_PlayerMover->GetMap()->GetMinHeight(l_MovementInfo.pos.GetPositionX(), l_MovementInfo.pos.GetPositionY()))
         {
             if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
             {
@@ -523,6 +523,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
                 // TODO: discard movement packets after the player is rooted
                 if (l_PlayerMover->isAlive())
                 {
+                    l_PlayerMover->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
                     l_PlayerMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from
