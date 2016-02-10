@@ -5116,6 +5116,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160455: ///< Fatigued
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
+            case 186842: ///< Podling Disguise
+                spellInfo->Effects[0].MiscValue = 85411;
+                break;
             case 105770: ///< Item - Druid T13 Restoration 4P Bonus (Rejuvenation)
                 spellInfo->Effects[0].SpellClassMask = flag128(0x00000050, 0, 0);
                 break;
