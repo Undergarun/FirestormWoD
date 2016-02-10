@@ -374,6 +374,12 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     {
         if (l_AcceptedInvite == 1)
         {
+            if (m_Player->GetInterRealmPlayerState() > InterRealmPlayerState::None)
+            {
+                sLog->outAshran("HandleBattleFieldPortOpcode: Try to transfer player to cross, but he is already in transfer");
+                return;
+            }
+
             m_Player->RemoveAurasByType(SPELL_AURA_MOUNTED);
  
             if (!m_Player->InBattleground())
@@ -393,6 +399,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
             }
  
             SetBattlegroundPortData(GetPlayer()->GetGUID(), l_Time, l_QueueSlotID, l_AcceptedInvite);
+            GetPlayer()->SetInterRealmPlayerState(InterRealmPlayerState::InTransfer);
             GetPlayer()->SaveToDB(false, true);
         }
         else

@@ -1568,6 +1568,16 @@ enum StoreCallback
     MaxDelivery
 };
 
+namespace InterRealmPlayerState
+{
+    enum Type
+    {
+        None,
+        InTransfer,
+        PlayOnCross
+    };
+}
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -3674,6 +3684,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetInterRealmMapId() const { return m_irMapId; }
         void SetInterRealmMapId(uint32 val) { m_irMapId = val; }
 
+        InterRealmPlayerState::Type GetInterRealmPlayerState() const { return m_InterRealmPlayerState; }
+        void SetInterRealmPlayerState(InterRealmPlayerState::Type p_State) { m_InterRealmPlayerState = p_State; }
+
         /// Store callback
         bool IsStoreDeliverySaved() const { return m_StoreDeliverySave; }
         bool IsStoreDeliveryProccesed(StoreCallback p_DeliveryType) const { return m_StoreDeliveryProcessed[p_DeliveryType]; }
@@ -4154,6 +4167,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_irAreaId;
         uint32 m_irMapId;
 
+        InterRealmPlayerState::Type m_InterRealmPlayerState;
 
         uint32 m_PvPCombatTimer;
         bool m_pvpCombat;

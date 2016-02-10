@@ -711,6 +711,7 @@ void InterRealmSession::Handle_BattlefieldPortResp(WorldPacket& packet)
             pPlayer->GetMap()->RemovePlayerFromMap(pPlayer, false);     
 
         pPlayer->GetSession()->SetInterRealmBG(bgZoneId);
+        pPlayer->SetInterRealmPlayerState(InterRealmPlayerState::PlayOnCross);
 
         WorldPacket pckt(IR_CMSG_BATTLEFIELD_ENTER, 8 + 4 + 4 + 2);
         pckt << uint64(_playerGuid);
