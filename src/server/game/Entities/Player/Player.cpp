@@ -1076,6 +1076,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
         m_StoreDeliveryProcessed[l_I] = false;
 
     m_StoreDeliverySave = false;
+
+    m_InterRealmPlayerState = InterRealmPlayerState::None;
 }
 
 Player::~Player()
