@@ -389,3 +389,5 @@ INSERT INTO spell_script_names VALUE (108939, 'spell_pri_glyph_of_levitate');
 -- fix Glyph of Rain of Frogs
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sha_glyph_of_rain_of_frogs';
 INSERT INTO `spell_script_names` VALUES (147707, 'spell_sha_glyph_of_rain_of_frogs');
+
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_sword_of_light_damage' AND spell_id IN (157048, 53385);

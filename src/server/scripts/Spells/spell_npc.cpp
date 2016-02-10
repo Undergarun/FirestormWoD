@@ -1433,6 +1433,34 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
+/// Totem of Harmony - 65387
+class spell_npc_totem_of_harmony : public CreatureScript
+{
+public:
+    spell_npc_totem_of_harmony() : CreatureScript("spell_npc_totem_of_harmony") { }
+
+    enum eSpells
+    {
+        TotemofHarmonyAura = 128182
+    };
+
+    struct spell_npc_totem_of_harmony_bannerAI : public ScriptedAI
+    {
+        spell_npc_totem_of_harmony_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+        void Reset()
+        {
+            me->CastSpell(me, eSpells::TotemofHarmonyAura, true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const
+    {
+        return new spell_npc_totem_of_harmony_bannerAI(p_Creature);
+    }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1464,4 +1492,7 @@ void AddSC_npc_spell_scripts()
 
     /// Druid NPC
     new spell_npc_dru_force_of_nature_resto();
+
+    /// Generic NPC
+    new spell_npc_totem_of_harmony();
 }

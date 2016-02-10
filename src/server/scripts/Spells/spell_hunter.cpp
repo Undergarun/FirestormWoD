@@ -2503,6 +2503,12 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_ancient_hysteria_SpellScript);
 
+            enum eSpells
+            {
+                BloodLust = 2825,
+                TimeWarp = 80353
+            };
+
             bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(HunterSpells::HUNTER_SPELL_INSANITY))
@@ -2528,6 +2534,8 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
             }
 
             void ApplyDebuff()

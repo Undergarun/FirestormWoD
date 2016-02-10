@@ -6559,6 +6559,9 @@ void Player::ResetAllSpecs()
 
 void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
+    /// Hook playerScript OnModifySpec
+    sScriptMgr->OnModifySpec(this, p_Specialization);
+
     /// Remove specialization talents
     for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
     {
@@ -30246,22 +30249,6 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     /// If in future we have some spells with same mechanic, just need to add switch
     if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
         CastSpell(this, 118922, true);
-
-    if (GetLastUsedLeapBackSpell() != 0)
-    {
-        /// Disengage, give PostHaste just after landing
-        if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
-            CastSpell(this, 118922, true);
-
-        /// Death Grip, trigger Chains of Ice after landing
-        if (GetLastUsedLeapBackSpell() == 49575)
-        {
-            if (AuraPtr l_DeathGrip = GetAura(49560))
-                if (Unit* l_Caster = l_DeathGrip->GetCaster())
-                    if (l_Caster->getClass() == CLASS_DEATH_KNIGHT && l_Caster->HasSpell(157367))
-                        l_Caster->CastSpell(this, 45524, true);
-        }
-    }
 
     ClearLastUsedLeapBackSpell();
 }

@@ -20755,7 +20755,36 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             return 25277;
         }
         default:
+        {
+            if (!HasAura(102560))
+                break;
+
+            if (HasAura(114301))
+                return GetNativeDisplayId();
+
+            switch (getRace())
+            {
+            case RACE_NIGHTELF:
+            {
+                return 43790;
+            }
+            case RACE_TAUREN:
+            {
+                 return 43786;
+            }
+            case RACE_WORGEN:
+            {
+                return 43787;
+            }
+            case RACE_TROLL:
+            {
+                return 43789;
+            }
+            default:
+                break;
+            }
             break;
+        }
     }
 
     uint32 modelid = 0;
@@ -20778,6 +20807,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
     }
 
+    if (!modelid)
+        modelid = GetNativeDisplayId();
     return modelid;
 }
 
