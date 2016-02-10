@@ -1569,7 +1569,7 @@ enum StoreCallback
 
 namespace InterRealmPlayerState
 {
-    enum MyEnum
+    enum
     {
         None,
         InTransfer,
