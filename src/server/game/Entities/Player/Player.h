@@ -1567,12 +1567,15 @@ enum StoreCallback
     MaxDelivery
 };
 
-enum InterRealmPlayerState
+namespace InterRealmPlayerState
 {
-    None,
-    InTransfer,
-    PlayOnCross
-};
+    enum MyEnum
+    {
+        None,
+        InTransfer,
+        PlayOnCross
+    };
+}
 
 class Player : public Unit, public GridObject<Player>
 {
