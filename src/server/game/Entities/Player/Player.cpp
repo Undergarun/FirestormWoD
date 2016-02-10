@@ -7734,7 +7734,7 @@ void Player::RepopAtGraveyard()
     else if (GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 
-    RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS)
+    RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 }
 
 void Player::TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId)

@@ -484,7 +484,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
             if (!l_Spline->isCyclic())
             {
-                Vector3 l_FinalDestination = l_Spline->FinalDestination();
+                Movement::Vector3 l_FinalDestination = l_Spline->FinalDestination();
 
                 *p_Data << float(l_FinalDestination.x);                     ///< Spline destination X
                 *p_Data << float(l_FinalDestination.y);                     ///< Spline destination Y
@@ -493,7 +493,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             else
             {
                 /// I've seen always the third points as Spline destination... Don't know why
-                Vector3 l_Destination = l_Spline->spline.last() > 2 ? l_Spline->spline.getPoint(2) : l_Spline->spline.getPoint(l_Spline->spline.last());
+                Movement::Vector3 l_Destination = l_Spline->spline.last() > 2 ? l_Spline->spline.getPoint(2) : l_Spline->spline.getPoint(l_Spline->spline.last());
 
                 *p_Data << float(l_Destination.x);                                        ///< Spline destination X
                 *p_Data << float(l_Destination.y);                                        ///< Spline destination Y
