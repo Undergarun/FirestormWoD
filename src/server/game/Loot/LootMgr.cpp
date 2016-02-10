@@ -450,6 +450,24 @@ bool LootItem::AllowedForPlayer(Player const* p_Player) const
         // check quest requirements
         if (!(l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (l_ItemTemplate->StartQuest && p_Player->GetQuestStatus(l_ItemTemplate->StartQuest) != QUEST_STATUS_NONE)) && !p_Player->HasQuestForItem(itemid)))
             return false;
+
+        if (l_ItemTemplate->Quality > ItemQualities::ITEM_QUALITY_UNCOMMON)
+        {
+            WorldObject* l_LootSourceObject = nullptr;
+            if (IS_GAMEOBJECT_GUID(currentLoot->source))
+                l_LootSourceObject = p_Player->GetMap()->GetGameObject(currentLoot->source);
+            else if (IS_CREATURE_GUID(currentLoot->source))
+                l_LootSourceObject = p_Player->GetMap()->GetCreature(currentLoot->source);
+
+            if (l_LootSourceObject)
+            {
+                /// If worldobject is quest tracked and player have the quest, player isn't allowed to loot more than green quality
+                auto l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(l_LootSourceObject);
+                uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+                if (l_TrackingQuestId && p_Player->IsQuestBitFlaged(l_QuestBit))
+                    return false;
+            }
+        }
     }
     else if (type == LOOT_ITEM_TYPE_CURRENCY)
     {
