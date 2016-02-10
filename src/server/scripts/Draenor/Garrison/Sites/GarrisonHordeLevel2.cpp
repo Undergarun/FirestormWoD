@@ -142,7 +142,13 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     void InstanceScript_GarrisonHordeLevel2::OnUpgrade(Player* p_Owner)
     {
+        GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
 
+        if (!l_Entry)
+            return;
+
+        p_Owner->AddMovieDelayedTeleport(l_Entry->MovieID, l_Entry->MapID, 5622.5063f, 4465.5161f, 130.1637f, 0.0f);
+        p_Owner->SendMovieStart(l_Entry->MovieID);
     }
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////

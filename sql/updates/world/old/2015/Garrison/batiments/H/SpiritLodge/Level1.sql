@@ -5,14 +5,14 @@ INSERT INTO gameobject_template (`entry`, `type`, `displayId`, `name`, `IconName
 -- plot content
 
 DELETE FROM garrison_plot_content WHERE plot_type_or_building = -37 AND faction_index = 0; -- horde
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','79836','6.73913','-0.149402','2.188','6.25459');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87564','3.89666','-5.44055','2.38396','4.78983');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87564','-1.13302','3.74507','2.38443','2.44448');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','-240601','24.2633','5.83074','-0.068878','0.068653');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87760','14.4524','-15.1711','0.498535','5.46826');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87761','18.5279','-12.338','0.498535','5.61591');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','82571','16.5685','7.13024','2.27689','0.860329');
-insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','91577','23.0865','9.00142','0.493866','5.96116');
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','79836','6.73913','-0.149402','2.188','6.25459'); -- Gez'la
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87564','3.89666','-5.44055','2.38396','4.78983'); -- Frostwall Shaman
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87564','-1.13302','3.74507','2.38443','2.44448'); -- Frostwall Shaman
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','-240601','24.2633','5.83074','-0.068878','0.068653'); -- work order
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87760','14.4524','-15.1711','0.498535','5.46826'); -- Training Dummy
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','87761','18.5279','-12.338','0.498535','5.61591'); -- Dungeoneers Training Dummy
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','82571','16.5685','7.13024','2.27689','0.860329'); -- Atheeru Palestar
+insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-37','0','91577','23.0865','9.00142','0.493866','5.96116'); -- Varsha
 
 DELETE FROM quest_template_objective WHERE questID IN (38351, 38354);
 INSERT INTO quest_template_objective (QuestID, TYPE, ObjectID, Amount, Description) VALUES

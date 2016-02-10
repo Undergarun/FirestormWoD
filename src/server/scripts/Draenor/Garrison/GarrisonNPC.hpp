@@ -84,6 +84,10 @@ namespace MS { namespace Garrison
             /// @p_RelZ       : Z Relative coord
             /// @p_RelO       : Relative orientation coord
             GameObject* SummonRelativeGameObject(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO);
+            /// Spawn a gameobject with building relative coords
+            /// @p_Entry      : GameObject entry
+            /// @p_Position   : Relative coords
+            GameObject* SummonRelativeGameObject(uint32 p_Entry, const Position p_Position);
 
             /// Transform coord
             /// @p_X : X coord
