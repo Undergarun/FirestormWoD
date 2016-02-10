@@ -6559,6 +6559,9 @@ void Player::ResetAllSpecs()
 
 void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
+    /// Hook playerScript OnModifySpec
+    sScriptMgr->OnModifySpec(this, p_Specialization);
+
     /// Remove specialization talents
     for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
     {
