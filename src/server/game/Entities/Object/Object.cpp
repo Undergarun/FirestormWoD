@@ -45,7 +45,6 @@
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "OutdoorPvPMgr.h"
-#include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"

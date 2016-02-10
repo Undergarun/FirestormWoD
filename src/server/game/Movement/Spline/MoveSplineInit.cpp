@@ -20,8 +20,15 @@
 #include "MoveSpline.h"
 #include "Unit.h"
 #include "Transport.h"
-#include "MovementPacketBuilder.h"
 
+enum MonsterMoveType
+{
+    MonsterMoveNormal       = 0,
+    MonsterMoveStop         = 1,
+    MonsterMoveFacingSpot   = 2,
+    MonsterMoveFacingTarget = 3,
+    MonsterMoveFacingAngle  = 4
+};
 
 struct MonsterSplineFilterKey
 {
