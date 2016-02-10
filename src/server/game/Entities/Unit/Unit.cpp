@@ -847,7 +847,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
-    if (Player* l_Player = ToPlayer())
+    if (Player* l_Player = victim->ToPlayer())
     {
         if (!l_Player || l_Player->GetCommandStatus(CHEAT_GOD))
             return 0;

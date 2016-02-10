@@ -14872,7 +14872,8 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             }
 
             // equip two-hand weapon case (with possible unequip 2 items)
-            if (type == INVTYPE_2HWEAPON)
+            /// Ranged weapons are two hands weapons since MoP
+            if (type == INVTYPE_2HWEAPON || type == INVTYPE_RANGEDRIGHT)
             {
                 if (eslot == EQUIPMENT_SLOT_OFFHAND)
                 {

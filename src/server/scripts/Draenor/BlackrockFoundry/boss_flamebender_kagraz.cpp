@@ -44,7 +44,6 @@ class boss_flamebender_kagraz : public CreatureScript
             LavaSlashMissileTriggered   = 155318,
             LavaSlashAreaTrigger        = 154915,
             /// Summon Enchanted Armaments
-            EnchantedArmamentsSearcher  = 163644,
             EnchantedArmamentsDummy     = 156725,
             /// Molten Torrent
             MoltenTorrentAura           = 154932,
@@ -136,9 +135,6 @@ class boss_flamebender_kagraz : public CreatureScript
             {
                 ClearDelayedOperations();
 
-                m_Events.Reset();
-                m_CosmeticEvents.Reset();
-
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
@@ -160,6 +156,9 @@ class boss_flamebender_kagraz : public CreatureScript
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
+
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 if (m_Instance)
                 {
@@ -296,11 +295,6 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
-                    case eSpells::EnchantedArmamentsSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::EnchantedArmamentsDummy, true);
-                        break;
-                    }
                     case eSpells::EnchantedArmamentsDummy:
                     {
                         me->SummonCreature(eCreatures::EnchantedArmament, *p_Target);
@@ -489,7 +483,16 @@ class boss_flamebender_kagraz : public CreatureScript
                     }
                     case eEvents::EventSummonEnchantedArmament:
                     {
-                        me->CastSpell(me, eSpells::EnchantedArmamentsSearcher, true);
+                        Unit* l_Target = nullptr;
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
                         break;
                     }
@@ -499,13 +502,13 @@ class boss_flamebender_kagraz : public CreatureScript
                             break;
 
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
                             me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
 
                         m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, eTimers::TimerMoltenTorrentAgain);
@@ -1606,7 +1609,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
                         me->GetMotionMaster()->MovePoint(0, *l_Target);
                 }
 
-                if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath)
+                if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath && m_CurrAction == eActions::ActionOverheated)
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         me->CastSpell(l_Target, eSpells::CharringBreathJump, true);

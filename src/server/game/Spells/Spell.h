@@ -688,6 +688,8 @@ public:
     void CleanupTargetList();
 
     void SetSpellValue(SpellValueMod mod, int32 value);
+    int32 GetSpellValue(SpellValueMod p_Mod) const;
+
     Unit* GetUnitTarget() { return m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : unitTarget; }
 
     void SetPeriodicDamageModifier(float newModifier) { m_periodicDamageModifier = newModifier; }
