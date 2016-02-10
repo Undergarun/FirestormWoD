@@ -3816,7 +3816,9 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 Insanity             = 95809,
                 Sated                = 57724,
                 TemporalDisplacement = 80354,
-                Fatigued             = 160455
+                Fatigued             = 160455,
+                BloodLust            = 2825,
+                TimeWarp             = 80353
             };
 
             SpellCastResult CheckCast()
@@ -3836,6 +3838,8 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Fatigued));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
             }
 
             void Register()

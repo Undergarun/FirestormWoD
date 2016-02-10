@@ -1686,6 +1686,11 @@ class spell_sha_bloodlust: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_bloodlust_SpellScript);
 
+            enum eSpells
+            {
+                TimeWrap = 80353
+            };
+
             bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(ShamanSpells::SHAMAN_SPELL_SATED))
@@ -1701,6 +1706,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_FATIGUED));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWrap));
             }
 
             void ApplyDebuff()
