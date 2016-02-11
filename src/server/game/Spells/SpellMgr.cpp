@@ -3576,6 +3576,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
                 spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 154952: ///< Fixate (Cinder Wolf)
                 spellInfo->MaxAffectedTargets = 1;
