@@ -97,6 +97,7 @@ void AddSC_hotfix_commandscript();
 void AddSC_battlepay_commandscript();
 void AddSC_items_commandscript();
 void AddSC_spellog_commandscript();
+void AddSC_mmaps_commandscript();
 
 //world
 void AddSC_areatrigger_scripts();
@@ -1042,6 +1043,7 @@ void AddCommandScripts()
     AddSC_hotfix_commandscript();
     AddSC_battlepay_commandscript();
     AddSC_items_commandscript();
+    AddSC_mmaps_commandscript();
     AddSC_spellog_commandscript();
 }
 
