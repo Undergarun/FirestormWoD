@@ -71,6 +71,8 @@ class EffectMovementGenerator : public MovementGenerator
         void Reset(Unit*) override { }
         bool Update(Unit*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
+        void MovementInform(Unit*);
+
     private:
         uint32 _id;
         uint32 _arrivalSpellId;

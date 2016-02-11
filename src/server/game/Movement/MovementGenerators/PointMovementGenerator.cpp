@@ -108,10 +108,77 @@ void PointMovementGenerator<T>::DoReset(T* unit)
 template<class T>
 void PointMovementGenerator<T>::MovementInform(T* /*unit*/) { }
 
+enum specialSpells
+{
+    BABY_ELEPHANT_TAKES_A_BATH          = 108938,
+    BABY_ELEPHANT_TAKES_A_BATH_2        = 108937,
+    MONK_CLASH                          = 126452,
+    MONK_CLASH_IMPACT                   = 126451,
+    TOT_RETRIEVE_SPEAR                  = 137070,
+    TOT_RETRIEVE_SPEAR_DAMAGE           = 137072,
+
+    // Jin'Rokh the Breaker - ToT
+    SPELL_THUNDERING_THROW_JUMP_DEST    = 137173,
+    SPELL_THUNDERING_THROW_VEHICLE      = 137161,
+    SPELL_THUNDERING_THROW_AOE          = 137167,
+    SPELL_THUNDERING_THROW_STUN_PLAYER  = 137371,
+
+    // Horridon - ToT
+    SPELL_HORRIDON_CHARGE               = 136769,
+    SPELL_DOUBLE_SWIPE                  = 136741,
+
+    /// Kargath Bladefist - Highmaul
+    ChainHurlJumpDest                   = 160061,
+    ChainHurlKnockBack                  = 160062,
+    ChainHurlJumpDestPlayer             = 159995,
+    ChainHurlAoEStunPlayer              = 160904,
+    ChainHurl                           = 159947,
+    AnimChainHurl                       = 5917,
+
+    /// The Butcher - Highmaul
+    BoundingCleaveJump                  = 156171,
+    BoundingCleaveDamage                = 156172,
+
+    /// Krush - Highmaul
+    BoarsRuchJump                       = 166225,
+    Winded                              = 166227,
+
+    /// Ogron Earthshaker - Highmaul
+    IntimidatingRoarJump                = 166170,
+    IntimidatingRoarFear                = 166171,
+    Squash                              = 166172
+};
+
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
     if (unit->AI())
         unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
+
+    switch (id)
+    {
+        case BABY_ELEPHANT_TAKES_A_BATH:
+            unit->CastSpell(unit, BABY_ELEPHANT_TAKES_A_BATH_2, true);
+            break;
+        case SPELL_HORRIDON_CHARGE:
+            unit->CastSpell(unit, SPELL_DOUBLE_SWIPE, false);
+            break;
+        default:
+            break;
+    }
+}
+
+template <> void PointMovementGenerator<Player>::MovementInform(Player* unit)
+{
+    sScriptMgr->OnPlayerMovementInform(unit, POINT_MOTION_TYPE, id);
+
+    switch (id)
+    {
+        case MONK_CLASH:
+            unit->CastSpell(unit, MONK_CLASH_IMPACT, true);
+            break;
+        default:
+            break;
+    }
 }
 
 template void PointMovementGenerator<Player>::DoInitialize(Player*);
@@ -155,4 +222,50 @@ void EffectMovementGenerator::Finalize(Unit* unit)
 
     if (unit->ToCreature()->AI())
         unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
+}
+
+void EffectMovementGenerator::MovementInform(Unit* unit)
+{
+    if (unit->GetTypeId() == TYPEID_UNIT)
+    {
+        Creature* creature = unit->ToCreature();
+
+        if (creature->AI())
+            creature->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
+    }
+
+    switch (_id)
+    {
+        case TOT_RETRIEVE_SPEAR:
+            unit->CastSpell(unit, TOT_RETRIEVE_SPEAR_DAMAGE, true);
+            break;
+        case SPELL_THUNDERING_THROW_JUMP_DEST:
+            if (unit->HasAura(SPELL_THUNDERING_THROW_VEHICLE))
+                break;
+            unit->CastSpell(unit, SPELL_THUNDERING_THROW_AOE, true);
+            unit->CastSpell(unit, SPELL_THUNDERING_THROW_STUN_PLAYER, true);
+            break;
+        case specialSpells::ChainHurlJumpDest:
+            unit->CastSpell(unit, specialSpells::ChainHurlKnockBack, true);
+            unit->CastSpell(unit, specialSpells::ChainHurl, false);
+            unit->PlayOneShotAnimKit(specialSpells::AnimChainHurl);
+            unit->SetControlled(true, UnitState::UNIT_STATE_ROOT);
+            break;
+        case specialSpells::ChainHurlJumpDestPlayer:
+            unit->CastSpell(unit, specialSpells::ChainHurlAoEStunPlayer, true);
+            break;
+        case specialSpells::BoundingCleaveJump:
+            unit->CastSpell(unit, specialSpells::BoundingCleaveDamage, true);
+            break;
+        case specialSpells::BoarsRuchJump:
+            unit->CastSpell(unit, specialSpells::Winded, true);
+            unit->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+            break;
+        case specialSpells::IntimidatingRoarJump:
+            unit->CastSpell(unit, specialSpells::Squash, true);
+            unit->CastSpell(unit, specialSpells::IntimidatingRoarFear, false);
+            break;
+        default:
+            break;
+    }
 }
