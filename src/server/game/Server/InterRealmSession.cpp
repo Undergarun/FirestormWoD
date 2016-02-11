@@ -10,6 +10,7 @@
 #include "BattlegroundMgr.hpp"
 #include "AnticheatMgr.h"
 #include "GuildMgr.h"
+#include "Channel.h"
 
 #ifdef NOT_WINDOWS
 #include <netinet/tcp.h>
@@ -782,6 +783,7 @@ void InterRealmSession::Handle_BattlefieldLeave(WorldPacket& p_Packet)
         /// Logout player ...
         WorldSession* l_Session = l_Player->GetSession();
         l_Session->SetBackFromCross(true);
+        l_Session->SaveSpecialChannels();
 
         l_Session->LogoutPlayer(false, true);
         l_Player = nullptr;

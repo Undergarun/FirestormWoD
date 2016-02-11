@@ -1351,6 +1351,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     if (l_ItemResult || l_GoldResult || l_TitleResult || l_LevelResult || l_ProfessionResult)
         pCurrChar->SaveToDB();
 
+    if (IsBackFromCross())
+        RestoreSpecialChannels();
+
     SetBackFromCross(false);
 
     delete l_CharacterHolder;

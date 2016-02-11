@@ -48,6 +48,8 @@
 #include "GarrisonMgr.hpp"
 #include "AccountMgr.h"
 #include "InterRealmOpcodes.h"
+#include "Channel.h"
+#include "ChannelMgr.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -795,8 +797,7 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         }
 
         ///- Leave all channels before player delete...
-        if (!IsBackFromCross())
-            m_Player->CleanupChannels();
+        m_Player->CleanupChannels();
 
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         m_Player->UninviteFromGroup();
@@ -1759,4 +1760,37 @@ void WorldSession::SendGameError(GameError::Type p_Error, uint32 p_Data1, uint32
         l_Packet << uint32(p_Data2);
 
     SendPacket(&l_Packet);
+}
+
+void WorldSession::SaveSpecialChannels()
+{
+    if (!m_Player)
+        return;
+
+    JoinedChannelsList const l_Channels = m_Player->GetJoinnedChannelList();
+    for (auto l_Channel : l_Channels)
+    {
+        if (!l_Channel->IsConstant())
+            m_SpecialChannelsSave.push_back(l_Channel->GetName());
+    }
+}
+
+void WorldSession::RestoreSpecialChannels()
+{
+    if (!m_Player)
+    {
+        m_SpecialChannelsSave.clear();
+        return;
+    }
+
+    if (ChannelMgr* l_ChannelMgr = channelMgr(m_Player->GetTeam()))
+    {
+        for (std::string l_ChannelName : m_SpecialChannelsSave)
+        {
+            Channel* l_Channel = l_ChannelMgr->GetJoinChannel(l_ChannelName, 0);
+            l_Channel->Join(m_Player->GetGUID(), l_Channel->GetPassword().c_str());
+        }
+    }
+
+    m_SpecialChannelsSave.clear();
 }

@@ -558,6 +558,9 @@ class WorldSession
         void SetBackFromCross(bool p_Back) { m_BackFromCross = p_Back; }
         bool IsBackFromCross() const { return m_BackFromCross; }
 
+        void SaveSpecialChannels();
+        void RestoreSpecialChannels();
+
         /// ==================================================== ///
 
     public:                                                 // opcodes handlers
@@ -1298,6 +1301,7 @@ class WorldSession
         CrossPartyInfo m_CrossPartyInfo;
         uint32 m_InterRealmZoneId;
         bool m_BackFromCross;
+        std::list<std::string> m_SpecialChannelsSave;
 
     private:
         // private trade methods
