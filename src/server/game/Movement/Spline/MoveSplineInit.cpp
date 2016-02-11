@@ -324,7 +324,7 @@ namespace Movement
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == transport)
+        if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == transport && !(l_MoveSpline.splineflags.transportEnter && args.flags.transportExit))
             real_position = l_MoveSpline.ComputePosition();
         else
         {
