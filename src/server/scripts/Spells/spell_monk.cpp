@@ -4470,7 +4470,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int32 l_Damage = int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (5 * (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS)));
+                int32 l_Damage = int32(frand(15 * 2.375f * l_Low, 15 * 2.375f * l_High) / 8); ///< Hurricane Strike is hitting 8 times
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
