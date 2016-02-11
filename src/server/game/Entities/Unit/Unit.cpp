@@ -11610,12 +11610,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
 
-    // Fingers of Frost - 112965
+    /// Fingers of Frost - 112965
     if (IsPlayer() && pdamage != 0 && ToPlayer()->GetSpecializationId() == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
     {
         bool l_HasFingerOfFrostProc = false;
 
-        if (spellProto->Id == 116 || spellProto->Id == 44614)    ///< Frostbolt || Frostfire Bolt
+        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt
             l_HasFingerOfFrostProc = roll_chance_i(15);
         else if (spellProto->Id == 42208)                                                   ///< Blizzard
             l_HasFingerOfFrostProc = roll_chance_i(5);
