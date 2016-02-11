@@ -3596,6 +3596,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].DieSides = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 113095: ///< Demon Hunter's Aspect
+                spellInfo->Effects[EFFECT_0].MiscValue = 21178;
+                break;
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
