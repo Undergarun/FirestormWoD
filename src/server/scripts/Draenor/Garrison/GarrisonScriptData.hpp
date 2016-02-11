@@ -142,7 +142,10 @@ namespace MS { namespace Garrison
             /// Fishing Hut
             Horde_AnglinInOurGarrison                   = 36132,
             /// GOblin Workshop
-            Horde_UnconventionalInventions              = 37044
+            Horde_UnconventionalInventions              = 37044,
+
+            /// Both factions
+            Quest_FishFight                             = 34846
         };
     }   ///< namespace Quests
 
