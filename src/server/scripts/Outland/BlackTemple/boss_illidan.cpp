@@ -1821,11 +1821,15 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
+        
         if (action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
         {
             player->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_akama_illidan::npc_akama_illidanAI, creature->AI())->EnterPhase(PHASE_CHANNEL);
+            
+            if (npc_akama_illidan::npc_akama_illidanAI* l_AI = CAST_AI(npc_akama_illidan::npc_akama_illidanAI, creature->AI()))
+                l_AI->EnterPhase(PHASE_CHANNEL);
         }
+        
         return true;
     }
 
