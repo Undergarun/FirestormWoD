@@ -5092,6 +5092,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 18540: ///< Summon Doomguard
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
                 break;
+            case 105174: ///< Hand of Gul'dan
+                spellInfo->OverrideSpellList.push_back(123194);
+                break;
             case 120517: ///< Halo (Holy)
             case 120644: ///< Halo (shadow)
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
