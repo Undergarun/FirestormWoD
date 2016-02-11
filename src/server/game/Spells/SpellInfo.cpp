@@ -2075,7 +2075,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     Unit const* unitTarget = target->ToUnit();
 
     /// Check mini pet target
-    if (Targets & TARGET_UNIT_TARGET_MINIPET && !unitTarget->GetCritterGUID())
+    if (Targets & TARGET_UNIT_TARGET_MINIPET && unitTarget != nullptr && !unitTarget->GetCritterGUID())
         return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
 
      // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
