@@ -155,8 +155,7 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
-                //me->SetPower(Powers::POWER_ENERGY, 0);
-                me->SetPower(Powers::POWER_ENERGY, 40);
+                me->SetPower(Powers::POWER_ENERGY, 0);
 
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
@@ -213,8 +212,8 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventPeriodicEnergize, eTimers::TimerEnergize);
 
-                //m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlash);
-                //m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmament);
+                m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlash);
+                m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmament);
 
                 if (IsMythic())
                     m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
@@ -428,12 +427,12 @@ class boss_flamebender_kagraz : public CreatureScript
                 /// She gains abilities at 25, 50, 75, and 100 Molten Energy.
                 if (p_NewValue >= 100)
                     m_Events.ScheduleEvent(eEvents::EventFirestorm, 1);
-                /*else if (p_NewValue >= 75 && l_OldValue < 75)
-                    m_Events.ScheduleEvent(eEvents::EventBlazingRadiance, 1);*/
+                else if (p_NewValue >= 75 && l_OldValue < 75)
+                    m_Events.ScheduleEvent(eEvents::EventBlazingRadiance, 1);
                 else if (p_NewValue >= 50 && l_OldValue < 50)
                     m_Events.ScheduleEvent(eEvents::EventCinderWolves, 1);
-                /*else if (p_NewValue >= 25 && l_OldValue < 25)
-                    m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, 1);*/
+                else if (p_NewValue >= 25 && l_OldValue < 25)
+                    m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, 1);
             }
 
             void UpdateAI(uint32 const p_Diff) override
