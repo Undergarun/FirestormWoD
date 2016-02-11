@@ -3576,6 +3576,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
                 spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 154952: ///< Fixate (Cinder Wolf)
                 spellInfo->MaxAffectedTargets = 1;
@@ -3594,6 +3596,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].DieSides = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 113095: ///< Demon Hunter's Aspect
+                spellInfo->Effects[EFFECT_0].MiscValue = 21178;
+                break;
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;

@@ -18206,14 +18206,26 @@ void Player::PrepareQuestMenu(uint64 guid)
     QuestMenu &qm = PlayerTalkClass->GetQuestMenu();
     qm.ClearMenu();
 
+    std::set<uint32> l_AddedQuests;
+
     for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i)
     {
         uint32 quest_id = i->second;
         QuestStatus status = GetQuestStatus(quest_id);
+
+        if (l_AddedQuests.find(quest_id) != l_AddedQuests.end())
+            continue;
+
         if (status == QUEST_STATUS_COMPLETE)
+        {
+            l_AddedQuests.insert(quest_id);
             qm.AddMenuItem(quest_id, 4);
+        }
         else if (status == QUEST_STATUS_INCOMPLETE)
+        {
+            l_AddedQuests.insert(quest_id);
             qm.AddMenuItem(quest_id, 4);
+        }
         //else if (status == QUEST_STATUS_AVAILABLE)
         //    qm.AddMenuItem(quest_id, 2);
     }
@@ -18225,11 +18237,17 @@ void Player::PrepareQuestMenu(uint64 guid)
         if (!quest)
             continue;
 
+        if (l_AddedQuests.find(quest_id) != l_AddedQuests.end())
+            continue;
+
         if (!CanTakeQuest(quest, false))
             continue;
 
         if (GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
+        {
+            l_AddedQuests.insert(quest_id);
             qm.AddMenuItem(quest_id, 2);
+        }
     }
 }
 
@@ -21632,12 +21650,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
         return false;
 
     if (HasPendingBind())
-        return false;
-
-    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
-    auto l_TrackingQuestId = creature->GetCreatureTemplate()->TrackingQuestID;
-    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-    if (l_TrackingQuestId && IsQuestBitFlaged(l_QuestBit))
         return false;
 
     const Loot* loot = &creature->loot;
