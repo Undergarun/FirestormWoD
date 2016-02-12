@@ -4703,7 +4703,10 @@ enum EventId
     /// Special charge event which is used for charge spells that have explicit targets
     /// and had a path already generated - using it in PointMovementGenerator will not
     /// create a new spline and launch it
-    EVENT_CHARGE_PREPATH = 1005
+    EVENT_CHARGE_PREPATH = 1005,
+
+    /// When flying cretude died
+    EVENT_FALL_TO_GROUND  = 1006
 };
 
 /// Last update : 6.2.0 20201

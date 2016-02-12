@@ -18549,6 +18549,16 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                     l_MinGold /= l_MaxPlayers;
                     l_MaxGold /= l_MaxPlayers;
                 }
+
+                float l_GroundZ = l_Map->GetHeight(l_KilledCreature->m_positionX, l_KilledCreature->m_positionY, l_KilledCreature->m_positionZ, true, 200.0f);
+                if (l_KilledCreature->IsFlying() && l_GroundZ != l_KilledCreature->m_positionZ)
+                {
+                    Position l_Position = *l_KilledCreature;
+                    l_Position.m_positionZ = l_GroundZ;
+
+                    l_KilledCreature->GetMotionMaster()->Clear();
+                    l_KilledCreature->GetMotionMaster()->MoveLand(EventId::EVENT_FALL_TO_GROUND, l_Position);
+                }
             }
 
             l_Loot->generateMoneyLoot(l_MinGold, l_MaxGold);
