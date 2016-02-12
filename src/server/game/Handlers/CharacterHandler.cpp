@@ -989,8 +989,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     // load player specific part before send times
     LoadAccountData(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
-    SendAccountDataTimes(pCurrChar->GetGUID());
-    SendFeatureSystemStatus();
+
+    if (!IsBackFromCross())
+    {
+        SendAccountDataTimes(pCurrChar->GetGUID());
+        SendFeatureSystemStatus();
+    }
 
     uint32 time2 = getMSTime() - time1;
 
@@ -1285,8 +1289,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
 
-    pCurrChar->SendCUFProfiles();
-    pCurrChar->SendToyBox();
+    if (!IsBackFromCross())
+    {
+        pCurrChar->SendCUFProfiles();
+        pCurrChar->SendToyBox();
+    }
 
     uint32 time8 = getMSTime() - time7;
 
