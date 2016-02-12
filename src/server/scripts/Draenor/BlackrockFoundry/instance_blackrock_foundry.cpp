@@ -17,6 +17,9 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::HansgarAndFranzokEntrance,   eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::HansgarAndFranzokExit,       eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::FirewallDoor,                eFoundryDatas::DataFlamebenderKagraz,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BurningFrontDoor,            eFoundryDatas::DataFlamebenderKagraz,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::KromogsDoorSouth,            eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::KromogsDoorEast,             eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -53,6 +56,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_AknorSteelbringerGuid     = 0;
                 m_LavaStalkerGuid           = 0;
                 m_MoltenTorrentStalkerGuid  = 0;
+
+                m_WouldYouGiveMeAHand       = false;
+                m_GraspingEarthHandsTime    = 0;
+                m_KromogGuid                = 0;
             }
 
             /// Slagworks
@@ -84,6 +91,11 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_AknorSteelbringerGuid;
             uint64 m_LavaStalkerGuid;
             uint64 m_MoltenTorrentStalkerGuid;
+
+            /// The Great Anvil
+            bool m_WouldYouGiveMeAHand;
+            uint32 m_GraspingEarthHandsTime;
+            uint64 m_KromogGuid;
 
             void Initialize() override
             {
@@ -131,6 +143,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::MoltenTorrentStalker:
                         m_MoltenTorrentStalkerGuid = p_Creature->GetGUID();
                         break;
+                    case eFoundryCreatures::BossKromog:
+                        m_KromogGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -147,6 +162,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::HansgarAndFranzokEntrance:
                     case eFoundryGameObjects::HansgarAndFranzokExit:
                     case eFoundryGameObjects::FirewallDoor:
+                    case eFoundryGameObjects::BurningFrontDoor:
+                    case eFoundryGameObjects::KromogsDoorSouth:
+                    case eFoundryGameObjects::KromogsDoorEast:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -191,6 +209,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::HansgarAndFranzokEntrance:
                     case eFoundryGameObjects::HansgarAndFranzokExit:
                     case eFoundryGameObjects::FirewallDoor:
+                    case eFoundryGameObjects::BurningFrontDoor:
+                    case eFoundryGameObjects::KromogsDoorSouth:
+                    case eFoundryGameObjects::KromogsDoorEast:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -330,6 +351,26 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DataKromog:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_WouldYouGiveMeAHand && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::WouldYouGiveMeAHand);
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_WouldYouGiveMeAHand = false;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -444,6 +485,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_LavaStalkerGuid;
                     case eFoundryCreatures::MoltenTorrentStalker:
                         return m_MoltenTorrentStalkerGuid;
+                    case eFoundryCreatures::BossKromog:
+                        return m_KromogGuid;
                     default:
                         break;
                 }
