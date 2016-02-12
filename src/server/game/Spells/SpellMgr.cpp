@@ -6121,6 +6121,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 174736:///< Enhanced Rend
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 642:   ///< Divine Shield
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)

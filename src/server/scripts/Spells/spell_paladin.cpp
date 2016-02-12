@@ -1019,6 +1019,12 @@ class spell_pal_divine_shield: public SpellScriptLoader
 {
     public:
         spell_pal_divine_shield() : SpellScriptLoader("spell_pal_divine_shield") { }
+        
+
+        enum eSpells
+        {
+            Cyclone = 33786
+        };
 
         class spell_pal_divine_shield_SpellScript : public SpellScript
         {
@@ -1029,8 +1035,16 @@ class spell_pal_divine_shield: public SpellScriptLoader
             SpellCastResult CheckForbearance()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_FORBEARANCE))
                         return SPELL_FAILED_TARGET_AURASTATE;
+
+                    /// Divine Shield can be casted even in Cyclone
+                    /// To prevent hacks with MiscValues on this aura effect SPELL_AURA_SCHOOL_IMMUNITY - let's remove cyclone here 
+                    if (l_Caster->HasAura(eSpells::Cyclone))
+                        l_Caster->RemoveAura(eSpells::Cyclone);
+
+                }
 
                 return SPELL_CAST_OK;
             }
