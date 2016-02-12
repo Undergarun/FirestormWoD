@@ -1451,7 +1451,14 @@ void Unit::CastCustomSpell(float x, float y, float z, uint32 spellId, int32 cons
 
 void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
 {
-    CastSpell(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetDst(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
 }
 
 void Unit::CastSpell(WorldLocation const* p_Loc, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
@@ -11610,12 +11617,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
 
-    // Fingers of Frost - 112965
+    /// Fingers of Frost - 112965
     if (IsPlayer() && pdamage != 0 && ToPlayer()->GetSpecializationId() == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
     {
         bool l_HasFingerOfFrostProc = false;
 
-        if (spellProto->Id == 116 || spellProto->Id == 44614)    ///< Frostbolt || Frostfire Bolt
+        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt
             l_HasFingerOfFrostProc = roll_chance_i(15);
         else if (spellProto->Id == 42208)                                                   ///< Blizzard
             l_HasFingerOfFrostProc = roll_chance_i(5);

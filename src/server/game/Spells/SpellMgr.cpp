@@ -3576,6 +3576,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
                 spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 154952: ///< Fixate (Cinder Wolf)
                 spellInfo->MaxAffectedTargets = 1;
@@ -3594,6 +3596,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].DieSides = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 113095: ///< Demon Hunter's Aspect
+                spellInfo->Effects[EFFECT_0].MiscValue = 21178;
+                break;
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5091,6 +5096,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 18540: ///< Summon Doomguard
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
+                break;
+            case 105174: ///< Hand of Gul'dan
+                spellInfo->OverrideSpellList.push_back(123194);
                 break;
             case 120517: ///< Halo (Holy)
             case 120644: ///< Halo (shadow)
@@ -7088,12 +7096,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 147490: ///< Healing Rain
                 case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
-                case 61882: ///< Earthquake
-                case 152280:///< Defile
-                case 109248:///< Binding Shot
-                case 173229:///< Creeping Moss (Brackenspore)
-                case 102793:///< Ursol's Vortex
-                case 123986:///< Chi Butst
+                case 61882:  ///< Earthquake
+                case 152280: ///< Defile
+                case 109248: ///< Binding Shot
+                case 173229: ///< Creeping Moss (Brackenspore)
+                case 102793: ///< Ursol's Vortex
+                case 123986: ///< Chi Butst
+                case 155738: ///< Slag Pool (Heart of the Mountain)
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power

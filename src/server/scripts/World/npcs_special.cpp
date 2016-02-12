@@ -4701,6 +4701,29 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
+/// Frozen Trail Packer - 64227
+class npc_frozen_trail_packer : public CreatureScript
+{
+    public:
+        npc_frozen_trail_packer() : CreatureScript("npc_frozen_trail_packer") { }
+
+        struct npc_frozen_trail_packerAI : public ScriptedAI
+        {
+            npc_frozen_trail_packerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                if (p_Player->AddItem(86125, 1)) ///< Kafa Press
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_frozen_trail_packerAI(p_Creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4753,4 +4776,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+    new npc_frozen_trail_packer();
 }

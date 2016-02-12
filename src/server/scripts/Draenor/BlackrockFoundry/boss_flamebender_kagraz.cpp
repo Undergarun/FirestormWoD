@@ -553,6 +553,8 @@ class boss_flamebender_kagraz : public CreatureScript
 
                         me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
+                        me->StopMoving();
+
                         me->CastSpell(me, eSpells::FirestormSelfAura, true);
 
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -574,6 +576,9 @@ class boss_flamebender_kagraz : public CreatureScript
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                             me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                AttackStart(l_Target);
                         });
 
                         m_Events.CancelEvent(eEvents::EventMoltenTorrent);
@@ -1320,8 +1325,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
             CharringBreathDamage    = 155074,
             Fixate                  = 154952,
             Disabled                = 156538,
-            Firestorm               = 155704,
-            FirestormSelfAura       = 155564
+            Firestorm               = 155704
         };
 
         enum eEvent
@@ -1333,7 +1337,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
         {
             ActionOverheated,
             ActionFixated,
-            ActionFirestorm
+            ActionFirestorm,
+            ActionFixatedAgain
         };
 
         enum eEntry
@@ -1348,7 +1353,6 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 m_Instance      = p_Creature->GetInstanceScript();
                 m_Initialized   = false;
                 m_Rekindle      = false;
-                m_Firestorm     = false;
                 m_CurrAction    = eActions::ActionOverheated;
                 m_Target        = 0;
                 m_OtherWolf     = 0;
@@ -1358,7 +1362,6 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
             bool m_Initialized;
             bool m_Rekindle;
-            bool m_Firestorm;
 
             EventMap m_Events;
 
@@ -1402,9 +1405,15 @@ class npc_foundry_cinder_wolf : public CreatureScript
                         return;
 
                     if (Creature* l_Other = Creature::GetCreature(*me, m_OtherWolf))
+                    {
                         me->CastSpell(l_Other, eSpells::FieryLink, true);
 
-                    m_Initialized = true;
+                        m_Initialized = true;
+
+                        if (npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI* l_AI = CAST_AI(npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI, l_Other->GetAI()))
+                            l_AI->m_Initialized = true;
+                    }
+
                 });
             }
 
@@ -1467,7 +1476,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
-                me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1492,6 +1501,11 @@ class npc_foundry_cinder_wolf : public CreatureScript
                     {
                         m_Target = p_Target->GetGUID();
 
+                        DoResetThreat();
+                        me->AddThreat(p_Target, 1000000.0f);
+
+                        AttackStart(p_Target);
+
                         me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
                         break;
                     }
@@ -1505,14 +1519,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
                     return;
 
-                if (p_ID == eSpells::CharringBreathJump)
-                    me->CastSpell(me, eSpells::CharringBreathDamage, true);
-            }
-
-            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask p_SchoolMask, SpellInfo const* p_SpellInfo) override
-            {
-                if (m_CurrAction == eActions::ActionFixated)
-                    p_Threat = 0.0f;
+                if (p_ID == eSpells::CharringBreathJump && m_CurrAction == eActions::ActionFixated)
+                    me->CastSpell(me, eSpells::Fixate, true);
             }
 
             void DoAction(int32 const p_Action) override
@@ -1524,54 +1532,63 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 {
                     case eActions::ActionOverheated:
                     {
+                        m_Target        = 0;
+                        m_CurrAction    = eActions::ActionOverheated;
+
+                        me->SetEntry(eEntry::OverheatedCinderWolf);
+
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_STATE, AuraType::SPELL_AURA_MOD_TAUNT, false);
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_ATTACK_ME, false);
+
                         AddTimedDelayedOperation(m_Initialized ? 50 : 400, [this]() -> void
                         {
-                            m_CurrAction = eActions::ActionOverheated;
-
                             me->CastSpell(me, eSpells::OverheatedAura, true);
 
-                            me->SetEntry(eEntry::OverheatedCinderWolf);
-
                             m_Events.ScheduleEvent(eEvent::EventCharringBreath, 7 * TimeConstants::IN_MILLISECONDS);
+
+                            if (Creature* l_Other = Creature::GetCreature(*me, m_OtherWolf))
+                            {
+                                me->ClearAllUnitState();
+                                l_Other->ClearAllUnitState();
+
+                                me->InterruptNonMeleeSpells(true);
+                                l_Other->InterruptNonMeleeSpells(true);
+
+                                Position l_Dest = *l_Other;
+                                Position l_Src  = *me;
+
+                                l_Other->CastSpell(l_Src, eSpells::CharringBreathJump, true);
+                                me->CastSpell(l_Dest, eSpells::CharringBreathJump, true);
+                            }
                         });
 
                         break;
                     }
                     case eActions::ActionFixated:
                     {
-                        AddTimedDelayedOperation(m_Initialized ? 50 : 400, [this]() -> void
-                        {
-                            m_Target = 0;
+                        m_Target        = 0;
+                        m_CurrAction    = eActions::ActionFixated;
 
-                            m_CurrAction = eActions::ActionFixated;
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_STATE, AuraType::SPELL_AURA_MOD_TAUNT, true);
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_ATTACK_ME, true);
 
-                            m_Events.CancelEvent(eEvent::EventCharringBreath);
-
-                            me->CastSpell(me, eSpells::Fixate, true);
-                        });
-
+                        m_Events.CancelEvent(eEvent::EventCharringBreath);
                         break;
                     }
                     case eActions::ActionFirestorm:
                     {
-                        ClearDelayedOperations();
-
-                        m_Firestorm = true;
-
-                        me->CastSpell(me, eSpells::FirestormSelfAura, true);
-
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::Firestorm, true);
                         });
 
-                        AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            m_Firestorm = false;
+                        break;
+                    }
+                    case eActions::ActionFixatedAgain:
+                    {
+                        m_Target = 0;
 
-                            DoAction(m_CurrAction);
-                        });
-
+                        me->CastSpell(me, eSpells::Fixate, true);
                         break;
                     }
                     default:
@@ -1588,12 +1605,12 @@ class npc_foundry_cinder_wolf : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim() || m_Firestorm)
+                if (!UpdateVictim())
                     return;
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -1611,9 +1628,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
                 if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath && m_CurrAction == eActions::ActionOverheated)
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, eSpells::CharringBreathJump, true);
-
+                    me->CastSpell(me, eSpells::CharringBreathDamage, true);
                     m_Events.ScheduleEvent(eEvent::EventCharringBreath, 7 * TimeConstants::IN_MILLISECONDS);
                 }
 
@@ -1694,7 +1709,10 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
                     return;
 
                 if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true);
+                {
+                    if (Unit* l_Caster = GetCaster())
+                        l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                }
             }
 
             void Register() override
@@ -1866,19 +1884,19 @@ class spell_foundry_fixate : public SpellScriptLoader
 
             enum eAction
             {
-                ActionFixated = 1
+                ActionFixatedAgain = 3
             };
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
                     return;
 
-                if (Creature* l_Target = GetTarget()->ToCreature())
+                if (Creature* l_Caster = GetCaster()->ToCreature())
                 {
-                    if (l_Target->IsAIEnabled)
-                        l_Target->AI()->DoAction(eAction::ActionFixated);
+                    if (l_Caster->IsAIEnabled)
+                        l_Caster->AI()->DoAction(eAction::ActionFixatedAgain);
                 }
             }
 
