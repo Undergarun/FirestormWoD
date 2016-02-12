@@ -289,6 +289,8 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     me->AttackStop();
 
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                     m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventOverheadSmash, 2 * TimeConstants::IN_MILLISECONDS);
                 }
             }
@@ -306,22 +308,17 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eSpells::OverheadSmash:
                     {
-                        AddTimedDelayedOperation(50, [this]() -> void
+                        if (!me->HasAura(eSpells::SpellDestructiveRampage))
                         {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
-                            if (!me->HasAura(eSpells::SpellDestructiveRampage))
+                            AddTimedDelayedOperation(50, [this]() -> void
                             {
-                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                {
-                                    AttackStart(l_Target);
-
-                                    me->GetMotionMaster()->Clear();
-                                    me->GetMotionMaster()->MoveChase(l_Target);
-                                }
-                            }
-                        });
+                                if (Unit* l_Target = me->getVictim())
+                                    me->SetFacingTo(me->GetAngle(l_Target));
+                            });
+                        }
 
                         me->CastSpell(me, eSpells::OverheadSmashAoE, true);
                         break;
@@ -363,6 +360,12 @@ class boss_gruul_foundry : public CreatureScript
                 p_Value = 0;
             }
 
+            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask p_SchoolMask, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->HasAura(eSpells::SpellDestructiveRampage))
+                    p_Threat = 0;
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
@@ -376,8 +379,6 @@ class boss_gruul_foundry : public CreatureScript
                         float l_O = frand(0, 2 * M_PI);
 
                         me->SetFacingTo(l_O);
-                        me->SetReactState(ReactStates::REACT_PASSIVE);
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         AddTimedDelayedOperation(50, [this]() -> void
                         {
@@ -392,6 +393,10 @@ class boss_gruul_foundry : public CreatureScript
                         Talk(eTalks::DestructiveRampageEnd, me->GetGUID());
 
                         me->RemoveAura(eSpells::SpellDestructiveRampage);
+
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         if (Spell* l_CurrentSpell = me->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL))
                         {
@@ -485,6 +490,7 @@ class boss_gruul_foundry : public CreatureScript
                             float l_O = me->GetAngle(l_Target);
 
                             me->SetFacingTo(l_O);
+
                             me->SetReactState(ReactStates::REACT_PASSIVE);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
@@ -509,6 +515,8 @@ class boss_gruul_foundry : public CreatureScript
                         AddTimedDelayedOperation(100, [this]() -> void
                         {
                             me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                            DoResetThreat();
 
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(eSpells::SpellDestructiveRampage, g_CenterPos);

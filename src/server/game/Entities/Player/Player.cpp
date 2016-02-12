@@ -11988,16 +11988,6 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
             return;
         }
 
-        /// If creature is quest tracked and player already have it, player can't loot (cheat ?)
-        uint32 l_TrackingQuest = l_Creature->GetCreatureTemplate()->TrackingQuestID;
-        uint32 l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
-
-        if (l_TrackingQuest && IsQuestBitFlaged(l_QuestBit))
-        {
-            SendLootRelease(p_Guid);
-            return;
-        }
-
         l_Loot = &l_Creature->loot;
         l_Loot->LinkedLoot.clear();
 
