@@ -3153,8 +3153,47 @@ class spell_warr_raging_blow_proc : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Battle Stance - 2457, Defensive Stance - 71
+class spell_warr_stances : public SpellScriptLoader
+{
+    public:
+        spell_warr_stances() : SpellScriptLoader("spell_warr_stances") { }
+
+        class spell_warr_stances_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_stances_SpellScript);
+
+            enum eSpells
+            {
+                GladiatorStance = 156291
+            };
+
+            SpellCastResult CheckStance()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GladiatorStance) && l_Caster->isInCombat())
+                    return SPELL_FAILED_AFFECTING_COMBAT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_stances_SpellScript::CheckStance);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_stances_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_stances();
     new spell_warr_raging_blow_proc();
     new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();
