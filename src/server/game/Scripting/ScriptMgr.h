@@ -610,6 +610,11 @@ class ScriptMgr
         /// @p_Regen  : If it's a regen modification
         void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
 
+        /// Called when specialisation is modify (SetSpecializationId)
+        /// @p_Player : Player instance
+        /// @p_NewSpec  : New Specialisation
+        void OnModifySpec(Player* p_Player, int32 p_NewSpec);
+
         /// Called when a player kills another player
         /// @p_Player : Player instance
         /// @p_Value  : New value

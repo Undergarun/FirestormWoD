@@ -104,8 +104,13 @@ void PetAI::UpdateAI(const uint32 diff)
             return;
         }
 
-        if (owner && !owner->isInCombat())
-            owner->SetInCombatWith(me->getVictim());
+        if (owner != nullptr)
+        {
+            if (!owner->isInCombat())
+                owner->SetInCombatWith(me->getVictim());
+            else if (owner->ToPlayer() && owner->ToPlayer()->GetSelectedUnit() && owner->ToPlayer()->GetSelectedUnit()->GetGUID() != me->getVictim()->GetGUID() && me->IsValidAttackTarget(owner->ToPlayer()->GetSelectedUnit()) && CanAttack(owner->ToPlayer()->GetSelectedUnit()))
+                AttackStart(owner->ToPlayer()->GetSelectedUnit());
+        }
 
         if (CanAttack(me->getVictim()))
             DoMeleeAttackIfReady();

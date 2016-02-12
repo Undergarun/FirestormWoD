@@ -5880,6 +5880,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
             m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
         else
@@ -5891,8 +5892,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (m_caster->IsPlayer())
         {
-            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
-
             if (!m_spellInfo->IsPositive())
                 m_caster->Attack(unitTarget, true);
         }
@@ -6023,6 +6022,7 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     /// Save Leap Back spell ID
     m_caster->SetLastUsedLeapBackSpell(m_spellInfo->Id);
+    uint32 l_SpellId = m_caster->GetLastUsedLeapBackSpell();
 
     m_caster->JumpTo(speedxy, speedz, back);
 }
@@ -7723,9 +7723,6 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
     m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
-
-    /// Save Leap Back spell ID
-    m_caster->SetLastUsedLeapBackSpell(m_spellInfo->Id);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
