@@ -7099,7 +7099,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && !m_caster->HasAura(51690))
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear())
             return SPELL_FAILED_FLEEING;
 
     // hex
