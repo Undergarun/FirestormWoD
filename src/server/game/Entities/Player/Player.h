@@ -1578,6 +1578,8 @@ namespace InterRealmPlayerState
     };
 }
 
+typedef std::list<Channel*> JoinedChannelsList;
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -3677,6 +3679,8 @@ class Player : public Unit, public GridObject<Player>
         void FinishSummon() { m_Summoned = false; }
         void BeginSummon() { m_Summoned = true; }
 
+        JoinedChannelsList const& GetJoinnedChannelList() const { return m_channels; }
+
         uint32 GetInterRealmZoneId() const { return m_irZoneId; }
         void SetInterRealmZoneId(uint32 val) { m_irZoneId = val; }
         uint32 GetInterRealmAreaId() const { return m_irAreaId; }
@@ -3934,7 +3938,6 @@ class Player : public Unit, public GridObject<Player>
 
         WorldSession* m_session;
 
-        typedef std::list<Channel*> JoinedChannelsList;
         JoinedChannelsList m_channels;
 
         uint8 m_cinematic;
