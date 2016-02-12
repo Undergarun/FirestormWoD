@@ -2521,7 +2521,7 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
                         return;
                 }
 
-                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->getVictim(), SealOfJusticeSpells::SpellSealOfJusticeProc, true);
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), SealOfJusticeSpells::SpellSealOfJusticeProc, true);
             }
 
             void Register()
@@ -2560,7 +2560,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                Unit* l_Victim = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
                 Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
 
                 if (l_Victim == nullptr || l_Attacker == nullptr)
@@ -3305,7 +3305,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
@@ -3313,7 +3313,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
                 if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::FlashOfLight)
                     return;
 
-                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->getVictim(), eSpells::GlyphOfLightAura, true);
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), eSpells::GlyphOfLightAura, true);
             }
 
             void Register()
@@ -3444,7 +3444,7 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                 if (!l_TargetOfBeacon->IsWithinLOSInMap(l_OwnerOfBeacon))
                     return;
 
-                Unit* l_TargetOfHeal = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_TargetOfHeal = p_EventInfo.GetDamageInfo()->GetVictim();
 
                 if (l_TargetOfHeal == nullptr || !l_TargetOfHeal->IsInRaidWith(l_OwnerOfBeacon) || l_TargetOfHeal->GetGUID() == l_TargetOfBeacon->GetGUID())
                     return;
@@ -3701,7 +3701,7 @@ public:
             if (p_EventInfo.GetDamageInfo()->GetSpellInfo() == nullptr)
                 return;
 
-            Unit* l_Target = p_EventInfo.GetDamageInfo()->getVictim();
+            Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
 
             if (l_Target == nullptr)
                 return;

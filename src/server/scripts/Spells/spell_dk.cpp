@@ -2539,7 +2539,7 @@ class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
@@ -3407,7 +3407,7 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
 
             void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
-                Unit* l_Victim = p_DmgInfo.getVictim();
+                Unit* l_Victim = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
                 if (l_Victim == nullptr || l_Attacker == nullptr)

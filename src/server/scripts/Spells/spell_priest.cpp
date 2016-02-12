@@ -3401,7 +3401,7 @@ class spell_pri_glyphe_of_mind_blast : public SpellScriptLoader
                 if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
                     return;
 
-                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->getVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
             }
 
             void Register()

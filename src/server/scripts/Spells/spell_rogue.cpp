@@ -2903,7 +2903,7 @@ class spell_rog_sinister_calling : public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = p_ProcInfos.GetDamageInfo()->getVictim();
+                Unit* l_Target = p_ProcInfos.GetDamageInfo()->GetVictim();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
@@ -3219,7 +3219,7 @@ class spell_rog_main_gauche: public SpellScriptLoader
                 if (l_DamageInfo == nullptr || l_Target == nullptr)
                     return;
 
-                Unit* l_Victim = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Victim = p_EventInfo.GetDamageInfo()->GetVictim();
 
                 if (l_Victim == nullptr)
                     return;

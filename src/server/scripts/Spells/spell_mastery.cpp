@@ -72,7 +72,7 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
@@ -406,7 +406,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                 if (l_SpellInfo->Id != eSpells::FrosBolt && l_SpellInfo->Id != eSpells::FrostfireBolt)
                     return;
 
-                Unit* l_Target = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
                 Unit* l_Caster = p_EventInfo.GetDamageInfo()->GetAttacker();
 
                 if (l_Target == nullptr || l_Caster == nullptr)
@@ -781,7 +781,7 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                     l_SpellInfo->Id != eSpells::EmpoweredHammerofWrath)
                     return;
 
-                Unit* l_Target = p_EventInfo.GetDamageInfo()->getVictim();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
                 Unit* l_Caster = p_EventInfo.GetDamageInfo()->GetAttacker();
 
                 if (l_Target == nullptr || l_Caster == nullptr)
