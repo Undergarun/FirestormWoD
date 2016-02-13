@@ -418,3 +418,13 @@ INSERT INTO spell_script_names VALUE (73630, 'spell_pal_glyph_of_the_luminous_ch
 -- fix Glyph of Arcane Language
 DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_mage_glyph_of_arcane_language';
 INSERT INTO spell_script_names VALUE (1459, 'spell_mage_glyph_of_arcane_language');
+
+-- fix Gladiator Stance
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_warr_protection_stances';
+INSERT INTO spell_script_names VALUE (71, 'spell_warr_protection_stances');
+INSERT INTO spell_script_names VALUE (355, 'spell_warr_protection_stances');
+INSERT INTO spell_script_names VALUE (156291, 'spell_warr_protection_stances');
+
+-- fix Flame Shock
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_sha_flame_shock';
+INSERT INTO spell_script_names VALUE (8050, 'spell_sha_flame_shock');

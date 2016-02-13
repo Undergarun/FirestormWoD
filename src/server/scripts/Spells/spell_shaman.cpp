@@ -105,7 +105,8 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION                  = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
-    SPELL_SHA_UNLEASH_FLAME_AURA                = 73683
+    SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT   = 73683,
+    SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL      = 165462
 };
 
 /// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
@@ -1850,43 +1851,44 @@ class spell_sha_flame_shock : public SpellScriptLoader
             void HitTarget(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
 
-                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                /// In Elemental and Enhancement specs auras have different IDs
+                uint32 l_BonusSpellId = 0;
+                if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ELEMENTAL)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL;
+                else if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT;
+
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(l_BonusSpellId);
                 SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
 
-                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA) && l_UnleashFlame != nullptr)
+                if (l_Caster->HasAura(l_BonusSpellId) && l_UnleashFlame != nullptr)
                 {
                     m_HasUnleashFlame = true;
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                    l_Caster->RemoveAurasDueToSpell(l_BonusSpellId);
                 }
-                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+
+                if (l_ElementalFusion != nullptr)
                 {
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ElementalFusion->Effects[EFFECT_0].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_ELEMENTAL_FUSION_PROC);
-                }
-            }
-
-            void HandleAfterHit()
-            {
-                Unit* l_Target = GetHitUnit();
-
-                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
-
-                if (l_Target == nullptr)
-                    return;
-
-                if (m_HasUnleashFlame && l_UnleashFlame != nullptr)
-                {
-                    if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id))
-                        l_Aura->GetEffect(EFFECT_1)->SetAmount(l_Aura->GetEffect(EFFECT_1)->GetAmount() + CalculatePct(l_Aura->GetEffect(EFFECT_1)->GetAmount(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-
+                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    {
+                        /// 1 stack - 40%, 2 stacks - 80%
+                        uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Stacks * l_ElementalFusion->Effects[EFFECT_0].BasePoints));
+                        l_Caster->RemoveAurasDueToSpell(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                    }
                 }
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_sha_flame_shock_SpellScript::HandleAfterHit);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_flame_shock_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -1898,16 +1900,35 @@ class spell_sha_flame_shock : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
 
-                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+                /// In Elemental and Enhancement specs auras have different IDs
+                uint32 l_BonusSpellId = 0;
+                if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ELEMENTAL)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL;
+                else if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT;
+
+                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(l_BonusSpellId);
+
+                if (l_ElementalFusion != nullptr)
                 {
-                    p_Amount += CalculatePct(p_Amount, l_ElementalFusion->Effects[EFFECT_0].BasePoints);
+                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    {
+                        /// 1 stack - 40%, 2 stacks - 80%
+                        uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();
+                        p_Amount += CalculatePct(p_Amount, l_Stacks * l_ElementalFusion->Effects[EFFECT_0].BasePoints);
+                    }
                 }
+
+                if (l_Caster->HasAura(l_BonusSpellId) && l_UnleashFlame != nullptr)
+                    p_Amount += CalculatePct(p_Amount, l_UnleashFlame->Effects[EFFECT_1].BasePoints);
             }
 
             void Register()
