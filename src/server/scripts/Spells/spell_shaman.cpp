@@ -106,7 +106,8 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
     SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT   = 73683,
-    SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL      = 165462
+    SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL      = 165462,
+    SPELL_SHA_GLYPH_OF_LAVA_LASH                = 55444
 };
 
 /// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
@@ -2064,7 +2065,7 @@ class spell_sha_lava_lash: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !l_Caster->HasAura(SPELL_SHA_GLYPH_OF_LAVA_LASH))
                     l_Caster->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
 
                 if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
