@@ -1712,7 +1712,8 @@ class npc_snake_trap : public CreatureScript
                             else
                                 spell = SPELL_CRIPPLING_POISON;
 
-                            DoCast(me->getVictim(), spell);
+                            if (!me->getVictim()->HasAura(spell))
+                                DoCast(me->getVictim(), spell);
                         }
 
                         SpellTimer = VIPER_TIMER;
@@ -1720,7 +1721,10 @@ class npc_snake_trap : public CreatureScript
                     else //Venomous Snake
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
-                            DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        {
+                            if (!me->getVictim()->HasAura(SPELL_DEADLY_POISON))
+                                DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        }
                         SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                     }
                 }
@@ -4701,6 +4705,29 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
+/// Frozen Trail Packer - 64227
+class npc_frozen_trail_packer : public CreatureScript
+{
+    public:
+        npc_frozen_trail_packer() : CreatureScript("npc_frozen_trail_packer") { }
+
+        struct npc_frozen_trail_packerAI : public ScriptedAI
+        {
+            npc_frozen_trail_packerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                if (p_Player->AddItem(86125, 1)) ///< Kafa Press
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_frozen_trail_packerAI(p_Creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4753,4 +4780,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+    new npc_frozen_trail_packer();
 }

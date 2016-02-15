@@ -85,6 +85,9 @@ class spell_enchantment_mark : public SpellScriptLoader
                 else
                     l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
+                if (l_Item == nullptr)
+                    return;
+
                 switch (GetSpellInfo()->Id)
                 {
                     case eEnchantmentMarkAura::Thunderlord:

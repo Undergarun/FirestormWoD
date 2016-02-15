@@ -359,7 +359,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            Position const l_TeleportPos = { 197.9002f, 3530.093f, 217.234f, me->GetOrientation() };
+                            Position const l_TeleportPos = { 197.9002f, 3530.093f, 218.234f, me->GetOrientation() };
 
                             me->NearTeleportTo(l_TeleportPos);
 
@@ -388,7 +388,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                             for (uint8 l_I = 0; l_I < eFoundryDatas::MaxPrimalElementalists; ++l_I)
                                 me->SummonCreature(eCreatures::PrimalElementalist, g_PrimalElementalistsSpawns[l_I]);
 
-                            me->CastSpell(me, eSpells::SlagPoolAreatrigger, true);
+                            me->CastSpell({ 197.9002f, 3530.093f, 218.234f, 0.0f }, eSpells::SlagPoolAreatrigger, true);
                         });
 
                         break;

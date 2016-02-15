@@ -183,6 +183,16 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Regen);
         }
 
+        /// Called when specialisation is modify (SetSpecializationId)
+        /// @p_Player : Player instance
+        /// @p_OldSpec  : Old Specialisation
+        /// @p_NewSpec  : New Specialisation
+        virtual void OnModifySpec(Player* p_Player, int32 p_NewSpec)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_NewSpec);
+        }
+
         /// Called when a player kills another player
         /// @p_Player : Player instance
         /// @p_Value  : New value

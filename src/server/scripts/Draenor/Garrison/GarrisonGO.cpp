@@ -421,6 +421,7 @@ namespace MS { namespace Garrison
     go_garrison_small_timber::go_garrison_small_timberAI::go_garrison_small_timberAI(GameObject* p_GameObject)
         : GameObjectAI(p_GameObject)
     {
+        /// Small Timbers
         m_TimberDisplayIDs.insert(std::make_pair(234193, 19771)); ///< Nagrand
         m_TimberDisplayIDs.insert(std::make_pair(234197, 19776)); ///< Nagrand
         m_TimberDisplayIDs.insert(std::make_pair(233604, 14683)); ///< Gorgrond
@@ -438,8 +439,14 @@ namespace MS { namespace Garrison
         if (!p_GameObject->AI())
             return false;
 
+        if (p_GameObject->GetName() == "Small Timber")
+            p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(4, 6));
+        else if (p_GameObject->GetName() == "Timber")
+            p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(8, 10));
+        else if (p_GameObject->GetName() == "Large Timber")
+            p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(16, 25));
+
         p_GameObject->AI()->SetData64(eDatas::AnimTimer, 5000);
-        p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(4, 6));
         p_GameObject->AI()->SetData64(eDatas::PlayerGuid, p_Player->GetGUID());
         p_GameObject->AI()->DoAction(eDatas::ActionGossip);
         p_GameObject->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);

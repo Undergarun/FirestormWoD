@@ -332,7 +332,7 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2
+/// last update : 6.2.3
 /// Mastery: Echo of Light - 77485
 class spell_mastery_echo_of_light: public SpellScriptLoader
 {
@@ -343,26 +343,26 @@ class spell_mastery_echo_of_light: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mastery_echo_of_light_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
                 if (!GetCaster())
                     return;
 
-                if (!eventInfo.GetHealInfo() || !eventInfo.GetHealInfo()->GetHeal())
+                if (!p_EventInfo.GetHealInfo() || !p_EventInfo.GetHealInfo()->GetHeal())
                     return;
 
-                Unit* unitTarget = eventInfo.GetActionTarget();
-                Player* plr = GetCaster()->ToPlayer();
-                if (!unitTarget || !plr)
+                Unit* l_UnitTarget = p_EventInfo.GetActionTarget();
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_UnitTarget || !l_Player)
                     return;
 
-                float Mastery = plr->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f / 100.0f;
-                int32 bp = (Mastery * eventInfo.GetHealInfo()->GetHeal()) / 2;
+                float l_Mastery = p_AurEff->GetAmount() / 100.0f;
+                int32 l_Bp = (l_Mastery * p_EventInfo.GetHealInfo()->GetHeal()) / 2;
 
-                bp += unitTarget->GetRemainingPeriodicAmount(plr->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
-                plr->CastCustomSpell(unitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &bp, NULL, NULL, true);
+                l_Bp += l_UnitTarget->GetRemainingPeriodicAmount(l_Player->GetGUID(), SPELL_PRIEST_ECHO_OF_LIGHT, SPELL_AURA_PERIODIC_HEAL);
+                l_Player->CastCustomSpell(l_UnitTarget, SPELL_PRIEST_ECHO_OF_LIGHT, &l_Bp, NULL, NULL, true);
             }
 
             void Register()

@@ -3381,7 +3381,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 168361: ///< Test
+            /// Lumber Mill
+            case 167946: ///< Journeyman Logging
+                spellInfo->Effects[0].BasePoints = 1;
+                break;
+            case 168361: ///< Forward Thrust
                 spellInfo->Effects[0].MiscValue = 500;
                 break;
             case 105157: ///< See Quest Invis 14, Wandering Island spell
@@ -3576,6 +3580,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
                 spellInfo->Attributes |= SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 154952: ///< Fixate (Cinder Wolf)
                 spellInfo->MaxAffectedTargets = 1;
@@ -3594,6 +3600,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].DieSides = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
+            case 113095: ///< Demon Hunter's Aspect
+                spellInfo->Effects[EFFECT_0].MiscValue = 21178;
+                break;
             case 163661: ///< Cho'gall Night
                 spellInfo->EffectCount = 2;
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5062,6 +5071,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159623: ///< Leap of Faith (Glyph of Restored Faith)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_RAID;
                 break;
+            case 114108: ///< Soul of the Forst (Resto)
+                spellInfo->ProcFlags = 0;
+                break;
             case 73325: ///< Leap of Faith
                 spellInfo->OverrideSpellList.push_back(159623); ///< Leap of Faith (Glyph of Restored Faith)
                 break;
@@ -5089,6 +5101,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 18540: ///< Summon Doomguard
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
                 break;
+            case 105174: ///< Hand of Gul'dan
+                spellInfo->OverrideSpellList.push_back(123194);
+                break;
             case 120517: ///< Halo (Holy)
             case 120644: ///< Halo (shadow)
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
@@ -5112,6 +5127,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 95809:  ///< Insanity
             case 160455: ///< Fatigued
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+                break;
+            case 186842: ///< Podling Disguise
+                spellInfo->Effects[0].MiscValue = 85411;
                 break;
             case 105770: ///< Item - Druid T13 Restoration 4P Bonus (Rejuvenation)
                 spellInfo->Effects[0].SpellClassMask = flag128(0x00000050, 0, 0);
@@ -7013,6 +7031,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108415: ///< Soul Link
             case 108446:
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             default:
                 break;
@@ -7081,12 +7100,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 147490: ///< Healing Rain
                 case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
-                case 61882: ///< Earthquake
-                case 152280:///< Defile
-                case 109248:///< Binding Shot
-                case 173229:///< Creeping Moss (Brackenspore)
-                case 102793:///< Ursol's Vortex
-                case 123986:///< Chi Butst
+                case 61882:  ///< Earthquake
+                case 152280: ///< Defile
+                case 109248: ///< Binding Shot
+                case 173229: ///< Creeping Moss (Brackenspore)
+                case 102793: ///< Ursol's Vortex
+                case 123986: ///< Chi Butst
+                case 155738: ///< Slag Pool (Heart of the Mountain)
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power

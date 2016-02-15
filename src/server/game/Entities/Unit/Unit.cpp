@@ -847,7 +847,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
-    if (Player* l_Player = ToPlayer())
+    if (Player* l_Player = victim->ToPlayer())
     {
         if (!l_Player || l_Player->GetCommandStatus(CHEAT_GOD))
             return 0;
@@ -1230,7 +1230,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
     if (p_Damage <= 0)
         return p_Damage;
 
-    float l_Stagger = 0.70f;
+    float l_Stagger = 0.80f;
     /// Mastery increases stagger amount - Mastery: Elusive Brawler
     if (p_Victim->HasAura(117906))
     {
@@ -1253,7 +1253,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
 
     /// If it's not a physical attack, such that 30% of your normal stagger amount works against magic damage.
     if (!(!p_SpellProto || ((p_SpellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || p_SpellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && p_DamageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)))
-        l_Stagger = CalculatePct(l_Stagger, 30);
+        l_Stagger += CalculatePct(1.0f - l_Stagger, 70);
 
     int32 l_Bp = CalculatePct(p_Damage, ((1.0f - l_Stagger) * 100.0f));
 
@@ -1451,7 +1451,14 @@ void Unit::CastCustomSpell(float x, float y, float z, uint32 spellId, int32 cons
 
 void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
 {
-    CastSpell(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    SpellCastTargets l_Targets;
+    l_Targets.SetDst(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation);
+
+    CastSpell(l_Targets, l_SpellInfo, nullptr, p_Triggered ? TriggerCastFlags::TRIGGERED_FULL_MASK : TriggerCastFlags::TRIGGERED_NONE, p_CastItem, p_AurEff, p_OriginalCaster);
 }
 
 void Unit::CastSpell(WorldLocation const* p_Loc, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
@@ -11610,12 +11617,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
 
-    // Fingers of Frost - 112965
+    /// Fingers of Frost - 112965
     if (IsPlayer() && pdamage != 0 && ToPlayer()->GetSpecializationId() == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
     {
         bool l_HasFingerOfFrostProc = false;
 
-        if (spellProto->Id == 116 || spellProto->Id == 44614)    ///< Frostbolt || Frostfire Bolt
+        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt
             l_HasFingerOfFrostProc = roll_chance_i(15);
         else if (spellProto->Id == 42208)                                                   ///< Blizzard
             l_HasFingerOfFrostProc = roll_chance_i(5);
@@ -20755,7 +20762,36 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             return 25277;
         }
         default:
+        {
+            if (!HasAura(102560))
+                break;
+
+            if (HasAura(114301))
+                return GetNativeDisplayId();
+
+            switch (getRace())
+            {
+            case RACE_NIGHTELF:
+            {
+                return 43790;
+            }
+            case RACE_TAUREN:
+            {
+                 return 43786;
+            }
+            case RACE_WORGEN:
+            {
+                return 43787;
+            }
+            case RACE_TROLL:
+            {
+                return 43789;
+            }
+            default:
+                break;
+            }
             break;
+        }
     }
 
     uint32 modelid = 0;
@@ -20778,6 +20814,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
     }
 
+    if (!modelid)
+        modelid = GetNativeDisplayId();
     return modelid;
 }
 

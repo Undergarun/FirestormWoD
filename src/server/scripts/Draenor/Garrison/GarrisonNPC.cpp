@@ -237,6 +237,17 @@ namespace MS { namespace Garrison
         return me->SummonGameObject(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, 0, 0, 0, 0, 0);
     }
 
+    /// Spawn a gameobject with building relative coords
+    /// @p_Entry      : GameObject entry
+    /// @p_RelX       : X Relative coord
+    /// @p_RelY       : Y Relative coord
+    /// @p_RelZ       : Z Relative coord
+    /// @p_RelO       : Relative orientation coord
+    GameObject* GarrisonNPCAI::SummonRelativeGameObject(uint32 p_Entry, const Position p_Position)
+    {
+        return SummonRelativeGameObject(p_Entry, p_Position.m_positionX, p_Position.m_positionY, p_Position.m_positionZ, p_Position.m_orientation);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
