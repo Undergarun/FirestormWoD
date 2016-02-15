@@ -326,6 +326,10 @@ namespace MS { namespace Garrison
             GnomishGearworks_GoblinWorkshop_Level1      = 162,
             GnomishGearworks_GoblinWorkshop_Level2      = 163,
             GnomishGearworks_GoblinWorkshop_Level3      = 164,
+            FishingShack_FishingShack_Level1            = 64,
+            FishingShack_FishingShack_Level2            = 134,
+            FishingShack_FishingShack_Level3            = 135,
+
         };
     }
 

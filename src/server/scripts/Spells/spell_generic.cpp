@@ -5471,6 +5471,71 @@ class spell_reconfigured_remote_shock : public SpellScriptLoader
         }
 };
 
+
+/// Support for Pilfering Perfume quest(A:24656 H:24541)
+enum ServiceUniform
+{
+    SPELL_SERVICE_UNIFORM       = 71450
+};
+
+class spell_gen_service_uniform : public SpellScriptLoader
+{
+    public:
+        spell_gen_service_uniform() : SpellScriptLoader("spell_gen_service_uniform") { }
+    
+        class spell_gen_service_uniform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_service_uniform_AuraScript);
+            
+            enum eDatas
+            {
+                MorphMale = 31002,
+                MorphFemale = 31003
+            };
+        
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SERVICE_UNIFORM))
+                    return false;
+                return true;
+            }
+        
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+                
+                if (l_Player == nullptr)
+                    return;
+                
+                if (l_Player->getGender() == GENDER_MALE)
+                    l_Player->SetDisplayId(eDatas::MorphMale);
+                else
+                    l_Player->SetDisplayId(eDatas::MorphFemale);
+            }
+        
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+                
+                if (l_Player == nullptr)
+                    return;
+                
+                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+            }
+            
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+    };
+    
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_gen_service_uniform_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_jewel_of_hellfire();
@@ -5575,6 +5640,7 @@ void AddSC_generic_spell_scripts()
     //new spell_gen_check_faction(); -- temp disable
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
+    new spell_gen_service_uniform();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
