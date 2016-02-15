@@ -5377,8 +5377,6 @@ class spell_gen_jewel_of_hellfire_trigger : public SpellScriptLoader
         }
 };
 
-/// Last Update 6.2.3
-/// Wyrmhunter Hooks - 88914
 class spell_reconfigured_remote_shock : public SpellScriptLoader
 {
     public:
