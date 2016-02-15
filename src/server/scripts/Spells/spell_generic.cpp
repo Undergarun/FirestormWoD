@@ -5453,7 +5453,7 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+                l_Player->RestoreDisplayId();
             }
 
             void Register()
@@ -5516,7 +5516,7 @@ class spell_gen_service_uniform : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
                 
-                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+                l_Player->RestoreDisplayId();
             }
             
             void Register()
@@ -5532,8 +5532,56 @@ class spell_gen_service_uniform : public SpellScriptLoader
     }
 };
 
+/// Last Update 6.2.3
+/// Coin of Many Faces - 192225
+class spell_gen_coin_of_many_faces : public SpellScriptLoader
+{
+    public:
+        spell_gen_coin_of_many_faces() : SpellScriptLoader("spell_gen_coin_of_many_faces") { }
+
+        class  spell_gen_coin_of_many_faces_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_coin_of_many_faces_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                CreatureTemplate const* l_CreatureTemplate = sObjectMgr->GetRandomTemplate(CreatureType::CREATURE_TYPE_HUMANOID);
+
+                if (l_CreatureTemplate != nullptr)
+                    l_Player->SetDisplayId(l_CreatureTemplate->Modelid1);
+           }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_coin_of_many_faces_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_coin_of_many_faces_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_coin_of_many_faces_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
     new spell_gen_jewel_of_hellfire_trigger();
     new spell_reconfigured_remote_shock();
