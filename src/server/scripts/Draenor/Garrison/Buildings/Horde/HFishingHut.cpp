@@ -44,6 +44,13 @@ namespace MS { namespace Garrison
                     if (l_AI == nullptr)
                         return true;
 
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Quest_FishFight))
+                    {
+                        p_Player->AddQuest(l_Quest, p_Creature);
+                        p_Player->CompleteQuest(l_Quest->GetQuestId());
+                        p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
+                    }
+
                     if (GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(l_AI))
                         l_GarrisonMgr->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
                 }
