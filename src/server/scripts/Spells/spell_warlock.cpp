@@ -4074,6 +4074,16 @@ public:
         GlyphOfSubtlety = 56217
     };
 
+    void OnModifySpec(Player* p_Player, int32 p_NewSpec)
+    {
+        if (p_Player->getClass() == Classes::CLASS_WARLOCK && p_NewSpec != SPEC_WARLOCK_AFFLICTION)
+        {
+            p_Player->RemoveAura(eSpells::OneMainSoulShard);  ///< 1 center shard visual
+            p_Player->RemoveAura(eSpells::TwoMainSoulShards); ///< 2 center shards visual
+            p_Player->RemoveAura(eSpells::TwoSoulShards);     ///< 2 shards visual
+        }
+    }
+
     /// Override
     void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
     {

@@ -2694,14 +2694,6 @@ void ObjectMgr::LoadItemTemplateCorrections()
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
-            case 115759: ///< Primal Gladiator's Badge of Victory
-            case 111232: ///< Primal Gladiator's Badge of Victory
-            case 111227: ///< Primal Gladiator's Badge of Dominance
-            case 115754: ///< Primal Gladiator's Badge of Dominance
-            case 111222: ///< Primal Gladiator's Badge of Conquest
-            case 115749: ///< Primal Gladiator's Badge of Conquest
-                l_ItemTemplate.Spells[0].SpellCooldown = 60000;
-                break;
         }
     }
 }

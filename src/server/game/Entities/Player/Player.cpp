@@ -6572,6 +6572,9 @@ void Player::ResetAllSpecs()
 
 void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
+    /// Hook playerScript OnModifySpec
+    sScriptMgr->OnModifySpec(this, p_Specialization);
+
     /// Remove specialization talents
     for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
     {
@@ -12008,16 +12011,6 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
             return;
         }
 
-        /// If creature is quest tracked and player already have it, player can't loot (cheat ?)
-        uint32 l_TrackingQuest = l_Creature->GetCreatureTemplate()->TrackingQuestID;
-        uint32 l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
-
-        if (l_TrackingQuest && IsQuestBitFlaged(l_QuestBit))
-        {
-            SendLootRelease(p_Guid);
-            return;
-        }
-
         l_Loot = &l_Creature->loot;
         l_Loot->LinkedLoot.clear();
 
@@ -14901,7 +14894,8 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             }
 
             // equip two-hand weapon case (with possible unequip 2 items)
-            if (type == INVTYPE_2HWEAPON)
+            /// Ranged weapons are two hands weapons since MoP
+            if (type == INVTYPE_2HWEAPON || type == INVTYPE_RANGEDRIGHT)
             {
                 if (eslot == EQUIPMENT_SLOT_OFFHAND)
                 {
@@ -18231,14 +18225,26 @@ void Player::PrepareQuestMenu(uint64 guid)
     QuestMenu &qm = PlayerTalkClass->GetQuestMenu();
     qm.ClearMenu();
 
+    std::set<uint32> l_AddedQuests;
+
     for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i)
     {
         uint32 quest_id = i->second;
         QuestStatus status = GetQuestStatus(quest_id);
+
+        if (l_AddedQuests.find(quest_id) != l_AddedQuests.end())
+            continue;
+
         if (status == QUEST_STATUS_COMPLETE)
+        {
+            l_AddedQuests.insert(quest_id);
             qm.AddMenuItem(quest_id, 4);
+        }
         else if (status == QUEST_STATUS_INCOMPLETE)
+        {
+            l_AddedQuests.insert(quest_id);
             qm.AddMenuItem(quest_id, 4);
+        }
         //else if (status == QUEST_STATUS_AVAILABLE)
         //    qm.AddMenuItem(quest_id, 2);
     }
@@ -18250,11 +18256,17 @@ void Player::PrepareQuestMenu(uint64 guid)
         if (!quest)
             continue;
 
+        if (l_AddedQuests.find(quest_id) != l_AddedQuests.end())
+            continue;
+
         if (!CanTakeQuest(quest, false))
             continue;
 
         if (GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
+        {
+            l_AddedQuests.insert(quest_id);
             qm.AddMenuItem(quest_id, 2);
+        }
     }
 }
 
@@ -21665,12 +21677,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
         return false;
 
     if (HasPendingBind())
-        return false;
-
-    /// If creature is quest tracked and player have the quest, player isn't allowed to loot
-    auto l_TrackingQuestId = creature->GetCreatureTemplate()->TrackingQuestID;
-    uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-    if (l_TrackingQuestId && IsQuestBitFlaged(l_QuestBit))
         return false;
 
     const Loot* loot = &creature->loot;
@@ -30293,22 +30299,6 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
         CastSpell(this, 118922, true);
 
-    if (GetLastUsedLeapBackSpell() != 0)
-    {
-        /// Disengage, give PostHaste just after landing
-        if (getClass() == CLASS_HUNTER && GetLastUsedLeapBackSpell() == 56446 && HasAura(109215))
-            CastSpell(this, 118922, true);
-
-        /// Death Grip, trigger Chains of Ice after landing
-        if (GetLastUsedLeapBackSpell() == 49575)
-        {
-            if (AuraPtr l_DeathGrip = GetAura(49560))
-                if (Unit* l_Caster = l_DeathGrip->GetCaster())
-                    if (l_Caster->getClass() == CLASS_DEATH_KNIGHT && l_Caster->HasSpell(157367))
-                        l_Caster->CastSpell(this, 45524, true);
-        }
-    }
-
     ClearLastUsedLeapBackSpell();
 }
 
@@ -30472,7 +30462,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         sWorld->AddQueryHolderCallback(QueryHolderCallback(l_QueryHolderResultFuture, [l_NewPet, l_PlayerGUID, l_PetNumber](SQLQueryHolder* p_QueryHolder) -> void
         {
             Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID);
-            if (!l_Player || !p_QueryHolder)
+            if (!l_Player || !p_QueryHolder || l_Player != l_NewPet->GetOwner())
             {
                 delete l_NewPet;
                 return;
