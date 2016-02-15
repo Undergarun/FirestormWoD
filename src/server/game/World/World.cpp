@@ -1889,6 +1889,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading disabled rankings...");
     sObjectMgr->LoadDisabledEncounters();
 
+    /// It must be done before anything related to players
+    LoadCharacterInfoStore();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
@@ -2194,8 +2197,6 @@ void World::SetInitialWorldSettings()
     InitBossLootedResetTime();
 
     ///InitServerAutoRestartTime();
-
-    LoadCharacterInfoStore();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     InitOpcodes();

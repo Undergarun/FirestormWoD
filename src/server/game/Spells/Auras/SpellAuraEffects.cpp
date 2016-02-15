@@ -2649,7 +2649,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* p_AurApp, uint8 p_Mo
         l_Target->SendAddLossOfControl(p_AurApp, Mechanics::MECHANIC_POLYMORPH, LossOfControlType::TypePacifySilence);
 
         // update active transform spell only when transform or shapeshift not set or not overwriting negative by positive case
-        if (!l_Target->GetModelForForm(l_Target->GetShapeshiftForm()) || !GetSpellInfo()->IsPositive())
+        if ((l_Target->GetModelForForm(l_Target->GetShapeshiftForm()) == l_Target->GetNativeDisplayId()) || !GetSpellInfo()->IsPositive())
         {
             // special case (spell specific functionality)
             if (GetMiscValue() == 0)
