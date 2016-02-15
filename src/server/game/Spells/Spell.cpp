@@ -7099,7 +7099,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && !m_caster->HasAura(51690))
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear())
             return SPELL_FAILED_FLEEING;
 
     // hex
@@ -8590,6 +8590,33 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
         case SPELLVALUE_AURA_STACK:
             m_spellValue->AuraStackAmount = uint8(value);
             break;
+    }
+}
+
+int32 Spell::GetSpellValue(SpellValueMod p_Mod) const
+{
+    switch (p_Mod)
+    {
+        case SPELLVALUE_BASE_POINT0:
+            return m_spellValue->EffectBasePoints[0];
+        case SPELLVALUE_BASE_POINT1:
+            return m_spellValue->EffectBasePoints[1];
+        case SPELLVALUE_BASE_POINT2:
+            return m_spellValue->EffectBasePoints[2];
+        case SPELLVALUE_BASE_POINT3:
+            return m_spellValue->EffectBasePoints[3];
+        case SPELLVALUE_BASE_POINT4:
+            return m_spellValue->EffectBasePoints[4];
+        case SPELLVALUE_BASE_POINT5:
+            return m_spellValue->EffectBasePoints[5];
+        case SPELLVALUE_RADIUS_MOD:
+            return m_spellValue->RadiusMod;
+        case SPELLVALUE_MAX_TARGETS:
+            return m_spellValue->MaxAffectedTargets;
+        case SPELLVALUE_AURA_STACK:
+            return m_spellValue->AuraStackAmount;
+        default:
+            return 0;
     }
 }
 

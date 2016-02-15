@@ -303,7 +303,7 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
                 setPowerType(POWER_ENERGY); // Warlock's pets have energy
             }
 
-            if (cinfo && cinfo->Entry == 17252)
+            if (cinfo && (cinfo->Entry == 17252 || cinfo->Entry == 58965))
             {
                 if (owner && owner->IsPlayer() && owner->HasAura(56246))
                 {

@@ -707,11 +707,17 @@ class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Chi Wave (damage) - 132467 and Chi Wave (heal) - 132463
 class spell_monk_chi_wave_bolt: public SpellScriptLoader
 {
     public:
         spell_monk_chi_wave_bolt() : SpellScriptLoader("spell_monk_chi_wave_bolt") { }
+
+        enum eSpells
+        {
+            ChiWaveTriggerHeal = 173545
+        };
 
         class spell_monk_chi_wave_bolt_SpellScript : public SpellScript
         {
@@ -802,7 +808,7 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
 
                         l_AlliesList.sort(JadeCore::HealthPctOrderPred());
 
-                        l_Target->CastSpell(l_AlliesList.front(), SPELL_MONK_CHI_WAVE_HEALING_BOLT, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
+                        l_Target->CastSpell(l_AlliesList.front(), eSpells::ChiWaveTriggerHeal, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
                     }
                 }
             }
@@ -4464,7 +4470,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int32 l_Damage = int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (5 * (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS)));
+                int32 l_Damage = int32(frand(15 * 2.375f * l_Low, 15 * 2.375f * l_High) / 8); ///< Hurricane Strike is hitting 8 times
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 

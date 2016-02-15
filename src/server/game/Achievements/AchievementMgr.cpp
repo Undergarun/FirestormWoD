@@ -2851,9 +2851,6 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         {
-            if (!p_ReferencePlayer || !p_Unit)
-                return false;
-
             // if miscValues != 0, it contains the questID.
             if (p_MiscValue1)
             {
@@ -2868,8 +2865,11 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             }
 
             if (AchievementCriteriaDataSet const* l_Data = sAchievementMgr->GetCriteriaDataSet(p_Criteria))
-                if (!l_Data->Meets(p_ReferencePlayer, p_Unit))
+            {
+                if (p_Unit && !l_Data->Meets(p_ReferencePlayer, p_Unit))
                     return false;
+            }
+
             break;
         }
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:

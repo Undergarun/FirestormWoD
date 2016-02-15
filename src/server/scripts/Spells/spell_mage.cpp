@@ -1518,6 +1518,11 @@ class spell_mage_time_warp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
+            enum eSpells
+            {
+                Bloodlust = 2825
+            };
+
             SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -1535,6 +1540,7 @@ class spell_mage_time_warp: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Bloodlust));
             }
 
             void ApplyDebuff()
