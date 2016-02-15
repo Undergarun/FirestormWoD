@@ -2517,18 +2517,18 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 return true;
             }
 
-            SpellCastResult CheckMap()
+            void ApplyDebuff()
             {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(HunterSpells::SPELL_SHAMAN_EXHAUSTED))
-                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
-
-                return SpellCastResult::SPELL_CAST_OK;
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_INSANITY, true);
+                }
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            void HandleImmunity(SpellEffIndex p_EffIndex)
             {
+<<<<<<< HEAD
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
@@ -2537,19 +2537,21 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
                 targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
             }
+=======
+                Unit* l_Target = GetHitUnit();
+>>>>>>> f1f21e8... Fix all heroism auras stacking - awful exploit.
 
-            void ApplyDebuff()
-            {
-                if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_INSANITY, true);
+                if (l_Target->HasAura(SPELL_SHAMAN_EXHAUSTED) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SPELL_SHAMAN_SATED) || l_Target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_ancient_hysteria_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_ancient_hysteria_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

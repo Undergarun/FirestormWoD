@@ -34,8 +34,8 @@ enum ShamanSpells
     SHAMAN_SPELL_SATED                          = 57724,
     SHAMAN_SPELL_EXHAUSTION                     = 57723,
     HUNTER_SPELL_INSANITY                       = 95809,
-    MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
     HUNTER_SPELL_FATIGUED                       = 160455,
+    MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
     SPELL_SHA_LIGHTNING_SHIELD_AURA             = 324,
     SPELL_SHA_ELEMENTAL_BLAST                   = 117014,
     SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL     = 118517,
@@ -1678,8 +1678,9 @@ class EarthenPowerTargetSelector
         }
 };
 
-/// Bloodlust - 2825 - last update: 6.1.2 19802
-class spell_sha_bloodlust: public SpellScriptLoader
+/// last update : 6.1.2 19802
+/// Bloodlust - 2825
+class spell_sha_bloodlust : public SpellScriptLoader
 {
     public:
         spell_sha_bloodlust() : SpellScriptLoader("spell_sha_bloodlust") { }
@@ -1687,11 +1688,6 @@ class spell_sha_bloodlust: public SpellScriptLoader
         class spell_sha_bloodlust_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_sha_bloodlust_SpellScript);
-
-            enum eSpells
-            {
-                TimeWrap = 80353
-            };
 
             bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
@@ -1701,27 +1697,33 @@ class spell_sha_bloodlust: public SpellScriptLoader
                 return true;
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
-            {
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_SATED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_INSANITY));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_FATIGUED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWrap));
-            }
-
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
+                }
             }
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target->HasAura(SHAMAN_SPELL_EXHAUSTION) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
+
+                l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
+            }
+
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1730,6 +1732,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
             return new spell_sha_bloodlust_SpellScript();
         }
 };
+
 
 /// Heroism - 32182 - last update: 6.1.2 19802
 class spell_sha_heroism: public SpellScriptLoader
@@ -1749,36 +1752,30 @@ class spell_sha_heroism: public SpellScriptLoader
                 return true;
             }
 
-            SpellCastResult CheckCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(ShamanSpells::SHAMAN_SPELL_EXHAUSTION))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
-            {
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_INSANITY));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_SATED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
-            }
-
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_EXHAUSTION, true);
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_EXHAUSTION, true);
+                }
+            }
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target->HasAura(SHAMAN_SPELL_EXHAUSTION) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
             }
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_sha_heroism_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

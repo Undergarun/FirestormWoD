@@ -3812,73 +3812,33 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                Exhausted            = 57723,
-                Insanity             = 95809,
-                Sated                = 57724,
+                Exhausted = 57723,
+                Insanity = 95809,
+                Sated = 57724,
                 TemporalDisplacement = 80354,
-                Fatigued             = 160455,
-                BloodLust            = 2825,
-                TimeWarp             = 80353
+                Fatigued = 160455
             };
 
-            SpellCastResult CheckCast()
+            void HandleImmunity(SpellEffIndex p_EffIndex)
             {
-                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Caster->HasAura(eSpells::Exhausted))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Insanity));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Exhausted));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Fatigued));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
+                if (l_Target->HasAura(eSpells::Exhausted) || l_Target->HasAura(eSpells::Insanity) ||
+                    l_Target->HasAura(eSpells::Sated) || l_Target->HasAura(eSpells::TemporalDisplacement) ||
+                    l_Target->HasAura(eSpells::Fatigued))
+                    PreventHitAura();
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_gen_drums_of_fury_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-            }
-        };
-
-        class spell_gen_drums_of_fury_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_drums_of_fury_AuraScript);
-
-            enum eSpells
-            {
-                Exhausted = 57723
-            };
-
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
-            {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_drums_of_fury_SpellScript();
-        }
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_drums_of_fury_AuraScript();
         }
 };
 

@@ -1508,8 +1508,8 @@ class spell_mage_conjure_refreshment: public SpellScriptLoader
         }
 };
 
-// Time Warp - 80353
-class spell_mage_time_warp: public SpellScriptLoader
+/// Time Warp - 80353
+class spell_mage_time_warp : public SpellScriptLoader
 {
     public:
         spell_mage_time_warp() : SpellScriptLoader("spell_mage_time_warp") { }
@@ -1518,43 +1518,31 @@ class spell_mage_time_warp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
-            enum eSpells
-            {
-                Bloodlust = 2825
-            };
-
-            SpellCastResult CheckCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Bloodlust));
-            }
-
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+                }
+            }
+
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target->HasAura(SPELL_SHAMAN_EXHAUSTED) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SPELL_SHAMAN_SATED) || l_Target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_mage_time_warp_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
