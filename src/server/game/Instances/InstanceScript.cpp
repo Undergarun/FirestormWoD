@@ -1366,7 +1366,7 @@ bool InstanceScript::IsWipe()
 void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_CreditEntry, Unit* p_Source)
 {
     DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
-    if (!l_Encounters || l_Encounters->empty() || p_Source == nullptr)
+    if (!l_Encounters || l_Encounters->empty())
         return;
 
     int32 l_MaxIndex = -100000;
@@ -1378,7 +1378,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
+        if ((p_Source != nullptr && ((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId())) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
             m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
 
@@ -1400,7 +1400,9 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             }
 
             SendEncounterEnd((*l_Iter)->dbcEntry->ID, true);
-            SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source->ToUnit());
+
+            if (p_Source != nullptr)
+                SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source);
 
             WorldPacket l_Data(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
             l_Data << int32((*l_Iter)->dbcEntry->ID);
