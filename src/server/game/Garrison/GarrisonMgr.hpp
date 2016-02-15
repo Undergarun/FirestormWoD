@@ -178,7 +178,7 @@ namespace MS { namespace Garrison
             /// Cancel construction
             void CancelConstruction(uint32 p_PlotInstanceID);
             /// Delete building
-            void DeleteBuilding(uint32 p_PlotInstanceID);
+            void DeleteBuilding(uint32 p_PlotInstanceID, bool p_Canceled, bool p_RemoveForUpgrade);
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
@@ -373,6 +373,7 @@ namespace MS { namespace Garrison
             std::map<uint32, uint64>                m_PlotsWorkOrderGob;
             std::map<uint32, std::vector<uint64>>   m_PlotsGameObjects;
             std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
+            std::map<uint32, uint32>                m_LastPlotBuildingType; ///< <PlotID, BuildingType>
 
             Interfaces::GarrisonSite * m_GarrisonScript;
 

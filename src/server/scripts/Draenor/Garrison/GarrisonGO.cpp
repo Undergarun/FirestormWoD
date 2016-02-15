@@ -520,7 +520,7 @@ namespace MS { namespace Garrison
 
                         /// check space and find places
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimber, 1, &l_NoSpaceForCount);
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimber, m_ChopCount, &l_NoSpaceForCount);
 
                         if (l_Message == EQUIP_ERR_OK)
                             l_Player->StoreNewItem(l_Destination, Items::ItemTimber, true, Item::GenerateItemRandomPropertyId(Items::ItemTimber));

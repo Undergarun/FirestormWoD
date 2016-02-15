@@ -2625,12 +2625,22 @@ namespace MS { namespace Garrison
         GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         GarrisonBuilding l_Building;
+        Interfaces::GarrisonSite* l_GarrisonScript = GetGarrisonScript();
 
         if (!l_BuildingEntry)
             return l_Building;
 
         if (!PlotIsFree(p_PlotInstanceID))
-            DeleteBuilding(p_PlotInstanceID);
+        {
+            GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+            GarrisonBuilding l_Building = GetBuilding(p_PlotInstanceID);
+            GarrBuildingEntry const* l_OldBuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+
+            if (l_OldBuildingEntry && l_PlotInstanceEntry && l_OldBuildingEntry->Type == l_BuildingEntry->Type && l_OldBuildingEntry->Level < l_BuildingEntry->Level && l_GarrisonScript)
+                m_LastPlotBuildingType.insert(std::make_pair(l_PlotInstanceEntry->PlotID, l_OldBuildingEntry->Type));
+
+            DeleteBuilding(p_PlotInstanceID, false, true);
+        }
 
         if (l_BuildingEntry->CostCurrencyID != 0 && !p_Triggered)
             m_Owner->ModifyCurrency(l_BuildingEntry->CostCurrencyID, -(int32)l_BuildingEntry->CostCurrencyAmount);
@@ -2647,8 +2657,8 @@ namespace MS { namespace Garrison
 
         uint32 l_BuildingTime = l_BuildingEntry->BuildDuration;
 
-        if (GetGarrisonScript())
-            l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
+        if (l_GarrisonScript)
+            l_BuildingTime = l_GarrisonScript->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
 
         l_Building.DatabaseID       = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
@@ -2694,8 +2704,8 @@ namespace MS { namespace Garrison
 
         UpdatePlot(p_PlotInstanceID);
 
-        if (GetGarrisonScript())
-            GetGarrisonScript()->OnPurchaseBuilding(m_Owner, p_BuildingRecID);
+        if (l_GarrisonScript)
+            l_GarrisonScript->OnPurchaseBuilding(m_Owner, p_BuildingRecID);
 
         return l_Building;
     }
@@ -2780,7 +2790,17 @@ namespace MS { namespace Garrison
         UpdateStats();
 
         if (GetGarrisonScript())
-            GetGarrisonScript()->OnBuildingActivated(m_Owner, l_Building->BuildingID);
+        {
+            GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+
+            if (l_PlotInstanceEntry && !m_LastPlotBuildingType.empty() && m_LastPlotBuildingType.find(l_PlotInstanceEntry->PlotID) != m_LastPlotBuildingType.end() && m_LastPlotBuildingType[l_PlotInstanceEntry->PlotID] == l_BuildingEntry->Type)
+            {
+                GetGarrisonScript()->OnUpgradeBuilding(m_Owner, l_BuildingEntry->ID);
+                m_LastPlotBuildingType.erase(l_PlotInstanceEntry->PlotID);
+            }
+            else
+                GetGarrisonScript()->OnBuildingActivated(m_Owner, l_Building->BuildingID);
+        }
     }
 
     /// Activate building
@@ -2808,7 +2828,7 @@ namespace MS { namespace Garrison
         if (!l_BuildingEntry)
             return;
 
-        DeleteBuilding(p_PlotInstanceID);
+        DeleteBuilding(p_PlotInstanceID, true, false);
 
         if (l_BuildingEntry->CostCurrencyID != 0)
             m_Owner->ModifyCurrency(l_BuildingEntry->CostCurrencyID, (int32)l_BuildingEntry->CostCurrencyAmount);
@@ -2818,7 +2838,7 @@ namespace MS { namespace Garrison
     }
 
     /// Delete building
-    void Manager::DeleteBuilding(uint32 p_PlotInstanceID)
+    void Manager::DeleteBuilding(uint32 p_PlotInstanceID, bool p_Canceled, bool p_RemoveForUpgrade)
     {
         if (!HasPlotInstance(p_PlotInstanceID))
             return;
@@ -2833,6 +2853,11 @@ namespace MS { namespace Garrison
         if (!l_BuildingEntry)
             return;
 
+        if (GetGarrisonScript())
+        {
+            GetGarrisonScript()->OnDeleteBuilding(m_Owner, l_BuildingID, l_BuildingEntry->Type, p_RemoveForUpgrade);
+        }
+
         PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_BUILDING);
         l_Stmt->setUInt32(0, GetBuilding(p_PlotInstanceID).DatabaseID);
         CharacterDatabase.AsyncQuery(l_Stmt);
@@ -2844,6 +2869,14 @@ namespace MS { namespace Garrison
                 m_Buildings.erase(l_It);
                 break;
             }
+        }
+
+        if (p_Canceled)
+        {
+            GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+
+            if (l_PlotInstanceEntry && !m_LastPlotBuildingType.empty() && m_LastPlotBuildingType.find(l_PlotInstanceEntry->PlotID) != m_LastPlotBuildingType.end())
+                m_LastPlotBuildingType.erase(l_PlotInstanceEntry->PlotID);
         }
 
         UpdatePlot(p_PlotInstanceID);

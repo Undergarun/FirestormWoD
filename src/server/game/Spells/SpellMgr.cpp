@@ -3381,8 +3381,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            /// Lumber Mill
-            case 167946: ///< Journeyman Logging
+            case 167946: ///< Journeyman Logging (Lumber Mill)
                 spellInfo->Effects[0].BasePoints = 1;
                 break;
             case 168361: ///< Forward Thrust

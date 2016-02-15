@@ -53,21 +53,22 @@ namespace MS { namespace Garrison
     /// Garrison common spells
     enum Spells
     {
-        SPELL_GARRISON_HEARTHSTONE             = 171253,
-        SPELL_RELIEVED                         = 162410,
-        SPELL_LEFT_ROPE                        = 164400,
-        SPELL_RIGHT_ROPE                       = 164422,
-        SPELL_COMESTIC_SLEEP                   = 162907,
-        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
-        MultiShot                              = 18651,
-        Disengage                              = 82707,
-        Shoot                                  = 6660,
-        SpellArming                            = 167920,
-        SpellIronTrap                          = 180609,
-        SpellApprenticeLogging                 = 167911,
-        SpellSummonStump                       = 170079,
-        SpellGarrisonPortal                    = 182464,
-        SpellAuraRunesOfPower                  = 178777
+        SPELL_GARRISON_HEARTHSTONE             = 171253, ///< Misc
+        SPELL_RELIEVED                         = 162410, ///< Misc
+        SPELL_LEFT_ROPE                        = 164400, ///< Misc
+        SPELL_RIGHT_ROPE                       = 164422, ///< Misc
+        SPELL_COMESTIC_SLEEP                   = 162907, ///< Misc
+        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329, ///< Misc
+        MultiShot                              = 18651,  ///< Misc
+        Disengage                              = 82707,  ///< Misc
+        Shoot                                  = 6660,   ///< Misc
+        SpellArming                            = 167920, ///< Barn
+        SpellIronTrap                          = 180609, ///< Barn
+        SpellApprenticeLogging                 = 167911, ///< Lumber Mill
+        SpellJourneymanLogging                 = 167946,  ///< Lumber Mill
+        SpellSummonStump                       = 170079, ///< Lumber Mill
+        SpellGarrisonPortal                    = 182464, ///< Mage Tower/Spirit Lodge
+        SpellAuraRunesOfPower                  = 178777  ///< Mage Tower/Spirit Lodge
     };
 
     enum DisplayIDs
