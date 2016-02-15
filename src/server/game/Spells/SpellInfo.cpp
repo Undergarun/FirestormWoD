@@ -2074,10 +2074,6 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     Unit const* unitTarget = target->ToUnit();
 
-    /// Check mini pet target
-    if (Targets & TARGET_UNIT_TARGET_MINIPET && unitTarget != nullptr && !unitTarget->GetCritterGUID())
-        return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
-
      // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
      if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
          return SPELL_FAILED_BAD_TARGETS;
@@ -4621,42 +4617,4 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     }
 
     return true;
-}
-
-bool SpellInfo::IsAuraNeedDynamicCalculation() const
-{
-    switch (Id)
-    {
-        case 774:    ///< Rejuvenation
-        case 1079:   ///< Rip
-        case 1943:   ///< Rupture
-        case 8050:   ///< Flame Shock
-        case 8936:   ///< Regrowth
-        case 48438:  ///< Wild Growth
-        case 73651:  ///< Recuperate
-        case 113344: ///< Bloodbath (DOT)
-        case 114916: ///< Stay of Execution (damage)
-        case 114917: ///< Stay of Execution (heal)
-        case 154953: ///< Internal Bleeding
-        case 155722: ///< Rake
-            return false;
-        default:
-            return true;
-    }
-
-    return true;
-}
-
-bool SpellInfo::IsAuraNeedPandemicEffect() const
-{
-    switch (Id)
-    {
-        case 5171:   ///< Slice and Dice
-        case 84617:  ///< Revealing Strike 
-            return true;
-        default:
-            return false;
-    }
-
-    return false;
 }
