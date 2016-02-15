@@ -1718,8 +1718,22 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
                 }
             }
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetShapeshiftForm() == FORM_BEAR)
+                    return;
+
+                PreventHitDamage();
+            }
+
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_faerie_swarm_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_dru_faerie_swarm_SpellScript::HandleOnHit);
             }
         };
