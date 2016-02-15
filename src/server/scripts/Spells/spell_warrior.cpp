@@ -767,6 +767,7 @@ class spell_warr_glyph_of_die_by_the_sword : public SpellScriptLoader
                     {
                     case eSpells::MortalStrike: ///< increases its duration by 2 sec
                         l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (l_SpellInfo->Effects[EFFECT_1].BasePoints * IN_MILLISECONDS));
+                        break;
                     case eSpells::WildStrike: ///< increases its duration by 0.25 sec
                         l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (((float)l_SpellInfo->Effects[EFFECT_0].BasePoints / 4) * IN_MILLISECONDS));
                         break;
