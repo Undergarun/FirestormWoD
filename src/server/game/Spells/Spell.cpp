@@ -6341,6 +6341,12 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             break;
         }
+
+        Unit* l_Target = m_targets.GetUnitTarget();
+
+        /// Check mini pet target
+        if (m_spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_MINIPET && l_Target != nullptr && !l_Target->GetCritterGUID())
+            return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
     }
 
     // Spell casted only on battleground
