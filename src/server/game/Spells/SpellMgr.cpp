@@ -3391,7 +3391,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 168361: ///< Test
+            /// Lumber Mill
+            case 167946: ///< Journeyman Logging
+                spellInfo->Effects[0].BasePoints = 1;
+                break;
+            case 168361: ///< Forward Thrust
                 spellInfo->Effects[0].MiscValue = 500;
                 break;
             case 105157: ///< See Quest Invis 14, Wandering Island spell
