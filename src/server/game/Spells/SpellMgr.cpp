@@ -127,18 +127,21 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            // Shockwave -- 132168
+            /// Shockwave -- 132168
             if (spellproto->Id == 132168)
                 return DIMINISHING_STUN;
-            // Storm Bolt -- 132169
+            /// Storm Bolt -- 132169
             if (spellproto->Id == 132169)
                 return DIMINISHING_STUN;
+            /// Warbringer -- 7922
+            if (spellproto->Id == 7922)
+                return DIMINISHING_STUN;
 
-            // Intimidating Shout -- 5246
+            /// Intimidating Shout -- 5246
             if (spellproto->SpellFamilyFlags[0] & 0x40000)
                 return DIMINISHING_DISORIENT;
 
-            // Hamstring -- 1715, 8 seconds in PvP (6.0)
+            /// Hamstring -- 1715, 8 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x2)
                 return DIMINISHING_LIMITONLY;
             break;
