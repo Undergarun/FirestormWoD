@@ -3045,14 +3045,25 @@ class spell_mage_illusion : public SpellScriptLoader
 
             enum eSpells
             {
-                Illusion = 94632
+                IllusionEffect = 80396,
+                IllusionBasic = 94632,
             };
 
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::Illusion, true);
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                    l_Target->CastSpell(l_Player, eSpells::IllusionEffect, true);
+
+                else
+                    l_Player->CastSpell(l_Player, eSpells::IllusionBasic);
             }
 
             void Register()

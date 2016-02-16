@@ -443,3 +443,8 @@ INSERT INTO spell_script_names VALUE (147781, 'spell_sha_glyph_of_eternal_earth'
 DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_skymirror_image');
 INSERT INTO spell_script_names VALUE (129803, 'spell_item_skymirror_image');
 
+-- fix Glyph of Illusion
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_mage_glyph_of_illusion');
+INSERT INTO spell_script_names VALUE (63092, 'spell_mage_glyph_of_illusion');
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_mage_illusion');
+INSERT INTO spell_script_names VALUE (131784, 'spell_mage_illusion');
