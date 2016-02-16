@@ -448,3 +448,7 @@ DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_mage_glyph_of_illusi
 INSERT INTO spell_script_names VALUE (63092, 'spell_mage_glyph_of_illusion');
 DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_mage_illusion');
 INSERT INTO spell_script_names VALUE (131784, 'spell_mage_illusion');
+
+-- fix Memore of Mr Smite
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_memory_of_mr_smite');
+INSERT INTO spell_script_names VALUE (127207, 'spell_item_memory_of_mr_smite');

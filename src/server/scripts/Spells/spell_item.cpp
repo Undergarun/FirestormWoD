@@ -4171,6 +4171,76 @@ public:
     }
 };
 
+/// Memory of Mr. Smite - 127207. Item - Mr. Smite's Brass Compass - 86568
+class spell_item_memory_of_mr_smite : public SpellScriptLoader
+{
+public:
+    spell_item_memory_of_mr_smite() : SpellScriptLoader("spell_item_memory_of_mr_smite") { }
+
+    class spell_item_memory_of_mr_smite_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_memory_of_mr_smite_AuraScript);
+
+        enum eSpells
+        {
+            MrSmiteSword = 127196,
+            MrSmiteHummer = 127206,
+            MrSmiteBlade = 127205,
+        };
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            uint32 l_MrSmiteId;
+            l_MrSmiteId = (urand(0, 2));
+            switch (l_MrSmiteId)
+            {
+            case 0:
+                l_MrSmiteId = eSpells::MrSmiteSword;
+                break;
+            case 1:
+                l_MrSmiteId = eSpells::MrSmiteHummer;
+                break;
+            case 2:
+                l_MrSmiteId = eSpells::MrSmiteBlade;
+                break;
+            default:
+                return;
+            }
+
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(l_Caster, l_MrSmiteId, true);
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->HasAura(eSpells::MrSmiteSword))
+                l_Caster->RemoveAura(eSpells::MrSmiteSword);
+            else if (l_Caster->HasAura(eSpells::MrSmiteHummer))
+                l_Caster->RemoveAura(eSpells::MrSmiteHummer);
+            else if (l_Caster->HasAura(eSpells::MrSmiteBlade))
+                l_Caster->RemoveAura(eSpells::MrSmiteBlade);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_item_memory_of_mr_smite_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_item_memory_of_mr_smite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_item_memory_of_mr_smite_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
