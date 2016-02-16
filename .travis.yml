@@ -7,7 +7,7 @@ git:
 
 branches:
   only:
-    - wod
+    - interrealm
     - wod_ptr
 
 before_install:
