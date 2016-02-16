@@ -270,6 +270,49 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace LumberMillData
+    {
+        static std::vector<uint32> const g_SmallTimber =
+        {
+            234193,
+            234197,
+            233604,
+            234080,
+            234122,
+            234126,
+            234109,
+            234110,
+            233922,
+            234097
+        };
+
+        static std::vector<uint32> const g_MediumTimber =
+        {
+            234000,
+            234022,
+            234098,
+            234119,
+            234123,
+            234127,
+            234194,
+            234196,
+            234198,
+            233634
+        };
+
+        static std::vector<uint32> const g_LargeTimber =
+        {
+            234000,
+            234022,
+            234098,
+            234119,
+            234123,
+            234127,
+            234194,
+            234196
+        };
+    }
+
     namespace StablesData
     {
         /// Sequence position structure

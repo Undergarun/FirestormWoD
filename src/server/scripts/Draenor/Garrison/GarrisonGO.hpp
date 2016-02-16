@@ -136,11 +136,11 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Garrison shipment container generic script
-    class go_garrison_small_timber : public GameObjectScript
+    class go_garrison_timber : public GameObjectScript
     {
         public:
             /// Constructor
-            go_garrison_small_timber();
+            go_garrison_timber();
 
             enum eDatas
             {
@@ -159,10 +159,10 @@ namespace MS { namespace Garrison
             /// @p_GameObject : Target GameObject instance
             bool OnGossipHello(Player * p_Player, GameObject * p_GameObject);
 
-            struct go_garrison_small_timberAI : public GameObjectAI
+            struct go_garrison_timberAI : public GameObjectAI
             {
                 /// Constructor
-                go_garrison_small_timberAI(GameObject * p_GameObject);
+                go_garrison_timberAI(GameObject * p_GameObject);
 
                 uint32 m_AnimTimer    = 0;
                 uint32 m_RefillTimer  = 0;

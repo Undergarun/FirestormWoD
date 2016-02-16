@@ -2635,11 +2635,15 @@ namespace MS { namespace Garrison
             GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
             GarrisonBuilding l_Building = GetBuilding(p_PlotInstanceID);
             GarrBuildingEntry const* l_OldBuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+            bool l_ForUpgrade = false;
 
             if (l_OldBuildingEntry && l_PlotInstanceEntry && l_OldBuildingEntry->Type == l_BuildingEntry->Type && l_OldBuildingEntry->Level < l_BuildingEntry->Level && l_GarrisonScript)
+            {
                 m_LastPlotBuildingType.insert(std::make_pair(l_PlotInstanceEntry->PlotID, l_OldBuildingEntry->Type));
+                l_ForUpgrade = true;
+            }
 
-            DeleteBuilding(p_PlotInstanceID, false, true);
+            DeleteBuilding(p_PlotInstanceID, false, l_ForUpgrade);
         }
 
         if (l_BuildingEntry->CostCurrencyID != 0 && !p_Triggered)

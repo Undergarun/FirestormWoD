@@ -3,6 +3,8 @@
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -40 AND faction_index = 0;
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-40','0','84247','-2.28769','0.578986','1.47505','1.4317');
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-40','0','-233832','0.694003','0.907112','0.979095','3.80939');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-40','0','79835','5.49697','2.238','1.72977','1.17038');
+
 	REPLACE INTO trinity_string (entry, content_default, content_loc2, content_loc6) VALUE (14112, "|cADFF2FFF+$1i Timber |r", "|cADFF2FFF+$1i Bois |r", "|cADFF2FFF+$1i Madera |r");
 	DELETE FROM gameobject WHERE id = 234568 AND map = 1116; -- Stump, temp summoned when wood is taken
 
@@ -22,7 +24,7 @@
 	#233604 - 234080/Gob - Small Timber
 
 		UPDATE gameobject_template SET flags = flags & ~0x04 WHERE entry = 233922;
-		UPDATE gameobject_template SET scriptname = "go_garrison_small_timber" WHERE entry IN (
+		UPDATE gameobject_template SET scriptname = "go_garrison_timber" WHERE entry IN (
 		234193,
 		234197,
 		233604,
@@ -32,7 +34,25 @@
 		234109,
 		234110,
 		233922,
-		234097);
+		234097,
+		234000,
+		234022,
+		234098,
+		234119,
+		234123,
+		234127,
+		234194,
+		234196,
+		234198,
+		233634,
+		234000,
+		234022,
+		234098,
+		234119,
+		234123,
+		234127,
+		234194,
+		234196);
 		
 	#83985/NPC - Peon
 
@@ -46,4 +66,17 @@
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -41 AND faction_index = 0;
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-41','0','84247','5.07749','4.08816','1.472','1.37066');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-41','0','79835','-3.38423','-1.59738','1.47354','4.30805');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-41','0','-233832','13.3513','3.26322','0.974777','3.27132');
+
+
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -138 AND faction_index = 0;
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-138','0','-233832','9.90092','3.29341','0.974869','1.79477');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-138','0','84247','-0.977483','-4.90326','1.4749','4.14704');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-138','0','79835','-0.96153','4.85086','1.47467','2.21103');
+
