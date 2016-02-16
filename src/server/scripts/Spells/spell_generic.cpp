@@ -5428,6 +5428,56 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
             return new spell_gen_jewel_of_hellfire_AuraScript();
         }
 };
+
+/// Last Update 6.2.3
+/// Ironbeard's Hat - 188228
+class spell_gen_ironbeards_hat : public SpellScriptLoader
+{
+    public:
+        spell_gen_ironbeards_hat() : SpellScriptLoader("spell_gen_ironbeards_hat") { }
+
+        class  spell_gen_ironbeards_hat_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ironbeards_hat_AuraScript);
+
+            enum eDatas
+            {
+                Morph = 63424
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->SetDisplayId(eDatas::Morph);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_ironbeards_hat_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_ironbeards_hat_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_ironbeards_hat_AuraScript();
+        }
+};
+
 /// Support for Pilfering Perfume quest(A:24656 H:24541)
 enum ServiceUniform
 {
@@ -5541,6 +5591,7 @@ class spell_gen_coin_of_many_faces : public SpellScriptLoader
 
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
     new spell_gen_jewel_of_hellfire_trigger();
