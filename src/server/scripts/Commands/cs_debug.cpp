@@ -40,6 +40,51 @@ EndScriptData */
 #include <vector>
 #include "BattlegroundPacketFactory.hpp"
 
+struct UnitStates
+{
+    uint32 flag;
+    char const* text;
+};
+
+UnitStates const g_Unitstates[35] =
+{
+    { UNIT_STATE_DIED               , "UNIT_STATE_DIED"                    },
+    { UNIT_STATE_MELEE_ATTACKING    , "UNIT_STATE_MELEE_ATTACKING"         },
+    { UNIT_STATE_STUNNED            , "UNIT_STATE_STUNNED"                 },
+    { UNIT_STATE_ROAMING            , "UNIT_STATE_ROAMING"                 },
+    { UNIT_STATE_CHASE              , "UNIT_STATE_CHASE"                   },
+    { UNIT_STATE_FLEEING            , "UNIT_STATE_FLEEING"                 },
+    { UNIT_STATE_IN_FLIGHT          , "UNIT_STATE_IN_FLIGHT"               },
+    { UNIT_STATE_FOLLOW             , "UNIT_STATE_FOLLOW"                  },
+    { UNIT_STATE_ROOT               , "UNIT_STATE_ROOT"                    },
+    { UNIT_STATE_CONFUSED           , "UNIT_STATE_CONFUSED"                },
+    { UNIT_STATE_DISTRACTED         , "UNIT_STATE_DISTRACTED"              },
+    { UNIT_STATE_ISOLATED           , "UNIT_STATE_ISOLATED"                },
+    { UNIT_STATE_ATTACK_PLAYER      , "UNIT_STATE_ATTACK_PLAYER"           },
+    { UNIT_STATE_CASTING            , "UNIT_STATE_CASTING"                 },
+    { UNIT_STATE_POSSESSED          , "UNIT_STATE_POSSESSED"               },
+    { UNIT_STATE_CHARGING           , "UNIT_STATE_CHARGING"                },
+    { UNIT_STATE_JUMPING            , "UNIT_STATE_JUMPING"                 },
+    { UNIT_STATE_ONVEHICLE          , "UNIT_STATE_ONVEHICLE"               },
+    { UNIT_STATE_MOVE               , "UNIT_STATE_MOVE"                    },
+    { UNIT_STATE_ROTATING           , "UNIT_STATE_ROTATING"                },
+    { UNIT_STATE_EVADE              , "UNIT_STATE_EVADE"                   },
+    { UNIT_STATE_ROAMING_MOVE       , "UNIT_STATE_ROAMING_MOVE"            },
+    { UNIT_STATE_CONFUSED_MOVE      , "UNIT_STATE_CONFUSED_MOVE"           },
+    { UNIT_STATE_FLEEING_MOVE       , "UNIT_STATE_FLEEING_MOVE"            },
+    { UNIT_STATE_CHASE_MOVE         , "UNIT_STATE_CHASE_MOVE"              },
+    { UNIT_STATE_FOLLOW_MOVE        , "UNIT_STATE_FOLLOW_MOVE"             },
+    { UNIT_STATE_UNATTACKABLE       , "UNIT_STATE_UNATTACKABLE"            },
+    { UNIT_STATE_MOVING             , "UNIT_STATE_MOVING"                  },
+    { UNIT_STATE_CONTROLLED         , "UNIT_STATE_CONTROLLED"              },
+    { UNIT_STATE_LOST_CONTROL       , "UNIT_STATE_LOST_CONTROL"            },
+    { UNIT_STATE_SIGHTLESS          , "UNIT_STATE_SIGHTLESS"               },
+    { UNIT_STATE_CANNOT_AUTOATTACK  , "UNIT_STATE_CANNOT_AUTOATTACK"       },
+    { UNIT_STATE_CANNOT_TURN        , "UNIT_STATE_CANNOT_TURN"             },
+    { UNIT_STATE_NOT_MOVE           , "UNIT_STATE_NOT_MOVE"                },
+    { UNIT_STATE_ALL_STATE          , "UNIT_STATE_ALL_STATE"               }
+};
+
 class debug_commandscript: public CommandScript
 {
     public:
@@ -140,6 +185,9 @@ class debug_commandscript: public CommandScript
                 { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
                 { "pvelogs",        SEC_ADMINISTRATOR,  false, &HandleDebugPvELogsCommand,         "", NULL },
                 { "questlog",       SEC_ADMINISTRATOR,  false, &HandleDebugQuestLogsCommand,       "", NULL },
+                { "addunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugAddUnitStateCommand,    "", NULL },
+                { "getunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,   "", NULL },
+                { "removeunitstate",SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand, "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -3452,6 +3500,124 @@ class debug_commandscript: public CommandScript
                 p_Handler->PSendSysMessage(LANG_DEBUG_QUEST_LOGS_OFF);
                 l_Player->m_IsDebugQuestLogs = false;
             }
+            return true;
+        }
+
+        static bool HandleDebugAddUnitStateCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            bool l_Found = false;
+
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            // Returns and send error if no Unit is selected
+            Unit* l_Unit = p_Handler->getSelectedUnit();
+            if (!l_Unit)
+            {
+                p_Handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 l_State = atoi((char*)p_Args);
+
+            // When p_Args == 0, all unit states are cleared
+            if (!l_State)
+            {
+                l_Unit->ClearUnitState(UNIT_STATE_ALL_STATE);
+                p_Handler->PSendSysMessage("Unit states cleared");
+                return true;
+            }
+
+            // If selected Unit has not the p_Args state, it's added
+            // If the state doesn't exist, it returns
+            if (!l_Unit->HasUnitState(g_Unitstates[l_State].flag))
+            {
+                for (uint32 l_Iter = 0; l_Iter < 34; l_Iter++)
+                {
+                    if (l_Iter == 0x00000004 || l_Iter == 0x00000040)
+                        continue;
+
+                    if (g_Unitstates[l_Iter].flag == l_State)
+                        l_Found = true;
+                }
+
+                if (!l_Found)
+                {
+                    p_Handler->PSendSysMessage("The unit_state you're looking for doesn't exist.");
+                    return true;
+                }
+
+                l_Unit->AddUnitState(g_Unitstates[l_State].flag);
+                p_Handler->PSendSysMessage("Unit state %s has been added", g_Unitstates[l_State].text);
+            }
+            else
+                p_Handler->PSendSysMessage("This unit has already the state %s", g_Unitstates[l_State].text);
+
+            return true;
+        }
+
+        static bool HandleDebugGetUnitStatesCommand(ChatHandler* p_Handler, const char* p_Args)
+        {
+            Unit* l_Unit = p_Handler->getSelectedUnit();
+            if (!l_Unit)
+            {
+                p_Handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return true;
+            }
+
+            // Checks every unit_state for the Unit selected, and displays it in the handler's chatbox
+            for (uint32 l_Iter = 0; l_Iter < 34; l_Iter++)
+            {
+                if (l_Iter == 0x00000004 || l_Iter == 0x00000040)
+                    continue;
+
+                if (l_Unit->HasUnitState(g_Unitstates[l_Iter].flag))
+                    p_Handler->PSendSysMessage("Selected unit has %s", g_Unitstates[l_Iter].text);
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugRemoveUnitStateCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Unit* l_Unit = p_Handler->getSelectedUnit();
+            if (!l_Unit)
+            {
+                p_Handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            // Checks if the p_Arg has a correct value
+            int32 l_State = atoi((char*)p_Args);
+            if (!l_State)
+            {
+                p_Handler->PSendSysMessage("There is no unit_state with this value.");
+                return true;
+            }
+
+            // Removes the state to the Unit if it has it
+            if (l_Unit->HasUnitState(g_Unitstates[l_State].flag))
+            {
+                l_Unit->ClearUnitState(g_Unitstates[l_State].flag);
+                p_Handler->PSendSysMessage("Unit_state %s has been removed", g_Unitstates[l_State].text);
+            }
+            else
+                p_Handler->PSendSysMessage("This unit doesn't have the unit state %s", g_Unitstates[l_State].text);
+
             return true;
         }
 };
