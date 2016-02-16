@@ -7642,13 +7642,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     break;
                 }
             }
-            // Living Seed
-            if (dummySpell->SpellIconID == 2860)
-            {
-                triggered_spell_id = 48504;
-                basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                break;
-            }
             break;
         }
         case SPELLFAMILY_ROGUE:

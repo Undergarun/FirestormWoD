@@ -5725,8 +5725,56 @@ class spell_dru_item_t17_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Living Seed - 48500
+class spell_dru_living_seed : public SpellScriptLoader
+{
+    public:
+        spell_dru_living_seed() : SpellScriptLoader("spell_dru_living_seed") { }
+
+        class spell_dru_living_seed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_living_seed_AuraScript);
+
+            enum eSpells
+            {
+                LivingSeedAura = 48504
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (p_EventInfo.GetDamageInfo() == nullptr || l_Caster == nullptr)
+                    return;
+
+                int32 l_HealAmount = p_EventInfo.GetDamageInfo()->GetDamage();
+
+                if (!l_HealAmount)
+                    return;
+
+                l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
+                if (AuraEffectPtr l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
+                    l_HealAmount += l_LivingSeed->GetAmount();
+
+                l_Caster->CastCustomSpell(l_Caster, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_living_seed_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_living_seed_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_living_seed();
     new spell_dru_guardian_of_elune();
     new spell_dru_glyph_of_savagery();
     new spell_dru_astral_form();
