@@ -428,3 +428,18 @@ INSERT INTO spell_script_names VALUE (156291, 'spell_warr_protection_stances');
 -- fix Flame Shock
 DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_sha_flame_shock';
 INSERT INTO spell_script_names VALUE (8050, 'spell_sha_flame_shock');
+
+-- fix Glyph of Rapid Rolling
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_monk_glyph_of_rapid_rolling';
+INSERT INTO spell_script_names VALUE (107427, 'spell_monk_glyph_of_rapid_rolling');
+INSERT INTO spell_script_names VALUE (109132, 'spell_monk_glyph_of_rapid_rolling');
+INSERT INTO spell_script_names VALUE (115008, 'spell_monk_glyph_of_rapid_rolling');
+
+-- fix Glyph of Eternal Earth
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_sha_glyph_of_eternal_earth';
+INSERT INTO spell_script_names VALUE (147781, 'spell_sha_glyph_of_eternal_earth');
+
+-- fix Skymirror Image
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_skymirror_image');
+INSERT INTO spell_script_names VALUE (129803, 'spell_item_skymirror_image');
+

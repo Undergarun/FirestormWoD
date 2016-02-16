@@ -4128,6 +4128,49 @@ class spell_create_reward_item : public SpellScriptLoader
         }
 };
 
+/// Ai-Li's Skymirror - 86589, Called by: 129803
+class spell_item_skymirror_image : public SpellScriptLoader
+{
+public:
+    spell_item_skymirror_image() : SpellScriptLoader("spell_item_skymirror_image") { }
+
+    class spell_item_skymirror_image_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_skymirror_image_SpellScript);
+
+        enum eSpells
+        {
+            SkymirrorImage = 127315,
+        };
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                l_Target->CastSpell(l_Player, eSpells::SkymirrorImage, true);
+            else
+                l_Player->CastSpell(l_Player, eSpells::SkymirrorImage);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_skymirror_image_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_skymirror_image_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4211,4 +4254,5 @@ void AddSC_item_spell_scripts()
     new spell_item_shoulders_of_iron();
     new spell_item_gauntlets_of_iron();
     new spell_create_reward_item();
+    new spell_item_skymirror_image();
 }
