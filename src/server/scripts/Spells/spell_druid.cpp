@@ -1476,6 +1476,7 @@ class spell_dru_natures_cure: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Called by Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
 /// Should activate the cat form if not in cat form
 class spell_dru_activate_cat_form : public SpellScriptLoader
@@ -1489,13 +1490,19 @@ class spell_dru_activate_cat_form : public SpellScriptLoader
 
             enum eSpells
             {
-                CatForm = 768
+                CatForm = 768,
+                IncarnationTreeofLife = 33891
             };
 
             void HandleBeforeHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::IncarnationTreeofLife)) ///< Prevent it to be remove by default
+                    l_Player->RemoveAura(eSpells::IncarnationTreeofLife, 0, 0, AURA_REMOVE_BY_CANCEL);
                 if (l_Player && l_Player->GetShapeshiftForm() != FORM_CAT)
                     l_Player->CastSpell(l_Player, eSpells::CatForm, true);
             }
@@ -5182,6 +5189,7 @@ class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
 
+                AuraRemoveMode RemoveMod = GetTargetApplication()->GetRemoveMode();
 
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_CANCEL)
                     return;
