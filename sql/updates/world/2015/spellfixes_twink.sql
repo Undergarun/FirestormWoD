@@ -453,6 +453,12 @@ INSERT INTO spell_script_names VALUE (131784, 'spell_mage_illusion');
 DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_memory_of_mr_smite');
 INSERT INTO spell_script_names VALUE (127207, 'spell_item_memory_of_mr_smite');
 
--- Fix Celestial Defender's Medallion
+-- fix Celestial Defender's Medallion
 DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_celestial_defender');
 INSERT INTO spell_script_names VALUE (149228, 'spell_item_celestial_defender');
+
+-- fix Curious Bronze Timepiece
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_curious_bronze_timepiece_horde');
+INSERT INTO spell_script_names VALUE (147985, 'spell_item_curious_bronze_timepiece_horde');
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_curious_bronze_timepiece_alliance');
+INSERT INTO spell_script_names VALUE (147988, 'spell_item_curious_bronze_timepiece_alliance');

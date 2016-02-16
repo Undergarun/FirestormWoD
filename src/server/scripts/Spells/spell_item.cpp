@@ -4281,6 +4281,75 @@ public:
     }
 };
 
+/// Curious Bronze Timepiece - 104113, Called by: 147988
+class spell_item_curious_bronze_timepiece_alliance : public SpellScriptLoader
+{
+public:
+    spell_item_curious_bronze_timepiece_alliance() : SpellScriptLoader("spell_item_curious_bronze_timepiece_alliance") { }
+
+    class spell_item_curious_bronze_timepiece_alliance_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_curious_bronze_timepiece_alliance_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(870, -906.980957f, -4643.734375f, 5.223629f, 2.934408f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_curious_bronze_timepiece_alliance_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_curious_bronze_timepiece_alliance_SpellScript();
+    }
+};
+
+/// Curious Bronze Timepiece - 104110, Called by: 147985
+class spell_item_curious_bronze_timepiece_horde : public SpellScriptLoader
+{
+public:
+    spell_item_curious_bronze_timepiece_horde() : SpellScriptLoader("spell_item_curious_bronze_timepiece_horde") { }
+
+    class spell_item_curious_bronze_timepiece_horde_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_curious_bronze_timepiece_horde_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(870, -420.822906f, -4604.593262f, 3.901290f, 5.138229f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_curious_bronze_timepiece_horde_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_curious_bronze_timepiece_horde_SpellScript();
+    }
+};
 
 void AddSC_item_spell_scripts()
 {
@@ -4368,4 +4437,6 @@ void AddSC_item_spell_scripts()
     new spell_item_skymirror_image();
     new spell_item_memory_of_mr_smite();
     new spell_item_celestial_defender();
+    new spell_item_curious_bronze_timepiece_alliance();
+    new spell_item_curious_bronze_timepiece_horde();
 }
