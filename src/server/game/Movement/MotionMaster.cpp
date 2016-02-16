@@ -393,7 +393,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    Movement::MoveSplineInit init(*_owner);
+    Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
     init.SetParabolic(max_height, 0);
     init.SetVelocity(speedXY);
