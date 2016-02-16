@@ -386,21 +386,26 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, uint32 arrivalSpellId /*= 0*/, uint64 const arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, float o, uint32 id)
 {
-    ///sLog->outDebug(LOG_FILTER_GENERAL, "Unit (%llu) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUID(), x, y, z);
-    if (speedXY <= 0.1f)
-        return;
+    sLog->outDebug(LOG_FILTER_GENERAL, "Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUIDLow(), x, y, z);
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    Movement::MoveSplineInit init(_owner);
-    init.MoveTo(x, y, z, false);
+    Movement::MoveSplineInit init(*_owner);
+    init.MoveTo(x, y, z);
     init.SetParabolic(max_height, 0);
     init.SetVelocity(speedXY);
+    if (o != 10.0f)
+        init.SetFacing(o);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+}
+
+void MotionMaster::MoveJump(Position const p_Pos, float p_SpeedXY, float p_SpeedZ, uint32 p_ID)
+{
+    MoveJump(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpeedXY, p_SpeedZ, p_Pos.m_orientation, p_ID);
 }
 
 void MotionMaster::MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, uint32 p_ID)
