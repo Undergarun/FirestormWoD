@@ -360,6 +360,15 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 if (m_WouldYouGiveMeAHand && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::WouldYouGiveMeAHand);
 
+                                AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    if (Creature* l_Blackhand = instance->GetCreature(m_CosmeticBlackhand))
+                                    {
+                                        if (l_Blackhand->IsAIEnabled)
+                                            l_Blackhand->AI()->Talk(12, 0, TextRange::TEXT_RANGE_MAP);   ///< KromogKilled
+                                    }
+                                });
+
                                 break;
                             }
                             case EncounterState::NOT_STARTED:
