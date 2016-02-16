@@ -4241,6 +4241,47 @@ public:
     }
 };
 
+/// Celestial Defender's Medallion - 103685, Called by: 149228
+class spell_item_celestial_defender : public SpellScriptLoader
+{
+public:
+    spell_item_celestial_defender() : SpellScriptLoader("spell_item_celestial_defender") { }
+
+    class spell_item_celestial_defender_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_celestial_defender_SpellScript);
+
+        enum eSpells
+        {
+            CelestialDefenderMale = 148369,
+            CelestialDefenderFemale = 149229,
+        };
+
+        void HandleDummy(SpellEffIndex /* index */)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->getGender() == GENDER_MALE)
+                l_Caster->CastSpell(l_Caster, eSpells::CelestialDefenderMale, true);
+            else if (l_Caster->getGender() == GENDER_FEMALE)
+                l_Caster->CastSpell(l_Caster, eSpells::CelestialDefenderFemale, true);
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_item_celestial_defender_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_celestial_defender_SpellScript();
+    }
+};
+
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4325,4 +4366,6 @@ void AddSC_item_spell_scripts()
     new spell_item_gauntlets_of_iron();
     new spell_create_reward_item();
     new spell_item_skymirror_image();
+    new spell_item_memory_of_mr_smite();
+    new spell_item_celestial_defender();
 }

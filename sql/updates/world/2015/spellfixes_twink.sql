@@ -452,3 +452,7 @@ INSERT INTO spell_script_names VALUE (131784, 'spell_mage_illusion');
 -- fix Memore of Mr Smite
 DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_memory_of_mr_smite');
 INSERT INTO spell_script_names VALUE (127207, 'spell_item_memory_of_mr_smite');
+
+-- Fix Celestial Defender's Medallion
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_celestial_defender');
+INSERT INTO spell_script_names VALUE (149228, 'spell_item_celestial_defender');
