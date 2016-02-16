@@ -550,6 +550,9 @@ bool LFGListMgr::IsActivityPvP(GroupFinderActivityEntry const* p_Activity) const
 
 float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* p_Activity, Player* p_Player) const
 {
+    if (p_Player == nullptr)
+        return 0.0f;
+
     return p_Player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + (IsActivityPvP(p_Activity)  ?  PlayerAvgItemLevelOffsets::PvPAvgItemLevel : PlayerAvgItemLevelOffsets::NonPvPAvgItemLevel));
 }
 
