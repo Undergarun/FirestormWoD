@@ -2494,7 +2494,7 @@ class spell_hun_serpent_spread: public SpellScriptLoader
 };
 
 /// Ancient Hysteria - 90355 - last update: 6.1.2 19802
-class spell_hun_ancient_hysteria: public SpellScriptLoader
+class spell_hun_ancient_hysteria : public SpellScriptLoader
 {
     public:
         spell_hun_ancient_hysteria() : SpellScriptLoader("spell_hun_ancient_hysteria") { }
@@ -2502,12 +2502,6 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         class spell_hun_ancient_hysteria_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_hun_ancient_hysteria_SpellScript);
-
-            enum eSpells
-            {
-                BloodLust = 2825,
-                TimeWarp = 80353
-            };
 
             bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
@@ -2528,18 +2522,7 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
 
             void HandleImmunity(SpellEffIndex p_EffIndex)
             {
-<<<<<<< HEAD
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
-            }
-=======
                 Unit* l_Target = GetHitUnit();
->>>>>>> f1f21e8... Fix all heroism auras stacking - awful exploit.
 
                 if (l_Target->HasAura(SPELL_SHAMAN_EXHAUSTED) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
                     l_Target->HasAura(SPELL_SHAMAN_SATED) || l_Target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) ||
@@ -2560,6 +2543,7 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
             return new spell_hun_ancient_hysteria_SpellScript();
         }
 };
+
 
 /// Netherwinds - 160452 - last update: 6.1.2 19802
 class spell_hun_netherwinds : public SpellScriptLoader
