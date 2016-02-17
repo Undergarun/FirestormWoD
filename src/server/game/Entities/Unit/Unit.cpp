@@ -12939,7 +12939,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         return healamount;
 
     // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
-    if (spellProto->Id == 33778 || spellProto->Id == 145109 || spellProto->Id == 68285)
+    if (spellProto->Id == 33778)
         return healamount;
 
     // No bonus for Devouring Plague heal
