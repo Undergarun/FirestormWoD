@@ -5624,8 +5624,6 @@ public:
     }
 };
 
->>>>>>> 82f9f37... Fix legendary cloaks.
-
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_ironbeards_hat();
@@ -5733,7 +5731,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
     new spell_gen_service_uniform();
-    new spell_gen_leather_specialization();
     new spell_legendary_cloaks();
 
     /// PlayerScript
