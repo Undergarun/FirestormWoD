@@ -4076,6 +4076,10 @@ void Unit::_RemoveNoStackAurasDueToAura(AuraPtr aura)
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
+        /// Hack fix for Sunfire
+        if (spellProto->Id == 164815)
+            continue;
+
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
         if (i == m_appliedAuras.end())
             break;
