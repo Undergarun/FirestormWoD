@@ -38,6 +38,7 @@ class boss_flamebender_kagraz : public CreatureScript
             CharringBreathDamage        = 155074,
             Singe                       = 155049,
             FirestormMoltenBolt         = 163630,
+            FlamebenderKagrazBonusLoot  = 177534,
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
@@ -280,6 +281,8 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CharringBreathDamage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
+                    
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
                 }
             }
 
