@@ -38,6 +38,7 @@ class boss_flamebender_kagraz : public CreatureScript
             CharringBreathDamage        = 155074,
             Singe                       = 155049,
             FirestormMoltenBolt         = 163630,
+            FlamebenderKagrazBonusLoot  = 177534,
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
@@ -266,6 +267,9 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 summons.DespawnAll();
 
+                me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
+                me->DespawnCreaturesInArea(eCreatures::OverheatedCinderWolf, 200.0f);
+
                 _JustDied();
 
                 if (m_Instance != nullptr)
@@ -277,6 +281,8 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CharringBreathDamage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
+                    
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
                 }
             }
 
@@ -454,6 +460,12 @@ class boss_flamebender_kagraz : public CreatureScript
                         break;
                 }
 
+                if (!me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!UpdateVictim() || m_Firestorm)
                     return;
 
@@ -467,13 +479,13 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eEvents::EventLavaSlash:
                     {
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
                                 me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
                         m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
@@ -484,13 +496,13 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eEvents::EventSummonEnchantedArmament:
                     {
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
 
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
