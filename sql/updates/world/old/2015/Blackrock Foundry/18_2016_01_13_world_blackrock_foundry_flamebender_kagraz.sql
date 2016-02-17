@@ -150,6 +150,33 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t%s начинает творить заклинание |cFFFF0404|Hspell:155493|h[Огненная буря]|h|r!"
 );
 
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KAGRAZ;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KAGRAZ, 113913, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113914, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113915, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113916, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113917, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113918, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113919, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113920, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113921, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113922, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113923, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113924, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 113925, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 120077, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 119193, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 119305, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 119315, 0, 1, 1, 1, 1),
+(@REF_KAGRAZ, 119318, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_KAGRAZ WHERE `entry`= @REF_KAGRAZ;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KAGRAZ;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KAGRAZ, 1, 100, 1, 0, -@REF_KAGRAZ, 6);
+
 DELETE FROM creature_groupsizestats WHERE entry = @REF_KAGRAZ;
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES
 (@REF_KAGRAZ, 14, 10, 53086003),
