@@ -71,12 +71,9 @@
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-41','0','79835','-3.38423','-1.59738','1.47354','4.30805');
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-41','0','-233832','13.3513','3.26322','0.974777','3.27132');
 
-
-
 -- LEVEL 3
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -138 AND faction_index = 0;
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-138','0','-233832','9.90092','3.29341','0.974869','1.79477');
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-138','0','84247','-0.977483','-4.90326','1.4749','4.14704');
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-138','0','79835','-0.96153','4.85086','1.47467','2.21103');
-
