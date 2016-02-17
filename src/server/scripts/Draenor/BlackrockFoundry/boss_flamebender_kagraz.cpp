@@ -266,6 +266,9 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 summons.DespawnAll();
 
+                me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
+                me->DespawnCreaturesInArea(eCreatures::OverheatedCinderWolf, 200.0f);
+
                 _JustDied();
 
                 if (m_Instance != nullptr)
