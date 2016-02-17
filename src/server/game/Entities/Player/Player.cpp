@@ -30788,6 +30788,7 @@ void Player::_SaveArenaData(SQLTransaction& trans)
 
 void Player::_SaveBGData(SQLTransaction& trans)
 {
+    sLog->outAshran("Player::_SaveBGData guid : %u instanceID : %u", GetGUIDLow(), m_bgData.bgInstanceID);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
