@@ -462,3 +462,10 @@ DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_curious_bronze_
 INSERT INTO spell_script_names VALUE (147985, 'spell_item_curious_bronze_timepiece_horde');
 DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_curious_bronze_timepiece_alliance');
 INSERT INTO spell_script_names VALUE (147988, 'spell_item_curious_bronze_timepiece_alliance');
+
+-- fix legendary cloaks
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146193, 'spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146195, 'spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146199, 'spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146197, 'spell_legendary_cloaks');

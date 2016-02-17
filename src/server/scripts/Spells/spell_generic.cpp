@@ -5589,6 +5589,43 @@ class spell_gen_coin_of_many_faces : public SpellScriptLoader
         }
 };
 
+/// Called by Spirit of Chi-Ji (146199), Essence of Yu'lon (146197), Endurance of Niuzao (146193), Flurry of Xuen (146195)
+class spell_legendary_cloaks : public SpellScriptLoader
+{
+public:
+    spell_legendary_cloaks() : SpellScriptLoader("spell_legendary_cloaks") { }
+
+    class spell_legendary_cloaks_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_legendary_cloaks_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+            if (l_Attacker == nullptr)
+                return;
+
+            /// Doesn't work on 100lvl in WOD
+            if (l_Attacker->getLevel() == 100)
+                return;
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_legendary_cloaks_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_legendary_cloaks_AuraScript();
+    }
+};
+
+>>>>>>> 82f9f37... Fix legendary cloaks.
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_ironbeards_hat();
@@ -5696,6 +5733,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
     new spell_gen_service_uniform();
+    new spell_gen_leather_specialization();
+    new spell_legendary_cloaks();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
