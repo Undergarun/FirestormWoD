@@ -42,47 +42,47 @@ EndScriptData */
 
 struct UnitStates
 {
-    uint32 flag;
-    char const* text;
+    uint32      Flag;
+    char const* Text;
 };
 
-UnitStates const g_Unitstates[35] =
+std::vector<UnitStates const> g_Unitstates =
 {
-    { UNIT_STATE_DIED               , "UNIT_STATE_DIED"                    },
-    { UNIT_STATE_MELEE_ATTACKING    , "UNIT_STATE_MELEE_ATTACKING"         },
-    { UNIT_STATE_STUNNED            , "UNIT_STATE_STUNNED"                 },
-    { UNIT_STATE_ROAMING            , "UNIT_STATE_ROAMING"                 },
-    { UNIT_STATE_CHASE              , "UNIT_STATE_CHASE"                   },
-    { UNIT_STATE_FLEEING            , "UNIT_STATE_FLEEING"                 },
-    { UNIT_STATE_IN_FLIGHT          , "UNIT_STATE_IN_FLIGHT"               },
-    { UNIT_STATE_FOLLOW             , "UNIT_STATE_FOLLOW"                  },
-    { UNIT_STATE_ROOT               , "UNIT_STATE_ROOT"                    },
-    { UNIT_STATE_CONFUSED           , "UNIT_STATE_CONFUSED"                },
-    { UNIT_STATE_DISTRACTED         , "UNIT_STATE_DISTRACTED"              },
-    { UNIT_STATE_ISOLATED           , "UNIT_STATE_ISOLATED"                },
-    { UNIT_STATE_ATTACK_PLAYER      , "UNIT_STATE_ATTACK_PLAYER"           },
-    { UNIT_STATE_CASTING            , "UNIT_STATE_CASTING"                 },
-    { UNIT_STATE_POSSESSED          , "UNIT_STATE_POSSESSED"               },
-    { UNIT_STATE_CHARGING           , "UNIT_STATE_CHARGING"                },
-    { UNIT_STATE_JUMPING            , "UNIT_STATE_JUMPING"                 },
-    { UNIT_STATE_ONVEHICLE          , "UNIT_STATE_ONVEHICLE"               },
-    { UNIT_STATE_MOVE               , "UNIT_STATE_MOVE"                    },
-    { UNIT_STATE_ROTATING           , "UNIT_STATE_ROTATING"                },
-    { UNIT_STATE_EVADE              , "UNIT_STATE_EVADE"                   },
-    { UNIT_STATE_ROAMING_MOVE       , "UNIT_STATE_ROAMING_MOVE"            },
-    { UNIT_STATE_CONFUSED_MOVE      , "UNIT_STATE_CONFUSED_MOVE"           },
-    { UNIT_STATE_FLEEING_MOVE       , "UNIT_STATE_FLEEING_MOVE"            },
-    { UNIT_STATE_CHASE_MOVE         , "UNIT_STATE_CHASE_MOVE"              },
-    { UNIT_STATE_FOLLOW_MOVE        , "UNIT_STATE_FOLLOW_MOVE"             },
-    { UNIT_STATE_UNATTACKABLE       , "UNIT_STATE_UNATTACKABLE"            },
-    { UNIT_STATE_MOVING             , "UNIT_STATE_MOVING"                  },
-    { UNIT_STATE_CONTROLLED         , "UNIT_STATE_CONTROLLED"              },
-    { UNIT_STATE_LOST_CONTROL       , "UNIT_STATE_LOST_CONTROL"            },
-    { UNIT_STATE_SIGHTLESS          , "UNIT_STATE_SIGHTLESS"               },
-    { UNIT_STATE_CANNOT_AUTOATTACK  , "UNIT_STATE_CANNOT_AUTOATTACK"       },
-    { UNIT_STATE_CANNOT_TURN        , "UNIT_STATE_CANNOT_TURN"             },
-    { UNIT_STATE_NOT_MOVE           , "UNIT_STATE_NOT_MOVE"                },
-    { UNIT_STATE_ALL_STATE          , "UNIT_STATE_ALL_STATE"               }
+    { UNIT_STATE_DIED,              "UNIT_STATE_DIED"                },
+    { UNIT_STATE_MELEE_ATTACKING,   "UNIT_STATE_MELEE_ATTACKING"     },
+    { UNIT_STATE_STUNNED,           "UNIT_STATE_STUNNED"             },
+    { UNIT_STATE_ROAMING,           "UNIT_STATE_ROAMING"             },
+    { UNIT_STATE_CHASE,             "UNIT_STATE_CHASE"               },
+    { UNIT_STATE_FLEEING,           "UNIT_STATE_FLEEING"             },
+    { UNIT_STATE_IN_FLIGHT,         "UNIT_STATE_IN_FLIGHT"           },
+    { UNIT_STATE_FOLLOW,            "UNIT_STATE_FOLLOW"              },
+    { UNIT_STATE_ROOT,              "UNIT_STATE_ROOT"                },
+    { UNIT_STATE_CONFUSED,          "UNIT_STATE_CONFUSED"            },
+    { UNIT_STATE_DISTRACTED,        "UNIT_STATE_DISTRACTED"          },
+    { UNIT_STATE_ISOLATED,          "UNIT_STATE_ISOLATED"            },
+    { UNIT_STATE_ATTACK_PLAYER,     "UNIT_STATE_ATTACK_PLAYER"       },
+    { UNIT_STATE_CASTING,           "UNIT_STATE_CASTING"             },
+    { UNIT_STATE_POSSESSED,         "UNIT_STATE_POSSESSED"           },
+    { UNIT_STATE_CHARGING,          "UNIT_STATE_CHARGING"            },
+    { UNIT_STATE_JUMPING,           "UNIT_STATE_JUMPING"             },
+    { UNIT_STATE_ONVEHICLE,         "UNIT_STATE_ONVEHICLE"           },
+    { UNIT_STATE_MOVE,              "UNIT_STATE_MOVE"                },
+    { UNIT_STATE_ROTATING,          "UNIT_STATE_ROTATING"            },
+    { UNIT_STATE_EVADE,             "UNIT_STATE_EVADE"               },
+    { UNIT_STATE_ROAMING_MOVE,      "UNIT_STATE_ROAMING_MOVE"        },
+    { UNIT_STATE_CONFUSED_MOVE,     "UNIT_STATE_CONFUSED_MOVE"       },
+    { UNIT_STATE_FLEEING_MOVE,      "UNIT_STATE_FLEEING_MOVE"        },
+    { UNIT_STATE_CHASE_MOVE,        "UNIT_STATE_CHASE_MOVE"          },
+    { UNIT_STATE_FOLLOW_MOVE,       "UNIT_STATE_FOLLOW_MOVE"         },
+    { UNIT_STATE_UNATTACKABLE,      "UNIT_STATE_UNATTACKABLE"        },
+    { UNIT_STATE_MOVING,            "UNIT_STATE_MOVING"              },
+    { UNIT_STATE_CONTROLLED,        "UNIT_STATE_CONTROLLED"          },
+    { UNIT_STATE_LOST_CONTROL,      "UNIT_STATE_LOST_CONTROL"        },
+    { UNIT_STATE_SIGHTLESS,         "UNIT_STATE_SIGHTLESS"           },
+    { UNIT_STATE_CANNOT_AUTOATTACK, "UNIT_STATE_CANNOT_AUTOATTACK"   },
+    { UNIT_STATE_CANNOT_TURN,       "UNIT_STATE_CANNOT_TURN"         },
+    { UNIT_STATE_NOT_MOVE,          "UNIT_STATE_NOT_MOVE"            },
+    { UNIT_STATE_ALL_STATE,         "UNIT_STATE_ALL_STATE"           }
 };
 
 class debug_commandscript: public CommandScript
@@ -3505,45 +3505,45 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugAddUnitStateCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            bool l_Found = false;
-
             if (!*p_Args)
             {
-                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SendSysMessage(TrinityStrings::LANG_BAD_VALUE);
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            // Returns and send error if no Unit is selected
+            /// Returns and send error if no Unit is selected
             Unit* l_Unit = p_Handler->getSelectedUnit();
             if (!l_Unit)
             {
-                p_Handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SendSysMessage(TrinityStrings::LANG_SELECT_CHAR_OR_CREATURE);
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
             int32 l_State = atoi((char*)p_Args);
 
-            // When p_Args == 0, all unit states are cleared
+            /// When p_Args == 0, all unit states are cleared
             if (!l_State)
             {
-                l_Unit->ClearUnitState(UNIT_STATE_ALL_STATE);
+                l_Unit->ClearUnitState(UnitState::UNIT_STATE_ALL_STATE);
                 p_Handler->PSendSysMessage("Unit states cleared");
                 return true;
             }
 
-            // If selected Unit has not the p_Args state, it's added
-            // If the state doesn't exist, it returns
-            if (!l_Unit->HasUnitState(g_Unitstates[l_State].flag))
-            {
-                for (uint32 l_Iter = 0; l_Iter < 34; l_Iter++)
-                {
-                    if (l_Iter == 0x00000004 || l_Iter == 0x00000040)
-                        continue;
+            bool l_Found = false;
 
-                    if (g_Unitstates[l_Iter].flag == l_State)
+            /// If selected Unit has not the p_Args state, it's added
+            /// If the state doesn't exist, it returns
+            if (!l_Unit->HasUnitState(g_Unitstates[l_State].Flag))
+            {
+                for (UnitStates const l_UnitState : g_Unitstates)
+                {
+                    if (l_UnitState.Flag == l_State)
+                    {
                         l_Found = true;
+                        break;
+                    }
                 }
 
                 if (!l_Found)
@@ -3552,11 +3552,11 @@ class debug_commandscript: public CommandScript
                     return true;
                 }
 
-                l_Unit->AddUnitState(g_Unitstates[l_State].flag);
-                p_Handler->PSendSysMessage("Unit state %s has been added", g_Unitstates[l_State].text);
+                l_Unit->AddUnitState(g_Unitstates[l_State].Flag);
+                p_Handler->PSendSysMessage("Unit state %s has been added", g_Unitstates[l_State].Text);
             }
             else
-                p_Handler->PSendSysMessage("This unit has already the state %s", g_Unitstates[l_State].text);
+                p_Handler->PSendSysMessage("This unit has already the state %s", g_Unitstates[l_State].Text);
 
             return true;
         }
@@ -3566,19 +3566,16 @@ class debug_commandscript: public CommandScript
             Unit* l_Unit = p_Handler->getSelectedUnit();
             if (!l_Unit)
             {
-                p_Handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SendSysMessage(TrinityStrings::LANG_SELECT_CHAR_OR_CREATURE);
                 p_Handler->SetSentErrorMessage(true);
                 return true;
             }
 
-            // Checks every unit_state for the Unit selected, and displays it in the handler's chatbox
-            for (uint32 l_Iter = 0; l_Iter < 34; l_Iter++)
+            /// Checks every unit_state for the Unit selected, and displays it in the handler's chatbox
+            for (UnitStates const l_UnitState : g_Unitstates)
             {
-                if (l_Iter == 0x00000004 || l_Iter == 0x00000040)
-                    continue;
-
-                if (l_Unit->HasUnitState(g_Unitstates[l_Iter].flag))
-                    p_Handler->PSendSysMessage("Selected unit has %s", g_Unitstates[l_Iter].text);
+                if (l_Unit->HasUnitState(l_UnitState.Flag))
+                    p_Handler->PSendSysMessage("Selected unit has %s", l_UnitState.Text);
             }
 
             return true;
@@ -3588,7 +3585,7 @@ class debug_commandscript: public CommandScript
         {
             if (!*p_Args)
             {
-                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SendSysMessage(TrinityStrings::LANG_BAD_VALUE);
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -3596,12 +3593,12 @@ class debug_commandscript: public CommandScript
             Unit* l_Unit = p_Handler->getSelectedUnit();
             if (!l_Unit)
             {
-                p_Handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SendSysMessage(TrinityStrings::LANG_SELECT_CHAR_OR_CREATURE);
                 p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            // Checks if the p_Arg has a correct value
+            /// Checks if the p_Arg has a correct value
             int32 l_State = atoi((char*)p_Args);
             if (!l_State)
             {
@@ -3609,14 +3606,14 @@ class debug_commandscript: public CommandScript
                 return true;
             }
 
-            // Removes the state to the Unit if it has it
-            if (l_Unit->HasUnitState(g_Unitstates[l_State].flag))
+            /// Removes the state to the Unit if it has it
+            if (l_Unit->HasUnitState(g_Unitstates[l_State].Flag))
             {
-                l_Unit->ClearUnitState(g_Unitstates[l_State].flag);
-                p_Handler->PSendSysMessage("Unit_state %s has been removed", g_Unitstates[l_State].text);
+                l_Unit->ClearUnitState(g_Unitstates[l_State].Flag);
+                p_Handler->PSendSysMessage("Unit_state %s has been removed", g_Unitstates[l_State].Text);
             }
             else
-                p_Handler->PSendSysMessage("This unit doesn't have the unit state %s", g_Unitstates[l_State].text);
+                p_Handler->PSendSysMessage("This unit doesn't have the unit state %s", g_Unitstates[l_State].Text);
 
             return true;
         }
