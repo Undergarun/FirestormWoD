@@ -1457,7 +1457,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     l_Itr->CastCustomSpell(l_Itr, GetSpellInfo()->Id, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
@@ -1482,7 +1482,10 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (l_RemainingPct > l_Aura->GetEffect(EFFECT_0)->GetAmount())
                         l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount();
 
-                    uint32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
+                    int32 l_ReduceTime = ((l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct) - p_AurEff->GetBase()->GetDuration();
+
+                    if (!l_ReduceTime)
+                        return;
 
                     if (Player* l_Player = l_Caster->ToPlayer())
                         l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
