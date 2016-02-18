@@ -180,18 +180,18 @@ DB2Storage <TransportAnimationEntry>      sTransportAnimationStore(TransportAnim
 DB2Storage <TransportRotationEntry>       sTransportRotationStore(TransportRotationfmt);
 DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 
-std::vector<std::vector<uint8> >         sPowersByClassStore;
-NameGenVectorArraysMap                   sGenNameVectoArraysMap;
+std::vector<std::vector<uint8> >          sPowersByClassStore;
+NameGenVectorArraysMap                    sGenNameVectoArraysMap;
 
-TaxiMask            sTaxiNodesMask;
-TaxiMask            sOldContinentsNodesMask;
-TaxiMask            sHordeTaxiNodesMask;
-TaxiMask            sAllianceTaxiNodesMask;
-TaxiPathSetBySource sTaxiPathSetBySource;
-TaxiPathNodesByPath sTaxiPathNodesByPath;
+TaxiMask                                  sTaxiNodesMask;
+TaxiMask                                  sOldContinentsNodesMask;
+TaxiMask                                  sHordeTaxiNodesMask;
+TaxiMask                                  sAllianceTaxiNodesMask;
+TaxiPathSetBySource                       sTaxiPathSetBySource;
+TaxiPathNodesByPath                       sTaxiPathNodesByPath;
 
-std::set<ResearchSiteEntry const*>      sResearchSiteSet;
-std::set<ResearchProjectEntry const*>   sResearchProjectSet;
+std::set<ResearchSiteEntry const*>        sResearchSiteSet;
+std::set<ResearchProjectEntry const*>     sResearchProjectSet;
 
 SpellTotemMap       sSpellTotemMap;
 MountCapabilitiesMap sMountCapabilitiesMap;
@@ -603,9 +603,9 @@ void LoadDB2Stores(const std::string& dataPath)
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
-    // Calculate path nodes count
+    /// Calculate path nodes count
     std::vector<uint32> pathLength;
-    pathLength.resize(pathCount);                           // 0 and some other indexes not used
+    pathLength.resize(pathCount);                           ///< 0 and some other indexes not used
 
     for (uint32 l_I = 0; l_I < sTaxiPathNodeStore.GetNumRows(); l_I++)
     {
@@ -618,12 +618,12 @@ void LoadDB2Stores(const std::string& dataPath)
             pathLength[entry->PathID] = entry->NodeIndex + 1;
     }
 
-    // Set path length
-    sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
+    /// Set path length
+    sTaxiPathNodesByPath.resize(pathCount);                 ///< 0 and some other indexes not used
     for (uint32 i = 0; i < sTaxiPathNodesByPath.size(); ++i)
         sTaxiPathNodesByPath[i].resize(pathLength[i]);
 
-    // fill data
+    /// fill data
     for (uint32 l_I = 0; l_I < sTaxiPathNodeStore.GetNumRows(); l_I++)
     {
         TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I);
@@ -634,8 +634,8 @@ void LoadDB2Stores(const std::string& dataPath)
         sTaxiPathNodesByPath[entry->PathID][entry->NodeIndex] = entry;
     }
 
-    // Initialize global taxinodes mask
-    // include existed nodes that have at least single not spell base (scripted) path
+    /// Initialize global taxinodes mask
+    /// include existed nodes that have at least single not spell base (scripted) path
     {
         if (sTaxiNodesStore.GetNumRows())
         {
@@ -657,7 +657,7 @@ void LoadDB2Stores(const std::string& dataPath)
             if (!(node->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE)))
                 continue;
 
-            // valid taxi network node
+            /// Valid taxi network node
             uint8  field = (uint8)((node->ID - 1) / 8);
             uint32 submask = 1 << ((node->ID - 1) % 8);
 

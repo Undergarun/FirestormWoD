@@ -25486,11 +25486,11 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         }
 
         // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
-        /*if (IsNonMeleeSpellCast(false))
+        if (IsNonMeleeSpellCasted(false))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
             return false;
-        }*/
+        }
     }
     // cast case or scripted call case
     else
