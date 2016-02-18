@@ -165,6 +165,9 @@ enum eFoundryDatas
     /// Other boss datas
     DataForemanFeldspar     = eFoundryDatas::MaxBossData,
 
+    /// Some define datas
+    FriendlyFaction         = 35,
+
     /// Misc
     PristineTrueIronOres    = 0,
     VolatileOreGrinded,
