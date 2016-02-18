@@ -105,10 +105,10 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     {
         // Create default template
         AreaTriggerTemplate l_DefaultAreaTriggerTemplate;
-        l_DefaultAreaTriggerTemplate.m_Entry = p_SpellInfo->Id;
-        l_DefaultAreaTriggerTemplate.m_Flags |= AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
-        l_DefaultAreaTriggerTemplate.m_ScaleX = 1;
-        l_DefaultAreaTriggerTemplate.m_ScaleY = 1;
+        l_DefaultAreaTriggerTemplate.m_Entry    = p_SpellInfo->Id;
+        l_DefaultAreaTriggerTemplate.m_Flags    |= AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+        l_DefaultAreaTriggerTemplate.m_ScaleX   = 1;
+        l_DefaultAreaTriggerTemplate.m_ScaleY   = 1;
 
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
