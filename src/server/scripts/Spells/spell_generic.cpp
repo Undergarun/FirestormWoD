@@ -3823,16 +3823,31 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
             {
                 Unit* l_Target = GetHitUnit();
 
+                if (l_Target == nullptr)
+                    return;
+
                 if (l_Target->HasAura(eSpells::Exhausted) || l_Target->HasAura(eSpells::Insanity) ||
                     l_Target->HasAura(eSpells::Sated) || l_Target->HasAura(eSpells::TemporalDisplacement) ||
                     l_Target->HasAura(eSpells::Fatigued))
                     PreventHitAura();
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(eSpells::Exhausted))
+                    l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
+            }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+                AfterHit += SpellHitFn(spell_gen_drums_of_fury_SpellScript::HandleAfterHit);
             }
         };
 
