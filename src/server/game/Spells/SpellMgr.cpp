@@ -3506,6 +3506,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159115: ///< Erupt (Firecaller)
                 spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
+            case 108977: //< Way of the Monk
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                break;
             case 178209: ///< Chest of Iron (T17)
             case 178210: ///< Legs of Iron (T17)
             case 178211: ///< Gauntlets of the Iron Conqueror (T17)
