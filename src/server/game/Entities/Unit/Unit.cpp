@@ -12151,6 +12151,12 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
     uint8 l_MaxProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
     uint8 l_ProcTimes = 0;
 
+    /// Hackfix for Blade Flurry
+    if (p_ProcSpell->Id == 22482)
+    {
+        l_MaxProcTimes = 0;
+    }
+
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
     {
         if (IsSpellMultistrike())
