@@ -20730,6 +20730,8 @@ void Player::_LoadBGData(PreparedQueryResult result)
     m_bgData.taxiPath[1]  = fields[8].GetUInt32();
     m_bgData.mountSpell   = fields[9].GetUInt32();
     m_bgData.m_LastActiveSpec = fields[10].GetUInt16();
+
+    sLog->outAshran("Player::_LoadBGData guid : %u bgInstanceID : ", GetGUIDLow(), m_bgData.bgInstanceID);
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid)
