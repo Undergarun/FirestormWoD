@@ -639,7 +639,7 @@ void LoadDB2Stores(const std::string& dataPath)
     {
         if (sTaxiNodesStore.GetNumRows())
         {
-            ASSERT(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
+            WPError(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
                 "TaxiMaskSize is not large enough to contain all taxi nodes! (current value %d, required %d)"   );
         }
 
