@@ -16750,8 +16750,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
-    // Leader of the Pack
-    if (IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
+    /// Leader of the Pack
+    if (!isVictim && IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
         (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
         if (!ToPlayer()->HasSpellCooldown(68285))
