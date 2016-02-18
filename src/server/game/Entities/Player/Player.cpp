@@ -20719,7 +20719,7 @@ void Player::_LoadBGData(PreparedQueryResult result)
     //        0           1     2      3      4      5      6          7          8        9            10
     // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec FROM character_battleground_data WHERE guid = ?
 
-    m_bgData.bgInstanceID = fields[0].GetUInt32();
+    //m_bgData.bgInstanceID = fields[0].GetUInt32();
     m_bgData.bgTeam       = fields[1].GetUInt16();
     m_bgData.joinPos      = WorldLocation(fields[6].GetUInt16(),    // Map
                                           fields[2].GetFloat(),     // X
