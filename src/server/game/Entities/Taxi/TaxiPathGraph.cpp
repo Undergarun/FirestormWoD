@@ -113,15 +113,21 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* p_From, Ta
         p_ShortestPath.clear();
         std::vector<vertex_descriptor> l_Properties(boost::num_vertices(m_Graph));
 
-        boost::dijkstra_shortest_paths(m_Graph, GetVertexIDFromNodeID(p_From),
-                                       boost::predecessor_map(boost::make_iterator_property_map(l_Properties.begin(), boost::get(boost::vertex_index, m_Graph))).weight_map(
-                                           boost::make_transform_value_property_map([p_Player](EdgeCost const& p_EdgeCost)
-                                                                                    {
-                                                                                        return p_EdgeCost.EvaluateDistance(p_Player);
-                                                                                    },
-                                                                                    boost::get(boost::edge_weight, m_Graph)
-                                                                                    )
-                                       ));
+        boost::dijkstra_shortest_paths
+        (
+           m_Graph, GetVertexIDFromNodeID(p_From),
+           boost::predecessor_map(boost::make_iterator_property_map(l_Properties.begin(), boost::get(boost::vertex_index, m_Graph))).weight_map
+           (
+               boost::make_transform_value_property_map
+               (
+                   [p_Player](EdgeCost const& p_EdgeCost)
+                   {
+                       return p_EdgeCost.EvaluateDistance(p_Player);
+                   },
+                   boost::get(boost::edge_weight, m_Graph)
+               )
+           )
+        );
 
         /// Found a path to the goal
         for (vertex_descriptor l_VertexDescriptor = GetVertexIDFromNodeID(p_To);; l_VertexDescriptor = l_Properties[l_VertexDescriptor])
