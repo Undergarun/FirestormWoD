@@ -281,8 +281,16 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CharringBreathDamage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
-                    
+
                     CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
+
+                    if (Creature* l_Aknor = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::AknorSteelbringer)))
+                    {
+                        l_Aknor->setFaction(eFoundryDatas::FriendlyFaction);
+                        l_Aknor->CombatStop();
+                        l_Aknor->RemoveAllAuras();
+                        l_Aknor->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+                    }
                 }
             }
 
@@ -1029,7 +1037,7 @@ class npc_foundry_lava_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
                 me->RemoveAura(eSpells::FirestormV2Periodic);
 
@@ -1640,7 +1648,14 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
                 if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath && m_CurrAction == eActions::ActionOverheated)
                 {
-                    me->CastSpell(me, eSpells::CharringBreathDamage, true);
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        me->SetFacingTo(me->GetAngle(l_Target));
+
+                    AddTimedDelayedOperation(50, [this]() -> void
+                    {
+                        me->CastSpell(me, eSpells::CharringBreathDamage, true);
+                    });
+
                     m_Events.ScheduleEvent(eEvent::EventCharringBreath, 7 * TimeConstants::IN_MILLISECONDS);
                 }
 
