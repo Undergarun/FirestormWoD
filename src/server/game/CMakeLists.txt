@@ -166,6 +166,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/zlib
+  ${CMAKE_SOURCE_DIR}/dep/boost
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/
@@ -232,6 +233,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Vehicle
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Transport
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/SceneObject
+  ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Taxi
   ${CMAKE_CURRENT_SOURCE_DIR}/Events
   ${CMAKE_CURRENT_SOURCE_DIR}/Globals
   ${CMAKE_CURRENT_SOURCE_DIR}/Grids/Cells

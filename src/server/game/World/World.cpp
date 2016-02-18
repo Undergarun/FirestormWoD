@@ -88,6 +88,7 @@
 #include "TransportMgr.h"
 #include "BattlepayMgr.h"
 #include "MMapFactory.h"
+#include "TaxiPathGraph.h"
 #include <ctime>
 
 uint32 gOnlineGameMaster = 0;
@@ -1596,6 +1597,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize Spell Difficulty ...");
     sSpellMgr->InitializeSpellDifficulty();
 
+    //Load weighted graph on taxi nodes path
+    sTaxiPathGraph.Initialize();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
@@ -1729,9 +1733,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group Linked...");                ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemBonusGroupLinked();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Taxi data");
-    sObjectMgr->LoadTaxiData();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();

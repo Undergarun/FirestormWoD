@@ -1253,7 +1253,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0455, ///< 6.2.3 20726
     CMSG_ENABLE_TAXI_NODE                       = 0x190D, ///< 6.2.3 20726
-    CMSG_TAXI_HELLO                             = 0x0336, ///< 6.2.3 20726
+    CMSG_TAXI_QUERY_AVAILABLE_NODES             = 0x0336, ///< 6.2.3 20726
     CMSG_ACTIVATE_TAXI                          = 0x037A, ///< 6.2.3 20726
     CMSG_TAXI_NODE_STATUS_QUERY                 = 0x1DAD, ///< 6.2.3 20726
     CMSG_TAXI_REQUEST_EARLY_LANDING             = 0x0755, ///< 6.2.3 20726

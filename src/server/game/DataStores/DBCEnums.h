@@ -421,6 +421,18 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
+enum TaxiNodeFlags
+{
+    TAXI_NODE_FLAG_ALLIANCE = 0x1,
+    TAXI_NODE_FLAG_HORDE    = 0x2
+};
+
+enum TaxiPathNodeFlags
+{
+    TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
+    TAXI_PATH_NODE_FLAG_STOP        = 0x2
+};
+
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {

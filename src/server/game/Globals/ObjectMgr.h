@@ -922,6 +922,7 @@ class ObjectMgr
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
+        void GetTaxiPath(uint32 source, uint32 destination, std::vector<uint32>& path, uint32& cost);
         uint32 GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team = false);
 
         Quest const* GetQuestTemplate(uint32 quest_id) const
@@ -1141,7 +1142,6 @@ class ObjectMgr
         void LoadCreatureTemplates();
         void LoadCreatureTemplatesDifficulties();
         void LoadCreatureTemplateAddons();
-        void LoadTaxiData();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void RestructCreatureGUID(uint32 nbLigneToRestruct);
         void RestructGameObjectGUID(uint32 nbLigneToRestruct);
@@ -1667,15 +1667,6 @@ class ObjectMgr
             return m_StandaloneSceneInstanceID++;
         }
 
-        TaxiNode* GetTaxiNodeByID(uint32 ID)
-        {
-            TaxiNodes::const_iterator itr = _taxiNodes.find(ID);
-            if (itr != _taxiNodes.end())
-                return itr->second;
-
-            return nullptr;
-        }
-
         ItemBonus::GroupContainer const* GetItemBonusGroup(uint32 p_GroupID) const
         {
             auto l_Find = m_ItemBonusGroupStore.find(p_GroupID);
@@ -1886,7 +1877,6 @@ class ObjectMgr
         GroupsCompletedChallengesMap m_GroupsCompletedChallenges;
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
-        TaxiNodes _taxiNodes;
 
         std::set<uint32> m_DisabledEncounters;
 };
