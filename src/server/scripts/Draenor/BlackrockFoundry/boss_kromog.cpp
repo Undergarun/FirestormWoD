@@ -6,7 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "blackrock_foundry.hpp"
+# include "boss_kromog.hpp"
 
 /// Kromog <Legend of the Mountain> - 77692
 class boss_kromog : public CreatureScript
@@ -35,6 +35,9 @@ class boss_kromog : public CreatureScript
             Frenzy                      = 156861,
             FistsOfStone                = 162348,
             ThunderingBlows             = 157054,
+            ReverberationsAreaTrigger   = 157246,
+            ShatteredEarthDamage        = 161893,
+            KromogBonusLoot             = 177535,
             /// Rippling Smash
             RipplingSmashSearcher       = 161049,
             RipplingSmashCast           = 157592,
@@ -54,34 +57,35 @@ class boss_kromog : public CreatureScript
             EventGraspingEarth,
             EventThunderingBlows,
             EventCrushingEarth,
-            EventReverberation
+            EventReverberation,
+            EventShatteredEarth
         };
 
         enum eTimers
         {
-            TimerCheckMeleePlayers  = 500,
-            TimerBerserker          = 540 * TimeConstants::IN_MILLISECONDS,
-            TimerAbilityTalk        = 40,
-            TimerStoneBreath        = 9 * TimeConstants::IN_MILLISECONDS,
-            TimerStoneBreathAgain   = 24 * TimeConstants::IN_MILLISECONDS,
-            TimerStoneBreathSecLFR  = 28 * TimeConstants::IN_MILLISECONDS,
-            TimerStoneBreathSecond  = 31 * TimeConstants::IN_MILLISECONDS,
-            TimerWarpedArmor        = 14 * TimeConstants::IN_MILLISECONDS,
-            TimerSlam               = 18 * TimeConstants::IN_MILLISECONDS,
-            TimerSlamAgain          = 23 * TimeConstants::IN_MILLISECONDS,
-            TimerRipplingSmash      = 23 * TimeConstants::IN_MILLISECONDS + 500,
-            TimerRipplingSmashAgain = 21 * TimeConstants::IN_MILLISECONDS,
-            TimerRipplingSmashSec   = 35 * TimeConstants::IN_MILLISECONDS,
-            TimerGraspingEarth      = 50 * TimeConstants::IN_MILLISECONDS,
-            TimerGraspingEarthAgain = 112 * TimeConstants::IN_MILLISECONDS,
-            TimerThunderingBlows    = 12 * TimeConstants::IN_MILLISECONDS,
-            TimerThunderingBlowsLFR = 20 * TimeConstants::IN_MILLISECONDS + 500,
-            TimerCrushingEarth      = 25 * TimeConstants::IN_MILLISECONDS,
-            TimerCrushingEarthAgain = 16 * TimeConstants::IN_MILLISECONDS
-        };
-
-        enum eCosmeticEvents
-        {
+            TimerCheckMeleePlayers      = 500,
+            TimerBerserker              = 540 * TimeConstants::IN_MILLISECONDS,
+            TimerAbilityTalk            = 40,
+            TimerStoneBreath            = 9 * TimeConstants::IN_MILLISECONDS,
+            TimerStoneBreathAgain       = 24 * TimeConstants::IN_MILLISECONDS,
+            TimerStoneBreathSecLFR      = 28 * TimeConstants::IN_MILLISECONDS,
+            TimerStoneBreathSecond      = 31 * TimeConstants::IN_MILLISECONDS,
+            TimerWarpedArmor            = 14 * TimeConstants::IN_MILLISECONDS,
+            TimerWarpedArmorFrenzied    = 10 * TimeConstants::IN_MILLISECONDS + 200,
+            TimerSlam                   = 18 * TimeConstants::IN_MILLISECONDS,
+            TimerSlamAgain              = 23 * TimeConstants::IN_MILLISECONDS,
+            TimerRipplingSmash          = 23 * TimeConstants::IN_MILLISECONDS + 500,
+            TimerRipplingSmashFrenzied  = 18 * TimeConstants::IN_MILLISECONDS + 200,
+            TimerRipplingSmashAgain     = 21 * TimeConstants::IN_MILLISECONDS,
+            TimerRipplingSmashSec       = 35 * TimeConstants::IN_MILLISECONDS,
+            TimerGraspingEarth          = 50 * TimeConstants::IN_MILLISECONDS,
+            TimerGraspingEarthAgain     = 112 * TimeConstants::IN_MILLISECONDS,
+            TimerThunderingBlows        = 12 * TimeConstants::IN_MILLISECONDS,
+            TimerThunderingBlowsLFR     = 20 * TimeConstants::IN_MILLISECONDS + 500,
+            TimerCrushingEarth          = 25 * TimeConstants::IN_MILLISECONDS,
+            TimerCrushingEarthAgain     = 16 * TimeConstants::IN_MILLISECONDS,
+            TimerAttackTime             = 2 * TimeConstants::IN_MILLISECONDS,
+            TimerAttackTimeFrenzied     = 1 * TimeConstants::IN_MILLISECONDS + 600
         };
 
         enum eActions
@@ -96,7 +100,8 @@ class boss_kromog : public CreatureScript
             GraspingEarthTrigger    = 77893,
             RuneOfCrushingEarth     = 77844,
             StoneWallRight          = 79806,
-            StoneWallLeft           = 77842
+            StoneWallLeft           = 77842,
+            ReverberationTrigger    = 77929
         };
 
         enum eVisuals
@@ -113,7 +118,6 @@ class boss_kromog : public CreatureScript
             InstanceScript* m_Instance;
 
             EventMap m_Events;
-            EventMap m_CosmeticEvents;
 
             std::set<uint64> m_RipplingSmashTriggers;
             std::set<uint64> m_GraspingEarthTriggers;
@@ -140,15 +144,17 @@ class boss_kromog : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 me->DespawnCreaturesInArea({ eCreatures::StoneWallRight, eCreatures::StoneWallLeft });
+                me->DespawnAreaTriggersInArea({ eSpells::ReverberationsAreaTrigger });
 
                 m_Events.Reset();
-                m_CosmeticEvents.Reset();
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
                 me->RemoveAura(eFoundrySpells::Berserker);
                 me->RemoveAura(eSpells::Frenzy);
                 me->RemoveAura(eSpells::FistsOfStone);
+
+                me->SetAttackTime(WeaponAttackType::BaseAttack, eTimers::TimerAttackTime);
 
                 if (m_RipplingSmashTriggers.empty())
                 {
@@ -239,6 +245,7 @@ class boss_kromog : public CreatureScript
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea({ eCreatures::StoneWallRight, eCreatures::StoneWallLeft });
+                me->DespawnAreaTriggersInArea({ eSpells::ReverberationsAreaTrigger });
 
                 Talk(eTalks::TalkDeath);
 
@@ -250,6 +257,12 @@ class boss_kromog : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WarpedArmor);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RuneOfGraspingEarthVehicle);
+
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me)))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::KromogBonusLoot, true);
                 }
             }
 
@@ -302,30 +315,15 @@ class boss_kromog : public CreatureScript
 
                     me->CastSpell(me, eSpells::Frenzy, true);
 
-                    Talk(eTalks::TalkFrenzy);
-                }
-            }
+                    me->SetAttackTime(WeaponAttackType::BaseAttack, eTimers::TimerAttackTimeFrenzied);
 
-            void DoAction(int32 const p_Action) override
-            {
-                switch (p_Action)
-                {
-                    default:
-                        break;
+                    Talk(eTalks::TalkFrenzy);
                 }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
-
-                m_CosmeticEvents.Update(p_Diff);
-
-                switch (m_CosmeticEvents.ExecuteEvent())
-                {
-                    default:
-                        break;
-                }
 
                 if (!UpdateVictim())
                     return;
@@ -387,7 +385,7 @@ class boss_kromog : public CreatureScript
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::WarpedArmor, true);
-                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, eTimers::TimerWarpedArmor);
+                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0.0f ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
                         break;
                     }
                     case eEvents::EventSlam:
@@ -400,8 +398,9 @@ class boss_kromog : public CreatureScript
 
                         me->CastSpell(me, eSpells::Slam, false);
 
-                        /// Reverberations will immediately follow Slam and Rippling Smash.
+                        /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
                         m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
+                        m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
                         m_Events.ScheduleEvent(eEvents::EventSlam, eTimers::TimerSlamAgain);
                         break;
                     }
@@ -409,9 +408,10 @@ class boss_kromog : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::RipplingSmashSearcher, true);
 
-                        /// Reverberations will immediately follow Slam and Rippling Smash.
+                        /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
                         m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmashAgain);
+                        m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
+                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0.0f ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
                         break;
                     }
                     case eEvents::EventGraspingEarth:
@@ -431,6 +431,9 @@ class boss_kromog : public CreatureScript
 
                         me->SetFacingTo(2.92434f);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                        for (Position const l_SpawnPos : g_GraspingEarthSpawnPos)
+                            me->SummonCreature(eCreatures::GraspingEarthTrigger, l_SpawnPos);
 
                         AddTimedDelayedOperation(50, [this]() -> void
                         {
@@ -486,9 +489,31 @@ class boss_kromog : public CreatureScript
                             m_CrushingEarthBoom = true;
 
                         m_Events.ScheduleEvent(eEvents::EventCrushingEarth, eTimers::TimerCrushingEarthAgain);
+                        break;
                     }
                     case eEvents::EventReverberation:
                     {
+                        float l_BaseX = me->m_positionX;
+                        float l_BaseY = me->m_positionY;
+                        float l_BaseO = me->m_orientation;
+
+                        for (uint8 l_I = 0; l_I < eFoundryDatas::MaxReverberationSpawns; ++l_I)
+                        {
+                            float l_Range       = frand(15.0f, 25.0f);
+                            float l_Orientation = l_BaseO + frand(-(M_PI / 2.0f), M_PI / 2.0f);
+
+                            float l_X = l_BaseX + l_Range * cos(l_Orientation);
+                            float l_Y = l_BaseY + l_Range * sin(l_Orientation);
+                            float l_Z = 105.0833f;  ///< Floor of the room
+
+                            me->SummonCreature(eCreatures::ReverberationTrigger, { l_X, l_Y, l_Z, l_Orientation });
+                        }
+
+                        break;
+                    }
+                    case eEvents::EventShatteredEarth:
+                    {
+                        me->CastSpell(me, eSpells::ShatteredEarthDamage, true);
                         break;
                     }
                     default:
@@ -603,16 +628,11 @@ class npc_foundry_grasping_earth : public CreatureScript
 
                 m_Activated = false;
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    me->CastSpell(me, eSpells::GraspingEarthSpawnVisual, true);
-                    //me->SetDisplayId(11686);
-                });
+                me->CastSpell(me, eSpells::GraspingEarthSpawnVisual, true);
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->setFaction(35);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE /*| eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE*/);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK6 | eUnitFlags2::UNIT_FLAG2_UNK11);
             }
 
@@ -659,9 +679,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 {
                     AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        //me->RestoreDisplayId();
-                        me->setFaction(14);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE /*| eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE*/);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
                         me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_DISPLAY_ID);
 
@@ -674,6 +692,8 @@ class npc_foundry_grasping_earth : public CreatureScript
             {
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
                     l_Instance->SetData(eFoundryDatas::GraspingEarthTime, (uint32)time(nullptr));
+
+                me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -878,6 +898,82 @@ class npc_foundry_stone_wall : public CreatureScript
         }
 };
 
+/// Reverberation - 77929
+class npc_foundry_reverberation : public CreatureScript
+{
+    public:
+        npc_foundry_reverberation() : CreatureScript("npc_foundry_reverberation") { }
+
+        enum eSpells
+        {
+            ReverberationsSpawnVisual   = 157250,
+            ReverberationsAreaTrigger   = 157246
+        };
+
+        enum eMove
+        {
+            MoveOnce = 1
+        };
+
+        struct npc_foundry_reverberationAI : public ScriptedAI
+        {
+            npc_foundry_reverberationAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->DisableEvadeMode();
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                me->SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 2 * TimeConstants::IN_MILLISECONDS);
+
+                AddTimedDelayedOperation(50, [this]() -> void
+                {
+                    me->SetFloatValue(EObjectFields::OBJECT_FIELD_SCALE, 1.0f);
+                });
+
+                me->CastSpell(me, eSpells::ReverberationsSpawnVisual, true);
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::ReverberationsAreaTrigger, true);
+                });
+
+                AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    float l_X = me->m_positionX + 60.0f * cos(me->m_orientation);
+                    float l_Y = me->m_positionY + 60.0f * sin(me->m_orientation);
+                    float l_Z = me->m_positionZ;
+
+                    me->GetMotionMaster()->MovePoint(eMove::MoveOnce, { l_X, l_Y, l_Z, me->m_orientation });
+                });
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                if (p_ID != eMove::MoveOnce)
+                    return;
+
+                me->DespawnOrUnsummon();
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_reverberationAI(p_Creature);
+        }
+};
+
 /// Slam - 156704
 class spell_foundry_slam : public SpellScriptLoader
 {
@@ -962,41 +1058,6 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_foundry_fists_of_stone_AuraScript();
-        }
-};
-
-/// Rune of Grasping Earth (periodic) - 157060
-class spell_foundry_rune_of_grasping_earth_periodic : public SpellScriptLoader
-{
-    public:
-        spell_foundry_rune_of_grasping_earth_periodic() : SpellScriptLoader("spell_foundry_rune_of_grasping_earth_periodic") { }
-
-        class spell_foundry_rune_of_grasping_earth_periodic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_periodic_AuraScript);
-
-            void OnTick(constAuraEffectPtr p_AurEff)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Creature* l_Trigger = l_Caster->FindNearestCreature(86873, 100.0f))
-                    {
-                        l_Trigger->SetReactState(ReactStates::REACT_PASSIVE);
-                        l_Trigger->CombatStop();
-                        l_Trigger->CastSpell(l_Trigger, 157056, true);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_rune_of_grasping_earth_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_foundry_rune_of_grasping_earth_periodic_AuraScript();
         }
 };
 
@@ -1176,6 +1237,49 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
         }
 };
 
+/// Reverberations - 157246
+class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_reverberations() : AreaTriggerEntityScript("areatrigger_foundry_reverberations") { }
+
+        enum eSpell
+        {
+            ReverberationsDamage = 157247
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                float l_Radius = 1.0f;
+                std::list<Unit*> l_TargetList;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+
+                    if (l_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
+                    {
+                        l_Caster->ToCreature()->DespawnOrUnsummon();
+                        p_AreaTrigger->SetDuration(0);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_reverberations();
+        }
+};
+
 void AddSC_boss_kromog()
 {
     /// Boss
@@ -1186,14 +1290,15 @@ void AddSC_boss_kromog()
     new npc_foundry_grasping_earth();
     new npc_foundry_rune_of_crushing_earth();
     new npc_foundry_stone_wall();
+    new npc_foundry_reverberation();
 
     /// Spells
     new spell_foundry_slam();
     new spell_foundry_fists_of_stone();
-    new spell_foundry_rune_of_grasping_earth_periodic();
     new spell_foundry_rune_of_grasping_earth();
     new spell_foundry_rune_of_crushing_earth();
 
     /// AreaTriggers
     new areatrigger_foundry_rippling_smash();
+    new areatrigger_foundry_reverberations();
 }

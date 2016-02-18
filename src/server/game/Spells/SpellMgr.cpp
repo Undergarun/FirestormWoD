@@ -3590,12 +3590,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161049: ///< Rippling Smash (Kromog)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
-            /*case 157060: ///< Rune of Grasping Earth - Cast (Kromog)
+            case 157060: ///< Rune of Grasping Earth - Cast (Kromog)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                 break;
-            case 160957: ///< Grasping Earth (Grasping Earth)
-                spellInfo->Effects[EFFECT_0].MiscValue = 0;
-                break;*/
             case 157054: ///< Thundering Blows (Kromog)
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 162355;
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 157055;

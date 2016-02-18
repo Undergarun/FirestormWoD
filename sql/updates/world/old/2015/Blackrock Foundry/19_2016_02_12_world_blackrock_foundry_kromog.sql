@@ -1,13 +1,4 @@
--- Templates to update:
--- 77844 (Rune de Terre broyeuse)
--- 77929 (Réverbération)
-
--- 77893 (Grasping Earth)
--- 78055 (Rippling Smash)
--- 77844 (Rune of Crushing Earth)
--- 77842 (Stone Wall - Left)
--- 79806 (Stone Wall - Right)
--- 77692 (Kromog)
+SET NAMES utf8;
 
 DELETE FROM spell_script_names WHERE spell_id IN (156704, 162348, 157056, 161923);
 INSERT INTO spell_script_names VALUES
@@ -16,9 +7,10 @@ INSERT INTO spell_script_names VALUES
 (157056, "spell_foundry_rune_of_grasping_earth"),
 (161923, "spell_foundry_rune_of_crushing_earth");
 
-DELETE FROM areatrigger_template WHERE spell_id IN (161437);
+DELETE FROM areatrigger_template WHERE spell_id IN (161437, 157246);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `ScriptName`) VALUES
-(161437, 0, 6493, 1, 1, 2570, 762, 4000, 6.5, 7.5, 2, 15, 7.5, "areatrigger_foundry_rippling_smash");
+(161437, 0, 6493, 1, 1, 2570, 762, 4000, 6.5, 7.5, 2, 15, 7.5, "areatrigger_foundry_rippling_smash"),
+(157246, 0, 6489, 1, 1, 8196, 0, 2.5, 0.5, 8, 8, 2, 2, "areatrigger_foundry_reverberations");
 
 DELETE FROM conditions WHERE SourceEntry IN (157056);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
@@ -136,3 +128,28 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     "Esa bestia era irremplazable. ¿En dónde están los atacantes ahora? Los quiero muertos. ¡MUERTOS!",
     "Где я теперь найду другого зверя? Куда делись нападавшие? Убить их всех! Убить!"
 );
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KROMOG;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KROMOG, 113926, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113927, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113928, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113929, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113930, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113931, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113932, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113933, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113934, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113935, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113936, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113937, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 113938, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 119308, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 119312, 0, 1, 1, 1, 1),
+(@REF_KROMOG, 119321, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_KROMOG WHERE `entry`= @REF_KROMOG;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KROMOG;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KROMOG, 1, 100, 1, 0, -@REF_KROMOG, 6);

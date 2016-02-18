@@ -187,7 +187,9 @@ enum eFoundryDatas
     MaxOregorgerCollisions  = 8,
     MaxOregorgerPaths       = 12,
     /// Blast Furnace
-    MaxPrimalElementalists  = 4
+    MaxPrimalElementalists  = 4,
+    /// Kromog
+    MaxReverberationSpawns  = 15
 };
 
 enum eFoundrySpells
