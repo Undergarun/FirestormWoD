@@ -318,7 +318,7 @@ bool PlayerTaxi::RequestEarlyLanding()
         if (IsTaximaskNodeKnown(*l_It))
         {
             if (++l_It == m_TaxiDestinations.end())
-                return false;   // if we are left with only 1 known node on the path don't change the spline, its our final destination anyway
+                return false;   ///< If we are left with only 1 known node on the path don't change the spline, its our final destination anyway
 
             m_TaxiDestinations.erase(l_It, m_TaxiDestinations.end());
             return true;
@@ -336,6 +336,7 @@ std::deque<uint32> const& PlayerTaxi::GetPath() const
 {
     return m_TaxiDestinations;
 }
+
 /// Is the current destination empty ?
 bool PlayerTaxi::IsPathEmpty() const
 {

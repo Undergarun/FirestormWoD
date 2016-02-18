@@ -1597,7 +1597,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize Spell Difficulty ...");
     sSpellMgr->InitializeSpellDifficulty();
 
-    //Load weighted graph on taxi nodes path
+    /// Load weighted graph on taxi nodes path
     sTaxiPathGraph.Initialize();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");

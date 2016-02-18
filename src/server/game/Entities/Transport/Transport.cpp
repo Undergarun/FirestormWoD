@@ -565,7 +565,7 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
 
 void Transport::DoEventIfAny(KeyFrame const& node, bool departure)
 {
-    if (uint32 eventid = departure ? node.Node->ArrivalEventID : node.Node->ArrivalEventID)
+    if (uint32 eventid = departure ? node.Node->DepartureEventID : node.Node->ArrivalEventID)
     {
         sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->NodeIndex, GetName());
         GetMap()->ScriptsStart(sEventScripts, eventid, this, this);

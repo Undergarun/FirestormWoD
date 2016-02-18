@@ -257,10 +257,10 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 
     uint32 l_SplineID = p_RecvPacket.read<uint32>(); ///< l_SplineID is never read 01/18/16
 
-    // in taxi flight packet received in 2 case:
-    // 1) end taxi path in far (multi-node) flight
-    // 2) switch from one map to other in case multim-map taxi path
-    // we need process only (1)
+    /// in taxi flight packet received in 2 case:
+    /// 1) end taxi path in far (multi-node) flight
+    /// 2) switch from one map to other in case multim-map taxi path
+    /// we need process only (1)
 
     uint32 curDest = GetPlayer()->m_taxi.GetTaxiDestination();
     if (curDest)
@@ -281,12 +281,12 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
             }
         }
 
-        // far teleport case
+        /// Far teleport case
         if (curDestNode && curDestNode->MapID != l_PlayerMapID)
         {
             if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
             {
-                // short preparations to continue flight
+                /// Short preparations to continue flight
                 FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
 
                 flight->SetCurrentNodeAfterTeleport();
@@ -300,7 +300,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
         return;
     }
 
-    // at this point only 1 node is expected (final destination)
+    /// At this point only 1 node is expected (final destination)
     if (GetPlayer()->m_taxi.GetPath().size() != 1)
         return;
 
@@ -309,6 +309,3 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
     if (GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 }
-
-
-

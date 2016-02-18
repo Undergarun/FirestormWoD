@@ -7,12 +7,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #ifndef PLAYERTAXI_H_INCLUDED
-#define PLAYERTAXI_H_INCLUDED
+# define PLAYERTAXI_H_INCLUDED
 
-#include "DB2Stores.h"
-#include "Define.h"
-#include "WorldSession.h"
-#include <map>
+# include "DB2Stores.h"
+# include "Define.h"
+# include "WorldSession.h"
+# include <map>
 
 /// Player taxi manager class
 class PlayerTaxi
