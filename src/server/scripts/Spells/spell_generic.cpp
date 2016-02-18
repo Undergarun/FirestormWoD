@@ -3800,7 +3800,7 @@ class spell_gen_dampening : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Drums of Fury - 178207
+/// Drums of Fury - 178207, Drums of Rage - 102351
 class spell_gen_drums_of_fury : public SpellScriptLoader
 {
     public:
