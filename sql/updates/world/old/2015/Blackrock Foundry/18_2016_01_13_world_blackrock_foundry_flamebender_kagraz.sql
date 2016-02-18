@@ -32,49 +32,49 @@ DELETE FROM locales_creature_text WHERE entry IN (80708, @REF_KAGRAZ);
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
 (
     80708, 0, 0,
-    "Pourceaux incapables ! Remettez-vous au travail. On a un quota à respecter !",
+    "Pourceaux incapables ! Remettez-vous au travail. On a un quota à respecter !",
     "Wertloses Schwein! Zurück an die Arbeit! Wir haben hier Vorgaben zu erfüllen!",
     "¡Cerdo inútil! De vuelta al trabajo. ¡Tenemos una meta que cumplir!",
     "Грязная свинья! А ну за работу! Надо план выполнять!"
 ),
 (
     80708, 1, 0,
-    "Ne les laissez pas passer !",
+    "Ne les laissez pas passer !",
     "Lasst sie nicht vorbei!",
     "¡No dejen que nos pasen!",
     "Не позволяйте им приблизиться к нам!"
 ),
 (
     @REF_KAGRAZ, 0, 0,
-    "Mon travail. Vous avez interrompu mon TRAVAIL !",
+    "Mon travail. Vous avez interrompu mon TRAVAIL !",
     "Meine Arbeit. Ihr stört meine ARBEIT!",
     "Mi trabajo. ¡Interrumpieron mi TRABAJO!",
     "Работа! Вы отрываете меня от работы!"
 ),
 (
     @REF_KAGRAZ, 1, 0,
-    "Aknor ! Tu es la honte de ton clan.",
+    "Aknor ! Tu es la honte de ton clan.",
     "Aknor! Ihr seid eine Schande für Euren Klan.",
     "¡Aknor! Eres una vergüenza para tu clan.",
     "Акнор! Ты – позор для клана"
 ),
 (
     @REF_KAGRAZ, 2, 0,
-    "Brûlez !",
+    "Brûlez !",
     "Brennt!",
     "¡Ardan!",
     "Горите!"
 ),
 (
     @REF_KAGRAZ, 2, 1,
-    "Le feu se nourrit de votre chair ",
+    "Le feu se nourrit de votre chair ",
     "Euer Fleisch nährt das Feuer!",
     "Su carne alimenta el fuego.",
     "Пламя пожрет вашу плоть."
 ),
 (
     @REF_KAGRAZ, 2, 2,
-    "Par le fer et la flamme !",
+    "Par le fer et la flamme !",
     "Eisen und Flamme!",
     "¡Hierro y llamas!",
     "Огонь и железо!"
@@ -88,35 +88,35 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 ),
 (
     @REF_KAGRAZ, 3, 1,
-    "C'est l'heure du repas !",
+    "C'est l'heure du repas !",
     "Jetzt gibt es was zu fressen!",
     "¡Hora de comer!",
     "Пора обедать!"
 ),
 (
     @REF_KAGRAZ, 3, 2,
-    "J'ai d'autres amis à vous présenter !",
+    "J'ai d'autres amis à vous présenter !",
     "Hier sind noch mehr meiner Freunde!",
     "¡Tengo más amigos para que conozcas!",
     "Познакомьтесь с моими друзьями!"
 ),
 (
     @REF_KAGRAZ, 4, 0,
-    "Ça suffit... Vous allez brûler ! VOUS ALLEZ TOUS BRÛLER !",
+    "Ça suffit... Vous allez brûler ! VOUS ALLEZ TOUS BRÛLER !",
     "Es reicht  Ihr werdet brennen! IHR WERDET ALLE BRENNEN!",
     "Es suficiente... ¡arderán! ¡TODOS USTEDES ARDERÁN!",
     "Довольно! Вы сгорите! Вы все сгорите!"
 ),
 (
     @REF_KAGRAZ, 5, 0,
-    "Une nouvelle victime de ma lame !",
+    "Une nouvelle victime de ma lame !",
     "Ein weiteres Opfer meiner Klinge!",
     "¡Otro más cae ante mi espada!",
     "Мой клинок разит без промаха!"
 ),
 (
     @REF_KAGRAZ, 5, 1,
-    "C'est trop chaud pour vous ?",
+    "C'est trop chaud pour vous ?",
     "Zu heiß für Euch?",
     "¿Está muy caliente?",
     "Что, горячо?"
@@ -137,14 +137,14 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 ),
 (
     @REF_KAGRAZ, 8, 0,
-    "|TInterface\\Icons\\item_summon_cinderwolf.blp:20|t%s invoque des|cFFFF0000 Loups de braise|r !",
+    "|TInterface\\Icons\\item_summon_cinderwolf.blp:20|t%s invoque des|cFFFF0000 Loups de braise|r !",
     "|TInterface\\Icons\\item_summon_cinderwolf.blp:20|t%s beschwört |cFFFF0000Glutwölfe|r!",
     "|TInterface\\Icons\\item_summon_cinderwolf.blp:20|t¡%s invoca |cFFFF0000lobos de ceniza|r!",
     "|TInterface\\Icons\\item_summon_cinderwolf.blp:20|t%s призывает |cFFFF0000 магматических волков|r!"
 ),
 (
     @REF_KAGRAZ, 9, 0,
-    "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t%s commence à canaliser une |cFFFF0404|Hspell:155493|h[Tempête de feu]|h|r !",
+    "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t%s commence à canaliser une |cFFFF0404|Hspell:155493|h[Tempête de feu]|h|r !",
     "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t%s beginnt einen |cFFFF0404|Hspell:155493|h[Feuersturm]|h|r zu kanalisieren!",
     "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t¡%s comienza a canalizar |cFFFF0404|Hspell:155493|h[Tormenta de Fuego]|h|r!",
     "|TInterface\\Icons\\spell_shaman_stormearthfire.blp:20|t%s начинает творить заклинание |cFFFF0404|Hspell:155493|h[Огненная буря]|h|r!"
