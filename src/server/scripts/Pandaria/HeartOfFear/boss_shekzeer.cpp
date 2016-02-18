@@ -1821,7 +1821,7 @@ class spell_amassing_darkness : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_amassing_darkness_SpellScript::ScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectLaunch += SpellEffectFn(spell_amassing_darkness_SpellScript::ScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

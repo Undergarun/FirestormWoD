@@ -1264,12 +1264,12 @@ class spell_wildfire_spark : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_wildfire_spark_AuraScript::Cast, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
                 OnEffectApply += AuraEffectApplyFn(spell_wildfire_spark_AuraScript::ApplyAura, EFFECT_1, SPELL_EFFECT_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
-
-            AuraScript* GetAuraScript() const
-            {
-                return new spell_wildfire_spark_AuraScript();
-            }
         };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_wildfire_spark_AuraScript();
+        }
 };
 
 // Wildfire Infusion (stacks) - 116821

@@ -753,6 +753,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     OnPrepare += SpellOnPrepareFn(spell_rough_smash_SpellScript::HandleOnPrepare);
                 }
             };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_rough_smash_SpellScript();
+            }
     };
 
     /// Shatter Earth - 150324
