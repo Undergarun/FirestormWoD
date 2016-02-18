@@ -1710,6 +1710,9 @@ class spell_sha_bloodlust : public SpellScriptLoader
             {
                 Unit* l_Target = GetHitUnit();
 
+                if (l_Target == nullptr)
+                    return;
+
                 if (l_Target->HasAura(SHAMAN_SPELL_EXHAUSTION) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
                     l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
                     l_Target->HasAura(HUNTER_SPELL_FATIGUED))
@@ -1764,6 +1767,9 @@ class spell_sha_heroism: public SpellScriptLoader
             void HandleImmunity(SpellEffIndex p_EffIndex)
             {
                 Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (l_Target->HasAura(SHAMAN_SPELL_EXHAUSTION) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
                     l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
