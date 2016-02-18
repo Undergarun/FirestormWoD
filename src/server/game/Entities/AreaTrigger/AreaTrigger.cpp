@@ -120,9 +120,9 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     sScriptMgr->InitScriptEntity(this);
     m_Flags = l_MainTemplate->m_Flags;
 
-    if (p_Caster->GetVehicleKit() && m_Flags & AREATRIGGER_FLAG_ATTACHED)
+    if (m_Flags & AREATRIGGER_FLAG_ATTACHED)
     {
-        m_updateFlag |= UPDATEFLAG_HAS_SERVER_TIME;
+        m_updateFlag |= UPDATEFLAG_HAS_TRANSPORT_POSITION;
         m_movementInfo.t_guid = p_Caster->GetGUID();
         m_movementInfo.t_seat = 0;
     }
@@ -249,6 +249,7 @@ void AreaTrigger::Update(uint32 p_Time)
     if (!l_SpellInfo)
         return;
 
+    /// Must be done before...
     if (!GetCaster())
     {
         Remove(p_Time);
@@ -256,6 +257,13 @@ void AreaTrigger::Update(uint32 p_Time)
     }
 
     sScriptMgr->OnUpdateAreaTriggerEntity(this, p_Time);
+
+    /// And after the update, just in case it would be modified in a script
+    if (!GetCaster())
+    {
+        Remove(p_Time);
+        return;
+    }
 
     m_UpdateTimer.Update(p_Time);
 
@@ -273,6 +281,13 @@ void AreaTrigger::Update(uint32 p_Time)
             /// Check if AreaTrigger is arrived to Dest pos
             if (IsNearPosition(&m_Destination, 0.1f))
                 sScriptMgr->OnDestinationReached(this);
+        }
+        else if (GetMainTemplate()->HasAttached())
+        {
+            m_positionX     = m_Caster->m_positionX;
+            m_positionY     = m_Caster->m_positionY;
+            m_positionZ     = m_Caster->m_positionZ;
+            m_orientation   = m_Caster->m_orientation;
         }
     }
 }
