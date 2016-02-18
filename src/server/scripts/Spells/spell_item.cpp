@@ -4128,6 +4128,229 @@ class spell_create_reward_item : public SpellScriptLoader
         }
 };
 
+/// Ai-Li's Skymirror - 86589, Called by: 129803
+class spell_item_skymirror_image : public SpellScriptLoader
+{
+public:
+    spell_item_skymirror_image() : SpellScriptLoader("spell_item_skymirror_image") { }
+
+    class spell_item_skymirror_image_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_skymirror_image_SpellScript);
+
+        enum eSpells
+        {
+            SkymirrorImage = 127315,
+        };
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                l_Target->CastSpell(l_Player, eSpells::SkymirrorImage, true);
+            else
+                l_Player->CastSpell(l_Player, eSpells::SkymirrorImage);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_skymirror_image_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_skymirror_image_SpellScript();
+    }
+};
+
+/// Memory of Mr. Smite - 127207. Item - Mr. Smite's Brass Compass - 86568
+class spell_item_memory_of_mr_smite : public SpellScriptLoader
+{
+public:
+    spell_item_memory_of_mr_smite() : SpellScriptLoader("spell_item_memory_of_mr_smite") { }
+
+    class spell_item_memory_of_mr_smite_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_memory_of_mr_smite_AuraScript);
+
+        enum eSpells
+        {
+            MrSmiteSword = 127196,
+            MrSmiteHummer = 127206,
+            MrSmiteBlade = 127205,
+        };
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            uint32 l_MrSmiteId;
+            l_MrSmiteId = (urand(0, 2));
+            switch (l_MrSmiteId)
+            {
+            case 0:
+                l_MrSmiteId = eSpells::MrSmiteSword;
+                break;
+            case 1:
+                l_MrSmiteId = eSpells::MrSmiteHummer;
+                break;
+            case 2:
+                l_MrSmiteId = eSpells::MrSmiteBlade;
+                break;
+            default:
+                return;
+            }
+
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(l_Caster, l_MrSmiteId, true);
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->HasAura(eSpells::MrSmiteSword))
+                l_Caster->RemoveAura(eSpells::MrSmiteSword);
+            else if (l_Caster->HasAura(eSpells::MrSmiteHummer))
+                l_Caster->RemoveAura(eSpells::MrSmiteHummer);
+            else if (l_Caster->HasAura(eSpells::MrSmiteBlade))
+                l_Caster->RemoveAura(eSpells::MrSmiteBlade);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_item_memory_of_mr_smite_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_item_memory_of_mr_smite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_item_memory_of_mr_smite_AuraScript();
+    }
+};
+
+/// Celestial Defender's Medallion - 103685, Called by: 149228
+class spell_item_celestial_defender : public SpellScriptLoader
+{
+public:
+    spell_item_celestial_defender() : SpellScriptLoader("spell_item_celestial_defender") { }
+
+    class spell_item_celestial_defender_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_celestial_defender_SpellScript);
+
+        enum eSpells
+        {
+            CelestialDefenderMale = 148369,
+            CelestialDefenderFemale = 149229,
+        };
+
+        void HandleDummy(SpellEffIndex /* index */)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->getGender() == GENDER_MALE)
+                l_Caster->CastSpell(l_Caster, eSpells::CelestialDefenderMale, true);
+            else if (l_Caster->getGender() == GENDER_FEMALE)
+                l_Caster->CastSpell(l_Caster, eSpells::CelestialDefenderFemale, true);
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_item_celestial_defender_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_celestial_defender_SpellScript();
+    }
+};
+
+/// Curious Bronze Timepiece - 104113, Called by: 147988
+class spell_item_curious_bronze_timepiece_alliance : public SpellScriptLoader
+{
+public:
+    spell_item_curious_bronze_timepiece_alliance() : SpellScriptLoader("spell_item_curious_bronze_timepiece_alliance") { }
+
+    class spell_item_curious_bronze_timepiece_alliance_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_curious_bronze_timepiece_alliance_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(870, -906.980957f, -4643.734375f, 5.223629f, 2.934408f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_curious_bronze_timepiece_alliance_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_curious_bronze_timepiece_alliance_SpellScript();
+    }
+};
+
+/// Curious Bronze Timepiece - 104110, Called by: 147985
+class spell_item_curious_bronze_timepiece_horde : public SpellScriptLoader
+{
+public:
+    spell_item_curious_bronze_timepiece_horde() : SpellScriptLoader("spell_item_curious_bronze_timepiece_horde") { }
+
+    class spell_item_curious_bronze_timepiece_horde_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_curious_bronze_timepiece_horde_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(870, -420.822906f, -4604.593262f, 3.901290f, 5.138229f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_curious_bronze_timepiece_horde_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_curious_bronze_timepiece_horde_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4211,4 +4434,9 @@ void AddSC_item_spell_scripts()
     new spell_item_shoulders_of_iron();
     new spell_item_gauntlets_of_iron();
     new spell_create_reward_item();
+    new spell_item_skymirror_image();
+    new spell_item_memory_of_mr_smite();
+    new spell_item_celestial_defender();
+    new spell_item_curious_bronze_timepiece_alliance();
+    new spell_item_curious_bronze_timepiece_horde();
 }

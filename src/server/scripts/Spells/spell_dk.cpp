@@ -1457,7 +1457,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     l_Itr->CastCustomSpell(l_Itr, GetSpellInfo()->Id, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
@@ -1482,7 +1482,10 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (l_RemainingPct > l_Aura->GetEffect(EFFECT_0)->GetAmount())
                         l_RemainingPct = l_Aura->GetEffect(EFFECT_0)->GetAmount();
 
-                    uint32 l_ReduceTime = (l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct;
+                    int32 l_ReduceTime = ((l_SpellInfo->GetSpellCooldowns()->CategoryRecoveryTime / 100) * l_RemainingPct) - p_AurEff->GetBase()->GetDuration();
+
+                    if (!l_ReduceTime)
+                        return;
 
                     if (Player* l_Player = l_Caster->ToPlayer())
                         l_Player->ReduceSpellCooldown(eSpells::AntiMagicShell, l_ReduceTime);
@@ -2092,7 +2095,18 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
 
                 if (AuraPtr l_AuraNecroticPlague = l_Target->GetAura(NecroticPlagueAura, l_Caster->GetGUID()))
                 {
-                    l_AuraNecroticPlague->ModStackAmount(1);
+                    if (l_AuraNecroticPlague->GetEffect(EFFECT_0))
+                    {
+                        uint32 l_LeftDuration = l_AuraNecroticPlague->GetDuration();
+                        uint32 l_MaxDuration = l_AuraNecroticPlague->GetMaxDuration();
+                        uint32 l_Amplitude = l_AuraNecroticPlague->GetEffect(EFFECT_0)->GetAmplitude();
+                        int8 l_TicksLeft = int8(l_LeftDuration / l_Amplitude);
+                        int8 l_MaxTicks = int8(l_MaxDuration / l_Amplitude);
+                        /// Shouldn't add 1 tick on the first tick, just after second
+                        if (l_MaxTicks - l_TicksLeft != 2)
+                            l_AuraNecroticPlague->ModStackAmount(1);
+                    }
+
                     l_CurrentDuration = l_AuraNecroticPlague->GetDuration();
                     l_CurrentStacks = l_AuraNecroticPlague->GetStackAmount();
                 }
@@ -3541,6 +3555,53 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Might of the Frozen Wastes - 81333
+class spell_dk_might_of_the_frozen_wastes : public SpellScriptLoader
+{
+    public:
+        spell_dk_might_of_the_frozen_wastes() : SpellScriptLoader("spell_dk_might_of_the_frozen_wastes") { }
+
+        class spell_dk_might_of_the_frozen_wastes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_might_of_the_frozen_wastes_AuraScript);
+
+            void CalculateEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    bool l_TwoHand = false;
+                    Item* l_MainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                    if (l_MainItem)
+                    if (l_MainItem->GetTemplate() && l_MainItem->GetTemplate()->IsTwoHandedWeapon())
+                        l_TwoHand = true;
+
+                    if (l_OffHandItem)
+                    if (l_OffHandItem->GetTemplate() && l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                        l_TwoHand = true;
+
+                    if (!l_TwoHand)
+                        p_Amount = 0;
+                }
+            }
+
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_might_of_the_frozen_wastes_AuraScript::CalculateEffect, EFFECT_2, SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_might_of_the_frozen_wastes_AuraScript();
+        }
+};
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -3608,6 +3669,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_shield();
     new spell_dk_item_t17_frost_4p_driver();
     new spell_dk_item_t17_frost_4p_driver_periodic();
+    new spell_dk_might_of_the_frozen_wastes();
 
     new PlayerScript_Blood_Tap();
 }

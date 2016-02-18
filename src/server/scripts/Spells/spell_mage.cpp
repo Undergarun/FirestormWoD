@@ -1508,8 +1508,8 @@ class spell_mage_conjure_refreshment: public SpellScriptLoader
         }
 };
 
-// Time Warp - 80353
-class spell_mage_time_warp: public SpellScriptLoader
+/// Time Warp - 80353
+class spell_mage_time_warp : public SpellScriptLoader
 {
     public:
         spell_mage_time_warp() : SpellScriptLoader("spell_mage_time_warp") { }
@@ -1518,43 +1518,31 @@ class spell_mage_time_warp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
-            enum eSpells
-            {
-                Bloodlust = 2825
-            };
-
-            SpellCastResult CheckCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_FATIGUED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Bloodlust));
-            }
-
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+                }
+            }
+
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target->HasAura(SPELL_SHAMAN_EXHAUSTED) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SPELL_SHAMAN_SATED) || l_Target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_mage_time_warp_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -3057,14 +3045,25 @@ class spell_mage_illusion : public SpellScriptLoader
 
             enum eSpells
             {
-                Illusion = 94632
+                IllusionEffect = 80396,
+                IllusionBasic = 94632,
             };
 
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::Illusion, true);
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                    l_Target->CastSpell(l_Player, eSpells::IllusionEffect, true);
+
+                else
+                    l_Player->CastSpell(l_Player, eSpells::IllusionBasic);
             }
 
             void Register()
@@ -3175,6 +3174,52 @@ class spell_mage_finger_of_frost : public SpellScriptLoader
         }
 };
 
+/// Glyph of Arcane Language - 57925
+/// Called by Arcane Brilliance: 1459
+class spell_mage_glyph_of_arcane_language : public SpellScriptLoader
+{
+public:
+    spell_mage_glyph_of_arcane_language() : SpellScriptLoader("spell_mage_glyph_of_arcane_language") { }
+
+    class spell_mage_glyph_of_arcane_language_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_glyph_of_arcane_language_AuraScript);
+
+        enum eSpells
+        {
+            SpellMageGlyphOfArcaneLanguage = 57925,
+            ArcaneLanguageAlliance = 122998,
+            ArcaneLanguageHorde = 122999,
+        };
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->HasAura(eSpells::SpellMageGlyphOfArcaneLanguage))
+            {
+                if (l_Player->GetTeamId() == TEAM_ALLIANCE)
+                    l_Player->CastSpell(l_Player, eSpells::ArcaneLanguageAlliance, true);
+                else if (l_Player->GetTeamId() == TEAM_HORDE)
+                    l_Player->CastSpell(l_Player, eSpells::ArcaneLanguageHorde, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_mage_glyph_of_arcane_language_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SPELL_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mage_glyph_of_arcane_language_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
@@ -3238,6 +3283,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cone_of_frost();
     new spell_mage_item_t17_fire_4p_bonus();
     new spell_mage_item_t17_arcane_4p_bonus();
+    new spell_mage_glyph_of_arcane_language();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

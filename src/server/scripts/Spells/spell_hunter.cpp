@@ -2494,7 +2494,7 @@ class spell_hun_serpent_spread: public SpellScriptLoader
 };
 
 /// Ancient Hysteria - 90355 - last update: 6.1.2 19802
-class spell_hun_ancient_hysteria: public SpellScriptLoader
+class spell_hun_ancient_hysteria : public SpellScriptLoader
 {
     public:
         spell_hun_ancient_hysteria() : SpellScriptLoader("spell_hun_ancient_hysteria") { }
@@ -2502,12 +2502,6 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
         class spell_hun_ancient_hysteria_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_hun_ancient_hysteria_SpellScript);
-
-            enum eSpells
-            {
-                BloodLust = 2825,
-                TimeWarp = 80353
-            };
 
             bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
@@ -2517,39 +2511,30 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 return true;
             }
 
-            SpellCastResult CheckMap()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(HunterSpells::SPELL_SHAMAN_EXHAUSTED))
-                    return SpellCastResult::SPELL_FAILED_DONT_REPORT;
-
-                return SpellCastResult::SPELL_CAST_OK;
-            }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_EXHAUSTED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_SHAMAN_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HunterSpells::HUNTER_SPELL_FATIGUED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
-            }
-
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_INSANITY, true);
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, HunterSpells::HUNTER_SPELL_INSANITY, true);
+                }
+            }
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target->HasAura(SPELL_SHAMAN_EXHAUSTED) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SPELL_SHAMAN_SATED) || l_Target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_ancient_hysteria_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_ancient_hysteria_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -2558,6 +2543,7 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
             return new spell_hun_ancient_hysteria_SpellScript();
         }
 };
+
 
 /// Netherwinds - 160452 - last update: 6.1.2 19802
 class spell_hun_netherwinds : public SpellScriptLoader

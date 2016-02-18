@@ -710,6 +710,13 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
             ArcaneOrbDamage = 153640
         };
 
+        enum eDatas
+        {
+            DamageDelay = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
+        };
+
+        int32 m_Delay = 0;
+
         void OnCreate(AreaTrigger* p_AreaTrigger)
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
@@ -731,20 +738,25 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            m_Delay += p_Time;
+            if (eDatas::DamageDelay < m_Delay)
             {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 2.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
+                if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                 {
-                    if (l_Caster->IsValidAttackTarget(l_Unit))
-                        l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = 7.0f;
+
+                    JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                    p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    for (Unit* l_Unit : l_TargetList)
+                    {
+                        if (l_Caster->IsValidAttackTarget(l_Unit))
+                            l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
+                    }
                 }
+                m_Delay -= eDatas::DamageDelay;
             }
         }
 
