@@ -384,6 +384,7 @@ class Map : public GridRefManager<NGridType>
 
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
+        bool IsScenario() const { return i_mapEntry && i_mapEntry->IsScenario();  }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
 
