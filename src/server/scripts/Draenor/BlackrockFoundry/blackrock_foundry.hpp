@@ -175,6 +175,7 @@ enum eFoundryDatas
     PlayerStamped,
     IronTaskmasterAggro,
     AknorDied,
+    GraspingEarthTime,
 
     /// Counters
     /// Gruul

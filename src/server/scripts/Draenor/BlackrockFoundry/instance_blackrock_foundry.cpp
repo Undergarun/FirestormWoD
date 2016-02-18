@@ -293,6 +293,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_YaWeveGotTimeAchiev = false;
                                 break;
                             }
+                            default:
+                                break;
                         }
 
                         break;
@@ -347,6 +349,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_SteelHasBeenBrought = true;
                                 break;
                             }
+                            default:
+                                break;
                         }
 
                         break;
@@ -376,6 +380,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_WouldYouGiveMeAHand = false;
                                 break;
                             }
+                            default:
+                                break;
                         }
 
                         break;
@@ -444,6 +450,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                             break;
 
                         m_SteelHasBeenBrought = false;
+                        break;
+                    }
+                    case eFoundryDatas::GraspingEarthTime:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        if (!m_GraspingEarthHandsTime)
+                            m_GraspingEarthHandsTime = p_Data;
+                        else
+                        {
+                            /// Defeat 10 Grasping Earth hands within 5 seconds and then defeat Kromog in Blackrock Foundry on Normal difficulty or higher.
+                            if (p_Data > (m_GraspingEarthHandsTime + 5))
+                                m_WouldYouGiveMeAHand = false;
+                            else
+                                m_WouldYouGiveMeAHand = true;
+                        }
+
                         break;
                     }
                     default:
@@ -554,6 +578,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                     if (Player* l_Player = l_Iter->getSource())
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
                 }
+            }
+
+            bool IsPlayerImmuneToFallDamage(Player* p_Player) const override
+            {
+                float l_X = p_Player->m_positionX;
+                float l_Y = p_Player->m_positionY;
+                float l_Z = p_Player->m_positionZ;
+
+                /// Elevator for Hans'gar & Franzok is a safe zone for falling damages
+                if (l_X >= 239.5f && l_X <= 267.0f && l_Y >= 3487.01f && l_Y <= 3512.08f && l_Z >= 140.281f)
+                    return true;
+
+                return false;
             }
 
             void Update(uint32 p_Diff) override

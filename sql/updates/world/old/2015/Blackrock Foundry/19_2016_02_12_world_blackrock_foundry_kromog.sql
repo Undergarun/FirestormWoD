@@ -4,13 +4,17 @@
 
 -- 77893 (Grasping Earth)
 -- 78055 (Rippling Smash)
+-- 77844 (Rune of Crushing Earth)
+-- 77842 (Stone Wall - Left)
+-- 79806 (Stone Wall - Right)
 -- 77692 (Kromog)
 
-DELETE FROM spell_script_names WHERE spell_id IN (156704, 162348, 157056);
+DELETE FROM spell_script_names WHERE spell_id IN (156704, 162348, 157056, 161923);
 INSERT INTO spell_script_names VALUES
 (156704, "spell_foundry_slam"),
 (162348, "spell_foundry_fists_of_stone"),
-(157056, "spell_foundry_rune_of_grasping_earth");
+(157056, "spell_foundry_rune_of_grasping_earth"),
+(161923, "spell_foundry_rune_of_crushing_earth");
 
 DELETE FROM areatrigger_template WHERE spell_id IN (161437);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `ScriptName`) VALUES
