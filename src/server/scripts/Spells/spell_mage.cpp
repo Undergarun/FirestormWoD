@@ -3046,7 +3046,7 @@ class spell_mage_illusion : public SpellScriptLoader
             enum eSpells
             {
                 IllusionEffect = 80396,
-                IllusionBasic = 94632,
+                IllusionBasic = 94632
             };
 
             void HandleOnCast()
