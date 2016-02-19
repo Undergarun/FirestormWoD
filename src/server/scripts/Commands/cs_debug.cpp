@@ -46,7 +46,7 @@ struct UnitStates
     char const* Text;
 };
 
-std::vector<UnitStates const> g_Unitstates =
+static std::vector<UnitStates const> g_Unitstates =
 {
     { UNIT_STATE_DIED,              "UNIT_STATE_DIED"                },
     { UNIT_STATE_MELEE_ATTACKING,   "UNIT_STATE_MELEE_ATTACKING"     },
