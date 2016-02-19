@@ -685,17 +685,36 @@ class spell_pal_sacred_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
 
+            enum eSpells
+            {
+                SacredShield = 65148
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::SacredShield, true);
+            }
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetTarget())
-                        l_Caster->CastSpell(l_Target, PALADIN_SPELL_SACRED_SHIELD, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::SacredShield, true);
             }
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sacred_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_sacred_shield_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };

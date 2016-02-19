@@ -698,6 +698,7 @@ class spell_at_mage_wod_frost_2p_bonus : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Arcane Orb - 153626
 class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
 {
@@ -712,7 +713,7 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
 
         enum eDatas
         {
-            DamageDelay = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
+            DamageDelay = 1 * IN_MILLISECONDS ///< Delay between damage cast (and self-snare check)
         };
 
         int32 m_Delay = 0;

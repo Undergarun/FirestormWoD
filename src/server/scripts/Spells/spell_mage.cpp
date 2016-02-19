@@ -1532,6 +1532,9 @@ class spell_mage_time_warp : public SpellScriptLoader
             {
                 Unit* l_Target = GetHitUnit();
 
+                if (l_Target == nullptr)
+                    return;
+
                 if (l_Target->HasAura(SPELL_SHAMAN_EXHAUSTED) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
                     l_Target->HasAura(SPELL_SHAMAN_SATED) || l_Target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) ||
                     l_Target->HasAura(HUNTER_SPELL_FATIGUED))
@@ -3046,7 +3049,7 @@ class spell_mage_illusion : public SpellScriptLoader
             enum eSpells
             {
                 IllusionEffect = 80396,
-                IllusionBasic = 94632,
+                IllusionBasic = 94632
             };
 
             void HandleOnCast()

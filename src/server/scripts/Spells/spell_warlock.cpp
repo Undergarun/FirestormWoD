@@ -892,7 +892,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
         }
 };
 
-// Flames of Xoroth - 120451
+/// Flames of Xoroth - 120451
 class spell_warl_flames_of_xoroth: public SpellScriptLoader
 {
     public:

@@ -12151,6 +12151,12 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
     uint8 l_MaxProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
     uint8 l_ProcTimes = 0;
 
+    /// Hackfix for Blade Flurry
+    if (p_ProcSpell->Id == 22482)
+    {
+        l_MaxProcTimes = 0;
+    }
+
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
     {
         if (IsSpellMultistrike())
@@ -16744,8 +16750,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
-    // Leader of the Pack
-    if (IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
+    /// Leader of the Pack
+    if (!isVictim && IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
         (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
         if (!ToPlayer()->HasSpellCooldown(68285))
