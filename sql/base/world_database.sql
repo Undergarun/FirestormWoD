@@ -1,217 +1,29 @@
+﻿# ************************************************************
+# Sequel Pro SQL dump
+# Version 4500
 #
-# SQL Export
-# Created by Querious (996)
-# Created: August 24, 2015 at 5:58:57 PM CDT
-# Encoding: Unicode (UTF-8)
+# http://www.sequelpro.com/
+# https://github.com/sequelpro/sequelpro
 #
+# Host: 127.0.0.1 (MySQL 5.5.42)
+# Database: world
+# Generation Time: 2016-02-19 09:42:55 +0000
+# ************************************************************
 
 
-DROP TABLE IF EXISTS `zone_skip_update`;
-DROP TABLE IF EXISTS `wild_battlepet_zone_pool`;
-DROP TABLE IF EXISTS `waypoints`;
-DROP TABLE IF EXISTS `waypoint_scripts`;
-DROP TABLE IF EXISTS `waypoint_data`;
-DROP TABLE IF EXISTS `warden_checks`;
-DROP TABLE IF EXISTS `version`;
-DROP TABLE IF EXISTS `vehicleseat_dbc`;
-DROP TABLE IF EXISTS `vehicle_template_accessory`;
-DROP TABLE IF EXISTS `vehicle_accessory`;
-DROP TABLE IF EXISTS `trinity_string_ru`;
-DROP TABLE IF EXISTS `trinity_string`;
-DROP TABLE IF EXISTS `transports`;
-DROP TABLE IF EXISTS `spelldifficulty_dbc`;
-DROP TABLE IF EXISTS `spell_threat`;
-DROP TABLE IF EXISTS `spell_target_position`;
-DROP TABLE IF EXISTS `spell_scripts`;
-DROP TABLE IF EXISTS `spell_script_names`;
-DROP TABLE IF EXISTS `spell_required`;
-DROP TABLE IF EXISTS `spell_ranks`;
-DROP TABLE IF EXISTS `spell_proc_event`;
-DROP TABLE IF EXISTS `spell_proc`;
-DROP TABLE IF EXISTS `spell_phase`;
-DROP TABLE IF EXISTS `spell_pet_auras`;
-DROP TABLE IF EXISTS `spell_loot_template`;
-DROP TABLE IF EXISTS `spell_linked_spell`;
-DROP TABLE IF EXISTS `spell_learn_spell`;
-DROP TABLE IF EXISTS `spell_invalid`;
-DROP TABLE IF EXISTS `spell_group_stack_rules`;
-DROP TABLE IF EXISTS `spell_group`;
-DROP TABLE IF EXISTS `spell_forbidden`;
-DROP TABLE IF EXISTS `spell_enchant_proc_data`;
-DROP TABLE IF EXISTS `spell_dbc`;
-DROP TABLE IF EXISTS `spell_bonus_data`;
-DROP TABLE IF EXISTS `spell_area`;
-DROP TABLE IF EXISTS `smart_scripts`;
-DROP TABLE IF EXISTS `skinning_loot_template`;
-DROP TABLE IF EXISTS `skill_fishing_base_level`;
-DROP TABLE IF EXISTS `skill_extra_item_template`;
-DROP TABLE IF EXISTS `skill_discovery_template`;
-DROP TABLE IF EXISTS `script_waypoint`;
-DROP TABLE IF EXISTS `script_texts`;
-DROP TABLE IF EXISTS `research_site`;
-DROP TABLE IF EXISTS `research_loot`;
-DROP TABLE IF EXISTS `reputation_spillover_template`;
-DROP TABLE IF EXISTS `reputation_reward_rate`;
-DROP TABLE IF EXISTS `reference_loot_template`;
-DROP TABLE IF EXISTS `quest_template_objective`;
-DROP TABLE IF EXISTS `quest_template`;
-DROP TABLE IF EXISTS `quest_start_scripts`;
-DROP TABLE IF EXISTS `quest_poi_points`;
-DROP TABLE IF EXISTS `quest_poi`;
-DROP TABLE IF EXISTS `quest_end_scripts`;
-DROP TABLE IF EXISTS `prospecting_loot_template`;
-DROP TABLE IF EXISTS `pool_template`;
-DROP TABLE IF EXISTS `pool_quest`;
-DROP TABLE IF EXISTS `pool_pool`;
-DROP TABLE IF EXISTS `pool_gameobject`;
-DROP TABLE IF EXISTS `pool_creature`;
-DROP TABLE IF EXISTS `points_of_interest`;
-DROP TABLE IF EXISTS `playercreateinfo_spell_custom`;
-DROP TABLE IF EXISTS `playercreateinfo_spell`;
-DROP TABLE IF EXISTS `playercreateinfo_item`;
-DROP TABLE IF EXISTS `playercreateinfo_cast_spell`;
-DROP TABLE IF EXISTS `playercreateinfo_action`;
-DROP TABLE IF EXISTS `playercreateinfo`;
-DROP TABLE IF EXISTS `player_levelstats`;
-DROP TABLE IF EXISTS `player_factionchange_titles`;
-DROP TABLE IF EXISTS `player_factionchange_spells`;
-DROP TABLE IF EXISTS `player_factionchange_reputations`;
-DROP TABLE IF EXISTS `player_factionchange_items`;
-DROP TABLE IF EXISTS `player_factionchange_achievement`;
-DROP TABLE IF EXISTS `pickpocketing_loot_template`;
-DROP TABLE IF EXISTS `phase_definitions`;
-DROP TABLE IF EXISTS `pet_stats`;
-DROP TABLE IF EXISTS `pet_name_generation`;
-DROP TABLE IF EXISTS `pet_aura_effect`;
-DROP TABLE IF EXISTS `pet_aura`;
-DROP TABLE IF EXISTS `page_text`;
-DROP TABLE IF EXISTS `outdoorpvp_template`;
-DROP TABLE IF EXISTS `npc_vendor_parse`;
-DROP TABLE IF EXISTS `npc_vendor`;
-DROP TABLE IF EXISTS `npc_trainer`;
-DROP TABLE IF EXISTS `npc_text`;
-DROP TABLE IF EXISTS `npc_spellclick_spells`;
-DROP TABLE IF EXISTS `milling_loot_template`;
-DROP TABLE IF EXISTS `mail_loot_template`;
-DROP TABLE IF EXISTS `mail_level_reward`;
-DROP TABLE IF EXISTS `locales_quest_template_objective`;
-DROP TABLE IF EXISTS `locales_quest`;
-DROP TABLE IF EXISTS `locales_points_of_interest`;
-DROP TABLE IF EXISTS `locales_page_text`;
-DROP TABLE IF EXISTS `locales_npc_text`;
-DROP TABLE IF EXISTS `locales_item`;
-DROP TABLE IF EXISTS `locales_gossip_menu_option`;
-DROP TABLE IF EXISTS `locales_gameobject`;
-DROP TABLE IF EXISTS `locales_creature_text`;
-DROP TABLE IF EXISTS `locales_creature`;
-DROP TABLE IF EXISTS `locales_battlepay_product_group`;
-DROP TABLE IF EXISTS `locales_battlepay_display_info`;
-DROP TABLE IF EXISTS `locales_achievement_reward`;
-DROP TABLE IF EXISTS `linked_respawn`;
-DROP TABLE IF EXISTS `lfr_access_requirement`;
-DROP TABLE IF EXISTS `lfg_entrances`;
-DROP TABLE IF EXISTS `lfg_dungeon_rewards`;
-DROP TABLE IF EXISTS `item_template_addon`;
-DROP TABLE IF EXISTS `item_template`;
-DROP TABLE IF EXISTS `item_script_names`;
-DROP TABLE IF EXISTS `item_loot_template`;
-DROP TABLE IF EXISTS `item_enchantment_template`;
-DROP TABLE IF EXISTS `item_bonus_group_linked`;
-DROP TABLE IF EXISTS `item_bonus_group`;
-DROP TABLE IF EXISTS `ip2nationCountries`;
-DROP TABLE IF EXISTS `ip2nation`;
-DROP TABLE IF EXISTS `instance_template`;
-DROP TABLE IF EXISTS `guild_rewards`;
-DROP TABLE IF EXISTS `guild_challenge_reward`;
-DROP TABLE IF EXISTS `gossip_menu_option`;
-DROP TABLE IF EXISTS `gossip_menu`;
-DROP TABLE IF EXISTS `garrison_plot_content`;
-DROP TABLE IF EXISTS `garrison_plot_building_content`;
-DROP TABLE IF EXISTS `gameobject_template`;
-DROP TABLE IF EXISTS `gameobject_scripts`;
-DROP TABLE IF EXISTS `gameobject_queststarter`;
-DROP TABLE IF EXISTS `gameobject_questender`;
-DROP TABLE IF EXISTS `gameobject_origin_copy`;
-DROP TABLE IF EXISTS `gameobject_loot_template`;
-DROP TABLE IF EXISTS `gameobject`;
-DROP TABLE IF EXISTS `game_weather`;
-DROP TABLE IF EXISTS `game_tele`;
-DROP TABLE IF EXISTS `game_graveyard_zone`;
-DROP TABLE IF EXISTS `game_event_seasonal_questrelation`;
-DROP TABLE IF EXISTS `game_event_quest_condition`;
-DROP TABLE IF EXISTS `game_event_prerequisite`;
-DROP TABLE IF EXISTS `game_event_pool`;
-DROP TABLE IF EXISTS `game_event_npcflag`;
-DROP TABLE IF EXISTS `game_event_npc_vendor`;
-DROP TABLE IF EXISTS `game_event_model_equip`;
-DROP TABLE IF EXISTS `game_event_gameobject_quest`;
-DROP TABLE IF EXISTS `game_event_gameobject`;
-DROP TABLE IF EXISTS `game_event_creature_quest`;
-DROP TABLE IF EXISTS `game_event_creature`;
-DROP TABLE IF EXISTS `game_event_condition`;
-DROP TABLE IF EXISTS `game_event_battleground_holiday`;
-DROP TABLE IF EXISTS `game_event_arena_seasons`;
-DROP TABLE IF EXISTS `game_event`;
-DROP TABLE IF EXISTS `fishing_loot_template`;
-DROP TABLE IF EXISTS `exploration_basexp`;
-DROP TABLE IF EXISTS `event_scripts`;
-DROP TABLE IF EXISTS `disenchant_loot_template`;
-DROP TABLE IF EXISTS `disables`;
-DROP TABLE IF EXISTS `dbc_dungeonencounter`;
-DROP TABLE IF EXISTS `db_script_string`;
-DROP TABLE IF EXISTS `custom_texts`;
-DROP TABLE IF EXISTS `creature_transport`;
-DROP TABLE IF EXISTS `creature_text`;
-DROP TABLE IF EXISTS `creature_template_wod`;
-DROP TABLE IF EXISTS `creature_template_parse`;
-DROP TABLE IF EXISTS `creature_template_mop`;
-DROP TABLE IF EXISTS `creature_template_difficulty_bab`;
-DROP TABLE IF EXISTS `creature_template_difficulty`;
-DROP TABLE IF EXISTS `creature_template_addon`;
-DROP TABLE IF EXISTS `creature_template`;
-DROP TABLE IF EXISTS `creature_summon_groups`;
-DROP TABLE IF EXISTS `creature_queststarter`;
-DROP TABLE IF EXISTS `creature_questender`;
-DROP TABLE IF EXISTS `creature_onkill_reputation`;
-DROP TABLE IF EXISTS `creature_model_info`;
-DROP TABLE IF EXISTS `creature_loot_template`;
-DROP TABLE IF EXISTS `creature_loot_currency_personnal`;
-DROP TABLE IF EXISTS `creature_loot_currency`;
-DROP TABLE IF EXISTS `creature_groupsizestats`;
-DROP TABLE IF EXISTS `creature_formations`;
-DROP TABLE IF EXISTS `creature_equip_template`;
-DROP TABLE IF EXISTS `creature_classlevelstats`;
-DROP TABLE IF EXISTS `creature_area`;
-DROP TABLE IF EXISTS `creature_addon`;
-DROP TABLE IF EXISTS `creature`;
-DROP TABLE IF EXISTS `conditions`;
-DROP TABLE IF EXISTS `command`;
-DROP TABLE IF EXISTS `character_template_spell`;
-DROP TABLE IF EXISTS `character_template_reputation`;
-DROP TABLE IF EXISTS `character_template_item`;
-DROP TABLE IF EXISTS `character_template`;
-DROP TABLE IF EXISTS `challenge_mode_rewards`;
-DROP TABLE IF EXISTS `blackmarket_template`;
-DROP TABLE IF EXISTS `battlepet_template`;
-DROP TABLE IF EXISTS `battlepay_shop_entry`;
-DROP TABLE IF EXISTS `battlepay_product_item`;
-DROP TABLE IF EXISTS `battlepay_product_group`;
-DROP TABLE IF EXISTS `battlepay_product`;
-DROP TABLE IF EXISTS `battlepay_display_info`;
-DROP TABLE IF EXISTS `battlemaster_entry`;
-DROP TABLE IF EXISTS `battleground_template`;
-DROP TABLE IF EXISTS `areatrigger_template`;
-DROP TABLE IF EXISTS `areatrigger_teleport`;
-DROP TABLE IF EXISTS `areatrigger_tavern`;
-DROP TABLE IF EXISTS `areatrigger_scripts`;
-DROP TABLE IF EXISTS `areatrigger_move_template`;
-DROP TABLE IF EXISTS `areatrigger_move_splines`;
-DROP TABLE IF EXISTS `areatrigger_involvedrelation`;
-DROP TABLE IF EXISTS `achievement_reward`;
-DROP TABLE IF EXISTS `achievement_dbc`;
-DROP TABLE IF EXISTS `achievement_criteria_data`;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table access_requirement
+# ------------------------------------------------------------
+
 DROP TABLE IF EXISTS `access_requirement`;
-
 
 CREATE TABLE `access_requirement` (
   `mapId` mediumint(8) unsigned NOT NULL,
@@ -232,6 +44,12 @@ CREATE TABLE `access_requirement` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
 
 
+
+# Dump of table achievement_criteria_data
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `achievement_criteria_data`;
+
 CREATE TABLE `achievement_criteria_data` (
   `criteria_id` mediumint(8) NOT NULL,
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -241,6 +59,12 @@ CREATE TABLE `achievement_criteria_data` (
   PRIMARY KEY (`criteria_id`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Achievment system';
 
+
+
+# Dump of table achievement_dbc
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `achievement_dbc`;
 
 CREATE TABLE `achievement_dbc` (
   `ID` int(10) unsigned NOT NULL,
@@ -255,6 +79,12 @@ CREATE TABLE `achievement_dbc` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table achievement_reward
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `achievement_reward`;
+
 CREATE TABLE `achievement_reward` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `title_A` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -267,12 +97,24 @@ CREATE TABLE `achievement_reward` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table areatrigger_involvedrelation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_involvedrelation`;
+
 CREATE TABLE `areatrigger_involvedrelation` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
+
+
+# Dump of table areatrigger_move_splines
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_move_splines`;
 
 CREATE TABLE `areatrigger_move_splines` (
   `move_curve_id` int(11) NOT NULL,
@@ -284,6 +126,12 @@ CREATE TABLE `areatrigger_move_splines` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table areatrigger_move_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_move_template`;
+
 CREATE TABLE `areatrigger_move_template` (
   `move_curve_id` int(11) NOT NULL,
   `path_size` int(11) DEFAULT NULL,
@@ -292,6 +140,12 @@ CREATE TABLE `areatrigger_move_template` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table areatrigger_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_scripts`;
+
 CREATE TABLE `areatrigger_scripts` (
   `entry` mediumint(8) NOT NULL,
   `ScriptName` char(64) NOT NULL,
@@ -299,12 +153,24 @@ CREATE TABLE `areatrigger_scripts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table areatrigger_tavern
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_tavern`;
+
 CREATE TABLE `areatrigger_tavern` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
+
+
+# Dump of table areatrigger_teleport
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_teleport`;
 
 CREATE TABLE `areatrigger_teleport` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
@@ -318,6 +184,12 @@ CREATE TABLE `areatrigger_teleport` (
   FULLTEXT KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Trigger System';
 
+
+
+# Dump of table areatrigger_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `areatrigger_template`;
 
 CREATE TABLE `areatrigger_template` (
   `spell_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -345,6 +217,12 @@ CREATE TABLE `areatrigger_template` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table battleground_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battleground_template`;
+
 CREATE TABLE `battleground_template` (
   `id` mediumint(8) unsigned NOT NULL,
   `MinPlayersPerTeam` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -362,12 +240,24 @@ CREATE TABLE `battleground_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table battlemaster_entry
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlemaster_entry`;
+
 CREATE TABLE `battlemaster_entry` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Entry of a creature',
   `bg_template` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Battleground template id',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table battlepay_display_info
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepay_display_info`;
 
 CREATE TABLE `battlepay_display_info` (
   `DisplayInfoId` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -378,8 +268,14 @@ CREATE TABLE `battlepay_display_info` (
   `Name3` text NOT NULL,
   `Flags` int(11) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `DisplayInfoId` (`DisplayInfoId`)
-) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table battlepay_product
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepay_product`;
 
 CREATE TABLE `battlepay_product` (
   `ProductID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -392,8 +288,14 @@ CREATE TABLE `battlepay_product` (
   `ScriptName` text NOT NULL,
   `ClassMask` int(12) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ProductID`)
-) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table battlepay_product_group
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepay_product_group`;
 
 CREATE TABLE `battlepay_product_group` (
   `GroupID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -402,8 +304,14 @@ CREATE TABLE `battlepay_product_group` (
   `DisplayType` tinyint(3) unsigned NOT NULL,
   `Ordering` int(11) NOT NULL,
   PRIMARY KEY (`GroupID`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table battlepay_product_item
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepay_product_item`;
 
 CREATE TABLE `battlepay_product_item` (
   `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -413,8 +321,14 @@ CREATE TABLE `battlepay_product_item` (
   `DisplayID` int(11) DEFAULT NULL,
   `PetResult` tinyint(2) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=570 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table battlepay_shop_entry
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepay_shop_entry`;
 
 CREATE TABLE `battlepay_shop_entry` (
   `EntryID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -425,8 +339,33 @@ CREATE TABLE `battlepay_shop_entry` (
   `BannerType` tinyint(3) unsigned NOT NULL,
   `DisplayInfoID` int(11) unsigned NOT NULL,
   PRIMARY KEY (`EntryID`)
-) ENGINE=InnoDB AUTO_INCREMENT=287 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table battlepet_npc_team_member
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepet_npc_team_member`;
+
+CREATE TABLE `battlepet_npc_team_member` (
+  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `NpcID` int(10) unsigned NOT NULL,
+  `Specie` int(10) unsigned NOT NULL,
+  `Level` int(10) unsigned NOT NULL,
+  `Ability1` int(10) NOT NULL,
+  `Ability2` int(10) NOT NULL,
+  `Ability3` int(10) NOT NULL,
+  `Comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`ID`,`NpcID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table battlepet_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `battlepet_template`;
 
 CREATE TABLE `battlepet_template` (
   `species` int(10) unsigned NOT NULL,
@@ -437,6 +376,12 @@ CREATE TABLE `battlepet_template` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table blackmarket_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `blackmarket_template`;
+
 CREATE TABLE `blackmarket_template` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Identifier',
   `itemEntry` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Entry of the item',
@@ -446,8 +391,14 @@ CREATE TABLE `blackmarket_template` (
   `duration` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'The duration of the general bid',
   `chance` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Chance for this item to be displayed',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=289 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table challenge_mode_rewards
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `challenge_mode_rewards`;
 
 CREATE TABLE `challenge_mode_rewards` (
   `map_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -459,6 +410,12 @@ CREATE TABLE `challenge_mode_rewards` (
   PRIMARY KEY (`map_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table character_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_template`;
 
 CREATE TABLE `character_template` (
   `id` int(10) unsigned NOT NULL DEFAULT '1',
@@ -478,17 +435,32 @@ CREATE TABLE `character_template` (
   `hordeO` float NOT NULL DEFAULT '0',
   `hordeMap` smallint(6) NOT NULL DEFAULT '0',
   `disabled` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `allianceDefaultRace` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `hordeDefaultRace` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table character_template_item
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_template_item`;
 
 CREATE TABLE `character_template_item` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `faction` int(11) DEFAULT NULL,
   `itemID` int(10) unsigned NOT NULL DEFAULT '0',
-  `count` int(10) unsigned NOT NULL DEFAULT '1'
+  `count` int(10) unsigned NOT NULL DEFAULT '1',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table character_template_reputation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_template_reputation`;
 
 CREATE TABLE `character_template_reputation` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -497,11 +469,23 @@ CREATE TABLE `character_template_reputation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table character_template_spell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `character_template_spell`;
+
 CREATE TABLE `character_template_spell` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `spellId` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table command
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `command`;
 
 CREATE TABLE `command` (
   `name` varchar(50) NOT NULL DEFAULT '',
@@ -510,6 +494,12 @@ CREATE TABLE `command` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Chat System';
 
+
+
+# Dump of table conditions
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `conditions`;
 
 CREATE TABLE `conditions` (
   `SourceTypeOrReferenceId` mediumint(8) NOT NULL DEFAULT '0',
@@ -529,6 +519,12 @@ CREATE TABLE `conditions` (
   PRIMARY KEY (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Condition System';
 
+
+
+# Dump of table creature
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature`;
 
 CREATE TABLE `creature` (
   `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
@@ -562,8 +558,14 @@ CREATE TABLE `creature` (
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
   KEY `idx_id` (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1529839 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 
+
+
+# Dump of table creature_addon
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_addon`;
 
 CREATE TABLE `creature_addon` (
   `guid` int(10) unsigned NOT NULL,
@@ -578,6 +580,12 @@ CREATE TABLE `creature_addon` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table creature_area
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_area`;
+
 CREATE TABLE `creature_area` (
   `guid` int(11) unsigned NOT NULL,
   `zone` int(11) NOT NULL,
@@ -585,6 +593,12 @@ CREATE TABLE `creature_area` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table creature_classlevelstats
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_classlevelstats`;
 
 CREATE TABLE `creature_classlevelstats` (
   `level` tinyint(4) NOT NULL,
@@ -604,6 +618,12 @@ CREATE TABLE `creature_classlevelstats` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table creature_equip_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_equip_template`;
+
 CREATE TABLE `creature_equip_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `id` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -613,6 +633,12 @@ CREATE TABLE `creature_equip_template` (
   PRIMARY KEY (`entry`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table creature_formations
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_formations`;
 
 CREATE TABLE `creature_formations` (
   `leaderGUID` int(10) unsigned NOT NULL,
@@ -626,6 +652,12 @@ CREATE TABLE `creature_formations` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table creature_groupsizestats
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_groupsizestats`;
+
 CREATE TABLE `creature_groupsizestats` (
   `entry` int(11) unsigned NOT NULL,
   `difficulty` int(11) unsigned NOT NULL,
@@ -634,6 +666,12 @@ CREATE TABLE `creature_groupsizestats` (
   PRIMARY KEY (`entry`,`difficulty`,`groupSize`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table creature_loot_currency
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_loot_currency`;
 
 CREATE TABLE `creature_loot_currency` (
   `creature_id` mediumint(8) unsigned NOT NULL,
@@ -647,6 +685,12 @@ CREATE TABLE `creature_loot_currency` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table creature_loot_currency_personnal
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_loot_currency_personnal`;
+
 CREATE TABLE `creature_loot_currency_personnal` (
   `creature_id` int(10) unsigned NOT NULL DEFAULT '0',
   `CurrencyId1` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -658,6 +702,12 @@ CREATE TABLE `creature_loot_currency_personnal` (
   PRIMARY KEY (`creature_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table creature_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_loot_template`;
 
 CREATE TABLE `creature_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -672,6 +722,12 @@ CREATE TABLE `creature_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 
 
+
+# Dump of table creature_model_info
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_model_info`;
+
 CREATE TABLE `creature_model_info` (
   `modelid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `bounding_radius` float NOT NULL DEFAULT '0',
@@ -681,6 +737,12 @@ CREATE TABLE `creature_model_info` (
   PRIMARY KEY (`modelid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Creature System (Model related info)';
 
+
+
+# Dump of table creature_onkill_reputation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_onkill_reputation`;
 
 CREATE TABLE `creature_onkill_reputation` (
   `creature_id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Creature Identifier',
@@ -697,6 +759,12 @@ CREATE TABLE `creature_onkill_reputation` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature OnKill Reputation gain';
 
 
+
+# Dump of table creature_questender
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_questender`;
+
 CREATE TABLE `creature_questender` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
@@ -704,12 +772,24 @@ CREATE TABLE `creature_questender` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
 
+
+# Dump of table creature_queststarter
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_queststarter`;
+
 CREATE TABLE `creature_queststarter` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
+
+
+# Dump of table creature_summon_groups
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_summon_groups`;
 
 CREATE TABLE `creature_summon_groups` (
   `summonerId` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -724,6 +804,12 @@ CREATE TABLE `creature_summon_groups` (
   `summonTime` int(10) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table creature_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_template`;
 
 CREATE TABLE `creature_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -820,6 +906,12 @@ CREATE TABLE `creature_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
 
+
+# Dump of table creature_template_addon
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_template_addon`;
+
 CREATE TABLE `creature_template_addon` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -833,6 +925,12 @@ CREATE TABLE `creature_template_addon` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table creature_template_difficulty
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_template_difficulty`;
+
 CREATE TABLE `creature_template_difficulty` (
   `entry` mediumint(8) unsigned NOT NULL,
   `difficulty` enum('NONE_DIFFICULTY','REGULAR_5_DIFFICULTY','HEROIC_5_DIFFICULTY','LEGACY_MAN10_DIFFICULTY','LEGACY_MAN25_DIFFICULTY','LEGACY_MAN10_HEROIC_DIFFICULTY','LEGACY_MAN25_HEROIC_DIFFICULTY','RAID_TOOL_DIFFICULTY','CHALLENGE_MODE_DIFFICULTY','MAN40_DIFFICULTY','DIFFICULTY_ENTRY_10','SCENARIO_HEROIC_DIFFICULTY','SCENARIO_DIFFICULTY','DIFFICULTY_ENTRY_13','NORMAL_DIFFICULTY','HEROIC_DIFFICULTY','MYTHIC_DIFFICULTY','DIFFICULTY_ENTRY_17','EVENT_0_DIFFICULTY','EVENT_1_DIFFICULTY','EVENT_SCENARIO') NOT NULL,
@@ -841,122 +939,11 @@ CREATE TABLE `creature_template_difficulty` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
-CREATE TABLE `creature_template_difficulty_bab` (
-  `entry` mediumint(8) DEFAULT NULL,
-  `difficulty` char(90) DEFAULT NULL,
-  `difficulty_entry` mediumint(8) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+# Dump of table creature_template_parse
+# ------------------------------------------------------------
 
-CREATE TABLE `creature_template_mop` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_5` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_6` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_7` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_8` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_9` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_10` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_11` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_12` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_13` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_14` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `difficulty_entry_15` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `KillCredit1` int(10) unsigned NOT NULL DEFAULT '0',
-  `KillCredit2` int(10) unsigned NOT NULL DEFAULT '0',
-  `modelid1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `modelid2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `modelid3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `modelid4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name` char(100) NOT NULL DEFAULT '0',
-  `subname` char(100) DEFAULT NULL,
-  `IconName` char(100) DEFAULT NULL,
-  `gossip_menu_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `minlevel` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `maxlevel` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `exp` smallint(6) NOT NULL DEFAULT '0',
-  `exp_unk` smallint(2) NOT NULL DEFAULT '0',
-  `faction_A` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `faction_H` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `npcflag` int(10) unsigned NOT NULL DEFAULT '0',
-  `npcflag2` int(10) unsigned NOT NULL DEFAULT '0',
-  `speed_walk` float NOT NULL DEFAULT '1' COMMENT 'Result of 2.5/2.5, most common value',
-  `speed_run` float NOT NULL DEFAULT '1.14286' COMMENT 'Result of 8.0/7.0, most common value',
-  `speed_fly` float NOT NULL DEFAULT '1.14286' COMMENT 'Result of 8.0/7.0, most common value',
-  `scale` float NOT NULL DEFAULT '1',
-  `rank` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `mindmg` float NOT NULL DEFAULT '0',
-  `maxdmg` float NOT NULL DEFAULT '0',
-  `dmgschool` tinyint(4) NOT NULL DEFAULT '0',
-  `attackpower` int(10) unsigned NOT NULL DEFAULT '0',
-  `dmg_multiplier` float NOT NULL DEFAULT '1',
-  `baseattacktime` int(10) unsigned NOT NULL DEFAULT '0',
-  `rangeattacktime` int(10) unsigned NOT NULL DEFAULT '0',
-  `unit_class` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `unit_flags2` int(10) unsigned NOT NULL DEFAULT '0',
-  `dynamicflags` int(10) unsigned NOT NULL DEFAULT '0',
-  `family` mediumint(8) NOT NULL DEFAULT '0',
-  `trainer_type` tinyint(4) NOT NULL DEFAULT '0',
-  `trainer_spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `trainer_class` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `trainer_race` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `minrangedmg` float NOT NULL DEFAULT '0',
-  `maxrangedmg` float NOT NULL DEFAULT '0',
-  `rangedattackpower` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `type_flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `type_flags2` int(10) unsigned NOT NULL DEFAULT '0',
-  `lootid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `pickpocketloot` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `skinloot` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `resistance1` smallint(6) NOT NULL DEFAULT '0',
-  `resistance2` smallint(6) NOT NULL DEFAULT '0',
-  `resistance3` smallint(6) NOT NULL DEFAULT '0',
-  `resistance4` smallint(6) NOT NULL DEFAULT '0',
-  `resistance5` smallint(6) NOT NULL DEFAULT '0',
-  `resistance6` smallint(6) NOT NULL DEFAULT '0',
-  `spell1` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell3` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell4` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell5` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell6` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell7` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell8` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `PetSpellDataId` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `VehicleId` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `mingold` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `maxgold` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `AIName` char(64) NOT NULL DEFAULT '',
-  `MovementType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `InhabitType` tinyint(3) unsigned NOT NULL DEFAULT '3',
-  `HoverHeight` float NOT NULL DEFAULT '1',
-  `Health_mod` float NOT NULL DEFAULT '1',
-  `Mana_mod` float NOT NULL DEFAULT '1',
-  `Mana_mod_extra` float NOT NULL DEFAULT '1',
-  `Armor_mod` float NOT NULL DEFAULT '1',
-  `RacialLeader` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `questItem1` int(10) unsigned NOT NULL DEFAULT '0',
-  `questItem2` int(10) unsigned NOT NULL DEFAULT '0',
-  `questItem3` int(10) unsigned NOT NULL DEFAULT '0',
-  `questItem4` int(10) unsigned NOT NULL DEFAULT '0',
-  `questItem5` int(10) unsigned NOT NULL DEFAULT '0',
-  `questItem6` int(10) unsigned NOT NULL DEFAULT '0',
-  `movementId` int(11) unsigned NOT NULL DEFAULT '0',
-  `RegenHealth` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `equipment_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `mechanic_immune_mask` int(10) unsigned NOT NULL DEFAULT '0',
-  `flags_extra` int(10) unsigned NOT NULL DEFAULT '0',
-  `ScriptName` char(64) NOT NULL DEFAULT '',
-  `WDBVerified` smallint(6) DEFAULT '1',
-  PRIMARY KEY (`entry`),
-  KEY `idx_name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
-
+DROP TABLE IF EXISTS `creature_template_parse`;
 
 CREATE TABLE `creature_template_parse` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1046,6 +1033,12 @@ CREATE TABLE `creature_template_parse` (
   KEY `idx_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
+
+
+# Dump of table creature_template_wod
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_template_wod`;
 
 CREATE TABLE `creature_template_wod` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1139,6 +1132,12 @@ CREATE TABLE `creature_template_wod` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature System';
 
 
+
+# Dump of table creature_text
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_text`;
+
 CREATE TABLE `creature_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1155,6 +1154,12 @@ CREATE TABLE `creature_text` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table creature_transport
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `creature_transport`;
+
 CREATE TABLE `creature_transport` (
   `guid` int(10) unsigned NOT NULL COMMENT 'GUID of NPC on transport - not the same as creature.guid',
   `transport_entry` int(11) NOT NULL COMMENT 'Transport entry',
@@ -1168,6 +1173,12 @@ CREATE TABLE `creature_transport` (
   UNIQUE KEY `entry` (`transport_entry`,`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table custom_texts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `custom_texts`;
 
 CREATE TABLE `custom_texts` (
   `entry` mediumint(8) NOT NULL,
@@ -1191,6 +1202,12 @@ CREATE TABLE `custom_texts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom Texts';
 
 
+
+# Dump of table db_script_string
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `db_script_string`;
+
 CREATE TABLE `db_script_string` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
   `content_default` text NOT NULL,
@@ -1208,6 +1225,32 @@ CREATE TABLE `db_script_string` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table dbc_battle_pet_species
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `dbc_battle_pet_species`;
+
+CREATE TABLE `dbc_battle_pet_species` (
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `NpcID` int(11) NOT NULL DEFAULT '0',
+  `field2` int(11) NOT NULL DEFAULT '0',
+  `SpellID` int(11) NOT NULL DEFAULT '0',
+  `Spicies` int(11) NOT NULL DEFAULT '0',
+  `Category` int(11) NOT NULL DEFAULT '0',
+  `Flags` int(11) NOT NULL DEFAULT '0',
+  `Icon` text NOT NULL,
+  `Description` text NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of BattlePetSpecies.db2';
+
+
+
+# Dump of table dbc_dungeonencounter
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `dbc_dungeonencounter`;
+
 CREATE TABLE `dbc_dungeonencounter` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `mapId` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1222,6 +1265,12 @@ CREATE TABLE `dbc_dungeonencounter` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of DungeonEncounter.dbc';
 
 
+
+# Dump of table disables
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `disables`;
+
 CREATE TABLE `disables` (
   `sourceType` int(10) unsigned NOT NULL,
   `entry` int(10) unsigned NOT NULL,
@@ -1232,6 +1281,12 @@ CREATE TABLE `disables` (
   PRIMARY KEY (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table disenchant_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `disenchant_loot_template`;
 
 CREATE TABLE `disenchant_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Recommended id selection: item_level*100 + item_quality',
@@ -1245,6 +1300,12 @@ CREATE TABLE `disenchant_loot_template` (
   PRIMARY KEY (`entry`,`item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
+
+
+# Dump of table event_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `event_scripts`;
 
 CREATE TABLE `event_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1260,12 +1321,24 @@ CREATE TABLE `event_scripts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table exploration_basexp
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `exploration_basexp`;
+
 CREATE TABLE `exploration_basexp` (
   `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `basexp` mediumint(8) NOT NULL DEFAULT '0',
   PRIMARY KEY (`level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Exploration System';
 
+
+
+# Dump of table fishing_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `fishing_loot_template`;
 
 CREATE TABLE `fishing_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1280,6 +1353,12 @@ CREATE TABLE `fishing_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 
 
+
+# Dump of table game_event
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event`;
+
 CREATE TABLE `game_event` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `start_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Absolute start date, the event will never start before',
@@ -1293,6 +1372,12 @@ CREATE TABLE `game_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_arena_seasons
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_arena_seasons`;
+
 CREATE TABLE `game_event_arena_seasons` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `season` tinyint(3) unsigned NOT NULL COMMENT 'Arena season number',
@@ -1300,12 +1385,24 @@ CREATE TABLE `game_event_arena_seasons` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_battleground_holiday
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_battleground_holiday`;
+
 CREATE TABLE `game_event_battleground_holiday` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `bgflag` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table game_event_condition
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_condition`;
 
 CREATE TABLE `game_event_condition` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
@@ -1318,13 +1415,24 @@ CREATE TABLE `game_event_condition` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_creature
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_creature`;
+
 CREATE TABLE `game_event_creature` (
-  `NewGuid` int(10) unsigned NOT NULL,
-  `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
   `guid` int(10) unsigned NOT NULL,
+  `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
   PRIMARY KEY (`guid`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table game_event_creature_quest
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_creature_quest`;
 
 CREATE TABLE `game_event_creature_quest` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event.',
@@ -1334,12 +1442,24 @@ CREATE TABLE `game_event_creature_quest` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_gameobject
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_gameobject`;
+
 CREATE TABLE `game_event_gameobject` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
   `guid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`guid`,`eventEntry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table game_event_gameobject_quest
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_gameobject_quest`;
 
 CREATE TABLE `game_event_gameobject_quest` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
@@ -1349,6 +1469,12 @@ CREATE TABLE `game_event_gameobject_quest` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_model_equip
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_model_equip`;
+
 CREATE TABLE `game_event_model_equip` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event.',
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1357,6 +1483,12 @@ CREATE TABLE `game_event_model_equip` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table game_event_npc_vendor
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_npc_vendor`;
 
 CREATE TABLE `game_event_npc_vendor` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event.',
@@ -1372,6 +1504,12 @@ CREATE TABLE `game_event_npc_vendor` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_npcflag
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_npcflag`;
+
 CREATE TABLE `game_event_npcflag` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1380,6 +1518,12 @@ CREATE TABLE `game_event_npcflag` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_pool
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_pool`;
+
 CREATE TABLE `game_event_pool` (
   `eventEntry` tinyint(4) NOT NULL COMMENT 'Entry of the game event. Put negative entry to remove during event.',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Id of the pool',
@@ -1387,12 +1531,24 @@ CREATE TABLE `game_event_pool` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_prerequisite
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_prerequisite`;
+
 CREATE TABLE `game_event_prerequisite` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event',
   `prerequisite_event` mediumint(8) unsigned NOT NULL,
   PRIMARY KEY (`eventEntry`,`prerequisite_event`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table game_event_quest_condition
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_quest_condition`;
 
 CREATE TABLE `game_event_quest_condition` (
   `eventEntry` tinyint(3) unsigned NOT NULL COMMENT 'Entry of the game event.',
@@ -1403,6 +1559,12 @@ CREATE TABLE `game_event_quest_condition` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table game_event_seasonal_questrelation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_event_seasonal_questrelation`;
+
 CREATE TABLE `game_event_seasonal_questrelation` (
   `questId` int(10) unsigned NOT NULL COMMENT 'Quest Identifier',
   `eventEntry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Entry of the game event',
@@ -1411,6 +1573,12 @@ CREATE TABLE `game_event_seasonal_questrelation` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Player System';
 
 
+
+# Dump of table game_graveyard_zone
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_graveyard_zone`;
+
 CREATE TABLE `game_graveyard_zone` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ghost_zone` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1418,6 +1586,12 @@ CREATE TABLE `game_graveyard_zone` (
   PRIMARY KEY (`id`,`ghost_zone`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Trigger System';
 
+
+
+# Dump of table game_tele
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_tele`;
 
 CREATE TABLE `game_tele` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
@@ -1428,8 +1602,14 @@ CREATE TABLE `game_tele` (
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5423569 DEFAULT CHARSET=utf8 COMMENT='Tele Command';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Tele Command';
 
+
+
+# Dump of table game_weather
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `game_weather`;
 
 CREATE TABLE `game_weather` (
   `zone` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1449,6 +1629,12 @@ CREATE TABLE `game_weather` (
   PRIMARY KEY (`zone`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Weather System';
 
+
+
+# Dump of table gameobject
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gameobject`;
 
 CREATE TABLE `gameobject` (
   `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
@@ -1474,8 +1660,14 @@ CREATE TABLE `gameobject` (
   `protect_anti_doublet` int(255) DEFAULT NULL,
   PRIMARY KEY (`guid`),
   KEY `x` (`position_x`,`position_y`,`position_z`)
-) ENGINE=MyISAM AUTO_INCREMENT=9883412 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
 
+
+
+# Dump of table gameobject_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gameobject_loot_template`;
 
 CREATE TABLE `gameobject_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1490,31 +1682,11 @@ CREATE TABLE `gameobject_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Loot System';
 
 
-CREATE TABLE `gameobject_origin_copy` (
-  `guid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Global Unique Identifier',
-  `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Gameobject Identifier',
-  `map` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
-  `zoneId` smallint(8) unsigned NOT NULL DEFAULT '0',
-  `areaId` smallint(8) unsigned NOT NULL DEFAULT '0',
-  `spawnMask` int(8) DEFAULT NULL,
-  `phaseMask` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `position_x` float NOT NULL DEFAULT '0',
-  `position_y` float NOT NULL DEFAULT '0',
-  `position_z` float NOT NULL DEFAULT '0',
-  `orientation` float NOT NULL DEFAULT '0',
-  `rotation0` float NOT NULL DEFAULT '0',
-  `rotation1` float NOT NULL DEFAULT '0',
-  `rotation2` float NOT NULL DEFAULT '0',
-  `rotation3` float NOT NULL DEFAULT '0',
-  `spawntimesecs` int(11) NOT NULL DEFAULT '0',
-  `animprogress` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `state` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `isActive` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `protect_anti_doublet` int(255) DEFAULT NULL,
-  PRIMARY KEY (`guid`),
-  KEY `x` (`position_x`,`position_y`,`position_z`)
-) ENGINE=MyISAM AUTO_INCREMENT=14804122 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
 
+# Dump of table gameobject_questender
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gameobject_questender`;
 
 CREATE TABLE `gameobject_questender` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1523,12 +1695,24 @@ CREATE TABLE `gameobject_questender` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table gameobject_queststarter
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gameobject_queststarter`;
+
 CREATE TABLE `gameobject_queststarter` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `quest` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   PRIMARY KEY (`id`,`quest`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table gameobject_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gameobject_scripts`;
 
 CREATE TABLE `gameobject_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1543,6 +1727,12 @@ CREATE TABLE `gameobject_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table gameobject_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gameobject_template`;
 
 CREATE TABLE `gameobject_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1603,6 +1793,12 @@ CREATE TABLE `gameobject_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
 
 
+
+# Dump of table garrison_plot_building_content
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `garrison_plot_building_content`;
+
 CREATE TABLE `garrison_plot_building_content` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `plot_type` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1616,6 +1812,12 @@ CREATE TABLE `garrison_plot_building_content` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table garrison_plot_content
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `garrison_plot_content`;
+
 CREATE TABLE `garrison_plot_content` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `plot_type_or_building` int(10) NOT NULL DEFAULT '0',
@@ -1626,8 +1828,14 @@ CREATE TABLE `garrison_plot_content` (
   `z` float NOT NULL DEFAULT '0',
   `o` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=498 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table gossip_menu
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gossip_menu`;
 
 CREATE TABLE `gossip_menu` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1635,6 +1843,12 @@ CREATE TABLE `gossip_menu` (
   PRIMARY KEY (`entry`,`text_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table gossip_menu_option
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `gossip_menu_option`;
 
 CREATE TABLE `gossip_menu_option` (
   `menu_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1652,6 +1866,12 @@ CREATE TABLE `gossip_menu_option` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table guild_challenge_reward
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `guild_challenge_reward`;
+
 CREATE TABLE `guild_challenge_reward` (
   `Type` int(10) unsigned DEFAULT NULL,
   `Experience` int(10) unsigned DEFAULT NULL,
@@ -1660,6 +1880,12 @@ CREATE TABLE `guild_challenge_reward` (
   `Count` int(10) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table guild_rewards
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `guild_rewards`;
 
 CREATE TABLE `guild_rewards` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1671,6 +1897,40 @@ CREATE TABLE `guild_rewards` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table instance_disabled_rankings
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `instance_disabled_rankings`;
+
+CREATE TABLE `instance_disabled_rankings` (
+  `EncounterID` int(10) unsigned NOT NULL,
+  `Comment` tinytext NOT NULL,
+  PRIMARY KEY (`EncounterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table instance_encounters
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `instance_encounters`;
+
+CREATE TABLE `instance_encounters` (
+  `entry` int(10) DEFAULT NULL,
+  `creditType` tinyint(3) DEFAULT NULL,
+  `creditEntry` int(10) DEFAULT NULL,
+  `lastEncounterDungeon` smallint(5) DEFAULT NULL,
+  `comment` varchar(765) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table instance_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `instance_template`;
+
 CREATE TABLE `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` smallint(5) unsigned NOT NULL,
@@ -1680,12 +1940,24 @@ CREATE TABLE `instance_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table ip2nation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ip2nation`;
+
 CREATE TABLE `ip2nation` (
   `ip` int(10) unsigned NOT NULL DEFAULT '0',
   `country` char(2) NOT NULL DEFAULT '',
   KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table ip2nationCountries
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ip2nationCountries`;
 
 CREATE TABLE `ip2nationCountries` (
   `code` varchar(4) NOT NULL DEFAULT '',
@@ -1700,17 +1972,35 @@ CREATE TABLE `ip2nationCountries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table item_bonus_group
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_bonus_group`;
+
 CREATE TABLE `item_bonus_group` (
   `id` int(11) DEFAULT NULL,
   `bonus` blob
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table item_bonus_group_linked
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_bonus_group_linked`;
+
 CREATE TABLE `item_bonus_group_linked` (
   `itemEntry` int(11) DEFAULT NULL,
   `itemBonusGroup` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table item_enchantment_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_enchantment_template`;
 
 CREATE TABLE `item_enchantment_template` (
   `entry` mediumint(8) DEFAULT NULL,
@@ -1719,6 +2009,23 @@ CREATE TABLE `item_enchantment_template` (
   `type` mediumint(8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table item_instance
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_instance`;
+
+CREATE TABLE `item_instance` (
+  `itemEntry` mediumint(8) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table item_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_loot_template`;
 
 CREATE TABLE `item_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1733,6 +2040,12 @@ CREATE TABLE `item_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table item_script_names
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_script_names`;
+
 CREATE TABLE `item_script_names` (
   `Id` int(10) unsigned NOT NULL,
   `ScriptName` varchar(64) NOT NULL,
@@ -1740,149 +2053,31 @@ CREATE TABLE `item_script_names` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 
+
+# Dump of table item_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_template`;
+
 CREATE TABLE `item_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `subclass` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `SoundOverrideSubclass` tinyint(3) NOT NULL DEFAULT '-1',
   `name` varchar(255) NOT NULL DEFAULT '',
-  `displayid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Quality` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Flags` bigint(20) NOT NULL DEFAULT '0',
-  `FlagsExtra` int(10) unsigned NOT NULL DEFAULT '0',
-  `Unk430_1` float unsigned NOT NULL DEFAULT '1',
-  `Unk430_2` float NOT NULL DEFAULT '1',
-  `BuyCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `BuyPrice` bigint(20) NOT NULL DEFAULT '0',
-  `SellPrice` int(10) unsigned NOT NULL DEFAULT '0',
-  `InventoryType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `AllowableClass` int(11) NOT NULL DEFAULT '-1',
-  `AllowableRace` int(11) NOT NULL DEFAULT '-1',
-  `ItemLevel` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `RequiredSkill` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredSkillRank` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `requiredspell` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `requiredhonorrank` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredCityRank` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `RequiredReputationFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `RequiredReputationRank` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `maxcount` int(11) NOT NULL DEFAULT '0',
-  `stackable` int(11) DEFAULT '1',
-  `ContainerSlots` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `stat_type1` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value1` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_1` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_1` int(11) NOT NULL DEFAULT '0',
-  `stat_type2` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value2` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_2` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_2` int(11) NOT NULL DEFAULT '0',
-  `stat_type3` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value3` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_3` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_3` int(11) NOT NULL DEFAULT '0',
-  `stat_type4` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value4` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_4` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_4` int(11) NOT NULL DEFAULT '0',
-  `stat_type5` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value5` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_5` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_5` int(11) NOT NULL DEFAULT '0',
-  `stat_type6` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value6` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_6` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_6` int(11) NOT NULL DEFAULT '0',
-  `stat_type7` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value7` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_7` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_7` int(11) NOT NULL DEFAULT '0',
-  `stat_type8` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value8` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_8` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_8` int(11) NOT NULL DEFAULT '0',
-  `stat_type9` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value9` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_9` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_9` int(11) NOT NULL DEFAULT '0',
-  `stat_type10` int(6) unsigned NOT NULL DEFAULT '0',
-  `stat_value10` int(6) NOT NULL DEFAULT '0',
-  `ScalingValue_10` int(11) NOT NULL DEFAULT '0',
-  `SocketCostRate_10` int(11) NOT NULL DEFAULT '0',
-  `ScalingStatDistribution` smallint(6) NOT NULL DEFAULT '0',
-  `DamageType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `delay` smallint(5) unsigned NOT NULL DEFAULT '1000',
-  `RangedModRange` float NOT NULL DEFAULT '0',
-  `spellid_1` mediumint(8) NOT NULL DEFAULT '0',
-  `spelltrigger_1` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `spellcharges_1` smallint(6) DEFAULT NULL,
-  `spellcooldown_1` int(11) NOT NULL DEFAULT '-1',
-  `spellcategory_1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `spellcategorycooldown_1` int(11) NOT NULL DEFAULT '-1',
-  `spellid_2` mediumint(8) NOT NULL DEFAULT '0',
-  `spelltrigger_2` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `spellcharges_2` smallint(6) DEFAULT NULL,
-  `spellcooldown_2` int(11) NOT NULL DEFAULT '-1',
-  `spellcategory_2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `spellcategorycooldown_2` int(11) NOT NULL DEFAULT '-1',
-  `spellid_3` mediumint(8) NOT NULL DEFAULT '0',
-  `spelltrigger_3` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `spellcharges_3` smallint(6) DEFAULT NULL,
-  `spellcooldown_3` int(11) NOT NULL DEFAULT '-1',
-  `spellcategory_3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `spellcategorycooldown_3` int(11) NOT NULL DEFAULT '-1',
-  `spellid_4` mediumint(8) NOT NULL DEFAULT '0',
-  `spelltrigger_4` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `spellcharges_4` smallint(6) DEFAULT NULL,
-  `spellcooldown_4` int(11) NOT NULL DEFAULT '-1',
-  `spellcategory_4` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `spellcategorycooldown_4` int(11) NOT NULL DEFAULT '-1',
-  `spellid_5` mediumint(8) NOT NULL DEFAULT '0',
-  `spelltrigger_5` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `spellcharges_5` smallint(6) DEFAULT NULL,
-  `spellcooldown_5` int(11) NOT NULL DEFAULT '-1',
-  `spellcategory_5` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `spellcategorycooldown_5` int(11) NOT NULL DEFAULT '-1',
-  `bonding` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `description` varchar(255) NOT NULL DEFAULT '',
-  `PageText` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `LanguageID` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `PageMaterial` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `startquest` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `lockid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Material` tinyint(4) NOT NULL DEFAULT '0',
-  `sheath` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `RandomProperty` mediumint(8) NOT NULL DEFAULT '0',
-  `RandomSuffix` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `itemset` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `MaxDurability` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `area` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Map` smallint(6) NOT NULL DEFAULT '0',
-  `BagFamily` mediumint(8) NOT NULL DEFAULT '0',
-  `TotemCategory` mediumint(8) NOT NULL DEFAULT '0',
-  `socketColor_1` tinyint(4) NOT NULL DEFAULT '0',
-  `socketContent_1` mediumint(8) NOT NULL DEFAULT '0',
-  `socketColor_2` tinyint(4) NOT NULL DEFAULT '0',
-  `socketContent_2` mediumint(8) NOT NULL DEFAULT '0',
-  `socketColor_3` tinyint(4) NOT NULL DEFAULT '0',
-  `socketContent_3` mediumint(8) NOT NULL DEFAULT '0',
-  `socketBonus` mediumint(8) NOT NULL DEFAULT '0',
-  `GemProperties` mediumint(8) NOT NULL DEFAULT '0',
-  `ArmorDamageModifier` float NOT NULL DEFAULT '0',
-  `duration` int(10) unsigned NOT NULL DEFAULT '0',
-  `ItemLimitCategory` smallint(6) NOT NULL DEFAULT '0',
-  `HolidayId` int(11) unsigned NOT NULL DEFAULT '0',
-  `StatScalingFactor` float NOT NULL DEFAULT '0',
-  `CurrencySubstitutionId` int(10) unsigned NOT NULL DEFAULT '0',
-  `CurrencySubstitutionCount` int(10) unsigned NOT NULL DEFAULT '0',
-  `flagsCustom` int(10) unsigned NOT NULL DEFAULT '0',
-  `WDBVerified` smallint(6) DEFAULT '1',
+  `spellid_1` int(11) unsigned NOT NULL,
+  `spellid_2` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`),
   KEY `items_index` (`class`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
 
+
+
+# Dump of table item_template_addon
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `item_template_addon`;
 
 CREATE TABLE `item_template_addon` (
   `Id` int(10) unsigned NOT NULL,
@@ -1894,6 +2089,12 @@ CREATE TABLE `item_template_addon` (
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+
+
+# Dump of table lfg_dungeon_rewards
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `lfg_dungeon_rewards`;
 
 CREATE TABLE `lfg_dungeon_rewards` (
   `dungeonId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Dungeon entry from dbc',
@@ -1908,6 +2109,12 @@ CREATE TABLE `lfg_dungeon_rewards` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table lfg_entrances
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `lfg_entrances`;
+
 CREATE TABLE `lfg_entrances` (
   `dungeonId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Unique id from LFGDungeons.dbc',
   `name` varchar(255) DEFAULT NULL,
@@ -1918,6 +2125,12 @@ CREATE TABLE `lfg_entrances` (
   PRIMARY KEY (`dungeonId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table lfr_access_requirement
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `lfr_access_requirement`;
 
 CREATE TABLE `lfr_access_requirement` (
   `dungeon_id` int(10) unsigned NOT NULL,
@@ -1937,6 +2150,12 @@ CREATE TABLE `lfr_access_requirement` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table linked_respawn
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `linked_respawn`;
+
 CREATE TABLE `linked_respawn` (
   `guid` int(10) unsigned NOT NULL COMMENT 'dependent creature',
   `linkedGuid` int(10) unsigned NOT NULL COMMENT 'master creature',
@@ -1944,6 +2163,12 @@ CREATE TABLE `linked_respawn` (
   PRIMARY KEY (`guid`,`linkType`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Respawn Link System';
 
+
+
+# Dump of table locales_achievement_reward
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_achievement_reward`;
 
 CREATE TABLE `locales_achievement_reward` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -1971,6 +2196,12 @@ CREATE TABLE `locales_achievement_reward` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_battlepay_display_info
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_battlepay_display_info`;
+
 CREATE TABLE `locales_battlepay_display_info` (
   `DisplayInfoId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Name_loc1` varchar(1024) NOT NULL DEFAULT '',
@@ -1997,6 +2228,12 @@ CREATE TABLE `locales_battlepay_display_info` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_battlepay_product_group
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_battlepay_product_group`;
+
 CREATE TABLE `locales_battlepay_product_group` (
   `GroupID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Name_loc1` text,
@@ -2012,6 +2249,12 @@ CREATE TABLE `locales_battlepay_product_group` (
   PRIMARY KEY (`GroupID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table locales_creature
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_creature`;
 
 CREATE TABLE `locales_creature` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2049,6 +2292,12 @@ CREATE TABLE `locales_creature` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_creature_text
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_creature_text`;
+
 CREATE TABLE `locales_creature_text` (
   `entry` int(10) unsigned NOT NULL,
   `textGroup` tinyint(3) unsigned NOT NULL,
@@ -2066,6 +2315,12 @@ CREATE TABLE `locales_creature_text` (
   PRIMARY KEY (`entry`,`textGroup`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table locales_gameobject
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_gameobject`;
 
 CREATE TABLE `locales_gameobject` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2092,6 +2347,12 @@ CREATE TABLE `locales_gameobject` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table locales_gossip_menu_option
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_gossip_menu_option`;
 
 CREATE TABLE `locales_gossip_menu_option` (
   `menu_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2120,6 +2381,12 @@ CREATE TABLE `locales_gossip_menu_option` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_item
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_item`;
+
 CREATE TABLE `locales_item` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `name_loc1` varchar(100) NOT NULL DEFAULT '',
@@ -2145,6 +2412,12 @@ CREATE TABLE `locales_item` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table locales_npc_text
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_npc_text`;
 
 CREATE TABLE `locales_npc_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2352,6 +2625,12 @@ CREATE TABLE `locales_npc_text` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_page_text
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_page_text`;
+
 CREATE TABLE `locales_page_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Text_loc1` longtext,
@@ -2368,6 +2647,12 @@ CREATE TABLE `locales_page_text` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_points_of_interest
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_points_of_interest`;
+
 CREATE TABLE `locales_points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `icon_name_loc1` text,
@@ -2383,6 +2668,12 @@ CREATE TABLE `locales_points_of_interest` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table locales_quest
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_quest`;
 
 CREATE TABLE `locales_quest` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2500,6 +2791,12 @@ CREATE TABLE `locales_quest` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table locales_quest_template_objective
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `locales_quest_template_objective`;
+
 CREATE TABLE `locales_quest_template_objective` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `Locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2507,6 +2804,12 @@ CREATE TABLE `locales_quest_template_objective` (
   PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table mail_level_reward
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `mail_level_reward`;
 
 CREATE TABLE `mail_level_reward` (
   `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2516,6 +2819,12 @@ CREATE TABLE `mail_level_reward` (
   PRIMARY KEY (`level`,`raceMask`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Mail System';
 
+
+
+# Dump of table mail_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `mail_loot_template`;
 
 CREATE TABLE `mail_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2530,6 +2839,12 @@ CREATE TABLE `mail_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table milling_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `milling_loot_template`;
+
 CREATE TABLE `milling_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) NOT NULL DEFAULT '0',
@@ -2543,6 +2858,12 @@ CREATE TABLE `milling_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table npc_spellclick_spells
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `npc_spellclick_spells`;
+
 CREATE TABLE `npc_spellclick_spells` (
   `npc_entry` int(10) unsigned NOT NULL COMMENT 'reference to creature_template',
   `spell_id` int(10) unsigned NOT NULL COMMENT 'spell which should be casted ',
@@ -2551,6 +2872,12 @@ CREATE TABLE `npc_spellclick_spells` (
   PRIMARY KEY (`npc_entry`,`spell_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table npc_text
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `npc_text`;
 
 CREATE TABLE `npc_text` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2639,6 +2966,12 @@ CREATE TABLE `npc_text` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table npc_trainer
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `npc_trainer`;
+
 CREATE TABLE `npc_trainer` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `spell` mediumint(8) NOT NULL DEFAULT '0',
@@ -2649,6 +2982,12 @@ CREATE TABLE `npc_trainer` (
   PRIMARY KEY (`entry`,`spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table npc_vendor
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `npc_vendor`;
 
 CREATE TABLE `npc_vendor` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2664,6 +3003,12 @@ CREATE TABLE `npc_vendor` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Npc System';
 
 
+
+# Dump of table npc_vendor_parse
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `npc_vendor_parse`;
+
 CREATE TABLE `npc_vendor_parse` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `slot` smallint(6) NOT NULL DEFAULT '0',
@@ -2677,6 +3022,12 @@ CREATE TABLE `npc_vendor_parse` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Npc System';
 
 
+
+# Dump of table outdoorpvp_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `outdoorpvp_template`;
+
 CREATE TABLE `outdoorpvp_template` (
   `TypeId` tinyint(3) unsigned NOT NULL,
   `ScriptName` char(64) NOT NULL DEFAULT '',
@@ -2684,6 +3035,12 @@ CREATE TABLE `outdoorpvp_template` (
   PRIMARY KEY (`TypeId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='OutdoorPvP Templates';
 
+
+
+# Dump of table page_text
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `page_text`;
 
 CREATE TABLE `page_text` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2693,6 +3050,12 @@ CREATE TABLE `page_text` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Item System';
 
+
+
+# Dump of table pet_aura
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pet_aura`;
 
 CREATE TABLE `pet_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
@@ -2709,6 +3072,12 @@ CREATE TABLE `pet_aura` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 
 
+
+# Dump of table pet_aura_effect
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pet_aura_effect`;
+
 CREATE TABLE `pet_aura_effect` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2719,14 +3088,26 @@ CREATE TABLE `pet_aura_effect` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table pet_name_generation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pet_name_generation`;
+
 CREATE TABLE `pet_name_generation` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `word` tinytext NOT NULL,
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `half` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=314 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table pet_stats
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pet_stats`;
 
 CREATE TABLE `pet_stats` (
   `entry` int(11) unsigned NOT NULL COMMENT 'entry of the pet, 1 for hunter pet',
@@ -2745,6 +3126,12 @@ CREATE TABLE `pet_stats` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table phase_definitions
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `phase_definitions`;
+
 CREATE TABLE `phase_definitions` (
   `zoneId` mediumint(7) unsigned NOT NULL DEFAULT '0',
   `entry` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
@@ -2756,6 +3143,12 @@ CREATE TABLE `phase_definitions` (
   PRIMARY KEY (`zoneId`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table pickpocketing_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pickpocketing_loot_template`;
 
 CREATE TABLE `pickpocketing_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2770,12 +3163,24 @@ CREATE TABLE `pickpocketing_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table player_factionchange_achievement
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `player_factionchange_achievement`;
+
 CREATE TABLE `player_factionchange_achievement` (
   `alliance_id` int(10) unsigned NOT NULL,
   `horde_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`alliance_id`,`horde_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table player_factionchange_items
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `player_factionchange_items`;
 
 CREATE TABLE `player_factionchange_items` (
   `race_A` int(10) unsigned NOT NULL,
@@ -2788,12 +3193,24 @@ CREATE TABLE `player_factionchange_items` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table player_factionchange_reputations
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `player_factionchange_reputations`;
+
 CREATE TABLE `player_factionchange_reputations` (
   `alliance_id` int(10) unsigned NOT NULL,
   `horde_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`alliance_id`,`horde_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table player_factionchange_spells
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `player_factionchange_spells`;
 
 CREATE TABLE `player_factionchange_spells` (
   `alliance_id` int(10) unsigned NOT NULL,
@@ -2802,12 +3219,24 @@ CREATE TABLE `player_factionchange_spells` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table player_factionchange_titles
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `player_factionchange_titles`;
+
 CREATE TABLE `player_factionchange_titles` (
   `alliance_id` int(8) NOT NULL,
   `horde_id` int(8) NOT NULL,
   PRIMARY KEY (`alliance_id`,`horde_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table player_levelstats
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `player_levelstats`;
 
 CREATE TABLE `player_levelstats` (
   `race` tinyint(3) unsigned NOT NULL,
@@ -2822,6 +3251,12 @@ CREATE TABLE `player_levelstats` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Stores levels stats.';
 
 
+
+# Dump of table playercreateinfo
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `playercreateinfo`;
+
 CREATE TABLE `playercreateinfo` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2835,6 +3270,12 @@ CREATE TABLE `playercreateinfo` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table playercreateinfo_action
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `playercreateinfo_action`;
+
 CREATE TABLE `playercreateinfo_action` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2846,6 +3287,12 @@ CREATE TABLE `playercreateinfo_action` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table playercreateinfo_cast_spell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `playercreateinfo_cast_spell`;
+
 CREATE TABLE `playercreateinfo_cast_spell` (
   `raceMask` int(10) unsigned NOT NULL DEFAULT '0',
   `classMask` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2853,6 +3300,12 @@ CREATE TABLE `playercreateinfo_cast_spell` (
   `note` varchar(255) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table playercreateinfo_item
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `playercreateinfo_item`;
 
 CREATE TABLE `playercreateinfo_item` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2863,6 +3316,12 @@ CREATE TABLE `playercreateinfo_item` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table playercreateinfo_spell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `playercreateinfo_spell`;
+
 CREATE TABLE `playercreateinfo_spell` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2872,6 +3331,12 @@ CREATE TABLE `playercreateinfo_spell` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table playercreateinfo_spell_custom
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `playercreateinfo_spell_custom`;
+
 CREATE TABLE `playercreateinfo_spell_custom` (
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2880,6 +3345,12 @@ CREATE TABLE `playercreateinfo_spell_custom` (
   PRIMARY KEY (`race`,`class`,`Spell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table points_of_interest
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `points_of_interest`;
 
 CREATE TABLE `points_of_interest` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2893,16 +3364,26 @@ CREATE TABLE `points_of_interest` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table pool_creature
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pool_creature`;
+
 CREATE TABLE `pool_creature` (
-  `NewGuid` int(10) unsigned NOT NULL,
-  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL,
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
   `description` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`guid`),
-  KEY `idx_guid` (`guid`)
+  PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table pool_gameobject
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pool_gameobject`;
 
 CREATE TABLE `pool_gameobject` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2914,6 +3395,12 @@ CREATE TABLE `pool_gameobject` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table pool_pool
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pool_pool`;
+
 CREATE TABLE `pool_pool` (
   `pool_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `mother_pool` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2922,6 +3409,12 @@ CREATE TABLE `pool_pool` (
   PRIMARY KEY (`pool_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table pool_quest
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pool_quest`;
 
 CREATE TABLE `pool_quest` (
   `entry` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2932,6 +3425,12 @@ CREATE TABLE `pool_quest` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table pool_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pool_template`;
+
 CREATE TABLE `pool_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Pool entry',
   `max_limit` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Max number of objects (0) is no limit',
@@ -2939,6 +3438,12 @@ CREATE TABLE `pool_template` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table prospecting_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `prospecting_loot_template`;
 
 CREATE TABLE `prospecting_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2952,6 +3457,12 @@ CREATE TABLE `prospecting_loot_template` (
   PRIMARY KEY (`entry`,`item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
+
+
+# Dump of table quest_end_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quest_end_scripts`;
 
 CREATE TABLE `quest_end_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -2967,6 +3478,12 @@ CREATE TABLE `quest_end_scripts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table quest_poi
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quest_poi`;
+
 CREATE TABLE `quest_poi` (
   `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
   `BlobIndex` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2979,9 +3496,15 @@ CREATE TABLE `quest_poi` (
   `WorldEffectID` int(10) unsigned NOT NULL DEFAULT '0',
   `PlayerConditionID` int(10) unsigned NOT NULL DEFAULT '0',
   `Unk` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`QuestID`,`BlobIndex`)
+  PRIMARY KEY (`QuestID`,`BlobIndex`,`ObjectiveIndex`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table quest_poi_points
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quest_poi_points`;
 
 CREATE TABLE `quest_poi_points` (
   `questId` int(10) unsigned NOT NULL DEFAULT '0',
@@ -2993,6 +3516,12 @@ CREATE TABLE `quest_poi_points` (
   KEY `questId_id` (`questId`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table quest_start_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quest_start_scripts`;
 
 CREATE TABLE `quest_start_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3007,6 +3536,12 @@ CREATE TABLE `quest_start_scripts` (
   `o` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table quest_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quest_template`;
 
 CREATE TABLE `quest_template` (
   `Id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3153,6 +3688,12 @@ CREATE TABLE `quest_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Quest System 5.4';
 
 
+
+# Dump of table quest_template_objective
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quest_template_objective`;
+
 CREATE TABLE `quest_template_objective` (
   `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3167,8 +3708,14 @@ CREATE TABLE `quest_template_objective` (
   `BuildVerified` smallint(6) NOT NULL DEFAULT '1',
   PRIMARY KEY (`ID`),
   KEY `idx_QuestID` (`QuestID`)
-) ENGINE=InnoDB AUTO_INCREMENT=290001 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table reference_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `reference_loot_template`;
 
 CREATE TABLE `reference_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3183,6 +3730,12 @@ CREATE TABLE `reference_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table reputation_reward_rate
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `reputation_reward_rate`;
+
 CREATE TABLE `reputation_reward_rate` (
   `faction` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `quest_rate` float NOT NULL DEFAULT '1',
@@ -3191,6 +3744,12 @@ CREATE TABLE `reputation_reward_rate` (
   PRIMARY KEY (`faction`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table reputation_spillover_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `reputation_spillover_template`;
 
 CREATE TABLE `reputation_spillover_template` (
   `faction` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'faction entry',
@@ -3213,6 +3772,12 @@ CREATE TABLE `reputation_spillover_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Reputation spillover reputation gain';
 
 
+
+# Dump of table research_loot
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `research_loot`;
+
 CREATE TABLE `research_loot` (
   `site_id` mediumint(8) unsigned NOT NULL,
   `x` float NOT NULL,
@@ -3222,6 +3787,12 @@ CREATE TABLE `research_loot` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table research_site
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `research_site`;
+
 CREATE TABLE `research_site` (
   `id` int(7) NOT NULL DEFAULT '0',
   `position_x` int(11) NOT NULL DEFAULT '0',
@@ -3229,6 +3800,12 @@ CREATE TABLE `research_site` (
   `zone` smallint(5) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Export of QuestPOIPoint.dbc';
 
+
+
+# Dump of table script_texts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `script_texts`;
 
 CREATE TABLE `script_texts` (
   `npc_entry` mediumint(8) NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
@@ -3253,6 +3830,12 @@ CREATE TABLE `script_texts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
 
 
+
+# Dump of table script_waypoint
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `script_waypoint`;
+
 CREATE TABLE `script_waypoint` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
   `pointid` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3265,6 +3848,12 @@ CREATE TABLE `script_waypoint` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
 
 
+
+# Dump of table skill_discovery_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `skill_discovery_template`;
+
 CREATE TABLE `skill_discovery_template` (
   `spellId` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellId of the discoverable spell',
   `reqSpell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'spell requirement',
@@ -3273,6 +3862,12 @@ CREATE TABLE `skill_discovery_template` (
   PRIMARY KEY (`spellId`,`reqSpell`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Skill Discovery System';
 
+
+
+# Dump of table skill_extra_item_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `skill_extra_item_template`;
 
 CREATE TABLE `skill_extra_item_template` (
   `spellId` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'SpellId of the item creation spell',
@@ -3283,12 +3878,24 @@ CREATE TABLE `skill_extra_item_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Skill Specialization System';
 
 
+
+# Dump of table skill_fishing_base_level
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `skill_fishing_base_level`;
+
 CREATE TABLE `skill_fishing_base_level` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Area identifier',
   `skill` smallint(6) NOT NULL DEFAULT '0' COMMENT 'Base skill level requirement',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Fishing system';
 
+
+
+# Dump of table skinning_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `skinning_loot_template`;
 
 CREATE TABLE `skinning_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3302,6 +3909,12 @@ CREATE TABLE `skinning_loot_template` (
   PRIMARY KEY (`entry`,`item`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
+
+
+# Dump of table smart_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `smart_scripts`;
 
 CREATE TABLE `smart_scripts` (
   `entryorguid` int(11) NOT NULL,
@@ -3336,6 +3949,12 @@ CREATE TABLE `smart_scripts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
 
+
+# Dump of table spell_area
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_area`;
+
 CREATE TABLE `spell_area` (
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `area` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3351,6 +3970,12 @@ CREATE TABLE `spell_area` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table spell_bonus_data
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_bonus_data`;
+
 CREATE TABLE `spell_bonus_data` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `direct_bonus` float NOT NULL DEFAULT '0',
@@ -3361,6 +3986,12 @@ CREATE TABLE `spell_bonus_data` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table spell_dbc
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_dbc`;
 
 CREATE TABLE `spell_dbc` (
   `Id` int(10) unsigned NOT NULL,
@@ -3460,6 +4091,12 @@ CREATE TABLE `spell_dbc` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom spell.dbc entries';
 
 
+
+# Dump of table spell_enchant_proc_data
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_enchant_proc_data`;
+
 CREATE TABLE `spell_enchant_proc_data` (
   `entry` int(10) unsigned NOT NULL,
   `customChance` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3468,12 +4105,24 @@ CREATE TABLE `spell_enchant_proc_data` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Spell enchant proc data';
 
 
+
+# Dump of table spell_forbidden
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_forbidden`;
+
 CREATE TABLE `spell_forbidden` (
   `spell_id` int(11) unsigned NOT NULL,
   `comment` blob,
   PRIMARY KEY (`spell_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table spell_group
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_group`;
 
 CREATE TABLE `spell_group` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3482,6 +4131,12 @@ CREATE TABLE `spell_group` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell System';
 
 
+
+# Dump of table spell_group_stack_rules
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_group_stack_rules`;
+
 CREATE TABLE `spell_group_stack_rules` (
   `group_id` int(11) unsigned NOT NULL DEFAULT '0',
   `stack_rule` tinyint(3) NOT NULL DEFAULT '0',
@@ -3489,10 +4144,22 @@ CREATE TABLE `spell_group_stack_rules` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table spell_invalid
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_invalid`;
+
 CREATE TABLE `spell_invalid` (
   `spellid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+# Dump of table spell_learn_spell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_learn_spell`;
 
 CREATE TABLE `spell_learn_spell` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3502,6 +4169,12 @@ CREATE TABLE `spell_learn_spell` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
 
 
+
+# Dump of table spell_linked_spell
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_linked_spell`;
+
 CREATE TABLE `spell_linked_spell` (
   `spell_trigger` mediumint(8) NOT NULL,
   `spell_effect` mediumint(8) NOT NULL DEFAULT '0',
@@ -3510,6 +4183,12 @@ CREATE TABLE `spell_linked_spell` (
   UNIQUE KEY `trigger_effect_type` (`spell_trigger`,`spell_effect`,`type`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Spell System';
 
+
+
+# Dump of table spell_loot_template
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_loot_template`;
 
 CREATE TABLE `spell_loot_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3524,6 +4203,12 @@ CREATE TABLE `spell_loot_template` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 
 
+
+# Dump of table spell_pet_auras
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_pet_auras`;
+
 CREATE TABLE `spell_pet_auras` (
   `spell` mediumint(8) unsigned NOT NULL COMMENT 'dummy spell id',
   `effectId` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -3533,6 +4218,12 @@ CREATE TABLE `spell_pet_auras` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table spell_phase
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_phase`;
+
 CREATE TABLE `spell_phase` (
   `id` mediumint(7) unsigned NOT NULL DEFAULT '0',
   `phasemask` bigint(20) unsigned NOT NULL DEFAULT '1',
@@ -3540,6 +4231,12 @@ CREATE TABLE `spell_phase` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table spell_proc
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_proc`;
 
 CREATE TABLE `spell_proc` (
   `spellId` mediumint(8) NOT NULL DEFAULT '0',
@@ -3561,6 +4258,12 @@ CREATE TABLE `spell_proc` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table spell_proc_event
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_proc_event`;
+
 CREATE TABLE `spell_proc_event` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `SchoolMask` tinyint(4) NOT NULL DEFAULT '0',
@@ -3578,6 +4281,12 @@ CREATE TABLE `spell_proc_event` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table spell_ranks
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_ranks`;
+
 CREATE TABLE `spell_ranks` (
   `first_spell_id` int(10) unsigned NOT NULL DEFAULT '0',
   `spell_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3587,6 +4296,12 @@ CREATE TABLE `spell_ranks` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Rank Data';
 
 
+
+# Dump of table spell_required
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_required`;
+
 CREATE TABLE `spell_required` (
   `spell_id` mediumint(8) NOT NULL DEFAULT '0',
   `req_spell` mediumint(8) NOT NULL DEFAULT '0',
@@ -3594,12 +4309,24 @@ CREATE TABLE `spell_required` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Additinal Data';
 
 
+
+# Dump of table spell_script_names
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_script_names`;
+
 CREATE TABLE `spell_script_names` (
   `spell_id` int(11) NOT NULL,
   `ScriptName` char(64) NOT NULL,
   UNIQUE KEY `spell_id` (`spell_id`,`ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table spell_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_scripts`;
 
 CREATE TABLE `spell_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3616,6 +4343,12 @@ CREATE TABLE `spell_scripts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table spell_target_position
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_target_position`;
+
 CREATE TABLE `spell_target_position` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `effIndex` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -3628,6 +4361,12 @@ CREATE TABLE `spell_target_position` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell System';
 
 
+
+# Dump of table spell_threat
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spell_threat`;
+
 CREATE TABLE `spell_threat` (
   `entry` mediumint(8) unsigned NOT NULL,
   `flatMod` int(11) DEFAULT NULL,
@@ -3636,6 +4375,12 @@ CREATE TABLE `spell_threat` (
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
+
+
+# Dump of table spelldifficulty_dbc
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spelldifficulty_dbc`;
 
 CREATE TABLE `spelldifficulty_dbc` (
   `id` int(11) unsigned NOT NULL DEFAULT '0',
@@ -3647,6 +4392,26 @@ CREATE TABLE `spelldifficulty_dbc` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table temp_battlepet_spawn_relation
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `temp_battlepet_spawn_relation`;
+
+CREATE TABLE `temp_battlepet_spawn_relation` (
+  `Name` varchar(255) NOT NULL,
+  `CritterEntry` int(10) NOT NULL,
+  `BattlePetEntry` int(10) NOT NULL,
+  PRIMARY KEY (`CritterEntry`,`BattlePetEntry`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+# Dump of table transports
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `transports`;
+
 CREATE TABLE `transports` (
   `guid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3654,8 +4419,14 @@ CREATE TABLE `transports` (
   `ScriptName` char(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`guid`),
   UNIQUE KEY `idx_entry` (`entry`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Transports';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Transports';
 
+
+
+# Dump of table trinity_string
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `trinity_string`;
 
 CREATE TABLE `trinity_string` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3674,6 +4445,12 @@ CREATE TABLE `trinity_string` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table trinity_string_ru
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `trinity_string_ru`;
+
 CREATE TABLE `trinity_string_ru` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `content_default` text NOT NULL,
@@ -3689,6 +4466,12 @@ CREATE TABLE `trinity_string_ru` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table vehicle_accessory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `vehicle_accessory`;
+
 CREATE TABLE `vehicle_accessory` (
   `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `accessory_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3701,6 +4484,12 @@ CREATE TABLE `vehicle_accessory` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
 
+
+# Dump of table vehicle_template_accessory
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `vehicle_template_accessory`;
+
 CREATE TABLE `vehicle_template_accessory` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `accessory_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3712,6 +4501,12 @@ CREATE TABLE `vehicle_template_accessory` (
   PRIMARY KEY (`entry`,`seat_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
+
+
+# Dump of table vehicleseat_dbc
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `vehicleseat_dbc`;
 
 CREATE TABLE `vehicleseat_dbc` (
   `ID` int(11) unsigned NOT NULL,
@@ -3726,6 +4521,12 @@ CREATE TABLE `vehicleseat_dbc` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table version
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `version`;
+
 CREATE TABLE `version` (
   `core_version` varchar(120) DEFAULT NULL COMMENT 'Core revision dumped at startup.',
   `core_revision` varchar(120) DEFAULT NULL,
@@ -3733,6 +4534,12 @@ CREATE TABLE `version` (
   `cache_id` int(11) DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Version Notes';
 
+
+
+# Dump of table warden_checks
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `warden_checks`;
 
 CREATE TABLE `warden_checks` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
@@ -3744,8 +4551,14 @@ CREATE TABLE `warden_checks` (
   `result` varchar(24) DEFAULT NULL,
   `comment` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=787 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table waypoint_data
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `waypoint_data`;
 
 CREATE TABLE `waypoint_data` (
   `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Creature GUID',
@@ -3755,12 +4568,18 @@ CREATE TABLE `waypoint_data` (
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
   `delay` int(10) unsigned NOT NULL DEFAULT '0',
-  `move_flag` tinyint(4) NOT NULL DEFAULT '0',
+  `run` tinyint(1) NOT NULL DEFAULT '0',
   `action` int(11) NOT NULL DEFAULT '0',
   `action_chance` smallint(6) NOT NULL DEFAULT '100',
   `wpguid` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+
+# Dump of table waypoint_scripts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `waypoint_scripts`;
 
 CREATE TABLE `waypoint_scripts` (
   `id` int(11) unsigned NOT NULL DEFAULT '0',
@@ -3778,6 +4597,12 @@ CREATE TABLE `waypoint_scripts` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
+
+# Dump of table waypoints
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `waypoints`;
+
 CREATE TABLE `waypoints` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `pointid` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3788,6 +4613,12 @@ CREATE TABLE `waypoints` (
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoints';
 
+
+
+# Dump of table wild_battlepet_zone_pool
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `wild_battlepet_zone_pool`;
 
 CREATE TABLE `wild_battlepet_zone_pool` (
   `Zone` int(10) unsigned NOT NULL,
@@ -3810,7 +4641,23 @@ CREATE TABLE `wild_battlepet_zone_pool` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+
+# Dump of table zone_skip_update
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `zone_skip_update`;
+
 CREATE TABLE `zone_skip_update` (
   `zone` int(11) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`zone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='latin1_swedish_ci';
+
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
