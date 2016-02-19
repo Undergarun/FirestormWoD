@@ -562,6 +562,28 @@ void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket
     l_Garrison->ChangeFollowerActivationState(l_FollowerDBID, !l_Desactivate);
 }
 
+void WorldSession::HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID       = 0;
+    uint64 l_FollowerDBID  = 0;
+    int32 l_PlotInstanceID = 0;
+
+    p_RecvData >> l_NpcGUID;
+    p_RecvData >> l_FollowerDBID;
+    p_RecvData >> l_PlotInstanceID;
+
+    if (Creature* l_Creature = sObjectAccessor->GetCreature(*m_Player, l_NpcGUID))
+        l_Creature->SetFacingTo(0.0f);
+}
+
 void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)

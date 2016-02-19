@@ -1149,6 +1149,7 @@ class WorldSession
         void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvData);
         void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
