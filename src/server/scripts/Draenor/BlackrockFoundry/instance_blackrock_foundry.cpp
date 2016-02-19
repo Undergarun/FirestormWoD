@@ -362,7 +362,13 @@ class instance_blackrock_foundry : public InstanceMapScript
                             case EncounterState::DONE:
                             {
                                 if (m_WouldYouGiveMeAHand && !instance->IsLFR())
-                                    DoCompleteAchievement(eFoundryAchievements::WouldYouGiveMeAHand);
+                                {
+                                    if (Creature* l_Kromog = instance->GetCreature(m_KromogGuid))
+                                    {
+                                        if (!sObjectMgr->IsDisabledEncounter(GetEncounterIDForBoss(l_Kromog)))
+                                            DoCompleteAchievement(eFoundryAchievements::WouldYouGiveMeAHand);
+                                    }
+                                }
 
                                 AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                                 {
