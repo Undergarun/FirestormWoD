@@ -121,6 +121,8 @@ DROP TABLE IF EXISTS `item_bonus_group`;
 DROP TABLE IF EXISTS `ip2nationCountries`;
 DROP TABLE IF EXISTS `ip2nation`;
 DROP TABLE IF EXISTS `instance_template`;
+DROP TABLE IF EXISTS `instance_encounters`;
+DROP TABLE IF EXISTS `instance_disabled_rankings`;
 DROP TABLE IF EXISTS `guild_rewards`;
 DROP TABLE IF EXISTS `guild_challenge_reward`;
 DROP TABLE IF EXISTS `gossip_menu_option`;
@@ -1669,6 +1671,21 @@ CREATE TABLE `guild_rewards` (
   `achievement` int(10) unsigned DEFAULT '0',
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `instance_disabled_rankings` (
+	`EncounterID` int (10),
+	`Comment` blob
+);
+
+
+CREATE TABLE `instance_encounters` (
+	`entry` int (10),
+	`creditType` tinyint (3),
+	`creditEntry` int (10),
+	`lastEncounterDungeon` smallint (5),
+	`comment` varchar (2295)
+);
 
 
 CREATE TABLE `instance_template` (

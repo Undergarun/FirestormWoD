@@ -881,6 +881,7 @@ class ObjectMgr
         std::vector<GarrisonPlotBuildingContent> GetGarrisonPlotBuildingContent(int32 p_PlotTypeOrBuilding, uint32 p_FactionIndex);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
+        CreatureTemplate const* GetRandomTemplate(CreatureType p_Type);
         CreatureTemplate** GetCreatureTemplates() const { return m_CreatureTemplateStore; }
         uint32 GetCreatureTemplateStoreSize() const { return m_CreatureTemplateStoreSize; }
 

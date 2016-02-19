@@ -5,6 +5,7 @@
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
+#include "DisableMgr.h"
 
 namespace MS { namespace Garrison 
 {
@@ -210,6 +211,9 @@ namespace MS { namespace Garrison
                     l_Mission.OfferMaxDuration  = l_Fields[3].GetUInt32();
                     l_Mission.StartTime         = l_Fields[4].GetUInt32();
                     l_Mission.State             = (MissionStates::Type)l_Fields[5].GetUInt32();
+
+                    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_GARRISON_MISSION, l_Mission.MissionID, m_Owner))
+                        continue;
 
                     if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress)
                         m_Missions.push_back(l_Mission);
@@ -1057,7 +1061,7 @@ namespace MS { namespace Garrison
     {
         GarrMissionEntry const* l_MissionEntry = sGarrMissionStore.LookupEntry(p_MissionRecID);
 
-        if (!l_MissionEntry)
+        if (!l_MissionEntry || DisableMgr::IsDisabledFor(DISABLE_TYPE_GARRISON_MISSION, p_MissionRecID, m_Owner))
             return false;
 
         uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [p_MissionRecID](const GarrisonMission & p_Mission)

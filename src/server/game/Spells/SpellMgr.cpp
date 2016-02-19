@@ -127,18 +127,21 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            // Shockwave -- 132168
+            /// Shockwave -- 132168
             if (spellproto->Id == 132168)
                 return DIMINISHING_STUN;
-            // Storm Bolt -- 132169
+            /// Storm Bolt -- 132169
             if (spellproto->Id == 132169)
                 return DIMINISHING_STUN;
+            /// Warbringer -- 7922
+            if (spellproto->Id == 7922)
+                return DIMINISHING_STUN;
 
-            // Intimidating Shout -- 5246
+            /// Intimidating Shout -- 5246
             if (spellproto->SpellFamilyFlags[0] & 0x40000)
                 return DIMINISHING_DISORIENT;
 
-            // Hamstring -- 1715, 8 seconds in PvP (6.0)
+            /// Hamstring -- 1715, 8 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x2)
                 return DIMINISHING_LIMITONLY;
             break;
@@ -329,6 +332,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            /// Necrotic Plague
+            if (spellproto->Id == 155159)
+                return DIMINISHING_LIMITONLY;
             // Strangulate -- 47476
             if (spellproto->SpellFamilyFlags[0] & 0x200)
                 return DIMINISHING_SILENCE;
@@ -450,6 +456,13 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            /// Necrotic Plague - 24 seconds in PvP
+            if (spellproto->Id == 155159)
+                return 24 * IN_MILLISECONDS;
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
@@ -3381,7 +3394,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 168361: ///< Test
+            /// Lumber Mill
+            case 167946: ///< Journeyman Logging
+                spellInfo->Effects[0].BasePoints = 1;
+                break;
+            case 168361: ///< Forward Thrust
                 spellInfo->Effects[0].MiscValue = 500;
                 break;
             case 105157: ///< See Quest Invis 14, Wandering Island spell
@@ -3488,6 +3505,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159115: ///< Erupt (Firecaller)
                 spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                break;
+            case 108977: //< Way of the Monk
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
                 break;
             case 178209: ///< Chest of Iron (T17)
             case 178210: ///< Legs of Iron (T17)
@@ -6118,6 +6138,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157048:///< Final Verdict
                 spellInfo->Effects[0].BasePoints = 259; ///< 6.2.3 hotfix: Final Verdict (Retribution) damage has been increased by 8%
                 break;
+            case 152107:///< Demonic Servitude
+                spellInfo->Effects[3].BasePoints = 157899;
+                spellInfo->Effects[3].MiscValue = 157899;
+                spellInfo->Effects[3].SpellClassMask[0] = 0;
+                spellInfo->Effects[3].SpellClassMask[1] |= 0x00100000;
+                break;
+            case 12723: ///< Sweeping Strikes (damage)
+            case 94009: ///< Rend (final damage)
+            case 174736:///< Enhanced Rend
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
+            case 642:   ///< Divine Shield
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
@@ -7009,6 +7043,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159747: ///< Glyph of Raging Blow (heal mod)
                 spellInfo->ProcFlags = 0;
+                spellInfo->ProcChance = 0;
                 break;
             case 84721: ///< Frozen Orb damage
                 spellInfo->AttributesEx2 |= SpellAttr2::SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;

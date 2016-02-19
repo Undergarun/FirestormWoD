@@ -22,6 +22,7 @@
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
 #include "VMapManager2.h"
+#include "GarrisonMgr.hpp"
 
 namespace DisableMgr
 {
@@ -41,7 +42,7 @@ namespace
 
     DisableMap m_DisableMap;
 
-    uint8 MAX_DISABLE_TYPES = 7;
+    uint8 MAX_DISABLE_TYPES = 8;
 }
 
 void LoadDisables()
@@ -211,6 +212,17 @@ void LoadDisables()
                 }
                 break;
             }
+            case DISABLE_TYPE_GARRISON_MISSION:
+            {
+                GarrMissionEntry const* l_MissionEntry = sGarrMissionStore.LookupEntry(entry);
+
+                if (!l_MissionEntry)
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Garrison mission entry %u from `disables` doesn't exist in dbc, skipped.", entry);
+                    continue;
+                }
+                break;
+            }
             default:
                 break;
         }
@@ -349,6 +361,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
+        case DISABLE_TYPE_GARRISON_MISSION:
             return true;
         case DISABLE_TYPE_VMAP:
            return flags & itr->second.flags;

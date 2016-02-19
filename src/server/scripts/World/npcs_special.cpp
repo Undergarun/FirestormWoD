@@ -1712,7 +1712,8 @@ class npc_snake_trap : public CreatureScript
                             else
                                 spell = SPELL_CRIPPLING_POISON;
 
-                            DoCast(me->getVictim(), spell);
+                            if (!me->getVictim()->HasAura(spell))
+                                DoCast(me->getVictim(), spell);
                         }
 
                         SpellTimer = VIPER_TIMER;
@@ -1720,7 +1721,10 @@ class npc_snake_trap : public CreatureScript
                     else //Venomous Snake
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
-                            DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        {
+                            if (!me->getVictim()->HasAura(SPELL_DEADLY_POISON))
+                                DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        }
                         SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                     }
                 }
