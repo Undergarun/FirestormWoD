@@ -11960,7 +11960,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    if (spellProto->IsTargetingArea())
+    if (spellProto->IsTargetingArea() || spellProto->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL))
     {
         if (IsPlayer())
             AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
@@ -13516,7 +13516,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
             TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
     }
 
-    if (spellProto && spellProto->IsTargetingArea())
+    if (spellProto && (spellProto->IsTargetingArea() || spellProto->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL)))
     {
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         TakenTotalMod += CalculatePct(1.0, mult);

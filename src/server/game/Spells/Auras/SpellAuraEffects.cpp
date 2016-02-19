@@ -7518,7 +7518,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage *= caster->CalculateDamageTakenFactor(target, caster->ToCreature());
 
     if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
-        if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
+        if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura || m_spellInfo->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL))
         {
             damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
             if (caster->GetTypeId() != TYPEID_PLAYER)
@@ -7659,7 +7659,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     }
 
     if (!(m_spellInfo->AttributesEx4 & SPELL_ATTR4_FIXED_DAMAGE))
-        if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
+        if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura || m_spellInfo->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL))
         {
             damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
             if (caster->GetTypeId() != TYPEID_PLAYER)

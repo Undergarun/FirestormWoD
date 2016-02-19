@@ -7084,7 +7084,43 @@ void SpellMgr::LoadSpellCustomAttr()
             case 6358:  ///< Seduction
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
+            default:
+                break;
+        }
 
+        /// Handle some specific spells for AoE avoidance
+        /// Many of AreaTrigger DoTs are single target spells but must be considered as AoE spells
+        switch (spellInfo->Id)
+        {
+            case 155223: ///< Melt (Blast Furnace)
+            case 155743: ///< Slag Pool (Blast Furnace)
+            case 156932: ///< Rupture (Blast Furnace)
+            case 176133: ///< Slag Bomb (Blast Furnace)
+            case 155080: ///< Inferno Slice (Gruul)
+            case 155301: ///< Overhead Smash (Gruul)
+            case 155078: ///< Overwhelming Blows (Gruul)
+            case 155530: ///< Shatter (Gruul)
+            case 173192: ///< Cave In (Gruul)
+            case 156203: ///< Retched Blackrock (Oregorger)
+            case 155897: ///< Earthshaking Collision (Oregorger)
+            case 156388: ///< Explosive Shard - Missile (Oregorger)
+            case 156374: ///< Explosive Shard - Explosion (Oregorger)
+            case 155900: ///< Rolling Fury (Oregorger)
+            case 155318: ///< Lava Slash - AoE missile (Flamebender Ka'graz)
+            case 155314: ///< Lava Slash - DoT (Flamebender Ka'graz)
+            case 162370: ///< Crystalline Barrage (Tectus)
+            case 162510: ///< Tectonic Upheaval (Tectus)
+            case 159311: ///< Flame Jet (Kargath Bladefist)
+            case 159002: ///< Berserker Rush (Kargath Bladefist)
+            case 159413: ///< Mauling Brew (Kargath Bladefist)
+            case 158519: ///< Quake (Twin Ogron)
+            case 158241: ///< Blaze (Twin Ogron)
+            case 157944: ///< Whirlwind (Twin Ogron)
+            case 158336: ///< Pulverize - First AoE damage (Twin Ogron)
+            case 158417: ///< Pulverize - Second AoE damage (Twin Ogron)
+            case 158420: ///< Pulverize - Third AoE damage (Twin Ogron)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
+                break;
             default:
                 break;
         }
