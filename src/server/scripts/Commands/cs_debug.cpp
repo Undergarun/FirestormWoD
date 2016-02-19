@@ -46,7 +46,7 @@ struct UnitStates
     char const* Text;
 };
 
-static std::vector<UnitStates const> g_Unitstates =
+std::vector<UnitStates> const g_Unitstates =
 {
     { UNIT_STATE_DIED,              "UNIT_STATE_DIED"                },
     { UNIT_STATE_MELEE_ATTACKING,   "UNIT_STATE_MELEE_ATTACKING"     },
@@ -3537,7 +3537,7 @@ class debug_commandscript: public CommandScript
             /// If the state doesn't exist, it returns
             if (!l_Unit->HasUnitState(g_Unitstates[l_State].Flag))
             {
-                for (UnitStates const l_UnitState : g_Unitstates)
+                for (UnitStates l_UnitState : g_Unitstates)
                 {
                     if (l_UnitState.Flag == l_State)
                     {
@@ -3572,7 +3572,7 @@ class debug_commandscript: public CommandScript
             }
 
             /// Checks every unit_state for the Unit selected, and displays it in the handler's chatbox
-            for (UnitStates const l_UnitState : g_Unitstates)
+            for (UnitStates l_UnitState : g_Unitstates)
             {
                 if (l_Unit->HasUnitState(l_UnitState.Flag))
                     p_Handler->PSendSysMessage("Selected unit has %s", l_UnitState.Text);
