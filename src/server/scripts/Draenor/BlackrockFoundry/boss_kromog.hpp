@@ -8,7 +8,7 @@
 
 # include "blackrock_foundry.hpp"
 
-std::vector<Position const> const g_GraspingEarthSpawnPos =
+std::vector<Position> const g_GraspingEarthSpawnPos =
 {
     { 329.81f, 3673.47f, 105.0969f, 0.0f },
     { 320.84f, 3669.83f, 105.0969f, 0.0f },
