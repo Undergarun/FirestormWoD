@@ -749,8 +749,14 @@ class spell_warr_glyph_of_die_by_the_sword : public SpellScriptLoader
                 DiebytheSword = 118038
             };
 
+            bool m_IsAlreadyProc = false;
+
             void HandleOnHit()
             {
+                if (m_IsAlreadyProc)
+                    return;
+
+                m_IsAlreadyProc = true;
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofDiebytheSword))
