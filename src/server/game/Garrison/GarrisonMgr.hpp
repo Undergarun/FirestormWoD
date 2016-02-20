@@ -148,6 +148,8 @@ namespace MS { namespace Garrison
             std::vector<GarrisonFollower> GetFollowers() const;
             /// Get follower
             GarrisonFollower* GetFollower(uint32 p_FollowerID);
+            /// Get follower with Database ID
+            GarrisonFollower* GetFollowerWithDatabaseID(uint32 p_FollowerDatabaseID);
             /// Get activated followers count
             uint32 GetActiveFollowerCount(uint32 p_FollowerType) const;
             /// Get num follower activation remaining
@@ -167,6 +169,8 @@ namespace MS { namespace Garrison
             GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered = false);
             /// Get building
             GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID) const;
+            /// Get building object
+            GarrisonBuilding* GetBuildingObject(uint32 p_PlotInstanceID);
             /// Get buildings
             std::vector<GarrisonBuilding> GetBuildings() const;
             /// Get building passive ability effects
@@ -195,6 +199,7 @@ namespace MS { namespace Garrison
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
             void DeleteWorkOrder(uint64 p_DBID);
+            uint8 CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID

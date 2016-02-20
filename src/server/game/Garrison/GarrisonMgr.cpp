@@ -188,8 +188,9 @@ namespace MS { namespace Garrison
                     l_Building.SpecID           = l_Fields[3].GetUInt32();
                     l_Building.TimeBuiltStart   = l_Fields[4].GetUInt32();
                     l_Building.TimeBuiltEnd     = l_Fields[5].GetUInt32();
-                    l_Building.Active           = l_Fields[6].GetBool();
-                    l_Building.GatheringData    = l_Fields[7].GetString();
+                    l_Building.FollowerAssigned = l_Fields[6].GetUInt32();
+                    l_Building.Active           = l_Fields[7].GetBool();
+                    l_Building.GatheringData    = l_Fields[8].GetString();
 
                     if (!l_Building.Active && time(0) > l_Building.TimeBuiltEnd)
                         l_Building.BuiltNotified = true;    ///< Auto notify by info packet
@@ -545,6 +546,7 @@ namespace MS { namespace Garrison
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].FollowerAssigned);
             l_BuildingStatement->setBool  (l_Index++, m_Buildings[l_I].Active);
             l_BuildingStatement->setString(l_Index++, m_Buildings[l_I].GatheringData);
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
@@ -2511,6 +2513,18 @@ namespace MS { namespace Garrison
         return nullptr;
     }
 
+    /// Get follower
+    GarrisonFollower* Manager::GetFollowerWithDatabaseID(uint32 p_FollowerDatabaseID)
+    {
+        for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
+        {
+            if (m_Followers[l_I].DatabaseID == p_FollowerDatabaseID)
+                return &m_Followers[l_I];
+        }
+
+        return nullptr;
+    }
+
     /// Get activated followers count
     uint32 Manager::GetActiveFollowerCount(uint32 p_FollowerType) const
     {
@@ -2689,7 +2703,7 @@ namespace MS { namespace Garrison
             l_Building.BuiltNotified = true;
         }
 
-        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
         uint32 l_Index = 0;
         l_Stmt->setUInt32(l_Index++, l_Building.DatabaseID);
@@ -2699,6 +2713,7 @@ namespace MS { namespace Garrison
         l_Stmt->setUInt32(l_Index++, l_Building.SpecID);
         l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltStart);
         l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltEnd);
+        l_Stmt->setUInt32(l_Index++, l_Building.FollowerAssigned);
         l_Stmt->setBool(l_Index++, l_Building.Active);
         l_Stmt->setString(l_Index++, l_Building.GatheringData);
 
@@ -2739,6 +2754,18 @@ namespace MS { namespace Garrison
         }
 
         return l_Buildings;
+    }
+
+    /// Get Building object
+    GarrisonBuilding* Manager::GetBuildingObject(uint32 p_PlotInstanceID)
+    {
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); l_I++)
+        {
+            if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+                return &m_Buildings[l_I];
+        }
+
+        return nullptr;
     }
 
     /// Get building passive ability effects
@@ -3069,6 +3096,31 @@ namespace MS { namespace Garrison
                 break;
             }
         }
+    }
+
+    uint8 Manager::CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID)
+    {
+        std::map<uint32, uint32> l_FollowerLevelBonus =
+        {
+            { 90, 50 },
+            { 91, 55 },
+            { 92, 60 },
+            { 93, 65 },
+            { 94, 70 },
+            { 95, 75 },
+            { 96, 80 },
+            { 97, 85 },
+            { 98, 90 },
+            { 99, 95 },
+            { 100, 100 }
+        };
+
+        GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+        
+        if (l_Follower == nullptr)
+            return 1;
+
+        return roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1;
     }
 
     /// Get creature plot instance ID

@@ -124,7 +124,7 @@ namespace MS { namespace Garrison
         if (!p_Player || !p_Player->GetGarrison())
             return false;
 
-        Garrison::Manager            * l_Garrison   = p_Player->GetGarrison();
+        Garrison::Manager* l_Garrison               = p_Player->GetGarrison();
         std::vector<GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
 
         uint32 l_ThisGobPlotInstanceID = l_Garrison->GetGameObjectPlotInstanceID(go->GetGUID());
@@ -157,6 +157,7 @@ namespace MS { namespace Garrison
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
+            uint32 l_ItemCount = l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
 
             /// check space and find places
             ItemPosCountVec l_Destination;
