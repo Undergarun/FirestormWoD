@@ -6703,9 +6703,9 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
     m_caster->SendMessageToSet(&l_DispellData, true);
 
-    // Glyph of SpellSteal
+    /// Glyph of SpellSteal
     if (m_caster->HasAura(115713))
-        m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
+        m_caster->CastSpell(m_caster, 115714, true);
 
     /// Item - Mage WoD PvP Arcane 2P Bonus
     if (m_caster->HasAura(171349))
