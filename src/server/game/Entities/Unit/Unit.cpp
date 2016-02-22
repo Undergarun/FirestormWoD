@@ -3360,6 +3360,7 @@ void Unit::_DeleteRemovedAuras()
     {
         Aura* l_Aura = m_removedAuras.front();
         l_Aura->Delink();
+        delete l_Aura;
         m_removedAuras.pop_front();
     }
 }
