@@ -525,14 +525,14 @@ class spell_echo_of_sylvanas_seeping_shadows: public SpellScriptLoader
         {
             PrepareAuraScript(spell_echo_of_sylvanas_seeping_shadows_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
 
                 int32 amount = int32(0.2f * (100.0f - GetCaster()->GetHealthPct()));
 
-                if (AuraPtr aur = GetCaster()->GetAura(103182))
+                if (Aura* aur = GetCaster()->GetAura(103182))
                     aur->ModStackAmount(amount - aur->GetStackAmount());
                 else
                     GetCaster()->CastCustomSpell(103182, SPELLVALUE_AURA_STACK, amount, GetCaster(), true);

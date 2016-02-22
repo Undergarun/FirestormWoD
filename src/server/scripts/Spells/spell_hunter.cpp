@@ -153,7 +153,7 @@ class spell_hun_lesser_proportion : public SpellScriptLoader
                 GlyphOfLesserProportion = 57870
             };
 
-            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32, AuraEffect* p_AurEff)
             {
                 if (!GetUnitOwner())
                     return;
@@ -195,7 +195,7 @@ class spell_hun_glyph_of_lesser_proportion : public SpellScriptLoader
                 LesserProportion = 57894
             };
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (!GetCaster())
                     return;
@@ -207,7 +207,7 @@ class spell_hun_glyph_of_lesser_proportion : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (!GetTarget())
                     return;
@@ -340,7 +340,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                 ExplosiveShot   = 53301
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -438,7 +438,7 @@ class spell_hun_glyph_of_aspect_of_the_cheetah : public SpellScriptLoader
                 GlyphOfAspectOfTheCheetah = 119462
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -483,7 +483,7 @@ class spell_hun_glyph_of_mirrored_blades : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_glyph_of_mirrored_blades_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            void CalculateAmount(AuraEffect const*, int32& p_Amount, bool&)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -594,7 +594,7 @@ class spell_hun_steady_focus: public SpellScriptLoader
                 SteadyFocus = 177668
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -652,7 +652,7 @@ class spell_hun_steady_focus: public SpellScriptLoader
                 }
             }
 
-            void DealWithCharges(constAuraEffectPtr p_AurEff, Player* p_Player)
+            void DealWithCharges(AuraEffect const* p_AurEff, Player* p_Player)
             {
                 if (p_AurEff->GetBase()->GetCharges() <= 1)
                 {
@@ -689,7 +689,7 @@ class spell_hun_cornered : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_cornered_AuraScript);
 
-            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32, AuraEffect* p_AurEff)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -697,14 +697,14 @@ class spell_hun_cornered : public SpellScriptLoader
                     {
                         p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
-                        if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                        if (AuraEffect* l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
                             l_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                     }
                     else
                     {
                         p_AurEff->ChangeAmount(0);
 
-                        if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                        if (AuraEffect* l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_1))
                             l_AurEff->ChangeAmount(0);
                     }
                 }
@@ -759,7 +759,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_lone_wolf_AuraScript);
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (!GetCaster())
                     return;
@@ -777,7 +777,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (!GetCaster())
                     return;
@@ -796,7 +796,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
                 }
             }
 
-            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32, AuraEffect* p_AurEff)
             {
                 if (!GetUnitOwner())
                     return;
@@ -814,7 +814,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
 
                     p_AurEff->ChangeAmount(0, true, true);
 
-                    if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
                         l_AuraEffect->ChangeAmount(0, true, true);
 
                     for (uint8 l_I = 0; l_I < 8; ++l_I)
@@ -829,7 +829,7 @@ class spell_hun_lone_wolf : public SpellScriptLoader
 
                         p_AurEff->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
 
-                        if (AuraEffectPtr l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
+                        if (AuraEffect* l_AuraEffect = p_AurEff->GetBase()->GetEffect(EFFECT_1))
                             l_AuraEffect->ChangeAmount(GetSpellInfo()->Effects[EFFECT_0].BasePoints, true, true);
                     }
                 }
@@ -915,7 +915,7 @@ class spell_hun_exotic_munitions : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_exotic_munitions_AuraScript);
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (!GetCaster())
                     return;
@@ -928,7 +928,7 @@ class spell_hun_exotic_munitions : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (!GetCaster())
                     return;
@@ -994,13 +994,13 @@ class spell_hun_glyph_of_fireworks: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_glyph_of_fireworks_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     _player->learnSpell(HUNTER_SPELL_FIREWORKS, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(HUNTER_SPELL_FIREWORKS))
@@ -1103,7 +1103,7 @@ class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_glyph_of_animal_bond_AuraScript);
 
-            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32, AuraEffect* p_AurEff)
             {
                 if (!GetCaster())
                     return;
@@ -1120,7 +1120,7 @@ class spell_hun_glyph_of_animal_bond : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (!GetCaster())
                     return;
@@ -1164,7 +1164,7 @@ class spell_hun_bestial_wrath_dispel: public SpellScriptLoader
                 BestialWrath            = 19574
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1256,7 +1256,7 @@ class spell_hun_spirit_bond: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_spirit_bond_AuraScript);
 
-            void OnTick(constAuraEffectPtr)
+            void OnTick(AuraEffect const*)
             {
                 if (!GetTarget())
                     return;
@@ -1304,7 +1304,7 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 }
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1314,7 +1314,7 @@ class spell_hun_spirit_bond_apply: public SpellScriptLoader
                 l_Caster->CastSpell(l_Caster, HunterSpells::HUNTER_SPELL_SPIRIT_BOND_BUFF, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1353,13 +1353,13 @@ class spell_hun_glyph_of_aspect_of_the_beast: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_glyph_of_aspect_of_the_beast_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     _player->learnSpell(HUNTER_SPELL_ASPECT_OF_THE_BEAST, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(HUNTER_SPELL_ASPECT_OF_THE_BEAST))
@@ -1518,7 +1518,7 @@ class spell_hun_glaive_toss_missile: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster == GetOriginalCaster())
-                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_LEFT, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_LEFT, true, NULL, nullptr, l_Caster->GetGUID());
                     }
                 }
                 else
@@ -1526,7 +1526,7 @@ class spell_hun_glaive_toss_missile: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (l_Caster == GetOriginalCaster())
-                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_RIGHT, true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                            l_Target->CastSpell(l_Caster, HUNTER_SPELL_GLAIVE_TOSS_RIGHT, true, NULL, nullptr, l_Caster->GetGUID());
                     }
                 }
             }
@@ -1554,13 +1554,13 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_glyph_of_fetch_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     _player->learnSpell(HUNTER_SPELL_FETCH, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(HUNTER_SPELL_FETCH))
@@ -1681,7 +1681,7 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                 MurderOfCrowsVisualSecond = 131952
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -1706,7 +1706,7 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                     l_Target->RemoveAura(eSpells::FreezingTrap);
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 
@@ -1787,7 +1787,7 @@ class spell_hun_focus_fire : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_focus_fire_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            void CalculateAmount(AuraEffect const*, int32& p_Amount, bool&)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1797,7 +1797,7 @@ class spell_hun_focus_fire : public SpellScriptLoader
                         if (l_SpellInfo == nullptr)
                             return;
 
-                        if (AuraPtr l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                        if (Aura* l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                             p_Amount = l_Frenzy->GetStackAmount() * l_SpellInfo->Effects[EFFECT_0].BasePoints;
                     }
                 }
@@ -1830,15 +1830,15 @@ class spell_hun_focus_fire : public SpellScriptLoader
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (AuraEffectPtr l_FocusFire = l_Player->GetAuraEffect(HUNTER_SPELL_FOCUS_FIRE_AURA, EFFECT_0))
+                    if (AuraEffect* l_FocusFire = l_Player->GetAuraEffect(HUNTER_SPELL_FOCUS_FIRE_AURA, EFFECT_0))
                     {
-                        if (AuraPtr l_Frenzy = l_Player->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                        if (Aura* l_Frenzy = l_Player->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                         {
                             if (Pet* l_Pet = l_Player->GetPet())
                             {
                                 l_FocusFire->ChangeAmount(l_FocusFire->GetAmount() * l_Frenzy->GetStackAmount());
 
-                                if (AuraPtr l_FrenzyPet = l_Pet->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                                if (Aura* l_FrenzyPet = l_Pet->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                                 {
                                     l_Pet->EnergizeBySpell(l_Pet, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_FrenzyPet->GetStackAmount(), POWER_FOCUS);
                                     l_Pet->RemoveAura(HUNTER_SPELL_FRENZY_STACKS);
@@ -1886,7 +1886,7 @@ class spell_hun_frenzy : public SpellScriptLoader
                 {
                     if (Unit* l_Owner = l_Caster->GetOwner())
                     {
-                        if (AuraPtr l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
+                        if (Aura* l_Frenzy = l_Caster->GetAura(HUNTER_SPELL_FRENZY_STACKS))
                         {
                             if (l_Frenzy->GetStackAmount() >= 5)
                                 l_Owner->CastSpell(l_Owner, eFrenzy::FrenzyReady, true);
@@ -1910,7 +1910,7 @@ class spell_hun_frenzy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_frenzy_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void HandleRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eFrenzy::FrenzyReady);
@@ -1938,7 +1938,7 @@ class spell_hun_lynx_rush: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_lynx_rush_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 std::list<Unit*> tempList;
                 std::list<Unit*> targetList;
@@ -2089,7 +2089,7 @@ class spell_hun_beast_cleave_proc: public SpellScriptLoader
                 BeastCleaveDamage   = 118459
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2110,7 +2110,7 @@ class spell_hun_beast_cleave_proc: public SpellScriptLoader
                 {
                     if (l_Target->HasAura(p_AurEff->GetSpellInfo()->Id, l_Player->GetGUID()))
                     {
-                        if (AuraEffectPtr l_AurEff = l_Player->GetAuraEffect(eSpells::BeastCleaveAura, EFFECT_0))
+                        if (AuraEffect* l_AurEff = l_Player->GetAuraEffect(eSpells::BeastCleaveAura, EFFECT_0))
                         {
                             int32 l_BP = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), l_AurEff->GetAmount());
                             l_Target->CastCustomSpell(l_Target, eSpells::BeastCleaveDamage, &l_BP, nullptr, nullptr, true);
@@ -2298,7 +2298,7 @@ class spell_hun_binding_shot : public SpellScriptLoader
                 BindingShotLink     = 117405
             };
 
-            void OnUpdate(uint32, AuraEffectPtr)
+            void OnUpdate(uint32, AuraEffect*)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2320,7 +2320,7 @@ class spell_hun_binding_shot : public SpellScriptLoader
                             /// 3s duration on PvP targets
                             if (l_Target->GetTypeId() == TypeID::TYPEID_PLAYER)
                             {
-                                if (AuraPtr l_Stun = l_Target->GetAura(eSpells::BindingShotStun))
+                                if (Aura* l_Stun = l_Target->GetAura(eSpells::BindingShotStun))
                                 {
                                     l_Stun->SetDuration(3000);
                                     l_Stun->SetMaxDuration(3000);
@@ -2664,7 +2664,7 @@ class spell_hun_kill_command: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     /// Kill Command has a chance to reset the cooldown of Bestial Wrath.
-                    if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::T17BeastMaster2P, EFFECT_0))
+                    if (AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(eSpells::T17BeastMaster2P, EFFECT_0))
                     {
                         if (l_Player->HasSpellCooldown(eSpells::BestialWrath) && roll_chance_i(l_AuraEffect->GetAmount()))
                             l_Player->RemoveSpellCooldown(eSpells::BestialWrath, true);
@@ -3084,7 +3084,7 @@ class spell_hun_misdirection: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_misdirection_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Caster = GetCaster()->ToPlayer();
 
@@ -3117,7 +3117,7 @@ class spell_hun_misdirection_proc: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_misdirection_proc_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->SetReducedThreatPercent(0, 0);
@@ -3385,9 +3385,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
                 SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
 
-                if (AuraPtr l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                if (Aura* l_CobraStrike = l_Hunter->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
                     l_CobraStrike->ModStackAmount(-1);
-                if (AuraPtr l_CobraStrikePet = l_Pet->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
+                if (Aura* l_CobraStrikePet = l_Pet->GetAura(HUNTER_SPELL_COBRA_STRIKES_STACKS))
                     l_CobraStrikePet->ModStackAmount(-1);
 
                 if (l_EnhancedBasicAttacks != nullptr && l_Hunter->HasAura(eSpells::EnhancedBasicAttacksAura) && roll_chance_i(l_EnhancedBasicAttacks->Effects[EFFECT_0].BasePoints))
@@ -3429,7 +3429,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_spirit_mend_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr l_AuraEffect, int32& l_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* l_AuraEffect, int32& l_Amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3493,7 +3493,7 @@ class spell_hun_mend_pet : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_mend_pet_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -3579,7 +3579,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 
             uint8 m_ActualCharges = 3;
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3590,7 +3590,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                     l_Caster->RemoveAura(g_VisualSpells[l_I]);
             }
 
-            void OnUpdate(uint32, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32, AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3711,7 +3711,7 @@ public:
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
+                    if (Aura* l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
                     {
                         if (m_Damage > 0)
                             m_Damage = m_Damage / (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
@@ -3732,7 +3732,7 @@ public:
         {
             if (Unit* l_Target = GetHitUnit())
             {
-                if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
+                if (Aura* l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
                     m_Damage = l_PoisonedAmmo->GetEffect(0)->GetAmount() * (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
             }
         }
@@ -3767,7 +3767,7 @@ class spell_hun_adaptation : public SpellScriptLoader
                 CombatExperience = 20782
             };
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes)
             {
                 Unit* l_Caster = GetCaster();
                  
@@ -3785,7 +3785,7 @@ class spell_hun_adaptation : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3882,7 +3882,7 @@ class spell_hun_thick_hide : public SpellScriptLoader
                 thickHideEffect = 160058
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3972,16 +3972,16 @@ class spell_hun_trap_launcher : public SpellScriptLoader
                 GLYPH_OF_SNAKE_TRAP = 159470
             };
 
-            void CalculateAmount(constAuraEffectPtr, int32& p_Amount, bool&)
+            void CalculateAmount(AuraEffect const*, int32& p_Amount, bool&)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Caster->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
+                    if (AuraEffect* l_GlyphOfSnakeTrapEff = l_Caster->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
                         l_GlyphOfSnakeTrapEff->ChangeAmount(p_Amount, true, true);
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3990,7 +3990,7 @@ class spell_hun_trap_launcher : public SpellScriptLoader
                         return;
 
                     int32 l_SpellId = l_GlyphOfSnakeTrap->Effects[EFFECT_0].BasePoints;
-                    if (AuraEffectPtr l_GlyphOfSnakeTrapEff = l_Caster->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
+                    if (AuraEffect* l_GlyphOfSnakeTrapEff = l_Caster->GetAuraEffect(GLYPH_OF_SNAKE_TRAP, EFFECT_0))
                         l_GlyphOfSnakeTrapEff->ChangeAmount(l_SpellId, true, true);
                 }
             }
@@ -4025,7 +4025,7 @@ class spell_hun_camouflage_triggered : public SpellScriptLoader
                 Camouflage = 51755
             };
 
-            void OnApply(constAuraEffectPtr p_AuraEffect, AuraEffectHandleModes)
+            void OnApply(AuraEffect const* p_AuraEffect, AuraEffectHandleModes)
             {
                 Unit* l_Target = GetTarget();
 
@@ -4035,7 +4035,7 @@ class spell_hun_camouflage_triggered : public SpellScriptLoader
                 l_Target->CastSpell(l_Target, eSpells::Camouflage, true);
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 Unit* l_Target = GetTarget();
 
@@ -4073,7 +4073,7 @@ class spell_hun_camouflage : public SpellScriptLoader
                 HealthBuff      = 51753
             };
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4091,7 +4091,7 @@ class spell_hun_camouflage : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4141,7 +4141,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
                 GlyphOfCamouflageBuff       = 119450,
             };
 
-           void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+           void OnApply(AuraEffect const*, AuraEffectHandleModes)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4164,7 +4164,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
             {
                Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4183,7 +4183,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 

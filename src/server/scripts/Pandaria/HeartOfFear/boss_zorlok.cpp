@@ -920,7 +920,7 @@ class boss_zorlok : public CreatureScript
                         else
                         {
                             // Inhale (Exhale is triggered when Zor'lok has 3-4 stacks of inhale)
-                            AuraPtr inhale = me->GetAura(SPELL_INHALE);
+                            Aura* inhale = me->GetAura(SPELL_INHALE);
                             if (!inhale || inhale->GetStackAmount() < 3 || !urand((inhale->GetStackAmount() < 4 ? 0 : 1), 1))
                             {
                                 Talk(TALK_INHALE);
@@ -1330,7 +1330,7 @@ class spell_sonic_ring : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sonic_ring_AuraScript);
 
-            void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void ApplyAura(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_SONIC_RING_AURA, caster);
@@ -1383,7 +1383,7 @@ class spell_sonic_pulse : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sonic_pulse_AuraScript);
 
-            void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void ApplyAura(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_SONIC_RING_AURA, caster);

@@ -130,7 +130,7 @@ class spell_warl_fire_and_brimstone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_fire_and_brimstone_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -293,7 +293,7 @@ class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
                 SummonTerrorguard = 112927
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
                 if (!l_Player)
@@ -310,7 +310,7 @@ class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
                     l_Player->learnSpell(eSpells::SummonWrathguard, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
                 if (!l_Player)
@@ -405,7 +405,7 @@ class spell_warl_grimoire_of_supremacy_bonus : public SpellScriptLoader
                 GrimoireOfSupremacy         = 108499
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Owner = l_Target->GetOwner();
@@ -537,7 +537,7 @@ class spell_warl_soulburn_override: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_soulburn_override_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -547,7 +547,7 @@ class spell_warl_soulburn_override: public SpellScriptLoader
                 l_Caster->CastSpell(l_Caster, WARLOCK_SOULBURN_OVERRIDE_2, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 
@@ -636,14 +636,14 @@ class spell_warl_glyph_of_imp_swarm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_glyph_of_imp_swarm_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
                         _player->learnSpell(WARLOCK_IMP_SWARM, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(WARLOCK_IMP_SWARM))
@@ -744,7 +744,7 @@ class spell_warl_agony: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -752,7 +752,7 @@ class spell_warl_agony: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraPtr l_Agony = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                if (Aura* l_Agony = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
                 {
                     l_Agony->ModStackAmount(p_AurEff->GetBaseAmount());
 
@@ -857,7 +857,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                 SoulLink = 108415
             };
 
-            void CalculateEffectAmountSoulLink(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            void CalculateEffectAmountSoulLink(AuraEffect const* /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Owner = GetUnitOwner();
 
@@ -868,7 +868,7 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                     p_Amount = 0;
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -1009,7 +1009,7 @@ class spell_warl_soul_link_dummy: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_soul_link_dummy_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1023,7 +1023,7 @@ class spell_warl_soul_link_dummy: public SpellScriptLoader
                 }
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -1038,7 +1038,7 @@ class spell_warl_soul_link_dummy: public SpellScriptLoader
                     if (_player->HasAura(WARLOCK_SOUL_LINK_DUMMY_AURA))
                         _player->RemoveAura(WARLOCK_SOUL_LINK_DUMMY_AURA);
 
-                    if (AuraPtr grimoireOfSacrifice = _player->GetAura(WARLOCK_GRIMOIRE_OF_SACRIFICE))
+                    if (Aura* grimoireOfSacrifice = _player->GetAura(WARLOCK_GRIMOIRE_OF_SACRIFICE))
                         if (grimoireOfSacrifice->GetEffect(EFFECT_6))
                                 grimoireOfSacrifice->GetEffect(EFFECT_6)->SetAmount(0);
                 }
@@ -1102,7 +1102,7 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_molten_core_dot_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -1113,7 +1113,7 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
                 l_Caster->CastSpell(l_Target, 190187, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -1125,7 +1125,7 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
                     l_Target->RemoveAura(190187, l_Caster->GetGUID());
             }
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1173,14 +1173,14 @@ class spell_warl_molten_core : public SpellScriptLoader
                 MoltenCoreVisual = 126090
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
                 l_Target->CastSpell(l_Target, eSpells::MoltenCoreVisual, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -1291,7 +1291,7 @@ class spell_warl_touch_of_chaos: public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (AuraPtr corruption = target->GetAura(WARLOCK_CORRUPTION, caster->GetGUID()))
+                        if (Aura* corruption = target->GetAura(WARLOCK_CORRUPTION, caster->GetGUID()))
                         {
                             corruption->SetDuration(corruption->GetDuration() + 6 * IN_MILLISECONDS); // Not sure for the 6 seconds
                             corruption->SetNeedClientUpdateForTargets();
@@ -1322,7 +1322,7 @@ class spell_warl_immolation_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_immolation_aura_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, WARLOCK_HELLFIRE_DAMAGE, true);
@@ -1363,19 +1363,19 @@ class spell_warl_dark_bargain: public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffect* auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 absorbedAmount += dmgInfo.GetDamage();
                 absorbAmount = dmgInfo.GetDamage();
                 auraEffect->SetAmount(absorbAmount + absorbedAmount);
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 uint32 l_Bp0 = CalculatePct(absorbedAmount, aurEff->GetBaseAmount()) / (sSpellMgr->GetSpellInfo(WARLOCK_DARK_BARGAIN_DOT)->GetDuration() / IN_MILLISECONDS);
                 if (l_Bp0)
@@ -1406,7 +1406,7 @@ class spell_warl_dark_regeneration: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_dark_regeneration_AuraScript);
 
-            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget())
                     if (Guardian* pet = GetTarget()->GetGuardianPet())
@@ -1484,7 +1484,7 @@ class spell_warl_sacrificial_pact: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_sacrificial_pact_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1652,13 +1652,13 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_hellfire_periodic_AuraScript);
 
-            void OnTickOnCaster(constAuraEffectPtr /*p_AurEff*/)
+            void OnTickOnCaster(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, GetSpellInfo()->Effects[EFFECT_2].BasePoints, POWER_DEMONIC_FURY);
             }
 
-            void OnTickOnAreaEnemy(constAuraEffectPtr /*p_AurEff*/)
+            void OnTickOnAreaEnemy(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, WARLOCK_HELLFIRE_DAMAGE, true);
@@ -1952,7 +1952,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
 
             bool m_UnderImproved = false;
 
-            void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
+            void HandlePeriodicDamage(AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1992,17 +1992,17 @@ class spell_warl_drain_soul: public SpellScriptLoader
 
                     for (std::list<std::pair<uint32, uint32>>::const_iterator l_DotAura = l_DotAurasList.begin(); l_DotAura != l_DotAurasList.end(); ++l_DotAura)
                     {
-                        if (AuraPtr l_AuraPtr = l_Target->GetAura((*l_DotAura).first, l_Caster->GetGUID()))
+                        if (Aura* l_Aura = l_Target->GetAura((*l_DotAura).first, l_Caster->GetGUID()))
                         {
-                            if (AuraEffectPtr l_AuraEffect = l_AuraPtr->GetEffect(l_AuraPtr->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
+                            if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
                             {
                                 int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
                                 l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
 
                                 /// Agony stack refresh
                                 if ((*l_DotAura).second == 131737)
-                                    if (AuraPtr l_Agony = l_Target->GetAura((*l_DotAura).first, GetCaster()->GetGUID()))
-                                        if (constAuraEffectPtr l_AgonyDmgEffect = l_Target->GetAuraEffect((*l_DotAura).first, 0))
+                                    if (Aura* l_Agony = l_Target->GetAura((*l_DotAura).first, GetCaster()->GetGUID()))
+                                        if (AuraEffect const* l_AgonyDmgEffect = l_Target->GetAuraEffect((*l_DotAura).first, 0))
                                             l_Agony->ModStackAmount(l_AgonyDmgEffect->GetBaseAmount());
 
                                 /// Glyph of Siphon Life - 56218
@@ -2015,7 +2015,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 }
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -2101,7 +2101,7 @@ class spell_warl_rain_of_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_rain_of_fire_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (!GetTarget() || GetTarget()->GetTypeId() == TYPEID_UNIT)
                     return;
@@ -2187,7 +2187,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
                     return;
 
-                if (AuraEffectPtr l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                if (AuraEffect* l_PreviousEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
                     m_RemainingAmout += (l_PreviousEffect->GetAmount() * (l_PreviousEffect->GetBase()->GetDuration() / l_PreviousEffect->GetAmplitude()));
             }
 
@@ -2196,7 +2196,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 /// No instant heal with Glyph of Ember tap
-                if (AuraPtr l_GlyphOfEmberTap = l_Caster->GetAura(eSpells::GlyphOfEmberTap))
+                if (Aura* l_GlyphOfEmberTap = l_Caster->GetAura(eSpells::GlyphOfEmberTap))
                 {
                     SetHitHeal(0);
                     return;
@@ -2207,13 +2207,13 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                 int32 l_HealAmount = l_Caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[0].BasePoints);
                 
-                if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
+                if (AuraEffect* l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
                     l_HealAmount += CalculatePct(l_HealAmount, l_MasteryPct);
                 }
 
-                if (AuraEffectPtr l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
+                if (AuraEffect* l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
                 {
                     l_HealAmount += CalculatePct(l_HealAmount, l_SearingFlames->GetAmount());
                     /// ManaCost == 0, wrong way to retrieve cost ?
@@ -2223,7 +2223,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
 
                 SetHitHeal(l_HealAmount);
                 /// Your Ember Tap also heals your pet demon for 20% as much.
-                if (AuraEffectPtr l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
+                if (AuraEffect* l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
                 {
                     Player* l_Player = l_Caster->ToPlayer();
                     if (!l_Player)
@@ -2241,7 +2241,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
                     return;
 
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
                     l_AuraEffect->ChangeAmount(l_AuraEffect->GetAmount() + (m_RemainingAmout / (l_AuraEffect->GetBase()->GetDuration() / l_AuraEffect->GetAmplitude())));
             }
 
@@ -2281,7 +2281,7 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
                 SearingFlames = 174848
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
@@ -2297,12 +2297,12 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
 
                 int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
-                if (AuraEffectPtr l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
+                if (AuraEffect* l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
                 {
                     float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
                     l_TotalHeal += CalculatePct(l_TotalHeal, l_MasteryPct);
                 }
-                if (AuraEffectPtr l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
+                if (AuraEffect* l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
                 {
                     l_TotalHeal += CalculatePct(l_TotalHeal, l_SearingFlames->GetAmount());
                     /// ManaCost == 0, wrong way to retrieve cost ?
@@ -2345,10 +2345,10 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
                     if (Unit* target = GetHitUnit())
                     {
                         if (!target->HasAura(WARLOCK_IMMOLATE) && !caster->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
-                            if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
+                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE);
                             if (!target->HasAura(WARLOCK_IMMOLATE))
-                            if (AuraPtr conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
+                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
                     }
                 }
@@ -2383,7 +2383,7 @@ class spell_warl_glyph_of_nightmares : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_glyph_of_nightmares_AuraScript);
 
-            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2392,7 +2392,7 @@ class spell_warl_glyph_of_nightmares : public SpellScriptLoader
                 }
             }
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2424,7 +2424,7 @@ class spell_warl_shadowburn: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_shadowburn_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2474,7 +2474,7 @@ class spell_warl_burning_embers: public SpellScriptLoader
                 if (GetSpell()->IsCritForTarget(l_Target))
                     l_BurningEmbersPct = 0.2f;
 
-                if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
+                if (Aura* l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
                     AddPct(l_BurningEmbersPct, l_CharredRemains->GetEffect(EFFECT_1)->GetBaseAmount());
 
                 l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersPct * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
@@ -2653,7 +2653,7 @@ class spell_warl_drain_life: public SpellScriptLoader
                 EmpoweredDrainLife = 157069
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -2661,7 +2661,7 @@ class spell_warl_drain_life: public SpellScriptLoader
 
                 int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints) / p_AurEff->GetTotalTicks();
 
-                if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(eSpells::EmpoweredDrainLife))
+                if (Aura* l_EmpoweredDrainLife = l_Caster->GetAura(eSpells::EmpoweredDrainLife))
                     l_Bp0 += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
 
                 l_Caster->CastCustomSpell(l_Caster, eSpells::DrainLifeHeal, &l_Bp0, NULL, NULL, true);
@@ -2783,7 +2783,7 @@ class spell_warl_life_tap: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_life_tap_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     if (l_Caster->HasAura(WARLOCK_GLYPH_OF_LIFE_TAP))
@@ -2979,7 +2979,7 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonic_circle_summon_AuraScript);
 
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes p_Mode)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2992,7 +2992,7 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
                 }
             }
 
-            void HandleDummyTick(constAuraEffectPtr /*aurEff*/)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_DEMONIC_CIRCLE_TELEPORT);
@@ -3040,7 +3040,7 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonic_circle_teleport_AuraScript);
 
-            void HandleTeleport(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleTeleport(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* player = GetTarget()->ToPlayer())
                 {
@@ -3102,7 +3102,7 @@ class spell_warl_unstable_affliction: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
+                    if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
                         int32 damage = aurEff->GetAmount() * 8;
                         // backfire damage and silence
@@ -3219,7 +3219,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
                 HandOfGuldan    = 105174
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3238,7 +3238,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3354,11 +3354,11 @@ class spell_warl_WoDPvPDestruction2PBonus : public SpellScriptLoader
                 ImmolateEnergize                = 169998
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Destruction2P, EFFECT_0))
+                    if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Destruction2P, EFFECT_0))
                     {
                         if (!roll_chance_i(l_AuraEffect->GetAmount()))
                             return;
@@ -3447,7 +3447,7 @@ class spell_warl_dark_soul : public SpellScriptLoader
                     else ///< Case of GLYPH_OF_DARK_SOUL
                         l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
 
-                    if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
+                    if (Aura* l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
                         l_DarkSoul->SetDuration(CalculatePct(l_DarkSoul->GetDuration(), 50));
 
                 }
@@ -3530,7 +3530,7 @@ class spell_warl_havoc: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_havoc_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 // Set to max at apply
                 uint8 l_Charges = GetCaster()->HasAura(SPELL_GLYPH_OF_HAVOC) ? 6 : 3;
@@ -3574,7 +3574,7 @@ class spell_warl_nightfall : public SpellScriptLoader
                 T17Affliction4P     = 165449
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -3590,11 +3590,11 @@ class spell_warl_nightfall : public SpellScriptLoader
 
                 float l_Chance = 0.0f;
 
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::Nightfall, EFFECT_0))
+                if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::Nightfall, EFFECT_0))
                     l_Chance = (l_AuraEffect->GetAmount() / 10);
 
                 /// While channeling Drain Soul on a target afflicted by your Corruption, Unstable Affliction, and Agony, the chance for Nightfall to activate is increased by 5%.
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction2P, EFFECT_0))
+                if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction2P, EFFECT_0))
                 {
                     if (Spell* l_Spell = l_Caster->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                     {
@@ -3616,14 +3616,14 @@ class spell_warl_nightfall : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::NightfallGain, true);
 
                     /// When Nightfall activates, the cooldown of Dark Soul is reduced by 10 sec.
-                    if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction4P, EFFECT_0))
+                    if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Affliction4P, EFFECT_0))
                     {
                         if (Player* l_Player = l_Caster->ToPlayer())
                             l_Player->ReduceSpellCooldown(eSpells::DarkSoulMisery, l_AuraEffect->GetAmount());
                     }
                 }
 
-                if (AuraPtr l_Corruption = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
+                if (Aura* l_Corruption = l_Target->GetAura(p_AurEff->GetSpellInfo()->Id, l_Caster->GetGUID()))
                 {
                     /// Patch 6.2.2 (2015-09-01): Now deals 10 % less damage in PvP combat.
                     if (l_Target->IsPlayer() && p_AurEff->GetTickNumber() == 1)
@@ -3663,7 +3663,7 @@ class spell_warl_chaos_bolt : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                AuraPtr l_Backdraft = l_Caster->GetAura(eSpells::Backdraft);
+                Aura* l_Backdraft = l_Caster->GetAura(eSpells::Backdraft);
 
                 if (l_Backdraft == nullptr)
                     return;
@@ -3818,7 +3818,7 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
                 SummonAbyssal       = 157899
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3845,7 +3845,7 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
 
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3894,7 +3894,7 @@ class spell_warl_grimoire_of_synergy : public SpellScriptLoader
                 GrimoireofSynergyBuff = 171982
             };
 
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3973,7 +3973,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
             /// Item - Warlock T17 Destruction 4P Bonus
             for (uint8 l_I = 0; l_I < EFFECT_4; ++l_I)
             {
-                if (AuraEffectPtr l_AuraEffect = p_Player->GetAuraEffect(eSpells::T17Destruction4P, l_I))
+                if (AuraEffect* l_AuraEffect = p_Player->GetAuraEffect(eSpells::T17Destruction4P, l_I))
                 {
                     /// When a Burning Ember is filled up, you have a chance to cause your next Chaos Bolt to multistrike 3 additional times.
                     if (p_OldValue < l_AuraEffect->GetAmount() && p_NewValue > l_AuraEffect->GetAmount() && roll_chance_i(15))
@@ -4177,7 +4177,7 @@ class spell_warl_glyph_of_life_tap : public SpellScriptLoader
                 GlyphofLifePactPeriodic = 162640
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4188,7 +4188,7 @@ class spell_warl_glyph_of_life_tap : public SpellScriptLoader
                     l_Player->CastSpell(l_Player, eSpells::GlyphofLifePactPeriodic, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4227,7 +4227,7 @@ class spell_warl_glyph_of_life_tap_periodic : public SpellScriptLoader
                 LifePactDamage = 162647
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Target = GetTarget();
 
@@ -4268,7 +4268,7 @@ public:
                 {
                     /// 4 seconds duration in PVP
                     if (l_Target->IsPlayer())
-                        if (AuraPtr l_Cripple = l_Target->GetAura(GetSpellInfo()->Id))
+                        if (Aura* l_Cripple = l_Target->GetAura(GetSpellInfo()->Id))
                             l_Cripple->SetDuration(4000);
                 }
             }
@@ -4311,7 +4311,7 @@ class spell_warl_incinerate : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
+                if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WarlockWoDPvPDestruction4PBonus, EFFECT_0))
                 {
                     if (l_Target->HasAura(eSpells::ImmolateDamage, l_Caster->GetGUID()))
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), 100)); ///< Patch 6.2.3 Hotfixes: November 17 - 23 : 4-piece PvP set bonus for Destruction Warlocks now increases damage dealt by Incinerate on targets afflicted by the casting Warlock's Immolate by 100% (up from 50%)
@@ -4341,7 +4341,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonbolt_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4369,8 +4369,8 @@ class spell_warl_demonbolt : public SpellScriptLoader
 
                 float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
-                if (AuraPtr l_AuraPtr = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
-                    l_AuraPtr->SetDuration(l_AuraPtr->GetDuration() * l_HastePct);
+                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    l_Aura->SetDuration(l_Aura->GetDuration() * l_HastePct);
 
             }
 

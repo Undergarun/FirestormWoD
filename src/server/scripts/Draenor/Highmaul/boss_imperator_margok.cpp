@@ -2428,7 +2428,7 @@ class spell_highmaul_mark_of_chaos : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_mark_of_chaos_AuraScript);
 
-            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
@@ -2463,7 +2463,7 @@ class spell_highmaul_destructive_resonance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_destructive_resonance_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2519,7 +2519,7 @@ class spell_highmaul_branded : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_AuraScript);
 
-            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2562,7 +2562,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                                             /// Increase jump count
                                             ++l_Stacks;
 
-                                            if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
                                                 l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
@@ -2617,7 +2617,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
             Position m_MarkPos;
 
-            void OnAuraApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2627,7 +2627,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2638,7 +2638,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                 }
             }
 
-            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2681,7 +2681,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                             /// Increase jump count
                                             ++l_Stacks;
 
-                                            if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
                                                 l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
@@ -2734,7 +2734,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_fortification_AuraScript);
 
-            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2777,7 +2777,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                             /// Increase jump count
                                             ++l_Stacks;
 
-                                            if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
                                                 l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
@@ -2828,7 +2828,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_replication_AuraScript);
 
-            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2883,7 +2883,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                                             for (Player* l_Player : l_PlrList)
                                             {
-                                                if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_Player))
+                                                if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_Player))
                                                 {
                                                     l_Aura->SetStackAmount(l_Stacks);
                                                     l_Margok->AI()->Talk(eTalk::Branded, l_Player->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
@@ -2909,7 +2909,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                                 /// Increase jump count
                                                 ++l_Stacks;
 
-                                                if (AuraPtr l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                                if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
                                                 {
                                                     l_Aura->SetStackAmount(l_Stacks);
                                                     l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
@@ -3005,7 +3005,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_transition_visuals_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3155,7 +3155,7 @@ class spell_highmaul_force_nova_fortified : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_force_nova_fortified_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::ForceNovaFortificationDummy, true);
@@ -3251,7 +3251,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_force_nova_dot_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3306,7 +3306,7 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_orbs_of_chaos_aura_AuraScript);
 
-            void AfterAuraRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
@@ -3377,7 +3377,7 @@ class spell_highmaul_volatile_anomalies : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_volatile_anomalies_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {

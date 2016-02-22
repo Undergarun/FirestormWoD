@@ -442,13 +442,13 @@ class spell_perotharn_drain_essence: public SpellScriptLoader
         {
             PrepareAuraScript(spell_perotharn_drain_essence_AuraScript);
 
-            void OnApply(constAuraEffectPtr, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
                 if (GetUnitOwner())
                     GetUnitOwner()->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
-            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
                 if (GetUnitOwner()) 
                     GetUnitOwner()->SetControlled(false, UNIT_STATE_STUNNED);

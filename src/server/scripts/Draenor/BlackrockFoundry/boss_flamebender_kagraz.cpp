@@ -1689,7 +1689,7 @@ class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
                 DropTheHammer = 1
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -1729,7 +1729,7 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
                 MoltenTorrentAoE = 154938
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
@@ -1738,7 +1738,7 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
                 if (Unit* l_Target = GetTarget())
                 {
                     if (Unit* l_Caster = GetCaster())
-                        l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
 
@@ -1764,7 +1764,7 @@ class spell_foundry_allow_molten_torrent_cast : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_allow_molten_torrent_cast_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1812,7 +1812,7 @@ class spell_foundry_fiery_link : public SpellScriptLoader
                 Singe = 155049
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1862,7 +1862,7 @@ class spell_foundry_overheated : public SpellScriptLoader
                 ActionFixated
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1914,7 +1914,7 @@ class spell_foundry_fixate : public SpellScriptLoader
                 ActionFixatedAgain = 3
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -1954,7 +1954,7 @@ class spell_foundry_firestorm_aura : public SpellScriptLoader
                 ActionMagmaMonsoon = 1
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -2004,7 +2004,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
                 ActionFillStalkers = 2
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2022,7 +2022,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2106,7 +2106,7 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
                 UnquenchableFlameAoE = 156713
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpell::UnquenchableFlameAoE, false);

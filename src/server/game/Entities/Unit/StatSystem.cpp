@@ -895,10 +895,10 @@ void Player::UpdateMasteryPercentage()
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
         if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
         {
-            AuraPtr l_Aura = l_Iter.second->GetBase();
+            Aura* l_Aura = l_Iter.second->GetBase();
             for (uint8 l_I = 0; l_I < l_Aura->GetEffectCount(); ++l_I)
             {
-                if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
+                if (AuraEffect* l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
                     if ((l_SpellInfo->Id == 77219 && !HasAura(103958) && l_I >= EFFECT_2) ///< EFFECT_2 and EFFECT_3 of Master Demonologist are only on Metamorphis Form

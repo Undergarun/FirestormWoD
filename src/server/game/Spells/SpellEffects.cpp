@@ -450,7 +450,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         break;
                         // Detonate Mana, Tyrande's Favorite Doll
                     case 92601:
-                        if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
+                        if (AuraEffect const* aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
                             damage = aurEff->GetAmount();
                         break;
                     // Consumption
@@ -514,7 +514,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     {
                         if (m_caster->IsPlayer())
                         {
-                            if (AuraPtr aura = m_caster->GetAura(86700))
+                            if (Aura* aura = m_caster->GetAura(86700))
                             {
                                 uint8 stacks = aura->GetStackAmount();
                                 damage = stacks * (damage + 0.1f * m_caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()));
@@ -685,7 +685,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     uint32 haste = m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
 
                     uint8 stacks = 1;
-                    if (AuraPtr aur = m_caster->GetAura(96923))
+                    if (Aura* aur = m_caster->GetAura(96923))
                         stacks = aur->GetStackAmount();
 
                     int32 bp0 = damage * stacks;
@@ -1180,7 +1180,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, nullptr, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
@@ -1244,7 +1244,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
         m_caster->ToPlayer()->RemoveSpellCooldown(spellInfo->Id);
 
     // original caster guid only for GO cast
-    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+    m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, nullptr, m_originalCasterGUID);
 }
 
 void Spell::EffectForceCast(SpellEffIndex effIndex)
@@ -1290,7 +1290,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             break;
         case 52463: // Hide In Mine Car
         case 52349: // Overtake
-            unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULLAURA_EFFECT, m_originalCasterGUID);
+            unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, nullptr, m_originalCasterGUID);
             return;
         }
     }
@@ -1790,7 +1790,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             // Tipping of the Scales, Scales of Life
             case 96880:
             {
-                if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(96881, EFFECT_0))
+                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(96881, EFFECT_0))
                 {
                     addhealth = aurEff->GetAmount();
                     m_caster->RemoveAurasDueToSpell(96881);
@@ -1816,7 +1816,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
                 // Amount of heal - depends from stacked Holy Energy
                 int damageAmount = 0;
-                if (constAuraEffectPtr aurEff = caster->GetAuraEffect(45062, 0))
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(45062, 0))
                 {
                     damageAmount += aurEff->GetAmount();
                     caster->RemoveAurasDueToSpell(45062);
@@ -1845,7 +1845,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, effIndex, HEAL);
 
                 // Increase the effectiveness by 30% with Unleashed Life
-                if (AuraEffectPtr healingRain = caster->GetAuraEffect(142923, EFFECT_1))
+                if (AuraEffect* healingRain = caster->GetAuraEffect(142923, EFFECT_1))
                     AddPct(addhealth, healingRain->GetAmount());
                 break;
             }
@@ -1875,7 +1875,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 {
                     if (m_spellInfo->HasEffect(SPELL_EFFECT_HEAL))
                     {
-                        if (AuraEffectPtr l_AuraHarmony = caster->GetAuraEffect(77495, EFFECT_0))
+                        if (AuraEffect* l_AuraHarmony = caster->GetAuraEffect(77495, EFFECT_0))
                         {
                             int32 l_Bp = l_AuraHarmony->GetAmount();
                             caster->CastCustomSpell(caster, 100977, &l_Bp, NULL, NULL, true);
@@ -1887,7 +1887,7 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         // Chakra : Serenity - 81208
         if (caster && addhealth && caster->HasAura(81208) && m_spellInfo->Effects[0].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) // Single heal target
-            if (AuraPtr renew = unitTarget->GetAura(139, caster->GetGUID()))
+            if (Aura* renew = unitTarget->GetAura(139, caster->GetGUID()))
                 renew->RefreshDuration();
 
         // Mogu'Shan Vault
@@ -2266,8 +2266,8 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        AuraPtr aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]);
-        if (aura != NULLAURA)
+        Aura* aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]);
+        if (aura != nullptr)
         {
             m_spellAura = aura;
             m_spellAura->_RegisterForTargets();
@@ -2333,7 +2333,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             break;
         }
         case 92601: // Detonate Mana, Tyrande's Favorite Doll
-            if (constAuraEffectPtr aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
+            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(92596, EFFECT_0))
             {
                 damage = aurEff->GetAmount();
                 m_caster->RemoveAurasDueToSpell(92596);
@@ -2962,7 +2962,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         damage = m_caster->CountPctFromMaxHealth(13);
 
                     /// Glyph of Totemic Vigor
-                    if (AuraEffectPtr l_GlyphOfTotemicVigor = m_caster->GetAuraEffect(63298, EFFECT_0))
+                    if (AuraEffect* l_GlyphOfTotemicVigor = m_caster->GetAuraEffect(63298, EFFECT_0))
                         damage += m_caster->CountPctFromMaxHealth(l_GlyphOfTotemicVigor->GetAmount());
 
                     if (damage)                                            // if not spell info, DB values used
@@ -3141,7 +3141,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         /// will not call scripted dispel hook
         for (DispelChargesList::iterator l_It = l_InvDispelList.begin(); l_It != l_InvDispelList.end(); ++l_It)
         {
-            if (AuraPtr l_Aura = l_It->first)
+            if (Aura* l_Aura = l_It->first)
                 l_Aura->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
     }
@@ -3285,7 +3285,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         case 527:   ///< Purify
         case 97960: ///< Cosmetic Magic Aura
         {
-            if (AuraEffectPtr l_AurEff = m_caster->GetAuraEffect(55677, EFFECT_0)) ///< Glyph of Purify
+            if (AuraEffect* l_AurEff = m_caster->GetAuraEffect(55677, EFFECT_0)) ///< Glyph of Purify
             {
                 int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
                 m_caster->CastCustomSpell(unitTarget, 56131, &l_Bp, nullptr, nullptr, true);
@@ -3309,7 +3309,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         case 51886: ///< Cleanse Spirit
         case 77130: ///< Purify Spirit
         {
-            if (AuraEffectPtr l_AurEff = m_caster->GetAuraEffect(55445, EFFECT_0)) ///< Glyph of Cleansing Waters
+            if (AuraEffect* l_AurEff = m_caster->GetAuraEffect(55445, EFFECT_0)) ///< Glyph of Cleansing Waters
             {
                 int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
                 m_caster->CastCustomSpell(unitTarget, 86961, &l_Bp, nullptr, nullptr, true);
@@ -4044,7 +4044,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         {
             // Skyshatter Harness item set bonus
             // Stormstrike
-            if (AuraEffectPtr aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
+            if (AuraEffect* aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
                 m_caster->CastSpell(m_caster, 38430, true, NULL, aurEff);
             break;
         }
@@ -6124,7 +6124,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
     Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
-        AuraPtr aura = itr->second;
+        Aura* aura = itr->second;
         if (!aura->GetApplicationOfTarget(unitTarget->GetGUID()))
             continue;
         if (roll_chance_i(aura->CalcDispelChance(unitTarget, !unitTarget->IsFriendlyTo(m_caster))))
@@ -6215,7 +6215,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
         l_RefundPercentage = l_SpellInfo->Effects[EFFECT_1].BasePoints;
 
         /// Glyph of Totemic Recall
-        if (AuraEffectPtr l_GlyphOfTotemicRecall = m_caster->GetAuraEffect(55438, EFFECT_0))
+        if (AuraEffect* l_GlyphOfTotemicRecall = m_caster->GetAuraEffect(55438, EFFECT_0))
             l_RefundPercentage += l_GlyphOfTotemicRecall->GetAmount();
 
 
@@ -6582,7 +6582,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
-        AuraPtr aura = itr->second;
+        Aura* aura = itr->second;
         AuraApplication * aurApp = aura->GetApplicationOfTarget(unitTarget->GetGUID());
         if (!aurApp)
             continue;
@@ -7582,7 +7582,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     {
         for (Unit::AuraEffectList::const_iterator l_Itr = l_AuraList.begin(); l_Itr != l_AuraList.end(); ++l_Itr)
         {
-            if (AuraPtr l_Aura = (*l_Itr)->GetBase())
+            if (Aura* l_Aura = (*l_Itr)->GetBase())
                 l_Caster = l_Aura->GetCaster();
         }
     }
@@ -7594,7 +7594,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         {
             for (Unit::AuraEffectList::const_iterator l_Iter = l_AuraList.begin(); l_Iter != l_AuraList.end(); ++l_Iter)
             {
-                if (AuraPtr l_Aura = (*l_Iter)->GetBase())
+                if (Aura* l_Aura = (*l_Iter)->GetBase())
                     l_Caster = l_Aura->GetCaster();
             }
         }
