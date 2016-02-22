@@ -758,40 +758,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         victim->CastCustomSpell(victim, 115611, &l_Bp, NULL, NULL, true);
     }
 
-    /// last update : 6.2.3
-    /// Atonement
-    /// Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
-    if (spellProto && (spellProto->Id == 14914 || spellProto->Id == 585 || spellProto->Id == 47666 || spellProto->Id == 129250) && HasAura(81749))
-    {
-        if (Player* l_Player = ToPlayer())
-        {
-            int32 l_Bp = damage;
-            std::list<Unit*> l_GroupList;
-
-            l_Player->GetRaidMembers(l_GroupList);
-
-            SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(81749);
-            l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
-            {
-                return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
-            });
-
-            if (l_GroupList.size() > 1)
-            {
-                l_GroupList.sort(JadeCore::HealthPctOrderPred());
-                l_GroupList.resize(1);
-            }
-
-            for (auto itr : l_GroupList)
-            {
-                if (itr->GetGUID() == l_Player->GetGUID())
-                    l_Bp /= 2;
-
-                l_Player->CastCustomSpell(itr, 81751, &l_Bp, NULL, NULL, true);
-            }
-        }
-    }
-
     /// last update : 6.1.2 19802
     /// Stance of the Spirited Crane - 154436
     if (GetSpellModOwner() && GetSpellModOwner()->HasAura(154436) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_MONK)
@@ -4107,6 +4073,10 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
         /// Hack fix for Corruption and Seed of Corruption
         if ((spellProto->Id == 27243 && i->second->GetBase()->GetId() == 146739) ||
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
+            continue;
+
+        /// Hack fix for Sunfire
+        if (spellProto->Id == 164815)
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -7640,13 +7610,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 102352;
                     break;
                 }
-            }
-            // Living Seed
-            if (dummySpell->SpellIconID == 2860)
-            {
-                triggered_spell_id = 48504;
-                basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                break;
             }
             break;
         }
@@ -11996,7 +11959,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    if (spellProto->IsTargetingArea())
+    if (spellProto->IsTargetingArea() || spellProto->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL))
     {
         if (IsPlayer())
             AddPct(TakenTotalMod, ToPlayer()->GetRatingBonusValue(CR_AVOIDANCE) / 100);
@@ -12186,6 +12149,10 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target)
     /// ...the chance to activate up to two extra times (depending if PvE or PvP) at X% of normal effectiveness
     uint8 l_MaxProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
     uint8 l_ProcTimes = 0;
+
+    /// Hackfix for Blade Flurry
+    if (p_ProcSpell && p_ProcSpell->Id == 22482)
+        l_MaxProcTimes = 0;
 
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
     {
@@ -12979,7 +12946,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         return healamount;
 
     // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
-    if (spellProto->Id == 33778 || spellProto->Id == 145109 || spellProto->Id == 68285)
+    if (spellProto->Id == 33778)
         return healamount;
 
     // No bonus for Devouring Plague heal
@@ -13548,7 +13515,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
             TakenTotalMod += CalculatePct(1.0, (*i)->GetAmount());
     }
 
-    if (spellProto && spellProto->IsTargetingArea())
+    if (spellProto && (spellProto->IsTargetingArea() || spellProto->HasCustomAttribute(SpellCustomAttributes::SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL)))
     {
         int32 mult = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, spellProto->SchoolMask);
         TakenTotalMod += CalculatePct(1.0, mult);
@@ -16780,8 +16747,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
-    // Leader of the Pack
-    if (IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
+    /// Leader of the Pack
+    if (!isVictim && IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
         (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
         if (!ToPlayer()->HasSpellCooldown(68285))

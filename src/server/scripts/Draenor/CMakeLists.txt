@@ -17,6 +17,7 @@ file(GLOB_RECURSE sources_Auchindoun Draenor/Auchindoun/*.hpp Draenor/Auchindoun
 file(GLOB_RECURSE sources_Skyreach Draenor/Skyreach/*.hpp Draenor/Skyreach/*.cpp Draenor/Skyreach/*.hxx)
 file(GLOB_RECURSE sources_BloodmaulSlagMines Draenor/BloodmaulSlagMines/*.hpp Draenor/BloodmaulSlagMines/*.cpp Draenor/BloodmaulSlagMines/*.hxx)
 file(GLOB_RECURSE sources_BlackrockFoundry Draenor/BlackrockFoundry/*.hpp Draenor/BlackrockFoundry/*.cpp Draenor/BlackrockFoundry/*.hxx)
+file(GLOB_RECURSE sources_ScenarioFateOfKarabor Draenor/FateOfKaraborScenario/*.hpp Draenor/FateOfKaraborScenario/*.cpp Draenor/FateOfKaraborScenario/*.hxx)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -29,6 +30,7 @@ set(scripts_STAT_SRCS
   ${sources_BloodmaulSlagMines}
   ${sources_BlackrockFoundry}
   ${sources_ShadowmoonBurialGrounds}
+  ${sources_ScenarioFateOfKarabor}
 
   Draenor/draenor_shadowmoon_valley.cpp
   Draenor/draenor_shadowmoon_valley.hpp

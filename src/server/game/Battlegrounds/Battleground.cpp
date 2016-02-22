@@ -1637,8 +1637,8 @@ void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type
             itr->second->HonorableKills += value;
             break;
         case SCORE_BONUS_HONOR:                             // Honor bonus
-            // do not add honor in arenas
-            if (isBattleground())
+            // do not add honor in arenas (only skirmish)
+            if (isBattleground() || IsSkirmish())
             {
                 // reward honor instantly
                 if (doAddHonor)
@@ -2297,6 +2297,7 @@ void Battleground::AwardTeams(uint32 p_Winner)
     if (IsSkirmish() && p_Winner)
     {
         AwardTeamsWithRewards(AWARD_NONE, AWARD_NONE, p_Winner);
+        RewardHonorToTeam(40, p_Winner);
         return;
     }
 

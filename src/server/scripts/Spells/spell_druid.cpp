@@ -1476,6 +1476,7 @@ class spell_dru_natures_cure: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Called by Prowl - 5215, Displacer Beast - 102280 and Dash - 1850
 /// Should activate the cat form if not in cat form
 class spell_dru_activate_cat_form : public SpellScriptLoader
@@ -1489,13 +1490,19 @@ class spell_dru_activate_cat_form : public SpellScriptLoader
 
             enum eSpells
             {
-                CatForm = 768
+                CatForm = 768,
+                IncarnationTreeofLife = 33891
             };
 
             void HandleBeforeHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::IncarnationTreeofLife)) ///< Prevent it to be remove by default
+                    l_Player->RemoveAura(eSpells::IncarnationTreeofLife, 0, 0, AURA_REMOVE_BY_CANCEL);
                 if (l_Player && l_Player->GetShapeshiftForm() != FORM_CAT)
                     l_Player->CastSpell(l_Player, eSpells::CatForm, true);
             }
@@ -1718,8 +1725,22 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
                 }
             }
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetShapeshiftForm() == FORM_BEAR)
+                    return;
+
+                PreventHitDamage();
+            }
+
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_faerie_swarm_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_dru_faerie_swarm_SpellScript::HandleOnHit);
             }
         };
@@ -5168,6 +5189,7 @@ class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
             {
                 Unit* l_Target = GetTarget();
 
+                AuraRemoveMode RemoveMod = GetTargetApplication()->GetRemoveMode();
 
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_CANCEL)
                     return;
@@ -5711,8 +5733,56 @@ class spell_dru_item_t17_restoration_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Living Seed - 48500
+class spell_dru_living_seed : public SpellScriptLoader
+{
+    public:
+        spell_dru_living_seed() : SpellScriptLoader("spell_dru_living_seed") { }
+
+        class spell_dru_living_seed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_living_seed_AuraScript);
+
+            enum eSpells
+            {
+                LivingSeedAura = 48504
+            };
+
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (p_EventInfo.GetDamageInfo() == nullptr || l_Caster == nullptr)
+                    return;
+
+                int32 l_HealAmount = p_EventInfo.GetDamageInfo()->GetDamage();
+
+                if (!l_HealAmount)
+                    return;
+
+                l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
+                if (AuraEffect* l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
+                    l_HealAmount += l_LivingSeed->GetAmount();
+
+                l_Caster->CastCustomSpell(l_Caster, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_living_seed_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_living_seed_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_living_seed();
     new spell_dru_guardian_of_elune();
     new spell_dru_glyph_of_savagery();
     new spell_dru_astral_form();

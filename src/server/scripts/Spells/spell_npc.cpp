@@ -333,6 +333,7 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                 uint32 ComboPoints;
             };
 
+            uint64 m_TargetGUID = 0;
             bool m_Queuing;
 
             /// Automatically stored in good time order
@@ -343,6 +344,22 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                 me->SetCanDualWield(true);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->CastSpell(me, eSpells::SpellShadowReflectionAura, true);
+
+                if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                    {
+                        if (l_Player->GetSelectedUnit())
+                            m_TargetGUID = l_Player->GetSelectedUnit()->GetGUID();
+                        else if (l_Owner->getVictim())
+                            m_TargetGUID = l_Owner->getVictim()->GetGUID();
+                    }
+                }
+
+                Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
+                if (l_Target != nullptr)
+                    me->GetMotionMaster()->MoveFollow(l_Target, 2.0f, 0.0f);
             }
 
             void AddHitQueue(uint32 *p_Data, int32 p_ID)
@@ -368,16 +385,11 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                         m_Queuing = false;
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                        if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
+                        if (m_TargetGUID)
                         {
-                            Unit* l_OwnerTarget = nullptr;
-                            if (Player* l_Player = l_Owner->ToPlayer())
-                                l_OwnerTarget = l_Player->GetSelectedUnit();
-                            else
-                                l_OwnerTarget = l_Owner->getVictim();
-
-                            if (l_OwnerTarget)
-                                AttackStart(l_OwnerTarget);
+                            Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
+                            if (l_Target != nullptr)
+                                AttackStart(l_Target);
                         }
                         break;
                     }

@@ -390,4 +390,82 @@ INSERT INTO spell_script_names VALUE (108939, 'spell_pri_glyph_of_levitate');
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_sha_glyph_of_rain_of_frogs';
 INSERT INTO `spell_script_names` VALUES (147707, 'spell_sha_glyph_of_rain_of_frogs');
 
+
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_sword_of_light_damage' AND spell_id IN (157048, 53385);
+
+-- fix Shadow Infusion
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_shadow_infusion';
+
+-- fix Might of the Frozen
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dk_might_of_the_frozen_wastes';
+INSERT INTO `spell_script_names` VALUES (81333, 'spell_dk_might_of_the_frozen_wastes');
+
+-- fix Glyph of Raging Blow
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_glyph_of_raging_blow';
+INSERT INTO `spell_script_names` VALUES (159740, 'spell_warr_glyph_of_raging_blow');
+
+-- fix Glyph of the Luminous Charges
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_pal_glyph_of_the_luminous_charger';
+INSERT INTO spell_script_names VALUE (13819, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (69820, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (34769, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (73629, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (69826, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (23214, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (34767, 'spell_pal_glyph_of_the_luminous_charger');
+INSERT INTO spell_script_names VALUE (73630, 'spell_pal_glyph_of_the_luminous_charger');
+
+-- fix Glyph of Arcane Language
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_mage_glyph_of_arcane_language';
+INSERT INTO spell_script_names VALUE (1459, 'spell_mage_glyph_of_arcane_language');
+
+-- fix Gladiator Stance
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_warr_protection_stances';
+INSERT INTO spell_script_names VALUE (71, 'spell_warr_protection_stances');
+INSERT INTO spell_script_names VALUE (355, 'spell_warr_protection_stances');
+INSERT INTO spell_script_names VALUE (156291, 'spell_warr_protection_stances');
+
+-- fix Flame Shock
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_sha_flame_shock';
+INSERT INTO spell_script_names VALUE (8050, 'spell_sha_flame_shock');
+
+-- fix Glyph of Rapid Rolling
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_monk_glyph_of_rapid_rolling';
+INSERT INTO spell_script_names VALUE (107427, 'spell_monk_glyph_of_rapid_rolling');
+INSERT INTO spell_script_names VALUE (109132, 'spell_monk_glyph_of_rapid_rolling');
+INSERT INTO spell_script_names VALUE (115008, 'spell_monk_glyph_of_rapid_rolling');
+
+-- fix Glyph of Eternal Earth
+DELETE FROM spell_script_names WHERE `ScriptName` = 'spell_sha_glyph_of_eternal_earth';
+INSERT INTO spell_script_names VALUE (147781, 'spell_sha_glyph_of_eternal_earth');
+
+-- fix Skymirror Image
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_skymirror_image');
+INSERT INTO spell_script_names VALUE (129803, 'spell_item_skymirror_image');
+
+-- fix Glyph of Illusion
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_mage_glyph_of_illusion');
+INSERT INTO spell_script_names VALUE (63092, 'spell_mage_glyph_of_illusion');
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_mage_illusion');
+INSERT INTO spell_script_names VALUE (131784, 'spell_mage_illusion');
+
+-- fix Memore of Mr Smite
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_memory_of_mr_smite');
+INSERT INTO spell_script_names VALUE (127207, 'spell_item_memory_of_mr_smite');
+
+-- fix Celestial Defender's Medallion
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_celestial_defender');
+INSERT INTO spell_script_names VALUE (149228, 'spell_item_celestial_defender');
+
+-- fix Curious Bronze Timepiece
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_curious_bronze_timepiece_horde');
+INSERT INTO spell_script_names VALUE (147985, 'spell_item_curious_bronze_timepiece_horde');
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_item_curious_bronze_timepiece_alliance');
+INSERT INTO spell_script_names VALUE (147988, 'spell_item_curious_bronze_timepiece_alliance');
+
+-- fix legendary cloaks
+DELETE FROM spell_script_names WHERE `ScriptName` = ('spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146193, 'spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146195, 'spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146199, 'spell_legendary_cloaks');
+INSERT INTO spell_script_names VALUE (146197, 'spell_legendary_cloaks');

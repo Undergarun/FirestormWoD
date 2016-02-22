@@ -1462,6 +1462,140 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.1.2
+/// Called by Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
+/// Atonement - 81749
+class spell_pri_atonement: public SpellScriptLoader
+{
+    public:
+        spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") { }
+
+        class spell_pri_atonement_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_atonement_SpellScript);
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
+                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
+                    return;
+
+                std::list<Unit*> l_GroupList;
+                l_Player->GetRaidMembers(l_GroupList);
+
+                l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
+                {
+                    return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
+                });
+
+                if (l_GroupList.size() > 1)
+                {
+                    l_GroupList.sort(JadeCore::HealthPctOrderPred());
+                    l_GroupList.resize(1);
+                }
+
+                int32 l_Heal = CalculatePct(GetHitDamage(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
+                for (Unit* l_Unit : l_GroupList)
+                {
+                    if (l_Unit->GetGUID() == l_Player->GetGUID())
+                        l_Heal /= 2;
+
+                    CustomSpellValues l_Values;
+
+                    if (GetSpell()->IsCritForTarget(GetHitUnit()))
+                    {
+                        l_Values.SetCustomCritChance(100.f);
+                        l_Heal /= 2; ///< Since we are going critical again
+                    }
+
+                    l_Values.AddSpellMod(SPELLVALUE_BASE_POINT0, l_Heal);
+
+                    l_Player->CastCustomSpell(PriestSpells::PRIEST_ATONEMENT_HEAL, l_Values, l_Unit, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_pri_atonement_SpellScript::HandleOnHit);
+            }
+        };
+
+        class spell_pri_atonement_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_atonement_AuraScript);
+
+            enum eSpells
+            {
+                PowerWordSolace = 129250
+            };
+
+            void OnTick(AuraEffect const* p_AurEff)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
+                if (!l_SpellInfoAtonement || !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
+                    return;
+
+                std::list<Unit*> l_GroupList;
+                l_Player->GetRaidMembers(l_GroupList);
+
+                l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
+                {
+                    return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
+                });
+
+                if (l_GroupList.size() > 1)
+                {
+                    l_GroupList.sort(JadeCore::HealthPctOrderPred());
+                    l_GroupList.resize(1);
+                }
+
+                int32 l_Heal = CalculatePct(p_AurEff->GetAmount(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
+                for (auto itr : l_GroupList)
+                {
+                    if (itr->GetGUID() == l_Player->GetGUID())
+                        l_Heal /= 2;
+
+                    l_Player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &l_Heal, NULL, NULL, true);
+                }
+            }
+
+            void Register() override
+            {
+                if (m_scriptSpellId == eSpells::PowerWordSolace)
+                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_atonement_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_atonement_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_atonement_SpellScript();
+        }
+};
+
 enum Purify_Spell
 {
     PRIEST_SPELL_PURIFY = 527
@@ -4292,6 +4426,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_word_sanctuary_heal();
     new spell_pri_smite();
     new spell_pri_lightwell_renew();
+    new spell_pri_atonement();
     new spell_pri_purify();
     new spell_pri_devouring_plague();
     new spell_pri_devouring_plague_aura();

@@ -1941,7 +1941,7 @@ class spell_destabilizing_energies : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_destabilizing_energies_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_destabilizing_energies_AuraScript::Apply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1990,7 +1990,7 @@ class spell_total_annihilation : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_total_annihilation_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_total_annihilation_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CASTER);
                 AfterCast += SpellCastFn(spell_total_annihilation_SpellScript::CheckTargets);
             }
         };

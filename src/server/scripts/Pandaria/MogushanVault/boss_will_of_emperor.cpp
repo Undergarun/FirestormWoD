@@ -1586,25 +1586,25 @@ class spell_terracota_spawn : public SpellScriptLoader
     public:
         spell_terracota_spawn() : SpellScriptLoader("spell_terracota_spawn") { }
 
-        class spell_terracota_spawn_AuraScript : public AuraScript
+        class spell_terracota_spawn_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_terracota_spawn_AuraScript);
+            PrepareSpellScript(spell_terracota_spawn_SpellScript);
 
-            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    caster->AddAura(SPELL_TERRACOTTA_SPAWN, GetCaster());
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->AddAura(SPELL_TERRACOTTA_SPAWN, l_Caster);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_terracota_spawn_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnHit += SpellHitFn(spell_terracota_spawn_SpellScript::HandleOnHit);
             }
         };
 
-        AuraScript* GetAuracript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_terracota_spawn_AuraScript();
+            return new spell_terracota_spawn_SpellScript();
         }
 };
 
@@ -1683,19 +1683,9 @@ class spell_arc_visual : public SpellScriptLoader
                         caster->AddAura(SPELL_ARC_VISUAL, target);
             }
 
-            void Stun(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                std::list<Player*> players;
-                GetPlayerListInGrid(players, GetCaster(), 100.0f);
-                if (Unit* caster = GetCaster())
-                    for (auto target : players)
-                        caster->AddAura(SPELL_ARC_VISUAL, target);
-            }
-
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_arc_visual_AuraScript::Stun,  EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_arc_visual_AuraScript::Apply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_arc_visual_AuraScript::Apply, EFFECT_1, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1873,32 +1863,32 @@ class spell_energizing_visual : public SpellScriptLoader
     public:
         spell_energizing_visual() : SpellScriptLoader("spell_energizing_visual") { }
 
-        class spell_energizing_visual_AuraScript : public AuraScript
+        class spell_energizing_visual_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_energizing_visual_AuraScript);
+            PrepareSpellScript(spell_energizing_visual_SpellScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    std::list<Player*> playerList;
-                    GetPlayerListInGrid(playerList, caster, 10.0f);
+                    std::list<Player*> l_PlayerList;
+                    GetPlayerListInGrid(l_PlayerList, l_Caster, 10.0f);
 
-                    for (auto player : playerList)
-                        caster->AddAura(SPELL_ENERGIZING_VISUAL, player);
+                    for (auto l_Player : l_PlayerList)
+                        l_Caster->AddAura(SPELL_ENERGIZING_VISUAL, l_Player);
                 }
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_energizing_visual_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_energizing_visual_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_energizing_visual_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_energizing_visual_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_energizing_visual_AuraScript();
+            return new spell_energizing_visual_SpellScript();
         }
 };
 
@@ -1923,6 +1913,11 @@ class spell_energized : public SpellScriptLoader
                 OnEffectApply += AuraEffectApplyFn(spell_energized_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new  spell_energized_AuraScript();
+        }
 };
 
 // Ancient Control Console - 211584
