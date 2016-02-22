@@ -9403,7 +9403,9 @@ void Player::UpdateHonorFields()
 bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken)
 {
     // do not reward honor in arenas, but enable onkill spellproc
-    if (InArena())
+    Battleground* l_Bg = GetBattleground();
+
+    if (InArena() && l_Bg != nullptr && !l_Bg->IsSkirmish())
     {
         if (!victim || victim == this || victim->GetTypeId() != TYPEID_PLAYER)
             return false;
@@ -9425,7 +9427,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     UpdateHonorFields();
 
     // do not reward honor in arenas, but return true to enable onkill spellproc
-    if (InBattleground() && GetBattleground() && (GetBattleground()->isArena() || GetBattleground()->IsRatedBG()))
+    if (InBattleground() && l_Bg && ((l_Bg->isArena() && !l_Bg->IsSkirmish()) || l_Bg->IsRatedBG()))
         return true;
 
     // Promote to float for calculations

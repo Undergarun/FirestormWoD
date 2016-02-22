@@ -38,6 +38,7 @@ class boss_flamebender_kagraz : public CreatureScript
             CharringBreathDamage        = 155074,
             Singe                       = 155049,
             FirestormMoltenBolt         = 163630,
+            FlamebenderKagrazBonusLoot  = 177534,
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
@@ -266,6 +267,9 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 summons.DespawnAll();
 
+                me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
+                me->DespawnCreaturesInArea(eCreatures::OverheatedCinderWolf, 200.0f);
+
                 _JustDied();
 
                 if (m_Instance != nullptr)
@@ -277,6 +281,16 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CharringBreathDamage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
+
+                    if (Creature* l_Aknor = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::AknorSteelbringer)))
+                    {
+                        l_Aknor->setFaction(eFoundryDatas::FriendlyFaction);
+                        l_Aknor->CombatStop();
+                        l_Aknor->RemoveAllAuras();
+                        l_Aknor->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+                    }
                 }
             }
 
@@ -454,6 +468,12 @@ class boss_flamebender_kagraz : public CreatureScript
                         break;
                 }
 
+                if (!me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!UpdateVictim() || m_Firestorm)
                     return;
 
@@ -467,13 +487,13 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eEvents::EventLavaSlash:
                     {
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
                                 me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
                         m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
@@ -484,13 +504,9 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eEvents::EventSummonEnchantedArmament:
                     {
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
-                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
-                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
 
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
@@ -870,24 +886,27 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
                         Position l_Dest = p_Dest->_position;
                         Position l_Src  = *me;
 
-                        AddTimedDelayedOperation(200, [this, l_Dest, l_Src]() -> void
+                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
                         {
-                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
-                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            if (Creature* l_Kagraz = me->FindNearestCreature(eFoundryCreatures::BossFlamebenderKagraz, 100.0f))
                             {
-                                Position l_Target;
+                                uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                                for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                                {
+                                    Position l_Target;
 
-                                float l_O = l_Src.GetAngle(&l_Dest);
-                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
-                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
-                                float l_Z = l_Src.m_positionZ;
+                                    float l_O = l_Src.GetAngle(&l_Dest);
+                                    float l_X = l_Src.m_positionX + (l_I * cos(l_O));
+                                    float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
+                                    float l_Z = l_Src.m_positionZ;
 
-                                l_Target.m_positionX    = l_X;
-                                l_Target.m_positionY    = l_Y;
-                                l_Target.m_positionZ    = l_Z;
-                                l_Target.m_orientation  = l_O;
+                                    l_Target.m_positionX    = l_X;
+                                    l_Target.m_positionY    = l_Y;
+                                    l_Target.m_positionZ    = l_Z;
+                                    l_Target.m_orientation  = l_O;
 
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                    l_Kagraz->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                }
                             }
                         });
 
@@ -1017,7 +1036,7 @@ class npc_foundry_lava_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
                 me->RemoveAura(eSpells::FirestormV2Periodic);
 
@@ -1372,6 +1391,19 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
             void Reset() override
             {
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SLEEP, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
+
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
 
                 m_Events.Reset();
@@ -1628,7 +1660,14 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
                 if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath && m_CurrAction == eActions::ActionOverheated)
                 {
-                    me->CastSpell(me, eSpells::CharringBreathDamage, true);
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        me->SetFacingTo(me->GetAngle(l_Target));
+
+                    AddTimedDelayedOperation(50, [this]() -> void
+                    {
+                        me->CastSpell(me, eSpells::CharringBreathDamage, true);
+                    });
+
                     m_Events.ScheduleEvent(eEvent::EventCharringBreath, 7 * TimeConstants::IN_MILLISECONDS);
                 }
 

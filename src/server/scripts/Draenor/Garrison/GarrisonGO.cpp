@@ -124,7 +124,7 @@ namespace MS { namespace Garrison
         if (!p_Player || !p_Player->GetGarrison())
             return false;
 
-        Garrison::Manager            * l_Garrison   = p_Player->GetGarrison();
+        Garrison::Manager* l_Garrison               = p_Player->GetGarrison();
         std::vector<GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
 
         uint32 l_ThisGobPlotInstanceID = l_Garrison->GetGameObjectPlotInstanceID(go->GetGUID());
@@ -157,6 +157,7 @@ namespace MS { namespace Garrison
 
             /// Adding items
             uint32 l_NoSpaceForCount = 0;
+            uint32 l_ItemCount = l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
 
             /// check space and find places
             ItemPosCountVec l_Destination;
@@ -399,8 +400,8 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    go_garrison_small_timber::go_garrison_small_timber()
-        : GameObjectScript("go_garrison_small_timber")
+    go_garrison_timber::go_garrison_timber()
+        : GameObjectScript("go_garrison_timber")
     {
     }
 
@@ -409,16 +410,16 @@ namespace MS { namespace Garrison
 
     /// Called when a GameObjectAI object is needed for the GameObject.
     /// @p_GameObject : GameObject instance
-    GameObjectAI* go_garrison_small_timber::GetAI(GameObject* p_GameObject) const
+    GameObjectAI* go_garrison_timber::GetAI(GameObject* p_GameObject) const
     {
-        return new go_garrison_small_timberAI(p_GameObject);
+        return new go_garrison_timberAI(p_GameObject);
     }
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    go_garrison_small_timber::go_garrison_small_timberAI::go_garrison_small_timberAI(GameObject* p_GameObject)
+    go_garrison_timber::go_garrison_timberAI::go_garrison_timberAI(GameObject* p_GameObject)
         : GameObjectAI(p_GameObject)
     {
         /// Small Timbers
@@ -432,18 +433,44 @@ namespace MS { namespace Garrison
         m_TimberDisplayIDs.insert(std::make_pair(234110, 19580)); ///< Shadowmoon Valley
         m_TimberDisplayIDs.insert(std::make_pair(233922, 19864)); ///< Frostfire Ridge
         m_TimberDisplayIDs.insert(std::make_pair(234097, 19575)); ///< Talador
+
+        /// Medium Timbers
+
+        m_TimberDisplayIDs.insert(std::make_pair(234000, 19188)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234022, 19474)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234098, 19576)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234119, 19474)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234123, 19586)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234127, 19593)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234194, 19772)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234196, 19812)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234198, 19777)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(233634, 14682)); ///< Unk yet
+
+        /// Large Timbers
+
+        m_TimberDisplayIDs.insert(std::make_pair(234000, 19188)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234022, 19474)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234098, 19576)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234119, 19474)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234123, 19586)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234127, 19593)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234194, 19772)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234196, 19812)); ///< Unk yet
     }
 
-    bool go_garrison_small_timber::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    bool go_garrison_timber::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
     {
         if (!p_GameObject->AI())
             return false;
 
-        if (p_GameObject->GetName() == "Small Timber")
+        using namespace LumberMillData;
+
+        if (std::find(g_SmallTimber.begin(), g_SmallTimber.end(), p_GameObject->GetEntry()) != g_SmallTimber.end())
             p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(4, 6));
-        else if (p_GameObject->GetName() == "Timber")
+        else if (std::find(g_MediumTimber.begin(), g_MediumTimber.end(), p_GameObject->GetEntry()) != g_MediumTimber.end())
             p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(8, 10));
-        else if (p_GameObject->GetName() == "Large Timber")
+        else if (std::find(g_LargeTimber.begin(), g_LargeTimber.end(), p_GameObject->GetEntry()) != g_LargeTimber.end())
             p_GameObject->AI()->SetData64(eDatas::ChopCount, urand(16, 25));
 
         p_GameObject->AI()->SetData64(eDatas::AnimTimer, 5000);
@@ -454,9 +481,9 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    void go_garrison_small_timber::go_garrison_small_timberAI::DoAction(const int32 p_Action)
+    void go_garrison_timber::go_garrison_timberAI::DoAction(const int32 p_Action)
     {
-        if (p_Action == 1)
+        if (p_Action == eDatas::ActionGossip)
         {
             if (Player* l_Player = sObjectAccessor->FindPlayer(m_PlayerGuid))
             {
@@ -470,7 +497,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void go_garrison_small_timber::go_garrison_small_timberAI::SetData64(uint32 p_Id, uint64 p_Value)
+    void go_garrison_timber::go_garrison_timberAI::SetData64(uint32 p_Id, uint64 p_Value)
     {
         switch (p_Id)
         {
@@ -488,7 +515,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void go_garrison_small_timber::go_garrison_small_timberAI::UpdateAI(uint32 p_Diff)
+    void go_garrison_timber::go_garrison_timberAI::UpdateAI(uint32 p_Diff)
     {
         if (m_AnimTimer)
         {
@@ -506,7 +533,7 @@ namespace MS { namespace Garrison
 
                         /// check space and find places
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimberSample, 1, &l_NoSpaceForCount);
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimberSample, m_ChopCount, &l_NoSpaceForCount);
 
                         if (l_Message == EQUIP_ERR_OK)
                             l_Player->StoreNewItem(l_Destination, Items::ItemTimberSample, true, Item::GenerateItemRandomPropertyId(Items::ItemTimberSample));
@@ -520,7 +547,7 @@ namespace MS { namespace Garrison
 
                         /// check space and find places
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimber, 1, &l_NoSpaceForCount);
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimber, m_ChopCount, &l_NoSpaceForCount);
 
                         if (l_Message == EQUIP_ERR_OK)
                             l_Player->StoreNewItem(l_Destination, Items::ItemTimber, true, Item::GenerateItemRandomPropertyId(Items::ItemTimber));
@@ -753,6 +780,6 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_herb;
     new MS::Garrison::go_garrison_deposit;
     new MS::Garrison::gob_IronTrap_Garrison;
-    new MS::Garrison::go_garrison_small_timber;
+    new MS::Garrison::go_garrison_timber;
     new MS::Garrison::go_garrison_essence_font;
 }
