@@ -677,7 +677,7 @@ namespace MS
                                 && l_CurrentSpell
                                 && l_CurrentSpell->GetUnitTarget()
                                 && l_CurrentSpell->GetUnitTarget()->ToPlayer() != l_ClosestPlayerInBeam)
-                                l_SelectedSolarConstructor->CastSpell(l_ClosestPlayerInBeam, uint32(RandomSpells::ENERGIZE_DMG), false, nullptr, NULLAURA_EFFECT, m_AraknathGuid);
+                                l_SelectedSolarConstructor->CastSpell(l_ClosestPlayerInBeam, uint32(RandomSpells::ENERGIZE_DMG), false, nullptr, nullptr, m_AraknathGuid);
                             else if (!l_ClosestPlayerInBeam
                                 && l_CurrentSpell
                                 && l_CurrentSpell->GetUnitTarget()

@@ -453,7 +453,7 @@ class spell_queen_azshara_coldflame: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(constAuraEffectPtr aurEff)
+            void PeriodicTick(AuraEffect const* aurEff)
             {
                 if (!GetCaster())
                     return;

@@ -323,7 +323,7 @@ class spell_kiptilak_sabotage: public SpellScriptLoader
         {
             PrepareAuraScript(spell_kiptilak_sabotage_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
 

@@ -1301,8 +1301,8 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 }
             }
 
-            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
-            if (aura != NULLAURA)
+            Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
+            if (aura != nullptr)
             {
                 if (!aura->CanBeSaved())
                 {
@@ -1334,7 +1334,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         if (!itr->second->CanBeSaved() || IsPetAura(itr->second))
             continue;
 
-        AuraPtr aura = itr->second;
+        Aura* aura = itr->second;
         AuraApplication * foundAura = GetAuraApplication(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID());
 
         if (!foundAura)
@@ -1777,7 +1777,7 @@ void Pet::CastPetAura(PetAura const* aura)
     CastSpell(this, auraId, true);
 }
 
-bool Pet::IsPetAura(constAuraPtr aura)
+bool Pet::IsPetAura(Aura const* aura)
 {
     Unit* owner = GetOwner();
 
