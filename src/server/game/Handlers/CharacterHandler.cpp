@@ -2103,7 +2103,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     uint32 l_AtLoginFlag    = l_Fields[3].GetUInt16();
     auto   l_KnownTitlesStr = l_Fields[4].GetCString();
     uint32 l_PlayerBytes    = l_Fields[5].GetUInt32();
-    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///w L_playerbyte2 is never read 01/18/16
+    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///< L_playerbyte2 is never read 01/18/16
 
     /// - If client doesn't send value, get the old from database & use it
     {

@@ -82,7 +82,7 @@ class garrison_commandscript: public CommandScript
 
             static ChatCommand shipyardCommandTable[] =
             {
-                { "open",       SEC_ADMINISTRATOR, false, &HandleShipyardOpen, NULL      },
+                { "open",       SEC_ADMINISTRATOR, false, &HandleShipyardOpen, NULL      }, ///< Missing field 'ChildCommands' initializer
                 { NULL,         0,                 false, NULL, "", NULL                 }
             };
 

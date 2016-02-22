@@ -1055,12 +1055,12 @@ public:
 class HealInfo
 {
 private:
-    Unit* const m_healer;
-    Unit* const m_target;
+    Unit* const m_healer; ///< unused
+    Unit* const m_target; ///< unused
     uint32 m_heal;
     uint32 m_absorb;
-    SpellInfo const* const m_spellInfo;
-    SpellSchoolMask const m_schoolMask;
+    SpellInfo const* const m_spellInfo; ///< unused
+    SpellSchoolMask const m_schoolMask; ///< unused
 public:
     explicit HealInfo(Unit* _healer, Unit* _target, uint32 _heal, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask)
         : m_healer(_healer), m_target(_target), m_heal(_heal), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask)

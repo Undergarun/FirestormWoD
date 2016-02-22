@@ -258,7 +258,7 @@ struct CreatureBaseStats
         return uint32((BaseArmor * info->ModArmor) + 0.5f);
     }
 
-    float GenerateBaseDamage(CreatureTemplate const* info) const
+    float GenerateBaseDamage(CreatureTemplate const* info) const ///< info unused parameter
     {
        return BaseDamage;
     }

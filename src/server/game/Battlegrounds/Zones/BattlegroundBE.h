@@ -68,6 +68,6 @@ class BattlegroundBE : public Battleground
         bool HandlePlayerUnderMap(Player* player);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundBE::UpdatePlayerScore' hides overloaded virtual function
 };
 #endif

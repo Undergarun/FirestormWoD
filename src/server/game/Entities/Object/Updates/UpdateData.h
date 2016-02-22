@@ -57,12 +57,9 @@ class UpdateData
 {
     public:
         UpdateData(uint16 map);
-        UpdateData(UpdateData&& right) : m_blockCount(right.m_blockCount),
+        UpdateData(UpdateData&& right) : m_map(right.m_map), m_blockCount(right.m_blockCount),
             m_outOfRangeGUIDs(std::move(right.m_outOfRangeGUIDs)),
-            m_data(std::move(right.m_data)),
-            m_map(right.m_map)
-        {
-        }
+            m_data(std::move(right.m_data)) {}
 
         void AddOutOfRangeGUID(std::set<uint64>& guids);
         void AddOutOfRangeGUID(uint64 guid);

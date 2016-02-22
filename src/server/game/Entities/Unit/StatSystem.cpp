@@ -357,7 +357,7 @@ void Player::UpdateMaxPower(Powers p_Power)
 
     AuraEffectList const& mModMaxPower = GetAuraEffectsByType(SPELL_AURA_MOD_MAX_POWER);
     for (AuraEffectList::const_iterator i = mModMaxPower.begin(); i != mModMaxPower.end(); ++i)
-        if (p_Power == (*i)->GetMiscValue())
+        if (p_Power == (*i)->GetMiscValue()) ///< Comparison of integers of different signs: 'Powers' and 'int32' (aka 'int')
             l_Value += float((*i)->GetAmount());
 
         l_Value = floor(l_Value + 0.5f);
@@ -561,7 +561,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 }
 
-void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon) ///< attType is unused
 {
     float l_NormalizedSpeedCoef = 1.0f;
 
@@ -1227,7 +1227,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
 {
     float l_Variance = 1.f;
     UnitMods l_UnitMod;
@@ -1606,7 +1606,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 }
 
 /// WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
 {
     UnitMods l_UnitMod;
     switch (p_AttType)

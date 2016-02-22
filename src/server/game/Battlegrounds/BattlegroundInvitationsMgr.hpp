@@ -79,8 +79,8 @@ namespace MS
         class BGQueueInviteEvent : public BasicEvent
         {
         public:
-            BGQueueInviteEvent(uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
-                m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime), BasicEvent()
+            BGQueueInviteEvent (BasicEvent(), uint64 pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
+                m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime)
             {
             }
 
@@ -103,8 +103,8 @@ namespace MS
         class BGQueueRemoveEvent : public BasicEvent
         {
         public:
-            BGQueueRemoveEvent(uint64 pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundType::Type p_BgType, uint32 removeTime)
-                : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgType(p_BgType), BasicEvent()
+            BGQueueRemoveEvent(BasicEvent(), uint64 pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundType::Type p_BgType, uint32 removeTime)
+                : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgType(p_BgType)
             {
             }
 

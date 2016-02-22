@@ -221,7 +221,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
     SetTrajectory(AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
-    if (p_Duration != -1)
+    if (p_Duration != -1) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
         SetUInt32Value(AREATRIGGER_FIELD_DURATION, p_Duration);
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
