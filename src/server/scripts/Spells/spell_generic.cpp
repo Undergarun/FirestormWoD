@@ -925,17 +925,8 @@ class spell_generic_clone: public SpellScriptLoader
 
             void Register()
             {
-                /// Nightmare Figment Mirror Image
-                if (m_scriptSpellId == 57528)
-                {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
-                }
-                else
-                {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
-                }
+                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -3800,7 +3791,7 @@ class spell_gen_dampening : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Drums of Fury - 178207
+/// Drums of Fury - 178207, Drums of Rage - 146555
 class spell_gen_drums_of_fury : public SpellScriptLoader
 {
     public:
@@ -3812,73 +3803,48 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                Exhausted            = 57723,
-                Insanity             = 95809,
-                Sated                = 57724,
+                Exhausted = 57723,
+                Insanity = 95809,
+                Sated = 57724,
                 TemporalDisplacement = 80354,
-                Fatigued             = 160455,
-                BloodLust            = 2825,
-                TimeWarp             = 80353
+                Fatigued = 160455
             };
 
-            SpellCastResult CheckCast()
+            void HandleImmunity(SpellEffIndex p_EffIndex)
             {
-                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Caster->HasAura(eSpells::Exhausted))
-                    return SPELL_FAILED_DONT_REPORT;
+                if (l_Target == nullptr)
+                    return;
 
-                return SPELL_CAST_OK;
+                if (l_Target->HasAura(eSpells::Exhausted) || l_Target->HasAura(eSpells::Insanity) ||
+                    l_Target->HasAura(eSpells::Sated) || l_Target->HasAura(eSpells::TemporalDisplacement) ||
+                    l_Target->HasAura(eSpells::Fatigued))
+                    PreventHitAura();
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            void HandleAfterHit()
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Insanity));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Exhausted));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Fatigued));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
-            }
+                Unit* l_Target = GetHitUnit();
 
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_gen_drums_of_fury_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-            }
-        };
+                if (l_Target == nullptr)
+                    return;
 
-        class spell_gen_drums_of_fury_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_drums_of_fury_AuraScript);
-
-            enum eSpells
-            {
-                Exhausted = 57723
-            };
-
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
-            {
-                if (Unit* l_Target = GetTarget())
+                if (!l_Target->HasAura(eSpells::Exhausted))
                     l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
             }
 
             void Register()
             {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+                AfterHit += SpellHitFn(spell_gen_drums_of_fury_SpellScript::HandleAfterHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_drums_of_fury_SpellScript();
-        }
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_drums_of_fury_AuraScript();
         }
 };
 
@@ -5453,7 +5419,7 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+                l_Player->RestoreDisplayId();
             }
 
             void Register()
@@ -5468,6 +5434,56 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
             return new spell_gen_jewel_of_hellfire_AuraScript();
         }
 };
+
+/// Last Update 6.2.3
+/// Ironbeard's Hat - 188228
+class spell_gen_ironbeards_hat : public SpellScriptLoader
+{
+    public:
+        spell_gen_ironbeards_hat() : SpellScriptLoader("spell_gen_ironbeards_hat") { }
+
+        class  spell_gen_ironbeards_hat_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ironbeards_hat_AuraScript);
+
+            enum eDatas
+            {
+                Morph = 63424
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->SetDisplayId(eDatas::Morph);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_ironbeards_hat_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_ironbeards_hat_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_ironbeards_hat_AuraScript();
+        }
+};
+
 /// Support for Pilfering Perfume quest(A:24656 H:24541)
 enum ServiceUniform
 {
@@ -5516,7 +5532,7 @@ class spell_gen_service_uniform : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
                 
-                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+                l_Player->RestoreDisplayId();
             }
             
             void Register()
@@ -5532,8 +5548,92 @@ class spell_gen_service_uniform : public SpellScriptLoader
     }
 };
 
+/// Last Update 6.2.3
+/// Coin of Many Faces - 192225
+class spell_gen_coin_of_many_faces : public SpellScriptLoader
+{
+    public:
+        spell_gen_coin_of_many_faces() : SpellScriptLoader("spell_gen_coin_of_many_faces") { }
+
+        class  spell_gen_coin_of_many_faces_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_coin_of_many_faces_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                CreatureTemplate const* l_CreatureTemplate = sObjectMgr->GetRandomTemplate(CreatureType::CREATURE_TYPE_HUMANOID);
+
+                if (l_CreatureTemplate != nullptr)
+                    l_Player->SetDisplayId(l_CreatureTemplate->Modelid1);
+           }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_coin_of_many_faces_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_coin_of_many_faces_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_coin_of_many_faces_AuraScript();
+        }
+};
+
+/// Called by Spirit of Chi-Ji (146199), Essence of Yu'lon (146197), Endurance of Niuzao (146193), Flurry of Xuen (146195)
+class spell_legendary_cloaks : public SpellScriptLoader
+{
+public:
+    spell_legendary_cloaks() : SpellScriptLoader("spell_legendary_cloaks") { }
+
+    class spell_legendary_cloaks_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_legendary_cloaks_AuraScript);
+
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+            if (l_Attacker == nullptr)
+                return;
+
+            /// Doesn't work on 100lvl in WOD
+            if (l_Attacker->getLevel() == 100)
+                return;
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_legendary_cloaks_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_legendary_cloaks_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_ironbeards_hat();
+    new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
     new spell_gen_jewel_of_hellfire_trigger();
     new spell_reconfigured_remote_shock();
@@ -5637,6 +5737,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
     new spell_gen_service_uniform();
+    new spell_legendary_cloaks();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
