@@ -509,10 +509,13 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
     else
     {
-        // Teleport players, they need to know it
-        for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
+        /// That will be better to teleport it server-side too, but since 6.2.3 when we send SMSG_MOVE_TELEPORT with transport guid the client teleport the player to invalid position
+        /// The client will do the teleporation client-side and send the new position to the server anyway
+
+        /// Teleport players, they need to know it
+        /*for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
             if ((*itr)->IsPlayer())
-                (*itr)->ToUnit()->NearTeleportTo(x, y, z, GetOrientation());
+                (*itr)->ToUnit()->NearTeleportTo(x, y, z, GetOrientation());*/
     }
 
     UpdatePosition(x, y, z, GetOrientation());

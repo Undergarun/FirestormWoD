@@ -103,6 +103,9 @@ namespace MS
             /// Try to make matches with the queued groups.
             void FindMatches();
 
+            /// Try to create a battleground
+            bool TryCreateBattleground(BattlegroundType::Type p_DecidedBg, std::vector<std::list<GroupQueueInfo*>>& p_PotentialGroups, std::size_t p_BracketId);
+
         private:
             /// Allocates the groups in the existing battlegrounds depending on different criteria and respecting eligibility.
             /// @p_BracketId    : The bracket id.

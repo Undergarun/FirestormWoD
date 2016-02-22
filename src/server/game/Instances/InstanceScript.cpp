@@ -1292,6 +1292,9 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
 
                 PreparedQueryResult l_Result = CharacterDatabase.AsyncQuery(l_Statement, [l_Index, l_Flag, l_LowGuid](PreparedQueryResult const& p_Result) -> void
                 {
+                    if (!p_Result)
+                        return;
+
                     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
                     Field* l_Fields = p_Result->Fetch();

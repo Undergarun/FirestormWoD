@@ -2074,13 +2074,13 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     Unit const* unitTarget = target->ToUnit();
 
-     // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
-     if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
+    if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
+        return SPELL_FAILED_BAD_TARGETS;
 
-     // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
+    if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
+        return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks
     if (unitTarget)
