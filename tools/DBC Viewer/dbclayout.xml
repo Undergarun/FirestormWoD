@@ -6904,4 +6904,27 @@
     <field type="int" name="itemupgradeid" />
     <field type="int" name="itemid" />
   </RulesetItemUpgrade>
+  <Scenario build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+    <field type="int" name="field2" />
+  </Scenario>
+  <ScenarioStep build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="string" name="field4" />
+    <field type="string" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+  </ScenarioStep>
 </DBFilesClient>

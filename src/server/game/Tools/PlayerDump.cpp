@@ -1008,12 +1008,17 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                         ROLLBACK(DUMP_FILE_BROKEN);
                     }
 
+                    l_Index = GetFieldIndexFromColumn("itemEntry", l_Columns) + 1;
+                    uint32 l_ItemEntry = atoi(getnth(l_Line, l_Index).c_str());
+
+                    // Delete Sapphire/Jade/Sunstone/Ruby Panther
+                    if (l_ItemEntry == 83090 || l_ItemEntry == 83088 || l_ItemEntry == 83089 || l_ItemEntry == 83087)
+                        l_AllowedAppend = false;
+
                     uint32 flags = atoi(l_Line.substr(s, e - s).c_str());
+
                     if (!(flags & 1))
                     {
-                        l_Index = GetFieldIndexFromColumn("itemEntry", l_Columns) + 1;
-                        uint32 l_ItemEntry = atoi(getnth(l_Line, l_Index).c_str());
-
                         /// Don't delete sac even if they aren't bounded, cause items can be inside
                         ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(l_ItemEntry);
                         if (l_Item && l_Item->InventoryType != INVTYPE_BAG)

@@ -11,6 +11,7 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "../GarrisonScriptData.hpp"
 
 enum
 {
@@ -33,7 +34,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Get an instance script instance
     /// @p_Map : Target map
-    InstanceScript * InstanceMapScript_GarrisonAllianceLevel1::GetInstanceScript(InstanceMap * p_Map) const
+    InstanceScript* InstanceMapScript_GarrisonAllianceLevel1::GetInstanceScript(InstanceMap* p_Map) const
     {
         return new InstanceScript_GarrisonAllianceLevel1(p_Map);
     }
@@ -71,7 +72,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// When the owner enter in the garrison
     /// @p_Owner : Owner instance
-    void InstanceScript_GarrisonAllianceLevel1::OnOwnerEnter(Player * p_Owner)
+    void InstanceScript_GarrisonAllianceLevel1::OnOwnerEnter(Player* p_Owner)
     {
 
     }
@@ -82,7 +83,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// When the garrison owner started a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Started quest
-    void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player * p_Owner, const Quest * p_Quest)
+    void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
         /// Hack fix for storehouse, need more work
         if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition)
@@ -91,14 +92,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Rewarded quest
-    void InstanceScript_GarrisonAllianceLevel1::OnQuestReward(Player * p_Owner, const Quest * p_Quest)
+    void InstanceScript_GarrisonAllianceLevel1::OnQuestReward(Player* p_Owner, const Quest* p_Quest)
     {
 
     }
     /// When the garrison owner abandon a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Abandoned quest
-    void InstanceScript_GarrisonAllianceLevel1::OnQuestAbandon(Player * p_Owner, const Quest * p_Quest)
+    void InstanceScript_GarrisonAllianceLevel1::OnQuestAbandon(Player* p_Owner, const Quest* p_Quest)
     {
 
     }
@@ -108,7 +109,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Get phase mask
     /// @p_Owner : Garrison owner
-    uint32 InstanceScript_GarrisonAllianceLevel1::GetPhaseMask(Player * p_Owner)
+    uint32 InstanceScript_GarrisonAllianceLevel1::GetPhaseMask(Player* p_Owner)
     {
         uint32 l_PhaseMask = GARRISON_PHASE_BASE;
 
@@ -126,7 +127,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Owner can use the garrison cache ?
     /// @p_Owner : Garrison owner
-    bool InstanceScript_GarrisonAllianceLevel1::CanUseGarrisonCache(Player * p_Owner)
+    bool InstanceScript_GarrisonAllianceLevel1::CanUseGarrisonCache(Player* p_Owner)
     {
         if (p_Owner->GetQuestStatus(Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
             || p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
@@ -141,7 +142,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// Can upgrade the garrison
     /// @p_Owner                : Garrison owner
     /// @p_CurrentGarrisonLevel : Current garrison level
-    bool InstanceScript_GarrisonAllianceLevel1::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
+    bool InstanceScript_GarrisonAllianceLevel1::CanUpgrade(Player* p_Owner, uint32 p_CurrentGarrisonLevel)
     {
         if (p_CurrentGarrisonLevel != 1)
             return false;
@@ -157,7 +158,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// On upgrade the garrison
     /// @p_Owner : Garrison owner
-    void InstanceScript_GarrisonAllianceLevel1::OnUpgrade(Player * p_Owner)
+    void InstanceScript_GarrisonAllianceLevel1::OnUpgrade(Player* p_Owner)
     {
         GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
 
@@ -176,7 +177,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonAllianceLevel1::OnMissionStart(Player * p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonAllianceLevel1::OnMissionStart(Player* p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
     {
 
     }
@@ -184,23 +185,59 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
     /// @p_BaseTime   : Default build time
-    uint32 InstanceScript_GarrisonAllianceLevel1::OnPrePurchaseBuilding(Player * p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
+    uint32 InstanceScript_GarrisonAllianceLevel1::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
         return p_BaseTime;
     }
     /// When a construction start
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonAllianceLevel1::OnPurchaseBuilding(Player * p_Owner, uint32 p_BuildingID)
+    void InstanceScript_GarrisonAllianceLevel1::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
 
     }
     /// When a building is activated
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonAllianceLevel1::OnBuildingActivated(Player * p_Owner, uint32 p_BuildingID)
+    void InstanceScript_GarrisonAllianceLevel1::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Owner->GetGarrison())
+        {
+            uint8 l_BuildingLevel = l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(p_BuildingID));
+
+            switch (p_BuildingID)
+            {
+                case Buildings::LumberMill_LumberMill_Level1:
+                case Buildings::LumberMill_LumberMill_Level2:
+                case Buildings::LumberMill_LumberMill_Level3:
+                    p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    /// When a building from the same type with higher level is purchased
+    /// @p_Owner      : Garrison owner
+    /// @p_BuildingID : Purchased building ID
+    void InstanceScript_GarrisonAllianceLevel1::OnUpgradeBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
 
+    }
+
+    void InstanceScript_GarrisonAllianceLevel1::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    {
+        if (p_RemoveForUpgrade)
+            return;
+
+        switch (p_BuildingType)
+        {
+            case BuildingType::Type::LumberMill:
+                p_Owner->SetSkill(SkillType::SKILL_LOGGING, 0, 0, 0);
+                break;
+            default:
+                break;
+        }
     }
 
 }   ///< namespace Sites

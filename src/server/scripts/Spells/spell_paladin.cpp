@@ -138,7 +138,8 @@ enum PaladinSpells
     PALADIN_PVP_RETRIBUTION_2P_BONUS            = 165886,
     PALADIN_SPELL_RIGHTEOUS_DETERMINATION       = 165889,
     PALADIN_PVP_RETRIBUTION_4P_BONUS            = 165895,
-    PALADIN_VINDICATORS_FURY                    = 165903
+    PALADIN_VINDICATORS_FURY                    = 165903,
+    PALADIN_HOLY_POWER_ENERGIZE                 = 138248
 };
 
 /// Glyph of devotion aura - 146955
@@ -411,7 +412,7 @@ class spell_pal_daybreak: public SpellScriptLoader
                     if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_AURA))
                         l_Caster->CastSpell(l_Caster, PALADIN_SPELL_DAYBREAK_PROC, true);
 
-                    l_Caster->CastSpell(l_Caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                    l_Caster->CastSpell(l_Caster, PALADIN_HOLY_POWER_ENERGIZE, true);
                 }
             }
 
@@ -684,17 +685,36 @@ class spell_pal_sacred_shield: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
 
+            enum eSpells
+            {
+                SacredShield = 65148
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::SacredShield, true);
+            }
+
             void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetTarget())
-                        l_Caster->CastSpell(l_Target, PALADIN_SPELL_SACRED_SHIELD, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::SacredShield, true);
             }
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sacred_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_sacred_shield_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1018,6 +1038,12 @@ class spell_pal_divine_shield: public SpellScriptLoader
 {
     public:
         spell_pal_divine_shield() : SpellScriptLoader("spell_pal_divine_shield") { }
+        
+
+        enum eSpells
+        {
+            Cyclone = 33786
+        };
 
         class spell_pal_divine_shield_SpellScript : public SpellScript
         {
@@ -1028,8 +1054,16 @@ class spell_pal_divine_shield: public SpellScriptLoader
             SpellCastResult CheckForbearance()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_FORBEARANCE))
                         return SPELL_FAILED_TARGET_AURASTATE;
+
+                    /// Divine Shield can be casted even in Cyclone
+                    /// To prevent hacks with MiscValues on this aura effect SPELL_AURA_SCHOOL_IMMUNITY - let's remove cyclone here 
+                    if (l_Caster->HasAura(eSpells::Cyclone))
+                        l_Caster->RemoveAura(eSpells::Cyclone);
+
+                }
 
                 return SPELL_CAST_OK;
             }
@@ -2000,39 +2034,6 @@ class spell_pal_holy_shock_heal: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pal_holy_shock_heal_SpellScript();
-        }
-};
-
-/// Holy Shock (damage) - 25912
-class spell_pal_holy_shock_damage: public SpellScriptLoader
-{
-    public:
-        spell_pal_holy_shock_damage() : SpellScriptLoader("spell_pal_holy_shock_damage") { }
-
-        class spell_pal_holy_shock_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_holy_shock_damage_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->getLevel() < 85)
-                        SetHitDamage(CalculatePct(GetHitDamage(), 15));
-                    else if (l_Caster->getLevel() < 90)
-                        SetHitDamage(CalculatePct(GetHitDamage(), 61));
-                }
-            }
-            
-            void Register() override
-            {
-                OnHit += SpellHitFn(spell_pal_holy_shock_damage_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_holy_shock_damage_SpellScript();
         }
 };
 
@@ -3805,6 +3806,55 @@ public:
     }
 };
 
+/// Glyph of the Luminous Charger - 89401
+/// Called by: Summon Warhorse - 13819, Summon Sunwalker Kodo - 69820, Summon Thalassian Warhorse - 34769, Summon Exarch's Elekk - 73629, Summon Great Sunwalker Kodo - 69826.
+/// Called by: Summon Charger - 23214, Summon Thalassian Charger - 34767, Summon Great Exarch's Elekk - 73630.
+class spell_pal_glyph_of_the_luminous_charger : public SpellScriptLoader
+{
+public:
+    spell_pal_glyph_of_the_luminous_charger() : SpellScriptLoader("spell_pal_glyph_of_the_luminous_charger") { }
+
+    class spell_pal_glyph_of_the_luminous_charger_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_glyph_of_the_luminous_charger_AuraScript);
+
+        enum eSpells
+        {
+            SpellPaladinLuminousCharger = 126666,
+            SpellPaladinGlyphOfTheLuminousCharger = 89401,
+        };
+
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(eSpells::SpellPaladinGlyphOfTheLuminousCharger))
+                    l_Caster->CastSpell(l_Caster, eSpells::SpellPaladinLuminousCharger, true);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(eSpells::SpellPaladinLuminousCharger))
+                    l_Caster->RemoveAura(eSpells::SpellPaladinLuminousCharger);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pal_glyph_of_the_luminous_charger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pal_glyph_of_the_luminous_charger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_glyph_of_the_luminous_charger_AuraScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_pillar_of_light();
@@ -3857,7 +3907,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_ardent_defender();
     new spell_pal_blessing_of_faith();
     new spell_pal_holy_shock_heal();
-    new spell_pal_holy_shock_damage();
     new spell_pal_holy_shock();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
@@ -3874,6 +3923,9 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_avengers_shield();
     new spell_pal_t17_protection_4p();
     new spell_pal_grand_crusader();
+    new spell_pal_sword_of_light_damage();
+    new spell_pal_glyph_of_denounce();
+    new spell_pal_glyph_of_the_luminous_charger();
 
     /// PlayerScripts
     new PlayerScript_empowered_divine_storm();

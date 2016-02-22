@@ -621,6 +621,17 @@ enum BattlegroundRandomRewards
     BG_REWARD_LOSER_HONOR_LAST      = 3500
 };
 
+namespace ArenaSkirmishRewards
+{
+    enum
+    {
+        ConquestPointsWinner            = 2500,
+        HonorPointsWinnerBase           = 3600,
+        HonorPointsWinnerBonusPerMinute = 900,
+        HonorPointLoser                 = 3500
+    };
+}
+
 const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
 
 enum BattlegroundStatus

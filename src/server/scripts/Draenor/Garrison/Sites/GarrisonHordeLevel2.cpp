@@ -185,7 +185,67 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonHordeLevel2::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
     {
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Owner->GetGarrison())
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingID);
 
+            if (l_BuildingEntry)
+            {
+                uint8 l_BuildingLevel = l_BuildingEntry->Level;
+
+                switch (p_BuildingID)
+                {
+                    case Buildings::LumberMill_LumberMill_Level1:
+                    case Buildings::LumberMill_LumberMill_Level2:
+                    case Buildings::LumberMill_LumberMill_Level3:
+                        p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    /// When a building from the same type with higher level is purchased
+    /// @p_Owner      : Garrison owner
+    /// @p_BuildingID : Purchased building ID
+    void InstanceScript_GarrisonHordeLevel2::OnUpgradeBuilding(Player* p_Owner, uint32 p_BuildingID)
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Owner->GetGarrison())
+        {
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingID);
+
+            if (l_BuildingEntry)
+            {
+                uint8 l_BuildingLevel = l_BuildingEntry->Level;
+
+                switch (p_BuildingID)
+                {
+                    case Buildings::LumberMill_LumberMill_Level1:
+                    case Buildings::LumberMill_LumberMill_Level2:
+                    case Buildings::LumberMill_LumberMill_Level3:
+                        p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    void InstanceScript_GarrisonHordeLevel2::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    {
+        if (p_RemoveForUpgrade)
+            return;
+
+        switch (p_BuildingType)
+        {
+            case BuildingType::Type::LumberMill:
+                p_Owner->SetSkill(SkillType::SKILL_LOGGING, 0, 0, 0);
+                break;
+            default:
+                break;
+        }
     }
 
 }   ///< namespace Sites
