@@ -14535,25 +14535,19 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT)
             {
                 Unit* pOwner = GetCharmerOrOwner();
-                if ((isPet() || isGuardian()) && pOwner) // Must check for owner or crash on "Tame Beast"
+                if ((isPet() || isGuardian()) && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
                 {
-                    float base_rate = 1.14f; // base speed is 114% of owner speed
+                    // For every yard over 5, increase speed by 0.01
+                    //  to help prevent pet from lagging behind and despawning
+                    float dist = GetDistance(pOwner);
+                    float base_rate = 1.00f; // base speed is 100% of owner speed
 
-                    if (!isInCombat())
-                    {
-                        // For every yard over 5, increase speed by 0.01
-                        //  to help prevent pet from lagging behind and despawning
-                        float dist = GetDistance(pOwner);
+                    if (dist < 1.0f)
+                        dist = 1.0f;
 
-                        if (dist < 5)
-                            dist = 5;
+                    float mult = base_rate + (dist >= 1.0f ? std::min(0.5f, ((dist - 1.0f) * 0.05f)) : 0.0f);
 
-                        float mult = base_rate + ((dist - 5) * 0.01f);
-
-                        speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
-                    }
-                    else
-                        speed *= base_rate;
+                    speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
                 }
                 else
                     speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
@@ -14615,24 +14609,23 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         rate = 0.01f;
 
     // Update speed only on change
-    bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
+    if (m_speed_rate[p_MovementType] == rate)
+        return;
 
     /// Walk speed can't be faster then run speed
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
-    float l_OldRate = m_speed_rate[p_MovementType]; ///< l_oldrate is never read 01/18/16
     m_speed_rate[p_MovementType] = rate;
 
-    if (!clientSideOnly)
-        propagateSpeedChange();
+    propagateSpeedChange();
 
     // Don't build packets because we've got noone to send
     // them to except self, and self is not created at client.
     if (!IsInWorld())
         return;
 
-    ObjectGuid l_Guid = GetGUID();
+    uint64 l_Guid = GetGUID();
     if (!forced && GetTypeId() != TYPEID_PLAYER)
     {
         WorldPacket l_Data;
@@ -18824,6 +18817,58 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     }
 
     p_KilledVictim->m_IsInKillingProcess = false;
+}
+
+/// Get interpolated player position based on last received movement informations
+/// @p_AtClientScreen : Interpolated with client network delay ?
+/// @p_ProjectTime    : Time target of prediction
+Position Unit::GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTime)
+{
+    if (!isMoving())
+        return *this;
+
+    if ((m_movementInfo.GetMovementFlags() & (MOVEMENTFLAG_MASK_MOVING_FLY | MOVEMENTFLAG_MASK_TURNING | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_SPLINE_ELEVATION)) != 0)
+        return *this;
+
+    Position l_InterpolatedPosition;
+
+    uint32 l_LastMoveTimeStamp = m_movementInfoLastTime;
+    uint32 l_CurrentTime = getMSTime() + p_ProjectTime;
+
+    if (p_AtClientScreen && GetTypeId() == TYPEID_PLAYER)
+        l_CurrentTime += ToPlayer()->GetSession()->GetLatency();
+
+    float l_Orientation = m_movementInfo.pos.m_orientation;
+    float l_Distance = (l_CurrentTime - l_LastMoveTimeStamp) / 1000.0f;
+
+    uint32 l_MovementFlags = m_movementInfo.GetMovementFlags();
+    
+    if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_LEFT) != 0)
+        l_Orientation += M_PI / 2.0f;
+    else if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_RIGHT) != 0)
+        l_Orientation -= M_PI / 2.0f;
+    else if ((l_MovementFlags & MOVEMENTFLAG_BACKWARD) != 0)
+        l_Orientation -= M_PI;
+
+    l_Orientation = NormalizeOrientation(l_Orientation);
+
+    bool l_IsBackward = ((l_MovementFlags & MOVEMENTFLAG_BACKWARD) != 0);
+
+    if ((l_MovementFlags & MOVEMENTFLAG_WALKING) != 0)
+        l_Distance *= GetSpeed(MOVE_WALK);
+    else if ((l_MovementFlags & MOVEMENTFLAG_FLYING) != 0)
+        l_Distance *= GetSpeed(l_IsBackward ? MOVE_FLIGHT_BACK : MOVE_FLIGHT);
+    else if ((l_MovementFlags & MOVEMENTFLAG_SWIMMING) != 0)
+        l_Distance *= GetSpeed(l_IsBackward ? MOVE_SWIM_BACK : MOVE_SWIM);
+    else if ((l_MovementFlags & MOVEMENTFLAG_MASK_TURNING) == 0)
+        l_Distance *= GetSpeed(l_IsBackward ? MOVE_RUN_BACK : MOVE_RUN);
+
+    l_InterpolatedPosition.m_positionX = m_movementInfo.pos.m_positionX + (std::cos(l_Orientation) * l_Distance);
+    l_InterpolatedPosition.m_positionY = m_movementInfo.pos.m_positionY + (std::sin(l_Orientation) * l_Distance);
+    l_InterpolatedPosition.m_positionZ = GetMap()->GetHeight(l_InterpolatedPosition.m_positionX, l_InterpolatedPosition.m_positionY, MAX_HEIGHT);
+    l_InterpolatedPosition.m_orientation = m_movementInfo.pos.m_orientation;
+
+    return l_InterpolatedPosition;
 }
 
 void Unit::SetControlled(bool apply, UnitState state)

@@ -3579,129 +3579,44 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
     JadeCore::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const
 {
-    GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
-    z = GetPositionZ();
-    if (!searcher || !searcher->ToCreature() || !searcher->GetMap()->Instanceable())
-        UpdateAllowedPositionZ(x, y, z);
-    /*
-    // if detection disabled, return first point
-    if (!sWorld->getIntConfig(CONFIG_DETECT_POS_COLLISION))
-    {
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
+    GetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle);
+    p_InOutZ = GetPositionZ();
+
+    /// Should "searcher" be used instead of "this" when updating z coordinate ?
+    UpdateAllowedPositionZ(p_InOutX, p_InOutY, p_InOutZ);
+
+    /// if detection disabled, return first point
+    if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
         return;
-    }
 
-    // or remember first point
-    float first_x = x;
-    float first_y = y;
-    bool first_los_conflict = false;                        // first point LOS problems
-
-    // prepare selector for work
-    ObjectPosSelector selector(GetPositionX(), GetPositionY(), GetObjectSize(), distance2d+searcher_size);
-
-    // adding used positions around object
-    {
-        CellCoord p(JadeCore::ComputeCellCoord(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
-
-        JadeCore::NearUsedPosDo u_do(*this, searcher, absAngle, selector);
-        JadeCore::WorldObjectWorker<JadeCore::NearUsedPosDo> worker(this, u_do);
-
-        TypeContainerVisitor<JadeCore::WorldObjectWorker<JadeCore::NearUsedPosDo>, GridTypeMapContainer  > grid_obj_worker(worker);
-        TypeContainerVisitor<JadeCore::WorldObjectWorker<JadeCore::NearUsedPosDo>, WorldTypeMapContainer > world_obj_worker(worker);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, grid_obj_worker,  *GetMap(), *this, distance2d);
-        cell_lock->Visit(cell_lock, world_obj_worker, *GetMap(), *this, distance2d);
-    }
-
-    // maybe can just place in primary position
-    if (selector.CheckOriginal())
-    {
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-
-        first_los_conflict = true;                          // first point have LOS problems
-    }
-
-    float angle;                                            // candidate of angle for free pos
-
-    // special case when one from list empty and then empty side preferred
-    if (selector.FirstAngle(angle))
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-    }
-
-    // set first used pos in lists
-    selector.InitializeAngle();
-
-    // select in positions after current nodes (selection one by one)
-    while (selector.NextAngle(angle))                        // angle for free pos
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
-            return;
-    }
-
-    // BAD NEWS: not free pos (or used or have LOS problems)
-    // Attempt find _used_ pos without LOS problem
-
-    if (!first_los_conflict)
-    {
-        x = first_x;
-        y = first_y;
-
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
+    /// return if the point is already in LoS
+    if (IsWithinLOS(p_InOutX, p_InOutY, p_InOutZ))
         return;
-    }
 
-    // special case when one from list empty and then empty side preferred
-    if (selector.IsNonBalanced())
+    /// Remember first point
+    float l_FirstX = p_InOutX;
+    float l_FirstY = p_InOutY;
+    float l_FirstZ = p_InOutZ;
+
+    /// Loop in a circle to look for a point in LoS using small steps
+    for (float l_CurrentAngle = float(M_PI) / 8; l_CurrentAngle < float(M_PI) * 2; l_CurrentAngle += float(M_PI) / 8)
     {
-        if (!selector.FirstAngle(angle))                     // _used_ pos
-        {
-            GetNearPoint2D(x, y, distance2d, absAngle+angle);
-            z = GetPositionZ();
-            UpdateGroundPositionZ(x, y, z);                   // update to LOS height if available
+        GetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle + l_CurrentAngle);
 
-            if (IsWithinLOS(x, y, z))
-                return;
-        }
-    }
+        p_InOutZ = GetPositionZ();
 
-    // set first used pos in lists
-    selector.InitializeAngle();
+        UpdateAllowedPositionZ(p_InOutX, p_InOutY, p_InOutZ);
 
-    // select in positions after current nodes (selection one by one)
-    while (selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
-    {
-        GetNearPoint2D(x, y, distance2d, absAngle+angle);
-        z = GetPositionZ();
-        UpdateGroundPositionZ(x, y, z);                       // update to LOS height if available
-
-        if (IsWithinLOS(x, y, z))
+        if (IsWithinLOS(p_InOutX, p_InOutY, p_InOutZ))
             return;
     }
 
-    // BAD BAD NEWS: all found pos (free and used) have LOS problem :(
-    x = first_x;
-    y = first_y;
-
-    UpdateGroundPositionZ(x, y, z);                           // update to LOS height if available
-    */
+    // Still not in LoS, give up and return first position found
+    p_InOutX = l_FirstX;
+    p_InOutY = l_FirstY;
+    p_InOutZ = l_FirstZ;
 }
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)

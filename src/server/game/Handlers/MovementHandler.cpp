@@ -480,6 +480,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     l_Mover->SendMessageToSet(&data, m_Player);
 
     l_Mover->m_movementInfo = l_MovementInfo;
+    l_Mover->m_movementInfoLastTime = l_MSTime - GetLatency();
 
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
     if (l_Mover->GetVehicle())

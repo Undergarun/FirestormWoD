@@ -2524,6 +2524,11 @@ class Unit : public WorldObject
             return GetPositionZ() - offset;
         }
 
+        /// Get interpolated player position based on last received movement informations
+        /// @p_AtClientScreen : Interpolated with client network delay ?
+        /// @p_ProjectTime    : Time target of prediction
+        Position GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTime);
+
         void SetControlled(bool apply, UnitState state);
 
         /// Control Alert

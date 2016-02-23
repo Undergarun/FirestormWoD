@@ -73,8 +73,77 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             if (i_target->IsWithinDistInMap(owner, dist))
                 return;
 
-            // to at i_offset distance from target and i_angle from target facing
-            i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            if (i_target->IsPlayer() && i_target->isMoving())
+            {
+                Position l_InterpolatedPosition = i_target->GetInterpolatedPosition(true, 2000);
+
+                /// Copied from Object::GetNearPoint2D
+                auto l_FNGetNearPoint2D = [=](float &p_OutX, float &p_OutY, float p_Distance2D, float p_AbsAngle)
+                {
+                    p_OutX = l_InterpolatedPosition.GetPositionX() + (i_target->GetObjectSize() + p_Distance2D) * std::cos(p_AbsAngle);
+                    p_OutY = l_InterpolatedPosition.GetPositionY() + (i_target->GetObjectSize() + p_Distance2D) * std::sin(p_AbsAngle);
+
+                    JadeCore::NormalizeMapCoord(p_OutX);
+                    JadeCore::NormalizeMapCoord(p_OutY);
+                };
+
+                /// Copied from Object::IsWithinLOS
+                auto l_FNIsWithinLOS = [=](float p_OutX, float p_OutY, float p_OutZ) -> bool
+                {
+                    if (i_target->IsInWorld())
+                        return i_target->GetMap()->isInLineOfSight(l_InterpolatedPosition.GetPositionX(), l_InterpolatedPosition.GetPositionY(), l_InterpolatedPosition.GetPositionZ() + 2.f, p_OutX, p_OutY, p_OutZ + 2.f, i_target->GetPhaseMask());
+
+                    return true;
+                };
+
+                /// Copied from Object::GetNearPoint
+                auto l_FNGetNearPoint = [=](WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle)
+                {
+                    l_FNGetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle);
+                    p_InOutZ = l_InterpolatedPosition.GetPositionZ();
+
+                    /// Should "searcher" be used instead of "this" when updating z coordinate ?
+                    i_target->UpdateAllowedPositionZ(p_InOutX, p_InOutY, p_InOutZ);
+
+                    /// if detection disabled, return first point
+                    if (!sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
+                        return;
+
+                    /// return if the point is already in LoS
+                    if (l_FNIsWithinLOS(p_InOutX, p_InOutY, p_InOutZ))
+                        return;
+
+                    /// Remember first point
+                    float l_FirstX = p_InOutX;
+                    float l_FirstY = p_InOutY;
+                    float l_FirstZ = p_InOutZ;
+
+                    /// Loop in a circle to look for a point in LoS using small steps
+                    for (float l_CurrentAngle = float(M_PI) / 8; l_CurrentAngle < float(M_PI) * 2; l_CurrentAngle += float(M_PI) / 8)
+                    {
+                        l_FNGetNearPoint2D(p_InOutX, p_InOutY, p_Distance2D + p_SearcherSize, p_AbsAngle + l_CurrentAngle);
+
+                        p_InOutZ = l_InterpolatedPosition.GetPositionZ();
+
+                        i_target->UpdateAllowedPositionZ(p_InOutX, p_InOutY, p_InOutZ);
+
+                        if (l_FNIsWithinLOS(p_InOutX, p_InOutY, p_InOutZ))
+                            return;
+                    }
+
+                    /// Still not in LoS, give up and return first position found
+                    p_InOutX = l_FirstX;
+                    p_InOutY = l_FirstY;
+                    p_InOutZ = l_FirstZ;
+                };
+
+                l_FNGetNearPoint(nullptr, x, y, z, size, i_offset, l_InterpolatedPosition.GetOrientation() + i_angle);
+            }
+            else
+            {
+                // to at i_offset distance from target and i_angle from target facing
+                i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            }
         }
     }
     else
@@ -149,9 +218,10 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
 
     bool targetMoved = false;
     i_recheckDistance.Update(time_diff);
+
     if (i_recheckDistance.Passed())
     {
-        i_recheckDistance.Reset(100);
+        i_recheckDistance.Reset(50);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
         float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
         G3D::Vector3 dest = owner->movespline->FinalDestination();
@@ -164,11 +234,23 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
             }
         }
 
-        // First check distance
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
-            targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
+        if (i_target->isMoving() && i_target->GetTypeId() == TYPEID_PLAYER)
+        {
+            float l_MaxDistance = allowed_dist + i_target->GetObjectSize();
+
+            if (i_target->GetInterpolatedPosition(true, 2000).GetExactDist(dest.x, dest.y, dest.z) > l_MaxDistance)
+                targetMoved = true;
+            else
+                targetMoved = false;
+        }
         else
-            targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
+        {
+            // First check distance
+            if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
+                targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
+            else
+                targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
+        }
 
         // then, if the target is in range, check also Line of Sight.
         if (!targetMoved)
