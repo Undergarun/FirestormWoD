@@ -1146,7 +1146,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
     if (SpellTargetRestrictionsEntry const* l_Restrictions = m_spellInfo->GetSpellTargetRestrictions())
     {
         if (l_Restrictions->ConeAngle != 0.0f)
-            l_ConeAngle = l_Restrictions->ConeAngle;
+            l_ConeAngle = 2.0f * M_PI / 360.0f * l_Restrictions->ConeAngle;
     }
 
     float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
