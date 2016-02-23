@@ -50,8 +50,6 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyCommand p_Command, const std::string& p_Name, PartyResult p_Result, uint32 p_ResultData /* = 0 */, uint64 p_ResultGuid /* = 0 */)
 {
-    uint64 p_ResultGuid = 0;    ///< player who caused error (in some cases).
-
     WorldPacket l_Data(SMSG_PARTY_COMMAND_RESULT, 4 + p_Name.size() + 1 + 4 + 4 + 8);
     l_Data.WriteBits(p_Name.length(), 9);
     l_Data.WriteBits(p_Command,       4);
