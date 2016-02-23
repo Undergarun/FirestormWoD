@@ -81,6 +81,7 @@ enum RogueSpells
     ROGUE_SPELL_FIND_WEAKNESS_PROC              = 91021
 };
 
+/// Last Update 6.2.3
 /// Anticipation - 114015
 class spell_rog_anticipation : public SpellScriptLoader
 {
@@ -113,8 +114,10 @@ class spell_rog_anticipation : public SpellScriptLoader
                     if (!l_SpellInfo->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                         return;
 
-                    int32 l_NewCombo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                    if (l_Caster->GetPower(Powers::POWER_COMBO_POINT) < 5)
+                        return;
 
+                    int32 l_NewCombo = 0;
                     for (uint8 i = 0; i < l_SpellInfo->EffectCount; ++i)
                     {
                         if (l_SpellInfo->Effects[i].IsEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
@@ -124,21 +127,13 @@ class spell_rog_anticipation : public SpellScriptLoader
                         }
                     }
 
-                    if (l_SpellInfo->Id == eSpells::SinisterStrike && l_Caster->HasAura(eSpells::SinisterStrikeEnabler))
-                        l_NewCombo += 2;
-
-                    if (l_SpellInfo->Id == eSpells::MutilateMainHand || l_SpellInfo->Id == eSpells::MutilateOffHand)
+                    if (l_SpellInfo->Id == eSpells::SinisterStrike)
                         l_NewCombo += 1;
 
-                    if (l_NewCombo <= 5)
-                        return;
+                   if (l_SpellInfo->Id == eSpells::MutilateMainHand || l_SpellInfo->Id == eSpells::MutilateOffHand)
+                        l_NewCombo += 1;
 
-                    uint8 l_CastCount = l_NewCombo - 5;
-                    /// Need to add one additional charge if it's critical hit
-                    if (p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT)
-                        ++l_CastCount;
-
-                    for (uint8 l_I = 0; l_I < l_CastCount; ++l_I)
+                    for (uint8 l_I = 0; l_I < l_NewCombo; ++l_I)
                         l_Caster->CastSpell(l_Caster, eSpells::AnticipationProc, true);
                 }
             }

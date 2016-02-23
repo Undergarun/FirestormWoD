@@ -4294,7 +4294,7 @@ void Spell::_handle_finish_phase()
             m_caster->ClearComboPoints();
 
             /// Anticipation
-            if (m_caster->HasAura(115189) && m_spellInfo->Id != 5171 && m_spellInfo->Id != 73651)
+            if (m_caster->HasAura(115189) && (m_spellInfo->Id == 2098 || m_spellInfo->Id == 32645 || m_spellInfo->Id == 152150))
             {
                 int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
                 m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);
