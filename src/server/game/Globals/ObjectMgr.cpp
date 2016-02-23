@@ -9840,7 +9840,9 @@ CreatureTemplate const* ObjectMgr::GetRandomTemplate(CreatureType p_Type)
         else
             l_Template = GetCreatureTemplate(urand(0, m_CreatureTemplateStoreSize));
     }
-} ///< Control may reach end of non-void function
+
+    return l_Template;
+}
 
 VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) const
 {

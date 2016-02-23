@@ -457,9 +457,9 @@ class mob_ubrs_rune_of_power : public CreatureScript
                         {
                             if (Creature* l_Orebender = Creature::GetCreature(*l_Conductor, l_InstanceScript->GetData64(NPC_OREBENDER_GORASHAN)))
                             {
-                                if (AuraPtr l_Aura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_VISUAL, me->GetGUID()))
+                                if (Aura* l_Aura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_VISUAL, me->GetGUID()))
                                     l_Aura->Remove();
-                                if (AuraPtr l_ConduitAura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_AURA))
+                                if (Aura* l_ConduitAura = l_Orebender->GetAura(SPELL_POWER_CONDUIT_AURA))
                                     l_ConduitAura->ModStackAmount(-1);
 
                                 me->CastSpell(me, SPELL_UNHARNESSED_POWER, true);
@@ -629,7 +629,7 @@ class spell_power_conduit_hangover: public SpellScriptLoader
         {
             PrepareAuraScript(spell_power_conduit_hangover_AuraScript);
 
-            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, SPELL_POWER_CONDUIT_STUN, true);

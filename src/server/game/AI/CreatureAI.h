@@ -191,7 +191,7 @@ class CreatureAI : public UnitAI
         virtual void SetPower(Powers power, int32 value) {}
 
         /// Called when taunted
-        virtual void OnTaunt(Unit* p_Taunter) {}
+        virtual void OnTaunt(Unit* p_Taunter) {} ///< p_Taunter is unused
 
         /// Called when a casting time is calculated
         virtual void OnCalculateCastingTime(SpellInfo const* p_SpellInfo, int32& p_CastingTime) {}
@@ -200,7 +200,7 @@ class CreatureAI : public UnitAI
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 
         /// Called when at HandleGarrisonGetShipmentInfoOpcode() is received
-        virtual int OnShipmentIDRequest(Player* p_Player) { return -1; }
+        virtual int OnShipmentIDRequest(Player* p_Player) { return -1; } ///< p_Player is unused
 
         /// == Triggered Actions Requested ==================
 
@@ -229,7 +229,7 @@ class CreatureAI : public UnitAI
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
 
-        virtual void OnVehicleExited(Unit* p_Vehicle) { }
+        virtual void OnVehicleExited(Unit* p_Vehicle) { } ///< p_Vehicle is unused
 
         virtual void OnSpellClick(Unit* /*clicker*/) { }
 

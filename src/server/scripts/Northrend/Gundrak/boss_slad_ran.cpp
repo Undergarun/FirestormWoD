@@ -242,7 +242,7 @@ public:
                 DoCast(target, SPELL_GRIP_OF_SLAD_RAN);
                 uiGripOfSladRanTimer = urand(3, 6)*IN_MILLISECONDS;
 
-                AuraPtr grip = target->GetAura(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
+                Aura* grip = target->GetAura(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
                 if (grip && grip->GetStackAmount() == 5)
                 {
                     target->RemoveAurasDueToSpell(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());

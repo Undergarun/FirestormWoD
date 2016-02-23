@@ -2249,7 +2249,7 @@ public:
                 {
                     if (Creature* illidan = Unit::GetCreature((*me), IllidanGUID))// summon only in 1. phase
                         if (CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->Phase == PHASE_NORMAL)
-                            me->CastSpell(me->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, NULLAURA_EFFECT, IllidanGUID); // do not stack
+                            me->CastSpell(me->getVictim(), SPELL_PARASITIC_SHADOWFIEND2, true, 0, nullptr, IllidanGUID); // do not stack
                 }
                 me->AttackerStateUpdate(me->getVictim());
                 me->resetAttackTimer();

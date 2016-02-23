@@ -579,7 +579,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_CastItemEntry = 0;
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
-    m_spellAura = NULLAURA;
+    m_spellAura = nullptr;
     isStolen = false;
 
     m_CustomCritChance = -1.f;
@@ -1949,7 +1949,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, maxTargets, this);
 
     // Havoc
-    if (AuraPtr havoc = m_caster->GetAura(80240))
+    if (Aura* havoc = m_caster->GetAura(80240))
     {
         int8 l_StacksToDrop = GetSpellInfo()->Id == 116858 ? 3 : 1;
         if (GetSpellInfo()->SpellFamilyFlags & flag128(0x00000000, 0x00000000, 0x00000000, 0x00400000) &&
@@ -2436,7 +2436,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
     }
 }
 
-void Spell::prepareDataForTriggerSystem(constAuraEffectPtr /*triggeredByAura*/)
+void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
 {
     //==========================================================================================
     // Now fill data for trigger system, need know:
@@ -2916,7 +2916,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     uint32 procVictim   = m_procVictim;
     uint32 procEx = m_procEx;
 
-    m_spellAura = NULLAURA; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
+    m_spellAura = nullptr; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
                             //Spells with this flag cannot trigger if effect is casted on self
     bool canEffectTrigger = !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && (missInfo == SPELL_MISS_IMMUNE2 || CanExecuteTriggersOnHit(mask)) && CanProcOnTarget(unitTarget);
@@ -3324,8 +3324,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 }
                 else
                 {
-                    UnitAuraPtr unitauraptr = TO_UNITAURA(m_spellAura);
-                    unitauraptr->SetDiminishGroup(m_diminishGroup);
+                    UnitAura* unitAura = (UnitAura*)m_spellAura;
+                    unitAura->SetDiminishGroup(m_diminishGroup);
 
                     bool positive = m_spellAura->GetSpellInfo()->IsPositive();
                     if (AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID()))
@@ -3346,7 +3346,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             duration = 0;
                             for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
                             {
-                                if (constAuraEffectPtr l_Effect = m_spellAura->GetEffect(l_I))
+                                if (AuraEffect const* l_Effect = m_spellAura->GetEffect(l_I))
                                 {
                                     if (int32 l_Amplitude = l_Effect->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
                                         duration = int32(l_OriginalDuration / (2.0f - l_HastePct));
@@ -3421,13 +3421,13 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
                 // set duration of current aura to the triggered spell
                 if (i->triggeredSpell->GetDuration() == -1)
                 {
-                    AuraPtr triggeredAur = unit->GetAura(i->triggeredSpell->Id, m_caster->GetGUID());
-                    if (triggeredAur != NULLAURA)
+                    Aura* triggeredAur = unit->GetAura(i->triggeredSpell->Id, m_caster->GetGUID());
+                    if (triggeredAur != nullptr)
                     {
                         // get duration from aura-only once
                         if (!_duration)
                         {
-                            AuraPtr aur = unit->GetAura(m_spellInfo->Id, m_caster->GetGUID());
+                            Aura* aur = unit->GetAura(m_spellInfo->Id, m_caster->GetGUID());
                             _duration = aur ? aur->GetDuration() : -1;
                         }
                         triggeredAur->SetDuration(_duration);
@@ -3446,7 +3446,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
             if (*i < 0)
                 unit->RemoveAurasDueToSpell(-(*i));
             else
-                unit->CastSpell(unit, *i, true, 0, NULLAURA_EFFECT, m_caster->GetGUID());
+                unit->CastSpell(unit, *i, true, 0, nullptr, m_caster->GetGUID());
         }
     }
 }
@@ -3582,7 +3582,7 @@ bool Spell::UpdateChanneledTargetList()
     return channelTargetEffectMask == 0;
 }
 
-void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggeredByAura)
+void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
         m_castItemGUID = m_CastItem->GetGUID();
@@ -4240,7 +4240,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 
 void Spell::_handle_immediate_phase()
 {
-    m_spellAura = NULLAURA;
+    m_spellAura = nullptr;
     // initialize Diminishing Returns Data
     m_diminishLevel = DIMINISHING_LEVEL_1;
     m_diminishGroup = DIMINISHING_NONE;
@@ -5625,7 +5625,7 @@ void Spell::TakePower()
         if (powerType == POWER_MANA && m_spellInfo && m_spellInfo->Id == 30451 && m_caster->HasAura(157604))
         {
             /// Arcane Charge increase mana cost of Arcane Blast
-            if (AuraPtr l_ArcaneCharge = m_caster->GetAura(36032))
+            if (Aura* l_ArcaneCharge = m_caster->GetAura(36032))
             {
                 /// Base Arcane Blast mana cost
                 int32 l_PowerCost = 3200;
@@ -6749,7 +6749,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     {
                         if (strict)                         //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
                             if (Pet* pet = m_caster->ToPlayer()->GetPet())
-                                pet->CastSpell(pet, 32752, true, NULL, NULLAURA_EFFECT, pet->GetGUID());
+                                pet->CastSpell(pet, 32752, true, NULL, nullptr, pet->GetGUID());
                     }
                     else
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
@@ -7275,7 +7275,7 @@ SpellCastResult Spell::CheckCasterAuras() const
             Unit::AuraApplicationMap const& auras = m_caster->GetAppliedAuras();
             for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             {
-                constAuraPtr aura = itr->second->GetBase();
+                Aura const* aura = itr->second->GetBase();
                 SpellInfo const* auraInfo = aura->GetSpellInfo();
                 if (auraInfo->GetAllEffectsMechanicMask() & mechanic_immune)
                     continue;
@@ -7288,7 +7288,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 //That is needed when your casting is prevented by multiple states and you are only immune to some of them.
                 for (uint8 i = 0; i < m_spellInfo->EffectCount; ++i)
                 {
-                    if (AuraEffectPtr part = aura->GetEffect(i))
+                    if (AuraEffect* part = aura->GetEffect(i))
                     {
                         switch (part->GetAuraType())
                         {
@@ -7377,7 +7377,7 @@ bool Spell::CanAutoCast(Unit* target)
             }
             else
             {
-                if (AuraEffectPtr aureff = target->GetAuraEffect(m_spellInfo->Id, j))
+                if (AuraEffect* aureff = target->GetAuraEffect(m_spellInfo->Id, j))
                     if (aureff->GetBase()->GetStackAmount() >= m_spellInfo->StackAmount)
                         return false;
             }
@@ -9132,7 +9132,7 @@ bool Spell::IsCritForTarget(Unit* target) const
 bool Spell::IsDarkSimulacrum() const
 {
     // Dark Simulacrum
-    if (AuraEffectPtr darkSimulacrum = m_caster->GetAuraEffect(77616, 0))
+    if (AuraEffect* darkSimulacrum = m_caster->GetAuraEffect(77616, 0))
     {
         if (m_spellInfo->Id == darkSimulacrum->GetAmount())
             return true;
@@ -9216,7 +9216,7 @@ bool Spell::IsMorePowerfulAura(Unit const* target) const
             {
                 Unit::VisibleAuraMap const *visibleAuras = const_cast<Unit*>(target)->GetVisibleAuras();
                 for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-                    if (AuraEffectPtr auraeff = itr->second->GetBase()->GetEffect(0))
+                    if (AuraEffect* auraeff = itr->second->GetBase()->GetEffect(0))
                     {
                         if (auraeff->GetBase()->GetDuration() <= 2*MINUTE*IN_MILLISECONDS)
                             continue;

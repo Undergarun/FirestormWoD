@@ -513,7 +513,7 @@ class spell_mistress_kiss: public SpellScriptLoader
                 return false;
             }
 
-            void HandleDummyTick(constAuraEffectPtr /*aurEff*/)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
