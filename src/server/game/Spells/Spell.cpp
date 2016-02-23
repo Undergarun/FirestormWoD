@@ -1146,7 +1146,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
     if (SpellTargetRestrictionsEntry const* l_Restrictions = m_spellInfo->GetSpellTargetRestrictions())
     {
         if (l_Restrictions->ConeAngle != 0.0f)
-            l_ConeAngle = l_Restrictions->ConeAngle;
+            l_ConeAngle = 2.0f * M_PI / 360.0f * l_Restrictions->ConeAngle;
     }
 
     float l_Radius = m_spellInfo->Effects[p_EffIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
@@ -4294,7 +4294,7 @@ void Spell::_handle_finish_phase()
             m_caster->ClearComboPoints();
 
             /// Anticipation
-            if (m_caster->HasAura(115189) && m_spellInfo->Id != 5171 && m_spellInfo->Id != 73651)
+            if (m_caster->HasAura(115189) && (m_spellInfo->Id == 2098 || m_spellInfo->Id == 32645 || m_spellInfo->Id == 152150))
             {
                 int32 basepoints0 = m_caster->GetAura(115189)->GetStackAmount();
                 m_caster->CastCustomSpell(m_caster->getVictim(), 115190, &basepoints0, NULL, NULL, true);

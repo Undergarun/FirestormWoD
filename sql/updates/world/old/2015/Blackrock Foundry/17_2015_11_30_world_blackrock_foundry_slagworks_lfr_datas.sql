@@ -65,6 +65,9 @@ INSERT INTO creature_template_difficulty VALUES
 (77252, 'DIFFICULTY_ENTRY_17', 1777252),
 (87520, 'DIFFICULTY_ENTRY_17', 1787520);
 
+DELETE FROM access_requirement WHERE mapId = 1205 AND difficulty = 17;
+INSERT INTO access_requirement (mapId, difficulty, level_min, level_max, itemlevel_min, itemlevel_max, COMMENT) VALUE
+(1205, 17, 100, 100, 635, 0, "Blackrock Foundry - LFR - Slagworks - Part 1");
 UPDATE lfr_access_requirement SET ilvl_min = 635, ilvl_max = 0 WHERE dungeon_id = 847;
 
 DELETE FROM lfg_entrances WHERE dungeonId IN (847, 846, 848);

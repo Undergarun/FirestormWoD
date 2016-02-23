@@ -256,7 +256,9 @@ class boss_twin_ogron_pol : public CreatureScript
                         Talk(eTalks::ShieldCharge);
                         Talk(eTalks::ShieldChargeWarn);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                            me->CastSpell(l_Target, eSpells::SpellShieldCharge, false);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::SpellShieldCharge, false);
 
                         m_ShieldChargeScheduled = true;
@@ -271,8 +273,6 @@ class boss_twin_ogron_pol : public CreatureScript
             {
                 Talk(eTalks::Aggro);
 
-                _EnterCombat();
-
                 me->CastSpell(me, eSpells::WarmingUp, true);
 
                 if (m_Instance != nullptr)
@@ -285,6 +285,8 @@ class boss_twin_ogron_pol : public CreatureScript
 
                 if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
                     me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
+
+                _EnterCombat();
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -311,8 +313,6 @@ class boss_twin_ogron_pol : public CreatureScript
             {
                 me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
 
-                CreatureAI::EnterEvadeMode();
-
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTwinOgron, EncounterState::FAIL);
@@ -322,6 +322,8 @@ class boss_twin_ogron_pol : public CreatureScript
 
                     RespawnOgrons(me, m_Instance);
                 }
+
+                CreatureAI::EnterEvadeMode();
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -402,7 +404,11 @@ class boss_twin_ogron_pol : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                EnterEvadeIfOutOfCombatArea(p_Diff);
+                if (me->GetDistance(me->GetHomePosition()) >= 110.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
 
                 if (!UpdateVictim())
                     return;
@@ -615,6 +621,8 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                 me->CancelSpellVisual(eVisuals::QuakeSpellVisual);
                 me->CancelSpellVisualKit(eVisuals::QuakeVisualID);
+
+                me->RemoveAllAreasTrigger();
             }
 
             bool CanRespawn() override
@@ -742,8 +750,6 @@ class boss_twin_ogron_phemos : public CreatureScript
             {
                 Talk(eTalks::Aggro);
 
-                _EnterCombat();
-
                 me->CastSpell(me, eSpells::WarmingUp, true);
 
                 if (m_Instance != nullptr)
@@ -756,6 +762,8 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                 if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
                     me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
+
+                _EnterCombat();
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -784,8 +792,6 @@ class boss_twin_ogron_phemos : public CreatureScript
             {
                 Talk(eTalks::Wipe);
 
-                CreatureAI::EnterEvadeMode();
-
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTwinOgron, EncounterState::FAIL);
@@ -799,6 +805,8 @@ class boss_twin_ogron_phemos : public CreatureScript
                 }
 
                 me->RemoveAllAreasTrigger();
+
+                CreatureAI::EnterEvadeMode();
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -867,7 +875,11 @@ class boss_twin_ogron_phemos : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                EnterEvadeIfOutOfCombatArea(p_Diff);
+                if (me->GetDistance(me->GetHomePosition()) >= 110.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
 
                 m_CosmeticEvents.Update(p_Diff);
 

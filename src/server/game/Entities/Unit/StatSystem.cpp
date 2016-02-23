@@ -671,59 +671,139 @@ void Player::UpdateAllCritPercentages()
     UpdateCritPercentage(WeaponAttackType::RangedAttack);
 }
 
+const int8 k_constatBaseRaceStr[MAX_RACES] =
+{
+    0, ///< None
+    0, ///< Humain
+    3, ///< Orc
+    5, ///< Dwarf
+    -4, ///< Night Elfe
+    -1, ///< Undead
+    5, ///< Tauren
+    -5, ///< Gnome
+    1, ///< Troll
+    -3, ///< Goblin
+    -3, ///< BloodElfe
+    1, ///< Drenei
+    1, ///< Worgen
+    0, ///< Pandaren Neutral
+    0, ///< Pandaren Alli
+    0 ///< Pandaren Horde
+};
+
+const int8 k_constatBaseRaceAgi[MAX_RACES] =
+{
+    0, ///< None
+    0, ///< Humain
+    -3, ///< Orc
+    -4, ///< Dwarf
+    4, ///< Night Elfe
+    -2, ///< Undead
+    -4, ///< Tauren
+    2, ///< Gnome
+    2, ///< Troll
+    -3, ///< Goblin
+    2, ///< BloodElfe
+    1, ///< Drenei
+    3, ///< Worgen
+    -2, ///< Pandaren Neutral
+    -2, ///< Pandaren Alli
+    -2 ///< Pandaren Horde
+};
+
 const float k_constant[MAX_CLASSES] =
 {
-    0.9560f,  // Warrior
-    0.8860f,  // Paladin
-    0.9880f,  // Hunter
-    0.9880f,  // Rogue
-    0.9830f,  // Priest
-    0.9560f,  // DK
-    0.9880f,  // Shaman
-    0.9830f,  // Mage
-    0.9830f,  // Warlock
-    1.4220f,  // Monk
-    1.2220f   // Druid
+    0.634f,  /// Warrior
+    0.634f,  /// Paladin
+    1.000f,  /// Hunter
+    1.000f,  /// Rogue
+    1.000f,  /// Priest
+    0.634f,  /// DK
+    1.000f,  /// Shaman
+    1.000f,  /// Mage
+    1.000f,  /// Warlock
+    1.659f,  /// Monk
+    1.000f   /// Druid
+};
+
+const float k_DodgeFactor[MAX_CLASSES] =
+{
+    1.659f,  /// Warrior
+    2.259f,  /// Paladin
+    1.000f,  /// Hunter
+    1.000f,  /// Rogue
+    1.000f,  /// Priest
+    1.659f,  /// DK
+    1.000f,  /// Shaman
+    1.000f,  /// Mage
+    1.000f,  /// Warlock
+    0.300f,  /// Monk
+    1.000f   /// Druid
+};
+
+static float k_constantVerticalStretch[MAX_CLASSES] =
+{
+    0.00665f, /// Warrior
+    0.00665f, /// Paladin
+    0.00687f, /// Hunter
+    0.00687f, /// Rogue
+    0.00665f, /// Priest
+    0.00665f, /// DK
+    0.00687f, /// Shaman
+    0.00665f, /// Mage
+    0.00665f, /// Warlock
+    0.00665f, /// Monk
+    0.00665f  /// Druid
+};
+
+static float k_constantVHorizontalShift[MAX_CLASSES] =
+{
+    0.956f, /// Warrior
+    0.886f, /// Paladin
+    0.988f, /// Hunter
+    0.988f, /// Rogue
+    0.983f, /// Priest
+    0.956f, /// DK
+    0.988f, /// Shaman
+    0.983f, /// Mage
+    0.983f, /// Warlock
+    1.422f, /// Monk
+    1.222f  /// Druid
 };
 
 void Player::UpdateParryPercentage()
 {
-    const float parryCap[MAX_CLASSES] =
-    {
-        237.1860f,    // Warrior
-        237.1860f,    // Paladin
-        145.5604f,    // Hunter
-        145.5604f,    // Rogue
-        150.3759f,    // Priest
-        237.1860f,    // DK
-        145.5604f,    // Shaman
-        150.3759f,    // Mage
-        150.3759f,    // Warlock
-        90.6425f,     // Monk
-        150.3759f     // Druid
-    };
-
-    // No parry
+    /// No parry
     float value = 0.0f;
+    float l_Total = 0.0f;
     uint32 pClass = getClass() - 1;
 
     if (CanParry())
     {
-        float diminishing = 0.0f;
-        float nondiminishing = 3.0f;
+        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/*/
+        float l_BaseParry = 0.0f;
 
-        // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
-        nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
-
-        // Parry from rating
-        diminishing = GetRatingBonusValue(CR_PARRY);
-
-        /// Parry from strength, just for paladin/dk/warrior
-        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/
-        1% parry before diminishing returns = 176.3760684 strength
-        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
         if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
-            diminishing += GetTotalStatValue(STAT_STRENGTH, false) * 0.00566970f;
+            l_BaseParry += 3.0f + (k_constatBaseRaceStr[getRace()] + 0.0739f) * (1 / 176.3760684f);
+
+        float l_BonusParry = (GetTotalStatValue(STAT_STRENGTH, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_PARRY) / 162));
+        l_Total += l_BaseParry + l_BonusParry / (l_BonusParry * k_constant[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
+
+        l_Total += CalculatePct(l_Total, GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT));
+
+        /// Apply parry from pct of critical strike from gear
+        l_Total += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
+
+        if (l_Total < 0.0f)
+            l_Total = 0.0f;
+
+        if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
+            l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : l_Total;
+        /// Parry from strength, just for paladin/dk/warrior        
+        /*1% parry before diminishing returns = 176.3760684 strength
+        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
+       /* if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
+            diminishing += (1.0f / 176.3760684f) / 100.0f) * GetTotalStatValue(STAT_STRENGTH, false); ///< Level 100 rating
 
         // apply diminishing formula to diminishing parry chance
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
@@ -735,10 +815,10 @@ void Player::UpdateParryPercentage()
             value = 0.0f;
 
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;
+            value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;*/
     }
 
-    SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, l_Total);
 }
 
 void Player::UpdateDodgePercentage()
@@ -775,21 +855,25 @@ void Player::UpdateDodgePercentage()
         221 agi = 1.245764057198927
         1 agi = 0.0056369414352893
     */
+    uint32 pClass = getClass() - 1;
 
     // Dodge from rating
-    diminishing += GetRatingBonusValue(CR_DODGE);
-    diminishing += GetTotalStatValue(STAT_AGILITY, false) * 0.0056369414352893f;
+    float l_BaseDodge = 3.0f;
+    float l_Total = 0.0f;
 
-    uint32 pClass = getClass() - 1;
-    // apply diminishing formula to diminishing dodge chance
-    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + (dodgeCap[pClass] * k_constant[pClass])));
-    if (value < 0.0f)
-        value = 0.0f;
+    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID || getClass() == CLASS_ROGUE || getClass() == CLASS_HUNTER || getClass() == CLASS_SHAMAN)
+        l_BaseDodge += (k_constatBaseRaceAgi[getRace()] * (1 / 176.3760684f));
+
+    float l_BonusDodge = (GetTotalStatValue(STAT_AGILITY, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_DODGE) / 162));
+    l_Total += l_BaseDodge + l_BonusDodge / (l_BonusDodge * k_DodgeFactor[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
+
+    if (l_Total < 0.0f)
+        l_Total = 0.0f;
 
     if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-        value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
+        l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : l_Total;
 
-    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, l_Total);
 }
 
 void Player::UpdateBlockPercentage()

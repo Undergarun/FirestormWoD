@@ -590,6 +590,12 @@ class boss_tectus : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_Events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -630,7 +636,13 @@ class boss_tectus : public CreatureScript
                     case eEvents::EventCrystallineBarrage:
                     {
                         /// Crystalline Barrage should not select Main Tank or Off Tank
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
+                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true);
+
+                        if (l_Target != nullptr)
                         {
                             Talk(eTalks::CrystallineBarrage, l_Target->GetGUID());
 
@@ -713,7 +725,13 @@ class boss_tectus : public CreatureScript
                     }
                     case eEvents::EventEarthenPillar:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true);
+                        if (!l_Target)
+                            l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true);
+
+                        if (l_Target != nullptr)
                         {
                             float l_X = l_Target->GetPositionX();
                             float l_Y = l_Target->GetPositionY();
@@ -809,7 +827,13 @@ class boss_tectus : public CreatureScript
 
             void SpawnAdd(uint32 p_Entry)
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true);
+                if (!l_Target)
+                    l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true);
+                if (!l_Target)
+                    l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true);
+
+                if (l_Target != nullptr)
                 {
                     float l_O = frand(0, 2 * M_PI);
                     float l_Range = 5.0f;

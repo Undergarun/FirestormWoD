@@ -186,6 +186,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             bool m_Enabled;
             bool m_FightStarted;
+            bool m_FirstSlagElemental;
 
             uint8 m_ElementalistMoveIndex;
             uint8 m_ElementalistKilled;
@@ -215,6 +216,7 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 m_Enabled = false;
                 m_FightStarted = false;
+                m_FirstSlagElemental = true;
 
                 m_ElementalistMoveIndex = 0;
                 m_ElementalistKilled = 0;
@@ -645,7 +647,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                for (uint8 l_I = 0; l_I < 2; ++l_I)
+                                for (uint8 l_I = 0; l_I < m_FirstSlagElemental ? 1 : 2; ++l_I)
                                 {
                                     if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
@@ -659,6 +661,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                             }
                         }
 
+                        m_FirstSlagElemental = false;
                         m_Events.ScheduleEvent(eEvents::EventSlagElemental, 55 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -3329,9 +3332,15 @@ class areatrigger_foundry_defense : public AreaTriggerEntityScript
     public:
         areatrigger_foundry_defense() : AreaTriggerEntityScript("areatrigger_foundry_defense") { }
 
-        enum eSpell
+        enum eSpells
         {
+            Loading     = 155181,
             DefenseAura = 160382
+        };
+
+        enum eCreature
+        {
+            PrimalElementalist = 76815
         };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
@@ -3347,15 +3356,23 @@ class areatrigger_foundry_defense : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
+                    /// Note that Primal Elementalists are immune to the damage-reduction portion of Defense.
+                    if (l_Unit->GetEntry() == eCreature::PrimalElementalist)
+                        continue;
+
+                    /// As long as Regulators are alive, Bellows Operators are not affected by the Security Guards Defense.
+                    if (l_Unit->HasAura(eSpells::Loading))
+                        continue;
+
                     if (l_Unit->GetDistance(p_AreaTrigger) <= 3.5f)
                     {
-                        if (!l_Unit->HasAura(eSpell::DefenseAura))
-                            l_Caster->CastSpell(l_Unit, eSpell::DefenseAura, true);
+                        if (!l_Unit->HasAura(eSpells::DefenseAura))
+                            l_Caster->CastSpell(l_Unit, eSpells::DefenseAura, true);
                     }
                     else if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), 3.5f))
                     {
-                        if (l_Unit->HasAura(eSpell::DefenseAura))
-                            l_Unit->RemoveAura(eSpell::DefenseAura);
+                        if (l_Unit->HasAura(eSpells::DefenseAura))
+                            l_Unit->RemoveAura(eSpells::DefenseAura);
                     }
                 }
             }
@@ -3376,8 +3393,8 @@ class areatrigger_foundry_defense : public AreaTriggerEntityScript
                 {
                     if (!l_Unit->FindNearestAreaTrigger(p_AreaTrigger->GetSpellId(), l_Radius))
                     {
-                        if (l_Unit->HasAura(eSpell::DefenseAura))
-                            l_Unit->RemoveAura(eSpell::DefenseAura);
+                        if (l_Unit->HasAura(eSpells::DefenseAura))
+                            l_Unit->RemoveAura(eSpells::DefenseAura);
                     }
                 }
             }
