@@ -581,7 +581,7 @@ void WorldSession::HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvDat
     p_RecvData >> l_FollowerDBID;
 
     Creature* l_Creature = m_Player->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
-        
+
     if (!l_Creature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonAssignFollowerToBuilding - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
@@ -637,15 +637,12 @@ void WorldSession::HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvD
     std::vector<MS::Garrison::GarrisonBuilding> l_Buildings = l_GarrisonMgr->GetBuildings();
     MS::Garrison::GarrisonBuilding* l_BuildingObject = nullptr;
 
-    if (!l_Buildings.empty())
+    for (auto l_Building : l_Buildings)
     {
-        for (auto l_Building : l_Buildings)
+        if (l_Building.FollowerAssigned == l_FollowerDBID)
         {
-            if (l_Building.FollowerAssigned == l_FollowerDBID)
-            {
-                l_BuildingObject = l_GarrisonMgr->GetBuildingObject(l_Building.PlotInstanceID);
-                break;
-            }
+            l_BuildingObject = l_GarrisonMgr->GetBuildingObject(l_Building.PlotInstanceID);
+            break;
         }
     }
 
