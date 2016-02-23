@@ -51,7 +51,7 @@ namespace MS { namespace Garrison
                 {
                     const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
 
-                    if (l_CurrentLevelData && l_CurrentLevelData->Level == Level)
+                    if (l_CurrentLevelData && l_CurrentLevelData->Level == Level) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                     {
                         return l_CurrentLevelData->RequiredExperience;
                     }

@@ -674,7 +674,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 //Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
 void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/, uint32 achievementId /*= 0*/)
 {
-    uint32 messageLength = message ? strlen(message) : 0;
+    uint32 messageLength = message ? strlen(message) : 0; ///< messageLength is unused
 
     uint32 speakerNameLength = 0;
     if (speaker)
@@ -693,7 +693,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         }
     }
 
-    uint32 channelLength = 0;
+    uint32 channelLength = 0; ///< channelLength is unused
 
     Player* speakerPlayer = NULL;
     if (speaker && speaker->IsPlayer())
@@ -739,7 +739,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
             break;
     }
 
-    ObjectGuid targetGuid = target_guid;
+    ObjectGuid targetGuid = target_guid; ///< targetGuid is unused
 
     data->Initialize(SMSG_CHAT, 800);                   // guess size
     *data << uint8(type);

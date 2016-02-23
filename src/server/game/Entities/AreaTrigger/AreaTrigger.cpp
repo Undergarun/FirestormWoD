@@ -221,7 +221,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
     SetTrajectory(AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
-    if (p_Duration != -1)
+    if (p_Duration != -1) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
         SetUInt32Value(AREATRIGGER_FIELD_DURATION, p_Duration);
 
     SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, GetFloatValue(OBJECT_FIELD_SCALE));
@@ -500,14 +500,14 @@ void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
         l_Trigger->setFaction(l_Owner->getFaction());
         // needed for GO casts for proper target validation checks
         l_Trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Owner->GetGUID());
-        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, l_Owner->GetGUID());
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, nullptr, l_Owner->GetGUID());
     }
     else
     {
         l_Trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, p_Target ? p_Target->GetGUID() : 0);
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, nullptr, p_Target ? p_Target->GetGUID() : 0);
     }
 }
 

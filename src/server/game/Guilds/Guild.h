@@ -526,7 +526,7 @@ class Guild
             private:
                 typedef std::list<LogEntry*> GuildLog;
                 GuildLog m_log;
-                uint32 m_guildId;
+                uint32 m_guildId; ///< m_guildId is unused
                 uint32 m_maxRecords;
                 uint32 m_nextGUID;
         };

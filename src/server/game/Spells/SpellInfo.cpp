@@ -2074,13 +2074,13 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     Unit const* unitTarget = target->ToUnit();
 
-     // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
-     if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
+    if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
+        return SPELL_FAILED_BAD_TARGETS;
 
-     // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
+    if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
+        return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks
     if (unitTarget)
@@ -2821,7 +2821,7 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
-        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+        if (Aura* overloaded = p_Caster->GetAura(117204))
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
     }
 
@@ -4617,4 +4617,39 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     }
 
     return true;
+}
+
+bool SpellInfo::IsAuraNeedDynamicCalculation() const
+{
+    switch (Id)
+    {
+        case 1079:   ///< Rip
+        case 1943:   ///< Rupture
+        case 73651:  ///< Recuperate
+        case 113344: ///< Bloodbath (DOT)
+        case 114916: ///< Stay of Execution (damage)
+        case 114917: ///< Stay of Execution (heal)
+        case 154953: ///< Internal Bleeding
+        case 155722: ///< Rake
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+}
+
+bool SpellInfo::IsAuraNeedPandemicEffect() const
+{
+    switch (Id)
+    {
+        case 5171:   ///< Slice and Dice
+        case 84617:  ///< Revealing Strike 
+        case 125359: ///< Tiger Power
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
 }

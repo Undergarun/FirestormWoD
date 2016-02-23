@@ -469,7 +469,7 @@ void GameObject::Update(uint32 diff)
                     // Bombs
                     if (goInfo->trap.charges == 2)
                         m_cooldownTime = time(NULL) + 10;   // Hardcoded tooltip value
-                    else if (Unit* owner = GetOwner())
+                    else if (Unit* owner = GetOwner()) ///< owner is unused
                     {
                         m_cooldownTime = time(NULL) + goInfo->trap.startDelay;
                     }
@@ -1140,13 +1140,15 @@ bool GameObject::ActivateToQuest(Player* target) const
         }
         case GAMEOBJECT_TYPE_GENERIC:
         {
-            if (GetGOInfo()->_generic.questID == -1 || target->GetQuestStatus(GetGOInfo()->_generic.questID) == QUEST_STATUS_INCOMPLETE)
+            if (GetGOInfo()->_generic.questID == -1 || target->GetQuestStatus(GetGOInfo()->_generic.questID) == QUEST_STATUS_INCOMPLETE) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
+
                 return true;
             break;
         }
         case GAMEOBJECT_TYPE_GOOBER:
         {
-            if (GetGOInfo()->goober.questID == -1 || target->GetQuestStatus(GetGOInfo()->goober.questID) == QUEST_STATUS_INCOMPLETE)
+            if (GetGOInfo()->goober.questID == -1 || target->GetQuestStatus(GetGOInfo()->goober.questID) == QUEST_STATUS_INCOMPLETE) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
+
                 return true;
             break;
         }
@@ -1961,14 +1963,14 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         trigger->setFaction(owner->getFaction());
         // needed for GO casts for proper target validation checks
         trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, owner->GetGUID());
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULLAURA_EFFECT, owner->GetGUID());
+        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, nullptr, owner->GetGUID());
     }
     else
     {
         trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULLAURA_EFFECT, target ? target->GetGUID() : 0);
+        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, nullptr, target ? target->GetGUID() : 0);
     }
 }
 

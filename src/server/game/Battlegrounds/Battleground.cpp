@@ -621,7 +621,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                     {
                         AuraApplication * aurApp = iter->second;
-                        AuraPtr aura = aurApp->GetBase();
+                        Aura* aura = aurApp->GetBase();
                         if (!aura->IsPermanent()
                             && aura->GetDuration() <= 30*IN_MILLISECONDS
                             && aurApp->IsPositive()
@@ -654,7 +654,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                         for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                         {
                             AuraApplication * aurApp = iter->second;
-                            AuraPtr aura = aurApp->GetBase();
+                            Aura* aura = aurApp->GetBase();
                             if (!aura->IsPermanent()
                                 && aura->GetDuration() <= 30 * IN_MILLISECONDS
                                 && aurApp->IsPositive()
@@ -705,7 +705,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const ///< context is unused
 {
     Player* player = NULL;
     if (!offlineRemove)
@@ -1074,6 +1074,16 @@ void Battleground::EndBattleground(uint32 p_Winner)
             else if (!isArena() && !IsRatedBG()) // 50cp awarded for each non-rated battleground won
                 l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
 
+            if (IsSkirmish())
+            {
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner);
+
+                uint32 l_HonorReward = ArenaSkirmishRewards::HonorPointsWinnerBase;
+                l_HonorReward += ArenaSkirmishRewards::HonorPointsWinnerBonusPerMinute * (GetElapsedTime() / (IN_MILLISECONDS * MINUTE));
+
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward);
+            }
+
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
             {
@@ -1096,6 +1106,9 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 if (!IsWargame())
                     l_Player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, loser_bonus);
             }
+
+            if (IsSkirmish())
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser);
         }
 
         l_Player->ResetAllPowers();

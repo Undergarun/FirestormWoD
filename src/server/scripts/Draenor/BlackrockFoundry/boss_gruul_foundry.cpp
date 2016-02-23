@@ -649,7 +649,7 @@ class spell_foundry_rage_regeneration : public SpellScriptLoader
                 ActionInfernoSlice
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -823,7 +823,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -909,7 +909,7 @@ class spell_foundry_petrifying_slam : public SpellScriptLoader
                 PetrifyStacks = 155330
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {

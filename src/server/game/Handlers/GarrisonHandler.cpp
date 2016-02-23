@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
-void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData) ///< p_RecvData is unused
 {
     if (!m_Player)
         return;
@@ -146,7 +146,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData) ///< p_RecvData is unused
 {
     if (!m_Player)
         return;
@@ -196,7 +196,7 @@ void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData)
     l_Garrison->Upgrade();
 }
 
-void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData) ///< p_RecvData is unused
 {
     if (!m_Player)
         return;
@@ -261,7 +261,7 @@ void WorldSession::HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData)
     SendGarrisonSetMissionNpc(l_NpcGUID);
 }
 
-void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData) ///< p_RecvData is unused
 {
     if (!m_Player)
         return;
@@ -701,7 +701,7 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
             if (l_Unit->AI())
                 l_ShipmentID = l_Unit->AI()->OnShipmentIDRequest(m_Player);
 
-            if (l_ShipmentID == -1)
+            if (l_ShipmentID == -1) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
                 l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, false);
         }
     }
@@ -898,7 +898,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
     }
 }
 
-void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
+void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData) ///< p_RecvData is unused
 {
     if (!m_Player)
         return;
@@ -987,7 +987,7 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 
     SendPacket(&l_Data);
 }
-void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID)
+void WorldSession::SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID) ///< p_CreatureGUID is unused
 {
     MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
 

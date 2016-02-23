@@ -218,13 +218,13 @@ class BattlegroundBFG : public Battleground
         virtual void Reset();
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        void RemovePlayer(Player* player, uint64 guid);
+        void RemovePlayer(Player* player, uint64 guid); ///< 'BattlegroundRBG::RemovePlayer' hides overloaded virtual function
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void EndBattleground(uint32 winner);
 
         /* Score-keeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundRBG::UpdatePlayerScore' hides overloaded virtual function
         void FillInitialWorldStates(ByteBuffer& data);
 
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);

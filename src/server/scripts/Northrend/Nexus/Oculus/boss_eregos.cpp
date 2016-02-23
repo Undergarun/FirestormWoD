@@ -259,7 +259,7 @@ class spell_eregos_planar_shift: public SpellScriptLoader
         {
             PrepareAuraScript(spell_eregos_planar_shift_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* creature = GetTarget()->ToCreature())
                     creature->AI()->DoAction(ACTION_SET_NORMAL_EVENTS);

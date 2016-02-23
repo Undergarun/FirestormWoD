@@ -130,7 +130,7 @@ namespace MS
 
             /// Check if the BattlegroundType given is a rated battleground.
             /// @p_Type : The type of the battleground.
-            static bool IsRated(Type p_Type)
+            static bool IsRated(Type p_Type) ///< IsRated is unused 22/02/16
             {
                 return (p_Type == RatedBg10v10 || p_Type == RatedBg15v15 || p_Type == RatedBg25v25) || (p_Type >= Arena2v2 && p_Type <= Arena5v5);
             }
@@ -141,15 +141,15 @@ namespace MS
             {
                 switch (p_Type)
                 {
-                case BattlegroundType::Arena2v2:
-                case BattlegroundType::ArenaSkirmish2v2:
-                    return ArenaType::Arena2v2;
-                case BattlegroundType::Arena3v3:
-                case BattlegroundType::ArenaSkirmish3v3:
-                    return ArenaType::Arena3v3;
-                case BattlegroundType::Arena5v5:
-                default:
-                    return ArenaType::Arena5v5;
+                    case BattlegroundType::Arena2v2:
+                    case BattlegroundType::ArenaSkirmish2v2:
+                        return ArenaType::Arena2v2;
+                    case BattlegroundType::Arena3v3:
+                    case BattlegroundType::ArenaSkirmish3v3:
+                        return ArenaType::Arena3v3;
+                    case BattlegroundType::Arena5v5:
+                    default:
+                        return ArenaType::Arena5v5;
                 }
             }
 
@@ -158,11 +158,11 @@ namespace MS
             {
                 switch (p_Type)
                 {
-                case BattlegroundType::ArenaSkirmish2v2:
-                case BattlegroundType::ArenaSkirmish3v3:
-                    return true;
-                default:
-                    return false;
+                    case BattlegroundType::ArenaSkirmish2v2:
+                    case BattlegroundType::ArenaSkirmish3v3:
+                        return true;
+                    default:
+                        return false;
                 }
             }
         }
@@ -620,6 +620,17 @@ enum BattlegroundRandomRewards
     BG_REWARD_LOSER_HONOR_FIRST     = 4500,
     BG_REWARD_LOSER_HONOR_LAST      = 3500
 };
+
+namespace ArenaSkirmishRewards
+{
+    enum
+    {
+        ConquestPointsWinner            = 2500,
+        HonorPointsWinnerBase           = 3600,
+        HonorPointsWinnerBonusPerMinute = 900,
+        HonorPointLoser                 = 3500
+    };
+}
 
 const uint32 Buff_Entries[3] = { BG_OBJECTID_SPEEDBUFF_ENTRY, BG_OBJECTID_REGENBUFF_ENTRY, BG_OBJECTID_BERSERKERBUFF_ENTRY };
 
@@ -1180,7 +1191,7 @@ class Battleground
         BGHonorMode m_HonorMode;
 
         virtual uint32 GetMaxScore() const { return 0; }
-        virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; }
+        virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; } ///< p_Team is unused
         virtual bool IsScoreIncremental() const { return true; }
 
         void ApplyDampeningIfNeeded();

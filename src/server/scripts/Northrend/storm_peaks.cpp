@@ -783,7 +783,7 @@ class spell_close_rift: public SpellScriptLoader
                 return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
             }
 
-            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (++_counter == 5)
                     GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);

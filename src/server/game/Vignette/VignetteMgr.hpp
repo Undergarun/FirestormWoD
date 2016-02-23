@@ -80,7 +80,7 @@ namespace Vignette
             * @param p_Target: The worldobject who appear
             */
             template<class T>
-            inline void OnWorldObjectAppear(T const* p_Target);
+            inline void OnWorldObjectAppear(T const* p_Target); ///< Inline function 'Vignette::Manager::OnWorldObjectAppear<WorldObject>' is not defined
 
             /**
             * Call by Player::UpdateVisibilityOf
@@ -88,7 +88,7 @@ namespace Vignette
             * @param p_Target: The worldobject who disappear
             */
             template<class T>
-            inline void OnWorldObjectDisappear(T const* p_Target);
+            inline void OnWorldObjectDisappear(T const* p_Target); ///< Inline function 'Vignette::Manager::OnWorldObjectDisappear<WorldObject>' is not defined
 
         private:
 
