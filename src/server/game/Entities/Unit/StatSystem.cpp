@@ -691,6 +691,26 @@ const int8 k_constatBaseRaceStr[MAX_RACES] =
     0 ///< Pandaren Horde
 };
 
+const int8 k_constatBaseRaceAgi[MAX_RACES] =
+{
+    0, ///< None
+    0, ///< Humain
+    -3, ///< Orc
+    -4, ///< Dwarf
+    4, ///< Night Elfe
+    -2, ///< Undead
+    -4, ///< Tauren
+    2, ///< Gnome
+    2, ///< Troll
+    -3, ///< Goblin
+    2, ///< BloodElfe
+    1, ///< Drenei
+    3, ///< Worgen
+    -2, ///< Pandaren Neutral
+    -2, ///< Pandaren Alli
+    -2 ///< Pandaren Horde
+};
+
 const float k_constant[MAX_CLASSES] =
 {
     0.634f,  /// Warrior
@@ -703,6 +723,21 @@ const float k_constant[MAX_CLASSES] =
     1.000f,  /// Mage
     1.000f,  /// Warlock
     1.659f,  /// Monk
+    1.000f   /// Druid
+};
+
+const float k_DodgeFactor[MAX_CLASSES] =
+{
+    1.659f,  /// Warrior
+    2.259f,  /// Paladin
+    1.000f,  /// Hunter
+    1.000f,  /// Rogue
+    1.000f,  /// Priest
+    1.659f,  /// DK
+    1.000f,  /// Shaman
+    1.000f,  /// Mage
+    1.000f,  /// Warlock
+    0.300f,  /// Monk
     1.000f   /// Druid
 };
 
@@ -758,7 +793,12 @@ void Player::UpdateParryPercentage()
 
         /// Apply parry from pct of critical strike from gear
         l_Total += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
-        
+
+        if (l_Total < 0.0f)
+            l_Total = 0.0f;
+
+        if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
+            l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : l_Total;
         /// Parry from strength, just for paladin/dk/warrior        
         /*1% parry before diminishing returns = 176.3760684 strength
         1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
@@ -815,21 +855,25 @@ void Player::UpdateDodgePercentage()
         221 agi = 1.245764057198927
         1 agi = 0.0056369414352893
     */
+    uint32 pClass = getClass() - 1;
 
     // Dodge from rating
-    diminishing += GetRatingBonusValue(CR_DODGE);
-    diminishing += GetTotalStatValue(STAT_AGILITY, false) * 0.0056369414352893f;
+    float l_BaseDodge = 3.0f;
+    float l_Total = 0.0f;
 
-    uint32 pClass = getClass() - 1;
-    // apply diminishing formula to diminishing dodge chance
-    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + (dodgeCap[pClass] * k_constant[pClass])));
-    if (value < 0.0f)
-        value = 0.0f;
+    if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID || getClass() == CLASS_ROGUE || getClass() == CLASS_HUNTER || getClass() == CLASS_SHAMAN)
+        l_BaseDodge += (k_constatBaseRaceAgi[getRace()] * (1 / 176.3760684f));
+
+    float l_BonusDodge = (GetTotalStatValue(STAT_AGILITY, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_DODGE) / 162));
+    l_Total += l_BaseDodge + l_BonusDodge / (l_BonusDodge * k_DodgeFactor[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
+
+    if (l_Total < 0.0f)
+        l_Total = 0.0f;
 
     if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-        value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
+        l_Total = l_Total > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : l_Total;
 
-    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, value);
+    SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, l_Total);
 }
 
 void Player::UpdateBlockPercentage()
