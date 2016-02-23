@@ -103,7 +103,7 @@ void BattlegroundSM::PostUpdateImpl(uint32 p_Diff)
     if (!m_FirstMineCartSpawned)
         BattlegroundSM::FirstMineCartSummon(p_Diff);
 
-    if (Creature* l_FirstCart = GetBGCreature(NPC_SM_MINE_CART_1))
+    if (Creature* l_FirstCart = GetBGCreature(NPC_SM_MINE_CART_1)) ///< l_FirstCart is unused
         m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] = true;
     else
     {
@@ -112,7 +112,7 @@ void BattlegroundSM::PostUpdateImpl(uint32 p_Diff)
         m_PathDone[SM_EAST_PATH][1] = false;
     }
 
-    if (Creature* l_SecondCart = GetBGCreature(NPC_SM_MINE_CART_2))
+    if (Creature* l_SecondCart = GetBGCreature(NPC_SM_MINE_CART_2)) ///< l_SecondCart is unused
         m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] = true;
     else
     {
@@ -120,7 +120,7 @@ void BattlegroundSM::PostUpdateImpl(uint32 p_Diff)
         m_WaterfallPathDone = false;
     }
 
-    if (Creature* l_ThirdCart = GetBGCreature(NPC_SM_MINE_CART_3))
+    if (Creature* l_ThirdCart = GetBGCreature(NPC_SM_MINE_CART_3)) //< l_ThirdCart is unused
         m_MineCartSpawned[BG_SM_MINE_CART_3 - 1] = true;
     else
     {
@@ -236,7 +236,7 @@ void BattlegroundSM::CheckTrackSwitch()
     }
 }
 
-void BattlegroundSM::FirstMineCartSummon(uint32 p_Diff)
+void BattlegroundSM::FirstMineCartSummon(uint32 p_Diff) ///< p_Diff is unused
 {
     for (uint32 l_Cart = 0; l_Cart < BG_SM_MINE_CART_3; l_Cart++)
     {
@@ -263,7 +263,7 @@ void BattlegroundSM::StartingEventOpenDoors()
         SpawnBGObject(l_Iter, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundSM::SummonMineCart(uint32 p_Diff)
+void BattlegroundSM::SummonMineCart(uint32 p_Diff) ///< p_Diff is unused
 {
     for (int l_I = 0; l_I < BG_SM_MINE_CART_3; ++l_I)
     {
@@ -977,7 +977,7 @@ void BattlegroundSM::MineCartsMoves()
                         l_MineCart->GetMotionMaster()->MovePath(NPC_MINE_CART_1 * 10, false);
                         m_PathDone[SM_EAST_PATH][1] = true;
                     }
-                    else if (!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED) ||
+                    else if (!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED) || ///> '&&' within '||'
                         l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED))
                     {
                         l_MineCart->GetMotionMaster()->Clear(true);
@@ -1015,7 +1015,7 @@ void BattlegroundSM::MineCartsMoves()
             {
                 if (Creature* l_Track = GetBgMap()->GetCreature(BgCreatures[SM_TRACK_SWITCH_NORTH]))
                 {
-                    if (!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED) ||
+                    if (!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED) || ///> '&&' within '||'
                         l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED))
                     {
                         l_MineCart->GetMotionMaster()->Clear(true);

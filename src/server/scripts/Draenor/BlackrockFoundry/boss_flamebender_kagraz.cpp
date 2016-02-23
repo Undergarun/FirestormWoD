@@ -468,7 +468,7 @@ class boss_flamebender_kagraz : public CreatureScript
                         break;
                 }
 
-                if (!me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                if (me->GetDistance(me->GetHomePosition()) >= 70.0f)
                 {
                     EnterEvadeMode();
                     return;
@@ -487,11 +487,11 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eEvents::EventLavaSlash:
                     {
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                                 me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
@@ -508,6 +508,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, false);
 
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
                         break;
@@ -1392,6 +1394,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
             void Reset() override
             {
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
 
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
@@ -1701,7 +1705,7 @@ class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
                 DropTheHammer = 1
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -1741,7 +1745,7 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
                 MoltenTorrentAoE = 154938
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
@@ -1750,7 +1754,7 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
                 if (Unit* l_Target = GetTarget())
                 {
                     if (Unit* l_Caster = GetCaster())
-                        l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
 
@@ -1776,7 +1780,7 @@ class spell_foundry_allow_molten_torrent_cast : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_allow_molten_torrent_cast_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1824,7 +1828,7 @@ class spell_foundry_fiery_link : public SpellScriptLoader
                 Singe = 155049
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1874,7 +1878,7 @@ class spell_foundry_overheated : public SpellScriptLoader
                 ActionFixated
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1926,7 +1930,7 @@ class spell_foundry_fixate : public SpellScriptLoader
                 ActionFixatedAgain = 3
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -1966,7 +1970,7 @@ class spell_foundry_firestorm_aura : public SpellScriptLoader
                 ActionMagmaMonsoon = 1
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -2016,7 +2020,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
                 ActionFillStalkers = 2
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2034,7 +2038,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2118,7 +2122,7 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
                 UnquenchableFlameAoE = 156713
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpell::UnquenchableFlameAoE, false);
@@ -2133,6 +2137,46 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_foundry_unquenchable_flame_periodic_AuraScript();
+        }
+};
+
+/// Blazing Radiance - 155382
+class spell_foundry_blazing_radiance : public SpellScriptLoader
+{
+    public:
+        spell_foundry_blazing_radiance() : SpellScriptLoader("spell_foundry_blazing_radiance") { }
+
+        class spell_foundry_blazing_radiance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_blazing_radiance_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsPlayer())
+                        return true;
+
+                    Player* l_Player = p_Object->ToPlayer();
+                    if (l_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blazing_radiance_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_blazing_radiance_SpellScript();
         }
 };
 
@@ -2258,6 +2302,7 @@ void AddSC_boss_flamebender_kagraz()
     new spell_foundry_firestorm_v2_periodic_lava_stalker();
     new spell_foundry_firestorm_v2_pick_stalker_to_fire();
     new spell_foundry_unquenchable_flame_periodic();
+    new spell_foundry_blazing_radiance();
 
     /// AreaTriggers
     new areatrigger_foundry_lava_slash_pool();

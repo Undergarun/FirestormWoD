@@ -531,7 +531,7 @@ public:
             {
                 Unit* unit = Unit::GetUnit(*me, Council[i]);
                 if (unit)
-                    unit->CastSpell(unit, spellid, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                    unit->CastSpell(unit, spellid, true, 0, nullptr, me->GetGUID());
             }
         }
 
@@ -905,7 +905,7 @@ public:
             return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T);
         }
 
-        void Trigger(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* target = GetTarget();
             if (dmgInfo.GetAttacker() == target)

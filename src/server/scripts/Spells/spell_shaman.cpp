@@ -190,7 +190,7 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
                 UnleashedRestauration = 118473
             };
 
-            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -203,7 +203,7 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
                     p_Amount += l_SpellInfo->Effects[EFFECT_0].BasePoints;
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -441,7 +441,7 @@ class spell_sha_glyph_of_ascendance : public SpellScriptLoader
                 GlyphofAscendanceVisualEnh       = 186201
             };
 
-            void AfterApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -469,7 +469,7 @@ class spell_sha_glyph_of_ascendance : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -582,7 +582,7 @@ class spell_sha_ascendance_water : public SpellScriptLoader
                 RestorativeMists = 114083
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -811,9 +811,9 @@ class spell_sha_conductivity: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                if (Aura* l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                 {
-                    if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::HealingRainAura))
+                    if (Aura* l_Aura = l_Caster->GetAura(eSpells::HealingRainAura))
                     {
                         int32 l_RemainingDuration = l_Conductivity->GetEffect(EFFECT_0)->GetAmount() * 10;
                         int32 l_AddDuration = std::min(l_RemainingDuration, 4000);
@@ -830,7 +830,7 @@ class spell_sha_conductivity: public SpellScriptLoader
                 /// Stormstrike reduces the cooldown of Feral Spirits by 5 sec.
                 if (GetSpellInfo()->Id == eSpells::Stormstrike && l_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
-                    if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Enhancement2P, EFFECT_0))
+                    if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Enhancement2P, EFFECT_0))
                         l_Caster->ToPlayer()->ReduceSpellCooldown(eSpells::FeralSpirits, l_AuraEffect->GetAmount());
                 }
             }
@@ -857,7 +857,7 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_ancestral_guidance_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -994,7 +994,7 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_stone_bulwark_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 PreventDefaultAction();
 
@@ -1012,7 +1012,7 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
                 float spellPower = spellPower = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
                 int32 l_Amount = 0.875f * spellPower;
 
-                if (AuraPtr aura = l_Player->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                if (Aura* aura = l_Player->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
                 {
                     aura->GetEffect(EFFECT_0)->SetAmount(aura->GetEffect(EFFECT_0)->GetAmount() + l_Amount);
                     aura->RefreshDuration();
@@ -1020,12 +1020,12 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
                 else if (p_AurEff->GetTickNumber() == 1)
                 {
                     l_Amount *= 4.0f;
-                    if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
+                    if (Aura* aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
                         aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
                 }
                 else
                 {
-                    if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
+                    if (Aura* aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
                         aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
                 }
 
@@ -1206,7 +1206,7 @@ class spell_sha_fulmination: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        AuraPtr l_Shield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
+                        Aura* l_Shield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
                         if (!l_Shield)
                             return;
 
@@ -1217,14 +1217,14 @@ class spell_sha_fulmination: public SpellScriptLoader
                         uint8 l_Charges = l_Shield->GetCharges();
 
                         /// Each stack of Lightning Shield consumed by Fulmination increases your multistrike damage by 1% for 10 sec.
-                        if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Elemental2P, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Elemental2P, EFFECT_0))
                         {
                             int32 l_Pct = l_AuraEffect->GetAmount() * l_Charges;
                             l_Caster->CastCustomSpell(eSpells::FocusOfTheElements, SpellValueMod::SPELLVALUE_BASE_POINT0, l_Pct, l_Caster, true);
                         }
 
                         /// When you consume more than 12 Lightning Shield charges with Fulmination, you automatically gain Lava Surge.
-                        if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Elemental4P, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Elemental4P, EFFECT_0))
                         {
                             if (l_AuraEffect->GetAmount() < (int32)l_Charges)
                                 l_Caster->CastSpell(l_Caster, eSpells::LavaSurgeProc, true);
@@ -1274,7 +1274,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
                 LavaSurgeVisualRight    = 174928
             };
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1289,7 +1289,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
                 l_Player->CastSpell(l_Player, eSpells::LavaSurgeVisualRight, true);
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 
@@ -1459,7 +1459,7 @@ class spell_sha_earthquake: public SpellScriptLoader
                 ImprovedChainLightning = 157766,
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1472,7 +1472,7 @@ class spell_sha_earthquake: public SpellScriptLoader
                 /// dealing ${$SPN * 0.11 * 10 * (1 + $170374m3 / 100)} Physical damage over $d
                 int32 l_Bp0 = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.11 * 10;
 
-                if (AuraEffectPtr l_ChainLightning = l_Caster->GetAuraEffect(eSpells::ImprovedChainLightning, EFFECT_0))
+                if (AuraEffect* l_ChainLightning = l_Caster->GetAuraEffect(eSpells::ImprovedChainLightning, EFFECT_0))
                     l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetAmount());
 
                 l_Bp0 /= GetSpellInfo()->GetDuration() / IN_MILLISECONDS;
@@ -1578,7 +1578,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
                         l_Caster->SetHealingRainTrigger(l_Summon->GetGUID());
                     }
 
-                    if (AuraEffectPtr l_Conductivity = l_Caster->GetAuraEffect(SPELL_SHA_CONDUCTIVITY_TALENT, EFFECT_0))
+                    if (AuraEffect* l_Conductivity = l_Caster->GetAuraEffect(SPELL_SHA_CONDUCTIVITY_TALENT, EFFECT_0))
                         l_Conductivity->SetAmount(l_Conductivity->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                 }
             }
@@ -1598,7 +1598,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_healing_rain_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1608,7 +1608,7 @@ class spell_sha_healing_rain : public SpellScriptLoader
                     l_Caster->CastSpell(*l_Trigger, eSpell::HealingRainHeal, true);
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1881,7 +1881,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
                 if (l_ElementalFusion != nullptr)
                 {
-                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    if (Aura* l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
                     {
                         /// 1 stack - 40%, 2 stacks - 80%
                         uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();
@@ -1901,7 +1901,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_flame_shock_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
@@ -1923,7 +1923,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
                 if (l_ElementalFusion != nullptr)
                 {
-                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    if (Aura* l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
                     {
                         /// 1 stack - 40%, 2 stacks - 80%
                         uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();
@@ -2118,7 +2118,7 @@ class spell_sha_windfury: public SpellScriptLoader
                 FeralSpiritWindFury = 170512
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2135,7 +2135,7 @@ class spell_sha_windfury: public SpellScriptLoader
 
                             uint8 l_Count = 3;
 
-                            if (AuraPtr l_Bonus = GetCaster()->GetAura(SPELL_SHA_PVP_BONUS_WOD_4))
+                            if (Aura* l_Bonus = GetCaster()->GetAura(SPELL_SHA_PVP_BONUS_WOD_4))
                                 l_Count += l_Bonus->GetEffect(EFFECT_0)->GetAmount();
 
                             for (uint8 l_I = 0; l_I < l_Count; l_I++)
@@ -2178,7 +2178,7 @@ class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_glyph_of_eternal_earth_AuraScript);
 
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_ProcInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2190,7 +2190,7 @@ class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
 
                 if (Unit* l_Caster = p_ProcInfo.GetActor())
                 {
-                    if (AuraPtr l_EarthShield = l_Caster->GetAura(GlyphOfEternalEarth::EarthShield))
+                    if (Aura* l_EarthShield = l_Caster->GetAura(GlyphOfEternalEarth::EarthShield))
                     {
                         if (l_EarthShield->GetCharges() >= GetSpellInfo()->Effects[EFFECT_0].BasePoints) ///< This cannot cause Earth Shield to exceed 9 charges.
                             return;
@@ -2229,7 +2229,7 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
                 LavaLashHighlight = 144967
             };
 
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2290,7 +2290,7 @@ class spell_sha_feral_spirit: public SpellScriptLoader
                 /// Broken spellproc
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(SPELL_SHA_PVP_BONUS_WOD_2, EFFECT_0))
+                    if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(SPELL_SHA_PVP_BONUS_WOD_2, EFFECT_0))
                         l_Caster->CastSpell(l_Caster, l_Aura->GetTriggerSpell());
 
                     /// While Feral Spirits is active, you also turn into a Feral Spirit. While you are transformed, you move 25% faster, and your wolves can proc Windfury.
@@ -2334,7 +2334,7 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_pet_spirit_hunt_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2355,7 +2355,7 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
 
                 int32 l_HealAmount = CalculatePct(l_TakenDamage, p_AurEff->GetAmount());
 
-                if (AuraPtr l_GlyphofFeralSpirit = l_Owner->GetAura(eSpells::GlyphofFeralSpirit)) ///< Increases the healing done by your Feral Spirits' Spirit Hunt by 40%
+                if (Aura* l_GlyphofFeralSpirit = l_Owner->GetAura(eSpells::GlyphofFeralSpirit)) ///< Increases the healing done by your Feral Spirits' Spirit Hunt by 40%
                     l_HealAmount += CalculatePct(l_HealAmount, l_GlyphofFeralSpirit->GetEffect(EFFECT_0)->GetAmount());
 
                 l_Caster->CastCustomSpell(l_Owner, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
@@ -2392,7 +2392,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
                 ImprovedLightningShield     = 157774
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2416,7 +2416,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
                     return;
 
                 uint32 l_MaxCharges = GetEffect(EFFECT_0)->CalculateAmount(l_Caster);
-                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
+                if (Aura* l_Aura = GetCaster()->GetAura(SPELL_SHA_LIGHTNING_SHIELD))
                 {
                     if (l_Aura->GetCharges() < l_MaxCharges)
                         l_Aura->SetCharges(l_Aura->GetCharges() + 1);
@@ -2487,7 +2487,7 @@ class spell_sha_echo_of_elements: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_echo_of_elements_AuraScript);
 
-            void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -2533,7 +2533,7 @@ class spell_sha_liquid_magma: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_liquid_magma_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 // hardcoded in the tooltip - no DBC data here
@@ -2638,7 +2638,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_ghost_wolf_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 SpellInfo const* l_GhostlySpeed = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED);
                 if (! l_GhostlySpeed)
@@ -2831,7 +2831,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffectPtr l_T17Restoration = l_Caster->GetAuraEffect(eSpells::T17Restoration2P, EFFECT_0))
+                    if (AuraEffect* l_T17Restoration = l_Caster->GetAuraEffect(eSpells::T17Restoration2P, EFFECT_0))
                     {
                         if (!roll_chance_i(l_T17Restoration->GetAmount()))
                             return;
@@ -2938,7 +2938,7 @@ class spell_sha_riptide : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_riptide_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
@@ -2980,7 +2980,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_maelstrom_weapon_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2991,7 +2991,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
                 l_Caster->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], l_Caster);
             }
             
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3004,7 +3004,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
             void RemoveAllVisuals(Unit* l_Caster)
             {
                 for (uint32 l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds) / sizeof(uint32); l_I++)
-                    if (AuraPtr l_Aura = l_Caster->GetAura(g_MaelstromVisualSpellIds[l_I]))
+                    if (Aura* l_Aura = l_Caster->GetAura(g_MaelstromVisualSpellIds[l_I]))
                         l_Aura->Remove();
             }
 
@@ -3037,7 +3037,7 @@ class spell_sha_cloudburst_totem: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_cloudburst_totem_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3050,7 +3050,7 @@ class spell_sha_cloudburst_totem: public SpellScriptLoader
                     GetEffect(p_AurEff->GetEffIndex())->SetAmount(p_AurEff->GetAmount() + CalculatePct(l_HealInfo->GetHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
                 if (Unit* l_Owner = GetOwner()->ToUnit())
                 {
@@ -3209,7 +3209,7 @@ class spell_sha_WoDPvPEnhancement2PBonus : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_WoDPvPEnhancement2PBonus_AuraScript);
 
-            void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
             }
@@ -3242,7 +3242,7 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                 NaturesGuardian = 31616
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3297,7 +3297,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
                 EarthShieldProc = 379
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -3306,8 +3306,8 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
                     return;
 
                 float l_HealthPct = 0.0f;
-                AuraPtr l_AuraSetBonus = l_Caster->GetAura(eSpells::ItemWodPvpRestoration4PBonus);
-                if (AuraEffectPtr l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_0))
+                Aura* l_AuraSetBonus = l_Caster->GetAura(eSpells::ItemWodPvpRestoration4PBonus);
+                if (AuraEffect* l_AuraEffectHealthPct = l_AuraSetBonus->GetEffect(EFFECT_0))
                     l_HealthPct = (float)l_AuraEffectHealthPct->GetAmount();
 
                 if (p_EventInfo.GetDamageInfo() == nullptr || l_AuraSetBonus == nullptr)
@@ -3320,7 +3320,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
                 ///< Should proc only when the target pass from > 50% health to < 50% health
                 if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
                 {
-                    if (AuraEffectPtr l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
                         /// If we have less than 4 stacks, to prevent crash
                         if (p_AurEff->GetBase() && (p_AurEff->GetBase()->GetCharges() < l_AuraEffectNbrProc->GetAmount()))
@@ -3413,7 +3413,7 @@ class spell_sha_eye_of_the_storm : public SpellScriptLoader
 
             std::list<uint64> m_TargetList;
 
-            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr /*p_AurEff*/)
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffect* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 float l_Radius = 6.0f;
@@ -3447,7 +3447,7 @@ class spell_sha_eye_of_the_storm : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 for (uint64 l_TargetGUID : m_TargetList)
                 {
@@ -3486,7 +3486,7 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
                 FlameShock = 8050
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3534,13 +3534,13 @@ public:
             GlyphOfRaingOfFrogsSpell = 147709
         };
 
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Player* l_Player = GetTarget()->ToPlayer())
                 l_Player->learnSpell(eSpells::GlyphOfRaingOfFrogsSpell, false);
         }
 
-        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Player* l_Player = GetTarget()->ToPlayer())
                 if (l_Player->HasSpell(eSpells::GlyphOfRaingOfFrogsSpell))

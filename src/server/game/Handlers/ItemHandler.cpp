@@ -2114,7 +2114,7 @@ namespace
     }
 
     /// Loop through all the bags to see if it can be stack or not.
-    void StoreItemInReagentBanks(Player* p_Player, Item* p_Item)
+    void StoreItemInReagentBanks(Player* p_Player, Item* p_Item) ///< StoreItemInReagentBanks is unused
     {
         for (uint32 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; l_I++)
         {
@@ -2135,7 +2135,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
         return;
 
     /// First pass to stack items.
-    l_Player->ApplyOnBagsItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBagsItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         StoreItemInBags(p_Player, p_Item);
         return true;
@@ -2146,7 +2146,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
     std::multimap<uint32, Item*> l_Items;
 
     /// Second pass, we collect the informations for sorting.
-    l_Player->ApplyOnBagsItems([&l_Items, &l_ItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBagsItems([&l_Items, &l_ItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
         if (!l_Proto)
@@ -2166,7 +2166,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
 
     /// Third pass to swap all the items correctly.
     auto l_Itr = std::begin(l_ResultMap);
-    l_Player->ApplyOnBagsItems([&l_ResultMap, &l_Itr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    l_Player->ApplyOnBagsItems([&l_ResultMap, &l_Itr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot) ///< p_Item is unused
     {
         if (l_Itr == std::end(l_ResultMap))
             return false;
@@ -2179,7 +2179,7 @@ void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
     });
 }
 
-void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
+void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData) ///< p_RecvData is unused
 {
     WorldPacket data(SMSG_BAG_SORT_RESULT);
     this->SendPacket(&data);
@@ -2190,7 +2190,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
         return;
 
     /// First pass to stack items.
-    l_Player->ApplyOnBankItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBankItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         StoreItemInBanks(p_Player, p_Item);
         return true;
@@ -2209,7 +2209,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
     std::multimap<uint32, Item*> l_ReagentBankItems;*/
 
     /// Second pass, we collect the informations for sorting.
-    l_Player->ApplyOnBankItems([&l_BankItems, &l_BankItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    l_Player->ApplyOnBankItems([&l_BankItems, &l_BankItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8) ///< p_BagSlot is unused
     {
         ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
         if (!l_Proto)
@@ -2246,7 +2246,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
 
     /// Third pass to swap all the items correctly.
     auto l_BankItr = std::begin(l_BankResultMap);
-    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot) ///< p_Item is unused
     {
         if (l_BankItr == std::end(l_BankResultMap))
             return false;

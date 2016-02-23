@@ -1003,9 +1003,9 @@ void LFGMgr::Leave(Player* player, Group* grp /* = NULL*/)
     {
         case LFG_STATE_QUEUED:
             {
-                uint8 tankAdded = 0;
-                uint8 healerAdded = 0;
-                uint8 dpsAdded = 0;
+                uint8 tankAdded = 0; ///< unused
+                uint8 healerAdded = 0; ///< unused
+                uint8 dpsAdded = 0; ///< unused
                 LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
 
                 if (grp)
@@ -2546,7 +2546,7 @@ void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
    @returns Set of dungeons that can be done.
 */
-const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Check)
+const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Check) ///< p_Check is unused
 {
     LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(p_RandDungeon);
     uint32 l_GroupType = l_Dungeon ? l_Dungeon->grouptype : 0;
@@ -2598,7 +2598,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
    @param[in]     level Player level
    @returns Reward
 */
-LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 p_LEvel)
+LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 p_Level)
 {
     LfgReward const* l_Reward = nullptr;
     LfgRewardMap::const_iterator l_Itr = m_RewardMap.find(p_DungeonID & 0x00FFFFFF);

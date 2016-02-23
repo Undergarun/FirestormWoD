@@ -6,12 +6,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
 #include "gamePCH.h"
 #include "LFGListMgr.h"
 #include "Group.h"
 
-void WorldSession::HandleRequestLfgListBlacklist(WorldPacket& p_RecvData)
+void WorldSession::HandleRequestLfgListBlacklist(WorldPacket& p_RecvData) ///< p_RecvData is unused
 {
     WorldPacket l_Data(SMSG_LFG_LIST_UPDATE_BLACKLIST, 4);
     l_Data << uint32(0);    /// Activity and Reason loop - We dont need it

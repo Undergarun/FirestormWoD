@@ -449,14 +449,14 @@ namespace MS { namespace Garrison
 
         /// Large Timbers
 
-        m_TimberDisplayIDs.insert(std::make_pair(234000, 19188)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234022, 19474)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234098, 19576)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234119, 19474)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234123, 19586)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234127, 19593)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234194, 19772)); ///< Unk yet
-        m_TimberDisplayIDs.insert(std::make_pair(234196, 19812)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(233635, 19485)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234007, 19865)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234099, 19577)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234120, 19475)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234124, 19587)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234128, 19594)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234195, 19773)); ///< Unk yet
+        m_TimberDisplayIDs.insert(std::make_pair(234199, 19778)); ///< Unk yet
     }
 
     bool go_garrison_timber::OnGossipHello(Player* p_Player, GameObject* p_GameObject)

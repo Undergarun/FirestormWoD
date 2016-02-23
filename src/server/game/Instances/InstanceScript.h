@@ -555,7 +555,7 @@ class InstanceScript : public ZoneScript
         //////////////////////////////////////////////////////////////////////////
 
         // Called when a creature is killed by a player
-        virtual void OnCreatureKilled(Creature* p_Creature, Player* p_Player) { }
+        virtual void OnCreatureKilled(Creature* p_Creature, Player* p_Player) { } ///< p_Creature & p_Player is unused
 
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();

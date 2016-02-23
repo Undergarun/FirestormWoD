@@ -350,7 +350,7 @@ struct Loot
     uint8 UnlootedCount;
     bool  m_IsAoELoot;
 
-    Loot(uint32 _gold = 0) : m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), Context(ItemContext::None), RoundRobinPlayer(0) {}
+    Loot(uint32 _gold = 0) : Type(LOOT_CORPSE), RoundRobinPlayer(0), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), Context(ItemContext::None), UnlootedCount(0), m_IsAoELoot(false) {}
     ~Loot() { clear(); }
 
     void SetSource(uint64 p_Source) { source = p_Source; }
