@@ -354,3 +354,9 @@
 #36567/Quest - Bigger is better
 
 	UPDATE quest_template SET PrevQuestId =  34824 WHERE id = 36567;
+
+#81441/NPC - Shelly Hamby
+
+	DELETE FROM creature WHERE id = 81441;
+	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('81441','1158','7078','7085','2','4','0','0','1934.74','323.733','89.0721','1.13634','120','0','0','1','0','0','1','0','32768','34816','0','0','0','0',NULL);
+	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('81441','1331','7078','7211','2','4294967295','0','0','1871.62','259.834','76.64','4.12075','300','0','0','52509','9916','0','0','0','0','2048','0','0','0','0',NULL);
