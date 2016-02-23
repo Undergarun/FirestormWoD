@@ -153,6 +153,8 @@ class boss_brackenspore : public CreatureScript
 
             bool m_IntroDone;
 
+            std::vector<uint64> m_Flamethrowers;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -196,16 +198,35 @@ class boss_brackenspore : public CreatureScript
                 {
                     me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
-                    std::list<Creature*> l_BFCs;
-                    me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                    for (Creature* l_Creature : l_BFCs)
+                    if (m_Flamethrowers.empty())
                     {
-                        l_Creature->Respawn(true);
-                        l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+                        std::list<Creature*> l_BFCs;
+                        me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
 
-                        if (l_Creature->AI())
-                            l_Creature->AI()->Reset();
+                        for (Creature* l_Creature : l_BFCs)
+                        {
+                            l_Creature->Respawn(true);
+                            l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                            if (l_Creature->AI())
+                                l_Creature->AI()->Reset();
+
+                            m_Flamethrowers.push_back(l_Creature->GetGUID());
+                        }
+                    }
+                    else
+                    {
+                        for (uint64 l_Guid : m_Flamethrowers)
+                        {
+                            if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                            {
+                                l_Creature->Respawn(true);
+                                l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                                if (l_Creature->AI())
+                                    l_Creature->AI()->Reset();
+                            }
+                        }
                     }
                 }
             }
@@ -270,11 +291,11 @@ class boss_brackenspore : public CreatureScript
                                 l_AT->SetDuration(10);
                             }
 
-                            std::list<Creature*> l_BFCs;
-                            me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                            for (Creature* l_Creature : l_BFCs)
-                                l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+                            for (uint64 l_Guid : m_Flamethrowers)
+                            {
+                                if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                                    l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+                            }
 
                             std::list<Creature*> l_MindFungus;
                             me->GetCreatureListWithEntryInGrid(l_MindFungus, eCreatures::MindFungus, 100.0f);
@@ -401,11 +422,11 @@ class boss_brackenspore : public CreatureScript
 
                 ResetPlayersPower(me);
 
-                std::list<Creature*> l_BFCs;
-                me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                for (Creature* l_Creature : l_BFCs)
-                    l_Creature->RemoveAura(eSpells::BFC9000);
+                for (uint64 l_Guid : m_Flamethrowers)
+                {
+                    if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                        l_Creature->RemoveAura(eSpells::BFC9000);
+                }
 
                 me->RemoveAllAreasTrigger();
             }
@@ -1112,7 +1133,7 @@ class npc_highmaul_bfc9000 : public CreatureScript
 
             void OnSpellClick(Unit* p_Clicker) override
             {
-                if (!me->HasAura(eSpells::BFC9000))
+                if (!me->HasAura(eSpells::BFC9000) || p_Clicker->HasAura(eSpells::Flamethrower))
                     return;
 
                 p_Clicker->CastSpell(p_Clicker, eSpells::Flamethrower, true);

@@ -305,7 +305,11 @@ class boss_koragh : public CreatureScript
                     case eActions::CancelBreakersStrength:
                     {
                         m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventBreakersStrength);
+
+                        me->InterruptNonMeleeSpells(true);
+
                         me->RemoveAura(eSpells::BreakersStrength);
+                        me->RemoveAura(eSpells::SuppressionFieldAura);
 
                         /// When the Ko'ragh's Nullification Barrier is removed, he begins to recharge. After 20 sec, the barrier is restored.
                         Talk(eTalks::BarrierShattered);
@@ -556,6 +560,12 @@ class boss_koragh : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
+                if (me->GetDistance(me->GetHomePosition()) >= 60.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_CosmeticEvents.Update(p_Diff);
 
                 switch (m_CosmeticEvents.ExecuteEvent())
@@ -590,6 +600,7 @@ class boss_koragh : public CreatureScript
                             l_Grounding->RemoveAura(eSpells::VolatileAnomaliesAura);
 
                         m_RunicPlayersCount = 0;
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventBreakersStrength, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1741,6 +1752,10 @@ class spell_highmaul_suppression_field_aura : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
+                    return;
+
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
                     if (l_Target->IsAIEnabled)
