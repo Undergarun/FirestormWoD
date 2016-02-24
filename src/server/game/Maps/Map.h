@@ -571,7 +571,12 @@ class Map : public GridRefManager<NGridType>
         void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
 
     protected:
-        void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
+
+        void SetUnloadReferenceLock(const GridCoord &p, bool on)
+        {
+            if (NGridType* l_Grid = getNGrid(p.x_coord, p.y_coord))
+                l_Grid->setUnloadReferenceLock(on);
+        }
 
         ACE_Thread_Mutex Lock;
 
