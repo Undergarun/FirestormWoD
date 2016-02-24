@@ -415,13 +415,34 @@ class boss_freya : public CreatureScript
                 _encounterFinished = true;
 
                 //! Freya's chest is dynamically spawned on death by different spells.
-                const uint32 summonSpell[2][4] =
+                std::map<uint32, std::vector<uint32>> summonSpell =
                 {
-                    /* 0Elder, 1Elder, 2Elder, 3Elder killed */
-                    /* 10N */ {62957, 62955, 62953, 62950},
-                    /* 25N */ {62958, 62956, 62954, 62952}
+                    {
+                        Difficulty::Difficulty10N,
+                        {
+                            62957,
+                            62955,
+                            62953,
+                            62950
+                        }
+                    },
+                    {
+                        Difficulty::Difficulty25N,
+                        {
+                            62958,
+                            62956,
+                            62954,
+                            62952
+                        }
+                    }
                 };
-                me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficultyID()][_elderCount], true); // GetDifficulty should return 0 or 1 (numeric)
+
+                uint32 l_SpellId = 62957; ///< Default
+
+                if (summonSpell.find(me->GetMap()->GetDifficultyID()) != summonSpell.end() && _elderCount < 4)
+                    l_SpellId = summonSpell[me->GetMap()->GetDifficultyID()][_elderCount];
+
+                me->CastSpell((Unit*)NULL, l_SpellId, true);
 
                 Talk(SAY_DEATH);
                 me->SetReactState(REACT_PASSIVE);
