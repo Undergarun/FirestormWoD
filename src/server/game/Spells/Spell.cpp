@@ -3728,7 +3728,12 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channeled triggers channeled
     if ((_triggeredCastFlags & TRIGGERED_CAST_DIRECTLY) && (!m_spellInfo->IsChanneled() || !m_spellInfo->GetMaxDuration()))
+    {
+        if (m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+            SendSpellStart();
+
         cast(true);
+    }
     else
     {
         // stealth must be removed at cast starting (at show channel bar)
@@ -4814,6 +4819,9 @@ void Spell::SendSpellStart()
     if (m_targets.HasTraj())
         l_CastFlags |= CAST_FLAG_ADJUST_MISSILE;
 
+    if (m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+        l_CastFlags = SpellCastFlags::CAST_FLAG_HAS_TRAJECTORY | SpellCastFlags::CAST_FLAG_NO_GCD;
+
     WorldPacket data(SMSG_SPELL_START);
 
     uint32 unkStringLength = 0;
@@ -4998,6 +5006,13 @@ void Spell::SendSpellGo()
 
     if (m_CastItemEntry)
         l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
+
+    /// Sniffed values - It triggers the bonus roll animation
+    if (m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+    {
+        l_CastFlags     = SpellCastFlags::CAST_FLAG_HAS_TRAJECTORY | SpellCastFlags::CAST_FLAG_NO_GCD;
+        l_CastFlagsEx   = CastFlagsEx::CAST_FLAG_EX_UNK_5;
+    }
 
     uint32 l_MissCount = 0;
     uint32 l_HitCount = 0;
@@ -8247,7 +8262,7 @@ bool Spell::IsAutoActionResetSpell() const
 
 bool Spell::IsNeedSendToClient() const
 {
-    return m_spellInfo->SpellVisual[0] || m_spellInfo->SpellVisual[1] || m_spellInfo->IsChanneled() ||
+    return m_spellInfo->SpellVisual[0] || m_spellInfo->SpellVisual[1] || m_spellInfo->IsChanneled() || m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS) ||
         (m_spellInfo->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT) || m_spellInfo->Speed > 0.0f || (!m_triggeredByAuraSpell && !IsTriggered());
 }
 

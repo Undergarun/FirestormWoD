@@ -2818,6 +2818,10 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
         }
     }
 
+    /// Loot bonus animation
+    if (HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+        l_CastTime = 0;
+
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
