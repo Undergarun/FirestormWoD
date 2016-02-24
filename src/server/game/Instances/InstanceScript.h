@@ -379,6 +379,9 @@ class InstanceScript : public ZoneScript
 
         virtual void OnGameObjectRemove(GameObject* p_Go);
 
+        /// Called when falling damage are calculated for player
+        virtual bool IsPlayerImmuneToFallDamage(Player* p_Player) const { return false; }
+
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time
         /// @p_Function : Callback function
