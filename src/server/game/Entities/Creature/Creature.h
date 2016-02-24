@@ -54,6 +54,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN        = 0x00040000,       ///< creature won't increase weapon skills
     CREATURE_FLAG_EXTRA_TAUNT_DIMINISH      = 0x00080000,       ///< Taunt is a subject to diminishing returns on this creautre·
     CREATURE_FLAG_EXTRA_ALL_DIMINISH        = 0x00100000,       ///< Creature is subject to all diminishing returns as player are
+    CREATURE_FLAG_EXTRA_LOG_GROUP_DMG       = 0x00200000,       ///< All damage done to the create will be logged into database, help to spot cheaters/exploit/usebug
     CREATURE_FLAG_EXTRA_DUNGEON_BOSS        = 0x10000000,       ///< creature is a dungeon boss
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING  = 0x20000000,       ///< creature ignore pathfinding (NYI)
     CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS    = 0x40000000        ///< Creature is the last boss of the dungeon where he is
@@ -64,7 +65,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_CRUSH | CREATURE_FLAG_EXTRA_NO_XP_AT_KILL | CREATURE_FLAG_EXTRA_TRIGGER | \
     CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
-    CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)
+    CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_DUNGEON_END_BOSS | CREATURE_FLAG_EXTRA_DUNGEON_BOSS | CREATURE_FLAG_EXTRA_LOG_GROUP_DMG)
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -291,6 +292,26 @@ struct CreatureGroupSizeStat
 };
 
 typedef std::map<uint32/*CreatureEntry*/, std::map<uint32/*Difficulty*/, CreatureGroupSizeStat>> CreatureGroupSizeStatsContainer;
+
+struct CreatureDamageLog
+{
+    uint32 Spell;
+    uint32 Damage;
+    uint32 AttackerGuid;
+    uint32 Time;
+};
+
+typedef std::list<CreatureDamageLog> CreatureDamageLogList;
+
+struct GroupDump
+{
+    std::string Dump;
+    time_t      Time;
+};
+
+typedef std::list<GroupDump> GroupDumpList;
+
+#define GROUP_DUMP_TIMER 60000
 
 struct CreatureLocale
 {
@@ -827,6 +848,19 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_LOSCheck_creature;
         bool m_LOSCheck_player;
 
+        void SetEncounterStartTime(time_t p_Time) { m_StartEncounterTime = p_Time; }
+        time_t GetEncounterStartTime() const { return m_StartEncounterTime; }
+
+        CreatureDamageLogList const& GetDamageLogs() { return m_DamageLogs; }
+        void AddDamageLog(CreatureDamageLog p_Log) { m_DamageLogs.push_back(p_Log); }
+        void ClearDamageLog() { m_DamageLogs.clear(); }
+
+        GroupDumpList const& GetGroupDumps() { return m_GroupDumps; }
+        void AddGroupDump(GroupDump p_Dump) { m_GroupDumps.push_back(p_Dump); }
+        void ClearGroupDumps() { m_GroupDumps.clear(); }
+
+        void DumpGroup();
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = nullptr);
         bool InitEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
@@ -880,6 +914,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool IsInvisibleDueToDespawn() const;
         bool CanAlwaysSee(WorldObject const* obj) const;
     private:
+
+        CreatureDamageLogList m_DamageLogs;
+        time_t m_StartEncounterTime;
+
+        GroupDumpList m_GroupDumps;
+        uint32 m_DumpGroupTimer;
 
         //WaypointMovementGenerator vars
         uint32 m_waypointID;

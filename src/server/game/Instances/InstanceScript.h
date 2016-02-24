@@ -371,6 +371,8 @@ class InstanceScript : public ZoneScript
         void SendEncounterEnd(uint32 p_EncounterID, bool p_Success);
         uint32 GetEncounterIDForBoss(Creature* p_Boss) const;
 
+        void SaveEncounterLogs(Creature* p_Creature, uint32 p_EncounterID);
+
         // Used only during loading
         void SetCompletedEncountersMask(uint32 newMask) { m_CompletedEncounters = newMask; }
 

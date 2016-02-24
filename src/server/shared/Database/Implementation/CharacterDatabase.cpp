@@ -733,6 +733,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_UPD_PREMADE_SUCESS, "UPDATE webshop_delivery_premade SET delivery = 1 WHERE transaction = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Encounter logs
+    PREPARE_STATEMENT(CHAR_INS_ENCOUNTER_DAMAGE_LOG, "INSERT INTO encounter_damage_log (encounterId, encounterStartTime, logTime, attackerGuid, damage, spellId) VALUES (?, ?, ?, ?, ?, ?) ", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_ENCOUNTER_GROUP_DUMP, "INSERT INTO encounter_group_dump(encounterId, encounterStartTime, dumpTime, dump) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
+
     PREPARE_STATEMENT(CHAR_SEL_DAILY_LOOT_COOLDOWNS, "SELECT `entry` FROM `character_daily_loot_cooldown` WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_DAILY_LOOT_COOLDOWNS, "INSERT INTO `character_daily_loot_cooldown` (`guid`, `entry`) VALUE (?, ?)", CONNECTION_ASYNC);
 

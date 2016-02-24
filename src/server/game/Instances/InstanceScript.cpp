@@ -1401,6 +1401,9 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
             SendEncounterEnd((*l_Iter)->dbcEntry->ID, true);
 
+            if (p_Source->GetTypeId() == TypeID::TYPEID_UNIT)
+                SaveEncounterLogs(p_Source->ToCreature(), (*l_Iter)->dbcEntry->ID);
+
             if (p_Source != nullptr)
                 SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source);
 
@@ -1503,6 +1506,44 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
 
     /// Reset datas after each attempt
     m_EncounterDatas = EncounterDatas();
+}
+
+void InstanceScript::SaveEncounterLogs(Creature* p_Creature, uint32 p_EncounterID)
+{
+    if ((p_Creature->GetNativeTemplate()->flags_extra & CREATURE_FLAG_EXTRA_LOG_GROUP_DMG) == 0)
+        return;
+
+    CreatureDamageLogList const& l_DamageLogs  = p_Creature->GetDamageLogs();
+    GroupDumpList const& l_GroupDumps          = p_Creature->GetGroupDumps();
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+    for (auto l_Log : l_DamageLogs)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ENCOUNTER_DAMAGE_LOG);
+        l_Statement->setUInt32(0, p_EncounterID);
+        l_Statement->setUInt64(1, m_EncounterDatas.StartTime);
+        l_Statement->setUInt64(2, l_Log.Time);
+        l_Statement->setUInt32(3, l_Log.AttackerGuid);
+        l_Statement->setUInt32(4, l_Log.Damage);
+        l_Statement->setUInt32(5, l_Log.Spell);
+        l_Transaction->Append(l_Statement);
+    }
+
+    for (auto l_Dump : l_GroupDumps)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ENCOUNTER_GROUP_DUMP);
+        l_Statement->setUInt32(0, p_EncounterID);
+        l_Statement->setUInt64(1, m_EncounterDatas.StartTime);
+        l_Statement->setUInt64(2, l_Dump.Time);
+        l_Statement->setString(3, l_Dump.Dump);
+        l_Transaction->Append(l_Statement);
+    }
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    p_Creature->ClearDamageLog();
+    p_Creature->ClearGroupDumps();
 }
 
 uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
