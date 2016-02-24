@@ -34,8 +34,8 @@ enum ShamanSpells
     SHAMAN_SPELL_SATED                          = 57724,
     SHAMAN_SPELL_EXHAUSTION                     = 57723,
     HUNTER_SPELL_INSANITY                       = 95809,
-    MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
     HUNTER_SPELL_FATIGUED                       = 160455,
+    MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
     SPELL_SHA_LIGHTNING_SHIELD_AURA             = 324,
     SPELL_SHA_ELEMENTAL_BLAST                   = 117014,
     SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL     = 118517,
@@ -105,7 +105,9 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION                  = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
-    SPELL_SHA_UNLEASH_FLAME_AURA                = 73683
+    SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT   = 73683,
+    SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL      = 165462,
+    SPELL_SHA_GLYPH_OF_LAVA_LASH                = 55444
 };
 
 /// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
@@ -1676,8 +1678,9 @@ class EarthenPowerTargetSelector
         }
 };
 
-/// Bloodlust - 2825 - last update: 6.1.2 19802
-class spell_sha_bloodlust: public SpellScriptLoader
+/// last update : 6.1.2 19802
+/// Bloodlust - 2825
+class spell_sha_bloodlust : public SpellScriptLoader
 {
     public:
         spell_sha_bloodlust() : SpellScriptLoader("spell_sha_bloodlust") { }
@@ -1685,11 +1688,6 @@ class spell_sha_bloodlust: public SpellScriptLoader
         class spell_sha_bloodlust_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_sha_bloodlust_SpellScript);
-
-            enum eSpells
-            {
-                TimeWrap = 80353
-            };
 
             bool Validate(SpellInfo const* /*p_SpellEntry*/) override
             {
@@ -1699,27 +1697,36 @@ class spell_sha_bloodlust: public SpellScriptLoader
                 return true;
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
-            {
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_SATED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_INSANITY));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_FATIGUED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWrap));
-            }
-
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
+                }
             }
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SHAMAN_SPELL_EXHAUSTION) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
+
+                l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
+            }
+
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1728,6 +1735,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
             return new spell_sha_bloodlust_SpellScript();
         }
 };
+
 
 /// Heroism - 32182 - last update: 6.1.2 19802
 class spell_sha_heroism: public SpellScriptLoader
@@ -1747,36 +1755,33 @@ class spell_sha_heroism: public SpellScriptLoader
                 return true;
             }
 
-            SpellCastResult CheckCast()
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster->HasAura(ShamanSpells::SHAMAN_SPELL_EXHAUSTION))
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
-            {
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_EXHAUSTION));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::HUNTER_SPELL_INSANITY));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::SHAMAN_SPELL_SATED));
-                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, ShamanSpells::MAGE_SPELL_TEMPORAL_DISPLACEMENT));
-            }
-
             void ApplyDebuff()
             {
                 if (Unit* l_Target = GetHitUnit())
-                    l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_EXHAUSTION, true);
+                {
+                    if (GetSpellInfo() && l_Target->HasAura(GetSpellInfo()->Id))
+                        l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_EXHAUSTION, true);
+                }
+            }
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SHAMAN_SPELL_EXHAUSTION) || l_Target->HasAura(HUNTER_SPELL_INSANITY) ||
+                    l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
+                    l_Target->HasAura(HUNTER_SPELL_FATIGUED))
+                    PreventHitAura();
             }
 
             void Register() override
             {
-                OnCheckCast += SpellCheckCastFn(spell_sha_heroism_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1850,43 +1855,44 @@ class spell_sha_flame_shock : public SpellScriptLoader
             void HitTarget(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
 
-                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                /// In Elemental and Enhancement specs auras have different IDs
+                uint32 l_BonusSpellId = 0;
+                if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ELEMENTAL)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL;
+                else if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT;
+
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(l_BonusSpellId);
                 SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
 
-                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA) && l_UnleashFlame != nullptr)
+                if (l_Caster->HasAura(l_BonusSpellId) && l_UnleashFlame != nullptr)
                 {
                     m_HasUnleashFlame = true;
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                    l_Caster->RemoveAurasDueToSpell(l_BonusSpellId);
                 }
-                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+
+                if (l_ElementalFusion != nullptr)
                 {
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ElementalFusion->Effects[EFFECT_0].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_ELEMENTAL_FUSION_PROC);
-                }
-            }
-
-            void HandleAfterHit()
-            {
-                Unit* l_Target = GetHitUnit();
-
-                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
-
-                if (l_Target == nullptr)
-                    return;
-
-                if (m_HasUnleashFlame && l_UnleashFlame != nullptr)
-                {
-                    if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id))
-                        l_Aura->GetEffect(EFFECT_1)->SetAmount(l_Aura->GetEffect(EFFECT_1)->GetAmount() + CalculatePct(l_Aura->GetEffect(EFFECT_1)->GetAmount(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-
+                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    {
+                        /// 1 stack - 40%, 2 stacks - 80%
+                        uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Stacks * l_ElementalFusion->Effects[EFFECT_0].BasePoints));
+                        l_Caster->RemoveAurasDueToSpell(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                    }
                 }
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_sha_flame_shock_SpellScript::HandleAfterHit);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_flame_shock_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -1898,16 +1904,35 @@ class spell_sha_flame_shock : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
 
-                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+                /// In Elemental and Enhancement specs auras have different IDs
+                uint32 l_BonusSpellId = 0;
+                if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ELEMENTAL)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ELEMENTAL;
+                else if (l_Player->GetSpecializationId() == SPEC_SHAMAN_ENHANCEMENT)
+                    l_BonusSpellId = SPELL_SHA_UNLEASH_FLAME_AURA_ENCHANCEMENT;
+
+                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(l_BonusSpellId);
+
+                if (l_ElementalFusion != nullptr)
                 {
-                    p_Amount += CalculatePct(p_Amount, l_ElementalFusion->Effects[EFFECT_0].BasePoints);
+                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    {
+                        /// 1 stack - 40%, 2 stacks - 80%
+                        uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();
+                        p_Amount += CalculatePct(p_Amount, l_Stacks * l_ElementalFusion->Effects[EFFECT_0].BasePoints);
+                    }
                 }
+
+                if (l_Caster->HasAura(l_BonusSpellId) && l_UnleashFlame != nullptr)
+                    p_Amount += CalculatePct(p_Amount, l_UnleashFlame->Effects[EFFECT_1].BasePoints);
             }
 
             void Register()
@@ -2035,6 +2060,11 @@ class spell_sha_lava_lash: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_lava_lash_SpellScript);
 
+            enum eSpells
+            {
+                FlameAura = 73683
+            };
+
             void HitTarget(SpellEffIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -2043,21 +2073,21 @@ class spell_sha_lava_lash: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !l_Caster->HasAura(SPELL_SHA_GLYPH_OF_LAVA_LASH))
                     l_Caster->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
 
                 if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
                     l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
                 
-                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA))
+                if (l_Caster->HasAura(eSpells::FlameAura))
                 {
-                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(eSpells::FlameAura);
 
                     if (l_UnleashFlame == nullptr)
                         return;
 
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                    l_Caster->RemoveAurasDueToSpell(eSpells::FlameAura);
                 }
             }
 

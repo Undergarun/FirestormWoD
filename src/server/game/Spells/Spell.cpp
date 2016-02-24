@@ -7105,8 +7105,10 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     /// Fix a bug when spells can be casted in fear
     if (m_caster->HasAuraType(SPELL_AURA_MOD_FEAR) || m_caster->HasAuraType(SPELL_AURA_MOD_FEAR_2))
-        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear())
+    {
+        if (!m_spellInfo->IsRemoveLossControlEffects() && !m_spellInfo->IsRemoveFear() && m_spellInfo->Id != 1022) ///< Specific case of Hand of Protection
             return SPELL_FAILED_FLEEING;
+    }
 
     // hex
     if (m_caster->HasAuraWithMechanic(1 << MECHANIC_POLYMORPH))

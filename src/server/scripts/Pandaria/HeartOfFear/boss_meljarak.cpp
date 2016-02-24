@@ -1546,7 +1546,15 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            switch (m_scriptSpellId)
+            {
+                case 122193:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                break;
+            }
         }
 
         uint32 _targetCount;

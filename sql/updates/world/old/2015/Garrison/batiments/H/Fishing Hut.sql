@@ -100,9 +100,9 @@ UPDATE creature_template SET scriptname = "npc_MakJin_Garr" WHERE entry = 79892;
 
 		REPLACE INTO reference_loot_template (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `itemBonuses`) VALUES (-`p_Reference`, p_ItemEntry, `p_DropChance`, 1, 1, 1, 1, '');
 
-		-- 39 = CONDITION_HAS_BUILDING_TYPE, 13 = BuildingType::Type::MageTower, p_Level = Building Level
+		-- 39 = CONDITION_HAS_BUILDING_TYPE, 24 = BuildingType::Type::FishingHut, p_Level = Building Level
 		DELETE FROM conditions WHERE SourceTypeOrReferenceId = 1 AND SourceGroup = p_ZoneID AND SourceEntry = p_ItemEntry;
-		INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionValue1, ConditionValue2) VALUES (1, p_ZoneID, p_ItemEntry, 39, 13, p_Level);
+		INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionValue1, ConditionValue2) VALUES (1, p_ZoneID, p_ItemEntry, 39, 24, p_Level);
 	END @@
 	DELIMITER ;
 
