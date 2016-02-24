@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,46 +20,44 @@
 
 #include "Common.h"
 
-namespace lfg
+enum LfgRoles : uint8
 {
-
-enum LFGEnum
-{
-    LFG_TANKS_NEEDED                             = 1,
-    LFG_HEALERS_NEEDED                           = 1,
-    LFG_DPS_NEEDED                               = 3
+    LFG_ROLEMASK_NONE                                    = 0x00,
+    LFG_ROLEMASK_LEADER                                  = 0x01,
+    LFG_ROLEMASK_TANK                                    = 0x02,
+    LFG_ROLEMASK_HEALER                                  = 0x04,
+    LFG_ROLEMASK_DAMAGE                                  = 0x08
 };
 
-enum LfgRoles
+enum LfgUpdateType : uint8
 {
-    PLAYER_ROLE_NONE                             = 0x00,
-    PLAYER_ROLE_LEADER                           = 0x01,
-    PLAYER_ROLE_TANK                             = 0x02,
-    PLAYER_ROLE_HEALER                           = 0x04,
-    PLAYER_ROLE_DAMAGE                           = 0x08
+    LFG_UPDATETYPE_DEFAULT                       = 0,  ///< Internal Use
+    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 24, ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 13, ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,  ///< 6.0.2 19027 OK
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 15, ///< 6.0.2 19027 OK
+
+
+    LFG_UPDATETYPE_LEADER_UNK1                   = 1,  ///< 6.0.2 19027
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,  ///< 6.0.2 19027
+    LFG_UPDATETYPE_GROUP_FOUND                   = 11, ///< 6.0.2 19027
+    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 14, ///< 6.0.2 19027
+
+    LFG_UPDATETYPE_ROLECHECK_ABORTED             = 30, ///< 6.0.2 19027
+    LFG_UPDATETYPE_ERROR                         = 46, ///< 6.0.2 19027
+
+
+
+    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,  //  -
+    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,  //  -
+    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 16, //  - 6
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 17, //  -    FIXME: Sometimes at group disband
+
+    // 25 - related to party guid
+    // 52 - update status
 };
 
-enum LfgUpdateType
-{
-    LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
-    LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
-    LFG_UPDATETYPE_LEAVE_RAIDBROWSER             = 2,
-    LFG_UPDATETYPE_JOIN_RAIDBROWSER              = 3,
-    LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_QUEUE                    = 5,
-    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 7,
-    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,
-    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,
-    LFG_UPDATETYPE_GROUP_FOUND                   = 10,
-    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 12,
-    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 14,
-    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
-    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 16,     // FIXME: Sometimes at group disband
-};
-
-enum LfgState
+enum LfgState : uint8
 {
     LFG_STATE_NONE,                                        // Not using LFG / LFR
     LFG_STATE_ROLECHECK,                                   // Rolecheck active
@@ -72,8 +70,9 @@ enum LfgState
 };
 
 /// Instance lock types
-enum LfgLockStatusType
+enum LfgLockStatusType : uint16
 {
+    LFG_LOCKSTATUS_OK                            = 0,      // Internal use only
     LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION        = 1,
     LFG_LOCKSTATUS_TOO_LOW_LEVEL                 = 2,
     LFG_LOCKSTATUS_TOO_HIGH_LEVEL                = 3,
@@ -85,126 +84,28 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
     LFG_LOCKSTATUS_MISSING_ITEM                  = 1025,
     LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031,
-    LFG_LOCKSTATUS_MISSING_ACHIEVEMENT           = 1034
+    LFG_LOCKSTATUS_ACHIEVEMENT_NOT_COMPLITED     = 1034,
+    LFG_LOCKSTATUS_TEMPORARILY_DISABLED          = 10000
 };
 
-/// Answer state (Also used to check compatibilites)
-enum LfgAnswer
+/// Dungeon and reason why player can't join
+struct LfgLockStatus
 {
-    LFG_ANSWER_PENDING                           = -1,
-    LFG_ANSWER_DENY                              = 0,
-    LFG_ANSWER_AGREE                             = 1
+    LfgLockStatusType lockstatus;                          ///< Lock type
+    uint32 SubReason1;
+    uint32 SubReason2;
+
+    LfgLockStatus()
+    {
+        SubReason1 = 0;
+        SubReason2 = 0;
+        lockstatus = LFG_LOCKSTATUS_OK;
+    }
 };
 
-class Lfg5Guids;
 
-typedef std::list<Lfg5Guids> Lfg5GuidsList;
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, uint32> LfgLockMap;
+typedef ACE_Based::LockedMap<uint32, LfgLockStatus> LfgLockMap;
 typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
-typedef std::set<uint64> LfgGuidSet;
-typedef std::list<uint64> LfgGuidList;
-typedef std::map<uint64, uint8> LfgRolesMap;
-typedef std::map<uint64, uint64> LfgGroupsMap;
-
-class Lfg5Guids
-{
-public:
-	uint64 guid[5];
-	LfgRolesMap* roles;
-	Lfg5Guids() { memset(&guid, 0, 5*8); roles = NULL; }
-	Lfg5Guids(uint64 g) { memset(&guid, 0, 5*8); guid[0] = g; roles = NULL; }
-	Lfg5Guids(Lfg5Guids const& x) { memcpy(guid, x.guid, 5*8); if (x.roles) roles = new LfgRolesMap(*(x.roles)); else roles = NULL; }
-	Lfg5Guids(Lfg5Guids const& x, bool copyRoles) { memcpy(guid, x.guid, 5*8); roles = NULL; }
-	~Lfg5Guids() { delete roles; }
-	void addRoles(LfgRolesMap const& r) { roles = new LfgRolesMap(r); }
-	void clear() { memset(&guid, 0, 5*8); }
-	bool empty() const { return guid[0] == 0; }
-	uint64 front() const { return guid[0]; }
-	uint8 size() const
-	{
-		if (guid[2])
-		{
-			if (guid[4]) return 5;
-			else if (guid[3]) return 4;
-			return 3;
-		}
-		else if (guid[1]) return 2;
-		else if (guid[0]) return 1;
-		return 0;
-	}
-	void insert(const uint64& g)
-	{
-		// avoid loops for performance
-		if (guid[0] == 0) { guid[0] = g; return; }
-		else if (g <= guid[0]) { if (guid[3]) guid[4] = guid[3]; if (guid[2]) guid[3] = guid[2]; if (guid[1]) guid[2] = guid[1]; guid[1] = guid[0]; guid[0] = g; return; }
-		if (guid[1] == 0) { guid[1] = g; return; }
-		else if (g <= guid[1]) { if (guid[3]) guid[4] = guid[3]; if (guid[2]) guid[3] = guid[2]; guid[2] = guid[1]; guid[1] = g; return; }
-		if (guid[2] == 0) { guid[2] = g; return; }
-		else if (g <= guid[2]) { if (guid[3]) guid[4] = guid[3]; guid[3] = guid[2]; guid[2] = g; return; }
-		if (guid[3] == 0) { guid[3] = g; return; }
-		else if (g <= guid[3]) { guid[4] = guid[3]; guid[3] = g; return; }
-		guid[4] = g;
-	}
-	void force_insert_front(const uint64& g)
-	{
-		if (guid[3]) guid[4] = guid[3]; if (guid[2]) guid[3] = guid[2]; if (guid[1]) guid[2] = guid[1]; guid[1] = guid[0]; guid[0] = g;
-	}
-	void remove(const uint64& g)
-	{
-		// avoid loops for performance
-		if (guid[0] == g) { if (guid[1]) guid[0] = guid[1]; else { guid[0] = 0; return; } if (guid[2]) guid[1] = guid[2]; else { guid[1] = 0; return; } if (guid[3]) guid[2] = guid[3]; else { guid[2] = 0; return; } if (guid[4]) guid[3] = guid[4]; else { guid[3] = 0; return; } guid[4] = 0; return; }
-		if (guid[1] == g) { if (guid[2]) guid[1] = guid[2]; else { guid[1] = 0; return; } if (guid[3]) guid[2] = guid[3]; else { guid[2] = 0; return; } if (guid[4]) guid[3] = guid[4]; else { guid[3] = 0; return; } guid[4] = 0; return; }
-		if (guid[2] == g) { if (guid[3]) guid[2] = guid[3]; else { guid[2] = 0; return; } if (guid[4]) guid[3] = guid[4]; else { guid[3] = 0; return; } guid[4] = 0; return; }
-		if (guid[3] == g) { if (guid[4]) guid[3] = guid[4]; else { guid[3] = 0; return; } guid[4] = 0; return; }
-		if (guid[4] == g) guid[4] = 0;
-	}
-	bool hasGuid(const uint64& g) const
-	{
-		return g && (guid[0] == g || guid[1] == g || guid[2] == g || guid[3] == g || guid[4] == g);
-	}
-	bool operator<(const Lfg5Guids& x) const
-	{
-		// not neat, but fast xD
-		if (guid[0]<=x.guid[0]) {
-			if (guid[0] == x.guid[0]) {
-				if (guid[1]<=x.guid[1]) {
-					if (guid[1] == x.guid[1]) {
-						if (guid[2]<=x.guid[2]) {
-							if (guid[2] == x.guid[2]) {
-								if (guid[3]<=x.guid[3]) {
-									if (guid[3] == x.guid[3]) {
-										if (guid[4]<=x.guid[4]) {
-											if (guid[4] == x.guid[4]) return false; else return true;
-										} else return false;
-									} else return true;
-								} else return false;
-							} else return true;
-						} else return false;
-					} else return true;
-				} else return false;
-			} else return true;
-		} else return false;
-	}
-	bool operator==(const Lfg5Guids& x) const
-	{
-		return guid[0] == x.guid[0] && guid[1] == x.guid[1] && guid[2] == x.guid[2] && guid[3] == x.guid[3] && guid[4] == x.guid[4];
-	}
-	void operator=(const Lfg5Guids& x) { memcpy(guid, x.guid, 5*8); delete roles; if (x.roles) roles = new LfgRolesMap(*(x.roles)); else roles = NULL; }
-	std::string toString() const // for debugging
-	{
-		std::ostringstream o;
-		o << GUID_LOPART(guid[0]) << "," << GUID_LOPART(guid[1]) << "," << GUID_LOPART(guid[2]) << "," << GUID_LOPART(guid[3]) << "," << GUID_LOPART(guid[4]) << ":" << (roles ? 1 : 0);
-		return o.str();
-	}
-};
-
-/*
-std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
-std::string GetRolesString(uint8 roles);
-std::string GetStateString(LfgState state);
-*/
-
-} // namespace lfg
 
 #endif
