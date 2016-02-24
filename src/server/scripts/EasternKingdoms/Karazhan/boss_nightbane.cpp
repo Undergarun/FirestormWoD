@@ -142,6 +142,9 @@ public:
             }
             else
                 instance->DoSendNotifyToInstance(EMOTE_SUMMON);
+            
+            if (instance)
+                instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
         }
 
         void HandleTerraceDoors(bool open)

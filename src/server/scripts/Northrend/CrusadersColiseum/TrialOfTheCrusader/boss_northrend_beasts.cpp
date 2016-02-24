@@ -229,9 +229,16 @@ class boss_gormok : public CreatureScript
             {
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
+                {
                     for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
+                    {
                         if (Unit* pSnobold = me->GetVehicleKit()->GetPassenger(i))
-                            pSnobold->ToCreature()->DespawnOrUnsummon();
+                        {
+                            if (pSnobold->GetTypeId() == TYPEID_UNIT)
+                                pSnobold->ToCreature()->DespawnOrUnsummon();
+                        }
+                    }
+                }
             }
 
             void UpdateAI(uint32 const diff)

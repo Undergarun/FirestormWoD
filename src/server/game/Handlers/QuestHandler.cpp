@@ -229,7 +229,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                     for (QuestObjective l_Objective : quest->QuestObjectives)
                     {
                         if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM &&
-                            (l_Objective.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0))
+                            (l_Objective.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0)) ///< Comparison of integers of different signs: 'int32' (aka 'int') and 'uint32' (aka 'unsigned int')
                         {
                             destroyItem = false;
                             break;

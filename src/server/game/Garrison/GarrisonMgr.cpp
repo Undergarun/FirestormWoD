@@ -188,8 +188,9 @@ namespace MS { namespace Garrison
                     l_Building.SpecID           = l_Fields[3].GetUInt32();
                     l_Building.TimeBuiltStart   = l_Fields[4].GetUInt32();
                     l_Building.TimeBuiltEnd     = l_Fields[5].GetUInt32();
-                    l_Building.Active           = l_Fields[6].GetBool();
-                    l_Building.GatheringData    = l_Fields[7].GetString();
+                    l_Building.FollowerAssigned = l_Fields[6].GetUInt32();
+                    l_Building.Active           = l_Fields[7].GetBool();
+                    l_Building.GatheringData    = l_Fields[8].GetString();
 
                     if (!l_Building.Active && time(0) > l_Building.TimeBuiltEnd)
                         l_Building.BuiltNotified = true;    ///< Auto notify by info packet
@@ -545,6 +546,7 @@ namespace MS { namespace Garrison
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].SpecID);
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltStart);
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].TimeBuiltEnd);
+            l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].FollowerAssigned);
             l_BuildingStatement->setBool  (l_Index++, m_Buildings[l_I].Active);
             l_BuildingStatement->setString(l_Index++, m_Buildings[l_I].GatheringData);
             l_BuildingStatement->setUInt32(l_Index++, m_Buildings[l_I].DatabaseID);
@@ -1441,7 +1443,7 @@ namespace MS { namespace Garrison
             uint32 l_AddedXP = (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
             l_AddedXP = l_MissionFollowers[l_FollowerIt]->EarnXP(l_AddedXP, m_Owner); ///< l_addedXP is never read 01/18/16
 
-            if (l_FollowerLevel != l_MissionFollowers[l_FollowerIt]->Level && l_MissionFollowers[l_FollowerIt]->Level == 100)
+            if (l_FollowerLevel != l_MissionFollowers[l_FollowerIt]->Level && l_MissionFollowers[l_FollowerIt]->Level == 100) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                 m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
         }
 
@@ -1776,7 +1778,7 @@ namespace MS { namespace Garrison
 
             l_AddedXP = const_cast<GarrisonFollower*>(p_Follower)->EarnXP(l_AddedXP, m_Owner);
 
-            if (l_FollowerLevel != p_Follower->Level && p_Follower->Level == 100)
+            if (l_FollowerLevel != p_Follower->Level && p_Follower->Level == 100) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                 m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
         });
     }
@@ -2511,6 +2513,18 @@ namespace MS { namespace Garrison
         return nullptr;
     }
 
+    /// Get follower
+    GarrisonFollower* Manager::GetFollowerWithDatabaseID(uint32 p_FollowerDatabaseID)
+    {
+        for (uint32 l_I = 0; l_I < m_Followers.size(); l_I++)
+        {
+            if (m_Followers[l_I].DatabaseID == p_FollowerDatabaseID)
+                return &m_Followers[l_I];
+        }
+
+        return nullptr;
+    }
+
     /// Get activated followers count
     uint32 Manager::GetActiveFollowerCount(uint32 p_FollowerType) const
     {
@@ -2625,12 +2639,26 @@ namespace MS { namespace Garrison
         GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingRecID);
 
         GarrisonBuilding l_Building;
+        Interfaces::GarrisonSite* l_GarrisonScript = GetGarrisonScript();
 
         if (!l_BuildingEntry)
             return l_Building;
 
         if (!PlotIsFree(p_PlotInstanceID))
-            DeleteBuilding(p_PlotInstanceID);
+        {
+            GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+            GarrisonBuilding l_Building = GetBuilding(p_PlotInstanceID);
+            GarrBuildingEntry const* l_OldBuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+            bool l_ForUpgrade = false;
+
+            if (l_OldBuildingEntry && l_PlotInstanceEntry && l_OldBuildingEntry->Type == l_BuildingEntry->Type && l_OldBuildingEntry->Level < l_BuildingEntry->Level && l_GarrisonScript)
+            {
+                m_LastPlotBuildingType.insert(std::make_pair(l_PlotInstanceEntry->PlotID, l_OldBuildingEntry->Type));
+                l_ForUpgrade = true;
+            }
+
+            DeleteBuilding(p_PlotInstanceID, false, l_ForUpgrade);
+        }
 
         if (l_BuildingEntry->CostCurrencyID != 0 && !p_Triggered)
             m_Owner->ModifyCurrency(l_BuildingEntry->CostCurrencyID, -(int32)l_BuildingEntry->CostCurrencyAmount);
@@ -2647,8 +2675,8 @@ namespace MS { namespace Garrison
 
         uint32 l_BuildingTime = l_BuildingEntry->BuildDuration;
 
-        if (GetGarrisonScript())
-            l_BuildingTime = GetGarrisonScript()->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
+        if (l_GarrisonScript)
+            l_BuildingTime = l_GarrisonScript->OnPrePurchaseBuilding(m_Owner, p_BuildingRecID, l_BuildingTime);
 
         l_Building.DatabaseID       = sObjectMgr->GetNewGarrisonBuildingID();
         l_Building.BuildingID       = p_BuildingRecID;
@@ -2675,7 +2703,7 @@ namespace MS { namespace Garrison
             l_Building.BuiltNotified = true;
         }
 
-        PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GARRISON_BUILDING);
 
         uint32 l_Index = 0;
         l_Stmt->setUInt32(l_Index++, l_Building.DatabaseID);
@@ -2685,6 +2713,7 @@ namespace MS { namespace Garrison
         l_Stmt->setUInt32(l_Index++, l_Building.SpecID);
         l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltStart);
         l_Stmt->setUInt32(l_Index++, l_Building.TimeBuiltEnd);
+        l_Stmt->setUInt32(l_Index++, l_Building.FollowerAssigned);
         l_Stmt->setBool(l_Index++, l_Building.Active);
         l_Stmt->setString(l_Index++, l_Building.GatheringData);
 
@@ -2694,8 +2723,8 @@ namespace MS { namespace Garrison
 
         UpdatePlot(p_PlotInstanceID);
 
-        if (GetGarrisonScript())
-            GetGarrisonScript()->OnPurchaseBuilding(m_Owner, p_BuildingRecID);
+        if (l_GarrisonScript)
+            l_GarrisonScript->OnPurchaseBuilding(m_Owner, p_BuildingRecID);
 
         return l_Building;
     }
@@ -2725,6 +2754,18 @@ namespace MS { namespace Garrison
         }
 
         return l_Buildings;
+    }
+
+    /// Get Building object
+    GarrisonBuilding* Manager::GetBuildingObject(uint32 p_PlotInstanceID)
+    {
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); l_I++)
+        {
+            if (m_Buildings[l_I].PlotInstanceID == p_PlotInstanceID)
+                return &m_Buildings[l_I];
+        }
+
+        return nullptr;
     }
 
     /// Get building passive ability effects
@@ -2780,7 +2821,17 @@ namespace MS { namespace Garrison
         UpdateStats();
 
         if (GetGarrisonScript())
-            GetGarrisonScript()->OnBuildingActivated(m_Owner, l_Building->BuildingID);
+        {
+            GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+
+            if (l_PlotInstanceEntry && !m_LastPlotBuildingType.empty() && m_LastPlotBuildingType.find(l_PlotInstanceEntry->PlotID) != m_LastPlotBuildingType.end() && m_LastPlotBuildingType[l_PlotInstanceEntry->PlotID] == l_BuildingEntry->Type)
+            {
+                GetGarrisonScript()->OnUpgradeBuilding(m_Owner, l_BuildingEntry->ID);
+                m_LastPlotBuildingType.erase(l_PlotInstanceEntry->PlotID);
+            }
+            else
+                GetGarrisonScript()->OnBuildingActivated(m_Owner, l_Building->BuildingID);
+        }
     }
 
     /// Activate building
@@ -2808,7 +2859,7 @@ namespace MS { namespace Garrison
         if (!l_BuildingEntry)
             return;
 
-        DeleteBuilding(p_PlotInstanceID);
+        DeleteBuilding(p_PlotInstanceID, true, false);
 
         if (l_BuildingEntry->CostCurrencyID != 0)
             m_Owner->ModifyCurrency(l_BuildingEntry->CostCurrencyID, (int32)l_BuildingEntry->CostCurrencyAmount);
@@ -2818,7 +2869,7 @@ namespace MS { namespace Garrison
     }
 
     /// Delete building
-    void Manager::DeleteBuilding(uint32 p_PlotInstanceID)
+    void Manager::DeleteBuilding(uint32 p_PlotInstanceID, bool p_Canceled, bool p_RemoveForUpgrade)
     {
         if (!HasPlotInstance(p_PlotInstanceID))
             return;
@@ -2833,6 +2884,11 @@ namespace MS { namespace Garrison
         if (!l_BuildingEntry)
             return;
 
+        if (GetGarrisonScript())
+        {
+            GetGarrisonScript()->OnDeleteBuilding(m_Owner, l_BuildingID, l_BuildingEntry->Type, p_RemoveForUpgrade);
+        }
+
         PreparedStatement * l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GARRISON_BUILDING);
         l_Stmt->setUInt32(0, GetBuilding(p_PlotInstanceID).DatabaseID);
         CharacterDatabase.AsyncQuery(l_Stmt);
@@ -2844,6 +2900,14 @@ namespace MS { namespace Garrison
                 m_Buildings.erase(l_It);
                 break;
             }
+        }
+
+        if (p_Canceled)
+        {
+            GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
+
+            if (l_PlotInstanceEntry && !m_LastPlotBuildingType.empty() && m_LastPlotBuildingType.find(l_PlotInstanceEntry->PlotID) != m_LastPlotBuildingType.end())
+                m_LastPlotBuildingType.erase(l_PlotInstanceEntry->PlotID);
         }
 
         UpdatePlot(p_PlotInstanceID);
@@ -3032,6 +3096,31 @@ namespace MS { namespace Garrison
                 break;
             }
         }
+    }
+
+    uint8 Manager::CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID)
+    {
+        std::map<uint32, uint32> l_FollowerLevelBonus =
+        {
+            { 90, 50 },
+            { 91, 55 },
+            { 92, 60 },
+            { 93, 65 },
+            { 94, 70 },
+            { 95, 75 },
+            { 96, 80 },
+            { 97, 85 },
+            { 98, 90 },
+            { 99, 95 },
+            { 100, 100 }
+        };
+
+        GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+        
+        if (l_Follower == nullptr)
+            return 1;
+
+        return roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1;
     }
 
     /// Get creature plot instance ID
@@ -3508,7 +3597,7 @@ namespace MS { namespace Garrison
 
                         int32 l_NegPlotTypeOrBuilding = -l_Contents[l_I].PlotTypeOrBuilding;
 
-                        if (l_Building.Active && l_NegPlotTypeOrBuilding != l_Building.BuildingID)
+                        if (l_Building.Active && l_NegPlotTypeOrBuilding != l_Building.BuildingID) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                             continue;
                     }
 
@@ -4167,7 +4256,7 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */)
+    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */) ///< p_Abilities & p_Traits are unused
     {
         if (p_Reset)
             p_Follower.Abilities.clear();
@@ -4316,7 +4405,7 @@ namespace MS { namespace Garrison
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;
 
-            if (l_Index == (l_Iter->Abilities.size() - 1))
+            if (l_Index == (l_Iter->Abilities.size() - 1)) ///< Comparison of integers of different signs: 'int' and 'unsigned long'
                 return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
         }
 
@@ -4361,7 +4450,7 @@ namespace MS { namespace Garrison
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;
 
-            if (l_Index == (l_Iter->Abilities.size() - 1))
+            if (l_Index == (l_Iter->Abilities.size() - 1)) ///< Comparison of integers of different signs: 'int' and 'unsigned long'
                 return;
         }
 
@@ -4418,7 +4507,7 @@ namespace MS { namespace Garrison
     {
         uint32 l_Level = 0;
 
-        auto l_Building = std::find_if(m_Buildings.begin(), m_Buildings.end(), [&l_Level](GarrisonBuilding l_Building) -> bool
+        auto l_Building = std::find_if(m_Buildings.begin(), m_Buildings.end(), [&l_Level](GarrisonBuilding l_Building) -> bool ///< l_Building is unused
         {
             auto l_GarrBuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 

@@ -990,7 +990,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript);
 
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetTarget())
                 return;
@@ -1002,7 +1002,7 @@ public:
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
         }
 
-        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1054,7 +1054,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript);
 
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
                 return;
@@ -1062,7 +1062,7 @@ public:
             GetCaster()->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
-        void HandlePeriodic(constAuraEffectPtr p_AurEff)
+        void HandlePeriodic(AuraEffect const* p_AurEff)
         {
             PreventDefaultAction();
             if (GetCaster())

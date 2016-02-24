@@ -321,8 +321,8 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_supplicant
 UPDATE creature_template SET ScriptName = 'npc_highmaul_rokka_and_lokk' WHERE entry IN (86071, 86073);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_oro' WHERE entry = 86072;
 
-UPDATE creature_template SET unit_class = 4, dmg_multiplier = 20, ScriptName = 'boss_tectus', mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry = 78948;
-UPDATE creature_template SET unit_class = 4, dmg_multiplier = 8, ScriptName = 'boss_tectus', mechanic_immune_mask = 617299839 WHERE entry IN (80551, 80557);
+UPDATE creature_template SET unit_class = 4, dmg_multiplier = 20, ScriptName = 'boss_tectus', mechanic_immune_mask = 617299839, flags_extra = (0x01 | 0x00200000) WHERE entry = 78948;
+UPDATE creature_template SET unit_class = 4, dmg_multiplier = 8, ScriptName = 'boss_tectus', mechanic_immune_mask = 617299839, flags_extra = 0x00200000 WHERE entry IN (80551, 80557);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_earthen_pillar_stalker' WHERE entry = 80476;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_night_twisted_berserker', mechanic_immune_mask = 608907135 WHERE entry = 80822;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_night_twisted_earthwarper', mechanic_immune_mask = 608907135 WHERE entry = 80599;

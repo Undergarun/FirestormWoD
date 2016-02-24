@@ -2501,7 +2501,7 @@ class spell_reckless_charge_rolling : public SpellScriptLoader
         {
             PrepareAuraScript(spell_reckless_charge_rolling_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -2596,9 +2596,9 @@ class spell_frigid_assault : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frigid_assault_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraPtr frigidAssault = aurEff->GetBase())
+                if (Aura* frigidAssault = aurEff->GetBase())
                     if (frigidAssault->GetStackAmount() == 15)
                     {
                         if (Unit* caster = GetCaster())
@@ -2619,7 +2619,7 @@ class spell_frigid_assault : public SpellScriptLoader
                     }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2633,8 +2633,8 @@ class spell_frigid_assault : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_frigid_assault_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_frigid_assault_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_frigid_assault_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_frigid_assault_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -2654,7 +2654,7 @@ class spell_lingering_presence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_lingering_presence_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 coefficient = 2 * 10 / 100;
 
@@ -2763,9 +2763,9 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
 
             InstanceScript* pInstance;
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraPtr frostBite = aurEff->GetBase())
+                if (Aura* frostBite = aurEff->GetBase())
                 {
                     if (uint8 stack = frostBite->GetStackAmount())
                     {
@@ -2794,7 +2794,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -2815,7 +2815,7 @@ class spell_frosbite_malakk_aura : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -2848,13 +2848,13 @@ class spell_overload_discharge_kazra_jin : public SpellScriptLoader
         {
             PrepareAuraScript(spell_overload_discharge_kazra_jin_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_GENERIC_STUN, caster);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->RemoveAura(SPELL_GENERIC_STUN);
@@ -2862,8 +2862,8 @@ class spell_overload_discharge_kazra_jin : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_overload_discharge_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_overload_discharge_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_overload_discharge_kazra_jin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_overload_discharge_kazra_jin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
@@ -2883,9 +2883,9 @@ class spell_ensnared : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ensnared_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (AuraPtr ensnared = aurEff->GetBase())
+                if (Aura* ensnared = aurEff->GetBase())
                 {
                     if (uint8 stack = ensnared->GetStackAmount())
                     {
@@ -2929,7 +2929,7 @@ class spell_sandstorm : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sandstorm_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3011,7 +3011,7 @@ class spell_soul_fragment : public SpellScriptLoader
 
             InstanceScript* instance;
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3106,7 +3106,7 @@ class spell_first_twisted_fate : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_first_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectLaunch += SpellEffectFn(spell_first_twisted_fate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

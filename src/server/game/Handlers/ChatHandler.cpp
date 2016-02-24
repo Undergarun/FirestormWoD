@@ -315,7 +315,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
                 {
                     if (sWorld->ModerateMessage(l_Text))
                     {
-                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY));
+                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY)); ///< Format string is not a string literal (potentially insecure)
                         return;
                     }
                 }
@@ -761,7 +761,7 @@ namespace JadeCore
 
             }
 
-            void operator()(WorldPacket & p_Data, LocaleConstant p_LocalIndex)
+            void operator()(WorldPacket & p_Data, LocaleConstant p_LocalIndex) ///< p_LocalIndex is unused
             {
                 uint64 l_TargetGUID = m_Target ? m_Target->GetGUID() : 0;
 

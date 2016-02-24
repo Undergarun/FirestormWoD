@@ -305,7 +305,7 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
+void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const ///< p_OnDeath is unused
 {
     ASSERT(p_Target);
 
@@ -1796,7 +1796,7 @@ void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
 InstanceScript* WorldObject::GetInstanceScript()
 {
     Map* map = GetMap();
-    return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceScript() : NULL;
+    return (map->IsDungeon() || map->IsScenario()) ? ((InstanceMap*)map)->GetInstanceScript() : NULL;
 }
 
 float WorldObject::GetDistanceZ(const WorldObject* obj) const

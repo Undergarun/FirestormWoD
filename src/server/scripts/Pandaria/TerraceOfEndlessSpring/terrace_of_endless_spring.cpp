@@ -520,7 +520,7 @@ class spell_night_terrors_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_night_terrors_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* caster = GetCaster())
                 {

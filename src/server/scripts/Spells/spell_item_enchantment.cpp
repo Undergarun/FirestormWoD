@@ -65,7 +65,7 @@ class spell_enchantment_mark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_enchantment_mark_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 if (!GetOwner())
                     return;
@@ -120,13 +120,19 @@ class spell_enchantment_mark : public SpellScriptLoader
                         break;
                 }
 
+                if (!l_Item || l_Player->HasSpellCooldown(l_ProcAuraId))
+                    return;
+
                 /// Check if we have this enchant on that weapon
                 for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
                     if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)))
                         l_HasEnchant = true;
 
-                if (l_HasEnchant)
+                if (l_HasEnchant && l_Player && l_ProcAuraId && l_Item)
+                {
                     l_Player->CastSpell(l_Player, l_ProcAuraId, true, l_Item);
+                    l_Player->AddSpellCooldown(l_ProcAuraId, 0, 1 * IN_MILLISECONDS, true);
+                }
             }
 
             void Register() override

@@ -74,7 +74,7 @@ class ObjectWorldLoader
 
     private:
         Cell i_cell;
-        NGridType &i_grid;
+        NGridType &i_grid; ///< i_grid is unused
         Map* i_map;
     public:
         uint32 i_corpses;

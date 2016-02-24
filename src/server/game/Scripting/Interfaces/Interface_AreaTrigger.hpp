@@ -32,10 +32,10 @@ class AreaTriggerScript : public ScriptObjectImpl<true>
         }
 
         /// Called when a player enters the AreaTrigger
-        virtual void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { }
+        virtual void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { } ///< p_Player & p_AreaTrigger is unused
 
         /// Called when a player exits the AreaTrigger
-        virtual void OnExit(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { }
+        virtual void OnExit(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { } ///< p_Player & p_AreaTrigger is unused
 
         /// Called on each update of AreaTriggers.
         /// @p_AreaTrigger : Area Trigger instance

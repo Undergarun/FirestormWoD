@@ -3319,12 +3319,12 @@ class spell_rocket_pack: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rocket_pack_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->CastSpell(GetTarget(), 68721, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(68721);
             }

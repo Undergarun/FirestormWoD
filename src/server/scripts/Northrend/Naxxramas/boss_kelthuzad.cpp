@@ -793,7 +793,7 @@ class spell_kelthuzad_detonate_mana: public SpellScriptLoader
                 return true;
             }
 
-            void HandleScript(constAuraEffectPtr aurEff)
+            void HandleScript(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
 

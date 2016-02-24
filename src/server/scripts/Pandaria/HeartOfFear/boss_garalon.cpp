@@ -1143,7 +1143,7 @@ class spell_garalon_damaged : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_garalon_damaged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_REMOVE_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_garalon_damaged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1231,7 +1231,7 @@ public:
         {
             if (Unit* target = GetHitUnit())
             {
-                if (AuraPtr aur = target->GetAura(SPELL_PUNGENCY))
+                if (Aura* aur = target->GetAura(SPELL_PUNGENCY))
                     SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));       
             }
         }
@@ -1344,7 +1344,7 @@ class spell_garalon_pungency : public SpellScriptLoader
         {
             PrepareAuraScript(spell_garalon_pungencyAuraScript);
 
-            void Duration(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Duration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {

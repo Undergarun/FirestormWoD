@@ -1462,7 +1462,7 @@ class spell_meljarak_corrosive_resin : public SpellScriptLoader
         {
             PrepareAuraScript(spell_meljarak_corrosive_resin_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* owner = GetOwner()->ToUnit();
                 if (!owner)
@@ -1472,7 +1472,7 @@ class spell_meljarak_corrosive_resin : public SpellScriptLoader
                 if (owner->isMoving())
                 {
                     // Check the aura.
-                    if (AuraPtr resinAura = owner->GetAura(SPELL_CORROSIVE_RESIN))
+                    if (Aura* resinAura = owner->GetAura(SPELL_CORROSIVE_RESIN))
                     {
                         // Remove the stacks.
                         if (resinAura->GetStackAmount() > 1)
@@ -1546,7 +1546,15 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            switch (m_scriptSpellId)
+            {
+                case 122193:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mending_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                break;
+            }
         }
 
         uint32 _targetCount;

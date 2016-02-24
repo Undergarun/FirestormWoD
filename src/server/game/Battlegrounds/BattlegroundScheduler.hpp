@@ -103,6 +103,9 @@ namespace MS
             /// Try to make matches with the queued groups.
             void FindMatches();
 
+            /// Try to create a battleground
+            bool TryCreateBattleground(BattlegroundType::Type p_DecidedBg, std::vector<std::list<GroupQueueInfo*>>& p_PotentialGroups, std::size_t p_BracketId);
+
         private:
             /// Allocates the groups in the existing battlegrounds depending on different criteria and respecting eligibility.
             /// @p_BracketId    : The bracket id.
@@ -118,7 +121,7 @@ namespace MS
 
         private:
             std::list<GroupQueueInfo*> m_QueuedGroups[Brackets::Count][2];                                  ///< The queue of groups.
-            std::size_t m_NumInstances;                                                                     ///< The number of instances launched during the whole runtime.
+            std::size_t m_NumInstances;                                                                     ///< The number of instances launched during the whole runtime. ///< m_NumInstances is unused
             std::pair<float, std::size_t> m_BattlegroundOccurences[Brackets::Count][BattlegroundType::Max]; ///< The occurrences of battlegrounds during runtime.
             std::size_t m_TotalOccurences[Brackets::Count];                                                 ///< The total number of occurences during runtime.
             QueuedPlayersMap m_QueuedPlayers;                                                               ///< The queue of players that are in the groups.
