@@ -647,7 +647,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                for (uint8 l_I = 0; l_I < m_FirstSlagElemental ? 1 : 2; ++l_I)
+                                for (uint8 l_I = 0; l_I < (m_FirstSlagElemental ? 1 : 2); ++l_I)
                                 {
                                     if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
