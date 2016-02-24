@@ -567,7 +567,7 @@ namespace MMAP
         rcVcopy(config.bmin, bmin);
         rcVcopy(config.bmax, bmax);
 
-        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+   /*     config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
         config.cs = BASE_UNIT_DIM;
         config.ch = BASE_UNIT_DIM;
         config.walkableSlopeAngle = m_maxWalkableAngle;
@@ -583,7 +583,23 @@ namespace MMAP
         config.mergeRegionArea = rcSqr(50);
         config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
         config.detailSampleDist = config.cs * 64;
-        config.detailSampleMaxError = config.ch * 2;
+        config.detailSampleMaxError = config.ch * 2;*/
+        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+        config.cs = BASE_UNIT_DIM;
+        config.ch = BASE_UNIT_DIM;
+        config.walkableSlopeAngle = m_maxWalkableAngle;
+        config.tileSize = VERTEX_PER_TILE;
+        config.walkableRadius = m_bigBaseUnit ? 1 : 2;
+        config.borderSize = config.walkableRadius + 3;
+        config.maxEdgeLen = VERTEX_PER_TILE + 1;        //anything bigger than tileSize
+        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
+        config.walkableClimb = m_bigBaseUnit ? 2 : 4;   // keep less than walkableHeight
+        config.minRegionArea = rcSqr(50);
+        config.mergeRegionArea = rcSqr(40);
+        config.maxSimplificationError = 3.0f;       // eliminates most jagged edges (tinny polygons)
+        config.detailSampleDist = config.cs * 64;
+        config.detailSampleMaxError = config.ch * 4;
+
 
         // this sets the dimensions of the heightfield - should maybe happen before border padding
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
