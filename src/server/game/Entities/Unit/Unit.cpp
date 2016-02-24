@@ -813,6 +813,19 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
 
+    if (GetTypeId() == TypeID::TYPEID_PLAYER
+        && victim->GetTypeId() == TypeID::TYPEID_UNIT
+        && victim->ToCreature()->GetNativeTemplate()->flags_extra & CreatureFlagsExtra::CREATURE_FLAG_EXTRA_LOG_GROUP_DMG)
+    {
+        CreatureDamageLog l_Log;
+        l_Log.AttackerGuid = GetGUIDLow();
+        l_Log.Damage       = damage;
+        l_Log.Spell        = spellProto ? spellProto->Id : 0;
+        l_Log.Time         = time(nullptr);
+
+        victim->ToCreature()->AddDamageLog(l_Log);
+    }
+
     if (Player* l_Player = victim->ToPlayer())
     {
         if (!l_Player || l_Player->GetCommandStatus(CHEAT_GOD))
@@ -13937,6 +13950,9 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
                     {
                         l_Instance->SendEncounterStart(l_Instance->GetEncounterIDForBoss(l_Creature));
                         l_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_START, l_Creature->ToUnit());
+
+                        l_Creature->SetEncounterStartTime(time(nullptr));
+                        l_Creature->DumpGroup();
                     }
                 }
 

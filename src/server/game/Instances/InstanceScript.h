@@ -371,6 +371,8 @@ class InstanceScript : public ZoneScript
         void SendEncounterEnd(uint32 p_EncounterID, bool p_Success);
         uint32 GetEncounterIDForBoss(Creature* p_Boss) const;
 
+        void SaveEncounterLogs(Creature* p_Creature, uint32 p_EncounterID);
+
         // Used only during loading
         void SetCompletedEncountersMask(uint32 newMask) { m_CompletedEncounters = newMask; }
 
@@ -378,6 +380,9 @@ class InstanceScript : public ZoneScript
         uint32 GetCompletedEncounterMask() const { return m_CompletedEncounters; }
 
         virtual void OnGameObjectRemove(GameObject* p_Go);
+
+        /// Called when falling damage are calculated for player
+        virtual bool IsPlayerImmuneToFallDamage(Player* p_Player) const { return false; }
 
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time
