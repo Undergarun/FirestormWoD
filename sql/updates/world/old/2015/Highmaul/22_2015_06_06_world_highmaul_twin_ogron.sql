@@ -204,7 +204,7 @@ INSERT INTO creature_equip_template VALUES
 (78237, 1, 113512, 113512, 0),
 (78238, 1, 113544, 108626, 0);
 
-UPDATE creature_template SET minlevel = 103, maxlevel = 103, faction = 16, rank = 3, dmg_multiplier = 10, unit_class = 4, mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry IN (78238, 78237);
+UPDATE creature_template SET minlevel = 103, maxlevel = 103, faction = 16, rank = 3, dmg_multiplier = 10, unit_class = 4, mechanic_immune_mask = 617299839, flags_extra = (0x01 | 0x00200000) WHERE entry IN (78238, 78237);
 UPDATE creature_template SET ScriptName = 'boss_twin_ogron_pol' WHERE entry = 78238;
 UPDATE creature_template SET ScriptName = 'boss_twin_ogron_phemos' WHERE entry = 78237;
 

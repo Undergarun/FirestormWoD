@@ -86,7 +86,7 @@ unit_class = 1,
 dmg_multiplier = 10,
 ScriptName = 'boss_brackenspore',
 mechanic_immune_mask = 617299839,
-flags_extra = 0x01,
+flags_extra = (0x01 | 0x00200000),
 Health_mod = 1265
 WHERE entry = 78491;
 

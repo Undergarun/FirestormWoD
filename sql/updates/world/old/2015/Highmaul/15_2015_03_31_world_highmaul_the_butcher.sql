@@ -149,7 +149,7 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 (175648, 0, 3417, 1, 1, 16384, 'areatrigger_highmaul_rune_of_disintegration'),
 (163042, 0, 2426, 1, 1, 16384, 'areatrigger_highmaul_pale_vitriol');
 
-UPDATE creature_template SET minlevel = 103, maxlevel = 103, unit_flags = unit_flags & ~0x00200000, unit_class = 4, dmg_multiplier = 10, ScriptName = 'boss_the_butcher', mechanic_immune_mask = 617299839, flags_extra = 0x01, Health_mod = 1100 WHERE entry = 77404;
+UPDATE creature_template SET minlevel = 103, maxlevel = 103, unit_flags = unit_flags & ~0x00200000, unit_class = 4, dmg_multiplier = 10, ScriptName = 'boss_the_butcher', mechanic_immune_mask = 617299839, flags_extra = (0x01 | 0x00200000), Health_mod = 1100 WHERE entry = 77404;
 
 DELETE FROM access_requirement WHERE mapId = 1228;
 INSERT INTO access_requirement (mapId, difficulty, level_min, level_max, itemlevel_min, itemlevel_max, COMMENT) VALUES
