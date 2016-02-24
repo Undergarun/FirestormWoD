@@ -64,8 +64,10 @@ namespace MS { namespace Garrison
         Shoot                                  = 6660,   ///< Misc
         SpellArming                            = 167920, ///< Barn
         SpellIronTrap                          = 180609, ///< Barn
+        SpellImprovedIronTrap                  = 180610, ///< Barn
+        SpellDeadlyIronTrap                    = 180606, ///< Barn
         SpellApprenticeLogging                 = 167911, ///< Lumber Mill
-        SpellJourneymanLogging                 = 167946,  ///< Lumber Mill
+        SpellJourneymanLogging                 = 167946, ///< Lumber Mill
         SpellSummonStump                       = 170079, ///< Lumber Mill
         SpellGarrisonPortal                    = 182464, ///< Mage Tower/Spirit Lodge
         SpellAuraRunesOfPower                  = 178777  ///< Mage Tower/Spirit Lodge
@@ -101,6 +103,8 @@ namespace MS { namespace Garrison
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
             Alliance_BreakingIntoTheTrapGame            = 36271,
+            Alliance_FeedingAnArmy                      = 36272,
+            Alliance_BiggerTrapBetterRewards            = 36274,
             /// Lumber Mill
             Alliance_EasingIntoLumberjacking            = 36189,
             Alliance_TurningTimberIntoProfit            = 36192,
@@ -132,6 +136,8 @@ namespace MS { namespace Garrison
             Horde_ClearingTheGarden                     = 34193,
             /// Barn
             Horde_BreakingIntoTheTrapGame               = 36345,
+            Horde_FeedingAnArmy                         = 36344,
+            Horde_BiggerTrapBetterRewards               = 36346,
             /// Lumber Mill
             Horde_EasingIntoLumberjacking               = 36137,
             Horde_TurningTimberIntoProfit               = 36138,
@@ -965,6 +971,10 @@ namespace MS { namespace Garrison
         ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1 = 111956,
         ItemFurryCagedBeast                     = 119813,
         ItemLeatheryCagedBeast                  = 119814,
+        ItemMeatyCagedBeast                     = 119810,
+        ItemCagedMightyClefthoof                = 119819,
+        ItemCagedMightRiverbeast                = 119817,
+        ItemCagedMightyWolf                     = 119815,
         ItemFireWeed                            = 109125,
         ItemTaladorOrchid                       = 109129,
         ItemNagrandArrowbloom                   = 109128,
@@ -1149,8 +1159,13 @@ namespace MS { namespace Garrison
 
         enum ShipmentIDS
         {
-            ShipmentFur     = 82,
-            ShipmentLeather = 85
+            /// Some shipments are unk atm
+            ShipmentFur      = 82,
+            ShipmentMeat     = 83,
+            ShipmentLeather  = 85,
+            ShipmentLeather2 = 86,
+            ShipmentLeather3 = 88,
+            ShipmentLeather4 = 89,
         };
     }
 
