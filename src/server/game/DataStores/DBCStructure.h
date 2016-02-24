@@ -1443,6 +1443,25 @@ struct WorldMapAreaEntry
     uint32  maxRecommendedLevel;                            // 13       m_LevelRangeMax
 };
 
+struct WorldMapTransformsEntry
+{
+    //uint32 ID;                                            // 0
+    uint32 MapID;                                           // 1
+    float RegionMinX;                                       // 2
+    float RegionMinY;                                       // 3
+    float RegionMinZ;                                       // 4
+    float RegionMaxX;                                       // 4
+    float RegionMaxY;                                       // 5
+    float RegionMaxZ;                                       // 6
+    uint32 NewMapID;                                        // 7
+    float RegionOffsetX;                                    // 8
+    float RegionOffsetY;                                    // 9
+    //uint32 NewDungeonMapID;                               // 10
+    //uint32 Flags;                                         // 11
+    //uint32 NewAreaID;                                     // 12
+    float RegionScale;                                      // 13
+};
+
 struct World_PVP_AreaEntry
 {
     uint32 ID;

@@ -514,7 +514,7 @@ public:
                     _despawned = false;
                     break;
                 case ACTION_CYCLIC_MOVEMENT:
-                    Movement::MoveSplineInit init(*me);
+                    Movement::MoveSplineInit init(me);
                     FillCirclePath(MalygosPositions[3], 120.0f, 283.2763f, init.Path(), true);
                     init.SetFly();
                     init.SetCyclic();
@@ -1336,7 +1336,7 @@ public:
         {
             if (action < ACTION_DELAYED_DESPAWN)
             {
-                Movement::MoveSplineInit init(*me);
+                Movement::MoveSplineInit init(me);
                 FillCirclePath(MalygosPositions[3], 35.0f, 282.3402f, init.Path(), true);
                 init.SetFly();
                 init.SetCyclic();

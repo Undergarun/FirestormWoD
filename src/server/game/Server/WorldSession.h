@@ -190,6 +190,16 @@ namespace AccountCustomFlags
     };
 }
 
+namespace Taxi
+{
+    class ShowTaxiNodes;
+    class TaxiNodeStatusQuery;
+    class EnableTaxiNode;
+    class TaxiQueryAvailableNodes;
+    class ActivateTaxi;
+    class TaxiRequestEarlyLanding;
+}
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -726,6 +736,7 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
+        void HandleEnableTaxiNodeOpcode(WorldPacket& recvPacket);
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);

@@ -5077,13 +5077,13 @@ void ObjectMgr::LoadEventScripts()
     {
         for (size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
         {
-            TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
+            TaxiPathNodeEntry const* node = sTaxiPathNodesByPath[path_idx][node_idx];
 
-            if (node.arrivalEventID)
-                evt_scripts.insert(node.arrivalEventID);
+            if (node->ArrivalEventID)
+                evt_scripts.insert(node->ArrivalEventID);
 
-            if (node.departureEventID)
-                evt_scripts.insert(node.departureEventID);
+            if (node->DepartureEventID)
+                evt_scripts.insert(node->DepartureEventID);
         }
     }
 
@@ -5864,52 +5864,48 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         }
     }
 
-    for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+
+    uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
+    for (uint32 i = 0; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-        if (!node)
+        if (!node || !(node->Flags & requireFlag))
             continue;
 
-        if (node->map_id != mapid)
+        if (node->MapID != mapid)
         {
-            if (l_MapOverrides.find(node->map_id) != l_MapOverrides.end() && l_MapOverrides[node->map_id] != mapid)
+            if (l_MapOverrides.find(node->MapID) != l_MapOverrides.end() && l_MapOverrides[node->MapID] != mapid)
                 continue;
         }
 
-        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight)
-            continue;
-
-        uint8  field   = (uint8)((i - 1) / 8);
-        uint32 submask = 1 << ((i-1) % 8);
+        uint8  field   = (uint8)((node->ID - 1) / 8);
+        uint32 submask = 1 << ((node->ID - 1) % 8);
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
-        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
-        if (node->m_Flags == 0)
-            continue;
-
-        float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
+        float dist2 = (node->x - x)*(node->x - x) + (node->y - y)*(node->y - y) + (node->z - z)*(node->z - z);
         if (found)
         {
             if (dist2 < dist)
             {
                 dist = dist2;
-                id = i;
+                id = node->ID;
             }
         }
         else
         {
             found = true;
             dist = dist2;
-            id = i;
+            id = node->ID;
         }
     }
 
     return id;
 }
+
 
 void ObjectMgr::GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost)
 {
@@ -10624,69 +10620,6 @@ uint32 ObjectMgr::GetQuestObjectiveQuestId(uint32 objectiveId) const
         return 0;
 
     return l_It->second;
-}
-
-void ObjectMgr::LoadTaxiData()
-{
-    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
-    {
-        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
-        if (!entry->from || !entry->to)
-            continue;
-
-        TaxiNode* node = GetTaxiNodeByID(entry->from);
-        if (node)
-            node->AddConnectedNode(entry->to);
-        else
-        {
-            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->from);
-            if (!nodeEntry)
-                continue;
-
-            Position nodePos;
-            nodePos.m_positionX = nodeEntry->x;
-            nodePos.m_positionY = nodeEntry->y;
-            nodePos.m_positionZ = nodeEntry->z;
-            nodePos.m_orientation = 0.f;
-
-            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
-            node->AddConnectedNode(entry->to);
-
-            _taxiNodes[entry->from] = node;
-        }
-    }
-
-    // fill data for empty nodes (nodes which have no outoing paths, however have paths to)
-    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
-    {
-        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
-        if (!entry->from || !entry->to)
-            continue;
-
-        TaxiNode* node = GetTaxiNodeByID(entry->to);
-        if (node)
-            continue;
-
-        TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->to);
-        if (!nodeEntry)
-            continue;
-
-        Position nodePos;
-        nodePos.m_positionX = nodeEntry->x;
-        nodePos.m_positionY = nodeEntry->y;
-        nodePos.m_positionZ = nodeEntry->z;
-        nodePos.m_orientation = 0.f;
-
-        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
-
-        _taxiNodes[entry->to] = node;
-    }
 }
 
 CreatureGroupSizeStat const* ObjectMgr::GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const
