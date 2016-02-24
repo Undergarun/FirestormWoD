@@ -17,6 +17,9 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::HansgarAndFranzokEntrance,   eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::HansgarAndFranzokExit,       eFoundryDatas::DataHansgarAndFranzok,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::FirewallDoor,                eFoundryDatas::DataFlamebenderKagraz,   DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BurningFrontDoor,            eFoundryDatas::DataFlamebenderKagraz,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::KromogsDoorSouth,            eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::KromogsDoorEast,             eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -53,6 +56,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_AknorSteelbringerGuid     = 0;
                 m_LavaStalkerGuid           = 0;
                 m_MoltenTorrentStalkerGuid  = 0;
+
+                m_WouldYouGiveMeAHand       = false;
+                m_GraspingEarthHandsTime    = 0;
+                m_KromogGuid                = 0;
             }
 
             /// Slagworks
@@ -84,6 +91,11 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint64 m_AknorSteelbringerGuid;
             uint64 m_LavaStalkerGuid;
             uint64 m_MoltenTorrentStalkerGuid;
+
+            /// The Great Anvil
+            bool m_WouldYouGiveMeAHand;
+            uint32 m_GraspingEarthHandsTime;
+            uint64 m_KromogGuid;
 
             void Initialize() override
             {
@@ -131,6 +143,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::MoltenTorrentStalker:
                         m_MoltenTorrentStalkerGuid = p_Creature->GetGUID();
                         break;
+                    case eFoundryCreatures::BossKromog:
+                        m_KromogGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -147,6 +162,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::HansgarAndFranzokEntrance:
                     case eFoundryGameObjects::HansgarAndFranzokExit:
                     case eFoundryGameObjects::FirewallDoor:
+                    case eFoundryGameObjects::BurningFrontDoor:
+                    case eFoundryGameObjects::KromogsDoorSouth:
+                    case eFoundryGameObjects::KromogsDoorEast:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -191,6 +209,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::HansgarAndFranzokEntrance:
                     case eFoundryGameObjects::HansgarAndFranzokExit:
                     case eFoundryGameObjects::FirewallDoor:
+                    case eFoundryGameObjects::BurningFrontDoor:
+                    case eFoundryGameObjects::KromogsDoorSouth:
+                    case eFoundryGameObjects::KromogsDoorEast:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -272,6 +293,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_YaWeveGotTimeAchiev = false;
                                 break;
                             }
+                            default:
+                                break;
                         }
 
                         break;
@@ -326,6 +349,45 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 m_SteelHasBeenBrought = true;
                                 break;
                             }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
+                    case eFoundryDatas::DataKromog:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                if (m_WouldYouGiveMeAHand && !instance->IsLFR())
+                                {
+                                    if (Creature* l_Kromog = instance->GetCreature(m_KromogGuid))
+                                    {
+                                        if (!sObjectMgr->IsDisabledEncounter(GetEncounterIDForBoss(l_Kromog)))
+                                            DoCompleteAchievement(eFoundryAchievements::WouldYouGiveMeAHand);
+                                    }
+                                }
+
+                                AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                                {
+                                    if (Creature* l_Blackhand = instance->GetCreature(m_CosmeticBlackhand))
+                                    {
+                                        if (l_Blackhand->IsAIEnabled)
+                                            l_Blackhand->AI()->Talk(12, 0, TextRange::TEXT_RANGE_MAP);   ///< KromogKilled
+                                    }
+                                });
+
+                                break;
+                            }
+                            case EncounterState::NOT_STARTED:
+                            {
+                                m_WouldYouGiveMeAHand = false;
+                                break;
+                            }
+                            default:
+                                break;
                         }
 
                         break;
@@ -396,6 +458,24 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_SteelHasBeenBrought = false;
                         break;
                     }
+                    case eFoundryDatas::GraspingEarthTime:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        if (!m_GraspingEarthHandsTime)
+                            m_GraspingEarthHandsTime = p_Data;
+                        else
+                        {
+                            /// Defeat 10 Grasping Earth hands within 5 seconds and then defeat Kromog in Blackrock Foundry on Normal difficulty or higher.
+                            if (p_Data > (m_GraspingEarthHandsTime + 5))
+                                m_WouldYouGiveMeAHand = false;
+                            else
+                                m_WouldYouGiveMeAHand = true;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -444,6 +524,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_LavaStalkerGuid;
                     case eFoundryCreatures::MoltenTorrentStalker:
                         return m_MoltenTorrentStalkerGuid;
+                    case eFoundryCreatures::BossKromog:
+                        return m_KromogGuid;
                     default:
                         break;
                 }
@@ -502,6 +584,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                     if (Player* l_Player = l_Iter->getSource())
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
                 }
+            }
+
+            bool IsPlayerImmuneToFallDamage(Player* p_Player) const override
+            {
+                float l_X = p_Player->m_positionX;
+                float l_Y = p_Player->m_positionY;
+                float l_Z = p_Player->m_positionZ;
+
+                /// Elevator for Hans'gar & Franzok is a safe zone for falling damages
+                if (l_X >= 239.5f && l_X <= 267.0f && l_Y >= 3487.01f && l_Y <= 3512.08f && l_Z >= 140.281f)
+                    return true;
+
+                return false;
             }
 
             void Update(uint32 p_Diff) override
