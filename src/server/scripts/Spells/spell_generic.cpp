@@ -5360,7 +5360,7 @@ public:
             MorphFemale = 63138
         };
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5373,7 +5373,7 @@ public:
                 l_Player->SetDisplayId(eDatas::MorphFemale);
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* l_Player = GetTarget()->ToPlayer();
 
