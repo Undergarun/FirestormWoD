@@ -37,9 +37,6 @@ insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMa
 insert into `gameobject` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `isActive`, `custom_flags`, `protect_anti_doublet`) values('230881','1116','6720','7062','1','1','5819.16','5208.95','89.2052','3.32328','0','0','0.995876','-0.0907198','300','0','1','0','0',NULL);
 
 
--- What we got only doable after Garrison Tier 2
-UPDATE quest_template SET PrevquestId = 36567 WHERE id = 34824;
-
 -- Build your baracks doable after completing What we Need
 UPDATE quest_template SET PrevquestId = 34822 WHERE id = 34461;
 
