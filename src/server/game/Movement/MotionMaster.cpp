@@ -386,20 +386,24 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, float o, uint32 id, bool p_GeneratePath, bool p_ForceDestination)
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, float o, uint32 id)
 {
     sLog->outDebug(LOG_FILTER_GENERAL, "Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUIDLow(), x, y, z);
+
+    if (speedXY <= 0.1f)
+        return;
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(x, y, z, p_GeneratePath, p_ForceDestination);
+    init.MoveTo(x, y, z, false);
     init.SetParabolic(max_height, 0);
     init.SetVelocity(speedXY);
     if (o != 10.0f)
         init.SetFacing(o);
     init.Launch();
+
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
@@ -417,16 +421,20 @@ void MotionMaster::MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, 
     MoveJump(l_Loc->x, l_Loc->y, l_Loc->z, p_SpeedXY, p_SpeedZ, l_Loc->o, p_ID);
 }
 
-void MotionMaster::CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id, bool p_GeneratePath, bool p_ForceDestination)
+void MotionMaster::CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id)
 {
     speedZ *= 2.3f;
     speedXY *= 2.3f;
+
+    if (speedXY <= 0.1f)
+        return;
+
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
     max_height /= 15.0f;
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(x, y, z, p_GeneratePath, p_ForceDestination);
+    init.MoveTo(x, y, z, false);
     init.SetParabolic(max_height, 0);
     init.SetVelocity(speedXY);
     init.Launch();

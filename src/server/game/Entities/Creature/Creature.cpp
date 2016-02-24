@@ -1820,6 +1820,9 @@ void Creature::setDeathState(DeathState s)
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_NONE);
 
+        SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 0);
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+
         setActive(false);
 
         if (!isPet() && GetCreatureTemplate()->SkinLootId)
