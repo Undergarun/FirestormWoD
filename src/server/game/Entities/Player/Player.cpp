@@ -1734,10 +1734,12 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
-        /// Falling damages are disabled in Blackrock Foundry
-        /// @TODO: Maybe find a new MapFlag?
-        if (GetMapId() == 1205)
-            return 0;
+        /// Handle falling damage disabling in some situations
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+        {
+            if (l_InstanceScript->IsPlayerImmuneToFallDamage(this))
+                return 0;
+        }
 
         /// Glyph of Falling Meteor - 56247
         if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
