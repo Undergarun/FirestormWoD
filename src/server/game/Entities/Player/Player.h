@@ -1922,7 +1922,7 @@ class Player : public Unit, public GridObject<Player>
 
             return mainItem && ((mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip()) || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGED || mainItem->GetTemplate()->InventoryType == INVTYPE_THROWN || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGEDRIGHT);
         }
-        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
+        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false, uint32 p_EncounterID = 0, ItemContext p_Context = ItemContext::None);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);

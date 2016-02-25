@@ -150,7 +150,7 @@ namespace MS { namespace Garrison
     {
         if (p_GarrisonResult)
         {
-            Field * l_Fields = p_GarrisonResult->Fetch();
+            Field* l_Fields = p_GarrisonResult->Fetch();
 
             m_ID            = l_Fields[0].GetUInt32();
             m_GarrisonLevel = l_Fields[1].GetUInt32();
