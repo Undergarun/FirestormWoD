@@ -524,7 +524,7 @@ class spell_krick_explosive_barrage: public SpellScriptLoader
         {
             PrepareAuraScript(spell_krick_explosive_barrage_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -559,14 +559,14 @@ class spell_ick_explosive_barrage: public SpellScriptLoader
         {
             PrepareAuraScript(spell_ick_explosive_barrage_AuraScript);
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
                         caster->GetMotionMaster()->MoveIdle();
             }
 
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
@@ -598,7 +598,7 @@ class spell_exploding_orb_hasty_grow: public SpellScriptLoader
         {
             PrepareAuraScript(spell_exploding_orb_hasty_grow_AuraScript);
 
-            void OnStackChange(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetStackAmount() == 15)
                 {
@@ -660,7 +660,7 @@ class spell_krick_pursuit: public SpellScriptLoader
         {
             PrepareAuraScript(spell_krick_pursuit_AuraScript);
 
-            void HandleExtraEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
@@ -693,13 +693,13 @@ class spell_krick_pursuit_confusion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_krick_pursuit_confusion_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 GetTarget()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 GetTarget()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);

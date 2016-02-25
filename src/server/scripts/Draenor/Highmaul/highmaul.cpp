@@ -2715,7 +2715,7 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 {
                     case eSpells::PulverizeStack:
                     {
-                        if (AuraPtr l_Aura = p_Target->GetAura(p_SpellInfo->Id, me->GetGUID()))
+                        if (Aura* l_Aura = p_Target->GetAura(p_SpellInfo->Id, me->GetGUID()))
                         {
                             if (l_Aura->GetStackAmount() >= 8)
                             {
@@ -3576,7 +3576,7 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                     case eEvent::EventUnstableTempest:
                     {
                         CustomSpellValues l_Values;
-                        if (AuraPtr l_Aura = me->GetAura(eSpells::UnstableTempestAura))
+                        if (Aura* l_Aura = me->GetAura(eSpells::UnstableTempestAura))
                             l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Aura->GetStackAmount());
                         else
                             l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, 1);
@@ -3763,7 +3763,7 @@ class spell_highmaul_chain_grip_aura : public SpellScriptLoader
                 ChainGripJumpDest = 151991
             };
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3905,7 +3905,7 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
                 CorruptedBlood = 174473
             };
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
@@ -3914,7 +3914,7 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetTarget())
-                        l_Target->CastSpell(l_Caster, eSpell::CorruptedBlood, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        l_Target->CastSpell(l_Caster, eSpell::CorruptedBlood, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
 
@@ -4063,7 +4063,7 @@ class spell_highmaul_earthdevastating_slam : public SpellScriptLoader
                 ActionSlam
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -4181,7 +4181,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_arcane_barrage_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpells::ArcaneBarrageSecond, true);
@@ -4238,7 +4238,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_decimate_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -4307,7 +4307,7 @@ class spell_highmaul_time_stop : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_time_stop_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (p_AurEff->GetTickNumber() % 3)
                     return;

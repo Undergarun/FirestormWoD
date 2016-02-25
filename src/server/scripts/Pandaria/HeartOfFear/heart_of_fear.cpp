@@ -1895,7 +1895,7 @@ void ShekZeerTrashBuff(Creature* me)
     // If buff should be applied, we have to check that we have the right number of stacks
     if (buff)
     {
-        if (AuraPtr aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
+        if (Aura* aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
         {
             if (aura->GetStackAmount() != stacks)
                 aura->SetStackAmount(stacks);
@@ -2178,7 +2178,7 @@ class spell_vital_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_vital_strikes_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 

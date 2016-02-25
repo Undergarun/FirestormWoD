@@ -594,7 +594,7 @@ class achievement_headed_south : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
-            if (AuraPtr aura = source->GetAura(SPELL_LIGHTNING_CHARGE_AURA))
+            if (Aura* aura = source->GetAura(SPELL_LIGHTNING_CHARGE_AURA))
                 if (aura->GetStackAmount() == 3)
                     return true;
 
