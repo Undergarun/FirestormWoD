@@ -20,6 +20,8 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::BurningFrontDoor,            eFoundryDatas::DataFlamebenderKagraz,   DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::KromogsDoorSouth,            eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::KromogsDoorEast,             eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlackForgePortcullis,        eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlackForgeGate,              eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -36,6 +38,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 m_DungeonID                 = 0;
 
+                m_SlagworksEntrance         = 0;
                 m_GruulGuid                 = 0;
                 m_PristineTrueIronOres      = 0;
 
@@ -49,6 +52,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_FurnaceGate               = 0;
                 m_PrimalElementalistTime    = 0;
                 m_YaWeveGotTimeAchiev       = false;
+
+                m_BlackForgeEntrance        = 0;
 
                 m_HansgarGuid               = 0;
                 m_FranzokGuid               = 0;
@@ -64,6 +69,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_WouldYouGiveMeAHand       = false;
                 m_GraspingEarthHandsTime    = 0;
                 m_KromogGuid                = 0;
+
+                m_IronAssemblyEntrance      = 0;
+
+                m_SpikeGateGuid             = 0;
+                m_CrucibleEntrance          = 0;
             }
 
             bool m_Initialized;
@@ -71,6 +81,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             uint32 m_DungeonID;
 
             /// Slagworks
+            uint64 m_SlagworksEntrance;
             uint64 m_GruulGuid;
             uint8 m_PristineTrueIronOres;
 
@@ -87,6 +98,7 @@ class instance_blackrock_foundry : public InstanceMapScript
             bool m_YaWeveGotTimeAchiev;
 
             /// The Black Forge
+            uint64 m_BlackForgeEntrance;
             /// Slagmill Press
             uint64 m_HansgarGuid;
             uint64 m_FranzokGuid;
@@ -104,6 +116,13 @@ class instance_blackrock_foundry : public InstanceMapScript
             bool m_WouldYouGiveMeAHand;
             uint32 m_GraspingEarthHandsTime;
             uint64 m_KromogGuid;
+
+            /// Iron Assembly
+            uint64 m_IronAssemblyEntrance;
+
+            /// Blackhand's Crucible
+            uint64 m_SpikeGateGuid;
+            uint64 m_CrucibleEntrance;
 
             void Initialize() override
             {
@@ -173,6 +192,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BurningFrontDoor:
                     case eFoundryGameObjects::KromogsDoorSouth:
                     case eFoundryGameObjects::KromogsDoorEast:
+                    case eFoundryGameObjects::BlackForgePortcullis:
+                    case eFoundryGameObjects::BlackForgeGate:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -201,6 +222,21 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::ConveyorBelt009:
                         p_GameObject->SendGameObjectActivateAnimKit(eFoundryVisuals::ConveyorsStart3, true);
                         break;
+                    case eFoundryGameObjects::SlagworksDoor:
+                        m_SlagworksEntrance = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::BlackForgeEntrance:
+                        m_BlackForgeEntrance = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::IronAssembleyGate:
+                        m_IronAssemblyEntrance = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::SpikeGate:
+                        m_SpikeGateGuid = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::CrucibleDoor:
+                        m_CrucibleEntrance = p_GameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -220,6 +256,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BurningFrontDoor:
                     case eFoundryGameObjects::KromogsDoorSouth:
                     case eFoundryGameObjects::KromogsDoorEast:
+                    case eFoundryGameObjects::BlackForgePortcullis:
+                    case eFoundryGameObjects::BlackForgeGate:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -578,6 +616,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     if (!instance->IsLFR())
                         m_DungeonID = 0;
 
+                    std::vector<uint64> m_DisabledGoBs;
+
                     switch (m_DungeonID)
                     {
                         case eFoundryDungeons::Slagworks:
@@ -593,6 +633,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                             l_DisabledMask |= (1 << eFoundryDatas::DataBlackhand);
 
                             SetDisabledBosses(l_DisabledMask);
+
+                            m_DisabledGoBs.push_back(m_BlackForgeEntrance);
+                            m_DisabledGoBs.push_back(m_IronAssemblyEntrance);
+                            m_DisabledGoBs.push_back(m_SpikeGateGuid);
+                            m_DisabledGoBs.push_back(m_CrucibleEntrance);
                             break;
                         }
                         case eFoundryDungeons::BlackForge:
@@ -608,6 +653,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                             l_DisabledMask |= (1 << eFoundryDatas::DataBlackhand);
 
                             SetDisabledBosses(l_DisabledMask);
+
+                            m_DisabledGoBs.push_back(m_SlagworksEntrance);
+                            m_DisabledGoBs.push_back(m_IronAssemblyEntrance);
+                            m_DisabledGoBs.push_back(m_SpikeGateGuid);
+                            m_DisabledGoBs.push_back(m_CrucibleEntrance);
                             break;
                         }
                         case eFoundryDungeons::IronAssembly:
@@ -623,6 +673,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                             l_DisabledMask |= (1 << eFoundryDatas::DataBlackhand);
 
                             SetDisabledBosses(l_DisabledMask);
+
+                            m_DisabledGoBs.push_back(m_SlagworksEntrance);
+                            m_DisabledGoBs.push_back(m_BlackForgeEntrance);
+                            m_DisabledGoBs.push_back(m_SpikeGateGuid);
+                            m_DisabledGoBs.push_back(m_CrucibleEntrance);
                             break;
                         }
                         case eFoundryDungeons::BlackhandsCrucible:
@@ -640,10 +695,20 @@ class instance_blackrock_foundry : public InstanceMapScript
                             l_DisabledMask |= (1 << eFoundryDatas::DataIronMaidens);
 
                             SetDisabledBosses(l_DisabledMask);
+
+                            m_DisabledGoBs.push_back(m_SlagworksEntrance);
+                            m_DisabledGoBs.push_back(m_BlackForgeEntrance);
+                            m_DisabledGoBs.push_back(m_IronAssemblyEntrance);
                             break;
                         }
                         default:
                             break;
+                    }
+
+                    for (uint64 l_Guid : m_DisabledGoBs)
+                    {
+                        if (GameObject* l_Door = sObjectAccessor->FindGameObject(l_Guid))
+                            l_Door->SetGoState(GOState::GO_STATE_READY);
                     }
                 }
             }
