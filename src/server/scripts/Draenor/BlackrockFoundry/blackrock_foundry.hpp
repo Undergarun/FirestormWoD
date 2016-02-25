@@ -105,7 +105,9 @@ enum eFoundryGameObjects
     CrucibleRight               = 233839,
     FurnaceGate                 = 227423,
     /// The Black Forge - Part 2
-    BlackForgePortcullis        = 238836,
+    BlackForgeEntrance          = 238836,
+    BlackForgePortcullis        = 236847,
+    BlackForgeGate              = 237306,
     VolatileBlackrockOre        = 237308,
     HansgarAndFranzokEntrance   = 229318,
     HansgarAndFranzokExit       = 229319,
@@ -218,6 +220,14 @@ enum eFoundryVisuals
     ConveyorsStop   = 7336,
     ConveyorsStart2 = 6975,
     ConveyorsStart3 = 6974
+};
+
+enum eFoundryDungeons
+{
+    Slagworks           = 847,
+    BlackForge          = 846,
+    IronAssembly        = 848,
+    BlackhandsCrucible  = 823
 };
 
 #endif

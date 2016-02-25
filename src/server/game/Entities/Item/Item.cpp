@@ -790,7 +790,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
     }
 }
 
-void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item, ItemContext p_Context /*= ItemContext::None*/)
 {
     if (p_Item == nullptr)
     {
@@ -816,7 +816,7 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
     /// Item bonuses
     if (l_Bonuses.size() != 0)
     {
-        p_Datas << uint8(0);                                ///< Context
+        p_Datas << uint8(p_Context);                        ///< Context
         p_Datas << uint32(l_Bonuses.size());
         for (auto& l_BonusId : l_Bonuses)
             p_Datas << uint32(l_BonusId);

@@ -1404,7 +1404,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
             SendEncounterEnd((*l_Iter)->dbcEntry->ID, true);
 
-            if (p_Source->GetTypeId() == TypeID::TYPEID_UNIT)
+            if (p_Source != nullptr && p_Source->GetTypeId() == TypeID::TYPEID_UNIT)
                 SaveEncounterLogs(p_Source->ToCreature(), (*l_Iter)->dbcEntry->ID);
 
             if (p_Source != nullptr)

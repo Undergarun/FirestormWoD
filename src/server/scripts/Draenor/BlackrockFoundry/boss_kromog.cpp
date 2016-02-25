@@ -465,7 +465,13 @@ class boss_kromog : public CreatureScript
                             m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
                         }
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM/*, 2, 5.0f, true*/))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
                             me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
 
                         /// When the second rune is summoned, it triggers both of them to crush
@@ -1004,7 +1010,7 @@ class spell_foundry_slam : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_foundry_slam_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunchTarget += SpellEffectFn(spell_foundry_slam_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -1029,7 +1035,7 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1209,7 +1215,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
                         continue;
 
                     m_AffectedTargets.insert(l_Unit->GetGUID());
-                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
         }
@@ -1261,7 +1267,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, nullptr, l_Caster->GetGUID());
 
                     if (l_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
                     {
