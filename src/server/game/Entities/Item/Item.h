@@ -364,7 +364,7 @@ class Item : public Object
 
         static ItemContext GetItemContextFromDifficulty(Difficulty p_Difficulty);
 
-        static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item);
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item, ItemContext p_Context = ItemContext::None);
         static void BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item);
         static void BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_Item);
         static void BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item);

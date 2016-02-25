@@ -653,13 +653,6 @@ namespace MS { namespace Garrison
 
             return false;
         }
-        if (!p_User->HasItemCount(117491, 25))
-        {
-            if (p_User->GetSession())
-                ChatHandler(p_User).PSendSysMessage(TrinityStrings::GarrisonPortalNoItemCount);
-
-            return false;
-        }
 
         std::vector<uint32> const l_QuestList =
         {
@@ -684,60 +677,12 @@ namespace MS { namespace Garrison
 
                     return false;
                 }
-
-                switch (l_QuestID)
-                {
-                    case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneFrostfireRidge)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestGorgrond:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneGorgrond)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestNagrand:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneNagrand)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestShadowmoon:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneShadowmoon)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestSpiresOfArak:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneSpiresOfArak)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestTalador:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneTalador)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
             }
             else
                 l_Itr++;
         }
 
-        return false;
+        return true;
     }
 
     //////////////////////////////////////////////////////////////////////////

@@ -2676,8 +2676,8 @@ bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID
                         break;
                     case Difficulty::DifficultyRaidNormal:
                     case Difficulty::DifficultyRaidHeroic:
-                        /// Handle scaled difficulties
-                        if (/*l_Counter >= 8 &&*/ l_Counter >= CalculatePct(l_MembersCount, 80))
+                        /// Handle scaled difficulties (from 10 to 30)
+                        if (l_Counter >= 10 && l_Counter >= CalculatePct(l_MembersCount, 80))
                             l_IsOkay = true;
                         break;
                     case Difficulty::DifficultyRaidMythic:

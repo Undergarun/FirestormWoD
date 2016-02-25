@@ -647,7 +647,7 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                for (uint8 l_I = 0; l_I < m_FirstSlagElemental ? 1 : 2; ++l_I)
+                                for (uint8 l_I = 0; l_I < (m_FirstSlagElemental ? 1 : 2); ++l_I)
                                 {
                                     if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
@@ -1139,7 +1139,8 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
             OneElementalist,
             Phase3Freedom1,
             Phase3Freedom2,
-            HeartDeath
+            HeartDeath,
+            KromogKilled
         };
 
         enum eActions
@@ -1514,6 +1515,21 @@ class npc_foundry_bellows_operator : public CreatureScript
                 me->RemoveAura(eSpells::Loading);
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SLEEP, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
 
                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {

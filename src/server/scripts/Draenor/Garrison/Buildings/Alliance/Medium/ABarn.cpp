@@ -216,15 +216,7 @@ namespace MS { namespace Garrison
 
     int npc_HomerStonefieldAI::OnShipmentIDRequest(Player* p_Player)
     {
-        switch (m_ProductionChosen)
-        {
-            case MS::Garrison::Barn::ShipmentIDS::ShipmentFur:
-                return MS::Garrison::Barn::ShipmentIDS::ShipmentFur;
-            case MS::Garrison::Barn::ShipmentIDS::ShipmentLeather:
-                return MS::Garrison::Barn::ShipmentIDS::ShipmentLeather;
-            default:
-                return -1;
-        }
+        return m_ProductionChosen ? m_ProductionChosen : -1;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -249,9 +241,6 @@ namespace MS { namespace Garrison
     {
         Talk(urand(0, 16));
         me->DespawnOrUnsummon(8 * IN_MILLISECONDS);
-
-        if (Creature* l_Tommy = GetClosestCreatureWithEntry(me, MS::Garrison::NPCs::NpcTommyJoeStonefield, 20.0f))
-            l_Tommy->DespawnOrUnsummon(8 * IN_MILLISECONDS);
     }
 
     CreatureAI* npc_HomerStonefield_Garr_Trap::GetAI(Creature* p_Creature) const
