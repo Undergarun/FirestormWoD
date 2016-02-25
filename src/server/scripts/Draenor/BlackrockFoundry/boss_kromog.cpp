@@ -63,6 +63,7 @@ class boss_kromog : public CreatureScript
 
         enum eTimers
         {
+            TimerFirstCheckMeleePlayers = 5 * TimeConstants::IN_MILLISECONDS,
             TimerCheckMeleePlayers      = 500,
             TimerBerserker              = 540 * TimeConstants::IN_MILLISECONDS,
             TimerAbilityTalk            = 40,
@@ -213,7 +214,7 @@ class boss_kromog : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
+                m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerFirstCheckMeleePlayers);
                 m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
                 m_Events.ScheduleEvent(eEvents::EventStoneBreath, eTimers::TimerStoneBreath);
                 m_Events.ScheduleEvent(eEvents::EventWarpedArmor, eTimers::TimerWarpedArmor);
