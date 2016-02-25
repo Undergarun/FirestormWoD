@@ -17767,7 +17767,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast)
+void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast, uint32 p_EncounterID /*= 0*/, ItemContext p_Context /*= ItemContext::None*/)
 {
     /// Prevent crash
     if (!p_Item)
@@ -17775,27 +17775,27 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
 
     WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT, 16 + 2 + 1 + 4 + 100 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 2 + 1);
 
-    l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
-    l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
-    l_Data << uint32(0);                                    ///< SlotInBag
+    l_Data.appendPackGUID(GetGUID());                               ///< Player GUID
+    l_Data << uint8(p_Item->GetBagSlot());                          ///< Slot
+    l_Data << uint32(0);                                            ///< SlotInBag
 
-    Item::BuildDynamicItemDatas(l_Data, p_Item);
+    Item::BuildDynamicItemDatas(l_Data, p_Item, p_Context);
 
-    l_Data << uint32(0);                                    ///< QuestLogItemID
-    l_Data << uint32(p_Quantity);                           ///< Quantity
-    l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
-    l_Data << uint32(0);                                    ///< Dungeon Encounter ID
-    l_Data << uint32(0);                                    ///< Battle Pet Species ID
-    l_Data << uint32(0);                                    ///< Battle Pet Breed ID
-    l_Data << uint32(0);                                    ///< Battle Pet Breed Quality
-    l_Data << uint32(0);                                    ///< Battle Pet Level
-    l_Data.appendPackGUID(p_Item->GetGUID());               ///< Item GUID
+    l_Data << uint32(0);                                            ///< QuestLogItemID
+    l_Data << uint32(p_Quantity);                                   ///< Quantity
+    l_Data << uint32(GetItemCount(p_Item->GetEntry()));             ///< count of items in inventory
+    l_Data << uint32(p_EncounterID);                                ///< Dungeon Encounter ID
+    l_Data << uint32(0);                                            ///< Battle Pet Species ID
+    l_Data << uint32(0);                                            ///< Battle Pet Breed ID
+    l_Data << uint32(0);                                            ///< Battle Pet Breed Quality
+    l_Data << uint32(0);                                            ///< Battle Pet Level
+    l_Data.appendPackGUID(p_Item->GetGUID());                       ///< Item GUID
 
-    l_Data.WriteBit(p_Received);                            ///< Pushed
-    l_Data.WriteBit(p_Created);                             ///< Created
-    l_Data.WriteBits(1, 2);                                 ///< Display Text
-    l_Data.WriteBit(0);                                     ///< Is Bonus Roll
-    l_Data.WriteBit(0);                                     ///< Is Encounter Loot
+    l_Data.WriteBit(p_Received);                                    ///< Pushed
+    l_Data.WriteBit(p_Created);                                     ///< Created
+    l_Data.WriteBits(p_Context == ItemContext::RaidLfr ? 3 : 1, 2); ///< Display Text
+    l_Data.WriteBit(false);                                         ///< Is Bonus Roll
+    l_Data.WriteBit(p_Context == ItemContext::RaidLfr);             ///< Is Encounter Loot
     l_Data.FlushBits();
 
     if (p_Broadcast && GetGroup())
@@ -29850,7 +29850,50 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         /// Add bonus to item if needed
         newitem->AddItemBonuses(item->itemBonuses);
 
-        SendNewItem(newitem, uint32(item->count), false, false, true);
+        ItemContext l_Context   = ItemContext::None;
+        uint32 l_EncounterID    = 0;
+        if (Creature* l_Creature = Creature::GetCreature(*this, loot->source))
+        {
+            if (InstanceScript* l_InstanceScript = l_Creature->GetInstanceScript())
+                l_EncounterID = l_InstanceScript->GetEncounterIDForBoss(l_Creature);
+
+            switch (GetMap()->GetDifficultyID())
+            {
+                case Difficulty::DifficultyRaidLFR:
+                    l_Context = ItemContext::RaidLfr;
+                    break;
+                case Difficulty::DifficultyRaidNormal:
+                    l_Context = ItemContext::RaidNormal;
+                    break;
+                case Difficulty::DifficultyRaidHeroic:
+                    l_Context = ItemContext::RaidHeroic;
+                    break;
+                case Difficulty::DifficultyRaidMythic:
+                    l_Context = ItemContext::RaidMythic;
+                    break;
+                case Difficulty::DifficultyNormal:
+                    l_Context = ItemContext::DungeonNormal;
+                    break;
+                case Difficulty::DifficultyHeroic:
+                    l_Context = ItemContext::DungeonHeroic;
+                    break;
+                case Difficulty::DifficultyMythic:
+                    l_Context = ItemContext::DungeonMythic;
+                    break;
+                default:
+                    break;
+            }
+
+            /// If item is not equipable, it doesn't need to be displayed
+            /// If item is not from listed difficulties, it doesn't need to be displayed
+            if (!newitem->IsEquipable() || l_Context == ItemContext::None)
+            {
+                l_EncounterID   = 0;
+                l_Context       = ItemContext::None;
+            }
+        }
+
+        SendNewItem(newitem, uint32(item->count), false, false, true, l_EncounterID, l_Context);
 
         /// Handle achievement criteria related to loot
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
