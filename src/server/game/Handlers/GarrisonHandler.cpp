@@ -815,7 +815,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
         {
             l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, true);
 
-            if (l_ShipmentID == MS::Garrison::Barn::ShipmentIDS::ShipmentFur)
+            if (l_ShipmentID == MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast)
             {
                 if (l_Unit->AI())
                     l_ShipmentID = l_Unit->AI()->OnShipmentIDRequest(m_Player);

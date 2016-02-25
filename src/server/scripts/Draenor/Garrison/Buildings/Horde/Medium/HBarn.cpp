@@ -44,7 +44,6 @@ namespace MS { namespace Garrison
     npc_FarmerLokLub::npc_FarmerLokLub()
         : CreatureScript("npc_FarmerLokLub_Garr")
     {
-
     }
 
     /// Constructor
@@ -64,93 +63,63 @@ namespace MS { namespace Garrison
                 break;
             case Buildings::Barn__Barn_Level2:
                 if (p_Player->GetQuestStatus(Quests::Horde_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE)
-                    p_Player->KilledMonsterCredit(40674);
+                    p_Player->QuestObjectiveSatisfy(40674, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
                 break;
             case Buildings::Barn__Barn_Level3:
                 if (p_Player->GetQuestStatus(Quests::Horde_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE)
-                    p_Player->KilledMonsterCredit(40693);
+                    p_Player->QuestObjectiveSatisfy(40693, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
                 break;
             default:
                 break;
         }
     }
 
+    bool npc_FarmerLokLub::HandleGossipActions(Player* p_Player, Creature* p_Creature, uint32 p_QuestID, uint32 p_Action)
+    {
+        Quest const* l_Quest = sObjectMgr->GetQuestTemplate(p_QuestID);
+
+        if (l_Quest == nullptr)
+            return false;
+
+        if (p_Player->IsQuestRewarded(p_QuestID) || (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276190)))
+        {
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, p_Action);
+            p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+        }
+        else if (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_NONE)
+            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+        else if (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_COMPLETE)
+            p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
+
+        return true;
+    }
+
     bool npc_FarmerLokLub::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
 
-        if (l_GarrisonMgr == nullptr)
-            return true;
+        if (l_AI == nullptr || p_Creature == nullptr || l_GarrisonMgr == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
+            return false;
 
-        switch (l_GarrisonMgr->GetGarrisonLevel())
+        uint32 l_PlotInstanceID = reinterpret_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID();
+
+        if (!l_PlotInstanceID)
+            return false;
+
+        GarrisonBuilding l_Building = l_GarrisonMgr->GetBuilding(l_PlotInstanceID);
+
+        switch (l_Building.BuildingID)
         {
-            case 1:
-            {
-                /// Level 1
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Horde_BreakingIntoTheTrapGame);
-
-                if (l_Quest == nullptr)
-                    return true;
-
-                if (p_Player->IsQuestRewarded(Quests::Horde_BreakingIntoTheTrapGame) ||
-                    (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276190)))
-                {
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-                }
-                else if (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_NONE)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-                else if (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_COMPLETE)
-                    p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
-
-                 break;
-            }
-            case 2:
-            {
-                /// Level 2
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Horde_FeedingAnArmy);
-
-                if (l_Quest == nullptr)
-                    return true;
-
-                if (p_Player->IsQuestRewarded(Quests::Horde_FeedingAnArmy) ||
-                    (p_Player->GetQuestStatus(Quests::Horde_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276193)))
-                {
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-                }
-                else if (p_Player->GetQuestStatus(Quests::Horde_FeedingAnArmy) == QUEST_STATUS_NONE)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-                else if (p_Player->GetQuestStatus(Quests::Horde_FeedingAnArmy) == QUEST_STATUS_COMPLETE)
-                    p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
-
-                break;
-            }
-            case 3:
-            {
-                /// Level 3
-                Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Horde_BiggerTrapBetterRewards);
-
-                if (l_Quest == nullptr)
-                    return true;
-
-                if (p_Player->IsQuestRewarded(Quests::Horde_BiggerTrapBetterRewards) ||
-                    (p_Player->GetQuestStatus(Quests::Horde_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(276195)))
-                {
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-                }
-                else if (p_Player->GetQuestStatus(Quests::Horde_BiggerTrapBetterRewards) == QUEST_STATUS_NONE)
-                    p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-                else if (p_Player->GetQuestStatus(Quests::Horde_BiggerTrapBetterRewards) == QUEST_STATUS_COMPLETE)
-                    p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
-
-                break;
-            }
+            case Buildings::Barn__Barn_Level1:
+                return HandleGossipActions(p_Player, p_Creature, Quests::Horde_BreakingIntoTheTrapGame, GOSSIP_ACTION_INFO_DEF + 1);
+            case Buildings::Barn__Barn_Level2:
+                return HandleGossipActions(p_Player, p_Creature, Quests::Horde_FeedingAnArmy, GOSSIP_ACTION_INFO_DEF + 2);
+            case Buildings::Barn__Barn_Level3:
+                return HandleGossipActions(p_Player, p_Creature, Quests::Horde_BiggerTrapBetterRewards, GOSSIP_ACTION_INFO_DEF + 3);
             default:
                 break;
         }
-
 
         return true;
     }
@@ -158,7 +127,6 @@ namespace MS { namespace Garrison
     bool npc_FarmerLokLub::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
-        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
 
         if (l_AI == nullptr || p_Creature == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
@@ -187,28 +155,28 @@ namespace MS { namespace Garrison
                 p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4: ///< Send shipment for fur
-                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFur); ///< Fur
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast);
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast); ///< Fur
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5: ///< Send shipment for leather
-                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather); ///< Leather
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast);
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast); ///< Leather
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6: ///< Send shipment for Meat
-                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentMeat);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeat); ///< Meat
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast);
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast); ///< Meat
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 7: ///< Send shipment for ShipmentLeather2
-                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather2);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather2); ///< ShipmentLeather2
+            case GOSSIP_ACTION_INFO_DEF + 7: ///< Send shipment for more fur + savage blood
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast);
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast); ///< ShipmentLeather2
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 8: ///< Send shipment for ShipmentLeather3
-                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather3);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeat); ///< ShipmentLeather3
+            case GOSSIP_ACTION_INFO_DEF + 8: ///< Send shipment for more leather + savage blood
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast);
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast); ///< ShipmentLeather3
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 9: ///< Send shipment for ShipmentLeather4
-                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather4);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeather4); ///< ShipmentLeather4
+            case GOSSIP_ACTION_INFO_DEF + 9: ///< Send shipment for more meat + savage blood
+                l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast);
+                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast); ///< ShipmentLeather4
                 break;
             default:
                 break;
@@ -286,19 +254,18 @@ namespace MS { namespace Garrison
     void npc_IronTrapAI::MoveInLineOfSight(Unit* p_Who)
     {
         Creature* l_Creature = p_Who->ToCreature();
-        Unit* l_Owner        = me->GetOwner();
-        Player* l_Player     =  l_Owner->ToPlayer();
+        Player* l_Summoner = sObjectAccessor->GetPlayer(*me, m_SummonerGuid);
         const std::vector<uint32> l_EliteEntries = { 86731, 87021, 86932 };
 
-        if (l_Owner == nullptr || l_Player == nullptr || l_Creature == nullptr || me->GetDistance2d(p_Who) >= 2.0f || m_FoundEntry || l_Creature->GetHealthPct() >= 50.0f)
+        if (l_Summoner == nullptr || l_Creature == nullptr || me->GetDistance2d(p_Who) >= 2.0f || m_FoundEntry || l_Creature->GetHealthPct() >= 50.0f)
             return;
 
         /// Capture Algorithm
 
         auto l_Template                      = l_Creature->GetCreatureTemplate();
-        MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison();
+        MS::Garrison::Manager* l_GarrisonMgr = l_Summoner->GetGarrison();
 
-        if (l_Creature->GetMapId() != Globals::BaseMap || l_Template == nullptr || l_GarrisonMgr == nullptr)
+        if (l_Template == nullptr || l_GarrisonMgr == nullptr)
             return;
 
         if (l_Template != nullptr)
@@ -344,53 +311,51 @@ namespace MS { namespace Garrison
             l_Creature->ToCreature()->DespawnOrUnsummon(8 * IN_MILLISECONDS);
             me->DespawnOrUnsummon(8 * IN_MILLISECONDS);
 
-            if (!m_SummonerGuid)
-                return;
+            Position const l_Pos = *l_Summoner;
 
-            if (Player* l_Summoner = sObjectAccessor->GetPlayer(*me, m_SummonerGuid))
+            AddTimedDelayedOperation(8 * IN_MILLISECONDS, [this, l_Summoner]() -> void
             {
-                Position const l_Pos = *l_Summoner;
+                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellIronTrap);
+                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellImprovedIronTrap);
+                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellDeadlyIronTrap);
+            });
 
-                AddTimedDelayedOperation(8 * IN_MILLISECONDS, [this, l_Summoner]() -> void
-                {
-                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellIronTrap);
-                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellImprovedIronTrap);
-                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellDeadlyIronTrap);
-                });
-
-                if (l_Summoner->GetTeamId() == TEAM_HORDE)
-                    me->SummonCreature(MS::Garrison::NPCs::NpcFarmerLokLubSummon, l_Pos);
-                else if (l_Summoner->GetTeamId() == TEAM_ALLIANCE)
-                {
-                    me->SummonCreature(MS::Garrison::NPCs::NpcHomerStonefield, l_Pos);
-                    me->SummonCreature(MS::Garrison::NPCs::NpcTommyJoeStonefield, l_Pos.m_positionX + 1, l_Pos.m_positionY, l_Pos.m_positionZ);
-                }
-
-                me->RemoveAura(MS::Garrison::Spells::SpellArming);
-
-                uint32 l_RewardItemID = 0;
-
-                if (l_Template->family == CREATURE_FAMILY_WOLF)
-                    l_RewardItemID = MS::Garrison::Items::ItemFurryCagedBeast;
-                else if (l_Template->family == CREATURE_FAMILY_CLEFTHOOF)
-                    l_RewardItemID = MS::Garrison::Items::ItemLeatheryCagedBeast;
-                else if (l_Template->family == CREATURE_FAMILY_BOAR || l_Template->family == CREATURE_FAMILY_RIVERBEAST)
-                    l_RewardItemID = MS::Garrison::Items::ItemMeatyCagedBeast;
-
-                if (l_Template->Entry == l_EliteEntries[0])
-                    l_RewardItemID = MS::Garrison::Items::ItemCagedMightyClefthoof;
-                else if (l_Template->Entry == l_EliteEntries[1])
-                    l_RewardItemID = MS::Garrison::Items::ItemCagedMightRiverbeast;
-                else if (l_Template->Entry == l_EliteEntries[2])
-                    l_RewardItemID = MS::Garrison::Items::ItemCagedMightyWolf;
-
-
-                if (l_RewardItemID)
-                    l_Summoner->AddItem(l_RewardItemID, 1);
-
-                if (l_Summoner->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE || l_Summoner->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE)
-                    l_Summoner->KilledMonsterCredit(NPCs::TrapL1QuestKillCredit);
+            if (l_Summoner->GetTeamId() == TEAM_HORDE)
+                me->SummonCreature(MS::Garrison::NPCs::NpcFarmerLokLubSummon, l_Pos);
+            else if (l_Summoner->GetTeamId() == TEAM_ALLIANCE)
+            {
+                me->SummonCreature(MS::Garrison::NPCs::NpcHomerStonefield, l_Pos);
+                me->SummonCreature(MS::Garrison::NPCs::NpcTommyJoeStonefield, l_Pos.m_positionX + 1, l_Pos.m_positionY, l_Pos.m_positionZ);
             }
+
+            me->RemoveAura(MS::Garrison::Spells::SpellArming);
+
+            uint32 l_RewardItemID = 0;
+
+            if (l_Template->family == CREATURE_FAMILY_WOLF)
+                l_RewardItemID = MS::Garrison::Items::ItemFurryCagedBeast;
+            else if (l_Template->family == CREATURE_FAMILY_CLEFTHOOF)
+                l_RewardItemID = MS::Garrison::Items::ItemLeatheryCagedBeast;
+            else if (l_Template->family == CREATURE_FAMILY_BOAR || l_Template->family == CREATURE_FAMILY_RIVERBEAST)
+                l_RewardItemID = MS::Garrison::Items::ItemMeatyCagedBeast;
+
+            if (l_Template->Entry == l_EliteEntries[0])
+                l_RewardItemID = MS::Garrison::Items::ItemCagedMightyClefthoof;
+            else if (l_Template->Entry == l_EliteEntries[1])
+                l_RewardItemID = MS::Garrison::Items::ItemCagedMightRiverbeast;
+            else if (l_Template->Entry == l_EliteEntries[2])
+                l_RewardItemID = MS::Garrison::Items::ItemCagedMightyWolf;
+
+
+            if (l_RewardItemID)
+                l_Summoner->AddItem(l_RewardItemID, 1);
+
+            if (l_Summoner->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE || l_Summoner->GetQuestStatus(Quests::Alliance_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE)
+                l_Summoner->KilledMonsterCredit(NPCs::TrapL1QuestKillCredit);
+            else if (l_Summoner->GetQuestStatus(Quests::Horde_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE || l_Summoner->GetQuestStatus(Quests::Alliance_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE)
+                l_Summoner->KilledMonsterCredit(NPCs::TrapL2QuestKillCredit);
+            else if (l_Summoner->GetQuestStatus(Quests::Horde_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE || l_Summoner->GetQuestStatus(Quests::Alliance_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE)
+                l_Summoner->KilledMonsterCredit(NPCs::TrapL3QuestKillCredit);
         }
     }
 

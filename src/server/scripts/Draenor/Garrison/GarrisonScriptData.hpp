@@ -179,6 +179,8 @@ namespace MS { namespace Garrison
         LunarfallRaccoon                                = 85341,
         NpcFrostwallNibbler                             = 81967,
         TrapL1QuestKillCredit                           = 84882,
+        TrapL2QuestKillCredit                           = 84883,
+        TrapL3QuestKillCredit                           = 84884,
         NpcFarmerLokLubSummon                           = 85093,
         NpcHomerStonefield                              = 83967,
         NpcTommyJoeStonefield                           = 83968,
@@ -990,7 +992,10 @@ namespace MS { namespace Garrison
         ItemSecondGarrisonResources             = 118111,
         ItemMine                                = 116055,
         ItemBlackrockOre                        = 109118,
-        ItemTrueIronOre                         = 109119
+        ItemTrueIronOre                         = 109119,
+        ItemIronTrap                            = 113991,
+        ItemImprovedIronTrap                    = 115009,
+        ItemDeadlyIronTrap                      = 115010
     };
 
     /// Waypoints
@@ -1055,6 +1060,61 @@ namespace MS { namespace Garrison
         80572   ///< Frostwall wolf
     };
 
+    namespace ShipmentContainer
+    {
+        enum
+        {
+            ShipmentTest                    = 2, ///< Probably debug for Blizz
+            ShipmentUnk1                    = 3, ///< Maybe fishing ? dunno yet
+            ShipmentFishingHut              = 30, ///< Fishing Hut building related
+            ShipmentAlchemyLab              = 31, ///< Alchemy Lab building related
+            ShipmentBarn                    = 32, ///< Barn building related
+            ShipmentLumberMill              = 36, ///< Lumber Mill building related
+            ShipmentTailoring               = 37, ///< Tailoring Emporium building related
+            ShipmentBlacksmitthing          = 49, ///< Blacksmitthing building related
+            ShipmentLeathorworking          = 50,
+            ShipmentJewelCrafting           = 51,
+            ShipmentEnchanting              = 52,
+            ShipmentEngineering             = 53,
+            ShipmentInscription             = 54, ///< ?? Unk
+            ShipmentHerbGarden              = 55,
+            ShipmentMine                    = 56,
+            ShipmentAlchemyUnk              = 57,
+            ShipmentBlacksmitthingUnk       = 58,
+            ShipmentEnchantingUnk           = 59,
+            ShipmentEngineeringUnk          = 60,
+            ShipmentInscriptionUnk          = 61, ///< Unk
+            ShipmentJewelCraftingUnk        = 62,
+            ShipmentLeathorworkingUnk       = 63,
+            ShipmentTailoringUnk            = 64,
+            ShipmentConquerorsTribute       = 65,
+            ShipmentTradingPost             = 66,
+            ShipmentTradingPostUnk          = 70,
+            ShipmentOverchargedDemolisher   = 74,
+            ShipmentOverchargedSiegeEngine  = 75,
+            ShipmentArmory                  = 77,
+            ShipmentArmoryUnk               = 78,
+            ShipmentMineUnk                 = 79,
+            ShipmentHerbGardenUnk           = 80,
+            ShipmentMageTower               = 100,
+            ShipmentMageTowerUnk            = 101,
+            ShipmentShipDestroyer           = 103, ///< Shipyard Related
+            ShipmentShipSubmarine           = 104, ///< Shipyard Related
+            ShipmentShipBattleship          = 105, ///< Shipyard Related
+            ShipmentShipTransport           = 106, ///< Shipyard Related
+            ShipmentShipCarrier             = 107, ///< Shipyard Related
+            ShipmentShipTransportUnk        = 109, ///< Shipyard Related
+            ShipmentShipSubmarineUnk        = 111, ///< Shipyard Related
+            ShipmentShipBattleshipUnk       = 112, ///< Shipyard Related
+            ShipmentShipDestroyerUnk        = 113, ///< Shipyard Related
+            ShipmentShipDestroyerUnk2       = 114, ///< Shipyard Related
+            ShipmentShipDestroyerUnk3       = 115, ///< Shipyard Related
+            ShipmentShipDestroyerUnk4       = 119, ///< Shipyard Related
+            ShipmentShipDestroyerUnk5       = 121  ///< Shipyard Related
+        };
+
+    }
+
     namespace Barn
     {
         /// Creatures that can be tamed with the Iron Trap for the Barn building
@@ -1073,99 +1133,26 @@ namespace MS { namespace Garrison
             AND ct.`family` IN (1, 43) ///< Wolf, Clefthoof
             AND ct.`rank` = 0          ///< Standard
             AND ct.`type` = 1          ///< Beast
-            ORDER BY entry ASC ;*/
-            static const uint32 gFirstLevel[] =
-            {
-                72162,
-                72991,
-                73132,
-                73205,
-                73234,
-                73284,
-                73571,
-                73619,
-                73766,
-                74169,
-                74600,
-                74698,
-                74712,
-                74748,
-                75680,
-                76241,
-                76337,
-                76542,
-                76575,
-                76576,
-                76593,
-                76597,
-                76660,
-                76705,
-                76707,
-                76710,
-                76711,
-                76732,
-                76822,
-                76869,
-                76889,
-                76895,
-                76897,
-                76901,
-                76902,
-                77669,
-                77886,
-                78196,
-                78364,
-                78406,
-                78570,
-                78571,
-                78572,
-                78574,
-                78575,
-                78576,
-                78798,
-                78918,
-                78919,
-                78920,
-                79034,
-                79755,
-                80261,
-                81718,
-                81774,
-                81898,
-                81902,
-                82119,
-                82205,
-                82209,
-                82308,
-                82535,
-                83829,
-                84044,
-                84045,
-                84662,
-                84793,
-                84798,
-                85974,
-                86000,
-                86414,
-                86656,
-                86730,
-                86839,
-                86847,
-                86851,
-                86931,
-                82452
-            };
+            ORDER BY entry ASC ;
+
+            Examples :
+
+            72162,
+            72991,
+            73132,
+            73205,
+            73234*/
         }
 
         enum ShipmentIDS
         {
             /// Some shipments are unk atm
-            ShipmentFur      = 82,
-            ShipmentMeat     = 83,
-            ShipmentLeather  = 85,
-            ShipmentLeather2 = 86,
-            ShipmentLeather3 = 88,
-            ShipmentLeather4 = 89,
+            ShipmentFurredBeast            = 82,
+            ShipmentPowerfulFurredBeast    = 83,
+            ShipmentLeatheredBeast         = 85,
+            ShipmentPowerfulLeatheredBeast = 86,
+            ShipmentMeatyBeast             = 88,
+            ShipmentPowerfulMeatyBeast     = 89,
         };
     }
 

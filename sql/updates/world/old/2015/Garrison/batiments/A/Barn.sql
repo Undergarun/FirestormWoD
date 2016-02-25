@@ -2,12 +2,12 @@
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-24 AND faction_index = 1;
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES
-	('-24','1','88126','15.8253','-4.65711','0.817719','0.163344'),
-	('-24','1','84796','10.1482','-3.03874','0.817497','0.076947'),
-	('-24','1','84524','4.26283','-4.29326','0.817497','1.51108'),
-	('-24','1','84795','3.34265','-0.084008','0.817497','0.022747'),
-	('-24','1','-234186','14.8351','2.71689','0.317497','4.69979'),
-	('-24','1','-238761','17.275','-4.5227','0.317329','3.14973');
+	('-24','1','88126','15.8253','-4.65711','0.817719','0.163344'), -- maybell (useless)
+	('-24','1','84796','10.1482','-3.03874','0.817497','0.076947'), -- mom champierreux (useless)
+	('-24','1','84524','4.26283','-4.29326','0.817497','1.51108'), -- homer
+	('-24','1','84795','3.34265','-0.084008','0.817497','0.022747'), -- tommy
+	('-24','1','-234186','14.8351','2.71689','0.317497','4.69979'), -- iron trap
+	('-24','1','-238761','17.275','-4.5227','0.317329','3.14973'); -- work order
 
 	UPDATE quest_template_objective SET TYPE = 0 WHERE questid IN (36345, 36271);
 
@@ -24,9 +24,17 @@
 
 	#84524/NPC - Homer Stonefield
 
-		REPLACE INTO creature_queststarter VALUE (84524, 36271);
-		REPLACE INTO creature_questender   VALUE (84524, 36271);
-		UPDATE creature_template SET npcflag = npcflag | 1, npcflag2 = 32, subname = "Work Orders", scriptname = "npc_HomerStonefield_Garr" WHERE entry = 84524;
+		REPLACE INTO creature_queststarter VALUES
+		(84524, 36271),
+		(84524, 36272),
+		(84524, 36274);
+
+		REPLACE INTO creature_questender VALUES
+		(84524, 36271),
+		(84524, 36272),
+		(84524, 36274);
+
+		UPDATE creature_template SET npcflag = npcflag | 1 | 2, npcflag2 = 32, subname = "Work Orders", scriptname = "npc_HomerStonefield_Garr" WHERE entry = 84524;
 
 	#84795/NPC - Tommy Joe Stonefield
 
@@ -60,14 +68,27 @@
 		(83967, 15, 0, 'Ya know, hauling these things back aint a walk in the park.', 12, 0, 100, 0, 0, 0, ''),
 		(83967, 16, 0, 'Yep, sure bigger and... wait, what?', 12, 0, 100, 0, 0, 0, '');
 
+
+		
 -- LEVEL 2
+		
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-25 AND faction_index = 1;
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES
+	('-25','1','88126','1.50372','-3.02134','1.11149','0.278774'),
+	('-25','1','84796','2.54598','3.19272','1.11213','1.75532'),
+	('-25','1','84524','9.02583','-2.32332','1.11144','0.447631'),
+	('-25','1','84795','7.901','3.39216','1.11144','2.80775'),
+	('-25','1','-234186','11.1508','2.53829','0.61274','5.97684'),
+	('-25','1','-238761','20.4724','-3.34327','0.067924','2.69387');
 
-	#84773/NPC = Improved Iron Trap
-
-		UPDATE creature_template SET scriptname = "npc_IronTrap_Garr" WHERE entry = 84773;
 
 -- LEVEL 3
 
-	#84774/NPC = Improved Iron Trap
-
-		UPDATE creature_template SET scriptname = "npc_IronTrap_Garr" WHERE entry = 84774;
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-133 AND faction_index = 1;
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES
+	()'-133','1','84524','9.86922','-4.29116','0.77552','1.41916'),
+	('-133','1','84795','6.30178','2.64393','0.77552','5.02021'),
+	('-133','1','84796','0.346503','-6.63675','0.775261','4.59138'),
+	('-133','1','88126','-4.86952','0.566086','0.775429','0.087129'),
+	('-133','1','-234186','0.017007','0.259515','0.275429','6.15198'),
+	('-133','1','-238761','19.2267','-3.17755','0.000122','1.75767');

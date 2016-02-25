@@ -20,6 +20,8 @@ namespace MS { namespace Garrison
     {
         m_AllowedBluePrints.push_back(Buildings::AlchemyLab__AlchemyLab_Level1);
         m_AllowedBluePrints.push_back(Buildings::Barn__Barn_Level1);
+        m_AllowedBluePrints.push_back(Buildings::Barn__Barn_Level2);
+        m_AllowedBluePrints.push_back(Buildings::Barn__Barn_Level3);
         m_AllowedBluePrints.push_back(Buildings::Barracks__Barracks_Level1);
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker__WarMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::EnchanterStudy_EnchanterStudy_Level1);
