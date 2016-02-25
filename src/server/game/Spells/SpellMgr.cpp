@@ -3813,8 +3813,28 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 166491: ///< FireBloom - experimental, trying to produce triggers
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 169223: ///< Toxic Gas
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                break;
+            case 167977: ///< Bramble Patch
+            case 169495: ///< Living Leaves
+            case 164294: ///< Unchecked Growth
+            case 166726: ///< Frozen Rain
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                break;
+            case 173080: ///< Fixate
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetB = 0;
+                break;
+            case 169322: ///< Descend Beam
+            case 143569: ///< Sand Beam
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 169376: ///< Venomous Sting
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -3823,14 +3843,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164885: ///< Dreadpetal Toxin
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
-                break;
-            case 143569: ///< Sand Beam
-                spellInfo->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = 0;
-                spellInfo->AttributesEx4 = 0;
-                spellInfo->AttributesEx5 = 0;
-                spellInfo->AttributesEx6 = 0;
-                spellInfo->AttributesEx9 = 0;
                 break;
                 /// Iron Docks 
             case 178154:  ///< Acid Spit
