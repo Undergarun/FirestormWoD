@@ -9177,7 +9177,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     return int32(rep*percent/100);
 }
 
-//Calculates how many reputation points player gains in victim's enemy factions
+/// Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
     if (!victim || victim->IsPlayer())
@@ -9185,6 +9185,49 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (victim->ToCreature()->IsReputationGainDisabled())
         return;
+
+    if (HasAura(186404)) ///< Sign of the Emissary (Weekly event bonus)
+    {
+        uint32 l_Zone = GetZoneId();
+        uint32 l_Team = GetTeam();
+
+        Creature* l_Creature = victim->ToCreature();
+
+        if (l_Creature == nullptr)
+            return;
+
+        if (l_Creature->GetMap()->IsMythic() || l_Creature->GetMap()->IsHeroic())
+        {
+            std::map<int32, int32>    l_ReputationByMap;
+            l_ReputationByMap[6988] = 1515;                                 ///< Skyreach / Arakkoa Outcasts
+            l_ReputationByMap[6912] = l_Team == ALLIANCE ? 1710 : 1708;     ///< Auchindoun  / Sha'tari Defense (Alliance), Laughing Skull (Horde)
+            l_ReputationByMap[7109] = l_Team == ALLIANCE ? 1710 : 1708;     ///< The Everbloom  / Sha'tari Defense (Alliance), Laughing Skull (Horde)
+            l_ReputationByMap[6932] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Shadowmoon Burial Grounds  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6984] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Grimrail Depot  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6951] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Iron Docks  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6874] = 1711;                                 ///< Bloodmaul Slag Mines  / Steamwheedle Preservation Society
+            l_ReputationByMap[7307] = 1711;                                 ///< Upper Blackrock Spire  / Steamwheedle Preservation Society
+
+            int32 l_FactionID = 0;
+            for (auto& l_Reputation : l_ReputationByMap)
+            {
+                if (l_Zone == l_Reputation.first)
+                    l_FactionID = l_Reputation.second;
+            }
+
+            if (l_FactionID)
+            {
+                int16 l_ReputationGain = 20;
+                if (l_Creature->IsDungeonBoss())
+                    l_ReputationGain = 400;
+
+                FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(l_FactionID);
+                uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
+                if (factionEntry1)
+                    GetReputationMgr().ModifyReputation(factionEntry1, l_ReputationGain);
+            }
+        }
+    }
 
     ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
 
