@@ -465,7 +465,13 @@ class boss_kromog : public CreatureScript
                             m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
                         }
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM/*, 2, 5.0f, true*/))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
                             me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
 
                         /// When the second rune is summoned, it triggers both of them to crush
@@ -1004,7 +1010,7 @@ class spell_foundry_slam : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_foundry_slam_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunchTarget += SpellEffectFn(spell_foundry_slam_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
