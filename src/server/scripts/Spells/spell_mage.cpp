@@ -3195,7 +3195,7 @@ public:
             ArcaneLanguageHorde = 122999,
         };
 
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             Player* l_Player = GetCaster()->ToPlayer();
 

@@ -1923,7 +1923,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
                 if (l_ElementalFusion != nullptr)
                 {
-                    if (AuraPtr l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
+                    if (Aura* l_ElementalFusionAura = l_Caster->GetAura(SPELL_SHA_ELEMENTAL_FUSION_PROC))
                     {
                         /// 1 stack - 40%, 2 stacks - 80%
                         uint32 l_Stacks = l_ElementalFusionAura->GetStackAmount();

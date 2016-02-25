@@ -5451,7 +5451,7 @@ class spell_gen_ironbeards_hat : public SpellScriptLoader
                 Morph = 63424
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5461,7 +5461,7 @@ class spell_gen_ironbeards_hat : public SpellScriptLoader
                 l_Player->SetDisplayId(eDatas::Morph);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5559,7 +5559,7 @@ class spell_gen_coin_of_many_faces : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_coin_of_many_faces_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5572,7 +5572,7 @@ class spell_gen_coin_of_many_faces : public SpellScriptLoader
                     l_Player->SetDisplayId(l_CreatureTemplate->Modelid1);
            }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5605,7 +5605,7 @@ public:
     {
         PrepareAuraScript(spell_legendary_cloaks_AuraScript);
 
-        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
         {
             PreventDefaultAction();
 

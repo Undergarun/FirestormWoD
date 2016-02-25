@@ -1036,7 +1036,7 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1216,7 +1216,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
                         continue;
 
                     m_AffectedTargets.insert(l_Unit->GetGUID());
-                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
         }
@@ -1268,7 +1268,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, nullptr, l_Caster->GetGUID());
 
                     if (l_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
                     {
