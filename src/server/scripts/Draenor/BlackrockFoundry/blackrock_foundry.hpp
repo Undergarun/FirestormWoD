@@ -220,4 +220,12 @@ enum eFoundryVisuals
     ConveyorsStart3 = 6974
 };
 
+enum eFoundryDungeons
+{
+    Slagworks           = 847,
+    BlackForge          = 846,
+    IronAssembly        = 848,
+    BlackhandsCrucible  = 823
+};
+
 #endif

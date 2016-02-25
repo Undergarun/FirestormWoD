@@ -32,6 +32,10 @@ class instance_blackrock_foundry : public InstanceMapScript
         {
             instance_blackrock_foundryMapScript(Map* p_Map) : InstanceScript(p_Map)
             {
+                m_Initialized               = false;
+
+                m_DungeonID                 = 0;
+
                 m_GruulGuid                 = 0;
                 m_PristineTrueIronOres      = 0;
 
@@ -61,6 +65,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_GraspingEarthHandsTime    = 0;
                 m_KromogGuid                = 0;
             }
+
+            bool m_Initialized;
+
+            uint32 m_DungeonID;
 
             /// Slagworks
             uint64 m_GruulGuid;
@@ -559,6 +567,85 @@ class instance_blackrock_foundry : public InstanceMapScript
             void OnPlayerEnter(Player* p_Player) override
             {
                 InstanceScript::OnPlayerEnter(p_Player);
+
+                /// Disable non available bosses for LFR
+                if (!m_Initialized)
+                {
+                    m_Initialized = true;
+
+                    m_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
+
+                    if (!instance->IsLFR())
+                        m_DungeonID = 0;
+
+                    switch (m_DungeonID)
+                    {
+                        case eFoundryDungeons::Slagworks:
+                        {
+                            uint32 l_DisabledMask = 0;
+
+                            l_DisabledMask |= (1 << eFoundryDatas::DataHansgarAndFranzok);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataFlamebenderKagraz);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataKromog);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBeastlordDarmac);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataOperatorThogar);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataIronMaidens);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBlackhand);
+
+                            SetDisabledBosses(l_DisabledMask);
+                            break;
+                        }
+                        case eFoundryDungeons::BlackForge:
+                        {
+                            uint32 l_DisabledMask = 0;
+
+                            l_DisabledMask |= (1 << eFoundryDatas::DataGruul);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataOregorger);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBlastFurnace);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBeastlordDarmac);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataOperatorThogar);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataIronMaidens);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBlackhand);
+
+                            SetDisabledBosses(l_DisabledMask);
+                            break;
+                        }
+                        case eFoundryDungeons::IronAssembly:
+                        {
+                            uint32 l_DisabledMask = 0;
+
+                            l_DisabledMask |= (1 << eFoundryDatas::DataGruul);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataOregorger);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBlastFurnace);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataHansgarAndFranzok);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataFlamebenderKagraz);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataKromog);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBlackhand);
+
+                            SetDisabledBosses(l_DisabledMask);
+                            break;
+                        }
+                        case eFoundryDungeons::BlackhandsCrucible:
+                        {
+                            uint32 l_DisabledMask = 0;
+
+                            l_DisabledMask |= (1 << eFoundryDatas::DataGruul);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataOregorger);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBlastFurnace);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataHansgarAndFranzok);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataFlamebenderKagraz);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataKromog);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataBeastlordDarmac);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataOperatorThogar);
+                            l_DisabledMask |= (1 << eFoundryDatas::DataIronMaidens);
+
+                            SetDisabledBosses(l_DisabledMask);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
             }
 
             void OnPlayerExit(Player* p_Player) override
