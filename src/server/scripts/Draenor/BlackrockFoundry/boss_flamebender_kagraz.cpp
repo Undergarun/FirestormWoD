@@ -575,7 +575,8 @@ class boss_flamebender_kagraz : public CreatureScript
 
                         me->CastSpell(me, eSpells::FirestormSelfAura, true);
 
-                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        uint32 l_Timer = 2 * TimeConstants::IN_MILLISECONDS;
+                        AddTimedDelayedOperation(l_Timer, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::FirestormPeriodicTrigger, false);
 
@@ -586,7 +587,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        l_Timer += 12 * TimeConstants::IN_MILLISECONDS;
+                        AddTimedDelayedOperation(l_Timer, [this]() -> void
                         {
                             m_Firestorm = false;
 
@@ -598,6 +600,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                                 AttackStart(l_Target);
                         });
+
+                        m_Events.DelayEvent(eEvents::EventLavaSlash, l_Timer);
 
                         m_Events.CancelEvent(eEvents::EventMoltenTorrent);
                         m_Events.CancelEvent(eEvents::EventBlazingRadiance);
@@ -1920,6 +1924,46 @@ class spell_foundry_fixate : public SpellScriptLoader
 {
     public:
         spell_foundry_fixate() : SpellScriptLoader("spell_foundry_fixate") { }
+
+        class spell_foundry_fixate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_fixate_SpellScript);
+
+            enum eSpell
+            {
+                FirestormAreatrigger = 163630
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.clear();
+
+                if (Creature* l_Wolf = GetCaster()->ToCreature())
+                {
+                    if (npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI* l_AI = CAST_AI(npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI, l_Wolf->GetAI()))
+                    {
+                        if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                            p_Targets.push_back(l_Target);
+                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                            p_Targets.push_back(l_Target);
+                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                            p_Targets.push_back(l_Target);
+                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
+                            p_Targets.push_back(l_Target);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_fixate_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_fixate_SpellScript();
+        }
 
         class spell_foundry_fixate_AuraScript : public AuraScript
         {
