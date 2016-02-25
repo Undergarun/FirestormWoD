@@ -67,22 +67,23 @@ struct AreaTriggerTemplate
 {
     AreaTriggerTemplate()
     {
-        m_SpellID       = 0;
-        m_EffIndex      = 0;
-        m_Entry         = 0;
-        m_Type          = 0;
-        m_ScaleX        = 0.f;
-        m_ScaleY        = 0.f;
-        m_MoveCurveID   = 0;
-        m_ScaleCurveID  = 0;
-        m_MorphCurveID  = 0;
-        m_FacingCurveID = 0;
+        m_SpellID               = 0;
+        m_EffIndex              = 0;
+        m_Entry                 = 0;
+        m_Type                  = 0;
+        m_ScaleX                = 0.0f;
+        m_ScaleY                = 0.0f;
+        m_Flags                 = 0;
+        m_MoveCurveID           = 0;
+        m_ScaleCurveID          = 0;
+        m_MorphCurveID          = 0;
+        m_FacingCurveID         = 0;
 
         m_ScriptId              = 0;
         m_CreatureVisualEntry   = 0;
 
         for (uint32 l_I = 0; l_I < MAX_AREATRIGGER_DATA; l_I++)
-            m_Raw.m_Data[l_I] = 0;
+            m_Raw.m_Data[l_I]   = 0;
     }
 
     uint32 m_SpellID;

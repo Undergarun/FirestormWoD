@@ -213,7 +213,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, 90000);
                             break;
                         case EVENT_BONE_STORM_BEGIN:
-                            if (AuraPtr pStorm = me->GetAura(SPELL_BONE_STORM))
+                            if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
                                 pStorm->SetDuration(int32(_boneStormDuration));
                             me->SetSpeed(MOVE_RUN, _baseSpeed*3.0f, true);
                             Talk(SAY_BONE_STORM);
@@ -538,7 +538,7 @@ class spell_marrowgar_coldflame_damage: public SpellScriptLoader
         {
             PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (DynamicObject* owner = GetDynobjOwner())
                     if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED) || (GetTarget()->IsPlayer() && GetTarget()->ToPlayer()->HasSpellCooldown(69146)))

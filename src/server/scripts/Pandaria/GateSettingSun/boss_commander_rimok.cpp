@@ -333,7 +333,7 @@ class spell_rimok_saboteur_bombard: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rimok_saboteur_bombard_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
 

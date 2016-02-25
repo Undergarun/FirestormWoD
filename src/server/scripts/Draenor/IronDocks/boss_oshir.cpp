@@ -1162,7 +1162,7 @@ class iron_docks_oshir_mob_wolf : public CreatureScript
                     me->GetCreatureListWithEntryInGrid(l_WolfTempoList, eCreatures::CreatureWolf, 5.0f);
                     if (!l_WolfTempoList.empty())
                     {
-                        if (AuraPtr l_Aura = me->GetAura(eWolfSpells::SpellStrengthOfThePack))
+                        if (Aura* l_Aura = me->GetAura(eWolfSpells::SpellStrengthOfThePack))
                         {
                             l_Aura->SetStackAmount(l_WolfTempoList.size());
                         }

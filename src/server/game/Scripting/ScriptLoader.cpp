@@ -847,6 +847,9 @@ void AddSC_Garrison_HS();
 void AddSC_Garrison();
 void AddSC_item_strongboxes();
 
+/// Draenor Scenario
+void AddSC_instance_scenario_fate_of_karabor();
+
 /* Skyreach Dungeon */
 void AddSC_instance_Skyreach();
 void AddSC_mob_instance_skyreach();
@@ -1886,6 +1889,9 @@ void AddDraenorScripts()
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();
+
+    /// Draenor Scenario
+    AddSC_instance_scenario_fate_of_karabor();
 #endif
 }
 

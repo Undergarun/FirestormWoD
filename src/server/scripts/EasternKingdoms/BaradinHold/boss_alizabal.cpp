@@ -286,7 +286,7 @@ class spell_alizabal_blade_dance_dmg: public SpellScriptLoader
 
                 PreventHitDamage();
                 uint32 ticks = 1;
-                if (constAuraEffectPtr aurEff = GetCaster()->GetAuraEffect(SPELL_BLADE_DANCE_AURA_2, EFFECT_0))
+                if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_BLADE_DANCE_AURA_2, EFFECT_0))
                     ticks = std::max(aurEff->GetTickNumber(), ticks);
 
                 SetHitDamage(urand(11875, 13125) * ticks);

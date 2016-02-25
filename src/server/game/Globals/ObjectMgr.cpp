@@ -9865,6 +9865,21 @@ CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 p_Entry)
     return m_CreatureTemplateStore[p_Entry];
 }
 
+CreatureTemplate const* ObjectMgr::GetRandomTemplate(CreatureType p_Type)
+{
+    CreatureTemplate const* l_Template = nullptr;
+
+    for (uint32 i = 0; i < m_CreatureTemplateStoreSize; i++)
+    {
+        if (l_Template != nullptr && l_Template->type == p_Type)
+            return l_Template;
+        else
+            l_Template = GetCreatureTemplate(urand(0, m_CreatureTemplateStoreSize));
+    }
+
+    return l_Template;
+}
+
 VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) const
 {
     if (Creature* cre = veh->GetBase()->ToCreature())

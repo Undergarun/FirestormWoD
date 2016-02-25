@@ -384,6 +384,7 @@ class Map : public GridRefManager<NGridType>
 
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
+        bool IsScenario() const { return i_mapEntry && i_mapEntry->IsScenario(); }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
 
@@ -571,7 +572,12 @@ class Map : public GridRefManager<NGridType>
         void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
 
     protected:
-        void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
+
+        void SetUnloadReferenceLock(const GridCoord &p, bool on)
+        {
+            if (NGridType* l_Grid = getNGrid(p.x_coord, p.y_coord))
+                l_Grid->setUnloadReferenceLock(on);
+        }
 
         ACE_Thread_Mutex Lock;
 

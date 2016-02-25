@@ -55,7 +55,7 @@ class spell_gen_absorb0_hitlimit1: public SpellScriptLoader
                 return true;
             }
 
-            void Absorb(AuraEffectPtr /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
             {
                 absorbAmount = std::min(limit, absorbAmount);
             }
@@ -82,9 +82,9 @@ class spell_gen_aura_of_anger: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_aura_of_anger_AuraScript);
 
-            void HandleEffectPeriodicUpdate(AuraEffectPtr aurEff)
+            void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
-                if (AuraEffectPtr aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
+                if (AuraEffect* aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
                     aurEff1->ChangeAmount(aurEff1->GetAmount() + 5);
                 aurEff->SetAmount(100 * aurEff->GetTickNumber());
             }
@@ -154,7 +154,7 @@ class spell_gen_burn_brutallus: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_burn_brutallus_AuraScript);
 
-            void HandleEffectPeriodicUpdate(AuraEffectPtr aurEff)
+            void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
                 if (aurEff->GetTickNumber() % 11 == 0)
                     aurEff->SetAmount(aurEff->GetAmount() * 2);
@@ -249,7 +249,7 @@ class spell_gen_parachute: public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Player* target = GetTarget()->ToPlayer())
                     if (target->IsFalling())
@@ -424,7 +424,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(constAuraEffectPtr aurEff)
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
@@ -459,7 +459,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 }
             }
 
-            void CheckSpell(constAuraEffectPtr aurEff, bool& isPeriodic, int32& amplitude)
+            void CheckSpell(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = GetUnitOwner();
@@ -597,7 +597,7 @@ class spell_creature_permanent_feign_death: public SpellScriptLoader
         {
             PrepareAuraScript(spell_creature_permanent_feign_death_AuraScript);
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 target->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
@@ -687,14 +687,14 @@ class spell_gen_animal_blood: public SpellScriptLoader
                 return true;
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Remove all auras with spell id 46221, except the one currently being applied
-                while (AuraPtr aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, 0, GetAura()))
+                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, 0, GetAura()))
                     GetUnitOwner()->RemoveOwnedAura(aur);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* owner = GetUnitOwner())
                     if (owner->IsInWater())
@@ -808,7 +808,7 @@ class spell_gen_parachute_ic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_parachute_ic_AuraScript)
 
-            void HandleTriggerSpell(constAuraEffectPtr /*aurEff*/)
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 if (Player* target = GetTarget()->ToPlayer())
                     if (target->m_movementInfo.fallTime > 2000)
@@ -925,17 +925,8 @@ class spell_generic_clone: public SpellScriptLoader
 
             void Register()
             {
-                /// Nightmare Figment Mirror Image
-                if (m_scriptSpellId == 57528)
-                {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
-                }
-                else
-                {
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
-                }
+                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1010,7 +1001,7 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                     return true;
                 }
 
-                void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+                void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
                 {
                     Unit* caster = GetCaster();
                     Unit* target = GetTarget();
@@ -1067,7 +1058,7 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
 
@@ -1118,7 +1109,7 @@ class spell_gen_turkey_marker: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_turkey_marker_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 // store stack apply times, so we can pop them while they expire
                 _applyTimes.push_back(getMSTime());
@@ -1129,7 +1120,7 @@ class spell_gen_turkey_marker: public SpellScriptLoader
                     target->CastSpell(target, SPELL_TURKEY_VENGEANCE, true, NULL, aurEff, GetCasterGUID());
             }
 
-            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (_applyTimes.empty())
                     return;
@@ -1332,7 +1323,7 @@ class spell_gen_vehicle_scaling: public SpellScriptLoader
                 return GetCaster() && GetCaster()->IsPlayer();
             }
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 Unit* caster = GetCaster();
                 float factor;
@@ -1432,13 +1423,13 @@ class spell_gen_luck_of_the_draw: public SpellScriptLoader
             }
 
             // cheap hax to make it have update calls
-            void CalcPeriodic(constAuraEffectPtr /*effect*/, bool& isPeriodic, int32& amplitude)
+            void CalcPeriodic(AuraEffect const* /*effect*/, bool& isPeriodic, int32& amplitude)
             {
                 isPeriodic = true;
                 amplitude = 5 * IN_MILLISECONDS;
             }
 
-            void Update(AuraEffectPtr /*effect*/)
+            void Update(AuraEffect* /*effect*/)
             {
                 if (Player* owner = GetUnitOwner()->ToPlayer())
                 {
@@ -1797,7 +1788,7 @@ class spell_gen_break_shield: public SpellScriptLoader
                             Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                             for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                             {
-                                if (AuraPtr aura = itr->second->GetBase())
+                                if (Aura* aura = itr->second->GetBase())
                                 {
                                     SpellInfo const* auraInfo = aura->GetSpellInfo();
                                     if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
@@ -1805,7 +1796,7 @@ class spell_gen_break_shield: public SpellScriptLoader
                                         aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                                         // Remove dummys from rider (Necessary for updating visual shields)
                                         if (Unit* rider = target->GetCharmer())
-                                            if (AuraPtr defend = rider->GetAura(aura->GetId()))
+                                            if (Aura* defend = rider->GetAura(aura->GetId()))
                                                 defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                                         break;
                                     }
@@ -1927,7 +1918,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                             Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
                             for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                             {
-                                if (AuraPtr aura = itr->second->GetBase())
+                                if (Aura* aura = itr->second->GetBase())
                                 {
                                     SpellInfo const* auraInfo = aura->GetSpellInfo();
                                     if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
@@ -1935,7 +1926,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                                         aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                                         // Remove dummys from rider (Necessary for updating visual shields)
                                         if (Unit* rider = target->GetCharmer())
-                                            if (AuraPtr defend = rider->GetAura(aura->GetId()))
+                                            if (Aura* defend = rider->GetAura(aura->GetId()))
                                                 defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                                         break;
                                     }
@@ -2020,7 +2011,7 @@ class spell_gen_defend: public SpellScriptLoader
                 return true;
             }
 
-            void RefreshVisualShields(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void RefreshVisualShields(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                 {
@@ -2035,13 +2026,13 @@ class spell_gen_defend: public SpellScriptLoader
                     GetTarget()->RemoveAurasDueToSpell(GetId());
             }
 
-            void RemoveVisualShields(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void RemoveVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
                     GetTarget()->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
             }
 
-            void RemoveDummyFromDriver(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void RemoveDummyFromDriver(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (TempSummon* vehicle = caster->ToTempSummon())
@@ -2291,7 +2282,7 @@ class spell_gen_on_tournament_mount: public SpellScriptLoader
                 return GetCaster() && GetCaster()->IsPlayer();
             }
 
-            void HandleApplyEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -2303,7 +2294,7 @@ class spell_gen_on_tournament_mount: public SpellScriptLoader
                 }
             }
 
-            void HandleRemoveEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleRemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->RemoveAurasDueToSpell(_pennantSpellId);
@@ -2446,7 +2437,7 @@ class spell_gen_tournament_pennant: public SpellScriptLoader
                 return GetCaster() && GetCaster()->IsPlayer();
             }
 
-            void HandleApplyEffect(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (!caster->GetVehicleBase())
@@ -2640,7 +2631,7 @@ public:
     {
         PrepareAuraScript(spell_gen_dream_funnel_AuraScript);
 
-        void HandleEffectCalcAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& canBeRecalculated)
+        void HandleEffectCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
         {
             if (GetCaster())
                 amount = GetCaster()->GetMaxHealth() * 0.05f;
@@ -2739,7 +2730,7 @@ class spell_gen_lifebloom: public SpellScriptLoader
                 return true;
             }
 
-            void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 // Final heal only on duration end
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
@@ -2971,14 +2962,14 @@ public:
         {
             if (Player* target = GetHitPlayer())
             {
-                constAuraPtr aura = GetHitAura();
+                Aura const* aura = GetHitAura();
                 if (!(aura && aura->GetStackAmount() == 3))
                     return;
 
                 target->CastSpell(target, SPELL_FOAM_SWORD_DEFEAT, true);
                 target->RemoveAurasDueToSpell(SPELL_BONKED);
 
-                if (constAuraPtr aura = target->GetAura(SPELL_ON_GUARD))
+                if (Aura const* aura = target->GetAura(SPELL_ON_GUARD))
                 {
                     if (Item* item = target->GetItemByGuid(aura->GetCastItemGUID()))
                         target->DestroyItemCount(item->GetEntry(), 1, true);
@@ -3008,7 +2999,7 @@ class spell_gen_gift_of_the_naaru: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_gift_of_the_naaru_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (!GetCaster())
                     return;
@@ -3053,7 +3044,7 @@ class spell_gen_running_wild: public SpellScriptLoader
                 return true;
             }
 
-            void HandleMount(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleMount(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 PreventDefaultAction();
@@ -3233,7 +3224,7 @@ class spell_gen_gobelin_gumbo: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff, AuraEffectPtr aurEff)
+            void OnUpdate(uint32 diff, AuraEffect* aurEff)
             {
                 if (GetCaster())
                 {
@@ -3336,7 +3327,7 @@ class spell_gen_hardened_shell: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_hardened_shell_AuraScript);
 
-            void HandleOnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3413,11 +3404,11 @@ class spell_gen_orb_of_power: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_orb_of_power_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* target = GetTarget())
                 {
-                    if (AuraEffectPtr damageDone = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                    if (AuraEffect* damageDone = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
                     {
                         // Max +200% damage done
                         if (damageDone->GetAmount() + 10 >= 100)
@@ -3425,7 +3416,7 @@ class spell_gen_orb_of_power: public SpellScriptLoader
                         else
                             damageDone->ChangeAmount(damageDone->GetAmount() + 10);
                     }
-                    if (AuraEffectPtr healing = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    if (AuraEffect* healing = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                     {
                         // Max -90% heal taken
                         if (healing->GetAmount() -5 <= -90)
@@ -3433,7 +3424,7 @@ class spell_gen_orb_of_power: public SpellScriptLoader
                         else
                             healing->ChangeAmount(healing->GetAmount() - 5);
                     }
-                    if (AuraEffectPtr damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
+                    if (AuraEffect* damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
                     {
                         // Max +500% damage taken
                         if (damageTaken->GetAmount() + 30 >= 500)
@@ -3444,7 +3435,7 @@ class spell_gen_orb_of_power: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveFlagsAuras();
@@ -3473,7 +3464,7 @@ class spell_vote_buff: public SpellScriptLoader
         {
             PrepareAuraScript(spell_vote_buff_AuraScript);
 
-            void CalculateEffectAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateEffectAmount(AuraEffect const* p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (!GetUnitOwner())
                     return;
@@ -3746,7 +3737,7 @@ namespace Resolve
         {
             PrepareAuraScript(spell_resolve_passive_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -3777,9 +3768,9 @@ class spell_gen_dampening : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_dampening_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
-                if (AuraEffectPtr l_FirstEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                if (AuraEffect* l_FirstEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
                 {
                     if (l_FirstEffect->GetAmount() < 100)
                         l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
@@ -3800,7 +3791,7 @@ class spell_gen_dampening : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Drums of Fury - 178207
+/// Drums of Fury - 178207, Drums of Rage - 146555
 class spell_gen_drums_of_fury : public SpellScriptLoader
 {
     public:
@@ -3812,73 +3803,48 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                Exhausted            = 57723,
-                Insanity             = 95809,
-                Sated                = 57724,
+                Exhausted = 57723,
+                Insanity = 95809,
+                Sated = 57724,
                 TemporalDisplacement = 80354,
-                Fatigued             = 160455,
-                BloodLust            = 2825,
-                TimeWarp             = 80353
+                Fatigued = 160455
             };
 
-            SpellCastResult CheckCast()
+            void HandleImmunity(SpellEffIndex p_EffIndex)
             {
-                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Caster->HasAura(eSpells::Exhausted))
-                    return SPELL_FAILED_DONT_REPORT;
+                if (l_Target == nullptr)
+                    return;
 
-                return SPELL_CAST_OK;
+                if (l_Target->HasAura(eSpells::Exhausted) || l_Target->HasAura(eSpells::Insanity) ||
+                    l_Target->HasAura(eSpells::Sated) || l_Target->HasAura(eSpells::TemporalDisplacement) ||
+                    l_Target->HasAura(eSpells::Fatigued))
+                    PreventHitAura();
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            void HandleAfterHit()
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Insanity));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Exhausted));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Fatigued));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::BloodLust));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TimeWarp));
-            }
+                Unit* l_Target = GetHitUnit();
 
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_gen_drums_of_fury_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-            }
-        };
+                if (l_Target == nullptr)
+                    return;
 
-        class spell_gen_drums_of_fury_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_drums_of_fury_AuraScript);
-
-            enum eSpells
-            {
-                Exhausted = 57723
-            };
-
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
-            {
-                if (Unit* l_Target = GetTarget())
+                if (!l_Target->HasAura(eSpells::Exhausted))
                     l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
             }
 
             void Register()
             {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+                AfterHit += SpellHitFn(spell_gen_drums_of_fury_SpellScript::HandleAfterHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_drums_of_fury_SpellScript();
-        }
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_drums_of_fury_AuraScript();
         }
 };
 
@@ -3900,7 +3866,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 VisualKit       = 54168
             };
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3929,7 +3895,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
                 Creature* l_PhotoBomber = ObjectAccessor::FindCreature(m_PhotoBinberGUID);
 
@@ -4284,7 +4250,7 @@ class spell_gen_sword_technique: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_sword_technique_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -4429,7 +4395,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 TouchoftheGraveEffect = 127802
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4495,7 +4461,7 @@ class spell_gen_savage_fortitude : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_savage_fortitude_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 p_Amount *= 10;
             }
@@ -4523,12 +4489,12 @@ class spell_gen_mark_of_warsong : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_mark_of_warsong_AuraScript);
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 p_AurEff->GetBase()->ModStackAmount(9);
             }
 
-            void OnPeriodic(constAuraEffectPtr p_AurEff)
+            void OnPeriodic(AuraEffect const* p_AurEff)
             {
                 if (p_AurEff->GetBase()->GetStackAmount() > 1)
                     p_AurEff->GetBase()->SetStackAmount(p_AurEff->GetBase()->GetStackAmount() - 1);
@@ -4598,7 +4564,7 @@ class spell_gen_shadowmeld : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_shadowmeld_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 /// 6.1 Hotfixes: March 23 - Should drop the character from pvp combat
                 Player* l_Player = GetTarget()->ToPlayer();
@@ -4656,7 +4622,7 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
 
             int32 m_Value = 1414;
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4679,7 +4645,7 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
                 l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 55 * IN_MILLISECONDS, true);
 
                 l_Player->CastSpell(l_Player, g_DraenicAuras[l_MaxStatValue], true);
-                if (AuraEffectPtr l_DreanicAura = l_Player->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
+                if (AuraEffect* l_DreanicAura = l_Player->GetAuraEffect(g_DraenicAuras[l_MaxStatValue], EFFECT_0))
                     l_DreanicAura->ChangeAmount(m_Value);
             }
 
@@ -4998,7 +4964,7 @@ class spell_gen_inge_trigger_enchant : public SpellScriptLoader
                 OglethorpesMissile      = 156055
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
                 
@@ -5058,7 +5024,7 @@ class spell_gen_mark_of_thunderlord : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_mark_of_thunderlord_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -5128,7 +5094,7 @@ class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_kilroggs_dead_eye_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Target = GetCaster();
                 if (l_Target == nullptr)
@@ -5138,7 +5104,7 @@ class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
                 p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
             }
 
-            void CalculateAmount(constAuraEffectPtr aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
@@ -5169,7 +5135,7 @@ class spell_gen_blood_elfe_illusion : public SpellScriptLoader
 
             uint8 m_Race = 0;
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -5224,7 +5190,7 @@ class spell_gen_blood_elfe_illusion : public SpellScriptLoader
                 }*/
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -5307,7 +5273,7 @@ class spell_gen_demon_hunters_aspect : public SpellScriptLoader
                 MorphMale = 35911
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5320,7 +5286,7 @@ class spell_gen_demon_hunters_aspect : public SpellScriptLoader
                     l_Player->SetDisplayId(eDatas::MorphMale);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5433,7 +5399,7 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
                 MorphFemale = 63138
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
@@ -5446,14 +5412,14 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
                     l_Player->SetDisplayId(eDatas::MorphFemale);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
 
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+                l_Player->RestoreDisplayId();
             }
 
             void Register()
@@ -5468,6 +5434,56 @@ class spell_gen_jewel_of_hellfire : public SpellScriptLoader
             return new spell_gen_jewel_of_hellfire_AuraScript();
         }
 };
+
+/// Last Update 6.2.3
+/// Ironbeard's Hat - 188228
+class spell_gen_ironbeards_hat : public SpellScriptLoader
+{
+    public:
+        spell_gen_ironbeards_hat() : SpellScriptLoader("spell_gen_ironbeards_hat") { }
+
+        class  spell_gen_ironbeards_hat_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ironbeards_hat_AuraScript);
+
+            enum eDatas
+            {
+                Morph = 63424
+            };
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->SetDisplayId(eDatas::Morph);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_ironbeards_hat_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_ironbeards_hat_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_ironbeards_hat_AuraScript();
+        }
+};
+
 /// Support for Pilfering Perfume quest(A:24656 H:24541)
 enum ServiceUniform
 {
@@ -5496,7 +5512,7 @@ class spell_gen_service_uniform : public SpellScriptLoader
                 return true;
             }
         
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
                 
@@ -5509,14 +5525,14 @@ class spell_gen_service_uniform : public SpellScriptLoader
                     l_Player->SetDisplayId(eDatas::MorphFemale);
             }
         
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Player = GetTarget()->ToPlayer();
                 
                 if (l_Player == nullptr)
                     return;
                 
-                l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+                l_Player->RestoreDisplayId();
             }
             
             void Register()
@@ -5532,8 +5548,92 @@ class spell_gen_service_uniform : public SpellScriptLoader
     }
 };
 
+/// Last Update 6.2.3
+/// Coin of Many Faces - 192225
+class spell_gen_coin_of_many_faces : public SpellScriptLoader
+{
+    public:
+        spell_gen_coin_of_many_faces() : SpellScriptLoader("spell_gen_coin_of_many_faces") { }
+
+        class  spell_gen_coin_of_many_faces_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_coin_of_many_faces_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                CreatureTemplate const* l_CreatureTemplate = sObjectMgr->GetRandomTemplate(CreatureType::CREATURE_TYPE_HUMANOID);
+
+                if (l_CreatureTemplate != nullptr)
+                    l_Player->SetDisplayId(l_CreatureTemplate->Modelid1);
+           }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_coin_of_many_faces_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_coin_of_many_faces_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_coin_of_many_faces_AuraScript();
+        }
+};
+
+/// Called by Spirit of Chi-Ji (146199), Essence of Yu'lon (146197), Endurance of Niuzao (146193), Flurry of Xuen (146195)
+class spell_legendary_cloaks : public SpellScriptLoader
+{
+public:
+    spell_legendary_cloaks() : SpellScriptLoader("spell_legendary_cloaks") { }
+
+    class spell_legendary_cloaks_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_legendary_cloaks_AuraScript);
+
+        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
+            if (l_Attacker == nullptr)
+                return;
+
+            /// Doesn't work on 100lvl in WOD
+            if (l_Attacker->getLevel() == 100)
+                return;
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_legendary_cloaks_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_legendary_cloaks_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_ironbeards_hat();
+    new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
     new spell_gen_jewel_of_hellfire_trigger();
     new spell_reconfigured_remote_shock();
@@ -5637,6 +5737,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_stoneform_dwarf_racial();
     new spell_gen_elixir_of_wandering_spirits();
     new spell_gen_service_uniform();
+    new spell_legendary_cloaks();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

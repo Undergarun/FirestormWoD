@@ -667,7 +667,7 @@ public:
             return true;
         }
 
-        void OnStackChange(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             switch (GetStackAmount())
@@ -688,7 +688,7 @@ public:
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_LOW);
@@ -990,7 +990,7 @@ class spell_magic_eater_food: public SpellScriptLoader
         {
             PrepareAuraScript(spell_magic_eater_food_AuraScript);
 
-            void HandleTriggerSpell(constAuraEffectPtr /*aurEff*/)
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1747,7 +1747,7 @@ class spell_item_pygmy_oil: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                if (AuraPtr aura = caster->GetAura(SPELL_PYGMY_OIL_PYGMY_AURA))
+                if (Aura* aura = caster->GetAura(SPELL_PYGMY_OIL_PYGMY_AURA))
                     aura->RefreshDuration();
                 else
                 {
@@ -2348,7 +2348,7 @@ class spell_item_pot_of_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_pot_of_fire_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
             {
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
@@ -2605,7 +2605,7 @@ class spell_item_sky_golem : public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_sky_golem_AuraScript);
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2614,7 +2614,7 @@ class spell_item_sky_golem : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2663,7 +2663,7 @@ class spell_item_engineering_scopes: public SpellScriptLoader
                     return true;
                 }
 
-                void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+                void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
                 {
                     PreventDefaultAction();
 
@@ -2709,7 +2709,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 AllianceChauffeur   = 89715
             };
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2727,7 +2727,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2736,7 +2736,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2774,7 +2774,7 @@ class spell_item_forgemasters_vigor : public SpellScriptLoader
                 HammerBlows = 177099
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2782,18 +2782,18 @@ class spell_item_forgemasters_vigor : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::HammerBlows, true);
 
-                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::HammerBlows, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::HammerBlows, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::HammerBlows))
+                        if (Aura* l_Aura = l_Target->GetAura(eSpell::HammerBlows))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::HammerBlows);
@@ -2827,11 +2827,11 @@ class spell_item_hammer_blows : public SpellScriptLoader
                 ForgemastersVigor = 177096
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::ForgemastersVigor, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::ForgemastersVigor, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -2863,7 +2863,7 @@ class spell_item_detonation : public SpellScriptLoader
                 Detonating = 177070
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2871,18 +2871,18 @@ class spell_item_detonation : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::Detonating, true);
 
-                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Detonating, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::Detonating, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Detonating))
+                        if (Aura* l_Aura = l_Target->GetAura(eSpell::Detonating))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Detonating);
@@ -2916,11 +2916,11 @@ class spell_item_detonating : public SpellScriptLoader
                 Detonation = 177067
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Detonation, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::Detonation, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -2952,7 +2952,7 @@ class spell_item_battering : public SpellScriptLoader
                 Cracks = 177103
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2960,18 +2960,18 @@ class spell_item_battering : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::Cracks, true);
 
-                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Cracks, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::Cracks, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Cracks))
+                        if (Aura* l_Aura = l_Target->GetAura(eSpell::Cracks))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Cracks);
@@ -3005,11 +3005,11 @@ class spell_item_cracks : public SpellScriptLoader
                 Battering = 177102
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Battering, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::Battering, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -3041,7 +3041,7 @@ class spell_item_sanatizing : public SpellScriptLoader
                 CleansingSteam = 177087
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3049,18 +3049,18 @@ class spell_item_sanatizing : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::CleansingSteam, true);
 
-                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::CleansingSteam, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::CleansingSteam, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::CleansingSteam))
+                        if (Aura* l_Aura = l_Target->GetAura(eSpell::CleansingSteam))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::CleansingSteam);
@@ -3094,11 +3094,11 @@ class spell_item_cleansing_steam : public SpellScriptLoader
                 Sanitizing = 177086
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Sanitizing, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::Sanitizing, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -3130,7 +3130,7 @@ class spell_item_molten_metal : public SpellScriptLoader
                 PouringSlag = 177083
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3138,18 +3138,18 @@ class spell_item_molten_metal : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::PouringSlag, true);
 
-                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::PouringSlag, EFFECT_0))
+                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::PouringSlag, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::PouringSlag))
+                        if (Aura* l_Aura = l_Target->GetAura(eSpell::PouringSlag))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::PouringSlag);
@@ -3183,11 +3183,11 @@ class spell_item_pouring_slag : public SpellScriptLoader
                 MoltenMetal = 177081
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::MoltenMetal, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::MoltenMetal, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -4128,6 +4128,229 @@ class spell_create_reward_item : public SpellScriptLoader
         }
 };
 
+/// Ai-Li's Skymirror - 86589, Called by: 129803
+class spell_item_skymirror_image : public SpellScriptLoader
+{
+public:
+    spell_item_skymirror_image() : SpellScriptLoader("spell_item_skymirror_image") { }
+
+    class spell_item_skymirror_image_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_skymirror_image_SpellScript);
+
+        enum eSpells
+        {
+            SkymirrorImage = 127315,
+        };
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                l_Target->CastSpell(l_Player, eSpells::SkymirrorImage, true);
+            else
+                l_Player->CastSpell(l_Player, eSpells::SkymirrorImage);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_skymirror_image_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_skymirror_image_SpellScript();
+    }
+};
+
+/// Memory of Mr. Smite - 127207. Item - Mr. Smite's Brass Compass - 86568
+class spell_item_memory_of_mr_smite : public SpellScriptLoader
+{
+    public:
+        spell_item_memory_of_mr_smite() : SpellScriptLoader("spell_item_memory_of_mr_smite") { }
+
+        class spell_item_memory_of_mr_smite_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_memory_of_mr_smite_AuraScript);
+
+            enum eSpells
+            {
+                MrSmiteSword = 127196,
+                MrSmiteHummer = 127206,
+                MrSmiteBlade = 127205
+            };
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                uint32 l_MrSmiteId;
+                l_MrSmiteId = (urand(0, 2));
+                switch (l_MrSmiteId)
+                {
+                    case 0:
+                        l_MrSmiteId = eSpells::MrSmiteSword;
+                        break;
+                    case 1:
+                        l_MrSmiteId = eSpells::MrSmiteHummer;
+                     break;
+                    case 2:
+                        l_MrSmiteId = eSpells::MrSmiteBlade;
+                        break;
+                    default:
+                        return;
+                }
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, l_MrSmiteId, true);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::MrSmiteSword))
+                    l_Caster->RemoveAura(eSpells::MrSmiteSword);
+                else if (l_Caster->HasAura(eSpells::MrSmiteHummer))
+                    l_Caster->RemoveAura(eSpells::MrSmiteHummer);
+                else if (l_Caster->HasAura(eSpells::MrSmiteBlade))
+                    l_Caster->RemoveAura(eSpells::MrSmiteBlade);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_memory_of_mr_smite_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_item_memory_of_mr_smite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_item_memory_of_mr_smite_AuraScript();
+        }
+};
+
+/// Celestial Defender's Medallion - 103685, Called by: 149228
+class spell_item_celestial_defender : public SpellScriptLoader
+{
+    public:
+        spell_item_celestial_defender() : SpellScriptLoader("spell_item_celestial_defender") { }
+
+        class spell_item_celestial_defender_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_celestial_defender_SpellScript);
+
+            enum eSpells
+            {
+                CelestialDefenderMale = 148369,
+                CelestialDefenderFemale = 149229
+            };
+
+            void HandleDummy(SpellEffIndex /* index */)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->getGender() == GENDER_MALE)
+                    l_Caster->CastSpell(l_Caster, eSpells::CelestialDefenderMale, true);
+                else if (l_Caster->getGender() == GENDER_FEMALE)
+                    l_Caster->CastSpell(l_Caster, eSpells::CelestialDefenderFemale, true);
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_item_celestial_defender_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_celestial_defender_SpellScript();
+        }
+};
+
+/// Curious Bronze Timepiece - 104113, Called by: 147988
+class spell_item_curious_bronze_timepiece_alliance : public SpellScriptLoader
+{
+    public:
+        spell_item_curious_bronze_timepiece_alliance() : SpellScriptLoader("spell_item_curious_bronze_timepiece_alliance") { }
+
+        class spell_item_curious_bronze_timepiece_alliance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_curious_bronze_timepiece_alliance_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->TeleportTo(870, -906.980957f, -4643.734375f, 5.223629f, 2.934408f);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_item_curious_bronze_timepiece_alliance_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_curious_bronze_timepiece_alliance_SpellScript();
+        }
+};
+
+/// Curious Bronze Timepiece - 104110, Called by: 147985
+class spell_item_curious_bronze_timepiece_horde : public SpellScriptLoader
+{
+    public:
+        spell_item_curious_bronze_timepiece_horde() : SpellScriptLoader("spell_item_curious_bronze_timepiece_horde") { }
+
+        class spell_item_curious_bronze_timepiece_horde_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_curious_bronze_timepiece_horde_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->TeleportTo(870, -420.822906f, -4604.593262f, 3.901290f, 5.138229f);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_item_curious_bronze_timepiece_horde_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_curious_bronze_timepiece_horde_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4211,4 +4434,9 @@ void AddSC_item_spell_scripts()
     new spell_item_shoulders_of_iron();
     new spell_item_gauntlets_of_iron();
     new spell_create_reward_item();
+    new spell_item_skymirror_image();
+    new spell_item_memory_of_mr_smite();
+    new spell_item_celestial_defender();
+    new spell_item_curious_bronze_timepiece_alliance();
+    new spell_item_curious_bronze_timepiece_horde();
 }
