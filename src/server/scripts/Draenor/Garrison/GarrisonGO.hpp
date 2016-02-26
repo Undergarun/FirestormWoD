@@ -63,6 +63,24 @@ namespace MS { namespace Garrison
             /// @p_GameObject : GameObject instance
             GameObjectAI* GetAI(GameObject * p_GameObject) const override;
 
+            struct ShipmentCurrency
+            {
+                uint32 CurrencyID     = 0;
+                uint32 CurrencyAmount = 0;
+            };
+
+            struct ItemReward
+            {
+                uint32 ItemID;
+                uint32 ItemCount;
+
+                ItemReward()
+                {
+                    ItemID = 0;
+                    ItemCount = 0;
+                }
+            };
+
             struct go_garrison_shipment_containerAI : public GameObjectAI
             {
                 /// Constructor

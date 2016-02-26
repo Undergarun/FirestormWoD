@@ -12,7 +12,7 @@
 
 		REPLACE INTO creature_template (`entry`, `name`, `subname`, `IconName`, `RacialLeader`, `family`, `type`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `unit_flags`, `unit_flags2`, `Health_mod`, `Mana_mod`, `Armor_mod`, `rank`, `KillCredit1`, `KillCredit2`, `movementId`, `scale`, `minlevel`, `maxlevel`, `faction`, `baseattacktime`, `rangeattacktime`, `unit_class`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `speed_walk`, `speed_run`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `BuildVerified`) VALUES(84247, "Lumber Lord Oktron", "Work Orders", "workorders", 0, 0, 7, 58229, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 95, 95, 29, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 1, 1.142857, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		REPLACE INTO creature_equip_template (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(84247, 1, 853, 0, 0);
-		UPDATE creature_template SET npcflag = npcflag | 1, npcflag2 = 32, scriptname = "npc_LumberLordOktron_Garr" WHERE entry = 84247;
+		UPDATE creature_template SET npcflag = npcflag | 1 | 2, npcflag2 = 32, scriptname = "npc_LumberLordOktron_Garr" WHERE entry = 84247;
 		REPLACE INTO creature_queststarter VALUE (84247, 36137);
 		REPLACE INTO creature_queststarter VALUE (84247, 36138);
 

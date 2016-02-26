@@ -136,7 +136,7 @@ struct LootStoreItem
         group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount), itemBonuses(_itemBonuses)
          {}
 
-    bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
+    bool Roll(bool rate, Player const* Player) const;                             // Checks if the entry takes it's chance (at loot generation)
     bool IsValid(LootStore const& store, uint32 entry) const;
                                                             // Checks correctness of values
 };
@@ -248,7 +248,7 @@ class LootTemplate
         // Adds an entry to the group (at loading stage)
         void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
-        void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
+        void Process(Loot& loot, bool rate, uint16 lootMode, Player const* p_Player, uint8 groupId = 0) const;
         void CopyConditions(ConditionContainer conditions);
         void FillAutoAssignationLoot(std::list<const ItemTemplate*>& p_ItemList, Player* p_Player = nullptr, bool p_IsBGReward = false) const;
 

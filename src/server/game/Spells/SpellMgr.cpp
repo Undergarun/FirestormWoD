@@ -3609,6 +3609,24 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163633: ///< Magma Monsoon
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+            case 161049: ///< Rippling Smash (Kromog)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 157060: ///< Rune of Grasping Earth - Cast (Kromog)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+                break;
+            case 157054: ///< Thundering Blows (Kromog)
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 162355;
+                spellInfo->Effects[EFFECT_1].TriggerSpell = 157055;
+                break;
+            case 161923: ///< Rune of Crushing Earth - Damage (Stone Wall)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_129;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CONE_ENEMY_129;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CONE_ENEMY_129;
+                spellInfo->Effects[EFFECT_2].TargetB = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
@@ -3640,6 +3658,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
                 break;
             case 168178: ///< Salvage (garrison loot spell)
+            case 168179: ///< Salvage (garrison loot spell)
+            case 168180: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
                 break;
             case 167650: ///< Loose Quills (Rukhmar)
@@ -3795,8 +3815,28 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164834: ///< Barrage of Leaves
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 166491: ///< FireBloom - experimental, trying to produce triggers
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 169223: ///< Toxic Gas
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                break;
+            case 167977: ///< Bramble Patch
+            case 169495: ///< Living Leaves
+            case 164294: ///< Unchecked Growth
+            case 166726: ///< Frozen Rain
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                break;
+            case 173080: ///< Fixate
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetB = 0;
+                break;
+            case 169322: ///< Descend Beam
+            case 143569: ///< Sand Beam
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 169376: ///< Venomous Sting
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
@@ -3805,14 +3845,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 164885: ///< Dreadpetal Toxin
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
-                break;
-            case 143569: ///< Sand Beam
-                spellInfo->Effects[0].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = 0;
-                spellInfo->AttributesEx4 = 0;
-                spellInfo->AttributesEx5 = 0;
-                spellInfo->AttributesEx6 = 0;
-                spellInfo->AttributesEx9 = 0;
                 break;
                 /// Iron Docks 
             case 178154:  ///< Acid Spit

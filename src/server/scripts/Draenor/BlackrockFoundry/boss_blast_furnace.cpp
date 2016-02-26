@@ -46,6 +46,9 @@ Position const g_PrimalElementalistsMoves[eFoundryDatas::MaxPrimalElementalists]
     217.771f, 3546.35f, 217.408f, 0.0f
 };
 
+Position const g_SecurityGuardSecondPhaseSpwan  = { 199.382f, 3467.203f, 266.286f, 1.619f };
+Position const g_SecurityGuardSecondPhaseJump   = { 197.372f, 3498.752f, 217.844f, 1.552f };
+
 void ResetEncounter(Creature* p_Source, InstanceScript* p_Instance)
 {
     if (p_Source == nullptr || p_Instance == nullptr)
@@ -694,17 +697,8 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                for (uint8 l_I = 0; l_I < 2; ++l_I)
-                                {
-                                    if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
-                                    {
-                                        float l_O = l_Guard->GetAngle(l_Fury);
-                                        float l_X = l_Guard->GetPositionX() + 30.0f * cos(l_O);
-                                        float l_Y = l_Guard->GetPositionY() + 30.0f * sin(l_O);
-
-                                        l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
-                                    }
-                                }
+                                if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_SecurityGuardSecondPhaseSpwan))
+                                    l_Guard->GetMotionMaster()->MoveJump(g_SecurityGuardSecondPhaseJump, 10.0f, 30.0f);
                             }
                         }
 
@@ -1139,7 +1133,8 @@ class npc_foundry_blackhand_cosmetic : public CreatureScript
             OneElementalist,
             Phase3Freedom1,
             Phase3Freedom2,
-            HeartDeath
+            HeartDeath,
+            KromogKilled
         };
 
         enum eActions
@@ -1514,6 +1509,21 @@ class npc_foundry_bellows_operator : public CreatureScript
                 me->RemoveAura(eSpells::Loading);
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SLEEP, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
 
                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {

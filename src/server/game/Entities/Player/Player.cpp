@@ -1585,10 +1585,12 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage p_Type, uint32 p_Damage)
         CalcAbsorbResist(this, SPELL_SCHOOL_MASK_NATURE, DIRECT_DAMAGE, p_Damage, &l_Absorb, &l_Resist);
     else if (p_Type == DAMAGE_FALL)
     {
-        /// Falling damages are disabled in Blackrock Foundry
-        /// @TODO: Maybe find a new MapFlag?
-        if (GetMapId() == 1205)
-            return 0;
+        /// Handle falling damage disabling in some situations
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+        {
+            if (l_InstanceScript->IsPlayerImmuneToFallDamage(this))
+                return 0;
+        }
 
         /// Glyph of Falling Meteor - 56247
         if (getClass() == CLASS_WARLOCK && HasAura(109151) && HasAura(56247))
@@ -9031,7 +9033,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     return int32(rep*percent/100);
 }
 
-//Calculates how many reputation points player gains in victim's enemy factions
+/// Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
     if (!victim || victim->IsPlayer())
@@ -9039,6 +9041,49 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (victim->ToCreature()->IsReputationGainDisabled())
         return;
+
+    if (HasAura(186404)) ///< Sign of the Emissary (Weekly event bonus)
+    {
+        uint32 l_Zone = GetZoneId();
+        uint32 l_Team = GetTeam();
+
+        Creature* l_Creature = victim->ToCreature();
+
+        if (l_Creature == nullptr)
+            return;
+
+        if (l_Creature->GetMap()->IsMythic() || l_Creature->GetMap()->IsHeroic())
+        {
+            std::map<int32, int32>    l_ReputationByMap;
+            l_ReputationByMap[6988] = 1515;                                 ///< Skyreach / Arakkoa Outcasts
+            l_ReputationByMap[6912] = l_Team == ALLIANCE ? 1710 : 1708;     ///< Auchindoun  / Sha'tari Defense (Alliance), Laughing Skull (Horde)
+            l_ReputationByMap[7109] = l_Team == ALLIANCE ? 1710 : 1708;     ///< The Everbloom  / Sha'tari Defense (Alliance), Laughing Skull (Horde)
+            l_ReputationByMap[6932] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Shadowmoon Burial Grounds  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6984] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Grimrail Depot  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6951] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Iron Docks  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6874] = 1711;                                 ///< Bloodmaul Slag Mines  / Steamwheedle Preservation Society
+            l_ReputationByMap[7307] = 1711;                                 ///< Upper Blackrock Spire  / Steamwheedle Preservation Society
+
+            int32 l_FactionID = 0;
+            for (auto& l_Reputation : l_ReputationByMap)
+            {
+                if (l_Zone == l_Reputation.first)
+                    l_FactionID = l_Reputation.second;
+            }
+
+            if (l_FactionID)
+            {
+                int16 l_ReputationGain = 20;
+                if (l_Creature->IsDungeonBoss())
+                    l_ReputationGain = 400;
+
+                FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(l_FactionID);
+                uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
+                if (factionEntry1)
+                    GetReputationMgr().ModifyReputation(factionEntry1, l_ReputationGain);
+            }
+        }
+    }
 
     ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
 
@@ -17619,7 +17664,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast)
+void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast, uint32 p_EncounterID /*= 0*/, ItemContext p_Context /*= ItemContext::None*/)
 {
     /// Prevent crash
     if (!p_Item)
@@ -17627,27 +17672,27 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
 
     WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT, 16 + 2 + 1 + 4 + 100 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 2 + 1);
 
-    l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
-    l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
-    l_Data << uint32(0);                                    ///< SlotInBag
+    l_Data.appendPackGUID(GetGUID());                               ///< Player GUID
+    l_Data << uint8(p_Item->GetBagSlot());                          ///< Slot
+    l_Data << uint32(0);                                            ///< SlotInBag
 
-    Item::BuildDynamicItemDatas(l_Data, p_Item);
+    Item::BuildDynamicItemDatas(l_Data, p_Item, p_Context);
 
-    l_Data << uint32(0);                                    ///< QuestLogItemID
-    l_Data << uint32(p_Quantity);                           ///< Quantity
-    l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
-    l_Data << uint32(0);                                    ///< Dungeon Encounter ID
-    l_Data << uint32(0);                                    ///< Battle Pet Species ID
-    l_Data << uint32(0);                                    ///< Battle Pet Breed ID
-    l_Data << uint32(0);                                    ///< Battle Pet Breed Quality
-    l_Data << uint32(0);                                    ///< Battle Pet Level
-    l_Data.appendPackGUID(p_Item->GetGUID());               ///< Item GUID
+    l_Data << uint32(0);                                            ///< QuestLogItemID
+    l_Data << uint32(p_Quantity);                                   ///< Quantity
+    l_Data << uint32(GetItemCount(p_Item->GetEntry()));             ///< count of items in inventory
+    l_Data << uint32(p_EncounterID);                                ///< Dungeon Encounter ID
+    l_Data << uint32(0);                                            ///< Battle Pet Species ID
+    l_Data << uint32(0);                                            ///< Battle Pet Breed ID
+    l_Data << uint32(0);                                            ///< Battle Pet Breed Quality
+    l_Data << uint32(0);                                            ///< Battle Pet Level
+    l_Data.appendPackGUID(p_Item->GetGUID());                       ///< Item GUID
 
-    l_Data.WriteBit(p_Received);                            ///< Pushed
-    l_Data.WriteBit(p_Created);                             ///< Created
-    l_Data.WriteBits(1, 2);                                 ///< Display Text
-    l_Data.WriteBit(0);                                     ///< Is Bonus Roll
-    l_Data.WriteBit(0);                                     ///< Is Encounter Loot
+    l_Data.WriteBit(p_Received);                                    ///< Pushed
+    l_Data.WriteBit(p_Created);                                     ///< Created
+    l_Data.WriteBits(p_Context == ItemContext::RaidLfr ? 3 : 1, 2); ///< Display Text
+    l_Data.WriteBit(false);                                         ///< Is Bonus Roll
+    l_Data.WriteBit(p_Context == ItemContext::RaidLfr);             ///< Is Encounter Loot
     l_Data.FlushBits();
 
     if (p_Broadcast && GetGroup())
@@ -29675,7 +29720,50 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         /// Add bonus to item if needed
         newitem->AddItemBonuses(item->itemBonuses);
 
-        SendNewItem(newitem, uint32(item->count), false, false, true);
+        ItemContext l_Context   = ItemContext::None;
+        uint32 l_EncounterID    = 0;
+        if (Creature* l_Creature = Creature::GetCreature(*this, loot->source))
+        {
+            if (InstanceScript* l_InstanceScript = l_Creature->GetInstanceScript())
+                l_EncounterID = l_InstanceScript->GetEncounterIDForBoss(l_Creature);
+
+            switch (GetMap()->GetDifficultyID())
+            {
+                case Difficulty::DifficultyRaidLFR:
+                    l_Context = ItemContext::RaidLfr;
+                    break;
+                case Difficulty::DifficultyRaidNormal:
+                    l_Context = ItemContext::RaidNormal;
+                    break;
+                case Difficulty::DifficultyRaidHeroic:
+                    l_Context = ItemContext::RaidHeroic;
+                    break;
+                case Difficulty::DifficultyRaidMythic:
+                    l_Context = ItemContext::RaidMythic;
+                    break;
+                case Difficulty::DifficultyNormal:
+                    l_Context = ItemContext::DungeonNormal;
+                    break;
+                case Difficulty::DifficultyHeroic:
+                    l_Context = ItemContext::DungeonHeroic;
+                    break;
+                case Difficulty::DifficultyMythic:
+                    l_Context = ItemContext::DungeonMythic;
+                    break;
+                default:
+                    break;
+            }
+
+            /// If item is not equipable, it doesn't need to be displayed
+            /// If item is not from listed difficulties, it doesn't need to be displayed
+            if (!newitem->IsEquipable() || l_Context == ItemContext::None)
+            {
+                l_EncounterID   = 0;
+                l_Context       = ItemContext::None;
+            }
+        }
+
+        SendNewItem(newitem, uint32(item->count), false, false, true, l_EncounterID, l_Context);
 
         /// Handle achievement criteria related to loot
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);

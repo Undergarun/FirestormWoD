@@ -146,50 +146,171 @@ namespace MS { namespace Garrison
             if (!l_ShipmentEntry)
                 continue;
 
-            uint32 l_RewardItemID = l_ShipmentEntry->ResultItemID;
+            ShipmentCurrency l_ShipmentCurrency;
+            uint32 l_RewardID = l_ShipmentEntry->ResultItemID;
+            std::map<uint32, uint32> l_RewardItems;
 
-            if (l_ShipmentEntry->ID == 109) ///< Herb Garden
-                l_RewardItemID = g_HerbEntries[urand(0, 5)];
-            else if (l_RewardItemID == 114999) ///< Barn Somptuous Fur, itemID from dbc is wrong
-                l_RewardItemID = 111557;
-            else if (l_RewardItemID == 122589) ///< Mage Tower/Spirit Lodge reward, needs custom handling
-                l_RewardItemID = 122514;
+            l_RewardItems.insert(std::make_pair(l_RewardID, 0));
+
+            using namespace ShipmentContainer;
+
+            switch (l_ShipmentEntry->ShipmentContainerID)
+            {
+                /// Standard Handling
+                case ShipmentTest:
+                case ShipmentUnk1:
+                case ShipmentFishingHut:
+                case ShipmentAlchemyLab:
+                case ShipmentTailoring:
+                case ShipmentBlacksmitthing:
+                case ShipmentLeathorworking:
+                case ShipmentJewelCrafting:
+                case ShipmentEnchanting:
+                case ShipmentEngineering:
+                case ShipmentInscription:
+                case ShipmentAlchemyUnk:
+                case ShipmentBlacksmitthingUnk:
+                case ShipmentEnchantingUnk:
+                case ShipmentEngineeringUnk:
+                case ShipmentInscriptionUnk:
+                case ShipmentJewelCraftingUnk:
+                case ShipmentLeathorworkingUnk:
+                case ShipmentTailoringUnk:
+                case ShipmentConquerorsTribute:
+                case ShipmentOverchargedDemolisher:
+                case ShipmentOverchargedSiegeEngine:
+                case ShipmentArmory:
+                case ShipmentArmoryUnk:
+                case ShipmentShipDestroyer:
+                case ShipmentShipSubmarine:
+                case ShipmentShipBattleship:
+                case ShipmentShipTransport:
+                case ShipmentShipCarrier:
+                case ShipmentShipTransportUnk:
+                case ShipmentShipSubmarineUnk:
+                case ShipmentShipBattleshipUnk:
+                case ShipmentShipDestroyerUnk:
+                case ShipmentShipDestroyerUnk2:
+                case ShipmentShipDestroyerUnk3:
+                case ShipmentShipDestroyerUnk4:
+                case ShipmentShipDestroyerUnk5:
+                    break;
+                    /// Custom Handling
+                case ShipmentLumberMill:
+                case ShipmentTradingPost:
+                case ShipmentTradingPostUnk:
+                case ShipmentMineUnk:
+                case ShipmentMine:
+                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
+                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+                    break;
+                case ShipmentBarn:
+                {
+                    l_RewardItems.clear();
+                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
+                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+
+                    switch (l_ShipmentEntry->ID)
+                    {
+                        case Barn::ShipmentIDS::ShipmentPowerfulFurredBeast:
+                            l_RewardItems.insert(std::make_pair(118472, urand(0, 3)));
+                            l_RewardItems.insert(std::make_pair(111557, urand(12, 15)));
+                            break;
+                        case Barn::ShipmentIDS::ShipmentFurredBeast:
+                            l_RewardItems.insert(std::make_pair(111557, urand(5, 8)));
+                            break;
+                        case Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast:
+                            l_RewardItems.insert(std::make_pair(118472, urand(0, 3)));
+                            l_RewardItems.insert(std::make_pair(110609, urand(12, 15)));
+                            break;
+                        case Barn::ShipmentIDS::ShipmentLeatheredBeast:
+                            l_RewardItems.insert(std::make_pair(110609, urand(5, 8)));
+                            break;
+                        case Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast:
+                            l_RewardItems.insert(std::make_pair(118472, urand(0, 3)));
+                            l_RewardItems.insert(std::make_pair(118576, urand(12, 15)));
+                            break;
+                        case Barn::ShipmentIDS::ShipmentMeatyBeast:
+                            l_RewardItems.insert(std::make_pair(118576, urand(5, 8)));
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case ShipmentHerbGarden:
+                case ShipmentHerbGardenUnk:
+                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
+                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+                    l_RewardItems.insert(std::make_pair(g_HerbEntries[urand(0, 5)], 8));
+                    break;
+                case ShipmentMageTower:
+                case ShipmentMageTowerUnk:
+                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
+                    l_ShipmentCurrency.CurrencyAmount = urand(100, 300);
+                    l_RewardItems.insert(std::make_pair(122514, 1));
+                    break;
+                default:
+                break;
+            }
 
             /// Adding items
+            bool l_CanGetItems = true;
             uint32 l_NoSpaceForCount = 0;
-            uint32 l_ItemCount = l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+            uint8 l_Itr = 0;
 
-            /// check space and find places
-            ItemPosCountVec l_Destination;
-            InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardItemID, 1, &l_NoSpaceForCount);
-
-            if (l_Message == EQUIP_ERR_OK)
+            for (auto l_RewardItem : l_RewardItems)
             {
-                if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID)))
-                    sScriptMgr->OnPlayerItemLooted(p_Player, l_Item);
+                if (!l_RewardItem.second)
+                    continue;
 
-                if (l_ShipmentEntry->ID == 109) ///< Herb Garden
+                uint32 l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+
+                /// check space and find places
+                ItemPosCountVec l_Destination;
+                InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardItem.first, l_ItemCount, &l_NoSpaceForCount);
+
+                if (l_Message != EQUIP_ERR_OK)
                 {
-                    for (uint8 l_I = 0; l_I < 7; l_I++)
+                    p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardItem.first);
+                    l_CanGetItems = false;
+                    break;
+                }
+            }
+
+            if (l_CanGetItems)
+            {
+                for (auto l_RewardItem : l_RewardItems)
+                {
+                    if (!l_RewardItem.second)
+                        continue;
+
+                    uint32 l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+
+                    /// check space and find places
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardItem.first, l_ItemCount, &l_NoSpaceForCount);
+
+                    if (l_Message == EQUIP_ERR_OK)
                     {
-                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID)))
+                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardItem.first, true, Item::GenerateItemRandomPropertyId(l_RewardItem.first)))
                             sScriptMgr->OnPlayerItemLooted(p_Player, l_Item);
+
+                        if (l_ToastStatus[l_RewardItem.first] == false)
+                        {
+                            p_Player->SendDisplayToast(l_RewardItem.first, l_ItemCount, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+                            l_ToastStatus[l_RewardItem.first] = true;
+                        }
                     }
+                    else
+                        p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardItem.first);
                 }
 
-                if (l_ToastStatus[l_RewardItemID] == false)
-                {
-                    p_Player->SendDisplayToast(l_RewardItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
-                    l_ToastStatus[l_RewardItemID] = true;
-                }
-
-                if (l_RewardItemID == 122514)
-                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(100, 300));
+                if (l_ShipmentCurrency.CurrencyID && l_ShipmentCurrency.CurrencyAmount)
+                    p_Player->ModifyCurrency(l_ShipmentCurrency.CurrencyID, l_ShipmentCurrency.CurrencyAmount);
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }
-            else
-                p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardItemID);
         }
 
         return true;
@@ -653,13 +774,6 @@ namespace MS { namespace Garrison
 
             return false;
         }
-        if (!p_User->HasItemCount(117491, 25))
-        {
-            if (p_User->GetSession())
-                ChatHandler(p_User).PSendSysMessage(TrinityStrings::GarrisonPortalNoItemCount);
-
-            return false;
-        }
 
         std::vector<uint32> const l_QuestList =
         {
@@ -684,60 +798,12 @@ namespace MS { namespace Garrison
 
                     return false;
                 }
-
-                switch (l_QuestID)
-                {
-                    case GarrisonPortals::PortalsQuests::QuestFrostfireRidge:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneFrostfireRidge)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestGorgrond:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneGorgrond)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestNagrand:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneNagrand)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestShadowmoon:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneShadowmoon)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestSpiresOfArak:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneSpiresOfArak)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    case GarrisonPortals::PortalsQuests::QuestTalador:
-                        if (p_User->GetZoneId() == GarrisonPortals::DraenorZones::ZoneTalador)
-                        {
-                            p_User->DestroyItemCount(117491, 25, true);
-                            return true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
             }
             else
                 l_Itr++;
         }
 
-        return false;
+        return true;
     }
 
     //////////////////////////////////////////////////////////////////////////
