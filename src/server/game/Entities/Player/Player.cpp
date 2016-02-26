@@ -5292,6 +5292,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
+    /// Prevent load of incorrect passives / spells
+    if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end())
+        return false;
+
     /// - Remove non authorized spell (learned when system was buggede)
     if ((spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (getRaceMask() & RACEMASK_HORDE) == 0)
         || (spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (getRaceMask() & RACEMASK_ALLIANCE) == 0))
