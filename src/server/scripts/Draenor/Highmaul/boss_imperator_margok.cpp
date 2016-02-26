@@ -2540,7 +2540,7 @@ class spell_highmaul_branded : public SpellScriptLoader
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, &l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2659,7 +2659,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, &l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2849,7 +2849,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, &l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
