@@ -2538,14 +2538,14 @@ class spell_highmaul_branded : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
+                            uint32 l_SpellID = GetSpellInfo()->Id;
+                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
 
@@ -2562,10 +2562,10 @@ class spell_highmaul_branded : public SpellScriptLoader
                                             /// Increase jump count
                                             ++l_Stacks;
 
-                                            if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
-                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
                                     }
@@ -2657,14 +2657,14 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
+                            uint32 l_SpellID = GetSpellInfo()->Id;
+                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
 
@@ -2681,10 +2681,10 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                             /// Increase jump count
                                             ++l_Stacks;
 
-                                            if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
-                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
                                     }
@@ -2753,14 +2753,14 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
+                            uint32 l_SpellID = GetSpellInfo()->Id;
+                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
 
@@ -2777,10 +2777,10 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                             /// Increase jump count
                                             ++l_Stacks;
 
-                                            if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                            if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
-                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
                                     }
@@ -2847,14 +2847,14 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                             uint64 l_Guid = l_Target->GetGUID();
                             uint64 l_MeGuid = l_Margok->GetGUID();
 
-                            l_AI->AddTimedDelayedOperation(100, [this, l_Guid, l_MeGuid, p_AurEff]() -> void
+                            uint32 l_SpellID = GetSpellInfo()->Id;
+                            uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
-                                        uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-
                                         CustomSpellValues l_Values;
                                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
 
@@ -2883,10 +2883,10 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                                             for (Player* l_Player : l_PlrList)
                                             {
-                                                if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_Player))
+                                                if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_Player))
                                                 {
                                                     l_Aura->SetStackAmount(l_Stacks);
-                                                    l_Margok->AI()->Talk(eTalk::Branded, l_Player->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                    l_AI->Talk(eTalk::Branded, l_Player->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                                 }
                                             }
 
@@ -2898,7 +2898,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
                                         /// It cannot jumps twice on the same player at the same time
                                         if (!l_PlrList.empty())
-                                            l_PlrList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+                                            l_PlrList.remove_if(JadeCore::UnitAuraCheck(true, l_SpellID));
 
                                         if (!l_PlrList.empty())
                                         {
@@ -2909,10 +2909,10 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                                 /// Increase jump count
                                                 ++l_Stacks;
 
-                                                if (Aura* l_Aura = l_Margok->AddAura(GetSpellInfo()->Id, l_OtherPlayer))
+                                                if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                                 {
                                                     l_Aura->SetStackAmount(l_Stacks);
-                                                    l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                    l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                                 }
                                             }
                                         }
