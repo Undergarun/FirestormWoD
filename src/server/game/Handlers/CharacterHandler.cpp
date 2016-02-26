@@ -791,8 +791,20 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
+
             // Player created, save it now
-            newChar.SaveToDB(true);
+            uint32 l_AccountID = GetAccountId();
+
+            newChar.SaveToDB(true, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+            {
+                WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+                if (l_Session == nullptr)
+                    return;
+
+                WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+                l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+                l_Session->SendPacket(&l_Data);
+            }));
 
             createInfo->CharCount++;
 

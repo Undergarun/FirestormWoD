@@ -1680,7 +1680,18 @@ void WorldSession::LoadPremades()
             }
         }
 
-        l_NewCharacter.SaveToDB(true);
+        uint32 l_AccountID = GetAccountId();
+
+        l_NewCharacter.SaveToDB(true, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+            l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            l_Session->SendPacket(&l_Data);
+        }));
 
         if (l_CreateInfo->Class == CLASS_HUNTER)
         {

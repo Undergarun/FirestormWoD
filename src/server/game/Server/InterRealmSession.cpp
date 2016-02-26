@@ -1316,6 +1316,81 @@ void InterRealmSession::Handle_CrossPartyInfo(WorldPacket& p_Packet)
     l_Player->GetSession()->SetCrossPartyInfo(l_PartyInfo);
 }
 
+void InterRealmSession::Handle_PlayerReconnectResult(WorldPacket& p_Packet)
+{
+    uint64 l_PlayerGuid = p_Packet.read<uint64>();
+    bool   l_Result     = p_Packet.read<uint8>();
+
+    Player* l_Player = ObjectAccessor::FindPlayerInOrOutOfWorld(l_PlayerGuid);
+    if (l_Player == nullptr)
+        return;
+
+    /// Player can't go back into the battleground / arena
+    if (!l_Result)
+    {
+        l_Player->SetBattlegroundId(0, BattlegroundTypeId::BATTLEGROUND_TYPE_NONE);
+        return;
+    }
+
+    l_Player->SetInterRealmPlayerState(InterRealmPlayerState::InTransfer);
+
+    uint32 l_AccountID = l_Player->GetSession()->GetAccountId();
+
+    l_Player->SaveToDB(false, std::make_shared<MS::Utilities::Callback>([l_AccountID, this](bool p_Success) -> void
+    {
+        WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+        if (l_Session == nullptr)
+            return;
+
+        Player* l_Player = l_Session->GetPlayer();
+
+        if (InterRealmSession* l_Tunnel = sWorld->GetInterRealmSession())
+        {
+            WorldPacket l_Data(IR_CMSG_PLAYER_RECONNECT_READY_TO_LOAD);
+
+            /// Build player block
+            {
+                l_Data << uint64(l_Player->GetGUID());
+                l_Data << uint32(l_Player->GetSession()->GetAccountId());
+                l_Data << uint8(l_Player->GetSession()->GetSecurity());
+                l_Data << uint8(l_Player->GetSession()->IsPremium());
+                l_Data << uint8(l_Player->GetSession()->Expansion());
+                l_Data << uint64(l_Player->GetSession()->m_muteTime);
+                l_Data << uint8(l_Player->GetSession()->GetSessionDbLocaleIndex());
+                l_Data << uint8(l_Player->GetSession()->GetRecruiterId());
+
+                for (uint8 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+                {
+                    AccountData* pData = l_Player->GetSession()->GetAccountData(AccountDataType(i));
+
+                    l_Data << uint32(pData->Data.size());
+                    l_Data.WriteString(pData->Data);
+                    l_Data << pData->Time;
+                }
+
+                l_Data << std::string(l_Player->GetName());
+
+                l_Data << uint8(l_Player->getLevel());
+                l_Data << uint8(l_Player->getRace());
+                l_Data << uint8(l_Player->getClass());
+                l_Data << uint32(l_Player->GetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID));                            ///< Skin, Face, Hairstyle, Haircolor
+                l_Data << uint32(l_Player->GetUInt32Value(PLAYER_FIELD_REST_STATE));                               ///< FacialHair
+                l_Data << uint8(l_Player->GetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER)); ///< Gender
+                l_Data << uint32(l_Player->GetGuildId());
+                l_Data << uint8(l_Player->GetRank());
+                l_Data << uint32(l_Player->GetGuildLevel());
+                l_Data << uint8(l_Player->GetRandomWinner() ? 1 : 0);
+
+                BuildPlayerArenaInfoBlock(l_Player, l_Data);
+            }
+
+            l_Data << uint32(l_Player->GetBattlegroundId());
+            l_Data << uint32(l_Player->GetBattlegroundTypeId());
+            l_Tunnel->SendPacket(&l_Data);
+        }
+    }));
+}
+
 void InterRealmSession::SendWhisper(uint64 sender, uint64 receiver, const std::string& text, uint32 language)
 {
     /*Player* pSender = ObjectAccessor::FindPlayer(sender);
@@ -1753,6 +1828,15 @@ void InterRealmSession::SendAppearRequest(Player* sender, uint64 targetGuid)
     data << uint8(sender->GetRandomWinner() ? 1 : 0); // Has random winner
 
     SendPacket(&data);
+}
+
+void InterRealmSession::SendPlayerReconnect(uint64 p_PlayerGuid, uint32 p_BattlegroundInstanceId, BattlegroundTypeId p_BattlegroundTypeId)
+{
+    WorldPacket l_Data(IR_CMSG_PLAYER_RECONNECT);
+    l_Data << uint64(p_PlayerGuid);
+    l_Data << uint32(p_BattlegroundInstanceId);
+    l_Data << uint32(p_BattlegroundTypeId);
+    SendPacket(&l_Data);
 }
 
 void InterRealmSession::SendGuild(uint64 guildGuid)

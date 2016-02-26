@@ -153,6 +153,10 @@ enum IROpcodes
 
     IR_SMSG_CROSS_PARTY_INFO                        = 0x73,
 
+    IR_CMSG_PLAYER_RECONNECT                        = 0x74,
+    IR_SMSG_PLAYER_RECONNECT_RESULT                 = 0x75,
+    IR_CMSG_PLAYER_RECONNECT_READY_TO_LOAD          = 0x76,
+
     IR_NUM_MSG_TYPES,
 };
 
