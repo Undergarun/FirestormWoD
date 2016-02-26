@@ -2565,7 +2565,7 @@ class spell_highmaul_branded : public SpellScriptLoader
                                             if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
-                                                l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
                                     }
@@ -2684,7 +2684,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                                             if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
-                                                l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
                                     }
@@ -2886,7 +2886,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                                 if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_Player))
                                                 {
                                                     l_Aura->SetStackAmount(l_Stacks);
-                                                    l_AI->Talk(eTalk::Branded, l_Player->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                    l_Margok->AI()->Talk(eTalk::Branded, l_Player->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                                 }
                                             }
 
@@ -2912,7 +2912,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
                                                 if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                                 {
                                                     l_Aura->SetStackAmount(l_Stacks);
-                                                    l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                    l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                                 }
                                             }
                                         }
