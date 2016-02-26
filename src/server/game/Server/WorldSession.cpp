@@ -693,6 +693,9 @@ void WorldSession::LogoutPlayer(bool Save)
                 _pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, _pet->m_Stampeded);
         }
 
+        //! Call script hook before deletion
+        sScriptMgr->OnPlayerLogout(m_Player);
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (Save)
@@ -729,9 +732,6 @@ void WorldSession::LogoutPlayer(bool Save)
         //! Broadcast a logout message to the player's friends
         sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
         sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
-
-        //! Call script hook before deletion
-        sScriptMgr->OnPlayerLogout(m_Player);
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
