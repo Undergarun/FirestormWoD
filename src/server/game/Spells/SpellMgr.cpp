@@ -3658,6 +3658,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = 0;
                 break;
             case 168178: ///< Salvage (garrison loot spell)
+            case 168179: ///< Salvage (garrison loot spell)
+            case 168180: ///< Salvage (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
                 break;
             case 167650: ///< Loose Quills (Rukhmar)
