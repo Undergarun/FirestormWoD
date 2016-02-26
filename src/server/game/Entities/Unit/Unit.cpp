@@ -21099,9 +21099,10 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
 
         switch (vehicle->GetVehicleInfo()->m_ID)
         {
-            case 533: // Bone Spike
-            case 647: // Bone Spike
-            case 648: // Bone Spike
+            case 533:   ///< Bone Spike
+            case 647:   ///< Bone Spike
+            case 648:   ///< Bone Spike
+            case 3417:  ///< Grasping Earth
                 break;
             default:
                 player->UnsummonPetTemporaryIfAny();
