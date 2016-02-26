@@ -301,7 +301,7 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                 {
                     m_TargetList.push_back(l_Target->GetGUID());
                     l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
-                    if (AuraPtr l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
+                    if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
                         l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
                 }
             }
@@ -783,7 +783,7 @@ class spell_at_mage_rune_of_power : public AreaTriggerEntityScript
             {
                 if (!l_Caster->HasAura(116014))
                     l_Caster->CastSpell(l_Caster, 116014, true);
-                else if (AuraPtr runeOfPower = l_Caster->GetAura(116014))
+                else if (Aura* runeOfPower = l_Caster->GetAura(116014))
                     runeOfPower->RefreshDuration();
 
                 if (l_Caster->ToPlayer())
@@ -1457,7 +1457,7 @@ class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
                 {
                     m_TargetList.push_back(l_Target->GetGUID());
                     l_Target->CastSpell(l_Target, eSpells::antiMagicAura, true);
-                    if (AuraPtr l_AntiMagicAura = l_Caster->GetAura(eSpells::antiMagicAura))
+                    if (Aura* l_AntiMagicAura = l_Caster->GetAura(eSpells::antiMagicAura))
                         l_AntiMagicAura->SetDuration(p_AreaTrigger->GetDuration());
                 }
             }

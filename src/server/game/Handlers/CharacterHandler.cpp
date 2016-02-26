@@ -1318,7 +1318,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     /// - Vote bonus
     if (HaveVoteRemainingTime())
     {
-        AuraPtr l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
+        Aura* l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
         if (l_VoteAura)
             l_VoteAura->SetDuration(GetVoteRemainingTime() + 60 * IN_MILLISECONDS);
     }

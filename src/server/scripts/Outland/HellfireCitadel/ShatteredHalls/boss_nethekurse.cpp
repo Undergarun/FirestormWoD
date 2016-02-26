@@ -218,7 +218,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
                 //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
                 summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
-                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, 0, NULLAURA_EFFECT, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, 0, nullptr, me->GetGUID());
             }
 
             void KilledUnit(Unit* /*victim*/)

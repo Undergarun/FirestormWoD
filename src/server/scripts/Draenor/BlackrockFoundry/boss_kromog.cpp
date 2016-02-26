@@ -628,12 +628,14 @@ class npc_foundry_grasping_earth : public CreatureScript
             npc_foundry_grasping_earthAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             bool m_Activated;
+            bool m_PlayerGrasped;
 
             void Reset() override
             {
                 me->DisableEvadeMode();
 
                 m_Activated = false;
+                m_PlayerGrasped = false;
 
                 me->CastSpell(me, eSpells::GraspingEarthSpawnVisual, true);
 
@@ -672,6 +674,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 {
                     case eSpells::RuneOfGraspingEarthSelect:
                     {
+                        m_PlayerGrasped = true;
                         p_Target->CastSpell(me, eSpells::RuneOfGraspingEarthVehicle, true);
                         break;
                     }
@@ -691,6 +694,12 @@ class npc_foundry_grasping_earth : public CreatureScript
                         me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_DISPLAY_ID);
 
                         me->CastSpell(me, eSpells::RuneOfGraspingEarthSelect, true);
+                    });
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS + 50, [this]() -> void
+                    {
+                        if (!m_PlayerGrasped)
+                            me->Kill(me);
                     });
                 }
             }
@@ -998,7 +1007,7 @@ class spell_foundry_slam : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        float l_Distance = l_Target->GetDistance(l_Boss);
+                        float l_Distance = l_Target->GetDistance(*l_Boss);
                         if (l_Distance <= 1.0f)
                             return;
 
@@ -1036,7 +1045,7 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1175,6 +1184,39 @@ class spell_foundry_rune_of_crushing_earth : public SpellScriptLoader
         }
 };
 
+/// Rune of Grasping Earth (DoT) - 157059
+class spell_foundry_rune_of_grasping_earth_dot : public SpellScriptLoader
+{
+    public:
+        spell_foundry_rune_of_grasping_earth_dot() : SpellScriptLoader("spell_foundry_rune_of_grasping_earth_dot") { }
+
+        class spell_foundry_rune_of_grasping_earth_dot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                /// Fists of stone grasp at players, inflicting 12168 to 12792 Nature damage per second, but shielding them from Physical damage and holding them to the ground.
+                /// The damage increases over time.
+                int32 l_Amount = p_AurEff->GetAmount();
+
+                AddPct(l_Amount, 4);
+
+                p_AurEff->GetBase()->GetEffect(SpellEffIndex::EFFECT_1)->ChangeAmount(l_Amount);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_rune_of_grasping_earth_dot_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_rune_of_grasping_earth_dot_AuraScript();
+        }
+};
+
 /// Rippling Smash - 161437
 class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
 {
@@ -1216,7 +1258,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
                         continue;
 
                     m_AffectedTargets.insert(l_Unit->GetGUID());
-                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, nullptr, l_Caster->GetGUID());
                 }
             }
         }
@@ -1268,7 +1310,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, nullptr, l_Caster->GetGUID());
 
                     if (l_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
                     {
@@ -1304,6 +1346,7 @@ void AddSC_boss_kromog()
     new spell_foundry_fists_of_stone();
     new spell_foundry_rune_of_grasping_earth();
     new spell_foundry_rune_of_crushing_earth();
+    new spell_foundry_rune_of_grasping_earth_dot();
 
     /// AreaTriggers
     new areatrigger_foundry_rippling_smash();

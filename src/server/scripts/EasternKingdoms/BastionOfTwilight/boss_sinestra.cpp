@@ -1144,7 +1144,7 @@ class spell_sinestra_wrack: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_wrack_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1168,7 +1168,7 @@ class spell_sinestra_wrack: public SpellScriptLoader
                         if (count > 2)
                             break;
 
-                        if (AuraPtr aur = GetTarget()->AddAura(SPELL_WRACK_10H, (*itr)))
+                        if (Aura* aur = GetTarget()->AddAura(SPELL_WRACK_10H, (*itr)))
                         {
                             //aur->SetMaxDuration(GetDuration());
                             aur->SetDuration(GetDuration());
@@ -1197,7 +1197,7 @@ class spell_sinestra_twilight_extinction: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_twilight_extinction_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1226,7 +1226,7 @@ class spell_sinestra_indomitable: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_indomitable_AuraScript);
 
-            void HandleScript(constAuraEffectPtr /*aurEff*/)
+            void HandleScript(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -1269,7 +1269,7 @@ class spell_sinestra_indomitable_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_indomitable_aura_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1277,7 +1277,7 @@ class spell_sinestra_indomitable_aura: public SpellScriptLoader
                 GetTarget()->ApplyUberImmune(0, true);
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1307,7 +1307,7 @@ class spell_sinestra_mana_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_mana_barrier_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -1342,7 +1342,7 @@ class spell_sinestra_pyrrhic_focus: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_pyrrhic_focus_AuraScript);
 
-            void HandlePeriodicTick(constAuraEffectPtr /*aurEff*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -1430,7 +1430,7 @@ class spell_sinestra_twilight_essence: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_twilight_essence_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || GetTarget())
                     return;

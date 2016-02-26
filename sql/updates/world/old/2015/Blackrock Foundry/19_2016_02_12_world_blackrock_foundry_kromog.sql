@@ -1,11 +1,12 @@
 SET NAMES utf8;
 
-DELETE FROM spell_script_names WHERE spell_id IN (156704, 162348, 157056, 161923);
+DELETE FROM spell_script_names WHERE spell_id IN (156704, 162348, 157056, 161923, 157059);
 INSERT INTO spell_script_names VALUES
 (156704, "spell_foundry_slam"),
 (162348, "spell_foundry_fists_of_stone"),
 (157056, "spell_foundry_rune_of_grasping_earth"),
-(161923, "spell_foundry_rune_of_crushing_earth");
+(161923, "spell_foundry_rune_of_crushing_earth"),
+(157059, "spell_foundry_rune_of_grasping_earth_dot");
 
 DELETE FROM areatrigger_template WHERE spell_id IN (161437, 157246);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `ScriptName`) VALUES

@@ -191,7 +191,7 @@ public:
                             me->CastSpell(me, eArchmageSolSpells::SpellParasiticInjection);
                         else
                         {
-                            if (AuraPtr l_Aura = me->GetAura(eArchmageSolSpells::SpellParasiticInjection))
+                            if (Aura* l_Aura = me->GetAura(eArchmageSolSpells::SpellParasiticInjection))
                                 l_Aura->SetStackAmount(l_Aura->GetStackAmount() + 1);
                         }
                         /// Heroic Spore Image

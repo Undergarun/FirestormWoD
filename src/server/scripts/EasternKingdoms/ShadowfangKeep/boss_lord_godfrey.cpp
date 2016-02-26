@@ -188,7 +188,7 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
         {
             PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript);
 
-            void HandleDummyTick(constAuraEffectPtr aurEff)
+            void HandleDummyTick(AuraEffect const* aurEff)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_BLOODTHIRSTY_GHOULS_M, true);
             }

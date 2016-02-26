@@ -1057,7 +1057,7 @@ class spell_highmaul_warming_up : public SpellScriptLoader
                 Disposition = 157953
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::Disposition, true);
@@ -1105,7 +1105,7 @@ class spell_highmaul_disposition : public SpellScriptLoader
                 return true;
             }
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1190,7 +1190,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_enfeebling_roar_AuraScript);
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1200,7 +1200,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
                     if (!l_Phemos->IsAIEnabled)
                         return;
 
-                    AuraPtr l_Aura = p_AurEff->GetBase();
+                    Aura* l_Aura = p_AurEff->GetBase();
                     if (!l_Aura)
                         return;
 
@@ -1415,21 +1415,21 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
                                 if (!l_Other->HasAura(l_SpellID))
                                     l_Other->CastSpell(l_Other, l_SpellID, true);
 
-                                if (AuraPtr l_CasterAura = l_Caster->GetAura(l_SpellID))
+                                if (Aura* l_CasterAura = l_Caster->GetAura(l_SpellID))
                                 {
-                                    if (AuraEffectPtr l_FirstEff = l_CasterAura->GetEffect(EFFECT_0))
+                                    if (AuraEffect* l_FirstEff = l_CasterAura->GetEffect(EFFECT_0))
                                         l_FirstEff->ChangeAmount((int32)l_Distance);
 
-                                    if (AuraEffectPtr l_SecondEff = l_CasterAura->GetEffect(EFFECT_1))
+                                    if (AuraEffect* l_SecondEff = l_CasterAura->GetEffect(EFFECT_1))
                                         l_SecondEff->ChangeAmount((int32)l_Distance);
                                 }
 
-                                if (AuraPtr l_OtherAura = l_Other->GetAura(l_SpellID))
+                                if (Aura* l_OtherAura = l_Other->GetAura(l_SpellID))
                                 {
-                                    if (AuraEffectPtr l_FirstEff = l_OtherAura->GetEffect(EFFECT_0))
+                                    if (AuraEffect* l_FirstEff = l_OtherAura->GetEffect(EFFECT_0))
                                         l_FirstEff->ChangeAmount((int32)l_Distance);
 
-                                    if (AuraEffectPtr l_SecondEff = l_OtherAura->GetEffect(EFFECT_1))
+                                    if (AuraEffect* l_SecondEff = l_OtherAura->GetEffect(EFFECT_1))
                                         l_SecondEff->ChangeAmount((int32)l_Distance);
                                 }
 
@@ -1507,7 +1507,7 @@ class spell_highmaul_phemos_whirlwind : public SpellScriptLoader
                 WeakenedDefenses = 159709
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpell::WeakenedDefenses, true);
@@ -1541,7 +1541,7 @@ class spell_highmaul_blaze_dot : public SpellScriptLoader
                 BlazeSecond = 168374
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {

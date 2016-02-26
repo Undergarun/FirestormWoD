@@ -47,7 +47,7 @@ class spell_dru_yseras_gift: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_yseras_gift_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -137,7 +137,7 @@ class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_tooth_and_claw_absorb_AuraScript);
 
-            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
@@ -148,7 +148,7 @@ class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
                     p_AbsorbAmount = 0;
             }
 
-            void AfterAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            void AfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
@@ -217,7 +217,7 @@ class spell_dru_genesis: public SpellScriptLoader
                         bool l_AtListOne = false;
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (AuraPtr l_Rejuvenation = l_Target->GetAura(l_Rejuvenations[i], l_Player->GetGUID()))
+                            if (Aura* l_Rejuvenation = l_Target->GetAura(l_Rejuvenations[i], l_Player->GetGUID()))
                             {
                                 int8 l_TicksLeft = uint8(l_Rejuvenation->GetDuration() / l_Rejuvenation->GetEffect(0)->GetAmplitude()) + 1;
 
@@ -320,13 +320,13 @@ class spell_dru_glyph_of_the_treant: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_glyph_of_the_treant_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                     l_Player->learnSpell(SPELL_DRUID_GLYPH_OF_THE_TREANT, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                     if (l_Player->HasSpell(SPELL_DRUID_GLYPH_OF_THE_TREANT))
@@ -361,13 +361,13 @@ class spell_dru_incarnation_chosen_of_elune: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_incarnation_chosen_of_elune_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                     l_Player->CastSpell(l_Player, SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                     l_Player->RemoveAura(SPELL_DRUID_INCARNATION_CHOSEN_OF_ELUNE);
@@ -397,13 +397,13 @@ class spell_dru_incarnation_skins: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_incarnation_skins_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                     l_Player->SetDisplayId(l_Player->GetModelForForm(l_Player->GetShapeshiftForm()));
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* l_Player = GetTarget()->ToPlayer())
                     l_Player->SetDisplayId(l_Player->GetModelForForm(l_Player->GetShapeshiftForm()));
@@ -464,7 +464,7 @@ class spell_dru_item_pvp_feral_4p: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff, AuraEffectPtr /*aurEff*/)
+            void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -543,7 +543,7 @@ class spell_dru_thrash_bear: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_thrash_bear_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -656,8 +656,8 @@ class spell_dru_maul: public SpellScriptLoader
                             if (l_Caster->HasAura(eSpells::T17Guardian4P))
                                 l_Caster->CastSpell(l_Caster, eSpells::PrimalMending, true);
 
-                            if (AuraPtr l_AuraPtr = l_Caster->GetAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
-                                l_AuraPtr->SetStackAmount(l_AuraPtr->GetStackAmount() - 1);
+                            if (Aura* l_Aura = l_Caster->GetAura(SPELL_DRUID_TOOTH_AND_CLAW_AURA))
+                                l_Aura->SetStackAmount(l_Aura->GetStackAmount() - 1);
                         }
                     }
                 }
@@ -697,7 +697,7 @@ class spell_dru_natures_vigil: public SpellScriptLoader
                 NatureVigilDamage = 124991
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
                 SpellInfo const* l_SpellProcInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
@@ -871,7 +871,7 @@ public:
     {
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
 
-        int32 m_RejuvenationAuraPtr = 0;
+        int32 m_RejuvenationAura = 0;
 
         void HandleAfterHit()
         {
@@ -883,9 +883,9 @@ public:
             if (!l_Target)
                 return;
 
-            AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
-            if (l_RejuvenationAuraPtr && m_RejuvenationAuraPtr > 0)
-                l_RejuvenationAuraPtr->SetDuration(m_RejuvenationAuraPtr);
+            Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+            if (l_RejuvenationAura && m_RejuvenationAura > 0)
+                l_RejuvenationAura->SetDuration(m_RejuvenationAura);
         }
 
         void HandleBeforeHit()
@@ -901,29 +901,29 @@ public:
             ///Germination
             if (l_Caster->HasAura(SPELL_DRUID_GERMINATION_PASSIVE_TALENT) && l_Target->HasAura(SPELL_DRUID_REJUVENATION))
             {
-                AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
-                if (!l_RejuvenationAuraPtr)
+                Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                if (!l_RejuvenationAura)
                     return;
 
                 if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
                 {
                     l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
-                    m_RejuvenationAuraPtr = l_RejuvenationAuraPtr->GetDuration();
+                    m_RejuvenationAura = l_RejuvenationAura->GetDuration();
                 }
                 else
                 {
-                    AuraPtr l_GerminationAuraPtr = l_Target->GetAura(SPELL_DRUID_GERMINATION);
-                    AuraPtr l_RejuvenationAuraPtr = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
-                    if (l_GerminationAuraPtr && l_RejuvenationAuraPtr)
+                    Aura* l_GerminationAura = l_Target->GetAura(SPELL_DRUID_GERMINATION);
+                    Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+                    if (l_GerminationAura && l_RejuvenationAura)
                     {
-                        int32 l_GerminationDuration = l_GerminationAuraPtr->GetDuration();
-                        int32 l_RejuvenationDuration = l_RejuvenationAuraPtr->GetDuration();
+                        int32 l_GerminationDuration = l_GerminationAura->GetDuration();
+                        int32 l_RejuvenationDuration = l_RejuvenationAura->GetDuration();
                         if (l_GerminationDuration > l_RejuvenationDuration)
                             l_Caster->AddAura(SPELL_DRUID_REJUVENATION, l_Target);
                         else
                         {
                             l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
-                            m_RejuvenationAuraPtr = l_RejuvenationDuration;
+                            m_RejuvenationAura = l_RejuvenationDuration;
                         }
                     }
                 }
@@ -947,7 +947,7 @@ public:
             GlyphofRejuvenationEffect   = 96206
         };
 
-        void HandleCalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -960,14 +960,14 @@ public:
             }
         }
 
-        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             Unit* l_Caster = GetCaster();
 
             if (l_Caster == nullptr)
                 return;
 
-            if (AuraEffectPtr l_GlyphOfRejuvenation = l_Caster->GetAuraEffect(eSpells::GlyphofRejuvenation, EFFECT_0))
+            if (AuraEffect* l_GlyphOfRejuvenation = l_Caster->GetAuraEffect(eSpells::GlyphofRejuvenation, EFFECT_0))
             {
                 l_GlyphOfRejuvenation->SetAmount(l_GlyphOfRejuvenation->GetAmount() + 1);
                 if (l_GlyphOfRejuvenation->GetAmount() >= 3)
@@ -975,14 +975,14 @@ public:
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             Unit* l_Caster = GetCaster();
 
             if (l_Caster == nullptr)
                 return;
 
-            if (AuraEffectPtr l_GlyphOfRejuvenation = l_Caster->GetAuraEffect(eSpells::GlyphofRejuvenation, EFFECT_0))
+            if (AuraEffect* l_GlyphOfRejuvenation = l_Caster->GetAuraEffect(eSpells::GlyphofRejuvenation, EFFECT_0))
             {
                 l_GlyphOfRejuvenation->SetAmount(l_GlyphOfRejuvenation->GetAmount() - 1);
                 if (l_GlyphOfRejuvenation->GetAmount() < 3)
@@ -1064,7 +1064,7 @@ class spell_dru_regrowth : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_regrowth_AuraScript);
 
-            void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            void HandleCalculateAmountOnTick(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1139,14 +1139,14 @@ class spell_dru_wild_growth : public SpellScriptLoader
 
             uint32 m_TooltipAmount;
 
-            void HandleCalculateAmountOnTick(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void HandleCalculateAmountOnTick(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
                     return;
 
                 /// If soul of the forest is activated we increase the heal by 50%
-                if (AuraEffectPtr l_SoulOfTheForest = l_Caster->GetAuraEffect(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, EFFECT_2))
+                if (AuraEffect* l_SoulOfTheForest = l_Caster->GetAuraEffect(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, EFFECT_2))
                 {
                     AddPct(p_Amount, l_SoulOfTheForest->GetAmount());
                     if (l_SoulOfTheForest->GetBase())
@@ -1157,7 +1157,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 p_Amount += CalculatePct(m_TooltipAmount, 6);
             }
 
-            void DecreaseHealOnTick(AuraEffectPtr p_AurEff)
+            void DecreaseHealOnTick(AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1166,7 +1166,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 float l_SetMod = 1.f;
 
                 // Item - Druid T10 Restoration 2P Bonus
-                if (AuraEffectPtr l_T10Resto2PBonus = l_Caster->GetAuraEffect(eSpells::T10Resto2PBonus, EFFECT_0))
+                if (AuraEffect* l_T10Resto2PBonus = l_Caster->GetAuraEffect(eSpells::T10Resto2PBonus, EFFECT_0))
                     l_SetMod = 1.f - l_T10Resto2PBonus->GetAmount() / 100.f;
 
                 int32 l_Amount = p_AurEff->GetAmount();
@@ -1246,7 +1246,7 @@ class spell_dru_lifebloom_refresh: public SpellScriptLoader
 
                 if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_BLOOMING))
                 {
-                    if (AuraPtr l_Lifebloom = l_Target->GetAura(SPELL_DRUID_LIFEBLOOM, l_Caster->GetGUID()))
+                    if (Aura* l_Lifebloom = l_Target->GetAura(SPELL_DRUID_LIFEBLOOM, l_Caster->GetGUID()))
                         l_Lifebloom->RefreshDuration();
                 }
             }
@@ -1273,7 +1273,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_lifebloom_AuraScript);
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 // Final heal only on duration end
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
@@ -1302,7 +1302,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
 
             void HandleDispel(DispelInfo* p_DispelInfo)
             {
-                if (constAuraEffectPtr aurEff = GetEffect(EFFECT_0))
+                if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                 {
                     Unit* l_Target = GetUnitOwner();
                     Unit* l_Caster = GetCaster();
@@ -1326,7 +1326,7 @@ class spell_dru_lifebloom: public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster && l_Caster->HasAura(SPELL_DRUID_OMEN_OF_CLARITY) && roll_chance_i(4))
@@ -1567,7 +1567,7 @@ class spell_dru_cat_form: public SpellScriptLoader
                 BurningEssenceModel = 38150
             };
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 Unit* l_Target = GetTarget();
 
@@ -1576,14 +1576,14 @@ class spell_dru_cat_form: public SpellScriptLoader
                     return;
 
                 /// If we have dash, we should restore it to increase movement speed
-                if (AuraEffectPtr l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
+                if (AuraEffect* l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
                     l_DashAura->SetAmount(l_Dash->Effects[EFFECT_0].BasePoints);
 
                 if (l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm) && !l_Target->HasAura(eSpells::GlyphOfCatForm))
                     l_Target->AddAura(eSpells::GlyphOfCatForm, l_Target);
             }
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 Unit* l_Target = GetTarget();
 
@@ -1591,7 +1591,7 @@ class spell_dru_cat_form: public SpellScriptLoader
                     l_Target->SetDisplayId(eSpells::BurningEssenceModel);
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 Unit* l_Target = GetTarget();
 
@@ -1599,7 +1599,7 @@ class spell_dru_cat_form: public SpellScriptLoader
                     l_Target->RemoveAura(eSpells::Prowl);
 
                 /// When we remove cat form dash shouldn't increase movement speed
-                if (AuraEffectPtr l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
+                if (AuraEffect* l_DashAura = l_Target->GetAuraEffect(eSpells::Dash, EFFECT_0))
                     l_DashAura->SetAmount(0);
 
                 if (l_Target->HasAura(eSpells::GlyphOfCatForm))
@@ -1864,7 +1864,7 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
                 Heal = 81269
             };
 
-            void OnTick(constAuraEffectPtr /*aurEff*/)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Mushroom = GetCaster();
                 Unit* l_Owner = l_Mushroom->GetOwner();
@@ -2007,7 +2007,7 @@ class spell_dru_lacerate: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_lacerate_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster() && aurEff->GetBase()->GetStackAmount() == 3)
                     GetCaster()->CastSpell(GetTarget(), SPELL_DRUID_LACERATE_3_STACKS_MARKER, true);
@@ -2089,7 +2089,7 @@ class spell_dru_druid_flames : public SpellScriptLoader
                 DruidOfFlames = 138927
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -2100,7 +2100,7 @@ class spell_dru_druid_flames : public SpellScriptLoader
                     l_Player->SetDisplayId(eSpells::DruidOfFlamesModel);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -2401,12 +2401,12 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
-                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
+                if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
-                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_0))
                         l_DamageModPCT += (float)l_AurEff->GetAmount();
                     float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
 
@@ -2488,19 +2488,19 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
                 SunFireDamage   = 164815
             };
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
-                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
+                if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
                 {
                     float l_BonusSolarSpells = 0.0f;
                     float l_BonusLunarSpells = 0.0f;
                     float l_DamageModPCT = l_Aura->GetAmount();
 
-                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_0))
                         l_DamageModPCT += l_AurEff->GetAmount();
 
                     float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
@@ -2812,7 +2812,7 @@ class spell_dru_shooting_stars_proc : public SpellScriptLoader
                 ShootingStars       = 93400
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3052,7 +3052,7 @@ class spell_dru_savage_roar: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (AuraPtr l_Aura = l_Caster->GetAura(GetSpellInfo()->Id))
+                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id))
                     l_Aura->SetDuration(GetSpellInfo()->GetDuration() + (m_ComboPoint * 6 * IN_MILLISECONDS));
             }
 
@@ -3075,13 +3075,13 @@ class spell_dru_savage_roar: public SpellScriptLoader
                 return true;
             }
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR_CAST, true, NULL, p_AurEff, GetCasterGUID());
             }
 
-            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR_CAST);
@@ -3120,13 +3120,13 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_survival_instincts_AuraScript);
 
-            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_DRUID_SURVIVAL_INSTINCTS, true);
             }
 
-            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
@@ -3178,7 +3178,7 @@ class spell_dru_swiftmend: public SpellScriptLoader
                     {
                         if (Unit* l_Target = GetHitUnit())
                         {
-                            AuraPtr l_Aura = l_Target->GetAura(SPELL_DRUID_REGROWTH, l_Caster->GetGUID());
+                            Aura* l_Aura = l_Target->GetAura(SPELL_DRUID_REGROWTH, l_Caster->GetGUID());
                             if (!l_Aura)
                                 l_Aura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
 
@@ -3234,7 +3234,7 @@ class spell_dru_travel_form_removal : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_travel_form_removal_AuraScript);
 
-            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -3289,14 +3289,14 @@ class spell_dru_travel_form: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_travel_form_AuraScript);
 
-            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Call the player script "spell_dru_travel_form_playerscript" below to avoid code duplication
                 if (GetTarget()->IsPlayer())
                     sScriptMgr->OnPlayerUpdateMovement(GetTarget()->ToPlayer());
             }
 
-            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3436,7 +3436,7 @@ class spell_dru_swift_flight_passive: public SpellScriptLoader
                 return GetCaster()->IsPlayer();
             }
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 if (l_Caster->HasAura(SPELL_MASTER_FLYING))
@@ -3470,7 +3470,7 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
                 return GetCaster()->IsPlayer();
             }
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (!l_Target)
@@ -3486,7 +3486,7 @@ class spell_dru_glyph_of_the_stag: public SpellScriptLoader
                     l_Player->learnSpell(SPELL_DRUID_FLIGHT_FORM, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (!l_Target)
@@ -3531,7 +3531,7 @@ class spell_dru_glyph_of_travel: public SpellScriptLoader
                 GlyphOfTravel = 159456
             };
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -3541,7 +3541,7 @@ class spell_dru_glyph_of_travel: public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (AuraEffectPtr l_GlyphOfTravel = l_Caster->GetAuraEffect(eSpells::GlyphOfTravel, EFFECT_0))
+                if (AuraEffect* l_GlyphOfTravel = l_Caster->GetAuraEffect(eSpells::GlyphOfTravel, EFFECT_0))
                     if (!l_Caster->isInCombat() && !l_Player->InBattleground() && !l_Player->InArena())
                         amount += l_GlyphOfTravel->GetAmount();
             }
@@ -3593,7 +3593,7 @@ class spell_dru_rake: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
                     m_isStealthedOrKingOfTheJungle = true;
 
-                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                if (Aura* l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                 {
                     if (m_isStealthedOrKingOfTheJungle)
                         l_ImprovedRake->GetEffect(EFFECT_1)->SetAmount(1);
@@ -3609,10 +3609,10 @@ class spell_dru_rake: public SpellScriptLoader
                 if (!l_Caster || !l_Target)
                     return;
 
-                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS)) ///< Charge is drop on Rake periodic damage
+                if (Aura* l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS)) ///< Charge is drop on Rake periodic damage
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
 
-                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                if (Aura* l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                 {
                     if (m_isStealthedOrKingOfTheJungle)
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(EFFECT_0)->GetAmount()));
@@ -3622,8 +3622,8 @@ class spell_dru_rake: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
-                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                        if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
+                    if (AuraEffect const* l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
+                        if (Aura* l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
                             l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
             }
@@ -3652,7 +3652,7 @@ public:
     {
         PrepareAuraScript(spell_dru_rake_triggered_AuraScript);
 
-        void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
             Unit* l_Caster = GetCaster();
 
@@ -3660,7 +3660,7 @@ public:
                 return;
 
 
-            if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+            if (Aura* l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
             {
                 if (l_ImprovedRake->GetEffect(1)->GetAmount() == 1)
                 {
@@ -3671,7 +3671,7 @@ public:
                 }
             }
 
-            if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
+            if (Aura* l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
             {
                 p_Amount += CalculatePct(p_Amount, l_BloodTalons->GetEffect(EFFECT_0)->GetAmount());
                 l_BloodTalons->DropCharge();
@@ -3709,7 +3709,7 @@ class spell_dru_glyph_of_barkskin : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_glyph_of_barkskin_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3722,7 +3722,7 @@ class spell_dru_glyph_of_barkskin : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3789,8 +3789,8 @@ class spell_dru_shred: public SpellScriptLoader
                     if (l_SpellInfo != nullptr)
                         l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
 
-                    if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
-                        if (AuraPtr l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
+                    if (AuraEffect const* l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
+                        if (Aura* l_SavageRoar = l_Caster->AddAura(SPELL_DRUID_SAVAGE_ROAR, l_Caster))
                             l_SavageRoar->SetDuration((l_GlyphOfSavageRoar->GetAmount() * 6 * IN_MILLISECONDS) + 12 * IN_MILLISECONDS);
                 }
 
@@ -3870,7 +3870,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 m_EnergyConsumedExtra = l_EnergyConsumed;
                 /// Glyph of Ferocious Bite
-                if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
+                if (Aura* l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
                     l_EnergyConsumed += m_SpellCost; ///< Add the basic cost of Ferocious Bite to the extra cost;
                     int l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() * floor(l_EnergyConsumed / 10) / 10);
@@ -3879,7 +3879,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
                 /// if target is under 25% of life, also reset rake duration
                 if (l_Target && l_Target->GetHealthPct() <= 25.0f)
-                if (AuraPtr l_Rip = l_Target->GetAura(SPELL_DRUID_RIP))
+                if (Aura* l_Rip = l_Target->GetAura(SPELL_DRUID_RIP))
                     l_Rip->RefreshDuration();
             }
 
@@ -3981,7 +3981,7 @@ class spell_dru_rip: public SpellScriptLoader
 
             uint32 m_PreviousTick = 0;
 
-            void OnReApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnReApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -3989,12 +3989,12 @@ class spell_dru_rip: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
                     m_PreviousTick = ((l_AurEff->GetAmount() * (l_AurEff->GetBase()->GetDuration() / l_AurEff->GetAmplitude())) / (p_AurEff->GetBase()->GetMaxDuration() / p_AurEff->GetAmplitude()));
 
             }
 
-            void AfterReApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void AfterReApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -4002,11 +4002,11 @@ class spell_dru_rip: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
                     l_AurEff->SetAmount(l_AurEff->GetAmount() + m_PreviousTick);
             }
 
-            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4018,7 +4018,7 @@ class spell_dru_rip: public SpellScriptLoader
                 if (l_Combo > 0)
                     p_Amount *= l_Combo;
 
-                if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
+                if (Aura* l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
                 {
                     p_Amount += CalculatePct(p_Amount, l_BloodTalons->GetEffect(EFFECT_0)->GetAmount());
                     l_BloodTalons->DropCharge();
@@ -4055,7 +4055,7 @@ class spell_dru_dream_of_cenarius: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_dream_of_cenarius_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4108,7 +4108,7 @@ class spell_dru_primal_fury: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_primal_fury_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4182,7 +4182,7 @@ class spell_dru_entangling_energy : public SpellScriptLoader
                         return;
 
                     /// Wrath and Starfire casts reduce the cooldown of Celestial Alignment by 3 sec.
-                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Balance4P, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Balance4P, EFFECT_0))
                         l_Caster->ToPlayer()->ReduceSpellCooldown(eSpells::CelestialAlignment, l_AurEff->GetAmount());
                 }
             }
@@ -4208,7 +4208,7 @@ class spell_dru_entangling_energy : public SpellScriptLoader
                     /// Your Starfires extend the duration of Moonfire by 6 sec.
                     if (GetSpellInfo()->Id == BalanceOfPowerSpells::SPELL_DRUID_STARFIRE)
                     {
-                        if (AuraPtr l_Moonfire = l_Target->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, l_Caster->GetGUID()))
+                        if (Aura* l_Moonfire = l_Target->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, l_Caster->GetGUID()))
                         {
                             int32 l_CurrentDuration = l_Moonfire->GetDuration();
                             int32 l_MaxDuration = l_Moonfire->GetMaxDuration();
@@ -4223,7 +4223,7 @@ class spell_dru_entangling_energy : public SpellScriptLoader
                     /// Your Wraths extend the duration of Sunfire by 4 sec.
                     else if (GetSpellInfo()->Id == BalanceOfPowerSpells::SPELL_DRUID_WRATH)
                     {
-                        if (AuraPtr l_Sunfire = l_Target->GetAura(SPELL_DRUID_SUNFIRE_DAMAGE, l_Caster->GetGUID()))
+                        if (Aura* l_Sunfire = l_Target->GetAura(SPELL_DRUID_SUNFIRE_DAMAGE, l_Caster->GetGUID()))
                         {
                             int32 l_CurrentDuration = l_Sunfire->GetDuration();
                             int32 l_MaxDuration = l_Sunfire->GetMaxDuration();
@@ -4269,7 +4269,7 @@ class spell_dru_ursa_major : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_ursa_major_Aurascript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 
@@ -4317,7 +4317,7 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_ursa_major_aura_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4334,7 +4334,7 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
                 GetEffect(EFFECT_0)->SetAmount(l_Stack->GetTotalAmount());
             }
 
-            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4358,7 +4358,7 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
                 p_AurEff->SetAmount(l_Stack->GetTotalAmount());
             }
 
-            void AfterRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes p_Mode)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4498,7 +4498,7 @@ class spell_dru_glyph_of_the_shapemender : public SpellScriptLoader
         {
             PrepareAuraScript(glyph_of_the_shapemender_AuraScript);
 
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 /// Glyph of the Shapemender proc only on shapeshift form.
                 /// Glyph of the Shapemender has is playerscript.
@@ -4652,7 +4652,7 @@ class spell_dru_pulverize : public SpellScriptLoader
                 if (!l_Caster || !l_Target)
                     return SPELL_FAILED_ERROR;
 
-                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
+                if (Aura* l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
                 {
                     if (l_Lacerete->GetStackAmount() >= 3)
                         return SPELL_CAST_OK;
@@ -4669,7 +4669,7 @@ class spell_dru_pulverize : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Lacerate = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
+                if (Aura* l_Lacerate = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
                     l_Lacerate->ModStackAmount(-3);
 
                 l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
@@ -4759,7 +4759,7 @@ class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_glyph_of_enchanted_bark_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
             }
@@ -4793,7 +4793,7 @@ class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
                 Starsurge = 78674
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4842,7 +4842,7 @@ public:
             WoDPvPBalance2PBonus = 165701
         };
 
-        void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
         {
             Player* l_Player = GetCaster()->ToPlayer();
             if (!l_Player)
@@ -4887,7 +4887,7 @@ class spell_dru_lunar_inspiration : public SpellScriptLoader
                 LunarInspirationOverride = 155627
             };
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4897,7 +4897,7 @@ class spell_dru_lunar_inspiration : public SpellScriptLoader
                 l_Caster->AddAura(eSpells::LunarInspirationOverride, l_Caster);
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4935,13 +4935,13 @@ class spell_dru_hurricane: public SpellScriptLoader
                 GlyphOfHurricane = 54831
             };
 
-            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
                     return;
 
-                if (AuraEffectPtr l_GlyphOfHurricane = l_Caster->GetAuraEffect(eSpells::GlyphOfHurricane, EFFECT_0))
+                if (AuraEffect* l_GlyphOfHurricane = l_Caster->GetAuraEffect(eSpells::GlyphOfHurricane, EFFECT_0))
                     p_Amount += l_GlyphOfHurricane->GetAmount();
             }
 
@@ -4973,7 +4973,7 @@ class spell_dru_gyph_of_the_flapping_owl : public SpellScriptLoader
                 Flap = 164862
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -4984,7 +4984,7 @@ class spell_dru_gyph_of_the_flapping_owl : public SpellScriptLoader
                     l_Player->learnSpell(eSpells::Flap, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -5025,7 +5025,7 @@ class spell_dru_glyph_of_rake: public SpellScriptLoader
                 GlyphOfRakeModRange = 164020
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -5033,7 +5033,7 @@ class spell_dru_glyph_of_rake: public SpellScriptLoader
                     l_Target->AddAura(eSpells::GlyphOfRakeModRange, l_Target);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -5134,7 +5134,7 @@ class spell_dru_celestial_alignement_marker : public SpellScriptLoader
                 CelestialAlignment = 112071
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Target = GetTarget();
 
@@ -5174,18 +5174,18 @@ class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
                 Incarnation = 117679
             };
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
-                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::Incarnation))
+                if (Aura* l_Aura = l_Target->GetAura(eSpells::Incarnation))
                 {
                     p_AurEff->GetBase()->SetDuration(l_Aura->GetDuration());
                     l_Target->RemoveAura(eSpells::Incarnation);
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes mode)
             {
                 Unit* l_Target = GetTarget();
 
@@ -5197,7 +5197,7 @@ class spell_dru_incarnation_tree_of_life : public SpellScriptLoader
                 if (p_AurEff->GetBase()->GetDuration())
                     l_Target->CastSpell(l_Target, eSpells::Incarnation, true);
 
-                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::Incarnation))
+                if (Aura* l_Aura = l_Target->GetAura(eSpells::Incarnation))
                     l_Aura->SetDuration(p_AurEff->GetBase()->GetDuration());
             }
 
@@ -5299,7 +5299,7 @@ class spell_dru_astral_form : public SpellScriptLoader
                 ChosenofElune   = 102560
             };
 
-            void AfterApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
@@ -5311,7 +5311,7 @@ class spell_dru_astral_form : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfStars);
@@ -5366,7 +5366,7 @@ class spell_dru_glyph_of_savagery : public SpellScriptLoader
                 SavageRoarEffect    = 62071
             };
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfSavagery);
@@ -5378,12 +5378,12 @@ class spell_dru_glyph_of_savagery : public SpellScriptLoader
                 {
                     l_Target->CastSpell(l_Target, eSpells::SavageRoarEffect, true);
 
-                    if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
+                    if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpells::SavageRoarEffect, EFFECT_0))
                         l_AuraEffect->ChangeAmount(l_SpellInfo->Effects[EFFECT_2].BasePoints);
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -5426,21 +5426,21 @@ class spell_dru_guardian_of_elune : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_guardian_of_elune_AuraScript);
 
-            void AfterApplyRecovery(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void AfterApplyRecovery(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
                 int32 l_DodgeChance = (int32)l_Target->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
-                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
+                if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
                     l_AurEff->SetAmount(l_DodgeChance * -1);
             }
 
-            void AfterApplyModifier(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            void AfterApplyModifier(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
                 int32 l_DodgeChance = (int32)l_Target->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
-                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_3))
+                if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_3))
                     l_AurEff->SetAmount(l_DodgeChance * -1);
             }
 
@@ -5472,7 +5472,7 @@ class spell_dru_item_t17_feral_2p_bonus : public SpellScriptLoader
                 ScentOfBlood = 169752
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -5517,7 +5517,7 @@ class spell_dru_item_t17_feral_4p_bonus : public SpellScriptLoader
                 T17Feral4PProcDriver    = 166639
             };
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -5526,7 +5526,7 @@ class spell_dru_item_t17_feral_4p_bonus : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->RemoveAura(eSpells::T17Feral4PProcDriver);
@@ -5561,7 +5561,7 @@ class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
                 GushingWound    = 166638
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -5570,8 +5570,8 @@ class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
                     return;
 
                 /// While Berserk is active, special attacks deal an additional 30% bleed damage to the target over 6 sec.
-                AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Feral4P, EFFECT_0);
-                if (l_AurEff == NULLAURA_EFFECT)
+                AuraEffect* l_AurEff = l_Caster->GetAuraEffect(eSpells::T17Feral4P, EFFECT_0);
+                if (l_AurEff == nullptr)
                 {
                     p_AurEff->GetBase()->Remove();
                     return;
@@ -5585,7 +5585,7 @@ class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
                 int32 l_Damage              = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), l_AurEff->GetAmount());
                 int32 l_PreviousTotalDamage = 0;
 
-                if (AuraEffectPtr l_OldWounds = l_Target->GetAuraEffect(eSpells::GushingWound, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffect* l_OldWounds = l_Target->GetAuraEffect(eSpells::GushingWound, EFFECT_0, l_Caster->GetGUID()))
                 {
                     int32 l_PeriodicDamage  = l_OldWounds->GetAmount();
                     int32 l_Duration        = l_OldWounds->GetBase()->GetDuration();
@@ -5602,12 +5602,12 @@ class spell_dru_item_t17_feral_4p_bonus_proc_driver : public SpellScriptLoader
 
                 l_Damage += l_PreviousTotalDamage;
 
-                if (AuraPtr l_Wounds = l_Target->GetAura(eSpells::GushingWound, l_Caster->GetGUID()))
+                if (Aura* l_Wounds = l_Target->GetAura(eSpells::GushingWound, l_Caster->GetGUID()))
                     l_Wounds->RefreshDuration();
                 else
                     l_Caster->CastSpell(l_Target, eSpells::GushingWound, true);
 
-                if (AuraEffectPtr l_NewWounds = l_Target->GetAuraEffect(eSpells::GushingWound, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffect* l_NewWounds = l_Target->GetAuraEffect(eSpells::GushingWound, EFFECT_0, l_Caster->GetGUID()))
                     l_NewWounds->SetAmount(l_Damage);
             }
 
@@ -5640,7 +5640,7 @@ class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
                 ToothAndClawProc    = 166639
             };
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -5649,7 +5649,7 @@ class spell_dru_item_t17_guardian_2p_bonus : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->RemoveAura(eSpells::ToothAndClawProc);
@@ -5684,7 +5684,7 @@ class spell_dru_item_t17_restoration_4p_bonus : public SpellScriptLoader
                 NaturesWisdom   = 167715
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -5703,7 +5703,7 @@ class spell_dru_item_t17_restoration_4p_bonus : public SpellScriptLoader
                 if (p_EventInfo.GetHitMask() & l_FlagsNot)
                     return;
 
-                if (AuraEffectPtr l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                if (AuraEffect* l_AurEff = p_AurEff->GetBase()->GetEffect(EFFECT_0))
                 {
                     if (l_ProcSpell->Id != eSpells::HealingTouch)
                     {
@@ -5749,7 +5749,7 @@ class spell_dru_living_seed : public SpellScriptLoader
                 LivingSeedAura = 48504
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5762,7 +5762,7 @@ class spell_dru_living_seed : public SpellScriptLoader
                     return;
 
                 l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
-                if (AuraEffectPtr l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
+                if (AuraEffect* l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
                     l_HealAmount += l_LivingSeed->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Caster, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);
