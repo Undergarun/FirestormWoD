@@ -1,55 +1,55 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
-class WarningUpdateClient : public PlayerScript
+#include "GameEventMgr.h"
+
+#define MAX_WEEKLY_EVENT                    7
+
+class PlayerScript_Weekly_Event_Bonus : public PlayerScript
 {
-    const uint32 k_WarningUpdateTimer = 300000; ///< 5 mins
-
     public:
-        WarningUpdateClient() : PlayerScript("WarningUpdateClient") {}
+    PlayerScript_Weekly_Event_Bonus() :PlayerScript("PlayerScript_Weekly_Event_Bonus") {}
 
-        std::map<uint64/*guid*/, uint32/*WarningTimer*/> m_WarningTimers;
-
-        void OnLogin(Player* p_Player)
+    void OnLogin(Player* p_Player)
+    {
+        int32 m_EventTab[MAX_WEEKLY_EVENT] = 
         {
-            uint32 l_LastBuild = sWorld->getIntConfig(CONFIG_LAST_CLIENT_BUILD);
-            if (l_LastBuild && p_Player->GetSession()->GetClientBuild() != l_LastBuild)
+            90, ///< Apexis Bonus Event
+            91, ///< Arena Skirmish Bonus Event
+            92, ///< Battleground Bonus Event
+            93, ///< Draenor Dungeon Event
+            94, ///< Pet Battle Bonus Event
+            95, ///< (Northrend Timewalking Dungeon Event, Outland Timewalking Dungeon Event, Cataclysm Timewalking Dungeon Event)
+            96  ///< (Northrend Timewalking Dungeon Event, Outland Timewalking Dungeon Event, Cataclysm Timewalking Dungeon Event)
+        };
+
+        int32 m_AuraTab[MAX_WEEKLY_EVENT] = {
+            186400, ///< Sign of Apexis
+            186401, ///< Sign of the Skirmisher
+            186403, ///< Sign of Battle
+            186404, ///< Sign of the Emissary
+            186406, ///< Sign of the Critter
+            0,      ///< No spell for Timewalking Event
+            0       ///< No spell for Timewalking Event
+        };
+
+        for (uint8 i = 0; i < MAX_WEEKLY_EVENT; ++i)
+        {
+            /// There is 3 timewalking event (Northrend Timewalking Dungeon Event, Outland Timewalking Dungeon Event, Cataclysm Timewalking Dungeon Event)
+            /// Devide on two occurence event (95, 96), there is no spell on timewalking event
+            if (sGameEventMgr->IsActiveEvent(m_EventTab[i]))
             {
-                //ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
-                m_WarningTimers[p_Player->GetGUID()] = k_WarningUpdateTimer;
+                if (m_AuraTab[i])
+                {
+                    p_Player->AddAura(m_AuraTab[i], p_Player);
+                    break;
+                }
             }
         }
-
-        void OnLogout(Player * p_Player)
-        {
-            m_WarningTimers.erase(p_Player->GetGUID());
-        }
-
-        void OnUpdate(Player * p_Player, uint32 p_Diff)
-        {
-            if (m_WarningTimers.find(p_Player->GetGUID()) == m_WarningTimers.end())
-                return;
-
-            if (m_WarningTimers[p_Player->GetGUID()] <= p_Diff)
-            {
-                //ChatHandler(p_Player).SendSysMessage(TrinityStrings::LangWarningUpdateClient);
-                m_WarningTimers[p_Player->GetGUID()] = k_WarningUpdateTimer;
-            }
-            else
-                m_WarningTimers[p_Player->GetGUID()] -= p_Diff;
-        }
+    }
 };
 
-void AddSC_warning_update_client()
+void AddSC_weekly_event_bonus()
 {
-    new WarningUpdateClient();
+    new PlayerScript_Weekly_Event_Bonus();
 };
