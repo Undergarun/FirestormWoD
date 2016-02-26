@@ -2755,7 +2755,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, &l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
@@ -2780,7 +2780,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
                                             if (Aura* l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
                                                 l_Aura->SetStackAmount(l_Stacks);
-                                                l_AI->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
+                                                l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
                                     }
