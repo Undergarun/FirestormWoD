@@ -114,7 +114,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_EQUIPMENTSETS, "SELECT setguid, setindex, name, iconname, ignore_mask, item0, item1, item2, item3, item4, item5, item6, item7, item8, "
     "item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = ? ORDER BY setindex", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_ARENA_DATA, "SELECT rating0, bestRatingOfWeek0, bestRatingOfSeason0, matchMakerRating0, weekGames0, weekWins0, prevWeekWins0, prevWeekGames0, seasonGames0, seasonWins0, rating1, bestRatingOfWeek1, bestRatingOfSeason1, matchMakerRating1, weekGames1, weekWins1, prevWeekWins1, prevWeekGames1, seasonGames1, seasonWins1, rating2, bestRatingOfWeek2, bestRatingOfSeason2, matchMakerRating2, weekGames2, weekWins2, prevWeekWins2, prevWeekGames2, seasonGames2, seasonWins2, rating3, bestRatingOfWeek3, bestRatingOfSeason3, matchMakerRating3, weekGames3, weekWins3, prevWeekWins3, prevWeekGames3, seasonGames3, seasonWins3, rating4, bestRatingOfWeek4, bestRatingOfSeason4, matchMakerRating4, weekGames4, weekWins4, prevWeekWins4, prevWeekGames4, seasonGames4, seasonWins4, rating5, bestRatingOfWeek5, bestRatingOfSeason5, matchMakerRating5, weekGames5, weekWins5, prevWeekWins5, prevWeekGames5, seasonGames5, seasonWins5 FROM character_arena_data WHERE guid = ?", CONNECTION_ASYNC)
-    PREPARE_STATEMENT(CHAR_SEL_CHARACTER_BGDATA, "SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec, bgTypeId FROM character_battleground_data WHERE guid = ?", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_SEL_CHARACTER_BGDATA, "SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec FROM character_battleground_data WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_GLYPHS, "SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6 FROM character_glyphs WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_TALENTS, "SELECT spell, spec FROM character_talent WHERE guid = ?", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_SEL_CHARACTER_SKILLS, "SELECT skill, value, max FROM character_skills WHERE guid = ?", CONNECTION_ASYNC)
@@ -364,7 +364,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_CHARACTER_ARENA_DATA, "DELETE FROM character_arena_data WHERE guid = ?", CONNECTION_ASYNC)
 
     // Character battleground data
-    PREPARE_STATEMENT(CHAR_INS_PLAYER_BGDATA, "INSERT INTO character_battleground_data (guid, instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec, bgTypeId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_INS_PLAYER_BGDATA, "INSERT INTO character_battleground_data (guid, instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_DEL_PLAYER_BGDATA, "DELETE FROM character_battleground_data WHERE guid = ?", CONNECTION_ASYNC)
 
     // Character homebind

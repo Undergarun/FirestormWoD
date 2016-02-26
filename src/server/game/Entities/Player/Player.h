@@ -2140,7 +2140,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void SaveToDB(bool create = false, std::shared_ptr<MS::Utilities::Callback> p_CallBack = nullptr);
+        void SaveToDB(bool create = false, bool afterSave = false);
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
@@ -2985,6 +2985,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SetBattlegroundId(uint32 val, BattlegroundTypeId bgTypeId)
         {
+            sLog->outAshran("Player::SetBattlegroundId guid : %u, bgTypeId: %u, bgInstanceID : ", GetGUIDLow(), bgTypeId, val);
+
             m_bgData.bgInstanceID = val;
             m_bgData.bgTypeID = bgTypeId;
         }

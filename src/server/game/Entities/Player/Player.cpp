@@ -20737,7 +20737,7 @@ void Player::_LoadBGData(PreparedQueryResult result)
     //        0           1     2      3      4      5      6          7          8        9            10
     // SELECT instanceId, team, joinX, joinY, joinZ, joinO, joinMapId, taxiStart, taxiEnd, mountSpell, lastActiveSpec FROM character_battleground_data WHERE guid = ?
 
-    m_bgData.bgInstanceID = fields[0].GetUInt32();
+    //m_bgData.bgInstanceID = fields[0].GetUInt32();
     m_bgData.bgTeam       = fields[1].GetUInt16();
     m_bgData.joinPos      = WorldLocation(fields[6].GetUInt16(),    // Map
                                           fields[2].GetFloat(),     // X
@@ -20748,7 +20748,8 @@ void Player::_LoadBGData(PreparedQueryResult result)
     m_bgData.taxiPath[1]  = fields[8].GetUInt32();
     m_bgData.mountSpell   = fields[9].GetUInt32();
     m_bgData.m_LastActiveSpec = fields[10].GetUInt16();
-    m_bgData.bgTypeID = (BattlegroundTypeId)fields[11].GetUInt32();
+
+    sLog->outAshran("Player::_LoadBGData guid : %u bgInstanceID : %u", GetGUIDLow(), m_bgData.bgInstanceID);
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid)
@@ -21148,90 +21149,56 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     l_Times.push_back(getMSTime() - l_StartTime);
 
     /// Player was saved in BG or arena.
-    if (mapEntry && mapEntry->IsBattlegroundOrArena() && m_bgData.bgInstanceID != 0)
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
     {
-        InterRealmSession* l_Tunnel = sWorld->GetInterRealmSession();
+        Battleground* currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
 
-        /// Cross realm battleground
-        if (l_Tunnel && l_Tunnel->IsTunnelOpened())
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+
+        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            /// Send reconnect notification to cross realm
-            l_Tunnel->SendPlayerReconnect(GetGUID(), m_bgData.bgInstanceID, m_bgData.bgTypeID);
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            AddBattlegroundQueueId(bgQueueTypeId);
 
-            /// Teleport the player to join position
-            /// Cross will tell us later if the player need to go in battleground/arena
-            {
-                const WorldLocation& _loc = GetBattlegroundEntryPoint();
-                mapId = _loc.GetMapId();
-                instanceId = 0;
+            m_bgData.bgTypeID = currentBg->GetTypeID();
 
-                /// Db field type is type int16, so it can never be MAPID_INVALID.
-                /// if (mapId == MAPID_INVALID) -- code kept for reference
-                if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-                {
-                    sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                    RelocateToHomebind();
-                }
-                else
-                    Relocate(&_loc);
-            }
+            //join player to battleground group
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
+
+            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+
+            /// We give the deserter aura by default when we leave a battleground
+            /// so if we succeed at re-entering the battleground, we remove the aura.
+            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
+                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
         }
+        // Bg was not found - go to Entry Point
         else
         {
-            Battleground* currentBg = NULL;
-            if (m_bgData.bgInstanceID)                                                //saved in Battleground
-                currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
+            /// Leave bg.
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
 
-            bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+            /// Do not look for instance if bg not found.
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId(); instanceId = 0;
 
-            if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
+            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
             {
-                MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
-                AddBattlegroundQueueId(bgQueueTypeId);
-
-                m_bgData.bgTypeID = currentBg->GetTypeID();
-
-                //join player to battleground group
-                currentBg->EventPlayerLoggedIn(this);
-                currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
-
-                SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-
-                /// We give the deserter aura by default when we leave a battleground
-                /// so if we succeed at re-entering the battleground, we remove the aura.
-                if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
-                    RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
+                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
+                RelocateToHomebind();
             }
-            // Bg was not found - go to Entry Point
             else
-            {
-                /// Leave bg.
-                if (player_at_bg)
-                    currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+                Relocate(&_loc);
 
-                /// Do not look for instance if bg not found.
-                const WorldLocation& _loc = GetBattlegroundEntryPoint();
-                mapId = _loc.GetMapId(); instanceId = 0;
-
-                /// Db field type is type int16, so it can never be MAPID_INVALID.
-                /// if (mapId == MAPID_INVALID) -- code kept for reference
-                if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-                {
-                    sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                    RelocateToHomebind();
-                }
-                else
-                    Relocate(&_loc);
-
-                /// We are not in BG anymore.
-                m_bgData.bgInstanceID = 0;
-            }
+            /// We are not in BG anymore.
+            m_bgData.bgInstanceID = 0;
         }
-    }
-    else if (m_bgData.bgInstanceID != 0)
-    {
-        /// Map isn't battleground or arena, clean battleground id / type
-        SetBattlegroundId(0, BattlegroundTypeId::BATTLEGROUND_TYPE_NONE);
     }
 
     // NOW player must have valid map
@@ -23261,7 +23228,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 /*********************************************************/
 /***                   SAVE SYSTEM                     ***/
 /*********************************************************/
-void Player::SaveToDB(bool create /*=false*/, std::shared_ptr<MS::Utilities::Callback> p_CallBack)
+void Player::SaveToDB(bool create /*=false*/ , bool afterSave /*=false*/)
 {
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
@@ -23613,13 +23580,54 @@ void Player::SaveToDB(bool create /*=false*/, std::shared_ptr<MS::Utilities::Cal
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
+    MS::Utilities::CallBackPtr l_SaveTransactionCallback = nullptr;
+    if (create)
+    {
+        uint32 l_AccountID = m_session->GetAccountId();
+        l_SaveTransactionCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+            l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            l_Session->SendPacket(&l_Data);
+        });
+    }
+
+    if (afterSave)
+    {
+        uint32 l_AccountID = m_session->GetAccountId();
+        l_SaveTransactionCallback = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            if (InterRealmSession* ir_session = sWorld->GetInterRealmSession())
+            {
+                BattlegroundPortData l_PortData = l_Session->GetBattlegroundPortData();
+
+                WorldPacket pckt(IR_CMSG_BATTLEFIELD_PORT, 8 + 4 + 4 + 1);
+
+                pckt << uint64(l_PortData.PlayerGuid);
+                pckt << uint32(l_PortData.Time);
+                pckt << uint32(l_PortData.QueueSlot);
+                pckt << uint8(l_PortData.Action);
+
+                ir_session->SendPacket(&pckt);
+            }
+        });
+    }
+
     for (std::vector<BattlePet::Ptr>::iterator l_It = m_BattlePets.begin(); l_It != m_BattlePets.end(); ++l_It)
     {
         BattlePet::Ptr l_Pet = (*l_It);
         l_Pet->Save(accountTrans);
     }
 
-    CharacterDatabase.CommitTransaction(trans, p_CallBack);
+    CharacterDatabase.CommitTransaction(trans, l_SaveTransactionCallback);
     LoginDatabase.CommitTransaction(accountTrans);
 
     // we save the data here to prevent spamming
@@ -30800,6 +30808,7 @@ void Player::_SaveArenaData(SQLTransaction& trans)
 
 void Player::_SaveBGData(SQLTransaction& trans)
 {
+    sLog->outAshran("Player::_SaveBGData guid : %u instanceID : %u", GetGUIDLow(), m_bgData.bgInstanceID);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
@@ -30817,7 +30826,6 @@ void Player::_SaveBGData(SQLTransaction& trans)
     stmt->setUInt16(9, m_bgData.taxiPath[1]);
     stmt->setUInt16(10, m_bgData.mountSpell);
     stmt->setUInt8(11, m_bgData.m_LastActiveSpec);
-    stmt->setUInt32(12, m_bgData.bgTypeID);
     trans->Append(stmt);
 }
 
