@@ -27038,7 +27038,7 @@ void Player::SetBattlegroundEntryPoint()
             m_bgData.mountSpell = 33943;
 
         // If map is dungeon find linked graveyard
-        if (GetMap()->IsDungeon())
+        if (GetMap()->IsDungeon() && !IsInGarrison())
         {
             if (const WorldSafeLocsEntry* entry = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
                 m_bgData.joinPos = WorldLocation(entry->map_id, entry->x, entry->y, entry->z, 0.0f);
