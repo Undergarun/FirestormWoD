@@ -688,7 +688,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_magma_barrage_AuraScript)
 
-                void OnPeriodic(AuraEffect const* p_AurEff)
+                void OnPeriodic(constAuraEffectPtr p_AurEff)
                 {
                     Unit* l_Caster = GetCaster();
                     if (!l_Caster)
@@ -827,7 +827,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_dancing_flames_AuraScript);
 
-                void HandleApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+                void HandleApplyEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
                 {
                     m_Dispelled = false;
                 }
@@ -837,7 +837,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     m_Dispelled = true;
                 }
 
-                void HandleRemoveEffect(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+                void HandleRemoveEffect(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
                 {
                     if (m_Dispelled || !GetCaster())
                         return;
@@ -880,7 +880,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_withering_flames_AuraScript)
 
-                void OnPeriodic(AuraEffect const*)
+                void OnPeriodic(constAuraEffectPtr)
                 {
                     Unit* l_Caster = GetCaster();
                     if (!l_Caster)
@@ -982,7 +982,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_magma_barrage_damage_AuraScript)
 
-                void OnPeriodic(AuraEffect const* p_AurEff)
+                void OnPeriodic(constAuraEffectPtr p_AurEff)
                 {
                     Unit* l_Owner = GetOwner()->ToPlayer();
                     if (!l_Owner)

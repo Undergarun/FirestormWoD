@@ -2200,7 +2200,7 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
     data.WriteBits<int>(list.size(), 21);
     for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
     {
-        AuraEffect* effect = *itr;
+        AuraEffectPtr effect = *itr;
         if (!effect)
             continue;
 

@@ -143,9 +143,9 @@ class PlayerScript_TigereEyeBrew_ManaTea: public PlayerScript
 
             if (p_Power == POWER_CHI && l_DiffValue < 0)
             {
-                if (Aura* tigereyeBrew = p_Player->GetAura(eSpells::TigereyeBrew))
+                if (AuraPtr tigereyeBrew = p_Player->GetAura(eSpells::TigereyeBrew))
                     tigereyeBrew->SetScriptData(0, -l_DiffValue);
-                else if (Aura* manaTea = p_Player->GetAura(eSpells::ManaTea))
+                else if (AuraPtr manaTea = p_Player->GetAura(eSpells::ManaTea))
                     manaTea->SetScriptData(0, -l_DiffValue);
 
                 if (p_Player->HasAura(eSpells::Serenity))
@@ -211,7 +211,7 @@ class spell_monk_ring_of_peace_dummy: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_ring_of_peace_dummy_AuraScript);
 
-            void HandleDummyProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleDummyProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -290,14 +290,14 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_storm_earth_and_fire_stats_AuraScript);
 
-            void OnUpdate(uint32 /*diff*/, AuraEffect* aurEff)
+            void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
             {
                 if (!GetCaster())
                     return;
 
                 if (Unit* caster = GetCaster()->GetOwner())
                 {
-                    if (AuraEffect* stormAura = caster->GetAuraEffect(SPELL_MONK_STORM_EARTH_AND_FIRE, EFFECT_1))
+                    if (AuraEffectPtr stormAura = caster->GetAuraEffect(SPELL_MONK_STORM_EARTH_AND_FIRE, EFFECT_1))
                     {
                         if (aurEff->GetAmount() != stormAura->GetAmount())
                             aurEff->ChangeAmount(stormAura->GetAmount());
@@ -305,17 +305,17 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
                 }
             }
 
-            void CalculateReducedDamage(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateReducedDamage(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (!GetCaster() || !GetCaster()->GetOwner())
                     return;
 
                 if (Unit* owner = GetCaster()->GetOwner())
-                    if (AuraEffect* stormAura = owner->GetAuraEffect(SPELL_MONK_STORM_EARTH_AND_FIRE, EFFECT_1))
+                    if (AuraEffectPtr stormAura = owner->GetAuraEffect(SPELL_MONK_STORM_EARTH_AND_FIRE, EFFECT_1))
                         amount = stormAura->GetAmount();
             }
 
-            void CalculateHealing(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateHealing(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (!GetCaster() || !GetCaster()->GetOwner())
                     return;
@@ -324,7 +324,7 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
                     amount = owner->GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
             }
 
-            void CalculateAttackPower(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateAttackPower(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (!GetCaster() || !GetCaster()->GetOwner())
                     return;
@@ -333,7 +333,7 @@ class spell_monk_storm_earth_and_fire_stats: public SpellScriptLoader
                     amount = owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
             }
 
-            void CalculateHaste(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            void CalculateHaste(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (!GetCaster() || !GetCaster()->GetOwner())
                     return;
@@ -530,7 +530,7 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_storm_earth_and_fire_AuraScript);
 
-            void OnUpdate(uint32 /*diff*/, AuraEffect* /*aurEff*/)
+            void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -545,7 +545,7 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                         return;
                     }
 
-                    if (Aura* stormAura = caster->GetAura(GetSpellInfo()->Id))
+                    if (AuraPtr stormAura = caster->GetAura(GetSpellInfo()->Id))
                     {
                         if (count != stormAura->GetStackAmount())
                             stormAura->SetStackAmount(count);
@@ -568,7 +568,7 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -735,7 +735,7 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
                 std::list<Unit*> l_TargetList;
                 std::vector<uint64> l_ValidTargets;
 
-                if (AuraEffect* l_ChiWave = l_OriginalCaster->GetAuraEffect(SPELL_MONK_CHI_WAVE_TALENT_AURA, EFFECT_1))
+                if (AuraEffectPtr l_ChiWave = l_OriginalCaster->GetAuraEffect(SPELL_MONK_CHI_WAVE_TALENT_AURA, EFFECT_1))
                 {
                     l_Count = l_ChiWave->GetAmount();
 
@@ -786,7 +786,7 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
                 if (Unit* l_NewTarget = sObjectAccessor->FindUnit(l_ValidTargets.front()))
                 {
                     if (l_OriginalCaster->IsValidAttackTarget(l_NewTarget))
-                        l_Target->CastSpell(l_NewTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, nullptr, l_OriginalCaster->GetGUID());
+                        l_Target->CastSpell(l_NewTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
                     else
                     {
                         std::list<Unit*> l_AlliesList;
@@ -808,7 +808,7 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
 
                         l_AlliesList.sort(JadeCore::HealthPctOrderPred());
 
-                        l_Target->CastSpell(l_AlliesList.front(), eSpells::ChiWaveTriggerHeal, true, NULL, nullptr, l_OriginalCaster->GetGUID());
+                        l_Target->CastSpell(l_AlliesList.front(), eSpells::ChiWaveTriggerHeal, true, NULL, NULLAURA_EFFECT, l_OriginalCaster->GetGUID());
                     }
                 }
             }
@@ -958,12 +958,12 @@ class spell_monk_dampen_harm: public SpellScriptLoader
                 return GetUnitOwner()->ToPlayer();
             }
 
-            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffectPtr auraEffect, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
 
@@ -1060,7 +1060,7 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
                     Unit::AuraApplicationMap AuraList = _player->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::iterator iter = AuraList.begin(); iter != AuraList.end(); ++iter)
                     {
-                        Aura* aura = iter->second->GetBase();
+                        AuraPtr aura = iter->second->GetBase();
                         if (!aura)
                             continue;
 
@@ -1079,13 +1079,13 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
 
                         _player->AddAura(aura->GetSpellInfo()->Id, caster);
 
-                        if (Aura* targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
+                        if (AuraPtr targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
                         {
                             for (uint8 i = 0; i < aura->GetEffectCount(); ++i)
                             {
                                 if (targetAura->GetEffect(i) && aura->GetEffect(i))
                                 {
-                                    AuraEffect* auraEffect = _player->GetAuraEffect(aura->GetSpellInfo()->Id, i);
+                                    AuraEffectPtr auraEffect = _player->GetAuraEffect(aura->GetSpellInfo()->Id, i);
                                     if (!auraEffect)
                                         continue;
 
@@ -1212,7 +1212,7 @@ class spell_monk_guard: public SpellScriptLoader
                 WoDPvPBrewmaster4PBonusEffect = 171452
             };
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -1223,7 +1223,7 @@ class spell_monk_guard: public SpellScriptLoader
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
 
-                if (AuraEffect* l_GlyphofGuardAura = l_Caster->GetAuraEffect(123401, EFFECT_0))
+                if (AuraEffectPtr l_GlyphofGuardAura = l_Caster->GetAuraEffect(123401, EFFECT_0))
                     AddPct(p_Amount, l_GlyphofGuardAura->GetAmount());
 
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
@@ -1318,13 +1318,13 @@ class spell_monk_glyph_of_zen_flight: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_glyph_of_zen_flight_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     _player->learnSpell(SPELL_MONK_ZEN_FLIGHT, false);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetTarget()->ToPlayer())
                     if (_player->HasSpell(SPELL_MONK_ZEN_FLIGHT))
@@ -1394,7 +1394,7 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_crackling_jade_lightning_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
                     return;
@@ -1406,7 +1406,7 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
                 }
             }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1468,7 +1468,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 return true;
             }
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPWindwalker2PBonus);
@@ -1484,7 +1484,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 p_Amount = l_Caster->CountPctFromMaxHealth(l_HealthPct);
             }
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
             {
                 Unit* l_Caster = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
@@ -1524,7 +1524,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 if (l_Target)
                 {
                     int32 l_Damage = p_DmgInfo.GetDamage();
-                    if (AuraEffect* l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0))
+                    if (AuraEffectPtr l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0))
                         l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
                     l_Damage /= 6;
                     l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
@@ -1573,7 +1573,7 @@ class spell_monk_thunder_focus_tea: public SpellScriptLoader
                             _player->GetRaidMembers(groupList);
 
                             for (auto itr : groupList)
-                                if (Aura* renewingMistGroup = itr->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
+                                if (AuraPtr renewingMistGroup = itr->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
                                     renewingMistGroup->RefreshDuration();
 
                             _player->RemoveAura(SPELL_MONK_THUNDER_FOCUS_TEA);
@@ -1720,7 +1720,7 @@ class spell_monk_mana_tea: public SpellScriptLoader
                 {
                     int32 stacks = 0;
 
-                    if (Aura* manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
+                    if (AuraPtr manaTeaStacks = _player->GetAura(SPELL_MONK_MANA_TEA_STACKS))
                         stacks = manaTeaStacks->GetStackAmount();
 
                     int32 newDuration = (stacks * IN_MILLISECONDS) / 2;
@@ -1745,7 +1745,7 @@ class spell_monk_mana_tea: public SpellScriptLoader
 
                     if (AuraApplication* aura = _player->GetAuraApplication(SPELL_MONK_MANA_TEA_REGEN))
                     {
-                        Aura* manaTea = aura->GetBase();
+                        AuraPtr manaTea = aura->GetBase();
                         int32 newDuration = manaTea->GetDuration() - 1000;
                         manaTea->SetDuration(newDuration);
                     }
@@ -1768,13 +1768,13 @@ class spell_monk_mana_tea: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_mana_tea_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (GetCaster())
                 {
                     // remove one charge per tick instead of remove aura on cast
                     // "Cancelling the channel will not waste stacks"
-                    if (Aura* manaTea = GetCaster()->GetAura(SPELL_MONK_MANA_TEA_STACKS))
+                    if (AuraPtr manaTea = GetCaster()->GetAura(SPELL_MONK_MANA_TEA_STACKS))
                     {
                         if (manaTea->GetStackAmount() > 1)
                             manaTea->SetStackAmount(manaTea->GetStackAmount() - 1);
@@ -1808,7 +1808,7 @@ class spell_monk_mana_tea_stacks: public SpellScriptLoader
 
             uint32 chiConsumed;
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 chiConsumed = 0;
             }
@@ -1945,7 +1945,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
                     GetSpell()->setTriggerCastFlags(l_Flags);
                 }
 
-                if (AuraEffect* l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
+                if (AuraEffectPtr l_VitalMists = l_Player->GetAuraEffect(eSpells::VitalMists, EFFECT_1))
                     m_BasePowerConsume -= CalculatePct(m_BasePowerConsume, l_VitalMists->GetAmount() * -1);
             }
 
@@ -2087,7 +2087,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            void OnUpdate(uint32 diff, AuraEffectPtr aurEff)
             {
                update += diff;
 
@@ -2101,7 +2101,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -2144,13 +2144,13 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 for (auto l_Itr : l_FriendlyUnitList)
                 {
                     l_Caster->CastSpell(l_Itr, GetSpellInfo()->Id, true);
-                    if (Aura* l_RenewingMistHot = l_Itr->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                    if (AuraPtr l_RenewingMistHot = l_Itr->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
                         l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
                     aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
                 }
             }
 
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes mode)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
@@ -2193,7 +2193,7 @@ class spell_monk_healing_elixirs_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_healing_elixirs_aura_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -2280,7 +2280,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
                 ZenSphereTick = 182032
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -2294,7 +2294,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
                 l_Caster->CastSpell(l_Target, eSpells::ZenSphereTick, true);
             }
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpells::ZenSphereTick, true);
@@ -2338,7 +2338,7 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                 if (l_FirstTarget == nullptr)
                     return;
 
-                if (AuraEffect* l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
@@ -2364,7 +2364,7 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                 if (l_FirstTarget == nullptr)
                     return;
 
-                if (AuraEffect* l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
@@ -2388,7 +2388,7 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
                 if (l_FirstTarget == nullptr || l_Target == nullptr)
                     return;
 
-                if (AuraEffect* l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                if (AuraEffectPtr l_ZenSphereAura = l_FirstTarget->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
                     {
@@ -2596,7 +2596,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (Aura* l_TigereyeBrewStacks = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
+                if (AuraPtr l_TigereyeBrewStacks = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                 {
                     uint8 l_StackConsumed = l_TigereyeBrewStacks->GetStackAmount();
                     uint8 l_Stacks = l_TigereyeBrewStacks->GetStackAmount();
@@ -2606,7 +2606,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
 
                     int32 l_EffectAmount = l_StackConsumed * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
 
-                    if (Aura* l_TigereyeBrew = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW))
+                    if (AuraPtr l_TigereyeBrew = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW))
                     {
                         l_TigereyeBrew->GetEffect(0)->ChangeAmount(l_EffectAmount);
                         l_TigereyeBrew->GetEffect(1)->ChangeAmount(l_EffectAmount);
@@ -2617,7 +2617,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
                         SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::MonkWoDPvPWindwalker4PBonus);
 
                         l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPWindwalkerAura, true);
-                        if (Aura* l_FortitudeOfXuen = l_Caster->GetAura(eSpells::MonkWoDPvPWindwalkerAura))
+                        if (AuraPtr l_FortitudeOfXuen = l_Caster->GetAura(eSpells::MonkWoDPvPWindwalkerAura))
                             l_FortitudeOfXuen->GetEffect(0)->ChangeAmount(l_StackConsumed * (l_SpellInfo->Effects[EFFECT_0].BasePoints / 1000) * -1);
                     }
 
@@ -2631,7 +2631,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
                     {
                         l_Caster->CastSpell(l_Caster, eSpells::ForcefulWinds, true);
 
-                        if (AuraEffect* l_AurEffect = l_Caster->GetAuraEffect(eSpells::ForcefulWinds, EFFECT_0))
+                        if (AuraEffectPtr l_AurEffect = l_Caster->GetAuraEffect(eSpells::ForcefulWinds, EFFECT_0))
                             l_AurEffect->ChangeAmount(l_AurEffect->GetAmount() * l_StackConsumed);
                     }
                 }
@@ -2732,7 +2732,7 @@ class spell_monk_flying_serpent_kick: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_flying_serpent_kick_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
                     return;
@@ -2949,7 +2949,7 @@ class spell_monk_elusive_brew: public SpellScriptLoader
 
                         if (AuraApplication* aura = _player->GetAuraApplication(SPELL_MONK_ELUSIVE_BREW))
                         {
-                            Aura* elusiveBrew = aura->GetBase();
+                            AuraPtr elusiveBrew = aura->GetBase();
                             int32 maxDuration = elusiveBrew->GetMaxDuration();
                             int32 newDuration = stackAmount * 1000;
                             elusiveBrew->SetDuration(newDuration);
@@ -3093,7 +3093,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 return l_JadeStatue;
             }
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -3116,7 +3116,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 /// Every time your Soothing Mist heals a target your multistrike chance is increased by 5%.
                 if (Unit* l_Caster = GetCaster())
@@ -3126,7 +3126,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -3147,14 +3147,14 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                     if (l_SpellInfo != nullptr && l_SpellInfo->Effects[EFFECT_1].BasePoints > 0)
                     {
                         /// If already has buff, add duration with old duration
-                        if (Aura* l_HasAlreadyAuraGlyph = l_Caster->GetAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST))
+                        if (AuraPtr l_HasAlreadyAuraGlyph = l_Caster->GetAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST))
                             l_HasAlreadyAuraGlyph->SetDuration(l_HasAlreadyAuraGlyph->GetDuration() + ((p_AurEff->GetTickNumber() / l_SpellInfo->Effects[EFFECT_1].BasePoints) * IN_MILLISECONDS));
                         else
                         {
                             l_Caster->CastSpell(l_Caster, SPELL_MONK_GLYPH_OF_SHOOTING_MIST, true);
 
                             /// 1 sec for every sec you spent channeling Soothing Mist
-                            if (Aura* l_AuraGlyph = l_Caster->GetAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST))
+                            if (AuraPtr l_AuraGlyph = l_Caster->GetAura(SPELL_MONK_GLYPH_OF_SHOOTING_MIST))
                                 l_AuraGlyph->SetDuration(((p_AurEff->GetTickNumber() / l_SpellInfo->Effects[EFFECT_1].BasePoints) * IN_MILLISECONDS));
                         }
                     }
@@ -3173,7 +3173,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 l_JadeStatue->CastStop();
             }
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3258,7 +3258,7 @@ class spell_monk_disable : public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_disable_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& /*p_ProcInfo*/)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& /*p_ProcInfo*/)
             {
                 p_AurEff->GetBase()->RefreshDuration();
             }
@@ -3582,7 +3582,7 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleBeforeCast()
             {
-                Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+                AuraPtr aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
                 if (!aur)
                     return;
 
@@ -3633,7 +3633,7 @@ class spell_monk_tigereye_brew_stacks: public SpellScriptLoader
 
             uint32 chiConsumed;
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 chiConsumed = 0;
             }
@@ -3692,7 +3692,7 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_spinning_crane_kick_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
                     return;
@@ -3760,7 +3760,7 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 StanceOfTheWiseSerpents = 115070
             };
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
                     return;
@@ -3780,7 +3780,7 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                     l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit *l_Caster = GetCaster();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_SPINNING_CRANE_KICK);
@@ -3829,7 +3829,7 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
                     l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
@@ -3899,7 +3899,7 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
 
                 JadeCore::RandomResizeList(p_Targets, 6);
 
-                if (AuraEffect* l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(eSpells::RushingJadeWindAura, EFFECT_0))
                     l_Aura->SetAmount(l_Aura->GetAmount() + p_Targets.size());
             }
 
@@ -4243,7 +4243,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                     if (l_Target->isInBack(l_Player) || l_Player->HasAura(eSpells::GlyphofBlackoutKick))
                     {
                         int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                        if (Aura* l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
+                        if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
                             l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
                         l_Bp0 /= 4;
 
@@ -4252,7 +4252,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                     else
                     {
                         int32 l_Bp0 = CalculatePct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                        if (Aura* l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
+                        if (AuraPtr l_CombatConditioning = l_Player->GetAura(SPELL_MONK_COMBAT_CONDITIONING))
                             l_Bp0 += CalculatePct(l_Damage, l_CombatConditioning->GetEffect(EFFECT_0)->GetAmount());
 
                         l_Player->CastCustomSpell(l_Player, SPELL_MONK_BLACKOUT_KICK_HEAL, &l_Bp0, NULL, NULL, true);
@@ -4260,7 +4260,7 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 }
                 else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER && l_Player->getLevel() >= 34)
                 {
-                    if (Aura* l_Shuffle = l_Player->GetAura(SPELL_MONK_SHUFFLE))
+                    if (AuraPtr l_Shuffle = l_Player->GetAura(SPELL_MONK_SHUFFLE))
                     {
                         l_Shuffle->SetMaxDuration(l_Shuffle->GetMaxDuration() + 5 * IN_MILLISECONDS);
                         l_Shuffle->SetDuration(l_Shuffle->GetDuration() + 5 * IN_MILLISECONDS);
@@ -4546,7 +4546,7 @@ class spell_monk_vital_mists : public SpellScriptLoader
                 VitalMistsEnerg         = 169719
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -4556,7 +4556,7 @@ class spell_monk_vital_mists : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::VitalMistsVisual5Stacks, true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -4627,7 +4627,7 @@ class spell_monk_detox: public SpellScriptLoader
 
                 for (auto itr : l_TempDispelList)
                 {
-                    if (Aura* l_Aura = itr.first)
+                    if (AuraPtr l_Aura = itr.first)
                     {
                         AuraApplication * aurApp = l_Aura->GetApplicationOfTarget(l_Target->GetGUID());
                         if (aurApp->IsPositive())
@@ -4772,13 +4772,13 @@ class spell_monk_stance_of_tiger: public SpellScriptLoader
                 WindWalker = 166646
             };
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->RemoveAura(eSpells::WindWalker);
             }
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpells::WindWalker, true);
@@ -4891,7 +4891,7 @@ class spell_monk_afterlife: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_afterlife_AuraScript);
 
-            void OnProcHealingSphere(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProcHealingSphere(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -4902,7 +4902,7 @@ class spell_monk_afterlife: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_SUMMON_HEALING_SPHERE, true);
             }
 
-            void OnProcChiSphere(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProcChiSphere(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -5191,7 +5191,7 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
                 l_Caster->ModifyPower(POWER_CHI, -3);
-                if (Aura* l_Aura = l_Caster->GetAura(SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION))
+                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MONK_COMBO_BREAKER_CHI_EXPLOSION))
                 {
                     l_Caster->ModifyPower(POWER_CHI, std::min(2, l_Chi));
                     l_Aura->Remove();
@@ -5268,9 +5268,9 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 {
                     uint32 l_Duration = (l_Chi * 2 + 2) * IN_MILLISECONDS;
 
-                    if (Aura* l_PreviousAura = l_Caster->GetAura(SPELL_MONK_SHUFFLE))
+                    if (AuraPtr l_PreviousAura = l_Caster->GetAura(SPELL_MONK_SHUFFLE))
                         l_PreviousAura->SetDuration(l_PreviousAura->GetDuration() + l_Duration);
-                    else if (Aura* l_Aura = l_Caster->AddAura(SPELL_MONK_SHUFFLE, l_Caster))
+                    else if (AuraPtr l_Aura = l_Caster->AddAura(SPELL_MONK_SHUFFLE, l_Caster))
                         l_Aura->SetDuration(l_Duration);
                 }
 
@@ -5315,7 +5315,7 @@ class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_WoDPvPBrewmaster2PBonus_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_ProcInfo)
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
             }
@@ -5475,7 +5475,7 @@ public:
             Roll = 109132
         };
 
-        void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*p_EventInfo*/)
+        void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*p_EventInfo*/)
         {
             if (GetCaster() == nullptr)
                 return;
@@ -5657,7 +5657,7 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
                 BreathoftheSerpentHeal = 157590
             };
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -5673,7 +5673,7 @@ class spell_monk_breath_of_the_serpent_tick : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Owner = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -5720,7 +5720,7 @@ class spell_monk_item_t17_brewmaster_2p_bonus : public SpellScriptLoader
                 SwiftReflexes = 165356
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -5764,7 +5764,7 @@ class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
                 ChiJisGuidance  = 167717
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 

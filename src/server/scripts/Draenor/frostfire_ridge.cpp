@@ -88,7 +88,7 @@ class spell_groog_rampage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_groog_rampage_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 Unit* l_Caster = GetCaster();
 

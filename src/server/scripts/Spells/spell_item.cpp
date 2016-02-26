@@ -667,7 +667,7 @@ public:
             return true;
         }
 
-        void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnStackChange(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             switch (GetStackAmount())
@@ -688,7 +688,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_LOW);
@@ -990,7 +990,7 @@ class spell_magic_eater_food: public SpellScriptLoader
         {
             PrepareAuraScript(spell_magic_eater_food_AuraScript);
 
-            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            void HandleTriggerSpell(constAuraEffectPtr /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1747,7 +1747,7 @@ class spell_item_pygmy_oil: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                if (Aura* aura = caster->GetAura(SPELL_PYGMY_OIL_PYGMY_AURA))
+                if (AuraPtr aura = caster->GetAura(SPELL_PYGMY_OIL_PYGMY_AURA))
                     aura->RefreshDuration();
                 else
                 {
@@ -2348,7 +2348,7 @@ class spell_item_pot_of_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_pot_of_fire_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
             {
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
@@ -2605,7 +2605,7 @@ class spell_item_sky_golem : public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_sky_golem_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2614,7 +2614,7 @@ class spell_item_sky_golem : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2663,7 +2663,7 @@ class spell_item_engineering_scopes: public SpellScriptLoader
                     return true;
                 }
 
-                void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+                void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
                 {
                     PreventDefaultAction();
 
@@ -2709,7 +2709,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 AllianceChauffeur   = 89715
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2727,7 +2727,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2736,7 +2736,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2774,7 +2774,7 @@ class spell_item_forgemasters_vigor : public SpellScriptLoader
                 HammerBlows = 177099
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2782,18 +2782,18 @@ class spell_item_forgemasters_vigor : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::HammerBlows, true);
 
-                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::HammerBlows, EFFECT_0))
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::HammerBlows, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (Aura* l_Aura = l_Target->GetAura(eSpell::HammerBlows))
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::HammerBlows))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::HammerBlows);
@@ -2827,11 +2827,11 @@ class spell_item_hammer_blows : public SpellScriptLoader
                 ForgemastersVigor = 177096
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::ForgemastersVigor, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::ForgemastersVigor, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -2863,7 +2863,7 @@ class spell_item_detonation : public SpellScriptLoader
                 Detonating = 177070
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2871,18 +2871,18 @@ class spell_item_detonation : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::Detonating, true);
 
-                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::Detonating, EFFECT_0))
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Detonating, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (Aura* l_Aura = l_Target->GetAura(eSpell::Detonating))
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Detonating))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Detonating);
@@ -2916,11 +2916,11 @@ class spell_item_detonating : public SpellScriptLoader
                 Detonation = 177067
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::Detonation, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Detonation, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -2952,7 +2952,7 @@ class spell_item_battering : public SpellScriptLoader
                 Cracks = 177103
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2960,18 +2960,18 @@ class spell_item_battering : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::Cracks, true);
 
-                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::Cracks, EFFECT_0))
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::Cracks, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (Aura* l_Aura = l_Target->GetAura(eSpell::Cracks))
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::Cracks))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Cracks);
@@ -3005,11 +3005,11 @@ class spell_item_cracks : public SpellScriptLoader
                 Battering = 177102
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::Battering, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Battering, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -3041,7 +3041,7 @@ class spell_item_sanatizing : public SpellScriptLoader
                 CleansingSteam = 177087
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3049,18 +3049,18 @@ class spell_item_sanatizing : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::CleansingSteam, true);
 
-                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::CleansingSteam, EFFECT_0))
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::CleansingSteam, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (Aura* l_Aura = l_Target->GetAura(eSpell::CleansingSteam))
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::CleansingSteam))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::CleansingSteam);
@@ -3094,11 +3094,11 @@ class spell_item_cleansing_steam : public SpellScriptLoader
                 Sanitizing = 177086
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::Sanitizing, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::Sanitizing, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }
@@ -3130,7 +3130,7 @@ class spell_item_molten_metal : public SpellScriptLoader
                 PouringSlag = 177083
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3138,18 +3138,18 @@ class spell_item_molten_metal : public SpellScriptLoader
                     {
                         l_Target->CastSpell(l_Target, eSpell::PouringSlag, true);
 
-                        if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(eSpell::PouringSlag, EFFECT_0))
+                        if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(eSpell::PouringSlag, EFFECT_0))
                             l_AuraEffect->ChangeAmount(p_AurEff->GetAmount());
                     }
                     else
                     {
-                        if (Aura* l_Aura = l_Target->GetAura(eSpell::PouringSlag))
+                        if (AuraPtr l_Aura = l_Target->GetAura(eSpell::PouringSlag))
                             l_Aura->ModStackAmount(1);
                     }
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::PouringSlag);
@@ -3183,11 +3183,11 @@ class spell_item_pouring_slag : public SpellScriptLoader
                 MoltenMetal = 177081
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
-                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(eSpell::MoltenMetal, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpell::MoltenMetal, EFFECT_0))
                         p_Amount = l_AurEff->GetAmount();
                 }
             }

@@ -983,13 +983,13 @@ class spell_static_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_static_burst_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(constAuraEffectPtr aurEff)
             {
                 if (Unit* target = GetTarget())
                 {
                     if (Unit* caster = GetCaster())
                     {
-                        if (Aura* staticWound = caster->AddAura(SPELL_STATIC_WOUND, target))
+                        if (AuraPtr staticWound = caster->AddAura(SPELL_STATIC_WOUND, target))
                             staticWound->ModStackAmount(9);
                     }
                 }
@@ -1017,13 +1017,13 @@ class spell_static_wound: public SpellScriptLoader
         {
             PrepareAuraScript(spell_static_wound_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(constAuraEffectPtr aurEff)
             {
-                if (Aura* staticWound = aurEff->GetBase())
+                if (AuraPtr staticWound = aurEff->GetBase())
                     staticWound->ModStackAmount(-1);
             }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1134,7 +1134,7 @@ class spell_focused_lightning_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_focused_lightning_periodic_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(constAuraEffectPtr aurEff)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_FOCUSED_LIGHTNING_AREA, true);
@@ -1276,7 +1276,7 @@ class spell_lightning_storm_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_lightning_storm_periodic_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(constAuraEffectPtr aurEff)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1345,7 +1345,7 @@ class spell_ionization: public SpellScriptLoader
         {
             PrepareAuraScript(spell_ionization_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
             {
                 if (Unit* caster = GetCaster())
                 {

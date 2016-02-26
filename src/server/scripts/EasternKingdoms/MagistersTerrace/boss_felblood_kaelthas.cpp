@@ -231,7 +231,7 @@ public:
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && (unit->IsPlayer()))
                     // Knockback into the air
-                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, nullptr, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, NULLAURA_EFFECT, me->GetGUID());
             }
         }
 
@@ -244,7 +244,7 @@ public:
                 if (unit && (unit->IsPlayer()))
                 {
                     // Also needs an exception in spell system.
-                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, nullptr, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, NULLAURA_EFFECT, me->GetGUID());
                     // Use packet hack
                     /// @todo update me or remove the hack
                     WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);

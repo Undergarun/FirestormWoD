@@ -505,13 +505,13 @@ class spell_venoxis_toxic_link_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_venoxis_toxic_link_aura_AuraScript);
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->CastSpell(GetCaster(), SPELL_TOXIC_EXPLOSION, true);
             }
             
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster() || !GetTarget())
                     return;

@@ -778,7 +778,7 @@ public:
     {
         PrepareAuraScript(the_everbloom_ancient_protectors_spell_rapid_tides_AuraScript);
 
-        void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
         {
             if (Unit* l_Target = GetTarget())
             {
@@ -787,7 +787,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
         {
             if (Unit* l_Target = GetTarget())
             {

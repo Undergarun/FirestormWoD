@@ -412,7 +412,7 @@ class boss_ancient_regail : public CreatureScript
                                 asani->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
                                 asani->AI()->Talk(TALK_REGAIL_DIES_SECOND_ASANI);
 
-                                if (Aura* shaCorruption = asani->GetAura(SPELL_SHA_CORRUPTION))
+                                if (AuraPtr shaCorruption = asani->GetAura(SPELL_SHA_CORRUPTION))
                                     if (Creature* corruptionCaster = me->GetMap()->GetCreature(shaCorruption->GetCasterGUID()))
                                         corruptionCaster->CastSpell(asani, SPELL_SHA_CORRUPTION, true);
                             }
@@ -422,7 +422,7 @@ class boss_ancient_regail : public CreatureScript
                                 kaolan->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
                                 kaolan->AI()->Talk(TALK_REGAIL_DIES_SECOND_KAOLAN);
 
-                                if (Aura* shaCorruption = kaolan->GetAura(SPELL_SHA_CORRUPTION))
+                                if (AuraPtr shaCorruption = kaolan->GetAura(SPELL_SHA_CORRUPTION))
                                     if (Creature* corruptionCaster = me->GetMap()->GetCreature(shaCorruption->GetCasterGUID()))
                                         corruptionCaster->CastSpell(kaolan, SPELL_SHA_CORRUPTION, true);
                             }
@@ -758,7 +758,7 @@ class boss_ancient_asani : public CreatureScript
                                 regail->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
                                 regail->AI()->Talk(TALK_ASANI_DIES_SECOND_REGAIL);
 
-                                if (Aura* shaCorruption = regail->GetAura(SPELL_SHA_CORRUPTION))
+                                if (AuraPtr shaCorruption = regail->GetAura(SPELL_SHA_CORRUPTION))
                                     if (Creature* corruptionCaster = me->GetMap()->GetCreature(shaCorruption->GetCasterGUID()))
                                         corruptionCaster->CastSpell(regail, SPELL_SHA_CORRUPTION, true);
                             }
@@ -768,7 +768,7 @@ class boss_ancient_asani : public CreatureScript
                                 kaolan->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
                                 kaolan->AI()->Talk(TALK_ASANI_DIES_SECOND_KAOLAN);
 
-                                if (Aura* shaCorruption = kaolan->GetAura(SPELL_SHA_CORRUPTION))
+                                if (AuraPtr shaCorruption = kaolan->GetAura(SPELL_SHA_CORRUPTION))
                                     if (Creature* corruptionCaster = me->GetMap()->GetCreature(shaCorruption->GetCasterGUID()))
                                         corruptionCaster->CastSpell(kaolan, SPELL_SHA_CORRUPTION, true);
                             }
@@ -1128,7 +1128,7 @@ class boss_protector_kaolan : public CreatureScript
                             {
                                 regail->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
 
-                                if (Aura* shaCorruption = regail->GetAura(SPELL_SHA_CORRUPTION))
+                                if (AuraPtr shaCorruption = regail->GetAura(SPELL_SHA_CORRUPTION))
                                     if (Creature* corruptionCaster = me->GetMap()->GetCreature(shaCorruption->GetCasterGUID()))
                                         corruptionCaster->CastSpell(regail, SPELL_SHA_CORRUPTION, true);
                             }
@@ -1137,7 +1137,7 @@ class boss_protector_kaolan : public CreatureScript
                             {
                                 asani->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
 
-                                if (Aura* shaCorruption = asani->GetAura(SPELL_SHA_CORRUPTION))
+                                if (AuraPtr shaCorruption = asani->GetAura(SPELL_SHA_CORRUPTION))
                                     if (Creature* corruptionCaster = me->GetMap()->GetCreature(shaCorruption->GetCasterGUID()))
                                         corruptionCaster->CastSpell(asani, SPELL_SHA_CORRUPTION, true);
                             }
@@ -1530,7 +1530,7 @@ class mob_minion_of_fear : public CreatureScript
                 {
                     if (protector->IsWithinDist(me, 2.0f, false))
                     {
-                        if (Aura* superiorCorruptedEssence = protector->GetAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE))
+                        if (AuraPtr superiorCorruptedEssence = protector->GetAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE))
                         {
                             superiorCorruptedEssence->ModStackAmount(1);
                             superiorCorruptedEssence->RefreshDuration();
@@ -1665,7 +1665,7 @@ class spell_defiled_ground_damage : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if (AuraEffect* defiledGround = target->GetAuraEffect(SPELL_DEFILED_GROUND_STACKS, EFFECT_0))
+                    if (AuraEffectPtr defiledGround = target->GetAuraEffect(SPELL_DEFILED_GROUND_STACKS, EFFECT_0))
                     {
                         uint32 damage = GetHitDamage();
                         AddPct(damage, defiledGround->GetAmount());
@@ -1732,7 +1732,7 @@ class spell_lightning_storm_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_lightning_storm_aura_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetSpellInfo()->Id != SPELL_LIGHTNING_STORM)
                     return;
@@ -1741,7 +1741,7 @@ class spell_lightning_storm_aura : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_LIGHTNING_STORM_FIRST, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1882,11 +1882,11 @@ class spell_corrupted_essence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_corrupted_essence_AuraScript);
 
-            void OnTick(AuraEffect const* /*aurEff*/)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
-                    if (Aura* corruptedEssence = target->GetAura(SPELL_CORRUPTED_ESSENCE))
+                    if (AuraPtr corruptedEssence = target->GetAura(SPELL_CORRUPTED_ESSENCE))
                     {
                         if (corruptedEssence->GetStackAmount() >= 10)
                         {
@@ -1962,11 +1962,11 @@ class spell_superior_corrupted_essence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_superior_corrupted_essence_AuraScript);
 
-            void OnTick(AuraEffect const* /*aurEff*/)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
-                    if (Aura* corruptedEssence = target->GetAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE))
+                    if (AuraPtr corruptedEssence = target->GetAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE))
                     {
                         if (corruptedEssence->GetStackAmount() >= 5)
                         {

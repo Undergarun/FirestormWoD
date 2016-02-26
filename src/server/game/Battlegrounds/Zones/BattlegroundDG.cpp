@@ -1080,7 +1080,7 @@ class spell_mine_cart : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mine_cart_AuraScript);
 
-            void HandleOnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void HandleOnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 uint32 l_Entry = 0;
                 if (GetSpellInfo()->Id == BG_DG_HORDE_MINE_CART)

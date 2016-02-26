@@ -157,12 +157,12 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_asira_dawnslayer_blade_barrier_AuraScript);
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 if (dmgInfo.GetDamage() < (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
                     absorbAmount = dmgInfo.GetDamage() - 1;
@@ -170,7 +170,7 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
                     GetAura()->Remove();
             }
 
-            void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleAfterRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->CastSpell(GetCaster(), SPELL_LESSER_BLADE_BARRIER, true);

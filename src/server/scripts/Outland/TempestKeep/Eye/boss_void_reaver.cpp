@@ -139,7 +139,7 @@ class boss_void_reaver : public CreatureScript
                         target = me->getVictim();
 
                     if (target)
-                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, nullptr, 0);
+                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULLAURA_EFFECT, 0);
                     ArcaneOrb_Timer = 3000;
                 }
                 else

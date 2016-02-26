@@ -919,7 +919,7 @@ void ShekzeerBuffAdds(Creature* me)
     // If buff should be applied, we have to check that we have the right number of stacks
     if (buff)
     {
-        if (Aura* aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
+        if (AuraPtr aura = me->AddAura(SPELL_BAND_OF_VALOR, me))
         {
             if (aura->GetStackAmount() != stacks)
                 aura->SetStackAmount(stacks);
@@ -1682,7 +1682,7 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    Aura* empressAura = target->GetAura(SPELL_EYES_OF_THE_EMPRESS);
+                    AuraPtr empressAura = target->GetAura(SPELL_EYES_OF_THE_EMPRESS);
                     if (empressAura->GetStackAmount() == 5)
                     {
                         if (Unit* caster = GetCaster())

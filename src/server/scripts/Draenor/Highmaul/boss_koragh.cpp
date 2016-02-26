@@ -377,8 +377,8 @@ class boss_koragh : public CreatureScript
 
                         if (Creature* l_Grounding = Creature::GetCreature(*me, m_FloorRune))
                         {
-                            l_Grounding->CastSpell(l_Grounding, eSpells::CausticEnergyAreaTrigger, true, nullptr, nullptr, me->GetGUID());
-                            l_Grounding->CastSpell(l_Grounding, eSpells::VolatileAnomaliesAura, true, nullptr, nullptr, me->GetGUID());
+                            l_Grounding->CastSpell(l_Grounding, eSpells::CausticEnergyAreaTrigger, true, nullptr, NULLAURA_EFFECT, me->GetGUID());
+                            l_Grounding->CastSpell(l_Grounding, eSpells::VolatileAnomaliesAura, true, nullptr, NULLAURA_EFFECT, me->GetGUID());
                         }
 
                         me->SetAIAnimKitId(eAnimKit::AnimWaiting);
@@ -1228,7 +1228,7 @@ class spell_highmaul_wild_flames_areatrigger : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpells::WildFlamesSearcher, true);
@@ -1275,19 +1275,19 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 return true;
             }
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 m_AbsorbAmount = p_AurEff->GetAmount();
             }
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 if (m_AbsorbAmount <= 0)
                     return;
 
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (AuraEffect* l_AbsorbAura = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Target->GetGUID()))
+                    if (AuraEffectPtr l_AbsorbAura = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Target->GetGUID()))
                     {
                         int32 l_Pct = ((float)l_AbsorbAura->GetAmount() / (float)m_AbsorbAmount) * 100.0f;
                         l_Target->SetPower(Powers::POWER_ALTERNATE_POWER, l_Pct);
@@ -1295,7 +1295,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetUnitOwner() == nullptr)
                     return;
@@ -1445,7 +1445,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -1496,7 +1496,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                 DataRunicPlayersCount = 1
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1506,7 +1506,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1529,7 +1529,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                             }
                         }
 
-                        if (AuraEffect* l_Absorb = l_Target->GetAuraEffect(eSpells::NullificationBarrierAbsorb, EFFECT_0))
+                        if (AuraEffectPtr l_Absorb = l_Target->GetAuraEffect(eSpells::NullificationBarrierAbsorb, EFFECT_0))
                         {
                             /// The Nullification Barrier received by players can absorb up to 15000000 Magic damage.
                             int32 l_MaxAmount = 15000000;
@@ -1571,7 +1571,7 @@ class spell_highmaul_expel_magic_fire : public SpellScriptLoader
                 ExpelMagicFireAoE = 172685
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::ExpelMagicFireAoE, true);
@@ -1604,7 +1604,7 @@ class spell_highmaul_expel_magic_arcane : public SpellScriptLoader
                 ExpelMagicArcaneMissile = 162398
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::ExpelMagicArcaneMissile, true);
@@ -1637,7 +1637,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
                 NullificationBarrierPower = 163612
             };
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1649,7 +1649,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetUnitOwner())
                     l_Target->RemoveAura(eSpell::NullificationBarrierPower);
@@ -1683,7 +1683,7 @@ class spell_highmaul_expel_magic_frost_aura : public SpellScriptLoader
                 ExpelMagicFrostAreaTrigger = 172747
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1697,7 +1697,7 @@ class spell_highmaul_expel_magic_frost_aura : public SpellScriptLoader
                         float l_MaxDistance = 25.0f;
                         int32 l_MaxAmount = 0;
 
-                        if (AuraEffect* l_SpeedEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                        if (AuraEffectPtr l_SpeedEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
                         {
                             l_MaxAmount = l_SpeedEffect->GetBaseAmount();
                             if (!l_MaxAmount)
@@ -1739,7 +1739,7 @@ class spell_highmaul_suppression_field_aura : public SpellScriptLoader
                 SuppressionField = 1
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {

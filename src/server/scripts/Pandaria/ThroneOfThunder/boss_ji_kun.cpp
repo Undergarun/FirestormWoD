@@ -1958,7 +1958,7 @@ class spell_daedalian_wings : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                Aura* l_DaedalianAura = l_Caster->GetAura(SPELL_DAEDALIAN_WINGS);
+                AuraPtr l_DaedalianAura = l_Caster->GetAura(SPELL_DAEDALIAN_WINGS);
                 if (!l_DaedalianAura)
                     l_DaedalianAura = l_Caster->AddAura(SPELL_DAEDALIAN_WINGS, l_Caster);
 
@@ -2008,7 +2008,7 @@ class spell_flight : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (Aura* l_DaedalianAura = l_Caster->GetAura(SPELL_DAEDALIAN_WINGS))
+                    if (AuraPtr l_DaedalianAura = l_Caster->GetAura(SPELL_DAEDALIAN_WINGS))
                     {
                         if (l_DaedalianAura->GetStackAmount() == 1)
                             l_Caster->RemoveAura(SPELL_DAEDALIAN_WINGS);

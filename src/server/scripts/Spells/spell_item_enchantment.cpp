@@ -65,7 +65,7 @@ class spell_enchantment_mark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_enchantment_mark_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 if (!GetOwner())
                     return;

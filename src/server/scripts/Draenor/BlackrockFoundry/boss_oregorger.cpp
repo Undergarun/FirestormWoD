@@ -834,7 +834,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventBlackrockSpines:
                     {
-                        if (Aura* l_Aura = me->AddAura(eSpells::BlackrockSpines, me))
+                        if (AuraPtr l_Aura = me->AddAura(eSpells::BlackrockSpines, me))
                             l_Aura->ModStackAmount(IsMythic() ? 5 : 3);
 
                         Talk(eTalks::BlackrockBarrage);
@@ -844,7 +844,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventBlackrockBarrage:
                     {
-                        if (Aura* l_Aura = me->GetAura(eSpells::BlackrockSpines))
+                        if (AuraPtr l_Aura = me->GetAura(eSpells::BlackrockSpines))
                             l_Aura->DropStack();
                         else
                             break;
@@ -1400,7 +1400,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                             l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
                             for (Unit* l_Iter : l_TargetList)
-                                l_Iter->CastSpell(l_Iter, eSpell::RollingFuryDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                                l_Iter->CastSpell(l_Iter, eSpell::RollingFuryDamage, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
                         }
 
                         m_DamageTimer = 500;

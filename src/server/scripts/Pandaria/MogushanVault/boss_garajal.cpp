@@ -838,7 +838,7 @@ class spell_final_destination : public SpellScriptLoader
         {
             PrepareAuraScript(spell_final_destination_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(constAuraEffectPtr aurEff)
             {
                 if (Unit* Garajal = GetCaster())
                 {
@@ -877,7 +877,7 @@ class spell_voodoo_doll : public SpellScriptLoader
         {
             PrepareAuraScript(spell_voodoo_doll_AuraScript);
 
-            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Apply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->AddAura(65371, target);

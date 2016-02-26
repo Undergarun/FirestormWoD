@@ -27,13 +27,13 @@ class Aura;
 
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
-class AuraEffect
+class AuraEffect : public std::enable_shared_from_this<AuraEffect>
 {
     friend void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
+    friend AuraPtr Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID);
     friend Aura::~Aura();
     private:
-        explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
+        explicit AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster);
     public:
         ~AuraEffect();
 
@@ -42,7 +42,7 @@ class AuraEffect
 
         Unit* GetCaster() const { return GetBase() ? GetBase()->GetCaster() : NULL; }
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
-        Aura* GetBase() const { return (Aura*)m_base; }
+        AuraPtr GetBase() const { return std::const_pointer_cast<Aura>(m_base); }
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
         SpellModifier* GetSpellModifier() const { return m_spellmod; }
@@ -116,7 +116,7 @@ class AuraEffect
         void SetCrowdControlDamage(int32 p_Amount) { m_CrowdControlDamage = p_Amount; }
 
     private:
-        Aura const* m_base;
+        constAuraPtr m_base;
 
         SpellInfo const* const m_spellInfo;
         int32 const m_baseAmount;
@@ -368,7 +368,7 @@ namespace JadeCore
     {
         public:
             AbsorbAuraOrderPred() { }
-            bool operator() (AuraEffect* aurEffA, AuraEffect* aurEffB) const
+            bool operator() (AuraEffectPtr aurEffA, AuraEffectPtr aurEffB) const
             {
                 SpellInfo const* spellProtoA = aurEffA->GetSpellInfo();
                 SpellInfo const* spellProtoB = aurEffB->GetSpellInfo();
@@ -429,7 +429,7 @@ namespace JadeCore
     {
         public:
             DurationOrderPred(bool ascending = true) : m_ascending(ascending) {}
-            bool operator() (Aura const* a, Aura const* b) const
+            bool operator() (constAuraPtr a, constAuraPtr b) const
             {
                 uint32 rA = a->GetDuration();
                 uint32 rB = b->GetDuration();

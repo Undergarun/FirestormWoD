@@ -978,7 +978,7 @@ public:
         {
             if (Creature* l_PaleOne = p_AreaTrigger->FindNearestCreature(eEverbloomCreature::CreatureVenomCrazedPaleOne, 2.0f, true))
             {
-                if (Aura* l_Aura = l_PaleOne->GetAura(eToxicGasSpells::SpellToxicity))
+                if (AuraPtr l_Aura = l_PaleOne->GetAura(eToxicGasSpells::SpellToxicity))
                 {
                     if (l_Aura->GetStackAmount() > 10)
                         return;

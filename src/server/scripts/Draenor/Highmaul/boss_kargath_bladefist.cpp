@@ -1427,7 +1427,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::FirePillarSteamTimer, true);
                         me->CastSpell(me, eSpells::FirePillarActivated, true);
-                        me->CastSpell(me, eSpells::FirePillarKnockback, true, nullptr, nullptr, p_Caster->GetGUID());
+                        me->CastSpell(me, eSpells::FirePillarKnockback, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                         me->PlayOneShotAnimKit(eData::AnimKit1);
@@ -1744,7 +1744,7 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
                 if (p_SpellInfo->Id == eSpells::BladeDanceCharge)
                 {
                     me->SetDisplayId(eDatas::MorphWithWeapon);
-                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, nullptr, p_Caster->GetGUID());
+                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
                     me->CastSpell(p_Caster, eSpells::BladeDanceCharge, true);
 
                     uint32 const l_AnimKits[4] = { eDatas::AnimKit1, eDatas::AnimKit2, eDatas::AnimKit3, eDatas::AnimKit4 };
@@ -2720,7 +2720,7 @@ class spell_highmaul_impale : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_impale_AuraScript);
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -2776,7 +2776,7 @@ class spell_highmaul_fire_pillar_steam_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript);
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -2807,7 +2807,7 @@ class spell_highmaul_fire_pillar_activated : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript);
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -2852,7 +2852,7 @@ class spell_highmaul_berserker_rush : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_berserker_rush_AuraScript);
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -2951,7 +2951,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     if (p_Player->HasAura(eDatas::SpellObscured))
                         return true;
 
-                    if (Aura* l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                    if (AuraPtr l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
                     {
                         if (l_OpenWounds->GetStackAmount() > l_OpenWoundsStacks)
                             l_OpenWoundsStacks = l_OpenWounds->GetStackAmount();
@@ -2971,7 +2971,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     if (p_Player->HasAura(eDatas::SpellObscured))
                         return true;
 
-                    if (Aura* l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                    if (AuraPtr l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
                     {
                         if (l_OpenWounds->GetStackAmount() != l_OpenWoundsStacks)
                             return true;
@@ -3183,7 +3183,7 @@ class spell_highmaul_obscured : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
+            void OnUpdate(uint32 p_Diff, AuraEffectPtr p_AurEff)
             {
                 if (m_UpdateTimer)
                 {
@@ -3270,7 +3270,7 @@ class spell_highmaul_roar_of_the_crowd : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3326,7 +3326,7 @@ class spell_highmaul_inflamed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_inflamed_AuraScript);
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -3389,7 +3389,7 @@ class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Creature* l_Caster = GetTarget()->ToCreature())
                 {

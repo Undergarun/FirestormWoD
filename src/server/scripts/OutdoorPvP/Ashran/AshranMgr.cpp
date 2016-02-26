@@ -1790,7 +1790,7 @@ bool OutdoorPvPAshran::HandleOpenGo(Player* p_Player, uint64 p_Guid)
     /// Handle Ancient Artifact opening
     if (m_Objects[eSpecialSpawns::AncientArtifactSpawn] == p_Guid)
     {
-        if (Aura* l_Aura = p_Player->AddAura(eAshranSpells::SpellAncientArtifact, p_Player))
+        if (AuraPtr l_Aura = p_Player->AddAura(eAshranSpells::SpellAncientArtifact, p_Player))
         {
             if (m_AncientArtifactTime > 0)
             {

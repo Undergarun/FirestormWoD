@@ -47,14 +47,14 @@ class spell_love_is_in_the_air_romantic_picnic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 target->SetStandState(UNIT_STAND_STATE_SIT);
                 target->CastSpell(target, SPELL_MEAL_PERIODIC, false);
             }
 
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            void OnPeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 // Every 5 seconds
                 Unit* target = GetTarget();

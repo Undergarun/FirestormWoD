@@ -532,7 +532,7 @@ class boss_hodir : public CreatureScript
                     std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                         if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                            if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
+                            if (AuraPtr BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
                                 if ((target->IsPlayer()) && (BitingColdAura->GetStackAmount() > 2))
                                     gettingColdInHere = false;
 
@@ -1038,7 +1038,7 @@ class spell_biting_cold: public SpellScriptLoader
         {
             PrepareAuraScript(spell_biting_cold_AuraScript);
 
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 Unit* target = GetTarget();
                 bool found = false;
@@ -1094,7 +1094,7 @@ class spell_biting_cold_dot: public SpellScriptLoader
         {
             PrepareAuraScript(spell_biting_cold_dot_AuraScript);
 
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)

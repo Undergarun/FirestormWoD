@@ -458,7 +458,7 @@ class npc_tournament_training_dummy : public CreatureScript
                             }
                             case NPC_RANGED_TARGET:
                             {
-                                Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
+                                AuraPtr defend = me->GetAura(SPELL_RANGED_DEFEND);
                                 if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
                                     DoCast(SPELL_RANGED_DEFEND);
                                 break;

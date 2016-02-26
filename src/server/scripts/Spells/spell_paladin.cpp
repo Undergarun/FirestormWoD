@@ -449,12 +449,12 @@ class spell_pal_hand_of_purity: public SpellScriptLoader
                 return GetUnitOwner()->ToPlayer();
             }
 
-            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffectPtr /*auraEffect*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
                 if (!target)
@@ -535,12 +535,12 @@ class spell_pal_shield_of_the_righteous: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_PreviousDuration = 0;
 
-                if (Aura* l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
+                if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
                     l_PreviousDuration = l_Aura->GetDuration();
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC, true);
 
-                if (Aura* l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
+                if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
                     l_Aura->SetDuration(l_Aura->GetDuration() + l_PreviousDuration);
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_BASTION_OF_GLORY, true);
@@ -690,7 +690,7 @@ class spell_pal_sacred_shield: public SpellScriptLoader
                 SacredShield = 65148
             };
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -701,7 +701,7 @@ class spell_pal_sacred_shield: public SpellScriptLoader
                 l_Caster->CastSpell(l_Target, eSpells::SacredShield, true);
             }
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -736,7 +736,7 @@ class spell_pal_sacred_shield_absorb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_sacred_shield_absorb_AuraScript);
 
-            void CalculateAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(constAuraEffectPtr /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -782,11 +782,11 @@ class spell_pal_emancipate: public SpellScriptLoader
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    std::list<Aura*> auraList;
+                    std::list<AuraPtr> auraList;
 
                     for (auto itr : _player->GetAppliedAuras())
                     {
-                        Aura* aura = itr.second->GetBase();
+                        AuraPtr aura = itr.second->GetBase();
                         if (aura && aura->GetSpellInfo()->GetAllEffectsMechanicMask() & ((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT)))
                             auraList.push_back(aura);
                     }
@@ -1084,7 +1084,7 @@ class spell_pal_divine_shield: public SpellScriptLoader
                         for (Unit::AuraApplicationMap::iterator itr = l_AppliedAuras.begin(); itr != l_AppliedAuras.end(); itr++)
                         {
                             AuraApplication const* l_AurApp = itr->second;
-                            Aura const* aura = l_AurApp->GetBase();
+                            constAuraPtr aura = l_AurApp->GetBase();
                             if (!l_AurApp->IsPositive()
                                 && !aura->IsPassive()
                                 && !aura->IsDeathPersistent())
@@ -1163,7 +1163,7 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                         l_Caster->CastCustomSpell(l_Target, PALADIN_SPELL_EXECUTION_DISPEL_HEAL, &l_Damage, NULL, NULL, true);
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -1197,7 +1197,7 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
 
-                if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                 {
                     if (l_TickNumber >= 1 && l_TickNumber <= 10)
                     {
@@ -1290,14 +1290,14 @@ class spell_pal_lights_hammer_tick: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_lights_hammer_tick_AuraScript);
 
-            void OnTick(AuraEffect const* /*aurEff*/)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit *l_Caster = GetCaster())
                 {
                     if (l_Caster->GetOwner())
                     {
-                        l_Caster->CastSpell(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_HEAL, true, 0, nullptr, l_Caster->GetOwner()->GetGUID());
-                        l_Caster->CastSpell(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_DAMAGE, true, 0, nullptr, l_Caster->GetOwner()->GetGUID());
+                        l_Caster->CastSpell(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_HEAL, true, 0, NULLAURA_EFFECT, l_Caster->GetOwner()->GetGUID());
+                        l_Caster->CastSpell(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), PALADIN_SPELL_ARCING_LIGHT_DAMAGE, true, 0, NULLAURA_EFFECT, l_Caster->GetOwner()->GetGUID());
                     }
                 }
             }
@@ -1536,7 +1536,7 @@ class spell_pal_word_of_glory_heal: public SpellScriptLoader
 
                         if (l_Caster->HasAura(eSpells::LawfulWords))
                         {
-                            if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
+                            if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
                                 l_Power = l_T17Holy->GetAmount();
                         }
 
@@ -1544,7 +1544,7 @@ class spell_pal_word_of_glory_heal: public SpellScriptLoader
 
                         if (l_Target->GetGUID() == l_Caster->GetGUID())
                         {
-                            if (Aura* l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                            if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
                             {
                                 l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
 
@@ -1559,7 +1559,7 @@ class spell_pal_word_of_glory_heal: public SpellScriptLoader
 
                             if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly4PBonusAura))
                             {
-                                if (Aura* l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
+                                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
                                     l_Aura->GetEffect(EFFECT_0)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * -l_Power);
                             }
                         }
@@ -1610,7 +1610,7 @@ class spell_pal_word_of_glory_damage: public SpellScriptLoader
 
                         if (l_Caster->HasAura(eSpells::LawfulWords))
                         {
-                            if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
+                            if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
                                 l_Power = l_T17Holy->GetAmount();
                         }
 
@@ -1685,7 +1685,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
                     if (l_Caster->HasAura(eSpells::LawfulWords))
                     {
-                        if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
+                        if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
                             m_HolyPower = l_T17Holy->GetAmount();
                     }
                 }
@@ -1695,7 +1695,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy4P, EFFECT_0))
+                    if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy4P, EFFECT_0))
                     {
                         /// When you cast Word of Glory, you have a 20% chance to be able to cast a free 3 Holy Power Light of Dawn.
                         if (!roll_chance_i(l_T17Holy->GetAmount()))
@@ -1724,7 +1724,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
                         if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
                         {
-                            if (Aura* l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster))
+                            if (AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster))
                             {
                                 if (m_HolyPower > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                                     m_HolyPower = 3;
@@ -1831,14 +1831,14 @@ class spell_pal_empowered_seals : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_empowered_seals_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
                 l_Target->CastSpell(l_Target, eSpells::EmpowredSealsVisual, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 bool m_HasStillAura = false;
@@ -1903,13 +1903,13 @@ class spell_pal_ardent_defender: public SpellScriptLoader
                 return GetUnitOwner()->IsPlayer();
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
+            void CalculateAmount(constAuraEffectPtr aurEff, int32 & amount, bool & canBeRecalculated)
             {
                 // Set absorbtion amount to unlimited
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+            void Absorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
             {
                 Unit* l_Victim = GetTarget();
 
@@ -2238,7 +2238,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
                 {
                     m_PowerUsed = l_Caster->GetPower(POWER_HOLY_POWER);
 
-                    if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
+                    if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_1))
                         m_PowerUsed = l_T17Holy->GetAmount();
                 }
             }
@@ -2247,7 +2247,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy4P, EFFECT_0))
+                    if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy4P, EFFECT_0))
                     {
                         /// When you cast Word of Glory, you have a 20% chance to be able to cast a free 3 Holy Power Light of Dawn.
                         if (!roll_chance_i(l_T17Holy->GetAmount()))
@@ -2268,7 +2268,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
 
                         if (l_Target->GetGUID() == l_Caster->GetGUID() && l_Caster->HasAura(PALADIN_SPELL_BASTION_OF_GLORY))
                         {
-                            if (Aura* l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
+                            if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_BASTION_OF_GLORY))
                             {
                                 if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_BASTION_OF_GLORY))
                                 {
@@ -2280,7 +2280,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
 
                         l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
 
-                        if (Aura* l_PeriodicHeal = l_Target->GetAura(PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL))
+                        if (AuraPtr l_PeriodicHeal = l_Target->GetAura(PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL))
                         {
                             int32 l_Duration = (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 3) * m_PowerUsed;
                             l_PeriodicHeal->SetDuration(l_Duration * IN_MILLISECONDS);
@@ -2297,7 +2297,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
 
                         if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY) && l_Target->IsFriendlyTo(l_Caster))
                         {
-                            if (Aura* l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster))
+                            if (AuraPtr l_Aura = l_Caster->AddAura(PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE, l_Caster))
                             {
                                 if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                                     m_PowerUsed = 3;
@@ -2313,7 +2313,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
 
                             if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly4PBonusAura))
                             {
-                                if (Aura* l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
+                                if (AuraPtr l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
                                     l_Aura->GetEffect(EFFECT_0)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * -m_PowerUsed);
                             }
                         }
@@ -2504,7 +2504,7 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_seal_of_justice_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2553,7 +2553,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
                 HolyShieldDamage = 157122
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2664,7 +2664,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
                     if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA) && !l_Caster->HasAura(eSpells::LightsFavor))
                         l_Caster->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
 
-                    if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_0))
+                    if (AuraEffectPtr l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_0))
                     {
                         /// When you cast Light of Dawn, you have a 25% chance to also be able to cast a free 3 Holy Power Word of Glory/Eternal Flame.
                         if (!roll_chance_i(l_T17Holy->GetAmount()))
@@ -2705,7 +2705,7 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
                 HolyLight       = 82326
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2790,7 +2790,7 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_sanctified_wrath_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
@@ -2800,7 +2800,7 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
@@ -2895,7 +2895,7 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_selfless_healer_proc_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2909,7 +2909,7 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
 
                 l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
 
-                if (Aura* l_SelflessHealer = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                if (AuraPtr l_SelflessHealer = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
                     if (l_SelflessHealer->GetStackAmount() == 3)
                         l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_VISUAL, true);
             }
@@ -2973,7 +2973,7 @@ class spell_pal_denounce : public SpellScriptLoader
                 /// If target already has Denounce, we can't select his crit, because it will be 0%
                 if (m_AlreadyDenounced)
                 {
-                    if (Aura* l_WodPvPHoly2PBonusAura = l_Caster->GetAura(eSpells::WoDPvPHoly2PBonus))
+                    if (AuraPtr l_WodPvPHoly2PBonusAura = l_Caster->GetAura(eSpells::WoDPvPHoly2PBonus))
                         l_WodPvPHoly2PBonusAura->SetDuration(l_WodPvPHoly2PBonusAura->GetMaxDuration());
                 }
                 else
@@ -3049,7 +3049,7 @@ class spell_pal_gyph_of_contemplation : public SpellScriptLoader
                 Contemplation = 121183
             };
 
-            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -3060,7 +3060,7 @@ class spell_pal_gyph_of_contemplation : public SpellScriptLoader
                     l_Player->learnSpell(eSpells::Contemplation, false);
             }
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -3100,7 +3100,7 @@ class spell_pal_sword_of_light : public SpellScriptLoader
                 SwordOfLightBonus = 20113
             };
 
-            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3108,7 +3108,7 @@ class spell_pal_sword_of_light : public SpellScriptLoader
                     l_Target->CastSpell(l_Target, eSpells::SwordOfLightBonus, true);
             }
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3159,7 +3159,7 @@ class spell_pal_glyph_of_the_liberator : public SpellScriptLoader
 
                 if (l_Player->HasAura(eSpells::GlyphoftheLiberator) && l_Target->GetGUID() != l_Player->GetGUID())
                 {
-                    if (AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
+                    if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::GlyphoftheLiberator, EFFECT_0))
                     {
                         if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
                             l_Player->ReduceSpellCooldown(GetSpellInfo()->Id, l_AuraEffect->GetAmount() * IN_MILLISECONDS);
@@ -3249,7 +3249,7 @@ class spell_pal_shining_protector : public SpellScriptLoader
                 ShiningProtectorHeal = 159375
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
                 Unit* l_Caster = GetCaster();
@@ -3301,7 +3301,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
                 GlyphOfLightAura = 54957
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3348,7 +3348,7 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
                 BeaconOfFaithProcAura = 177173
             };
 
-            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -3357,12 +3357,12 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
                     return;
 
                 if (GetSpellInfo()->Id == eSpells::BeaconOfLight)
-                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfLightProcAura, 0, NULL, NULL, true, NULL, nullptr, l_Target->GetGUID());
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfLightProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
                 else
-                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfFaithProcAura, 0, NULL, NULL, true, NULL, nullptr, l_Target->GetGUID());
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::BeaconOfFaithProcAura, 0, NULL, NULL, true, NULL, NULLAURA_EFFECT, l_Target->GetGUID());
             }
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -3429,7 +3429,7 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                 return l_Percent;
             }
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3534,7 +3534,7 @@ class spell_pal_t17_protection_4p : public SpellScriptLoader
                 DefenderOfTheLight = 167742
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3573,7 +3573,7 @@ class spell_pal_glyph_of_the_consecration : public SpellScriptLoader
                 ConsecrationDamage = 159561
             };
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpells::ConsecrationDamage, true);
@@ -3690,7 +3690,7 @@ public:
             GlyphOfPillarofLightVisual = 148064
         };
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
         {
             PreventDefaultAction();
 
@@ -3786,7 +3786,7 @@ public:
                 return;
 
             uint8 l_RemovedCharges = 1;
-            if (Aura* l_GlyphOfDenounce = l_Caster->GetAura(GetSpellInfo()->Id))
+            if (AuraPtr l_GlyphOfDenounce = l_Caster->GetAura(GetSpellInfo()->Id))
                 l_RemovedCharges = l_GlyphOfDenounce->GetStackAmount();
 
             if (p_DispelInfo && p_DispelInfo->GetRemovedCharges())

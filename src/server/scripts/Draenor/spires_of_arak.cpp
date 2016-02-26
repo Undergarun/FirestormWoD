@@ -182,14 +182,14 @@ class boss_rukhmar : public CreatureScript
                     return l_Unit && l_Unit->IsPlayer();
                 });
 
-                if (Aura* l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
+                if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
-                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
                     {
                         if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
                             l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
                     }
-                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
                     {
                         if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                         l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
@@ -349,14 +349,14 @@ class npc_energized_phoenix : public CreatureScript
                     return l_Unit && l_Unit->IsPlayer();
                 });
 
-                if (Aura* l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
+                if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
                 {
-                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
                     {
                         if ((SpiresOfArakDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
                             l_Damage->ChangeAmount(SpiresOfArakDatas::DamageScalingCoeff * l_Count);
                     }
-                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
                     {
                         if ((SpiresOfArakDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                             l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
@@ -509,7 +509,7 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript);
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 WorldObject* l_Owner = GetOwner();
 
@@ -545,7 +545,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         {
             PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 WorldObject* l_Owner = GetOwner();
 

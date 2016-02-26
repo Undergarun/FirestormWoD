@@ -924,10 +924,10 @@ class boss_generic_guardian : public CreatureScript
                                         if (!firstPlayer || !SecondPlayer)
                                             break;
 
-                                        if (Aura* aura = me->AddAura(SPELL_JASPER_CHAINS, firstPlayer))
+                                        if (AuraPtr aura = me->AddAura(SPELL_JASPER_CHAINS, firstPlayer))
                                             aura->SetScriptGuid(0, SecondPlayer->GetGUID());
 
-                                        if (Aura* aura = me->AddAura(SPELL_JASPER_CHAINS, SecondPlayer))
+                                        if (AuraPtr aura = me->AddAura(SPELL_JASPER_CHAINS, SecondPlayer))
                                             aura->SetScriptGuid(0, firstPlayer->GetGUID());
                                     }
 
@@ -1044,10 +1044,10 @@ class mob_living_crystal : public CreatureScript
             {
                 if (Player* player = clicker->ToPlayer())
                 {
-                    Aura* amethyst = player->GetAura(SPELL_LIVING_AMETHYST);
-                    Aura* cobalt = player->GetAura(SPELL_LIVING_COBALT);
-                    Aura* jade = player->GetAura(SPELL_LIVING_JADE);
-                    Aura* jasper = player->GetAura(SPELL_LIVING_JASPER);
+                    AuraPtr amethyst = player->GetAura(SPELL_LIVING_AMETHYST);
+                    AuraPtr cobalt = player->GetAura(SPELL_LIVING_COBALT);
+                    AuraPtr jade = player->GetAura(SPELL_LIVING_JADE);
+                    AuraPtr jasper = player->GetAura(SPELL_LIVING_JASPER);
 
                     // Prevent stacking different auras
                     if (amethyst && cobalt)
@@ -1160,7 +1160,7 @@ class mob_tiling_creature : public CreatureScript
 
                             for (auto player : playerList)
                             {
-                                Aura* buff = player->GetAura(SPELL_TILES_AURA_EFFECT);
+                                AuraPtr buff = player->GetAura(SPELL_TILES_AURA_EFFECT);
                                 if (buff)
                                     buff->SetStackAmount(buff->GetStackAmount() + 1);
                                 else
@@ -1196,10 +1196,10 @@ class mob_tiling_creature : public CreatureScript
                             if (playerList.empty())
                                 break;
 
-                            Aura* amethyst = player->GetAura(SPELL_LIVING_AMETHYST);
-                            Aura* cobalt   = player->GetAura(SPELL_LIVING_COBALT);
-                            Aura* jade     = player->GetAura(SPELL_LIVING_JADE);
-                            Aura* jasper   = player->GetAura(SPELL_LIVING_JASPER);
+                            AuraPtr amethyst = player->GetAura(SPELL_LIVING_AMETHYST);
+                            AuraPtr cobalt   = player->GetAura(SPELL_LIVING_COBALT);
+                            AuraPtr jade     = player->GetAura(SPELL_LIVING_JADE);
+                            AuraPtr jasper   = player->GetAura(SPELL_LIVING_JASPER);
 
                             if (amethyst || cobalt || jade || jasper)
                             {
@@ -1259,7 +1259,7 @@ class spell_petrification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_petrification_AuraScript);
 
-            void HandleTriggerSpell(AuraEffect const* aurEff)
+            void HandleTriggerSpell(constAuraEffectPtr aurEff)
             {
                 PreventDefaultAction();
 
@@ -1281,7 +1281,7 @@ class spell_petrification : public SpellScriptLoader
                     if (!target->HasAura(triggeredSpell))
                         caster->AddAura(triggeredSpell, target);
 
-                    if (Aura* triggeredAura = target->GetAura(triggeredSpell))
+                    if (AuraPtr triggeredAura = target->GetAura(triggeredSpell))
                     {
                         uint8 stackCount = triggeredAura->GetStackAmount();
 
@@ -1332,7 +1332,7 @@ class spell_jasper_chains : public SpellScriptLoader
                 playerLinkedGuid = guid;
             }
 
-            void HandlePeriodic(AuraEffect const* aurEff)
+            void HandlePeriodic(constAuraEffectPtr aurEff)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
@@ -1340,7 +1340,7 @@ class spell_jasper_chains : public SpellScriptLoader
                 Player* linkedPlayer = sObjectAccessor->GetPlayer(*target, playerLinkedGuid);
 
                 if (!caster || !target || !spell || !linkedPlayer || !linkedPlayer->isAlive() || !linkedPlayer->HasAura(spell->Id))
-                    if (Aura* myaura = GetAura())
+                    if (AuraPtr myaura = GetAura())
                     {
                         myaura->Remove();
                         return;
@@ -1348,7 +1348,7 @@ class spell_jasper_chains : public SpellScriptLoader
 
                 if (target->GetDistance(linkedPlayer) > spell->Effects[EFFECT_0].BasePoints)
                 {
-                    if (Aura* aura = target->GetAura(spell->Id))
+                    if (AuraPtr aura = target->GetAura(spell->Id))
                     {
                         if (aura->GetStackAmount() >= 15)
                         {
@@ -1390,7 +1390,7 @@ class spell_jasper_chains_damage : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if (Aura* aura = target->GetAura(SPELL_JASPER_CHAINS))
+                    if (AuraPtr aura = target->GetAura(SPELL_JASPER_CHAINS))
                     {
                         uint8 stacks = aura->GetStackAmount();
                         int32 damage = GetHitDamage();
@@ -1455,7 +1455,7 @@ class spell_energized_tiles : public SpellScriptLoader
         {
             PrepareAuraScript(spell_energized_tiles_AuraScript);
 
-            void CheckAura(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void CheckAura(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Owner = GetUnitOwner();
 
@@ -1466,7 +1466,7 @@ class spell_energized_tiles : public SpellScriptLoader
                 if (!l_Instance || l_Instance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS ||
                     !l_Instance->instance->IsHeroic() || l_Owner->GetMapId() != 1008)
                 {
-                    if (Aura* l_EnergizedAura = l_Owner->GetAura(SPELL_TILES_AURA_EFFECT))
+                    if (AuraPtr l_EnergizedAura = l_Owner->GetAura(SPELL_TILES_AURA_EFFECT))
                         l_EnergizedAura->Remove();
                 }
             }

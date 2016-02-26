@@ -1040,7 +1040,7 @@ class spell_algalon_phase_punch: public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_phase_punch_AuraScript);
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
+            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (GetStackAmount() != 1)
@@ -1050,7 +1050,7 @@ class spell_algalon_phase_punch: public SpellScriptLoader
                     Remove(AURA_REMOVE_BY_DEFAULT);
             }
 
-            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
                 if (GetStackAmount() != 5)
                     GetTarget()->RemoveAurasDueToSpell(PhasePunchAlphaId[GetStackAmount() - 1]);
@@ -1165,7 +1165,7 @@ class spell_algalon_collapse: public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_collapse_AuraScript);
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
+            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 PreventDefaultAction();
                 GetTarget()->DealDamage(GetTarget(), GetTarget()->CountPctFromMaxHealth(1), NULL, NODAMAGE);
@@ -1233,7 +1233,7 @@ class spell_algalon_remove_phase: public SpellScriptLoader
         {
             PrepareAuraScript(spell_algalon_remove_phase_AuraScript);
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
+            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 PreventDefaultAction();
                 GetTarget()->RemoveAurasByType(SPELL_AURA_PHASE);

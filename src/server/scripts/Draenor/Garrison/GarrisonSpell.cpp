@@ -274,7 +274,7 @@ namespace MS { namespace Garrison
             {
                 PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
 
-                void OnTick(AuraEffect const* p_AurEff)
+                void OnTick(constAuraEffectPtr p_AurEff)
                 {
                     Unit* l_Caster = GetCaster();
                     WorldObject* l_Target = GetOwner();
@@ -289,7 +289,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
                 {
                     WorldObject* l_Target = GetOwner();
 
@@ -377,7 +377,7 @@ namespace MS { namespace Garrison
                     SpellStickyGrenadeTargetDmg = 168659
                 };
 
-                void OnRemove(AuraEffect const* /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+                void OnRemove(constAuraEffectPtr /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
                 {
                     if (Unit* l_Caster = GetCaster())
                         l_Caster->CastSpell(l_Caster, eDatas::SpellStickyGrenadeTargetDmg, true);

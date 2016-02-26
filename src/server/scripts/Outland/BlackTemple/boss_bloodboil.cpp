@@ -177,7 +177,7 @@ public:
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
 
-                        Aura* Aur = Aura*(new Aura(spellInfo, i, target, target, target));
+                        AuraPtr Aur = AuraPtr(new Aura(spellInfo, i, target, target, target));
                         target->AddAura(Aur);
                     }
                 }

@@ -2644,7 +2644,7 @@ class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_grievous_mortal_wounds_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2711,7 +2711,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
                                 if (l_Iter->GetDistance(l_Caster) <= 1.0f)
                                 {
                                     if (!l_Iter->HasAura(eSpell::SpinningBladeDoT))
-                                        l_Iter->CastSpell(l_Iter, eSpell::SpinningBladeDoT, true, nullptr, nullptr, l_Caster->GetGUID());
+                                        l_Iter->CastSpell(l_Iter, eSpell::SpinningBladeDoT, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
                                 }
                                 else
                                 {
@@ -2813,7 +2813,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
                 ActionRescheduleSlag
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2822,7 +2822,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -2865,7 +2865,7 @@ class spell_foundry_gronnling_smash : public SpellScriptLoader
                 GronnlingSmashAoE = 169401
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::GronnlingSmashAoE, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
@@ -2964,7 +2964,7 @@ class spell_foundry_ignite_aura : public SpellScriptLoader
                 IgniteAoE = 156346
             };
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {

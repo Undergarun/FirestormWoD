@@ -216,7 +216,7 @@ class npc_air_force_bots : public CreatureScript
                             if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                                 return;
 
-                            Aura* markAura = who->GetAura(SPELL_GUARDS_MARK);
+                            AuraPtr markAura = who->GetAura(SPELL_GUARDS_MARK);
                             if (markAura)
                             {
                                 // the target wasn't able to move out of our range within 25 seconds
@@ -1344,8 +1344,8 @@ class npc_rogue_trainer : public CreatureScript
 
                             // Cast spells that teach dual spec
                             // Both are also ImplicitTarget self and must be cast by player
-                            player->CastSpell(player, 63680, true, NULL, nullptr, player->GetGUID());
-                            player->CastSpell(player, 63624, true, NULL, nullptr, player->GetGUID());
+                            player->CastSpell(player, 63680, true, NULL, NULLAURA_EFFECT, player->GetGUID());
+                            player->CastSpell(player, 63624, true, NULL, NULLAURA_EFFECT, player->GetGUID());
 
                             // Should show another Gossip text with "Congratulations..."
                             player->PlayerTalkClass->SendCloseGossip();
@@ -2172,7 +2172,7 @@ class npc_lightwell : public CreatureScript
                 me->SetMaxHealth(p_Owner->GetMaxHealth());
                 me->SetHealth(p_Owner->GetHealth());
 
-                if (Aura* l_Charges = me->AddAura(eSpells::ChargeAura, me))
+                if (AuraPtr l_Charges = me->AddAura(eSpells::ChargeAura, me))
                 {
                     l_Charges->SetCharges(15);
                     l_Charges->GetEffect(EFFECT_0)->ChangeAmount(15);
@@ -2226,7 +2226,7 @@ class npc_lightwell : public CreatureScript
                                 for (auto itr : l_TempList)
                                 {
                                     me->CastSpell(itr, eSpells::LightWellHeal, true);
-                                    if (Aura* l_Charges = me->GetAura(eSpells::ChargeAura))
+                                    if (AuraPtr l_Charges = me->GetAura(eSpells::ChargeAura))
                                     {
                                         l_Charges->DropCharge();
                                         l_Charges->GetEffect(0)->ChangeAmount(l_Charges->GetCharges());
@@ -3587,7 +3587,7 @@ class npc_bloodworm : public CreatureScript
 
             void Burst()
             {
-                if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                 {
                     uint32 stacks = std::min<uint32>(bloodGorged->GetStackAmount(), 10);
                     int32 damage = stacks *  10;
@@ -3620,7 +3620,7 @@ class npc_bloodworm : public CreatureScript
                 {
                     if (me->GetOwner())
                     {
-                        if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                        if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                         {
                             // 10% per stack
                             int32 stacks = bloodGorged->GetStackAmount() * 10;

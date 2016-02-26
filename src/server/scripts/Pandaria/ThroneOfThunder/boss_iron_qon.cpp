@@ -2076,7 +2076,7 @@ class spell_arcing_lightning_dmg : public SpellScriptLoader
         {
             PrepareAuraScript(spell_arcing_lightning_dmg_AuraScript);
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 if (WorldObject* l_Owner = GetOwner())
                 {
@@ -2113,7 +2113,7 @@ class spell_arcing_lightning_main : public SpellScriptLoader
         {
             PrepareAuraScript(spell_arcing_lightning_main_AuraScript);
 
-            void OnTick(AuraEffect const* /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
                 if (WorldObject* l_Owner = GetOwner())
                 {
@@ -2204,12 +2204,12 @@ class spell_frozen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frozen_AuraScript);
 
-            void Duration(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void Duration(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 SetDuration(urand(1, 5) * 1000);
             }
 
-            void Shatter(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void Shatter(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     if (Creature* l_IronQon = l_Target->GetInstanceScript()->instance->GetCreature(l_Target->GetInstanceScript()->GetData64(NPC_IRON_QON)))

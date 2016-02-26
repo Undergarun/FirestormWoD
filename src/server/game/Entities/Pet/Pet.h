@@ -154,7 +154,7 @@ class Pet : public Guardian
         void LearnPetPassives();
         void CastPetAuras(bool current);
         void CastPetAura(PetAura const* aura);
-        bool IsPetAura(Aura const* aura);
+        bool IsPetAura(constAuraPtr aura);
 
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);

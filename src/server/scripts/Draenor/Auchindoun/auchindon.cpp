@@ -1614,7 +1614,7 @@ public:
     {
         PrepareAuraScript(auchindon_auras);
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(constAuraEffectPtr p_AurEff)
         {
             if (Unit* l_Target = GetTarget())
             {
@@ -1705,7 +1705,7 @@ public:
             return true;
         }
 
-        void HandlePeriodic(AuraEffect const* /*aurEff*/)
+        void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
         {
             // Nothing yet.
         }
@@ -1781,7 +1781,7 @@ public:
     {
         PrepareAuraScript(spell_auchindons);
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1793,7 +1793,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

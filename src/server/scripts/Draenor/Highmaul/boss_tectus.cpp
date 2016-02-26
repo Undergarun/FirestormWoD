@@ -1575,7 +1575,7 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                 ScheduleTectonicUpheaval
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
@@ -1632,7 +1632,7 @@ class spell_highmaul_earthen_pillar_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
@@ -1671,7 +1671,7 @@ class spell_highmaul_accretion : public SpellScriptLoader
                 return true;
             }
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1714,13 +1714,13 @@ class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, -10, Powers::POWER_ENERGY);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1755,7 +1755,7 @@ class spell_highmaul_spawn_dust_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1847,7 +1847,7 @@ class spell_highmaul_petrification : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2046,7 +2046,7 @@ class areatrigger_highmaul_gift_of_earth : public AreaTriggerEntityScript
                 {
                     p_AreaTrigger->SetDuration(1);
 
-                    if (Aura* l_Accretion = l_Tectus->GetAura(eSpells::Accretion) ? l_Tectus->GetAura(eSpells::Accretion) : l_Tectus->AddAura(eSpells::Accretion, l_Tectus))
+                    if (AuraPtr l_Accretion = l_Tectus->GetAura(eSpells::Accretion) ? l_Tectus->GetAura(eSpells::Accretion) : l_Tectus->AddAura(eSpells::Accretion, l_Tectus))
                     {
                         l_Accretion->ModStackAmount(10);
                         l_Accretion->RefreshDuration();

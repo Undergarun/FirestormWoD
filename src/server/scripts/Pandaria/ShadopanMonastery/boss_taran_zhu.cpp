@@ -177,7 +177,7 @@ class spell_taran_zhu_hate: public SpellScriptLoader
         {
             PrepareAuraScript(spell_taran_zhu_hate_AuraScript);
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
+            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* target = GetTarget())
                     if (target->GetPower(POWER_ALTERNATE_POWER) >= 100)
@@ -209,7 +209,7 @@ class spell_taran_zhu_meditation: public SpellScriptLoader
         {
             PrepareAuraScript(spell_taran_zhu_meditation_AuraScript);
 
-            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     if (Unit* target = GetTarget())

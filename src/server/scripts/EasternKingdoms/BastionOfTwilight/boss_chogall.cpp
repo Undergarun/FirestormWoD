@@ -1483,7 +1483,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
         {
             PrepareAuraScript(spell_chogall_worshipping_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1492,7 +1492,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
                     GetTarget()->ToPlayer()->SetClientControl(GetTarget(), 0);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1530,7 +1530,7 @@ class spell_chogall_festering_blood : public SpellScriptLoader
                 BastionOfTwilight = 671
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 Unit* l_Target = GetTarget();
                 if (!l_Target)

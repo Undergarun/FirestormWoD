@@ -429,7 +429,7 @@ class boss_steelbreaker : public CreatureScript
                         events.RescheduleEvent(EVENT_FUSION_PUNCH, 15000);
                         superChargedCnt++;
                         DoAction(ACTION_UPDATEPHASE);
-                        if (Aura* charge = me->GetAura(SPELL_SUPERCHARGE))
+                        if (AuraPtr charge = me->GetAura(SPELL_SUPERCHARGE))
                             charge->SetStackAmount(std::min<uint8>(2, superChargedCnt));
                         break;
                     case SPELL_ELECTRICAL_CHARGE_TRIGGERED:
@@ -594,7 +594,7 @@ public:
     {
         PrepareAuraScript(spell_steelbreaker_electrical_charge_AuraScript);
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             Unit* caster = GetCaster();
@@ -723,7 +723,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     events.RescheduleEvent(EVENT_RUNE_OF_POWER, 25000);
                     superChargedCnt++;
                     DoAction(ACTION_UPDATEPHASE);
-                    if (Aura* charge = me->GetAura(SPELL_SUPERCHARGE))
+                    if (AuraPtr charge = me->GetAura(SPELL_SUPERCHARGE))
                         charge->SetStackAmount(std::min<uint8>(2, superChargedCnt));
                 }
             }
@@ -1065,7 +1065,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     DoAction(ACTION_UPDATEPHASE);
                     // Crazy hack, but since - whyever - stacking does not work automatically when the casts are fired from different NPCs...
                     // Note that it also does not work if the same NPC tries to cast the spell twice (as used in last commit)
-                    if (Aura* charge = me->GetAura(SPELL_SUPERCHARGE))
+                    if (AuraPtr charge = me->GetAura(SPELL_SUPERCHARGE))
                         charge->SetStackAmount(std::min<uint8>(2, superChargedCnt));
                 }
             }
@@ -1228,7 +1228,7 @@ class spell_shield_of_runes: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shield_of_runes_AuraScript);
 
-            void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffectPtr /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 uint32 damage = dmgInfo.GetDamage();
 

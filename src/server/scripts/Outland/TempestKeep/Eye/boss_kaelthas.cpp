@@ -921,8 +921,8 @@ class boss_kaelthas : public CreatureScript
                                                 DoCast(unit, SPELL_KNOCKBACK, true);
                                                 //Gravity lapse - needs an exception in Spell system to work
 
-                                                unit->CastSpell(unit, SPELL_GRAVITY_LAPSE, true, 0, nullptr, me->GetGUID());
-                                                unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_AURA, true, 0, nullptr, me->GetGUID());
+                                                unit->CastSpell(unit, SPELL_GRAVITY_LAPSE, true, 0, NULLAURA_EFFECT, me->GetGUID());
+                                                unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_AURA, true, 0, NULLAURA_EFFECT, me->GetGUID());
 
                                                 if (unit->ToPlayer())
                                                     unit->ToPlayer()->SendMovementSetCanFly(true);

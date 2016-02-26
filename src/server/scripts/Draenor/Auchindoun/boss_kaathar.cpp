@@ -737,7 +737,7 @@ public:
 
                     if ((*itr)->HasAura(eKaatharSpells::SpellSanctifiedGroundAura))
                     {
-                        Aura* l_Aura = (*itr)->GetAura(eKaatharSpells::SpellSanctifiedGroundAura);
+                        AuraPtr l_Aura = (*itr)->GetAura(eKaatharSpells::SpellSanctifiedGroundAura);
 
                         if (l_Aura)
                         {
@@ -961,7 +961,7 @@ public:
     {
         PrepareAuraScript(auchindon_spells);
 
-        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
+        void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
         {
             if (GetCaster())
             {
@@ -1049,7 +1049,7 @@ public:
     {
         PrepareAuraScript(auchindon_spells);
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(constAuraEffectPtr p_AurEff)
         {
             PreventDefaultAction();
 

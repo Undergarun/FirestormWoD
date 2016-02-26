@@ -338,7 +338,7 @@ class spell_mandokir_bloodletting: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mandokir_bloodletting_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster() || !GetTarget())
                     return;

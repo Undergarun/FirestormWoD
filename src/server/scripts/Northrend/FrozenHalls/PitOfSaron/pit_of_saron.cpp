@@ -214,7 +214,7 @@ class spell_trash_mob_glacial_strike: public SpellScriptLoader
         {
             PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript);
 
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            void PeriodicTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (GetTarget()->IsFullHealth())
                 {

@@ -427,7 +427,7 @@ class spell_four_horsemen_mark: public SpellScriptLoader
         {
             PrepareAuraScript(spell_four_horsemen_mark_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {

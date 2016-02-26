@@ -1319,7 +1319,7 @@ public:
     {
         PrepareAuraScript(auchindon_auras);
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetTarget())
                 return;

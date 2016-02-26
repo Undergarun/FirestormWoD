@@ -524,7 +524,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(constAuraEffectPtr aurEff)
             {
                 if (!GetCaster())
                     return;

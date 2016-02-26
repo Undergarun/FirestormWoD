@@ -2214,11 +2214,11 @@ class spell_foundry_pumped_up : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_pumped_up_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (AuraEffect* l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
                     {
                         int32 l_Pct = 100 - (int32)l_Target->GetHealthPct();
 
@@ -2308,7 +2308,7 @@ class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
                 BodySlam = 155747
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)

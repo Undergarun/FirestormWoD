@@ -479,7 +479,7 @@ class spell_chi_torpedo_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_chi_torpedo_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* /*aurEff*/)
+            void OnTick(constAuraEffectPtr /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {

@@ -252,7 +252,7 @@ public:
                             player->CastSpell(player, SPELL_SLIPSTREAM, true);
                             player->CastSpell(Landing, 46598, true);
 
-                            if (Aura* aura = Landing->GetAura(46598, (*itr).uiPlayerGUID))
+                            if (AuraPtr aura = Landing->GetAura(46598, (*itr).uiPlayerGUID))
                                 aura->SetDuration(1000);
                         }
 

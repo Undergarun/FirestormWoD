@@ -1419,7 +1419,7 @@ void WorldSession::ProcessQueryCallbacks()
                     m_Player->RemoveAurasDueToSpell(VOTE_BUFF);
                 else if (m_Player && m_VoteRemainingTime != 0)
                 {
-                    Aura* l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
+                    AuraPtr l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
                     if (l_Aura != nullptr)
                         l_Aura->SetDuration(m_VoteRemainingTime + 60 * IN_MILLISECONDS);    //< Add remaining time + 1 mins (callback lag)
                 }

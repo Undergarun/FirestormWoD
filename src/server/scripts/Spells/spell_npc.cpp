@@ -50,9 +50,9 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
 
                 if (Player* l_Player = p_Summoner->ToPlayer())
                 {
-                    if (Aura* l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
+                    if (AuraPtr l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
                     {
-                        if (AuraEffect* l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
+                        if (AuraEffectPtr l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
                         {
                             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_MAGE_FROST)
                                 l_DamageTaken->ChangeAmount(10);    ///< BasePoint = 30, but only for Arcane and Fire spec
@@ -154,7 +154,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
-                    if (AuraEffect* l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                    if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
                         events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
                 }
             }
@@ -170,7 +170,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                         l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
                         l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
 
-                        if (AuraEffect* l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                        if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
                             events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
                     }
                 }
@@ -1054,7 +1054,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
-                    if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
+                    if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
                         if (roll_chance_i(l_MoltenCore->GetAmount()))
                             l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
                 }

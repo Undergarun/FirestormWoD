@@ -335,7 +335,7 @@ class spell_shadopan_explosion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shadopan_explosion_AuraScript);
 
-            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                     if (Unit* caster = GetCaster())
@@ -363,7 +363,7 @@ class spell_shadopan_apparitions: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shadopan_apparitions_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(constAuraEffectPtr aurEff)
             {
                 PreventDefaultAction();
 

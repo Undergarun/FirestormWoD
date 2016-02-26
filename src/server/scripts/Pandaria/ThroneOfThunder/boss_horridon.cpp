@@ -2216,7 +2216,7 @@ class spell_control_of_horridon: public SpellScriptLoader
         {
             PrepareAuraScript(spell_control_of_horridon_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;
@@ -2247,7 +2247,7 @@ class spell_headache: public SpellScriptLoader
         {
             PrepareAuraScript(spell_headache_AuraScript);
 
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void AfterRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
             {
                 GetTarget()->GetMotionMaster()->MoveChase(GetTarget()->getVictim());
             }

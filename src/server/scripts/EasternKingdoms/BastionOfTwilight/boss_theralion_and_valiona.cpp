@@ -1307,7 +1307,7 @@ class spell_valiona_blackout: public SpellScriptLoader
         {
             PrepareAuraScript(spell_valiona_blackout_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1337,7 +1337,7 @@ class spell_valiona_twilight_meteorite: public SpellScriptLoader
         {
             PrepareAuraScript(spell_valiona_twilight_meteorite_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -1548,7 +1548,7 @@ class spell_twilight_shift_stack: public SpellScriptLoader
 
                 uint8 stacks;
 
-                if (Aura* aura = GetHitUnit()->GetAura(SPELL_TWILIGHT_SHIFT_STACK))
+                if (AuraPtr aura = GetHitUnit()->GetAura(SPELL_TWILIGHT_SHIFT_STACK))
                 {
                     stacks = aura->GetStackAmount();
                     if (stacks > 4)

@@ -502,7 +502,7 @@ class misc_commandscript: public CommandScript
                 target->RemoveAurasDueToSpell(spellId);
             else
             {
-                if (Aura* aura = target->GetAura(spellId))
+                if (AuraPtr aura = target->GetAura(spellId))
                     aura->SetDuration(duration);
                 else
                     return false;
@@ -537,7 +537,7 @@ class misc_commandscript: public CommandScript
                 target->RemoveAurasDueToSpell(spellId);
             else
             {
-                if (Aura* aura = target->GetAura(spellId))
+                if (AuraPtr aura = target->GetAura(spellId))
                     aura->SetCharges(charges);
                 else
                     return false;

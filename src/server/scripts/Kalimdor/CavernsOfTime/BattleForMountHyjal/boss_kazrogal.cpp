@@ -208,7 +208,7 @@ class spell_mark_of_kazrogal: public SpellScriptLoader
                 return true;
             }
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(constAuraEffectPtr aurEff)
             {
                 Unit* target = GetTarget();
 
