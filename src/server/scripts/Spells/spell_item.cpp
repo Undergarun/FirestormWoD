@@ -4188,7 +4188,7 @@ class spell_item_memory_of_mr_smite : public SpellScriptLoader
                 MrSmiteBlade = 127205
             };
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 uint32 l_MrSmiteId;
                 l_MrSmiteId = (urand(0, 2));
@@ -4214,7 +4214,7 @@ class spell_item_memory_of_mr_smite : public SpellScriptLoader
                 l_Caster->CastSpell(l_Caster, l_MrSmiteId, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)

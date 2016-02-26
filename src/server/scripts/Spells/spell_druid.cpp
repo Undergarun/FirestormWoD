@@ -5749,7 +5749,7 @@ class spell_dru_living_seed : public SpellScriptLoader
                 LivingSeedAura = 48504
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5762,7 +5762,7 @@ class spell_dru_living_seed : public SpellScriptLoader
                     return;
 
                 l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
-                if (AuraEffect* l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
+                if (AuraEffectPtr l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
                     l_HealAmount += l_LivingSeed->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Caster, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);

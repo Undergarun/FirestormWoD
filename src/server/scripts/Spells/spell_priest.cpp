@@ -1537,7 +1537,7 @@ class spell_pri_atonement: public SpellScriptLoader
                 PowerWordSolace = 129250
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
