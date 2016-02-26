@@ -468,7 +468,7 @@ class boss_flamebender_kagraz : public CreatureScript
                         break;
                 }
 
-                if (!me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                if (me->GetDistance(me->GetHomePosition()) >= 70.0f)
                 {
                     EnterEvadeMode();
                     return;

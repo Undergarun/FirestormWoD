@@ -81,7 +81,8 @@ class boss_kromog : public CreatureScript
             TimerRipplingSmashSec       = 35 * TimeConstants::IN_MILLISECONDS,
             TimerGraspingEarth          = 50 * TimeConstants::IN_MILLISECONDS,
             TimerGraspingEarthAgain     = 112 * TimeConstants::IN_MILLISECONDS,
-            TimerThunderingBlows        = 31 * TimeConstants::IN_MILLISECONDS,
+            TimerThunderingBlows        = 12 * TimeConstants::IN_MILLISECONDS,
+            TimerThunderingBlowsDelay   = 31 * TimeConstants::IN_MILLISECONDS,
             TimerCrushingEarth          = 25 * TimeConstants::IN_MILLISECONDS,
             TimerCrushingEarthAgain     = 16 * TimeConstants::IN_MILLISECONDS,
             TimerAttackTime             = 2 * TimeConstants::IN_MILLISECONDS,
@@ -344,6 +345,7 @@ class boss_kromog : public CreatureScript
                             break;
                         }
 
+                        std::set<uint64> l_PossibleTargets;
                         bool l_InMelee = false;
                         for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
                         {
@@ -351,6 +353,7 @@ class boss_kromog : public CreatureScript
                             {
                                 if (l_Player->IsWithinMeleeRange(me))
                                 {
+                                    l_PossibleTargets.insert(l_Player->GetGUID());
                                     l_InMelee = true;
                                     break;
                                 }
@@ -360,6 +363,32 @@ class boss_kromog : public CreatureScript
                         /// If there are no valid targets in melee range, Kromog will continue to breathe until he finds one.
                         if (!l_InMelee)
                             me->CastSpell(me, eSpells::StoneBreathChannel, false);
+                        else
+                        {
+                            if (Unit* l_Target = me->getVictim())
+                            {
+                                if (l_PossibleTargets.find(l_Target->GetGUID()) == l_PossibleTargets.end())
+                                {
+                                    l_Target = nullptr;
+
+                                    float l_Threat = 0.0f;
+                                    for (uint64 l_Guid : l_PossibleTargets)
+                                    {
+                                        if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                                        {
+                                            if (l_Threat < me->getThreatManager().getThreat(l_Player))
+                                            {
+                                                l_Threat = me->getThreatManager().getThreat(l_Player);
+                                                l_Target = l_Player->ToUnit();
+                                            }
+                                        }
+                                    }
+
+                                    if (l_Target != nullptr)
+                                        AttackStart(l_Target);
+                                }
+                            }
+                        }
 
                         m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
                         break;
@@ -424,10 +453,10 @@ class boss_kromog : public CreatureScript
                         m_Events.RescheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmashSec);
 
                         /// Delay those events to proc after Thundering Blows
-                        m_Events.DelayEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventSlam, eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlows);
+                        m_Events.DelayEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerThunderingBlowsDelay);
+                        m_Events.DelayEvent(eEvents::EventSlam, eTimers::TimerThunderingBlowsDelay);
+                        m_Events.DelayEvent(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlowsDelay);
+                        m_Events.DelayEvent(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlowsDelay);
 
                         me->SetFacingTo(2.92434f);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
@@ -1006,7 +1035,7 @@ class spell_foundry_slam : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        float l_Distance = l_Target->GetDistance(*l_Boss);
+                        float l_Distance = l_Target->GetDistance(l_Boss);
                         if (l_Distance <= 1.0f)
                             return;
 
