@@ -5302,7 +5302,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     /// Prevent load of incorrect passives / spells
-    if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end())
+    if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end()
+        && spellInfo->Id != 674)    ///< Ambidextrie hackfix, removed at spec switch (rogue))
         return false;
 
     /// - Remove non authorized spell (learned when system was buggede)
