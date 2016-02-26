@@ -956,6 +956,10 @@ class WorldObject : public Object, public WorldLocation
             { return IsInDist(x, y, z, dist + GetObjectSize()); }
         bool IsWithinDist3d(const Position* pos, float dist) const
             { return IsInDist(pos, dist + GetObjectSize()); }
+        bool IsWithinDist3d(Position const* p_Pos, float p_Dist, WorldObject const* p_Target = nullptr)
+        {
+            return IsInDist(p_Pos, p_Dist + (p_Target != nullptr ? (GetObjectSize() + p_Target->GetObjectSize()) : GetObjectSize()));
+        }
         bool IsWithinDist2d(float x, float y, float dist) const
             { return IsInDist2d(x, y, dist + GetObjectSize()); }
         bool IsWithinDist2d(const Position* pos, float dist) const
