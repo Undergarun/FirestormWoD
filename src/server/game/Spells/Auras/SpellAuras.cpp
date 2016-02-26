@@ -3442,10 +3442,7 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
 void Aura::Delink()
 {
     for (uint8 i = 0; i < SpellEffIndex::MAX_EFFECTS; ++i)
-    {
-        delete m_effects[i];
         m_effects[i] = nullptr;
-    }
 
     _DeleteRemovedApplications();
 }
