@@ -5309,7 +5309,8 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     }
 
     /// Prevent load of incorrect passives / spells
-    if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end())
+    if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end()
+        && spellInfo->Id != 674)    ///< Ambidextrie hackfix, removed at spec switch (rogue))
         return false;
 
     /// - Remove non authorized spell (learned when system was buggede)
@@ -27075,7 +27076,7 @@ void Player::SetBattlegroundEntryPoint()
             m_bgData.mountSpell = 33943;
 
         // If map is dungeon find linked graveyard
-        if (GetMap()->IsDungeon())
+        if (GetMap()->IsDungeon() && !IsInGarrison())
         {
             if (const WorldSafeLocsEntry* entry = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
                 m_bgData.joinPos = WorldLocation(entry->map_id, entry->x, entry->y, entry->z, 0.0f);

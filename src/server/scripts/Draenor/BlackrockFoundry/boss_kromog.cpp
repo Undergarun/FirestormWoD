@@ -81,8 +81,7 @@ class boss_kromog : public CreatureScript
             TimerRipplingSmashSec       = 35 * TimeConstants::IN_MILLISECONDS,
             TimerGraspingEarth          = 50 * TimeConstants::IN_MILLISECONDS,
             TimerGraspingEarthAgain     = 112 * TimeConstants::IN_MILLISECONDS,
-            TimerThunderingBlows        = 12 * TimeConstants::IN_MILLISECONDS,
-            TimerThunderingBlowsLFR     = 20 * TimeConstants::IN_MILLISECONDS + 500,
+            TimerThunderingBlows        = 31 * TimeConstants::IN_MILLISECONDS,
             TimerCrushingEarth          = 25 * TimeConstants::IN_MILLISECONDS,
             TimerCrushingEarthAgain     = 16 * TimeConstants::IN_MILLISECONDS,
             TimerAttackTime             = 2 * TimeConstants::IN_MILLISECONDS,
@@ -418,17 +417,17 @@ class boss_kromog : public CreatureScript
                     case eEvents::EventGraspingEarth:
                     {
                         /// Thundering Blows Icon Thundering Blows is an ability that Kromog always uses shortly after using Rune of Grasping Earth Icon Rune of Grasping Earth.
-                        m_Events.ScheduleEvent(eEvents::EventThunderingBlows, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
+                        m_Events.ScheduleEvent(eEvents::EventThunderingBlows, eTimers::TimerThunderingBlows);
 
                         /// Those two events have specific timer after Grasping Earth
                         m_Events.RescheduleEvent(eEvents::EventStoneBreath, IsLFR() ? eTimers::TimerStoneBreathSecLFR : eTimers::TimerStoneBreathSecond);
                         m_Events.RescheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmashSec);
 
                         /// Delay those events to proc after Thundering Blows
-                        m_Events.DelayEvent(eEvents::EventCheckMeleePlayers, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventSlam, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventWarpedArmor, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventCrushingEarth, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
+                        m_Events.DelayEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerThunderingBlows);
+                        m_Events.DelayEvent(eEvents::EventSlam, eTimers::TimerThunderingBlows);
+                        m_Events.DelayEvent(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlows);
+                        m_Events.DelayEvent(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlows);
 
                         me->SetFacingTo(2.92434f);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
