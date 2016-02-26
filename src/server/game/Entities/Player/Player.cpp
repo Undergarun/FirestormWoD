@@ -2176,6 +2176,15 @@ void Player::Update(uint32 p_time)
             // default combat reach 10
             // TODO add weapon, skill check
 
+            bool l_MustCheckO = true;
+
+            /// Can attack own vehicle in any direction
+            if (m_vehicle)
+            {
+                if (IsOnVehicle(victim) || (m_vehicle->GetBase() && m_vehicle->GetBase()->IsOnVehicle(victim)))
+                    l_MustCheckO = false;
+            }
+
             if (isAttackReady(WeaponAttackType::BaseAttack))
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
@@ -2188,7 +2197,7 @@ void Player::Update(uint32 p_time)
                     }
                 }
                 //120 degrees of radiant range
-                else if (!HasInArc(2*M_PI/3, victim))
+                else if (l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
                 {
                     setAttackTimer(WeaponAttackType::BaseAttack, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
@@ -2250,7 +2259,7 @@ void Player::Update(uint32 p_time)
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     setAttackTimer(WeaponAttackType::OffAttack, 100);
-                else if (!HasInArc(2*M_PI/3, victim))
+                else if (l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
                     setAttackTimer(WeaponAttackType::OffAttack, 100);
                 else
                 {
