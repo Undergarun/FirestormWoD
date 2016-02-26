@@ -6092,10 +6092,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49575: ///< Death Grip (effect)
                 spellInfo->Effects[0].ValueMultiplier = 0;
                 break;
-            case 165201:///< Mind blast (reduce cooldown from haste)
             case 56242: ///< Glyph of Imp Swarm
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
-                spellInfo->Effects[1].MiscValue = 11;
+                spellInfo->Effects[1].BasePoints = 100;
                 break;
             case 77535: ///< Blood Shield
             case 127802: ///< Touch of The Grave (trigger)
