@@ -660,15 +660,6 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
 
-        InterRealmSession* tunnel = sWorld->GetInterRealmSession();
-        if (tunnel && tunnel->IsTunnelOpened())
-        {
-            WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
-            tunPacket << uint64(m_Player->GetGUID());
-            sIRTunnel->SendPacket(&tunPacket);
-            m_InterRealmZoneId = 0;
-        }
-
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (m_Player->GetDeathTimer())
@@ -794,6 +785,15 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
             m_Player->SaveToDB();
+        }
+
+        InterRealmSession* tunnel = sWorld->GetInterRealmSession();
+        if (tunnel && tunnel->IsTunnelOpened())
+        {
+            WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
+            tunPacket << uint64(m_Player->GetGUID());
+            sIRTunnel->SendPacket(&tunPacket);
+            m_InterRealmZoneId = 0;
         }
 
         ///- Leave all channels before player delete...
