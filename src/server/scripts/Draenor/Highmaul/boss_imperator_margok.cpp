@@ -2659,31 +2659,32 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
                             uint32 l_SpellID = GetSpellInfo()->Id;
                             uint8 l_Stacks = p_AurEff->GetBase()->GetStackAmount();
-                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, &l_Stacks, l_Guid, l_MeGuid]() -> void
+                            l_AI->AddTimedDelayedOperation(100, [l_SpellID, l_Stacks, l_Guid, l_MeGuid]() -> void
                             {
+                                uint8 l_StackCopy = l_Stacks;
                                 if (Creature* l_Margok = sObjectAccessor->FindCreature(l_MeGuid))
                                 {
                                     if (Unit* l_Target = Unit::GetUnit(*l_Margok, l_Guid))
                                     {
                                         CustomSpellValues l_Values;
-                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_Stacks);
+                                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_AURA_STACK, l_StackCopy);
 
                                         l_Margok->CastCustomSpell(eSpells::ArcaneWrathDamage, l_Values, l_Target, true);
 
                                         /// When Branded expires it inflicts Arcane damage to the wearer and jumps to their closest ally within 200 yards.
                                         /// Each time Arcane Wrath jumps, its damage increases by 25% and range decreases by 50%.
                                         float l_JumpRange = 200.0f;
-                                        for (uint8 l_I = 0; l_I < l_Stacks; ++l_I)
+                                        for (uint8 l_I = 0; l_I < l_StackCopy; ++l_I)
                                             l_JumpRange -= CalculatePct(l_JumpRange, 50.0f);
 
                                         if (Player* l_OtherPlayer = l_Target->FindNearestPlayer(l_JumpRange))
                                         {
                                             /// Increase jump count
-                                            ++l_Stacks;
+                                            ++l_StackCopy;
 
                                             if (AuraPtr l_Aura = l_Margok->AddAura(l_SpellID, l_OtherPlayer))
                                             {
-                                                l_Aura->SetStackAmount(l_Stacks);
+                                                l_Aura->SetStackAmount(l_StackCopy);
                                                 l_Margok->AI()->Talk(eTalk::Branded, l_OtherPlayer->GetGUID(), TextRange::TEXT_RANGE_NORMAL);
                                             }
                                         }
