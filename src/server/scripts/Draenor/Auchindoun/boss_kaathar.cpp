@@ -309,7 +309,7 @@ public:
                                 // Holy Wall, Object In MIddle
                                 l_Tuulani->SummonGameObject(eAuchindonObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), 0, 0, 0, 0, 0);
 
-                                for (int32 i = 0; i < 5; i++)
+                                for (int32 i = 0; i < 4; i++)
                                 {
                                     if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindonCreatures::CreatureAucheniWarden, g_PositionDefenderBehindMiddleWallOfNyami[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
