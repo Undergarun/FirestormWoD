@@ -311,7 +311,10 @@ TradeData* TradeData::GetTraderData() const
 
 Item* TradeData::GetItem(TradeSlots slot) const
 {
-    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : NULL;
+    if (slot >= TRADE_SLOT_COUNT)
+        return nullptr;
+    
+    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : nullptr;
 }
 
 bool TradeData::HasItem(uint64 itemGuid) const
