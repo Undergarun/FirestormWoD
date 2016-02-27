@@ -231,7 +231,8 @@ void LFGListMgr::OnPlayerApplyForGroup(LFGListEntry::LFGListApplicationEntry p_A
     if (l_Entry->m_Applications.find(p_Application.m_ID) != l_Entry->m_Applications.end())
         return;
 
-    l_Entry->m_Applications.insert({ p_Application.m_ID, p_Application });
+    l_Entry->m_Applications[p_Application.m_ID] = p_Application;
+    
     LFGListEntry::LFGListApplicationEntry* l_Application = &l_Entry->m_Applications.find(p_Application.m_ID)->second;
 
     l_Application->m_Error = CanQueueFor(l_Application->m_Owner, l_Player);
