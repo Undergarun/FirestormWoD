@@ -314,6 +314,9 @@ namespace MS { namespace Garrison
             /// Create shipyard by spell
             bool CreateShipyardBySpell();
 
+            /// Update plot gameobject
+            void UpdatePlot(uint32 p_PlotInstanceID);
+
         public:
             /// Replace garrison script
             void _SetGarrisonScript(Interfaces::GarrisonSite * p_Script)
@@ -331,9 +334,6 @@ namespace MS { namespace Garrison
             void InitPlots();
             /// Uninit plots
             void UninitPlots();
-
-            /// Update plot gameobject
-            void UpdatePlot(uint32 p_PlotInstanceID);
 
             /// Update garrison stats
             void UpdateStats();

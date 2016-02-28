@@ -37,6 +37,7 @@
 #include "MoveSplineInit.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
+#include "../../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
 class TrinityStringTextBuilder
 {
@@ -2170,6 +2171,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             if (InstanceScript* l_InstanceScript = l_Object->GetInstanceScript())
                 l_InstanceScript->SendScenarioState(InstanceScript::ScenarioData(l_ScenarioID, l_StepIndex));
+
+            break;
+        }
+        case SMART_ACTION_UPDATE_PLOT_INSTANCE:
+        {
+            WorldObject* l_Object = GetBaseObject();
+
+            if (l_Object == nullptr)
+                break;
+
+            Creature* l_Creature = l_Object->ToCreature();
+
+            if (l_Creature == nullptr || l_Creature->AI())
+                return;
+
+            MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+
+            if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr && l_GarrisonAI->GetOwner()->GetGarrison() != nullptr)
+                l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
 
             break;
         }

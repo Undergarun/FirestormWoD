@@ -77,6 +77,11 @@ namespace MS { namespace Garrison
             /// @p_RelO       : Relative orientation coord
             /// @p_SummonType : Summon type
             Creature* SummonRelativeCreature(uint32 p_Entry, float p_RelX, float p_RelY, float p_RelZ, float p_RelO, TempSummonType p_SummonType);
+            /// Spawn a creature with building relative coords
+            /// @p_Entry      : Creature entry
+            /// @p_Position   : Relative position of the creature
+            /// @p_SummonType : Summon type
+            Creature* SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType);
             /// Spawn a gameobject with building relative coords
             /// @p_Entry      : GameObject entry
             /// @p_RelX       : X Relative coord

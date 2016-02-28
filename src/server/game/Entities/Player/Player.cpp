@@ -28163,41 +28163,56 @@ void Player::ResetDailyQuestStatus()
 
 void Player::ResetGarrisonDatas()
 {
-    if (MS::Garrison::Manager* l_Garrison = GetGarrison())
+    using namespace MS::Garrison;
+    if (Manager* l_Garrison = GetGarrison())
     {
-        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::LunarfallInn_FrostwallTavern_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasActiveBuilding(Buildings::LunarfallInn_FrostwallTavern_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
         {
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(MS::Garrison::BuildingType::Inn);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
                     if (l_Creature->AI())
-                        l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
                 }
             }
         }
 
-        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasActiveBuilding(Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
         {
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
-                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
 
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
-                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~MS::Garrison::StablesData::g_PendingQuestFlag);
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
         }
 
-        if (l_Garrison->HasActiveBuilding(MS::Garrison::Buildings::GnomishGearworks_GoblinWorkshop_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasActiveBuilding(Buildings::GnomishGearworks_GoblinWorkshop_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
         {
-            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(MS::Garrison::BuildingType::Workshop);
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
 
             for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
             {
                 if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
                 {
                     if (l_Creature->AI())
-                        l_Creature->AI()->SetData(MS::Garrison::CreatureAIDataIDs::DailyReset, 0);
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
+        }
+
+        if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
                 }
             }
         }

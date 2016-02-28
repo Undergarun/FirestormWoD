@@ -206,6 +206,15 @@ namespace MS { namespace Garrison
         return me->SummonCreature(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, p_SummonType);
     }
 
+    /// Spawn a creature with building relative coords
+    /// @p_Entry      : Creature entry
+    /// @p_Position   : Relative position of the creature
+    /// @p_SummonType : Summon type
+    Creature* GarrisonNPCAI::SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType)
+    {
+        return SummonRelativeCreature(p_Entry, p_Position.X, p_Position.Y, p_Position.Z, p_Position.O, p_SummonType);
+    }
+
     /// Spawn a gameobject with building relative coords
     /// @p_Entry      : GameObject entry
     /// @p_RelX       : X Relative coord
@@ -360,7 +369,7 @@ namespace MS { namespace Garrison
     void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
     {
         if (p_Id == CreatureAIDataIDs::OwnerGuid)
-            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
+            m_Owner = HashMapHolder<Player>::Find(p_Guid);
     }
 
     /// Get UInt32 value

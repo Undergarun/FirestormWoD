@@ -37,11 +37,15 @@
 	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','120146','0','0','5459','1','0'); -- garrison resources x50
 	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','120147','0','0','5460','1','0'); -- savage blood x1
 
+	UPDATE `creature_template` SET `npcflag`=3, minlevel=100, maxlevel=100, `exp`=5, faction = 35 WHERE `entry`=87206;
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-111 AND faction_index=0;
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-111','0','87112','10.8117','3.53453','1.08113','5.4349');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-111','0','-237355','17.0002','-5.84557','0.517853','0.851323');
 
 -- LEVEL 2
+
+	-- UPDATE plot instance when quest is rewarded (doesn't work yet, need to check events 20-50)
+	REPLACE INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) values('86806','0','0','0','50','0','100','0','37014','0','0','0','115','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Type a script description here.');
 
 -- LEVEL 3
