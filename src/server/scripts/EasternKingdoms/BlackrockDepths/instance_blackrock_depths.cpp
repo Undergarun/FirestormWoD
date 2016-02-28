@@ -372,7 +372,7 @@ public:
 
         void TombOfSevenEvent()
         {
-            if (GhostKillCount < 7 && TombBossGUIDs[TombEventCounter])
+            if (GhostKillCount < 7 && TombEventCounter < 7 && TombBossGUIDs[TombEventCounter])
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
