@@ -119,9 +119,16 @@ namespace MS { namespace Garrison
                 return true;
             else if (l_Iterator != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
             {
-
-                if (l_Iterator + 1 != g_BoarQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
+                
+                /// That shit need a rewrite ...
+                if (l_Iterator != g_BoarQuests.end())
+                {
+                    auto next = l_Iterator;
+                    next++;
+                    
+                    if (next != g_BoarQuests.end())
+                        l_NextQuestID = (*next);
+                }
                 else
                     return true;
 
@@ -151,8 +158,15 @@ namespace MS { namespace Garrison
                 return true;
             else if (l_Iterator != g_ElekkQuests.end() || l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
             {
-                if (l_Iterator + 1 != g_ElekkQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
+                /// That shit need a rewrite ...
+                if (l_Iterator != g_ElekkQuests.end())
+                {
+                    auto next = l_Iterator;
+                    next++;
+                    
+                    if (next != g_ElekkQuests.end())
+                        l_NextQuestID = (*next);
+                }
                 else
                     l_NextQuestID = BoarQuests::QuestBestingABoar;
 
@@ -182,8 +196,15 @@ namespace MS { namespace Garrison
                 return true;
             else if (l_Iterator != g_ClefthoofQuests.end() || l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
             {
-                if (l_Iterator + 1 != g_ClefthoofQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
+                /// That shit need a rewrite ...
+                if (l_Iterator != g_ClefthoofQuests.end())
+                {
+                    auto next = l_Iterator;
+                    next++;
+                    
+                    if (next != g_ClefthoofQuests.end())
+                        l_NextQuestID = (*next);
+                }
                 else
                     l_NextQuestID = ElekkQuests::QuestEntanglingAnElekk;
 
@@ -398,8 +419,15 @@ namespace MS { namespace Garrison
             {
                 if (l_QuestID == WolfQuests::QuestWanglingAWolf)
                     l_NextQuestID = g_WolfQuests[0];
-                else if (l_Iterator + 1 != g_WolfQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
+                /// That shit need a rewrite ...
+                else if (l_Iterator != g_WolfQuests.end())
+                {
+                    auto next = l_Iterator;
+                    next++;
+                    
+                    if (next != g_WolfQuests.end())
+                        l_NextQuestID = (*next);
+                }
                 else
                     return true;
 
@@ -428,8 +456,14 @@ namespace MS { namespace Garrison
             {
                 if (l_QuestID == TalbukQuests::QuestTamingATalbuk)
                     l_NextQuestID = g_TalbukQuests[0];
-                else if (l_Iterator + 1 != g_TalbukQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
+                else if (l_Iterator != g_TalbukQuests.end())
+                {
+                    auto next = l_Iterator;
+                    next++;
+                    
+                    if (next != g_TalbukQuests.end())
+                        l_NextQuestID = (*next);
+                }
                 else
                     l_NextQuestID = WolfQuests::QuestWanglingAWolf;
 
@@ -458,8 +492,14 @@ namespace MS { namespace Garrison
             {
                 if (l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
                     l_NextQuestID = g_RiverbeastQuests[0];
-                else if (l_Iterator + 1 != g_RiverbeastQuests.end())
-                    l_NextQuestID = *(l_Iterator + 1);
+                else if (l_Iterator != g_RiverbeastQuests.end())
+                {
+                    auto next = l_Iterator;
+                    next++;
+                    
+                    if (next != g_RiverbeastQuests.end())
+                        l_NextQuestID = (*next);
+                }
                 else
                     l_NextQuestID = TalbukQuests::QuestTamingATalbuk;
 
