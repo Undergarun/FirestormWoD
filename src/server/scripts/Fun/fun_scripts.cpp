@@ -32,7 +32,7 @@ class spell_fun_quick_recovery : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff, AuraEffectPtr /* p_AurEff */)
+            void OnUpdate(uint32 p_Diff, AuraEffect* /* p_AurEff */)
             {
                 Unit* l_Owner = GetUnitOwner();
 
@@ -60,7 +60,7 @@ class spell_fun_quick_recovery : public SpellScriptLoader
                     m_Timer -= p_Diff;
             }
 
-            void OnRemove(constAuraEffectPtr /* p_AurEff */, AuraEffectHandleModes /* p_Mode */)
+            void OnRemove(AuraEffect const* /* p_AurEff */, AuraEffectHandleModes /* p_Mode */)
             {
                 Unit* l_Owner = GetUnitOwner();
 
