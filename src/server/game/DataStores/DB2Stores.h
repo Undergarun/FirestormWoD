@@ -226,7 +226,7 @@ class TaxiNode
     public:
         TaxiNode() { }
         TaxiNode(uint32 ID, uint32 map, Position& pos, LocalizedString const* name, uint32 cost) :
-            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost) { }
+            m_id(ID), m_mapID(map), m_position(pos), m_name(name), m_cost(cost) { }
 
         uint32 GetID() { return m_id; }
 

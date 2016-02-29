@@ -105,7 +105,9 @@ enum eFoundryGameObjects
     CrucibleRight               = 233839,
     FurnaceGate                 = 227423,
     /// The Black Forge - Part 2
-    BlackForgePortcullis        = 238836,
+    BlackForgeEntrance          = 238836,
+    BlackForgePortcullis        = 236847,
+    BlackForgeGate              = 237306,
     VolatileBlackrockOre        = 237308,
     HansgarAndFranzokEntrance   = 229318,
     HansgarAndFranzokExit       = 229319,
@@ -140,6 +142,9 @@ enum eFoundryGameObjects
     ConveyorBelt009             = 236843,
     ConveyorBelt010             = 236844,
     FirewallDoor                = 236845,
+    BurningFrontDoor            = 236842,
+    KromogsDoorSouth            = 236839,
+    KromogsDoorEast             = 236840,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     /// Blackhand's Crucible - Part 4
@@ -175,6 +180,7 @@ enum eFoundryDatas
     PlayerStamped,
     IronTaskmasterAggro,
     AknorDied,
+    GraspingEarthTime,
 
     /// Counters
     /// Gruul
@@ -186,7 +192,9 @@ enum eFoundryDatas
     MaxOregorgerCollisions  = 8,
     MaxOregorgerPaths       = 12,
     /// Blast Furnace
-    MaxPrimalElementalists  = 4
+    MaxPrimalElementalists  = 4,
+    /// Kromog
+    MaxReverberationSpawns  = 15
 };
 
 enum eFoundrySpells
@@ -201,7 +209,8 @@ enum eFoundryAchievements
     HeShootsHeOres          = 8979,
     YaWeveGotTime           = 8930,
     StampStampRevolution    = 8980,
-    TheSteelHasBeenBrought  = 8929
+    TheSteelHasBeenBrought  = 8929,
+    WouldYouGiveMeAHand     = 8983
 };
 
 enum eFoundryVisuals
@@ -211,6 +220,14 @@ enum eFoundryVisuals
     ConveyorsStop   = 7336,
     ConveyorsStart2 = 6975,
     ConveyorsStart3 = 6974
+};
+
+enum eFoundryDungeons
+{
+    Slagworks           = 847,
+    BlackForge          = 846,
+    IronAssembly        = 848,
+    BlackhandsCrucible  = 823
 };
 
 #endif

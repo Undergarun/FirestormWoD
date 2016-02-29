@@ -675,6 +675,7 @@ SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent)
     return itr->second.reagents[reagent];
 }
 
+/// still usefull ?
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
 {
     return NULL;

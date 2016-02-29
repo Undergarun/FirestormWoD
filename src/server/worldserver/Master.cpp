@@ -233,7 +233,7 @@ public:
                     last_ip = fields_ip[0].GetString();
                 }
 
-                if (command->accountID[1] == 0 && command->characterID == 0)
+                if (command->accountID[1] == 0 && command->characterID == 0) ///< Comparison of array 'command->characterID' equal to a null pointer is always false
                 {
                     command->accountID[1] = command->accountID[0];
                     command->characterID[1] = command->characterID[0];
@@ -920,7 +920,7 @@ void Master::ExecutePendingRequests()
         fclose(l_PendingRequestsFile);
 
         /// Clear file
-        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w"))
+        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w")) ///< Using the result of an assignment as a condition without parentheses
             fclose(l_PendingRequestsFile);
     }
     else

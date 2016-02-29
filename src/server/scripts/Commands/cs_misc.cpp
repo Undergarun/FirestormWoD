@@ -502,7 +502,7 @@ class misc_commandscript: public CommandScript
                 target->RemoveAurasDueToSpell(spellId);
             else
             {
-                if (AuraPtr aura = target->GetAura(spellId))
+                if (Aura* aura = target->GetAura(spellId))
                     aura->SetDuration(duration);
                 else
                     return false;
@@ -537,7 +537,7 @@ class misc_commandscript: public CommandScript
                 target->RemoveAurasDueToSpell(spellId);
             else
             {
-                if (AuraPtr aura = target->GetAura(spellId))
+                if (Aura* aura = target->GetAura(spellId))
                     aura->SetCharges(charges);
                 else
                     return false;
@@ -2399,22 +2399,22 @@ class misc_commandscript: public CommandScript
             if (!target->isAlive())
                 return true;
 
-            char* damageStr = strtok((char*)args, " ");
+            char* damageStr = str;
             if (!damageStr)
                 return false;
 
-            int32 damage_int = atoi((char*)damageStr);
+            int32 damage_int = atoi(damageStr);
             if (damage_int <= 0)
                 return true;
 
             uint32 damage = damage_int;
 
-            char* schoolStr = strtok((char*)NULL, " ");
+            char* schoolStr = strtok(nullptr, " ");
 
             // flat melee damage without resistence/etc reduction
             if (!schoolStr)
             {
-                handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                handler->GetSession()->GetPlayer()->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 if (target != handler->GetSession()->GetPlayer())
                     handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
                 return true;
@@ -2427,9 +2427,9 @@ class misc_commandscript: public CommandScript
             SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
 
             if (Unit::IsDamageReducedByArmor(schoolmask))
-                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, NULL, WeaponAttackType::BaseAttack);
+                damage = handler->GetSession()->GetPlayer()->CalcArmorReducedDamage(target, damage, nullptr, WeaponAttackType::BaseAttack);
 
-            char* spellStr = strtok((char*)NULL, " ");
+            char* spellStr = strtok(nullptr, " ");
 
             // melee damage by specific school
             if (!spellStr)
@@ -2445,7 +2445,7 @@ class misc_commandscript: public CommandScript
                 damage -= absorb + resist;
 
                 handler->GetSession()->GetPlayer()->DealDamageMods(target, damage, &absorb);
-                handler->GetSession()->GetPlayer()->DealDamage(target, damage, NULL, DIRECT_DAMAGE, schoolmask, NULL, false);
+                handler->GetSession()->GetPlayer()->DealDamage(target, damage, nullptr, DIRECT_DAMAGE, schoolmask, nullptr, false);
                 handler->GetSession()->GetPlayer()->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 1, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
                 return true;
             }

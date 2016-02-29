@@ -234,14 +234,14 @@ class spell_q11396_11399_force_shield_arcane_purple_x3: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript);
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 target->AddUnitState(UNIT_STATE_ROOT);
             }
 
-            void HandleEffectRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
@@ -635,7 +635,7 @@ class spell_q12851_going_bearback: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q12851_going_bearback_AuraScript);
 
-            void HandleEffectApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1082,7 +1082,7 @@ class spell_q12987_read_pronouncement: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q12987_read_pronouncement_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // player must cast kill credit and do emote text, according to sniff
                 if (Player* target = GetTarget()->ToPlayer())
@@ -1337,7 +1337,7 @@ class spell_q11010_q11102_q11023_aggro_check_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript);
 
-            void HandleTriggerSpell(constAuraEffectPtr /*aurEff*/)
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
                 // On trigger proccing
                 if (Unit* target = GetTarget())
@@ -1396,7 +1396,7 @@ class spell_q11010_q11102_q11023_aggro_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_q11010_q11102_q11023_aggro_burst_AuraScript);
 
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 // On each tick cast Choose Loc to trigger summon
                 if (Unit* target = GetTarget())

@@ -295,7 +295,7 @@ class ByteBuffer
 
         // copy constructor
         ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), _storage(buf._storage), m_BaseSize(buf.m_BaseSize)
+            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), m_BaseSize(buf.m_BaseSize), _storage(buf._storage)
         {
         }
 

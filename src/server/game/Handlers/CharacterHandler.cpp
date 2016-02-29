@@ -1318,7 +1318,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     /// - Vote bonus
     if (HaveVoteRemainingTime())
     {
-        AuraPtr l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
+        Aura* l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
         if (l_VoteAura)
             l_VoteAura->SetDuration(GetVoteRemainingTime() + 60 * IN_MILLISECONDS);
     }
@@ -2124,7 +2124,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     uint32 l_AtLoginFlag    = l_Fields[3].GetUInt16();
     auto   l_KnownTitlesStr = l_Fields[4].GetCString();
     uint32 l_PlayerBytes    = l_Fields[5].GetUInt32();
-    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///w L_playerbyte2 is never read 01/18/16
+    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///< L_playerbyte2 is never read 01/18/16
 
     /// - If client doesn't send value, get the old from database & use it
     {

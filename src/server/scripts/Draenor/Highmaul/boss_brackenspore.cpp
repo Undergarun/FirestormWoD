@@ -153,6 +153,8 @@ class boss_brackenspore : public CreatureScript
 
             bool m_IntroDone;
 
+            std::vector<uint64> m_Flamethrowers;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -196,16 +198,35 @@ class boss_brackenspore : public CreatureScript
                 {
                     me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
-                    std::list<Creature*> l_BFCs;
-                    me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                    for (Creature* l_Creature : l_BFCs)
+                    if (m_Flamethrowers.empty())
                     {
-                        l_Creature->Respawn(true);
-                        l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+                        std::list<Creature*> l_BFCs;
+                        me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
 
-                        if (l_Creature->AI())
-                            l_Creature->AI()->Reset();
+                        for (Creature* l_Creature : l_BFCs)
+                        {
+                            l_Creature->Respawn(true);
+                            l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                            if (l_Creature->AI())
+                                l_Creature->AI()->Reset();
+
+                            m_Flamethrowers.push_back(l_Creature->GetGUID());
+                        }
+                    }
+                    else
+                    {
+                        for (uint64 l_Guid : m_Flamethrowers)
+                        {
+                            if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                            {
+                                l_Creature->Respawn(true);
+                                l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                                if (l_Creature->AI())
+                                    l_Creature->AI()->Reset();
+                            }
+                        }
                     }
                 }
             }
@@ -270,11 +291,11 @@ class boss_brackenspore : public CreatureScript
                                 l_AT->SetDuration(10);
                             }
 
-                            std::list<Creature*> l_BFCs;
-                            me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                            for (Creature* l_Creature : l_BFCs)
-                                l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+                            for (uint64 l_Guid : m_Flamethrowers)
+                            {
+                                if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                                    l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+                            }
 
                             std::list<Creature*> l_MindFungus;
                             me->GetCreatureListWithEntryInGrid(l_MindFungus, eCreatures::MindFungus, 100.0f);
@@ -401,11 +422,11 @@ class boss_brackenspore : public CreatureScript
 
                 ResetPlayersPower(me);
 
-                std::list<Creature*> l_BFCs;
-                me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                for (Creature* l_Creature : l_BFCs)
-                    l_Creature->RemoveAura(eSpells::BFC9000);
+                for (uint64 l_Guid : m_Flamethrowers)
+                {
+                    if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                        l_Creature->RemoveAura(eSpells::BFC9000);
+                }
 
                 me->RemoveAllAreasTrigger();
             }
@@ -449,7 +470,7 @@ class boss_brackenspore : public CreatureScript
                         me->CastSpell(p_Target, eSpells::SummonRejuvenatingMush, true);
                         break;
                     case eSpells::SpellCallOfTheTides:
-                        p_Target->CastSpell(p_Target, eSpells::CallOfTheTidesSummonAT, true, nullptr, NULLAURA_EFFECT, me->GetGUID());
+                        p_Target->CastSpell(p_Target, eSpells::CallOfTheTidesSummonAT, true, nullptr, nullptr, me->GetGUID());
                         break;
                     default:
                         break;
@@ -1112,7 +1133,7 @@ class npc_highmaul_bfc9000 : public CreatureScript
 
             void OnSpellClick(Unit* p_Clicker) override
             {
-                if (!me->HasAura(eSpells::BFC9000))
+                if (!me->HasAura(eSpells::BFC9000) || p_Clicker->HasAura(eSpells::Flamethrower))
                     return;
 
                 p_Clicker->CastSpell(p_Clicker, eSpells::Flamethrower, true);
@@ -1196,7 +1217,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_flamethrower_aura_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1208,7 +1229,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_CANCEL)
@@ -1275,7 +1296,7 @@ class spell_highmaul_flamethrower_regen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_flamethrower_regen_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->ModifyPower(Powers::POWER_ALTERNATE_POWER, -2);
@@ -1308,7 +1329,7 @@ class spell_highmaul_pulsing_heat : public SpellScriptLoader
                 FlamethrowerRegen = 163667
             };
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::FlamethrowerRegen, true);
@@ -1341,7 +1362,7 @@ class spell_highmaul_creeping_moss : public SpellScriptLoader
                 CreepingMoss = 1
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1414,7 +1435,7 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         l_Caster->CastSpell(l_Caster, eSpells::BurningInfusion, true);
                         l_Caster->CastSpell(*l_AT, eSpells::Flamethrower, true);
 
-                        if (AuraPtr l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
+                        if (Aura* l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
                         {
                             if (l_Infusion->GetStackAmount() >= eHighmaulDatas::BurningInfusionNeeded)
                             {
@@ -1448,7 +1469,7 @@ class spell_highmaul_burning_infusion : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_burning_infusion_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 p_AurEff->GetBase()->DropStack();
             }
@@ -1480,7 +1501,7 @@ class spell_highmaul_energy_regen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_energy_regen_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {

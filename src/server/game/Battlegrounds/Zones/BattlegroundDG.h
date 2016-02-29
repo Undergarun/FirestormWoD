@@ -310,7 +310,7 @@ class BattlegroundDG : public Battleground
         bool CanSeeSpellClick(Player const* player, Unit const* clicked);
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
         void EventPlayerClickedOnFlag(Player* source, Unit* target);
-        void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundDG::UpdatePlayerScore' hides overloaded virtual function
         void AddPlayer(Player* player);
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);

@@ -270,7 +270,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,         TARGET_DIR_NONE         },  ///< 53 TARGET_DEST_TARGET_ENEMY
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 54 TARGET_UNIT_CONE_ENEMY_54
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 55 TARGET_DEST_CASTER_FRONT_LEAP
-    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
+    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 57 TARGET_UNIT_TARGET_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 58 TARGET_UNIT_NEARBY_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_RAID,          TARGET_DIR_FRONT        },  ///< 59 TARGET_UNIT_CONE_ALLY
@@ -2823,10 +2823,14 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
         }
     }
 
+    /// Loot bonus animation
+    if (HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+        l_CastTime = 0;
+
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
-        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+        if (Aura* overloaded = p_Caster->GetAura(117204))
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
     }
 
@@ -4622,4 +4626,39 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     }
 
     return true;
+}
+
+bool SpellInfo::IsAuraNeedDynamicCalculation() const
+{
+    switch (Id)
+    {
+        case 1079:   ///< Rip
+        case 1943:   ///< Rupture
+        case 73651:  ///< Recuperate
+        case 113344: ///< Bloodbath (DOT)
+        case 114916: ///< Stay of Execution (damage)
+        case 114917: ///< Stay of Execution (heal)
+        case 154953: ///< Internal Bleeding
+        case 155722: ///< Rake
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+}
+
+bool SpellInfo::IsAuraNeedPandemicEffect() const
+{
+    switch (Id)
+    {
+        case 5171:   ///< Slice and Dice
+        case 84617:  ///< Revealing Strike 
+        case 125359: ///< Tiger Power
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
 }

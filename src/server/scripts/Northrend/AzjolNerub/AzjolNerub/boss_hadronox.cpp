@@ -476,7 +476,7 @@ class spell_hadronox_leech_poison: public SpellScriptLoader
         {
             PrepareAuraScript(spell_hadronox_leech_poison_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* caster = GetCaster();
                 if (caster && caster->isAlive() && GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)

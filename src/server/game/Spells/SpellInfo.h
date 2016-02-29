@@ -656,6 +656,8 @@ public:
 
     /// Handler for new Wod aura system
     bool IsAffectedByWodAuraSystem() const;
+    bool IsAuraNeedDynamicCalculation() const;
+    bool IsAuraNeedPandemicEffect() const;
 };
 
 #endif // _SPELLINFO_H

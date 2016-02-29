@@ -150,7 +150,7 @@ namespace MS { namespace Garrison
     {
         if (p_GarrisonResult)
         {
-            Field * l_Fields = p_GarrisonResult->Fetch();
+            Field* l_Fields = p_GarrisonResult->Fetch();
 
             m_ID            = l_Fields[0].GetUInt32();
             m_GarrisonLevel = l_Fields[1].GetUInt32();
@@ -1443,7 +1443,7 @@ namespace MS { namespace Garrison
             uint32 l_AddedXP = (l_BonusXP + l_MissionTemplate->RewardFollowerExperience) * l_SecondXPModifier;
             l_AddedXP = l_MissionFollowers[l_FollowerIt]->EarnXP(l_AddedXP, m_Owner); ///< l_addedXP is never read 01/18/16
 
-            if (l_FollowerLevel != l_MissionFollowers[l_FollowerIt]->Level && l_MissionFollowers[l_FollowerIt]->Level == 100)
+            if (l_FollowerLevel != l_MissionFollowers[l_FollowerIt]->Level && l_MissionFollowers[l_FollowerIt]->Level == 100) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                 m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
         }
 
@@ -1778,7 +1778,7 @@ namespace MS { namespace Garrison
 
             l_AddedXP = const_cast<GarrisonFollower*>(p_Follower)->EarnXP(l_AddedXP, m_Owner);
 
-            if (l_FollowerLevel != p_Follower->Level && p_Follower->Level == 100)
+            if (l_FollowerLevel != p_Follower->Level && p_Follower->Level == 100) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                 m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
         });
     }
@@ -3597,7 +3597,7 @@ namespace MS { namespace Garrison
 
                         int32 l_NegPlotTypeOrBuilding = -l_Contents[l_I].PlotTypeOrBuilding;
 
-                        if (l_Building.Active && l_NegPlotTypeOrBuilding != l_Building.BuildingID)
+                        if (l_Building.Active && l_NegPlotTypeOrBuilding != l_Building.BuildingID) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                             continue;
                     }
 
@@ -4256,7 +4256,7 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */)
+    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */) ///< p_Abilities & p_Traits are unused
     {
         if (p_Reset)
             p_Follower.Abilities.clear();
@@ -4405,7 +4405,7 @@ namespace MS { namespace Garrison
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;
 
-            if (l_Index == (l_Iter->Abilities.size() - 1))
+            if (l_Index == (l_Iter->Abilities.size() - 1)) ///< Comparison of integers of different signs: 'int' and 'unsigned long'
                 return SpellCastResult::SPELL_FAILED_BAD_TARGETS;
         }
 
@@ -4450,7 +4450,7 @@ namespace MS { namespace Garrison
             if (l_Iter->Abilities[l_Index] == p_Slot)
                 break;
 
-            if (l_Index == (l_Iter->Abilities.size() - 1))
+            if (l_Index == (l_Iter->Abilities.size() - 1)) ///< Comparison of integers of different signs: 'int' and 'unsigned long'
                 return;
         }
 
@@ -4507,7 +4507,7 @@ namespace MS { namespace Garrison
     {
         uint32 l_Level = 0;
 
-        auto l_Building = std::find_if(m_Buildings.begin(), m_Buildings.end(), [&l_Level](GarrisonBuilding l_Building) -> bool
+        auto l_Building = std::find_if(m_Buildings.begin(), m_Buildings.end(), [&l_Level](GarrisonBuilding l_Building) -> bool ///< l_Building is unused
         {
             auto l_GarrBuildingEntry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
