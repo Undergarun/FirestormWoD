@@ -127,8 +127,8 @@ Position const g_PositionDefiledSpiritsMovement[8] =
     {1797.886f, -20.040f, 281.501f, 5.166008f}
 };
 
-uint32 l_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
-uint32 l_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
+uint32 g_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
+uint32 g_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
 
 Position const g_PositionSpiritHomePoint = {1795.783f, -27.240f, 277.135f, 0.040068f };
 
@@ -902,7 +902,7 @@ public:
                     m_HasBeenActivated = true;
                     me->CastSpell(me, eShadowRuneSpells::SpellLunarPurityAreaTrigger);
                     for (uint8 l_I = 0; l_I < 4; l_I++)
-                        me->RemoveAura(l_ShadowRuneEntries[l_I]);
+                        me->RemoveAura(g_ShadowRuneEntries[l_I]);
                     break;
                 }
                 case eSadanaActions::ActionActivateLunarTriggersDeactivate:
@@ -927,7 +927,7 @@ public:
                     m_HasBeenActivated = false;
                     me->RemoveAura(eShadowRuneSpells::SpellLunarRitual);                 
                     for (uint8 l_I = 0; l_I < 4; l_I++)
-                        me->RemoveAura(l_LunarRuneEntries[l_I]);            
+                        me->RemoveAura(g_LunarRuneEntries[l_I]);            
                     break;
                 }
                 default:
