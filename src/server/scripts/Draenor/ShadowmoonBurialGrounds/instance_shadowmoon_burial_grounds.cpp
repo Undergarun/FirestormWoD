@@ -58,7 +58,7 @@ public:
             m_DoorGobjectSadanaFightDoorGUID = 0;
             m_DoorGobjectNerzulGUID          = 0;
             m_DoorGobjectBonemawEntranceGUID = 0;
-            m_DoorGobjectNhalishEntranceGUID = 0;        
+            m_DoorGobjectNhalishEntranceGUID = 0;
         }
 
         void OnCreatureCreate(Creature* l_Creature) override

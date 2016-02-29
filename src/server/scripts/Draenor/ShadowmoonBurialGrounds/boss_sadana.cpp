@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "shadowmoon_burial_grounds.hpp"
+#include "MoveSplineInit.h"
 
 enum eSadanaSpells
 {
@@ -129,6 +130,8 @@ Position const g_PositionDefiledSpiritsMovement[8] =
 uint32 l_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
 uint32 l_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
 
+Position const g_PositionSpiritHomePoint = {1795.783f, -27.240f, 277.135f, 0.040068f };
+
 /// Basic Event - [The message Sadana says few minutes after players entered the instance for the first time]
 class EventSadanaIntro : public BasicEvent
 {
@@ -233,7 +236,6 @@ public:
             if (!m_First) // new way to handle constructor (new for me)
             {
                 m_First = true;
-                HandleDoorCombatActivation();
                 SummonPathsDefiledSpirits();
                 me->m_Events.AddEvent(new EventSadanaIntro(me), me->m_Events.CalculateTime(40 * TimeConstants::IN_MILLISECONDS));
             }
@@ -266,7 +268,7 @@ public:
 
                     l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
                 }
-            }      
+            }
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
         }
@@ -274,13 +276,37 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
-            summons.DespawnAll();
-            HandleDoorCombatActivation();
-            if (m_Instance != nullptr)
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossSadana, EncounterState::FAIL);
-            uint32 l_Entries[4] = { eSadanaCreatures::CreatureDefiledSpiritSadanaEncounter, eSadanaCreatures::CreatureDaggerFall, eSadanaCreatures::CreatureEclipseTrigger };
-            for (uint8 l_I = 0; l_I < 5; l_I++)
-                DespawnCreaturesInArea(l_Entries[l_I], me);
+            if (m_First)
+            {
+                HandleDoorCombatActivation();
+                DespawnCreaturesInArea(eSadanaCreatures::CreatureDaggerFall, me);
+                /// A removal method which doesn't crash the momma of the server. Yes'ir
+                std::list<Creature*> l_SadanaSpirits;
+                me->GetCreatureListInGrid(l_SadanaSpirits, 300.0f);
+                if (!l_SadanaSpirits.empty())
+                {
+                    for (Creature* l_itr : l_SadanaSpirits)
+                    {
+                        l_itr->Respawn();
+                    }
+                }
+                /// Delete all ground markers nearby.
+                std::list<AreaTrigger*> l_listAreaTriggers;
+                me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
+                if (!l_listAreaTriggers.empty())
+                {
+                    for (AreaTrigger* l_Itr : l_listAreaTriggers)
+                    {
+                        if (!l_Itr)
+                            continue;
+
+                        if (l_Itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                            continue;
+
+                        l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
         }
 
         void JustSummoned(Creature* p_Summon) override
@@ -291,11 +317,11 @@ public:
                 {
                     case eSadanaCreatures::CreatureShadowRune:
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         break;
                     case eSadanaCreatures::CreatureEclipseTrigger:
                         p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         break;         
                     default:
                         break;
@@ -334,14 +360,16 @@ public:
             for (uint16 l_I = 0; l_I <= 30; l_I++)
             {
                 Position l_Position;
-                me->GetRandomNearPosition(l_Position, 40.0f);
-                l_Position.m_positionZ = frand(261.391f, 284.058f);
+                me->GetRandomNearPosition(l_Position, 10.0f);
+                l_Position.m_positionZ = frand(279.636f, 284.058f);
                 me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01, l_Position, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
             }
         }
 
         void SummonEclipseTriggers()
         {
+            DespawnCreaturesInArea(eSadanaCreatures::CreatureEclipseTrigger, me);
+
             for (uint8 l_I = 0; l_I <= 7; l_I++)
                 me->SummonCreature(eSadanaCreatures::CreatureEclipseTrigger, g_PositionCircles[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
         }
@@ -359,7 +387,7 @@ public:
             events.ScheduleEvent(eSadanaEvents::EventDeathSpike, 8 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 12 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eSadanaEvents::EventWhisperOfTheDarkStar, 20 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 37 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 30 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
         }
 
@@ -377,11 +405,42 @@ public:
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
-            Talk(eSadanaTalks::TalkDeath);      
-            HandleDoorCombatActivation();
+            Talk(eSadanaTalks::TalkDeath);     
+            HandleDoorCombatActivation(); 
             HandleDoorEncounterFinishActivation();
+            DespawnCreaturesInArea(eSadanaCreatures::CreatureShadowRune, me);
             DespawnCreaturesInArea(eSadanaCreatures::CreatureDaggerFall, me);
-            DespawnCreaturesInArea(eSadanaCreatures::CreatureDefiledSpiritSadanaEncounter, me);
+            DespawnCreaturesInArea(eSadanaCreatures::CreatureEclipseTrigger, me);       
+            /// A removal method which doesn't crash the momma of the server. Yes'ir
+            std::list<Creature*> l_SadanaSpirits;
+            me->GetCreatureListWithEntryInGrid(l_SadanaSpirits, eShadowmoonBurialGroundsCreatures::CreatureDefliedSpirit01 ,300.0f);
+            if (!l_SadanaSpirits.empty())
+            {
+                for (Creature* l_Itr : l_SadanaSpirits)
+                {
+                    l_Itr->SetDisplayId(11686);
+                    l_Itr->RemoveAllAuras();
+                    l_Itr->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                }
+            }
+
+            /// Delete all ground markers nearby.
+            std::list<AreaTrigger*> l_listAreaTriggers;
+            me->GetAreatriggerListInRange(l_listAreaTriggers, 300.0f);
+            if (!l_listAreaTriggers.empty())
+            {
+                for (AreaTrigger* l_Itr : l_listAreaTriggers)
+                {
+                    if (!l_Itr)
+                        continue;
+
+                    if (l_Itr->GetSpellId() != eSadanaSpells::SpellDaggerFallGroundMarker)
+                        continue;
+
+                    l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
             if (Creature* l_WorldTrigger = me->FindNearestCreature(eShadowmoonBurialGroundsCreatures::CreatureWorldTriggerSadanaRp, 200.0f, true))
             {
                 if (Creature* l_WeepingSoul = me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureWeepingSpirit, l_WorldTrigger->GetPositionX(), l_WorldTrigger->GetPositionY(), l_WorldTrigger->GetPositionZ(), l_WorldTrigger->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS))
@@ -462,7 +521,7 @@ public:
                         m_CommunionInRange = true;
                         m_CommunionInAction = true;
                     }
-                    events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 45 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDarkCommunion, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eSadanaEvents::EventDeathSpike:
                     me->CastSpell(me, eSadanaSpells::SpellDeathSpikeFull);
@@ -497,7 +556,7 @@ public:
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     DoCast(eSadanaSpells::SpellDarkEclipsePeriodicDummy);
                     events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eSadanaEvents::EventDarkEclipseFinish, 17 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDarkEclipseFinish, 27 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eSadanaEvents::EventDarkEclipseFinish:
@@ -557,7 +616,7 @@ public:
         }
 
         InstanceScript* m_Instance;
-        uint8 m_MovementIndentifier;
+        uint32 m_MovementIndentifier;
         bool m_StartEvent;
         bool m_Activation;
 
@@ -575,9 +634,18 @@ public:
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC); 
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
+
+            Movement::MoveSplineInit init(*me);
+            FillCirclePath(g_PositionSpiritHomePoint, me->GetDistance2d(g_PositionSpiritHomePoint.GetPositionX(), g_PositionSpiritHomePoint.GetPositionY()), g_PositionSpiritHomePoint.GetPositionZ(), init.Path(), true);
+            init.SetWalk(true);
+            init.SetCyclic();
+            init.Launch();
+
+            /*
             Position l_Position;
             l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
             me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+            */
         }
 
         void DoAction(int32 const p_Action) override
@@ -608,21 +676,42 @@ public:
             }
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
+        void FillCirclePath(Position const& p_CenterPos, float p_Radius, float p_Z, Movement::PointsArray& p_Path, bool p_Clockwise)
         {
-            if (p_Id == m_MovementIndentifier)
+            float m_Step   =  p_Clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+            float m_Angle  =  p_CenterPos.GetAngle(me->GetPositionX(), me->GetPositionY());
+            float m_Radius = p_Radius * 1.4300;
+
+            for (uint8 i = 0; i < 16; m_Angle += m_Step, ++i)
             {
-                /// Movement handler.
-                m_MovementIndentifier++;
-
-                if (m_MovementIndentifier >= 8)
-                    m_MovementIndentifier = 0;
-
-                Position l_Position;
-                l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-                me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+                G3D::Vector3 l_Point;
+                l_Point.x = p_CenterPos.GetPositionX() + m_Radius * cosf(m_Angle);
+                l_Point.y = p_CenterPos.GetPositionY() + m_Radius * sinf(m_Angle);
+                l_Point.z = 283.294f;
+                p_Path.push_back(l_Point);
             }
         }
+
+        /*
+        void MovementInform(uint32 /*p_Type, uint32 p_Id) override
+        {
+            if (me && me->IsInWorld() && me->isAlive())
+            {
+                if (p_Id == m_MovementIndentifier)
+                {
+                    m_MovementIndentifier++;
+
+                    /// Movement handler.
+                    if (m_MovementIndentifier >= 8)
+                        m_MovementIndentifier = 0;
+
+                    Position l_Position;
+                    l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
+                    me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+                }
+            }
+        }
+        */
 
         void JustDied(Unit* /*p_Killer*/) override
         {
@@ -649,19 +738,7 @@ public:
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            if (m_Activation) // Creature is activated;
-                return;
-
             events.Update(p_Diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case eSadanaEvents::EventDefiledSpirtMovement + 1:
-                    me->GetMotionMaster()->MoveTargetedHome();
-                    break;
-                default:
-                    break;
-            }
         }
     };
 
@@ -700,7 +777,7 @@ public:
             me->CastSpell(me, eSadanaSpells::SpellDaggerAuraFunctioning);
             me->SetDisableGravity(true);
             me->SetCanFly(true);
-            events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 4 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 2 * TimeConstants::IN_MILLISECONDS);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
@@ -708,7 +785,7 @@ public:
             switch (p_Id)
             {
                 case eSadanaMovements::MovementDaggerFallReachedAlttitude: /// Damage starts ticking once dagger is in player's alttitude.
-                    events.ScheduleEvent(eSadanaEvents::EventDaggerFallActivation, 1 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eSadanaEvents::EventDaggerFallActivation, 500);
                     break;
                 default:
                     break;
@@ -724,7 +801,7 @@ public:
                 case eSadanaEvents::EventDaggerFallActivation:               
                     m_CanDamage = true;
                     me->CastSpell(me, eSadanaSpells::SpellDaggerAlttitudeVisual); /// The visual when the daggerfall reaches the ground
-                    events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 1 * TimeConstants::IN_MILLISECONDS); /// Activates hardcoded damage intervals
+                    events.ScheduleEvent(eSadanaEvents::EventDaggerFall, 100); /// Activates hardcoded damage intervals
                     break;
                 case eSadanaEvents::EventDaggerFallMovement:
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
@@ -785,7 +862,7 @@ public:
             me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             switch (urand(0, 2))
             {
                 case 0:
@@ -896,7 +973,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             m_ActionDiff = 2 * TimeConstants::IN_MILLISECONDS;
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
 
         void DoAction(int32 const p_Action) override
@@ -990,7 +1067,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetTarget())
                 return;
@@ -1002,7 +1079,7 @@ public:
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1054,7 +1131,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetCaster())
                 return;
@@ -1062,7 +1139,7 @@ public:
             GetCaster()->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(constAuraEffectPtr p_AurEff)
         {
             PreventDefaultAction();
             if (GetCaster())
@@ -1151,7 +1228,7 @@ public:
 };
 
 void AddSC_boss_sadana()
-{
+{   
     new boss_sadana_bloodfury();                                      ///< 75509
     new shadowmoon_burial_grounds_sadana_creature_shadow_rune();      ///< 75778
     new shadowmoon_burial_grounds_sadana_creature_defiled_spirit();   ///< 75966
@@ -1160,5 +1237,5 @@ void AddSC_boss_sadana()
     new shadowmoon_burial_grounds_sadana_spell_shadow_burn();         ///< 153224
     new shadowmoon_burial_grounds_sadana_spell_dark_eclipse();        ///< 164685
     new shadowmoon_burial_grounds_sadana_spell_dark_communion();      ///< 153153
-    new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage(); ///< 164686
+    new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage(); ///< 16468;
 }

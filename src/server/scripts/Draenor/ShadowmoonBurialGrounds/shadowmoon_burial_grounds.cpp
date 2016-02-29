@@ -16,6 +16,71 @@ Position const g_PositionDisturbedSpirits[2] =
     {1699.862f, -242.144f, 250.318f, 0.891596f}
 };
 
+Position const g_PositionNerzulFightLocation = {1712.679f, -797.858f, 73.736f, 4.6856f};
+
+/// Restless Wanderer - 980004
+/// Restless Wanderer - 980005
+/// Restless Wanderer - 980006
+class shadowmoon_burial_grounds_creature_talker : public CreatureScript
+{
+public:
+
+    shadowmoon_burial_grounds_creature_talker() : CreatureScript("shadowmoon_burial_grounds_creature_talker") { }
+
+    struct shadowmoon_burial_grounds_creature_talkerAI : public ScriptedAI
+    {
+        shadowmoon_burial_grounds_creature_talkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        {
+            m_Instance = me->GetInstanceScript();
+        }
+
+        InstanceScript* m_Instance;
+        bool m_Intro;
+
+        enum eTalks
+        {
+            TalkSayMoveLosSay = 1
+        };
+
+        enum eSpells
+        {
+            SpellTalkerVisual = 145945
+        };
+
+        void Reset() override
+        {
+            m_Intro = false;
+            me->AddAura(eSpells::SpellTalkerVisual, me);
+        }
+
+        void MoveInLineOfSight(Unit* p_Who) override
+        {
+            if (m_Instance != nullptr)
+            {
+                /// Reset handling - encounter.
+                if (Creature * l_Sadana = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
+                {
+                    if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 18.0f) && !m_Intro && (l_Sadana->isDead() ? me->GetEntry() == 980006 : l_Sadana->isAlive()))
+                    {
+                        m_Intro = true;
+                        Talk(eTalks::TalkSayMoveLosSay);
+                    }
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            events.Update(p_Diff);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new shadowmoon_burial_grounds_creature_talkerAI(p_Creature);
+    }
+};
+
 /// Weeping Spirit - 75507
 /// Lost Soul - 75728
 /// Restless Wanderer - 75729
@@ -236,8 +301,8 @@ public:
 
         void Reset() override
         {
-            events.Reset();
-            me->setFaction(HostileFaction);
+            DoZoneInCombat();
+            me->setFaction(HostileFaction);     
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             me->AddAura(eShadowmoonBurialGroundsSpells::SpellVortexVisual, me); 
         }
@@ -622,6 +687,8 @@ public:
                     default:
                         break;
             }
+
+            DoMeleeAttackIfReady();
         }
     };
 
@@ -834,92 +901,6 @@ public:
     }
 };
 
-/// Void spawn - 75652
-class shadowmoon_burial_grounds_creature_void_spawn : public CreatureScript
-{
-public:
-
-    shadowmoon_burial_grounds_creature_void_spawn() : CreatureScript("shadowmoon_burial_grounds_creature_void_spawn") { }
-
-    struct shadowmoon_burial_grounds_creature_void_spawnAI : public ScriptedAI
-    {
-        shadowmoon_burial_grounds_creature_void_spawnAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-        {
-            m_Instance = me->GetInstanceScript();
-        }
-
-        enum eVoidSpawnSpells
-        {
-            SpellVoidPulseFullDamage = 152964
-        };
-
-        enum eVoidSpawnEvents
-        {
-            EventVoidPulse = 1,
-            EventSizeGrowth
-        };
-
-        InstanceScript* m_Instance;
-
-        void Reset() override
-        {
-            events.Reset();
-            me->setFaction(HostileFaction);
-        }
-
-        void EnterCombat(Unit* p_Attacker) override
-        {
-            events.ScheduleEvent(eVoidSpawnEvents::EventVoidPulse, 15 * TimeConstants::IN_MILLISECONDS);
-        }
-
-        void DoAction(int32 const p_Action) override
-        {
-            switch (p_Action)
-            {
-                case eShadowmoonBurialGroundsActions::ActionSizeGrowth:
-                    events.ScheduleEvent(eVoidSpawnEvents::EventSizeGrowth, 1 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            if (events.ExecuteEvent() == eShadowmoonBurialGroundsEvents::EventSizeGrowth)
-                me->SetObjectScale(1.0f);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            switch (events.ExecuteEvent())
-            {
-                case eVoidSpawnEvents::EventVoidPulse:
-                    {       
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 8.0f, true))
-                            me->CastSpell(l_Target, eVoidSpawnSpells::SpellVoidPulseFullDamage);
-                        events.ScheduleEvent(eVoidSpawnEvents::EventVoidPulse, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                    default:
-                        break;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new shadowmoon_burial_grounds_creature_void_spawnAI(p_Creature);
-    }
-};
-
 /// Defiled Burial Site - 75977
 class shadowmoon_burial_grounds_creature_site : public CreatureScript
 {
@@ -946,12 +927,12 @@ public:
         void Reset() override
         {
             events.Reset();
-            me->SetDisplayId(59486);
             m_HasActivated = false;
+            me->SetDisplayId(59486);         
             me->setFaction(FriendlyFaction);        
             me->SetReactState(ReactStates::REACT_PASSIVE);          
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
 
         void DoAction(int32 const p_Action) override
@@ -1089,6 +1070,7 @@ public:
 
 void AddSC_shadowmoon_burial_grounds()
 {
+    new shadowmoon_burial_grounds_creature_talker;                          ///< 980004, 980005, 980006
     new shadowmoon_burial_grounds_creature_subjugated_soul();               ///< 76444
     new shadowmoon_burial_grounds_creature_plague_bat();                    ///< 75459
     new shadowmoon_burial_grounds_creature_site();                          ///< 75977
@@ -1096,7 +1078,6 @@ void AddSC_shadowmoon_burial_grounds()
     new shadowmoon_burial_grounds_creature_enslaver();                      ///< 76446
     new shadowmoon_burial_grounds_creature_exhumer();                       ///< 77700
     new shadowmoon_burial_grounds_creature_loyalist();                      ///< 75506
-    new shadowmoon_burial_grounds_creature_void_spawn();                    ///< 75652
     new shadowmoon_burial_grounds_creature_bone_mender();                   ///< 75713
     new shadowmoon_burial_grounds_creature_exhume_spirits();                ///< 75979
     new shadowmoon_burial_grounds_creature_restless_wanderer();             ///< 75729
