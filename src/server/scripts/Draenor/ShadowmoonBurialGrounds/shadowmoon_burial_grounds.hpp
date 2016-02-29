@@ -41,7 +41,6 @@ enum eShadowmoonBurialGroundsDatas
     DataSadanaFightDoor,
     DataNerzulDoor,
     DataNhalishDoorEntrance,
-    DataNhalishDoorsExit,
     DataBonemawDoorEntrance,
     DataNerzulProp
 };
@@ -81,8 +80,7 @@ enum eShadowmoonBurialGroundsCreatures
     CreatureWorldTriggerAltar       = 83816, 
     CreatureWorldTriggerSadanaRp    = 838166,
     CreatureWeepingSpirit           = 89003,
-    CreatureBonemawMouth            = 81881,
-    CreaturePortalToTheShadowland   = 85441
+    CreatureBonemawMouth            = 81881
 };
 
 enum eShadowmoonBurialGroundsGameObjects
@@ -90,7 +88,6 @@ enum eShadowmoonBurialGroundsGameObjects
     GameObjectSadanaDoor           = 233919,
     GameObjectSadanaFightDoor      = 233921,
     GameObjectNerzulDoor           = 233920,
-    GameObjectNhalishDoorsExit     = 227851,
     GameObjectNhalishDoorEntrance  = 227852,
     GameObjectBonemawDoorEntrance  = 233990
 };

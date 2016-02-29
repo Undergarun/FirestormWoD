@@ -27,21 +27,19 @@ enum eNerzulCreatures
     CreatureOmenOfDeath                  = 76462,
     CreatureRitualOfBones                = 76518,
     CreatureRitualOfBonesDarknessTrigger = 534556,
+    CreatureVoidDoorSpawnCounter         = 645456
 };
 
 enum eNerzulActions
 {
-    ActionNerzulPropIntroduction = 1,
-    ActionNerzulPrePortalKillingCounter
+    ActionNerzulPropIntroduction = 1
 };
 
-Position const g_PositionNerzulHome                  = { 1723.754f, -799.859f, 73.735f, 4.222427f };
+Position const l_NerzulTeleportPosition = { 1723.754f, -799.859f, 73.735f, 4.222427f };
 
-Position const g_PositionRituaOfSoulInitialRight     = { 1696.762,  -882.256f,  74.442f, 4.900199f };
+Position const l_InitialPositionRight   = { 1694.928f, -785.322f, 73.735f, 4.234663f };
 
-Position const g_PositionRituaOfSoulInitialLeft      = { 1644.268f, -837.529, 74.128f, 4.900199f };
-
-Position const g_PositionShadowLandPortal            = { 1727.250f, -810.651f, 73.806f, 3.561160f};
+Position const l_InitialPositionLeft    = { 1677.648f, -825.009f, 73.306f, 0.882368f };
 
 /// Nerz'ul - 76407
 class boss_nerzul : public CreatureScript
@@ -55,7 +53,6 @@ public:
         boss_nerzulAI(Creature* p_Creature) : BossAI(p_Creature, eShadowmoonBurialGroundsDatas::DataBossNerzul)
         {
             m_Instance = me->GetInstanceScript();
-            m_PrePortalKillingCount = 0;
         }
 
         enum eNerzulSpells
@@ -80,26 +77,22 @@ public:
 
         enum eNerzulEvents
         {
-            EventMalevolance = 1,
+            EventMalevolance,
             EventRitualOfSouls,
-            EventOmenOfDeath,
-            EventMovementRenabling
+            EventOmenOfDeath
         };
 
+        InstanceScript* m_Instance;
         float m_X;
         float m_Y;
-        uint8 m_PrePortalKillingCount; /// Void.
-        std::list<uint64> m_ListOmenOfDeathGUID;
-        InstanceScript* m_Instance;
 
         void Reset() override
-        {                 
+        {
             _Reset();
-            m_Y = 4.538f;
-            m_X = 10.375f;
             events.Reset();
-            me->setFaction(HostileFaction);
-            m_ListOmenOfDeathGUID.clear();
+            m_X = 10.375f;
+            m_Y = 4.538f;
+            me->setFaction(HostileFaction); 
         }
 
         void JustReachedHome() override
@@ -140,26 +133,11 @@ public:
             }
         }
 
-        void DoAction(int32 const p_Action) override
-        {
-            switch (p_Action)
-            {
-                case eNerzulActions::ActionNerzulPrePortalKillingCounter:
-                    if (m_PrePortalKillingCount < 2)
-                    m_PrePortalKillingCount++;
-                    break;
-                default:
-                    break;
-            }
-        }
-
         void JustDied(Unit* /*p_Killer*/) override
         {
             _JustDied();
             summons.DespawnAll();
             Talk(eNerzulTalks::TalkDeath);
-            ///< Summons a portal
-            me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreaturePortalToTheShadowland, g_PositionShadowLandPortal, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -175,29 +153,17 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eNerzulEvents::EventMalevolance:
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                    {
-                        me->StopMoving();
-                        Talk(eNerzulTalks::TalkSpell01);
+                    if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         me->CastSpell(l_Target, eNerzulSpells::SpellMalevolance);
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);                
-                     }      
-                    events.ScheduleEvent(eNerzulEvents::EventMovementRenabling, 3 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eNerzulEvents::EventMalevolance, 15 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                case eNerzulEvents::EventMovementRenabling:
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    Talk(eNerzulTalks::TalkSpell01);
+                    events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNerzulEvents::EventOmenOfDeath:
-                {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         me->CastSpell(l_Target, eNerzulSpells::SpellOmenOfDeathSummon);
                     Talk(eNerzulTalks::TalkSpell03);
-                    events.ScheduleEvent(eNerzulEvents::EventOmenOfDeath, 15 * TimeConstants::IN_MILLISECONDS);
+                    events.ScheduleEvent(eNerzulEvents::EventOmenOfDeath, TimeConstants::IN_MILLISECONDS);
                     break;
-                }
                 case eNerzulEvents::EventRitualOfSouls:
                 {
                     Talk(eNerzulTalks::TalkSpell02);
@@ -207,9 +173,9 @@ public:
                         {
                             for (uint8 l_I = 0; l_I <= 6; l_I++)
                             {
-                                me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, g_PositionRituaOfSoulInitialRight.GetPositionX() + (m_X * l_I),
-                                g_PositionRituaOfSoulInitialRight.GetPositionY() + (m_Y * l_I), g_PositionRituaOfSoulInitialRight.GetPositionZ(),
-                                g_PositionRituaOfSoulInitialRight.GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS);
+                                me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, l_InitialPositionRight.GetPositionX() + (m_X * l_I),
+                                l_InitialPositionRight.GetPositionY() + (m_Y * l_I), l_InitialPositionRight.GetPositionZ(),
+                                l_InitialPositionRight.GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS);
                             }
                             break;
                         }
@@ -217,16 +183,15 @@ public:
                         {
                             for (uint8 l_I = 0; l_I <= 6; l_I++)
                             {
-                                me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, g_PositionRituaOfSoulInitialLeft.GetPositionX() + (m_X * l_I),
-                                g_PositionRituaOfSoulInitialLeft.GetPositionY() + (m_Y * l_I), g_PositionRituaOfSoulInitialLeft.GetPositionZ(),
-                                g_PositionRituaOfSoulInitialLeft.GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS);
+                                me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, l_InitialPositionLeft.GetPositionX() + (m_X * l_I),
+                                l_InitialPositionLeft.GetPositionY() + (m_Y * l_I), l_InitialPositionLeft.GetPositionZ(),
+                                l_InitialPositionLeft.GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS);
                             }
                             break;
                         }
                         default:
                             break;
                     }
-                    events.ScheduleEvent(eNerzulEvents::EventRitualOfSouls, 40 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 default:
@@ -240,140 +205,6 @@ public:
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new boss_nerzulAI(p_Creature);
-    }
-};
-
-/// Void spawn - 75652
-class shadowmoon_burial_grounds_nerzul_creature_void_spawn : public CreatureScript
-{
-public:
-
-    shadowmoon_burial_grounds_nerzul_creature_void_spawn() : CreatureScript("shadowmoon_burial_grounds_nerzul_creature_void_spawn") { }
-
-    struct shadowmoon_burial_grounds_nerzul_creature_void_spawnAI : public ScriptedAI
-    {
-        shadowmoon_burial_grounds_nerzul_creature_void_spawnAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-        {
-            m_Instance = me->GetInstanceScript();
-        }
-
-        enum eVoidSpawnSpells
-        {
-            SpellVoidPulseFullDamage = 152964
-        };
-
-        enum eVoidSpawnEvents
-        {
-            EventVoidPulse = 1,
-            EventSizeGrowth
-        };
-
-        enum eCreatures
-        {
-            ///< Responsible for altars.
-            CreatureWorldTrigger = 83816
-        };
-
-        InstanceScript* m_Instance;
-        float m_Size;
-
-        void Reset() override
-        {
-            m_Size = 0;
-            events.Reset();
-            me->setFaction(HostileFaction);
-
-            /// Weird but functioning code.
-            if (TempSummon* l_Tempo = me->ToTempSummon())
-            {
-                if (Unit* l_Summoner = l_Tempo->GetSummoner())
-                {
-                    if (l_Summoner->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    {
-                        if (l_Summoner->GetEntry() != eCreatures::CreatureWorldTrigger)
-                            me->SetObjectScale(1.0f);
-                    }
-                    else
-                        me->SetObjectScale(1);
-                }
-                else
-                    me->SetObjectScale(1);
-            }
-            else
-                me->SetObjectScale(1);
-        }
-
-        void JustDied(Unit* /*p_Killer*/) override
-        {
-            if (m_Instance != nullptr)
-            {
-                if (Creature* l_Nerzul = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNerzul)))
-                {
-                    if (l_Nerzul->IsAIEnabled)
-                        l_Nerzul->GetAI()->DoAction(eNerzulActions::ActionNerzulPrePortalKillingCounter);
-                }
-            }
-        }
-
-        void EnterCombat(Unit* p_Attacker) override
-        {
-            events.ScheduleEvent(eVoidSpawnEvents::EventVoidPulse, 15 * TimeConstants::IN_MILLISECONDS);
-        }
-
-        void DoAction(int32 const p_Action) override
-        {
-            switch (p_Action)
-            {
-                case eShadowmoonBurialGroundsActions::ActionSizeGrowth:
-                    events.ScheduleEvent(eVoidSpawnEvents::EventSizeGrowth, 1 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            events.Update(p_Diff);
-
-            if (events.ExecuteEvent() == eShadowmoonBurialGroundsEvents::EventSizeGrowth)
-            {
-                if (m_Size <= 1.0f)
-                {
-                    m_Size += 0.1f;
-                    me->SetObjectScale(m_Size);
-                    events.ScheduleEvent(eVoidSpawnEvents::EventSizeGrowth, 1 * TimeConstants::IN_MILLISECONDS);
-                }
-                else
-                    events.CancelEvent(eShadowmoonBurialGroundsEvents::EventSizeGrowth);
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            switch (events.ExecuteEvent())
-            {
-                case eVoidSpawnEvents::EventVoidPulse:
-                {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(l_Target, eVoidSpawnSpells::SpellVoidPulseFullDamage);
-                    events.ScheduleEvent(eVoidSpawnEvents::EventVoidPulse, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new shadowmoon_burial_grounds_nerzul_creature_void_spawnAI(p_Creature);
     }
 };
 
@@ -406,7 +237,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eOmenOfDeathSpells::SpellOmenOfDeathVisualRune);
             me->CastSpell(me, eOmenOfDeathSpells::SpellOmenOfDeathLightning);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
     };
@@ -446,7 +277,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FORWARD);
             me->CastSpell(me, eRitualOfBonesSpells::SpellRitualOfBonesWeirdVisualPoop);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);    
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -489,7 +320,6 @@ public:
         };
 
         InstanceScript* m_Instance;
-        uint32 m_Diff;
 
         void Reset() override
         {
@@ -500,7 +330,6 @@ public:
                     me->SetFacingTo(l_Summoner->GetOrientation());
             }           
             events.Reset();
-            m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
             me->setFaction(FriendlyFaction);
             me->SetDisplayId(InvisibleDisplay);
             me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -511,23 +340,16 @@ public:
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            if (m_Diff <= p_Diff)
+            std::list<Player*> l_ListPlayer;
+            me->GetPlayerListInGrid(l_ListPlayer, 100.0f);
+            if (!l_ListPlayer.empty())
             {
-                std::list<Player*> l_ListPlayer;
-                me->GetPlayerListInGrid(l_ListPlayer, 100.0f);
-                if (!l_ListPlayer.empty())
+                for (Player* l_Itr : l_ListPlayer)
                 {
-                    for (Player* l_Itr : l_ListPlayer)
-                    {
-                        if (!l_Itr->HasAura(eRitualOfBonesSpells::SpellRitualOfBonesDot))
+                    if (l_Itr->isInBack(me))
                         l_Itr->AddAura(eRitualOfBonesSpells::SpellRitualOfBonesDot, l_Itr);
-                    }
                 }
-
-                m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
             }
-            else
-                m_Diff -= p_Diff;
         }
     };
 
@@ -612,7 +434,7 @@ public:
                     if (!l_Nerzul->isInCombat())
                     {
                         if (Player* l_NearestPlayer = me->FindNearestPlayer(5.0f, true))
-                            l_NearestPlayer->NearTeleportTo(g_PositionNerzulHome.GetPositionX(), g_PositionNerzulHome.GetPositionY(), g_PositionNerzulHome.GetPositionZ(), g_PositionNerzulHome.GetOrientation());
+                            l_NearestPlayer->NearTeleportTo(l_NerzulTeleportPosition.GetPositionX(), l_NerzulTeleportPosition.GetPositionY(), l_NerzulTeleportPosition.GetPositionZ(), l_NerzulTeleportPosition.GetOrientation());
                     }
                 }
             }
@@ -692,92 +514,12 @@ public:
     }
 };
 
-///< Omen of Death - 154350
-class shadowmoon_burial_grounds_nerzul_spell_omen_of_death : public SpellScriptLoader
-{
-public:
-
-    shadowmoon_burial_grounds_nerzul_spell_omen_of_death() : SpellScriptLoader("shadowmoon_burial_grounds_nerzul_spell_omen_of_death") { }
-
-    class shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript);
-
-        void HandleSummon(SpellEffIndex p_EffIndex)
-        {
-            if (!GetCaster())
-                return;
-
-            if (InstanceScript* l_Instance = GetCaster()->GetInstanceScript())
-            {
-                if (Creature* l_Nerzul = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNerzul)))
-                {
-                    if (l_Nerzul->IsAIEnabled)
-                    {
-                        if (boss_nerzul::boss_nerzulAI* l_LinkAI = CAST_AI(boss_nerzul::boss_nerzulAI, l_Nerzul->GetAI()))
-                        {
-                            if (!l_LinkAI->m_ListOmenOfDeathGUID.empty())
-                            {
-                                if (static_cast<int32>(l_LinkAI->m_ListOmenOfDeathGUID.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
-                                {
-                                    if (Creature* l_Creature = Creature::GetCreature(*GetCaster(), l_LinkAI->m_ListOmenOfDeathGUID.back()))
-                                        l_Creature->DespawnOrUnsummon();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnEffectHit += SpellEffectFn(shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript::HandleSummon, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_SUMMON);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript();
-    }
-};
-
-/// Enter the Shadowlands - 239083
-class shadowmoon_burial_grounds_gameobject_enter_the_shadowlands : public GameObjectScript
-{
-public:
-    shadowmoon_burial_grounds_gameobject_enter_the_shadowlands() : GameObjectScript("shadowmoon_burial_grounds_gameobject_enter_the_shadowlands") {}
-
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
-    {
-        if (InstanceScript* l_Instance = p_Player->GetInstanceScript())
-        {
-            if (Creature* l_Nerzul = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNerzul)))
-            {
-                if (l_Nerzul->IsAIEnabled)
-                {
-                    if (boss_nerzul::boss_nerzulAI* l_LinkAI = CAST_AI(boss_nerzul::boss_nerzulAI, l_Nerzul->GetAI()))
-                    {
-                        if (l_LinkAI->m_PrePortalKillingCount >= 2)
-                        {
-                            p_Player->NearTeleportTo(g_PositionNerzulHome.GetPositionX(), g_PositionNerzulHome.GetPositionY(), g_PositionNerzulHome.GetPositionZ(), g_PositionNerzulHome.GetOrientation(), true);
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-};
-
 void AddSC_boss_nerzul()
 {
     new boss_nerzul();                                                          ///< 76407
-    new shadowmoon_burial_grounds_nerzul_creature_void_spawn();                 ///< 75652
     new shadowmoon_burial_grounds_nerzul_creature_nerzul_prop();                ///< 79497
     new shadowmoon_burial_grounds_nerzul_creature_omen_of_death();              ///< 76462
     new shadowmoon_burial_grounds_nerzul_creature_ritual_of_bones();            ///< 76518
     new shadowmoon_burial_grounds_nerzul_creature_darkness();                   ///< 534556
-    new shadowmoon_burial_grounds_nerzul_spell_omen_of_death();
-    new shadowmoon_burial_grounds_gameobject_enter_the_shadowlands();           ///< 239083
+    ///new shadowmoon_burial_grounds_nerzulinitial_teleport();                  ///< Create areatrigger to teleport to bottom floor. 
 }
