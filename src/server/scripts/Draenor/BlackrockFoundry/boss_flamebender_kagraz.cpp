@@ -814,12 +814,8 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
         {
             npc_foundry_flamebender_kagraz_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                m_Initialized       = false;
-
-                m_LavaSlashTarget   = 0;
+                m_LavaSlashTarget = 0;
             }
-
-            bool m_Initialized;
 
             uint64 m_LavaSlashTarget;
 
@@ -827,25 +823,18 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
 
             void Reset() override
             {
-                if (m_Initialized)
-                {
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                    me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-                    me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
-                }
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
             {
-                m_Initialized = true;
-
                 m_LavaSlashTarget = p_Guid;
 
-                Reset();
+                me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
             }
 
             void JustSummoned(Creature* p_Summon) override
