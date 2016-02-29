@@ -176,6 +176,8 @@ class InterRealmSession: public ACE_Based::Runnable
 
         void Handle_CrossPartyInfo(WorldPacket& p_Packet);
 
+        void Handle_PlayerReconnectResult(WorldPacket& p_Packet);
+
         void SendWhisper(uint64 sender, uint64 receiver, const std::string& text, const uint32 language);
         void SendBattlegroundHolidaysQuery();
 
@@ -184,6 +186,8 @@ class InterRealmSession: public ACE_Based::Runnable
         void SendSummonPlayer(uint64 playerGuid);
 
         void SendAppearRequest(Player* sender, uint64 targetGuid);
+
+        void SendPlayerReconnect(uint64 p_PlayerGuid, uint32 p_BattlegroundInstanceId, BattlegroundTypeId p_BattlegroundTypeId);
 
         void SendGuild(uint64 guildGuid);
 
