@@ -32965,7 +32965,7 @@ uint32 Player::GetUnlockedPetBattleSlot()
     uint32 l_SlotCount = 0;
 
     /// battle pet training
-    if (HasSpell(119467))
+    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
         l_SlotCount++;
 
     /// Newbie
