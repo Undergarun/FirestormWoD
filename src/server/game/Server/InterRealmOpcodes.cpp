@@ -138,6 +138,10 @@ void IROpcodeTable::Initialize()
 
     DEFINE_IR_OPCODE_HANDLER(IR_SMSG_CROSS_PARTY_INFO,          &InterRealmSession::Handle_CrossPartyInfo);
 
+    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_PLAYER_RECONNECT,               &InterRealmSession::Handle_ClientSide);
+    DEFINE_IR_OPCODE_HANDLER(IR_SMSG_PLAYER_RECONNECT_RESULT,        &InterRealmSession::Handle_PlayerReconnectResult);
+    DEFINE_IR_OPCODE_HANDLER(IR_CMSG_PLAYER_RECONNECT_READY_TO_LOAD, &InterRealmSession::Handle_ClientSide);
+
 
 #undef DEFINE_IR_OPCODE_HANDLER
 };

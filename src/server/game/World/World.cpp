@@ -3526,6 +3526,13 @@ void World::ResetCurrencyWeekCap()
 
     sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, getWorldState(MS::Battlegrounds::WsCurrency::ResetTime) + 7);
 
+    InterRealmSession* l_Tunnel = sWorld->GetInterRealmSession();
+    if (l_Tunnel && l_Tunnel->IsTunnelOpened())
+    {
+        WorldPacket l_Data(IR_CMSG_CURRENCY_CAP_RESET);
+        l_Tunnel->SendPacket(&l_Data);
+    }
+
     m_NextCurrencyReset = time_t(m_NextCurrencyReset + DAY * 7);
 }
 

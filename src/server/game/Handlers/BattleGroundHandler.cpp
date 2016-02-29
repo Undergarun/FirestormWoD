@@ -400,7 +400,29 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
  
             SetBattlegroundPortData(GetPlayer()->GetGUID(), l_Time, l_QueueSlotID, l_AcceptedInvite);
             GetPlayer()->SetInterRealmPlayerState(InterRealmPlayerState::InTransfer);
-            GetPlayer()->SaveToDB(false, true);
+
+            uint32 l_AccountID = GetAccountId();
+
+            GetPlayer()->SaveToDB(false, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+            {
+                WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+                if (l_Session == nullptr)
+                    return;
+
+                if (InterRealmSession* ir_session = sWorld->GetInterRealmSession())
+                {
+                    BattlegroundPortData l_PortData = l_Session->GetBattlegroundPortData();
+
+                    WorldPacket pckt(IR_CMSG_BATTLEFIELD_PORT, 8 + 4 + 4 + 1);
+
+                    pckt << uint64(l_PortData.PlayerGuid);
+                    pckt << uint32(l_PortData.Time);
+                    pckt << uint32(l_PortData.QueueSlot);
+                    pckt << uint8(l_PortData.Action);
+
+                    ir_session->SendPacket(&pckt);
+                }
+            }));
         }
         else
         {
@@ -557,7 +579,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& p_RecvData)
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& p_RecvData) ///< recvData is unused
 {
     if (m_Player == nullptr)
         return;

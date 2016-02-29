@@ -1697,7 +1697,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry)
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry) ///< pet_number is unused
 {
     ASSERT(map);
     SetMap(map);

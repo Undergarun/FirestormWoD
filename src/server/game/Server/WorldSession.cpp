@@ -660,15 +660,6 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
 
-        InterRealmSession* tunnel = sWorld->GetInterRealmSession();
-        if (tunnel && tunnel->IsTunnelOpened())
-        {
-            WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
-            tunPacket << uint64(m_Player->GetGUID());
-            sIRTunnel->SendPacket(&tunPacket);
-            m_InterRealmZoneId = 0;
-        }
-
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (m_Player->GetDeathTimer())
@@ -797,6 +788,15 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
                 m_Player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
             m_Player->SaveToDB();
+        }
+
+        InterRealmSession* tunnel = sWorld->GetInterRealmSession();
+        if (tunnel && tunnel->IsTunnelOpened())
+        {
+            WorldPacket tunPacket(IR_CMSG_PLAYER_LOGOUT, 8);
+            tunPacket << uint64(m_Player->GetGUID());
+            sIRTunnel->SendPacket(&tunPacket);
+            m_InterRealmZoneId = 0;
         }
 
         ///- Leave all channels before player delete...
@@ -1683,7 +1683,18 @@ void WorldSession::LoadPremades()
             }
         }
 
-        l_NewCharacter.SaveToDB(true);
+        uint32 l_AccountID = GetAccountId();
+
+        l_NewCharacter.SaveToDB(true, std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        {
+            WorldSession* l_Session = sWorld->FindSession(l_AccountID);
+            if (l_Session == nullptr)
+                return;
+
+            WorldPacket l_Data(SMSG_CREATE_CHAR, 1);
+            l_Data << uint8(p_Success ? CHAR_CREATE_SUCCESS : CHAR_CREATE_ERROR);
+            l_Session->SendPacket(&l_Data);
+        }));
 
         if (l_CreateInfo->Class == CLASS_HUNTER)
         {
