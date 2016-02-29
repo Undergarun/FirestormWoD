@@ -499,7 +499,10 @@ class playerScript_taste_of_iron : public PlayerScript
             if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
+                {
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
+                    p_Player->RemoveAura(TanaanSpells::SpellTasteOfIronGameAura);
+                }
             }
         }
 
@@ -522,7 +525,10 @@ class playerScript_taste_of_iron : public PlayerScript
             if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestATasteOfIron)
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
+                {
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
+                    p_Player->RemoveAura(TanaanSpells::SpellTasteOfIronGameAura);
+                }
             }
         }
 
@@ -4145,14 +4151,16 @@ class gob_worldbreaker_side_turret : public GameObjectScript
                 uint32 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask &= ~TanaanPhases::PhaseCannonTurret;
                 p_Player->SetPhaseMask(l_PhaseMask, true);
-                p_Player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, p_Player);
                 p_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditEnterWorldbreakerTurret, 1);
 
                 Position l_Pos;
                 p_Player->GetPosition(&l_Pos);
 
                 if (!g_TasteOfIronPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()])
+                {
                     g_TasteOfIronPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneShootingGallery, 63, l_Pos);
+                    p_Player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, p_Player);
+                }
             }
             return true;
         }

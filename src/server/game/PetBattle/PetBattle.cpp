@@ -1323,6 +1323,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                         l_XpEarn += (float(l_CurrentPet->GetXPEarn(Teams[PETBATTLE_PVE_TEAM_ID]->TeamPets[l_OpponentTeamCurrentPet]->ID)) * l_XpMod[l_OpponentTeamCurrentPet]) / l_AvailablePetCount;
                     }
 
+                    AddPct(l_XpEarn, l_Player->GetTotalAuraModifier(SPELL_AURA_MOD_BATTLE_PET_XP_PCT));
                     uint32 l_XpToNextLevel = l_CurrentPet->GetMaxXPForCurrentLevel();
 
                     if ((l_CurrentPet->XP + l_XpEarn) >= l_XpToNextLevel)

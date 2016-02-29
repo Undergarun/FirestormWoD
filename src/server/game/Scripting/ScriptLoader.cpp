@@ -20,6 +20,7 @@
 
 // Customs
 void AddSC_event_april();
+void AddSC_weekly_event_bonus();
 void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
 void AddSC_user_reporting();
@@ -1943,6 +1944,7 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_april();
+    AddSC_weekly_event_bonus();
     AddSC_promotion_new_players();
     AddSC_first_time_connexion();
     AddSC_user_reporting();

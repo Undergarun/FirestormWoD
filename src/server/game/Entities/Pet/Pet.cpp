@@ -156,7 +156,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback)
+void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback) ///< petnumber is unused
 {
     m_loading = true;
 
@@ -565,7 +565,7 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
         trans->Append(ss.str().c_str());
 
         uint32 l_AccountID = owner->GetSession()->GetAccountId();
-        MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void ///< p_Success is unused
         {
             WorldSession* l_Session = sWorld->FindSession(l_AccountID);
             if (l_Session == nullptr)
@@ -1301,8 +1301,8 @@ void Pet::_LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult auraEff
                 }
             }
 
-            AuraPtr aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
-            if (aura != NULLAURA)
+            Aura* aura = Aura::TryCreate(spellInfo, effmask, this, NULL, &baseDamage[0], NULL, caster_guid);
+            if (aura != nullptr)
             {
                 if (!aura->CanBeSaved())
                 {
@@ -1334,7 +1334,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         if (!itr->second->CanBeSaved() || IsPetAura(itr->second))
             continue;
 
-        AuraPtr aura = itr->second;
+        Aura* aura = itr->second;
         AuraApplication * foundAura = GetAuraApplication(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID());
 
         if (!foundAura)
@@ -1698,7 +1698,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number) ///< pet_number is unused
 {
     ASSERT(map);
     SetMap(map);
@@ -1777,7 +1777,7 @@ void Pet::CastPetAura(PetAura const* aura)
     CastSpell(this, auraId, true);
 }
 
-bool Pet::IsPetAura(constAuraPtr aura)
+bool Pet::IsPetAura(Aura const* aura)
 {
     Unit* owner = GetOwner();
 

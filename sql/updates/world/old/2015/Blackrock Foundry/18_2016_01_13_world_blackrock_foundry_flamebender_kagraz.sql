@@ -322,7 +322,7 @@ INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Condi
 (13, 1, 163644, 31, 0, 3, 80683),
 (13, 1, 163634, 31, 0, 3, 80947);
 
-DELETE FROM spell_script_names WHERE spell_id IN (163182, 177860, 156038, 154932, 155912, 154961, 154950, 154952, 155493, 168996, 163634, 156689);
+DELETE FROM spell_script_names WHERE spell_id IN (163182, 177860, 156038, 154932, 155912, 154961, 154950, 154952, 155493, 168996, 163634, 156689, 155382);
 INSERT INTO spell_script_names VALUES
 (163182, "spell_foundry_crushing_slam"),
 (177860, "spell_foundry_ember_in_the_wind_damage"),
@@ -335,7 +335,8 @@ INSERT INTO spell_script_names VALUES
 (155493, "spell_foundry_firestorm_aura"),
 (168996, "spell_foundry_firestorm_v2_periodic_lava_stalker"),
 (163634, "spell_foundry_firestorm_v2_pick_stalker_to_fire"),
-(156689, "spell_foundry_unquenchable_flame_periodic");
+(156689, "spell_foundry_unquenchable_flame_periodic"),
+(155382, "spell_foundry_blazing_radiance");
 
 DELETE FROM areatrigger_template WHERE spell_id IN (154915, 155847, 163630);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, flags, scale_x, scale_y, scale_curve_id, ScriptName) VALUES

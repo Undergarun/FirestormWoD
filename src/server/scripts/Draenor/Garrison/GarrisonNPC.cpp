@@ -1137,7 +1137,7 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_NaronBloomthistle;
 
         /// Barn
-        new MS::Garrison::npc_HomerStonefield;
+        new MS::Garrison::npc_HomerStonefield_Garr;
         new MS::Garrison::npc_HomerStonefield_Garr_Trap;
 
         /// Lumber Mill

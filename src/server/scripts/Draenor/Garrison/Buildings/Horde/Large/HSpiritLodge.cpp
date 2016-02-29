@@ -146,7 +146,6 @@ namespace MS { namespace Garrison
             if (p_Player->GetQuestStatus(Quests::Horde_PortablePortals) == QUEST_STATUS_INCOMPLETE)
                 p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
 
-            l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFur);
             reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
         }
         return true;

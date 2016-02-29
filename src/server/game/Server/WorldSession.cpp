@@ -693,6 +693,9 @@ void WorldSession::LogoutPlayer(bool Save)
                 _pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, _pet->m_Stampeded);
         }
 
+        //! Call script hook before deletion
+        sScriptMgr->OnPlayerLogout(m_Player);
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (Save)
@@ -729,9 +732,6 @@ void WorldSession::LogoutPlayer(bool Save)
         //! Broadcast a logout message to the player's friends
         sSocialMgr->SendFriendStatus(m_Player, FRIEND_OFFLINE, m_Player->GetGUIDLow(), true);
         sSocialMgr->RemovePlayerSocial(m_Player->GetGUIDLow());
-
-        //! Call script hook before deletion
-        sScriptMgr->OnPlayerLogout(m_Player);
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -1324,7 +1324,7 @@ void WorldSession::ProcessQueryCallbacks()
                     m_Player->RemoveAurasDueToSpell(VOTE_BUFF);
                 else if (m_Player && m_VoteRemainingTime != 0)
                 {
-                    AuraPtr l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
+                    Aura* l_Aura = m_Player->HasAura(VOTE_BUFF) ? m_Player->GetAura(VOTE_BUFF) : m_Player->AddAura(VOTE_BUFF, m_Player);
                     if (l_Aura != nullptr)
                         l_Aura->SetDuration(m_VoteRemainingTime + 60 * IN_MILLISECONDS);    //< Add remaining time + 1 mins (callback lag)
                 }

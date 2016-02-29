@@ -621,7 +621,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                     {
                         AuraApplication * aurApp = iter->second;
-                        AuraPtr aura = aurApp->GetBase();
+                        Aura* aura = aurApp->GetBase();
                         if (!aura->IsPermanent()
                             && aura->GetDuration() <= 30*IN_MILLISECONDS
                             && aurApp->IsPositive()
@@ -654,7 +654,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                         for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                         {
                             AuraApplication * aurApp = iter->second;
-                            AuraPtr aura = aurApp->GetBase();
+                            Aura* aura = aurApp->GetBase();
                             if (!aura->IsPermanent()
                                 && aura->GetDuration() <= 30 * IN_MILLISECONDS
                                 && aurApp->IsPositive()
@@ -705,7 +705,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const ///< context is unused
 {
     Player* player = NULL;
     if (!offlineRemove)

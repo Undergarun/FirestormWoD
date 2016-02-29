@@ -426,7 +426,7 @@ class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
         {
             PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript);
 
-            void PeriodicTick(constAuraEffectPtr aurEff)
+            void PeriodicTick(AuraEffect const* aurEff)
             {
                 if (!GetUnitOwner())
                     return;

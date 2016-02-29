@@ -1213,7 +1213,7 @@ class spell_sunbeam : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sunbeam_aura_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsPlayer())
                 {
@@ -1231,7 +1231,7 @@ class spell_sunbeam : public SpellScriptLoader
                 GetTarget()->RemoveAurasDueToSpell(SPELL_DREAD_SHADOWS_DEBUFF);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsPlayer())
                 {
@@ -1364,7 +1364,7 @@ class spell_light_of_the_day : public SpellScriptLoader
         {
             PrepareAuraScript(spell_light_of_the_day_AuraScript);
 
-            void Check(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Check(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     if (target->HasAura(SPELL_SUN_BREATH))

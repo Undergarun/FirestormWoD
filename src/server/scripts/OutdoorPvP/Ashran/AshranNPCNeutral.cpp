@@ -285,11 +285,11 @@ class npc_faction_boss : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -626,11 +626,11 @@ class npc_ashran_korlok : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -823,11 +823,11 @@ class npc_ashran_faction_champions : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -931,11 +931,11 @@ class npc_ashran_mandragoraster : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -1019,11 +1019,11 @@ class npc_ashran_panthora : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -1132,11 +1132,11 @@ class npc_ashran_ancient_inferno : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -1251,11 +1251,11 @@ class npc_ashran_goregore : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }
@@ -1476,11 +1476,11 @@ class npc_ashran_elder_darkweaver_kath : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::AshranLaneMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_Count);
                 }
             }

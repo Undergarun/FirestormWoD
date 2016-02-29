@@ -1417,7 +1417,7 @@ class spell_cinders: public SpellScriptLoader
         {
             PrepareAuraScript(spell_cinders_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1429,7 +1429,7 @@ class spell_cinders: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1466,11 +1466,11 @@ class spell_arctic_freeze: public SpellScriptLoader
         {
             PrepareAuraScript(spell_arctic_freeze_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
-                    if (AuraPtr arcticFreeze = aurEff->GetBase())
+                    if (Aura* arcticFreeze = aurEff->GetBase())
                     {
                         if (arcticFreeze->GetStackAmount() >= 5)
                         {
@@ -1537,7 +1537,7 @@ class spell_diffusion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_diffusion_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1608,7 +1608,7 @@ class spell_nether_tear: public SpellScriptLoader
         {
             PrepareAuraScript(spell_nether_tear_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;
@@ -1639,7 +1639,7 @@ class spell_rampage_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rampage_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(AuraEffect const* aurEff)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;

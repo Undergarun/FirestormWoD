@@ -274,7 +274,7 @@ namespace MS { namespace Garrison
             {
                 PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
 
-                void OnTick(constAuraEffectPtr p_AurEff)
+                void OnTick(AuraEffect const* p_AurEff)
                 {
                     Unit* l_Caster = GetCaster();
                     WorldObject* l_Target = GetOwner();
@@ -289,7 +289,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
                 {
                     WorldObject* l_Target = GetOwner();
 
@@ -377,7 +377,7 @@ namespace MS { namespace Garrison
                     SpellStickyGrenadeTargetDmg = 168659
                 };
 
-                void OnRemove(constAuraEffectPtr /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+                void OnRemove(AuraEffect const* /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
                 {
                     if (Unit* l_Caster = GetCaster())
                         l_Caster->CastSpell(l_Caster, eDatas::SpellStickyGrenadeTargetDmg, true);
@@ -428,6 +428,55 @@ namespace MS { namespace Garrison
             }
     };
 
+    class spell_GarrisonRouseTrader : public SpellScriptLoader
+    {
+        public:
+            spell_GarrisonRouseTrader() : SpellScriptLoader("spell_GarrisonRouseTrader") { }
+
+            class spell_GarrisonRouseTrader_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript);
+
+                SpellCastResult CheckCast()
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                    {
+                        if (!l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR))
+                            return SPELL_FAILED_BAD_TARGETS;
+                    }
+                    else
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    return SPELL_CAST_OK;
+                }
+
+//                 void HandleBeforeCast()
+//                 {
+//                 }
+
+                void OnSpellHit(SpellEffIndex /*p_EffIndex*/)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        l_Caster->ToPlayer()->KilledMonsterCredit(87254);
+                }
+
+                void Register()
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_GarrisonRouseTrader_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_GarrisonRouseTrader_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_GarrisonRouseTrader_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -439,4 +488,5 @@ void AddSC_Garrison()
     new MS::Garrison::spell_garrison_shipyard();
     new MS::Garrison::spell_aura_sticky_grenade();
     new MS::Garrison::spell_pneumatic_power_gauntlet();
+    new MS::Garrison::spell_GarrisonRouseTrader();
 }

@@ -201,14 +201,14 @@ enum CharacterWorldStates
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(AuraPtr _ownerAura = NULLAURA) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), charges(0), value(0), mask(), spellId(0), ownerAura(_ownerAura) {}
+    SpellModifier(Aura* _ownerAura = nullptr) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), charges(0), value(0), mask(), spellId(0), ownerAura(_ownerAura) {}
     SpellModOp   op   : 8;
     SpellModType type : 8;
     int16 charges     : 16;
     int32 value;
     flag128 mask;
     uint32 spellId;
-    constAuraPtr ownerAura;
+    Aura const* ownerAura;
 };
 
 enum PlayerCurrencyState
@@ -1579,10 +1579,10 @@ class Player : public Unit, public GridObject<Player>
 
         //AnticheatData anticheatData;
 
-        void CleanupsBeforeDelete(bool finalCleanup = true);
+        void CleanupsBeforeDelete(bool finalCleanup = true); ///< overrides a member function but is not marked 'override'
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld(); ///< overrides a member function but is not marked 'override'
+        void RemoveFromWorld(); ///< overrides a member function but is not marked 'override'
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
@@ -1616,14 +1616,14 @@ class Player : public Unit, public GridObject<Player>
 
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
-        void Update(uint32 time);
+        void Update(uint32 time); ///< overrides a member function but is not marked 'override'
 
         static bool BuildEnumData(PreparedQueryResult p_Result, ByteBuffer * p_Data);
 
         void SetInWater(bool apply);
 
-        bool IsInWater() const { return m_isInWater; }
-        bool IsUnderWater() const;
+        bool IsInWater() const { return m_isInWater; } ///< overrides a member function but is not marked 'override'
+        bool IsUnderWater() const; ///< overrides a member function but is not marked 'override'
         bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
 
         void SendInitialPacketsBeforeAddToMap();
@@ -1698,7 +1698,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetTotalPlayedTime() { return m_Played_time[PLAYED_TIME_TOTAL]; }
         uint32 GetLevelPlayedTime() { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
-        void setDeathState(DeathState s);                   // overwrite Unit::setDeathState
+        void setDeathState(DeathState s);                   // overwrite Unit::setDeathState ///< overrides a member function but is not marked 'override'
 
         void InnEnter (time_t time, uint32 mapid, float x, float y, float z)
         {
@@ -1743,7 +1743,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void SetVirtualItemSlot(uint8 i, Item* item);
-        void SetSheath(SheathState sheathed);             // overwrite Unit version
+        void SetSheath(SheathState sheathed);             // overwrite Unit version ///< overrides a member function but is not marked 'override'
         uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
         uint8 GetGuessedEquipSlot(ItemTemplate const* proto) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
@@ -1923,7 +1923,7 @@ class Player : public Unit, public GridObject<Player>
 
             return mainItem && ((mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip()) || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGED || mainItem->GetTemplate()->InventoryType == INVTYPE_THROWN || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGEDRIGHT);
         }
-        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
+        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false, uint32 p_EncounterID = 0, ItemContext p_Context = ItemContext::None);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
@@ -2111,7 +2111,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder);
-        bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
+        bool isBeingLoaded() const { return GetSession()->PlayerLoading();} ///< overrides a member function but is not marked 'override'
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -2234,7 +2234,7 @@ class Player : public Unit, public GridObject<Player>
         void VehicleSpellInitialize();
         void SendRemoveControlBar();
         void SendKnownSpells();
-        bool HasSpell(uint32 spell) const;
+        bool HasSpell(uint32 spell) const; ///< overrides a member function but is not marked 'override'
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
@@ -2353,8 +2353,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = NULL);
         template <class T> T ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T &p_Basevalue, Spell* p_Spell = NULL, bool p_RemoveStacks = true);
         void RemoveSpellMods(Spell* spell);
-        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
-        void RestoreAllSpellMods(uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
+        void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = nullptr);
+        void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = nullptr);
         void DropModCharge(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
@@ -2373,7 +2373,7 @@ class Player : public Unit, public GridObject<Player>
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint64 end_time, bool send = false);
         void SendCategoryCooldown(uint32 categoryId, int32 cooldown);
         void SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID = 0, Spell * p_Spell = NULL, bool p_SetCooldown = true);
-        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
+        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs); ///< overrides a member function but is not marked 'override'
         void ReduceSpellCooldown(uint32 spell_id, time_t modifyTime);
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
         void SendClearCooldown(uint32 p_SpellID, Unit * p_Target, bool p_ClearOnHold = false);
@@ -2602,14 +2602,14 @@ class Player : public Unit, public GridObject<Player>
 
         float GetHealthBonusFromStamina();
 
-        bool UpdateStats(Stats stat);
-        bool UpdateAllStats();
-        void UpdateResistances(uint32 school);
-        void UpdateArmor();
-        void UpdateMaxHealth();
-        void UpdateMaxPower(Powers power);
-        void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false);
+        bool UpdateStats(Stats stat); ///< overrides a member function but is not marked 'override'
+        bool UpdateAllStats(); ///< overrides a member function but is not marked 'override'
+        void UpdateResistances(uint32 school); ///< overrides a member function but is not marked 'override'
+        void UpdateArmor(); ///< overrides a member function but is not marked 'override'
+        void UpdateMaxHealth(); ///< overrides a member function but is not marked 'override'
+        void UpdateMaxPower(Powers power); ///< overrides a member function but is not marked 'override'
+        void UpdateAttackPowerAndDamage(bool ranged = false); ///< overrides a member function but is not marked 'override'
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false); ///< overrides a member function but is not marked 'override'
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
@@ -2675,8 +2675,8 @@ class Player : public Unit, public GridObject<Player>
 
         WorldSession* GetSession() const { return m_session; }
 
-        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
-        void DestroyForPlayer(Player* target, bool onDeath = false) const;
+        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const; ///< overrides a member function but is not marked 'override'
+        void DestroyForPlayer(Player* target, bool onDeath = false) const; ///< overrides a member function but is not marked 'override'
         void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
 
         // notifiers
@@ -2692,9 +2692,9 @@ class Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 MapId);
         void SendResetFailedNotify();
 
-        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false);
+        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false); ///< overrides a member function but is not marked 'override'
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
-        void UpdateUnderwaterState(Map* m, float x, float y, float z);
+        void UpdateUnderwaterState(Map* m, float x, float y, float z); ///< overrides a member function but is not marked 'override'
 
         void SendMessageToSet(WorldPacket* data, bool self, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override { SendMessageToSetInRange(data, GetVisibilityRange(), self, p_IgnoreList); };
         void SendMessageToSetInRange(WorldPacket* data, float fist, bool self, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
@@ -2814,7 +2814,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateCorpseReclaimDelay();
         void SendCorpseReclaimDelay(bool load = false);
 
-        uint32 GetBlockPercent() { return GetUInt32Value(PLAYER_FIELD_SHIELD_BLOCK); }
+        uint32 GetBlockPercent() { return GetUInt32Value(PLAYER_FIELD_SHIELD_BLOCK); } ///< overrides a member function but is not marked 'override'
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
@@ -2836,8 +2836,8 @@ class Player : public Unit, public GridObject<Player>
         void ResetAllPowers();
 
         void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
-        void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
-        void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply);
+        void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
+        void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
         void _ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
@@ -3187,7 +3187,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
 
-        bool IsNeverVisible() const;
+        bool IsNeverVisible() const; ///< overrides a member function but is not marked 'override'
 
         bool IsVisibleGloballyFor(Player* player) const;
 
@@ -3303,8 +3303,8 @@ class Player : public Unit, public GridObject<Player>
         MapReference &GetMapRef() { return m_mapRef; }
 
         // Set map to player and add reference
-        void SetMap(Map* map);
-        void ResetMap();
+        void SetMap(Map* map); ///< overrides a member function but is not marked 'override'
+        void ResetMap(); ///< overrides a member function but is not marked 'override'
 
         bool isAllowedToLoot(const Creature* creature);
 
@@ -3377,7 +3377,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMovementSetFeatherFall(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
-        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+        bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); } ///< overrides a member function but is not marked 'override'
 
         //! Return collision height sent to client
         float GetCollisionHeight(bool p_Mounted);
@@ -3985,9 +3985,9 @@ class Player : public Unit, public GridObject<Player>
         RuneType m_BloodTapRune;
         EquipmentSets m_EquipmentSets;
 
-        bool CanAlwaysSee(WorldObject const* obj) const;
+        bool CanAlwaysSee(WorldObject const* obj) const; ///< overrides a member function but is not marked 'override'
 
-        bool IsAlwaysDetectableFor(WorldObject const* seer) const;
+        bool IsAlwaysDetectableFor(WorldObject const* seer) const; ///< overrides a member function but is not marked 'override'
 
         uint8 m_grantableLevels;
 

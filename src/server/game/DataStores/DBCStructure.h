@@ -1875,7 +1875,7 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 struct MapDifficulty
 {
     MapDifficulty()
-        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), Context(0)
+        : DifficultyID(0), ResetTime(0), MaxPlayers(0), Context(0), HasErrorMessage(false)
     {
     }
 

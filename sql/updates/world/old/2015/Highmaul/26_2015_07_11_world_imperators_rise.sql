@@ -174,7 +174,8 @@ UPDATE creature_template SET
     dmg_multiplier          = 8,
     VehicleId               = 3971,
     ScriptName              = 'boss_imperator_margok',
-    mechanic_immune_mask    = 617299839
+    mechanic_immune_mask    = 617299839,
+    flags_extra             = (0x01 | 0x00200000)
 WHERE entry = 77428;
 
 UPDATE creature_model_info SET bounding_radius = 1.2, combat_reach = 6 WHERE modelid = 54329;
