@@ -116,6 +116,8 @@ namespace MS { namespace Garrison
             Alliance_AnglinInOurGarrison                = 36202,
             /// Gnomish Gearworks
             Alliance_UnconventionalInventions           = 37091,
+            /// Trading Post
+            Alliance_TricksOfTheTrade                   = 37088,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -148,8 +150,10 @@ namespace MS { namespace Garrison
             Horde_PortablePortals                       = 38351,
             /// Fishing Hut
             Horde_AnglinInOurGarrison                   = 36132,
-            /// GOblin Workshop
+            /// Goblin Workshop
             Horde_UnconventionalInventions              = 37044,
+            /// Trading Post
+            Horde_TricksOfTheTrade                      = 37062,
 
             /// Both factions
             Quest_FishFight                             = 34846

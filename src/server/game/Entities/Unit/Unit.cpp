@@ -1530,11 +1530,8 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus taken
-    if (GetSpellModOwner())
-    {
-        if (victim->GetSpellModOwner())
-            damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    }
+    if (victim->GetSpellModOwner())
+        damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -11032,11 +11029,11 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                 }
             }
 
-            if (minion->GetEntry() == 15439 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+            if (minion->GetEntry() == 15439 && minion->GetOwner())
                 RemoveAllMinionsByEntry(61029);
-            else if (minion->GetEntry() == 15430 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+            else if (minion->GetEntry() == 15430 && minion->GetOwner())
                 RemoveAllMinionsByEntry(61056);
-            else if (minion->GetEntry() == 77934 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+            else if (minion->GetEntry() == 77934 && minion->GetOwner())
                 RemoveAllMinionsByEntry(77942);
         }
 
