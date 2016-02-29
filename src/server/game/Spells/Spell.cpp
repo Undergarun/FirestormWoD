@@ -6661,7 +6661,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
                 {
                     if (TradeData* pTrade = m_caster->ToPlayer()->GetTradeData())
-                        pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetGUID()));
+                    {
+                        if (m_targets.GetItemTargetGUID() < TRADE_SLOT_COUNT)
+                            pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetGUID()));
+                    }
                 }
                 else if (m_targets.GetTargetMask() & TARGET_FLAG_ITEM)
                     pTempItem = m_caster->ToPlayer()->GetItemByGuid(m_targets.GetItemTargetGUID());
@@ -7461,14 +7464,20 @@ SpellCastResult Spell::CheckRange(bool strict)
         else if (min_range && m_caster->IsWithinCombatRange(target, min_range)) // skip this check if min_range = 0
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_TOO_CLOSE : SPELL_FAILED_DONT_REPORT;
 
-        if (m_caster->IsPlayer() &&
-            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
-            return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_UNIT_NOT_INFRONT : SPELL_FAILED_DONT_REPORT;
+        if (Vehicle* l_Vehicle = m_caster->GetVehicle())
+        {
+            if (!m_caster->IsOnVehicle(target) && !(l_Vehicle->GetBase() && l_Vehicle->GetBase()->IsOnVehicle(target)))
+            {
+                /// Allow spells in any direction if the target is own vehicle
+                if (m_caster->IsPlayer() && (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
+                    return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_UNIT_NOT_INFRONT : SPELL_FAILED_DONT_REPORT;
+            }
+        }
     }
 
     if (m_targets.HasDst() && !m_targets.HasTraj())
     {
-        if (!m_caster->IsWithinDist3d(m_targets.GetDstPos(), max_range))
+        if (!m_caster->IsWithinDist3d(m_targets.GetDstPos(), max_range, target))
             return SPELL_FAILED_OUT_OF_RANGE;
         if (min_range && m_caster->IsWithinDist3d(m_targets.GetDstPos(), min_range))
             return SPELL_FAILED_TOO_CLOSE;

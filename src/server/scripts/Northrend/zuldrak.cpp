@@ -993,9 +993,9 @@ public:
                                 me->AddThreat(unit, 5.0f);
                                 break;
                             }
-                            EnterEvadeMode();
                         }
                     }
+                    EnterEvadeMode();
                 }
             }
 

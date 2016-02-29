@@ -7148,6 +7148,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158336: ///< Pulverize - First AoE damage (Twin Ogron)
             case 158417: ///< Pulverize - Second AoE damage (Twin Ogron)
             case 158420: ///< Pulverize - Third AoE damage (Twin Ogron)
+            case 156844: ///< Stone Breath (Kromog)
+            case 156704: ///< Slam (Kromog)
+            case 162349: ///< Fists of Stone (Kromog)
+            case 157055: ///< Thundering Blows (Kromog)
+            case 161893: ///< Shattered Earth (Kromog)
+            case 157659: ///< Rippling Smash (Kromog)
+            case 161923: ///< Rune of Crushing Earth (Kromog)
+            case 157247: ///< Reverberations (Kromog)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

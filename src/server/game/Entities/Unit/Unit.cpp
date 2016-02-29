@@ -4652,6 +4652,7 @@ void Unit::RemoveEffectsWithMechanic(uint32 mechanic_mask, AuraRemoveMode remove
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         uint8 aurasCount = 0; ///< aurasCount is unused
+
         Aura const* aura = iter->second->GetBase();
 
         if (!except || aura->GetId() != except)
@@ -21114,9 +21115,10 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
 
         switch (vehicle->GetVehicleInfo()->m_ID)
         {
-            case 533: // Bone Spike
-            case 647: // Bone Spike
-            case 648: // Bone Spike
+            case 533:   ///< Bone Spike
+            case 647:   ///< Bone Spike
+            case 648:   ///< Bone Spike
+            case 3417:  ///< Grasping Earth
                 break;
             default:
                 player->UnsummonPetTemporaryIfAny();
