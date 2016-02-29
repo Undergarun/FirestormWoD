@@ -22191,7 +22191,10 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
         if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
         {
-            float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+            float l_ItemLevelFactor = p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1];
+            l_ItemLevelFactor = std::min(l_ItemLevelFactor, 99.9f);
+
+            float l_AltDamageTakenFactor = 1 - 0.01f * l_ItemLevelFactor;
             l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
         }
     }
