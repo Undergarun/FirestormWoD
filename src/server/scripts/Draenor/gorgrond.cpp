@@ -148,15 +148,15 @@ class boss_tarlna_the_ageless : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                     {
                         if ((eDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
                             l_Damage->ChangeAmount(eDatas::DamageScalingCoeff * l_Count);
                     }
 
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                     {
                         if ((eDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                             l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
@@ -325,15 +325,15 @@ class boss_drov_the_ruiner : public CreatureScript
                     return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
                 });
 
-                if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
+                if (Aura* l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                     {
                         if ((eDatas::DamageScalingCoeff * l_Count) != l_Damage->GetAmount())
                             l_Damage->ChangeAmount(eDatas::DamageScalingCoeff * l_Count);
                     }
 
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                     {
                         if ((eDatas::HealthScalingCoeff * l_Count) != l_Health->GetAmount())
                             l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
@@ -673,7 +673,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
                 ActionGorenSubmerge
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetDuration() <= (GetMaxDuration() / 2))
                     return;
@@ -682,7 +682,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, p_AurEff->GetAmount(), true);
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (!GetCaster())
                     return;

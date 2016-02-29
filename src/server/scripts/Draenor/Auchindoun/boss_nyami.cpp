@@ -446,7 +446,7 @@ public:
                         {
                             me->AddAura(eNyamiSpells::SpellSoulBubbleBuff, (*it));
 
-                            AuraPtr aura = me->GetAura(eNyamiSpells::SpellSoulBubbleBuff);
+                            Aura* aura = me->GetAura(eNyamiSpells::SpellSoulBubbleBuff);
 
                             if (aura)
                             {
@@ -842,7 +842,7 @@ public:
     {
         PrepareAuraScript(auchindon_spells);
 
-        void HandlePeriodic(constAuraEffectPtr /*p_AurEff*/)
+        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

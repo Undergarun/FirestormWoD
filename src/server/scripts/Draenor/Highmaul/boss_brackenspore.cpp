@@ -449,7 +449,7 @@ class boss_brackenspore : public CreatureScript
                         me->CastSpell(p_Target, eSpells::SummonRejuvenatingMush, true);
                         break;
                     case eSpells::SpellCallOfTheTides:
-                        p_Target->CastSpell(p_Target, eSpells::CallOfTheTidesSummonAT, true, nullptr, NULLAURA_EFFECT, me->GetGUID());
+                        p_Target->CastSpell(p_Target, eSpells::CallOfTheTidesSummonAT, true, nullptr, nullptr, me->GetGUID());
                         break;
                     default:
                         break;
@@ -1196,7 +1196,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_flamethrower_aura_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1208,7 +1208,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_CANCEL)
@@ -1275,7 +1275,7 @@ class spell_highmaul_flamethrower_regen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_flamethrower_regen_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->ModifyPower(Powers::POWER_ALTERNATE_POWER, -2);
@@ -1308,7 +1308,7 @@ class spell_highmaul_pulsing_heat : public SpellScriptLoader
                 FlamethrowerRegen = 163667
             };
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::FlamethrowerRegen, true);
@@ -1341,7 +1341,7 @@ class spell_highmaul_creeping_moss : public SpellScriptLoader
                 CreepingMoss = 1
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1414,7 +1414,7 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         l_Caster->CastSpell(l_Caster, eSpells::BurningInfusion, true);
                         l_Caster->CastSpell(*l_AT, eSpells::Flamethrower, true);
 
-                        if (AuraPtr l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
+                        if (Aura* l_Infusion = l_Caster->GetAura(eSpells::BurningInfusion))
                         {
                             if (l_Infusion->GetStackAmount() >= eHighmaulDatas::BurningInfusionNeeded)
                             {
@@ -1448,7 +1448,7 @@ class spell_highmaul_burning_infusion : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_burning_infusion_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 p_AurEff->GetBase()->DropStack();
             }
@@ -1480,7 +1480,7 @@ class spell_highmaul_energy_regen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_energy_regen_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {

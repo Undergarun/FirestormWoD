@@ -965,11 +965,11 @@ class npc_ashran_kronus : public CreatureScript
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
                     l_PlayerCount = l_Ashran->CountPlayersForTeam(TeamId::TEAM_ALLIANCE);
 
-                if (AuraPtr l_Scaling = me->AddAura(eSpells::AshranLaneMobScalingAura, me))
+                if (Aura* l_Scaling = me->AddAura(eSpells::AshranLaneMobScalingAura, me))
                 {
-                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Damage = l_Scaling->GetEffect(EFFECT_0))
                         l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
-                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                    if (AuraEffect* l_Health = l_Scaling->GetEffect(EFFECT_1))
                         l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
                 }
             }
