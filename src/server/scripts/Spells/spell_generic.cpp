@@ -4573,6 +4573,7 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Shadowmeld - 58984
 class spell_gen_shadowmeld : public SpellScriptLoader
 {
@@ -4593,6 +4594,12 @@ class spell_gen_shadowmeld : public SpellScriptLoader
 
                 if (l_Player->IsInPvPCombat())
                     l_Player->SetInPvPCombat(false);
+
+                /// Shadowmeld must remove combat
+                l_Player->CombatStop();
+                l_Player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+                l_Player->InterruptNonMeleeSpells(true);
+                l_Player->getHostileRefManager().deleteReferences();
             }
 
             void Register()
