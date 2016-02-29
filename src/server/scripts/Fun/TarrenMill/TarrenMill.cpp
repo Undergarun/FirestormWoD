@@ -418,7 +418,7 @@ void OutdoorPvPTarrenMillFun::UpdateRankAura(Player* p_Player)
     if (!p_Player->HasAura(l_RankInfo.first))
         p_Player->CastSpell(p_Player, l_RankInfo.first, true);
 
-    if (AuraEffectPtr l_RankAura = p_Player->GetAuraEffect(l_RankInfo.first, 0))
+    if (AuraEffect* l_RankAura = p_Player->GetAuraEffect(l_RankInfo.first, 0))
         l_RankAura->ChangeAmount(l_RankInfo.second);
 }
 
