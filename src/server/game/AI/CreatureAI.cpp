@@ -193,6 +193,10 @@ void CreatureAI::EnterEvadeMode()
         {
             l_Instance->SendEncounterEnd(l_Instance->GetEncounterIDForBoss(me), false);
             l_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, me->ToUnit());
+
+            me->ClearDamageLog();
+            me->ClearGroupDumps();
+            me->SetEncounterStartTime(0);
         }
     }
 

@@ -428,7 +428,7 @@ bool TradeChatLink::Initialize(std::istringstream& iss)
 
 // |color|Htalent:talent_id:rank|h[name]|h|r
 // |cff4e96f7|Htalent:2232:-1|h[Taste for Blood]|h|r
-bool TalentChatLink::Initialize(std::istringstream& iss)
+bool TalentChatLink::Initialize(std::istringstream& iss) ///< iss is unused
 {
     return false;
     /*

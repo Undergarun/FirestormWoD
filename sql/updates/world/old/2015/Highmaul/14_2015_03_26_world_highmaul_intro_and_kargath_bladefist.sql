@@ -401,7 +401,7 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_thoktar_ironskull' WHERE
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_vulgor', mechanic_immune_mask = 617299839 WHERE entry = 80048;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_bladespire_sorcerer' WHERE entry = 80071;
 UPDATE creature_template SET InhabitType = 4 WHERE entry = 82734;
-UPDATE creature_template SET dmg_multiplier = 20, unit_flags = 320, ScriptName = 'boss_kargath_bladefist', mechanic_immune_mask = 617299839, flags_extra = 0x01, Health_mod = 1133 WHERE entry = 78714;
+UPDATE creature_template SET dmg_multiplier = 20, unit_flags = 320, ScriptName = 'boss_kargath_bladefist', mechanic_immune_mask = 617299839, flags_extra = (0x01 | 0x00200000), Health_mod = 1133 WHERE entry = 78714;
 UPDATE creature SET unit_flags = 320 WHERE id = 78714;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_somldering_stoneguard' WHERE entry = 80051;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_imperator_margok' WHERE entry = 83268;

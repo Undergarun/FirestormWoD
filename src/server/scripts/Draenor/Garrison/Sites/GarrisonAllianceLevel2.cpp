@@ -197,6 +197,16 @@ namespace MS { namespace Garrison { namespace Sites
                     case Buildings::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
+                    case Buildings::Barn__Barn_Level2:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
+                    case Buildings::Barn__Barn_Level3:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
                     default:
                         break;
                 }
@@ -223,6 +233,16 @@ namespace MS { namespace Garrison { namespace Sites
                     case Buildings::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
+                    case Buildings::Barn__Barn_Level2:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
+                    case Buildings::Barn__Barn_Level3:
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
+                            p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                        break;
                     default:
                         break;
                 }
@@ -239,6 +259,14 @@ namespace MS { namespace Garrison { namespace Sites
         {
             case BuildingType::Type::LumberMill:
                 p_Owner->SetSkill(SkillType::SKILL_LOGGING, 0, 0, 0);
+                break;
+            case BuildingType::Type::Barn:
+                if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
+                    p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
+                    p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
+                if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemDeadlyIronTrap))
+                    p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                 break;
             default:
                 break;

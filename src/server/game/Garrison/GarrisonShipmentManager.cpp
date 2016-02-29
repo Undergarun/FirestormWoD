@@ -146,7 +146,7 @@ namespace MS { namespace Garrison
                             return p_Order.ShipmentID == m_QuestShipmentPerBuildingType[l_BuildingType];
                         });
 
-                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false) && !l_Count)
+                        if (l_Objective->ObjectID == l_QuestItem && !p_Target->HasItemCount(l_QuestItem, 1, false) && !l_Count) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                             return m_QuestShipmentPerBuildingType[l_BuildingType];
                     }
                 }

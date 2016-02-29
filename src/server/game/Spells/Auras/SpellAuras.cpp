@@ -1157,6 +1157,10 @@ void Aura::RefreshTimers()
                     l_IsAffectedByPandemic = true;
             }
         }
+
+        /// Some auras doesn't have PERIODIC_DAMAGE or PERIODIC_HEAL effects, but should be affected by new pandemic system too
+        if (GetSpellInfo()->IsAuraNeedPandemicEffect())
+            l_IsAffectedByPandemic = true;
     }
 
     if (l_IsAffectedByPandemic)

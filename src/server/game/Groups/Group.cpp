@@ -62,7 +62,7 @@ Group::Group() : m_leaderGuid(0), m_leaderName(""), m_PartyFlags(PARTY_FLAG_NORM
 m_dungeonDifficulty(DifficultyNormal), m_raidDifficulty(DifficultyRaidNormal), m_LegacyRaidDifficuty(Difficulty10N),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
     m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0),
-    m_readyCheck(false), m_membersInInstance(0), m_Team(0)
+    m_membersInInstance(0), m_readyCheck(false), m_Team(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -991,7 +991,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_
     }
 }
 
-void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool p_CanNeed, Roll const& p_Roll)
+void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool p_CanNeed, Roll const& p_Roll) ///< p_CanNeed is unused
 {
     if (!p_Player || !p_Player->GetSession())
         return;
@@ -1017,7 +1017,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     p_Player->GetSession()->SendPacket(&l_Data);
 }
 
-void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
+void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_TargetGUID is unused
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -1049,7 +1049,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     }
 }
 
-void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
+void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_SourceGUID is unused
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL_WON, 200);
 
@@ -2676,8 +2676,8 @@ bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID
                         break;
                     case Difficulty::DifficultyRaidNormal:
                     case Difficulty::DifficultyRaidHeroic:
-                        /// Handle scaled difficulties
-                        if (/*l_Counter >= 8 &&*/ l_Counter >= CalculatePct(l_MembersCount, 80))
+                        /// Handle scaled difficulties (from 10 to 30)
+                        if (l_Counter >= 10 && l_Counter >= CalculatePct(l_MembersCount, 80))
                             l_IsOkay = true;
                         break;
                     case Difficulty::DifficultyRaidMythic:

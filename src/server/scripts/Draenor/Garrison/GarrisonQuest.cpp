@@ -330,20 +330,8 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr == nullptr)
             return;
 
-        switch (p_Player->GetMapId())
-        {
-            /// Garrison Phases
-            case MapIDs::MapGarrisonAllianceLevel1:
-            case MapIDs::MapGarrisonAllianceLevel2:
-            case MapIDs::MapGarrisonAllianceLevel3:
-            case MapIDs::MapGarrisonHordeLevel1:
-            case MapIDs::MapGarrisonHordeLevel2:
-            case MapIDs::MapGarrisonHordeLevel3:
-                UpdateGarrisonPhaseMask(p_Player);
-                break;
-            default:
-                break;
-        }
+        if (p_Player->IsInGarrison())
+            UpdateGarrisonPhaseMask(p_Player);
     }
 
     void playerScript_Garrison_Portals_Phases::OnLogin(Player* p_Player)

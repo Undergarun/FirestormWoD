@@ -1231,6 +1231,7 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, eGatewaySpells::GatewayInteract);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void OnSpellClick(Unit* p_Clicker)
@@ -1473,11 +1474,70 @@ public:
     }
 };
 
+/// Black Ox Statue - 61146
+class spell_npc_black_ox_statue : public CreatureScript
+{
+    public:
+        spell_npc_black_ox_statue() : CreatureScript("spell_npc_black_ox_statue") { }
+
+        enum eSpells
+        {
+            ThreatEvent = 163178
+        };
+
+        struct spell_npc_black_ox_statueAI : public ScriptedAI
+        {
+            spell_npc_black_ox_statueAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eEvents
+            {
+                ThreatEvent = 1
+            };
+
+            EventMap m_Events;
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                me->setFaction(p_Summoner->getFaction());
+            }
+
+            void Reset()
+            {
+                m_Events.Reset();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                me->CastSpell(me, eSpells::ThreatEvent, true);
+                m_Events.ScheduleEvent(eEvents::ThreatEvent, 1000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                m_Events.Update(p_Diff);
+                switch (m_Events.ExecuteEvent())
+                {
+                case eEvents::ThreatEvent:
+                    me->CastSpell(me, eSpells::ThreatEvent, true);
+                    m_Events.ScheduleEvent(eEvents::ThreatEvent, 1000);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_black_ox_statueAI(p_Creature);
+        }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
     new spell_npc_mage_frozen_orb();
+
+    /// Monk NPC
+    new spell_npc_black_ox_statue();
 
     /// Rogue NPC
     new spell_npc_rogue_shadow_reflection();

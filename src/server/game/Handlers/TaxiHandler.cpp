@@ -292,7 +292,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& p_RecvPacket)
     GetPlayer()->ActivateTaxiPathTo(l_Nodes, l_Npc);
 }
 
-void WorldSession::HandleTaxiRequestEarlyLandingOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleTaxiRequestEarlyLandingOpcode(WorldPacket & p_Packet) ///< p_Packet is unused
 {
     if (m_Player && !m_Player->m_taxi.empty())
         m_Player->TaxiRequestEarlyLanding();

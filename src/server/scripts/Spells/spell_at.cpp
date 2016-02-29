@@ -401,6 +401,7 @@ class spell_at_hun_binding_shot : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Ice Trap - 13809
 /// Ice Trap (Frost - Trap Launcher) - 82940
 class spell_at_hun_ice_trap : public AreaTriggerEntityScript
@@ -423,23 +424,25 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
             if (l_Caster && l_CreateSpell)
             {
                 float l_Radius = MELEE_RANGE;
-                Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+                std::list<Unit*> l_NewTargetList;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-                if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target))
+                l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
+                for (Unit* l_Target : l_NewTargetList)
                 {
-                    l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-                    l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    {
+                        l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
 
-                    if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
+                        if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
+                            l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
 
-                    p_AreaTrigger->Remove(0);
+                        p_AreaTrigger->Remove(0);
+                    }
                 }
             }
         }
@@ -450,6 +453,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Snake Trap - 34600
 /// Snake Trap (Fire - Trap Launcher) - 82949
 class spell_at_hun_snake_trap : public AreaTriggerEntityScript
@@ -472,23 +476,25 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
             if (l_Caster && l_CreateSpell)
             {
                 float l_Radius = MELEE_RANGE;
-                Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+                std::list<Unit*> l_NewTargetList;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-                if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target))
+                l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
+                for (Unit* l_Target : l_NewTargetList)
                 {
-                    l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-                    l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    {
+                        l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                        l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
 
-                    if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
+                        if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
+                            l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
 
-                    p_AreaTrigger->Remove(0);
+                        p_AreaTrigger->Remove(0);
+                    }
                 }
             }
         }
@@ -499,6 +505,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Ice trap effect - 13810
 class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 {
@@ -524,7 +531,7 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 
             for (auto itr : targetList)
             {
-                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && !itr->HasAura(eSpells::IceTrapEffect))
+                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && !itr->isTotem() && !itr->HasAura(eSpells::IceTrapEffect))
                     itr->CastSpell(itr, IceTrapEffect, true);
             }
 
@@ -552,6 +559,7 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Freezing Trap - 1499
 /// Freezing Trap (Frost - Trap Launcher) - 60202
 class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
@@ -575,24 +583,26 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
                 float l_Radius = MELEE_RANGE;
-                Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+                std::list<Unit*> l_NewTargetList;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-                if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
+                l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
+                for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
+                    if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
                     {
-                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                        if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
+                        {
+                            l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                            l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                            l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                        }
+                        l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
+                        p_AreaTrigger->Remove(0);
                     }
-                    l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
-                    p_AreaTrigger->Remove(0);
                 }
             }
         }
@@ -603,6 +613,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Last Update 6.2.3
 /// Explosive Trap - 13813
 /// Explosive Trap (Fire - Trap Launcher) - 82938
 class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
@@ -623,18 +634,20 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
                 float l_Radius = MELEE_RANGE;
-                Unit* l_Target = nullptr;
 
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+                std::list<Unit*> l_NewTargetList;
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(p_AreaTrigger, l_NewTargetList, u_check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
 
-                if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target))
+                l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
+                for (Unit* l_Target : l_NewTargetList)
                 {
-                    l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterExplosiveTrap::SpellExplosiveEffect, true);
-                    p_AreaTrigger->Remove(0);
+                    if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    {
+                        l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterExplosiveTrap::SpellExplosiveEffect, true);
+                        p_AreaTrigger->Remove(0);
+                    }
                 }
             }
         }

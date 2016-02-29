@@ -6701,9 +6701,9 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
     m_caster->SendMessageToSet(&l_DispellData, true);
 
-    // Glyph of SpellSteal
+    /// Glyph of SpellSteal
     if (m_caster->HasAura(115713))
-        m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
+        m_caster->CastSpell(m_caster, 115714, true);
 
     /// Item - Mage WoD PvP Arcane 2P Bonus
     if (m_caster->HasAura(171349))
@@ -7691,7 +7691,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
                 l_OtherBonuses.push_back(l_Bonus);
 
             l_Player->AddItem(l_Items[0], 1, l_OtherBonuses);
-            l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false, l_Bonuses);
+            l_Player->SendDisplayToast(l_Items[0], 1, l_IsBGReward ? DISPLAY_TOAST_METHOD_PVP_FACTION_LOOT_TOAST : DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, l_IsBGReward ? false : true, false, l_Bonuses);
 
             if (!l_IsBGReward)
                 l_Player->ResetBonusRollFails();

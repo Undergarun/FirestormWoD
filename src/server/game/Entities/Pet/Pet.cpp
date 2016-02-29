@@ -156,7 +156,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback)
+void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback) ///< petnumber is unused
 {
     m_loading = true;
 
@@ -565,7 +565,7 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
         trans->Append(ss.str().c_str());
 
         uint32 l_AccountID = owner->GetSession()->GetAccountId();
-        MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void
+        MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_AccountID](bool p_Success) -> void ///< p_Success is unused
         {
             WorldSession* l_Session = sWorld->FindSession(l_AccountID);
             if (l_Session == nullptr)
@@ -1697,7 +1697,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry)
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry) ///< pet_number is unused
 {
     ASSERT(map);
     SetMap(map);

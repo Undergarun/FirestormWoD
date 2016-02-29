@@ -487,11 +487,11 @@ class boss_flamebender_kagraz : public CreatureScript
                     case eEvents::EventLavaSlash:
                     {
                         Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
+                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                                 me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
@@ -508,6 +508,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
                         else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, false);
 
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
                         break;
@@ -573,7 +575,8 @@ class boss_flamebender_kagraz : public CreatureScript
 
                         me->CastSpell(me, eSpells::FirestormSelfAura, true);
 
-                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        uint32 l_Timer = 2 * TimeConstants::IN_MILLISECONDS;
+                        AddTimedDelayedOperation(l_Timer, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::FirestormPeriodicTrigger, false);
 
@@ -584,7 +587,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        l_Timer += 12 * TimeConstants::IN_MILLISECONDS;
+                        AddTimedDelayedOperation(l_Timer, [this]() -> void
                         {
                             m_Firestorm = false;
 
@@ -596,6 +600,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                                 AttackStart(l_Target);
                         });
+
+                        m_Events.DelayEvent(eEvents::EventLavaSlash, l_Timer);
 
                         m_Events.CancelEvent(eEvents::EventMoltenTorrent);
                         m_Events.CancelEvent(eEvents::EventBlazingRadiance);
@@ -1392,6 +1398,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
             void Reset() override
             {
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
 
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
@@ -1917,6 +1925,46 @@ class spell_foundry_fixate : public SpellScriptLoader
     public:
         spell_foundry_fixate() : SpellScriptLoader("spell_foundry_fixate") { }
 
+        class spell_foundry_fixate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_fixate_SpellScript);
+
+            enum eSpell
+            {
+                FirestormAreatrigger = 163630
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.clear();
+
+                if (Creature* l_Wolf = GetCaster()->ToCreature())
+                {
+                    if (npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI* l_AI = CAST_AI(npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI, l_Wolf->GetAI()))
+                    {
+                        if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                            p_Targets.push_back(l_Target);
+                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                            p_Targets.push_back(l_Target);
+                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                            p_Targets.push_back(l_Target);
+                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
+                            p_Targets.push_back(l_Target);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_fixate_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_fixate_SpellScript();
+        }
+
         class spell_foundry_fixate_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_foundry_fixate_AuraScript);
@@ -2136,6 +2184,46 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
         }
 };
 
+/// Blazing Radiance - 155382
+class spell_foundry_blazing_radiance : public SpellScriptLoader
+{
+    public:
+        spell_foundry_blazing_radiance() : SpellScriptLoader("spell_foundry_blazing_radiance") { }
+
+        class spell_foundry_blazing_radiance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_blazing_radiance_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsPlayer())
+                        return true;
+
+                    Player* l_Player = p_Object->ToPlayer();
+                    if (l_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blazing_radiance_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_blazing_radiance_SpellScript();
+        }
+};
+
 /// Lava Slash - 154915
 class areatrigger_foundry_lava_slash_pool : public AreaTriggerEntityScript
 {
@@ -2258,6 +2346,7 @@ void AddSC_boss_flamebender_kagraz()
     new spell_foundry_firestorm_v2_periodic_lava_stalker();
     new spell_foundry_firestorm_v2_pick_stalker_to_fire();
     new spell_foundry_unquenchable_flame_periodic();
+    new spell_foundry_blazing_radiance();
 
     /// AreaTriggers
     new areatrigger_foundry_lava_slash_pool();

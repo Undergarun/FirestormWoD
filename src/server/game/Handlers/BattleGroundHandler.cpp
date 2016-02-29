@@ -103,7 +103,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
     l_JoinAsGroup = p_Packet.ReadBit();
 
     uint32  l_BGTypeID_  = 0;
-    uint32  l_InstanceID = 0;
+    uint32  l_InstanceID = 0; ///< l_InstanceID is unused
     Group*  l_Group      = nullptr;
     bool    l_IsPremade  = false;
 
@@ -579,7 +579,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& p_RecvData)
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& p_RecvData) ///< recvData is unused
 {
     if (m_Player == nullptr)
         return;
@@ -1059,7 +1059,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
         l_Tunnel->SendRegisterArena(l_Players, l_ArenaType, true);
 }
 
-void WorldSession::HandleBattlemasterJoinRated(WorldPacket& p_Packet)
+void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet) ///< p_Packet is unused
 {
     bool l_InterRealmEnable = sWorld->getBoolConfig(CONFIG_INTERREALM_ENABLE);
     InterRealmSession* l_Tunnel = nullptr;
@@ -1186,7 +1186,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket& p_Packet)
     l_Tunnel->SendRegisterRated(l_Group, l_PersonalRating, l_MatchmakerRating);
 }
 
-void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet)
+void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet) ///< p_Packet is unused
 {
     if (!m_Player || !m_Player->GetBattleground())
         return;

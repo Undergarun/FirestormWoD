@@ -273,18 +273,19 @@ enum ItemLimitCategoryMode
 
 enum class ItemContext : uint8
 {
-    None             = 0,
-    DungeonNormal    = 1,
-    DungeonHeroic    = 2,
-    RaidHeroic       = 5,
-    RaidMythic       = 6,
-    RaidNormal       = 8,   ///< Gussed
-    RaidLfr          = 9,   ///< Gussed
-    TradeSkill       = 13,
-    DungeonLevelUp1  = 17,
-    DungeonLevelUp2  = 18,
-    DungeonLevelUp3  = 19,
-    DungeonLevelUp4  = 20,
+    None            = 0,
+    DungeonNormal   = 1,
+    DungeonHeroic   = 2,
+    DungeonMythic   = 3,    ///< Guessed
+    RaidHeroic      = 5,
+    RaidMythic      = 6,
+    RaidNormal      = 8,    ///< Guessed
+    RaidLfr         = 9,    ///< Guessed
+    TradeSkill      = 13,
+    DungeonLevelUp1 = 17,
+    DungeonLevelUp2 = 18,
+    DungeonLevelUp3 = 19,
+    DungeonLevelUp4 = 20
 };
 
 enum MountFlags

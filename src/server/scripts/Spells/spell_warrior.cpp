@@ -1058,13 +1058,13 @@ class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
                     /// Set aura effect basepoints to null, because it's just first crit, if offhand spell won't crit, this spell shouldn't increase heal
-                    if (AuraEffect * l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
+                    if (AuraEffect* l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
                         l_RagingBlowEffect->SetAmount(0);
                 }
                 else
                 {
                     /// Restore aura effect basepoints, to increase heal of Bloodthirst
-                    if (AuraEffect * l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
+                    if (AuraEffect* l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
                         l_RagingBlowEffect->SetAmount(l_RagingBlowEffect->GetBaseAmount());
                 }
             }

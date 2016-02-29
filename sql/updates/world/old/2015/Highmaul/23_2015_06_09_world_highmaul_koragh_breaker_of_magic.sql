@@ -213,7 +213,7 @@ baseattacktime = 1500,
 VehicleId = 2164,
 ScriptName = 'boss_koragh',
 mechanic_immune_mask = 617299839,
-flags_extra = 0x01
+flags_extra = (0x01 | 0x00200000)
 WHERE entry = 79015;
 
 UPDATE creature_template SET

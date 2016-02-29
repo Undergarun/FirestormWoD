@@ -454,7 +454,7 @@ namespace MS
                 if (l_Data.MinPlayersPerTeam == 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Table `battleground_template` for id %u has bad values for MinPlayersPerTeam (%u)",
-                        l_Data.bgTypeId, l_Data.MinPlayersPerTeam, l_Data.MaxPlayersPerTeam);
+                        l_Data.bgTypeId, l_Data.MinPlayersPerTeam, l_Data.MaxPlayersPerTeam); ///< Data argument not used by format string
                     assert(false);
                 }
 
@@ -535,7 +535,7 @@ namespace MS
                     m_BGSelectionWeights[l_Data.bgTypeId] = l_SelectionWeight;
 
                 for (int i = 0; i < 16; ++i)
-                    if (l_RatedBl->MapID[i] == l_Bl->MapID[0] && l_Bl->MapID[1] == -1)
+                    if (l_RatedBl->MapID[i] == l_Bl->MapID[0] && l_Bl->MapID[1] == -1) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'int'
                         m_RatedBGSelectionWeights[l_Data.bgTypeId] = l_SelectionWeight;
 
                 ++l_Count;

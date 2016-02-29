@@ -772,6 +772,9 @@ void WorldSession::LogoutPlayer(bool p_Save, bool p_AfterInterRealm)
                 _pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT, _pet->m_Stampeded);
         }
 
+        //! Call script hook before deletion
+        sScriptMgr->OnPlayerLogout(m_Player);
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (p_Save)
