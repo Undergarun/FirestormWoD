@@ -1220,7 +1220,7 @@ class spell_foundry_rune_of_grasping_earth_dot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 /// Fists of stone grasp at players, inflicting 12168 to 12792 Nature damage per second, but shielding them from Physical damage and holding them to the ground.
                 /// The damage increases over time.
