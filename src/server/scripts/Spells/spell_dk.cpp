@@ -3566,7 +3566,7 @@ class spell_dk_might_of_the_frozen_wastes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_might_of_the_frozen_wastes_AuraScript);
 
-            void CalculateEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (!GetCaster())
                     return;
