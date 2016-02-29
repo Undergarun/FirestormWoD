@@ -883,7 +883,7 @@ class spell_pal_seal_of_insight: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (!l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
+               if (!l_Caster->HasAura(eSpells::GlyphoftheBattleHealer))
                     PreventHitEffect(p_Idx);
             }
 

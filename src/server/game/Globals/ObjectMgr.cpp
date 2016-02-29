@@ -262,8 +262,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1),
-    m_HiVignetteGuid(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), m_HiVignetteGuid(1), _skipUpdateCount(1)
 {
     m_HighItemGuid = 1;
 
@@ -943,7 +942,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (cInfo->VignetteID && !sVignetteStore.LookupEntry(cInfo->VignetteID))
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature(Entry: %u) has a non - existing vignette id (%u)", cInfo->VignetteID);
+        sLog->outError(LOG_FILTER_SQL, "Creature(Entry: %u) has a non - existing vignette id (%u)", cInfo->VignetteID); ///< More '%' conversions than data arguments
         const_cast<CreatureTemplate*>(cInfo)->VignetteID = 0;
     }
 
@@ -7733,7 +7732,7 @@ void ObjectMgr::LoadQuestPOI()
         uint32 l_Unk                = l_Fields[10].GetUInt32();
         
         
-        if (l_QuestId < int32(POIs.size()) && l_BlobIndex < int32(POIs[l_QuestId].size()))
+        if (l_QuestId < int32(POIs.size()) && l_BlobIndex < int32(POIs[l_QuestId].size())) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int32' (aka 'int')
         {
             QuestPOI l_POI(l_BlobIndex, l_ObjectiveIndex, l_MapID, l_WorldMapAreaId, l_Floor, l_Priority, l_Flags, l_WorldEffectID, l_PlayerConditionID, l_Unk);
             l_POI.Points = POIs[l_QuestId][l_BlobIndex];
@@ -9063,7 +9062,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
 
     if (type == ITEM_VENDOR_TYPE_CURRENCY && maxcount == 0)
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", id, type, ExtendedCost, vendor_entry);
+        sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", id, type, ExtendedCost, vendor_entry); ///<  Data argument not used by format string
         return false;
     }
 
@@ -9316,13 +9315,13 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
 
         if (l_Difficulty >= MaxDifficulties)
         {
-            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty);
+            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty); ///< More '%' conversions than data arguments
             continue;
         }
 
         if (l_GroupSize >= MAX_GROUP_SCALING)
         {
-            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize);
+            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize); ///< More '%' conversions than data arguments
             continue;
         }
 
@@ -10477,7 +10476,7 @@ void ObjectMgr::LoadQuestObjectives()
 
                 if (l_ObjectiveAmount <= 0)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Pet Battle PvP win amount %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Pet Battle PvP win amount %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount); ///< Data argument not used by format string
                     continue;
                 }
 

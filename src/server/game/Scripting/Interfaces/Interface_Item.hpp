@@ -52,7 +52,7 @@ class ItemScript : public ScriptObjectImpl<true>
         /// @p_Player           : Player who use this item
         /// @p_Item             : Used Item instance
         /// @p_SpellCastTargets : Item spell action targets
-        virtual bool OnUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets)
+        virtual bool OnUse(Player * p_Player, Item * p_Item, const SpellCastTargets & p_SpellCastTargets) ///< p_SpellCastTargets is unused
         {
             UNUSED(p_Player);
             UNUSED(p_Item);

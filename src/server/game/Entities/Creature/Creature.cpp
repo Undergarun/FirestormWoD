@@ -171,6 +171,9 @@ m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_pat
     ResetLootMode(); // restore default loot mode
     TriggerJustRespawned = false;
     m_isTempWorldObject = false;
+
+    m_StartEncounterTime = 0;
+    m_DumpGroupTimer     = 0;
 }
 
 Creature::~Creature()
@@ -482,6 +485,14 @@ void Creature::Update(uint32 diff)
     }
     else
         m_LOSCheckTimer -= diff;
+
+    if (m_DumpGroupTimer > GROUP_DUMP_TIMER)
+    {
+        DumpGroup();
+        m_DumpGroupTimer = 0;
+    }
+    else
+        m_DumpGroupTimer += diff;
 
     // Zone Skip Update
     if ((sObjectMgr->IsSkipZoneEnabled() && sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
@@ -3066,4 +3077,40 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
     }
 
     return target;
+}
+
+void Creature::DumpGroup()
+{
+    Map* l_Map = GetMap();
+
+    /// Only work in dungeon / raid
+    if (!l_Map->IsDungeon() || (GetNativeTemplate()->flags_extra & CREATURE_FLAG_EXTRA_LOG_GROUP_DMG) == 0)
+        return;
+
+    std::ostringstream l_Dump;
+
+    l_Dump << "Timestamp : " << time(nullptr) << std::endl;
+
+    const Map::PlayerList& l_Players = l_Map->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Itr = l_Players.begin(); l_Itr != l_Players.end(); ++l_Itr)
+    {
+        Player* l_Player = l_Itr->getSource();
+        l_Dump << "[Player " << l_Player->GetName() << " " << l_Player->GetGUIDLow() << " aura list : ]" << std::endl;
+
+        for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+        {
+            Unit::AuraEffectList const& auraList = l_Player->GetAuraEffectsByType(AuraType(i));
+            if (auraList.empty())
+                continue;
+
+            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+                l_Dump << "----> " << (*itr)->GetAuraType() << " [" << (*itr)->GetSpellInfo()->SpellName << " (" << (*itr)->GetId() << ")] amount : " << (*itr)->GetAmount() << std::endl;
+        }
+    }
+
+    GroupDump l_GroupDump;
+    l_GroupDump.Time = time(nullptr);
+    l_GroupDump.Dump = l_Dump.str();
+
+    AddGroupDump(l_GroupDump);
 }

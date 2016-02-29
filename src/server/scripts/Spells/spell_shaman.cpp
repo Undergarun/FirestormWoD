@@ -1725,8 +1725,8 @@ class spell_sha_bloodlust : public SpellScriptLoader
             void Register() override
             {
                 AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1780,8 +1780,8 @@ class spell_sha_heroism: public SpellScriptLoader
             void Register() override
             {
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                OnEffectHitTarget += SpellEffectFn(spell_sha_heroism_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

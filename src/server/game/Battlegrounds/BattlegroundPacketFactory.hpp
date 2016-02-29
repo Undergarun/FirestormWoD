@@ -43,7 +43,7 @@ namespace MS
         class PacketFactory
         {
         public:
-            static void Status(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint8 p_QueueSlot, uint8 p_StatusID, uint32 p_Time1, uint32 p_Time2, uint8 p_Arenatype, bool p_IsSkirmish)
+            static void Status(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint8 p_QueueSlot, uint8 p_StatusID, uint32 p_Time1, uint32 p_Time2, uint8 p_Arenatype, bool p_IsSkirmish) ///< p_Arenatype is unused
             {
                 /// we can be in 2 queues in same time...
                 if (!p_BG)
@@ -484,7 +484,7 @@ namespace MS
                 Bracket const* l_Bracket = nullptr;
                 if (p_BGTypeID != BATTLEGROUND_AA)
                 {
-                    if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false)))
+                    if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false))) ///< l_BGTemplate is unused
                     {
                         /// Expected bracket entry
                         if (l_Bracket = Brackets::FindForLevel(p_Player->getLevel()))
@@ -529,7 +529,6 @@ namespace MS
             static void CheckWargameEntry(Player* p_Requester, Player* p_Target, uint64 p_QueueID, bool p_TournamentRules)
             {
                 uint32 l_Timeout         = 60;
-                bool   l_TournamentRules = false;
 
                 WorldPacket l_Data(SMSG_CHECK_WARGAME_ENTRY);
                 l_Data.appendPackGUID(p_Requester->GetGUID());
@@ -539,7 +538,7 @@ namespace MS
                 l_Data.appendPackGUID(0);           ///< BnetGuid, bypass bnet friend list check
                 l_Data << uint64(p_QueueID);
                 l_Data << uint32(l_Timeout);
-                l_Data.WriteBit(l_TournamentRules);
+                l_Data.WriteBit(p_TournamentRules);
 
                 p_Target->GetSession()->SendPacket(&l_Data);
             }

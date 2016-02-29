@@ -129,8 +129,8 @@ public:
     virtual bool Initialize(std::istringstream& iss);
 
 private:
-    uint32 _talentId;
-    int32 _rankId;
+    uint32 _talentId; ///< is unused
+    int32 _rankId; ///< is unused
 };
 
 // EnchantmentChatLink - link to enchantment

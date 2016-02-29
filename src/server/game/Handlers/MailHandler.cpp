@@ -201,7 +201,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
     if (!UpdateAntispamCount())
     {
         m_Player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
-        SendNotification(GetTrinityString(LANG_ANTISPAM_ERROR));
+        SendNotification(GetTrinityString(LANG_ANTISPAM_ERROR)); ///> Format string is not a string literal (potentially insecure)
         return;
     }
 

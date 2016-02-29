@@ -55,7 +55,7 @@
 		DELETE FROM gossip_menu WHERE entry = 90010;
 		INSERT INTO gossip_menu VALUES
 		(90010, 92007);
-		DELETE FROM npc_text WHERE ID IN (92007);
+		DELETE FROM npc_text WHERE ID IN (92005);
 		INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
 		(92005,
 		"Do you like my assemblies ?",

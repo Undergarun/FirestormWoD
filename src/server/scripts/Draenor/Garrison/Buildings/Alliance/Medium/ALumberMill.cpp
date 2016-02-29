@@ -49,6 +49,7 @@ namespace MS { namespace Garrison
     npc_JustinTimberLordAI::npc_JustinTimberLordAI(Creature* p_Creature)
         : SimpleSequenceCosmeticScriptAI(p_Creature)
     {
+        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
 
     bool npc_JustinTimberLord::OnGossipHello(Player* p_Player, Creature* p_Creature)

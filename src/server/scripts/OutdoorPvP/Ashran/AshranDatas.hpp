@@ -68,8 +68,8 @@ enum eAshranSpells
     SpellHallowedGround             = 171496,
 
     /// Rewarding spells
-    SpellAllianceReward             = 178531,   ///< Trigger horde strongbox (120151)
-    SpellHordeReward                = 178533,   ///< Trigger alliance strongbox (118065)
+    SpellHordeReward                = 178531,   ///< Trigger horde strongbox (120151)
+    SpellAllianceReward             = 178533,   ///< Trigger alliance strongbox (118065)
     SpellEventHordeReward           = 175094,   ///< Dented Ashmaul Strongbox (118093)
     SpellEventAllianceReward        = 175093,   ///< Dented Ashmaul Strongbox (118094)
 

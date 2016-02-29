@@ -4054,7 +4054,7 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
                 TigereyeBrew                = 125195
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleAfterCast()
             {
                 /// Fists of Fury generates 1 stacks of Tigereye Brew.
                 if (Unit* l_Caster = GetCaster())
@@ -4064,9 +4064,9 @@ class spell_monk_fists_of_fury : public SpellScriptLoader
                 }
             }
 
-            void Register() override
+            void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterCast += SpellCastFn(spell_monk_fists_of_fury_SpellScript::HandleAfterCast);
             }
         };
 

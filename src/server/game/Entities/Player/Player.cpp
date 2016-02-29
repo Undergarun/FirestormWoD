@@ -1680,7 +1680,7 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
         Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
         for (Unit::AuraEffectList::const_iterator i = l_Auras.begin(); i != l_Auras.end(); ++i)
         {
-            if (idx->first == (*i)->GetMiscValue())
+            if (idx->first == (*i)->GetMiscValue()) ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
                 l_Pct += (*i)->GetAmount();
         }
 
@@ -3192,7 +3192,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
     }
 
     // Remove pet on map change
-    if (Pet* l_Pet = GetPet())
+    if (Pet* l_Pet = GetPet()) ///< l_Pet is unused
         UnsummonPetTemporaryIfAny();
 
     UnsummonCurrentBattlePetIfAny(true);
@@ -3824,7 +3824,7 @@ enum
     LOGIC_FLAG_COL_3_XOR_RESULT_TRUE    = 0x00080000,
 };
 
-std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound)
+std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound) ///< p_FailIfConditionNotFound is unused
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
@@ -4014,7 +4014,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : ItemFlags
 
     #pragma region Explored
-    auto IsAreaExplored = [this](uint32 p_AreaID) -> bool
+    auto IsAreaExplored = [this](uint32 p_AreaID) -> bool ///< p_AreaID is unused
     {
         uint16 l_AreaFlag = sAreaStore.LookupEntry(0) ? sAreaStore.LookupEntry(0)->AreaBit : 0xFFFF;
 
@@ -4083,7 +4083,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
         if (!l_Weather)
             return std::pair<bool, std::string>(false, "Failed on WeatherID => no valid weather found");
 
-        if (l_Weather->GetType() != l_Entry->WeatherID)
+        if (l_Weather->GetType() != l_Entry->WeatherID) ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
             return std::pair<bool, std::string>(false, "Failed on WeatherID => dbc(" + std::to_string(l_Entry->WeatherID) + ") you(" + std::to_string(l_Weather->GetType()) + ")");
     }
     #pragma endregion Weather
@@ -4116,10 +4116,10 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     {
         bool l_Matches[4] { true, true, true, true };
 
-        if (l_Entry->AreaID[0] != 0) l_Matches[0] = l_Entry->AreaID[0] == GetAreaId();
-        if (l_Entry->AreaID[1] != 0) l_Matches[1] = l_Entry->AreaID[1] == GetAreaId();
-        if (l_Entry->AreaID[2] != 0) l_Matches[2] = l_Entry->AreaID[2] == GetAreaId();
-        if (l_Entry->AreaID[3] != 0) l_Matches[3] = l_Entry->AreaID[3] == GetAreaId();
+        if (l_Entry->AreaID[0] != 0) l_Matches[0] = l_Entry->AreaID[0] == GetAreaId(); ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
+        if (l_Entry->AreaID[1] != 0) l_Matches[1] = l_Entry->AreaID[1] == GetAreaId(); ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
+        if (l_Entry->AreaID[2] != 0) l_Matches[2] = l_Entry->AreaID[2] == GetAreaId(); ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
+        if (l_Entry->AreaID[3] != 0) l_Matches[3] = l_Entry->AreaID[3] == GetAreaId(); ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
 
         if (!EvalMatch(l_Matches, l_Entry->AreaLogic))
             return std::pair<bool, std::string>(false, "Failed on AreaID");
@@ -4159,7 +4159,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
                 if (l_Obective.Type != QUEST_OBJECTIVE_TYPE_NPC)
                     continue;
 
-                if (l_Obective.ObjectID == p_NPCID)
+                if (l_Obective.ObjectID == p_NPCID) ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
                     return l_Obective.ID;
             }
 
@@ -7145,7 +7145,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
             if (updateRealmChars)
             {
-                l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([accountId](bool p_Success) -> void
+                l_CharCreateCallback = std::make_shared<MS::Utilities::Callback>([accountId](bool p_Success) -> void ///< p_Success is unused
                 {
                     sWorld->UpdateRealmCharCount(accountId);
                 });
@@ -7738,7 +7738,7 @@ void Player::RepopAtGraveyard()
         else if (sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId()) != nullptr &&
             sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId())->GetClosestGraveyard(this) != nullptr)
         {
-            if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId()))
+            if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId())) ///< l_OutdoorPvP is unused
                 l_ClosestGrave = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId())->GetClosestGraveyard(this);
         }
         else
@@ -8333,7 +8333,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
             
             // Since 4.0.x, we have bonus skill point reward with somes items ...
-            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10)
+            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10) ///< Comparison of integers of different signs: 'int' and 'unsigned int'
                 craft_skill_gain = _spell_idx->second->skill_gain;
 
             auto skillId = _spell_idx->second->skillId;
@@ -9196,7 +9196,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     return int32(rep*percent/100);
 }
 
-//Calculates how many reputation points player gains in victim's enemy factions
+/// Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
     if (!victim || victim->IsPlayer())
@@ -9204,6 +9204,49 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (victim->ToCreature()->IsReputationGainDisabled())
         return;
+
+    if (HasAura(186404)) ///< Sign of the Emissary (Weekly event bonus)
+    {
+        uint32 l_Zone = GetZoneId();
+        uint32 l_Team = GetTeam();
+
+        Creature* l_Creature = victim->ToCreature();
+
+        if (l_Creature == nullptr)
+            return;
+
+        if (l_Creature->GetMap()->IsMythic() || l_Creature->GetMap()->IsHeroic())
+        {
+            std::map<int32, int32>    l_ReputationByMap;
+            l_ReputationByMap[6988] = 1515;                                 ///< Skyreach / Arakkoa Outcasts
+            l_ReputationByMap[6912] = l_Team == ALLIANCE ? 1710 : 1708;     ///< Auchindoun  / Sha'tari Defense (Alliance), Laughing Skull (Horde)
+            l_ReputationByMap[7109] = l_Team == ALLIANCE ? 1710 : 1708;     ///< The Everbloom  / Sha'tari Defense (Alliance), Laughing Skull (Horde)
+            l_ReputationByMap[6932] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Shadowmoon Burial Grounds  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6984] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Grimrail Depot  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6951] = l_Team == ALLIANCE ? 1731 : 1445;     ///< Iron Docks  / Council of Exarchs (Alliance), Frostwolf Orcs (Horde)
+            l_ReputationByMap[6874] = 1711;                                 ///< Bloodmaul Slag Mines  / Steamwheedle Preservation Society
+            l_ReputationByMap[7307] = 1711;                                 ///< Upper Blackrock Spire  / Steamwheedle Preservation Society
+
+            int32 l_FactionID = 0;
+            for (auto& l_Reputation : l_ReputationByMap)
+            {
+                if (l_Zone == l_Reputation.first)
+                    l_FactionID = l_Reputation.second;
+            }
+
+            if (l_FactionID)
+            {
+                int16 l_ReputationGain = 20;
+                if (l_Creature->IsDungeonBoss())
+                    l_ReputationGain = 400;
+
+                FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(l_FactionID);
+                uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
+                if (factionEntry1)
+                    GetReputationMgr().ModifyReputation(factionEntry1, l_ReputationGain);
+            }
+        }
+    }
 
     ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
 
@@ -11271,8 +11314,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                         }
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
-                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) || ///<  '&&' within '||'
+                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)) ///<  '&&' within '||'
                             {
                                 CastSpell(this, 66192, true);
                                 RemoveAura(81333);
@@ -11285,8 +11328,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                             RemoveAura(81333);
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) ||
-                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) || ///<  '&&' within '||'
+                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)) ///<  '&&' within '||'
                                 RemoveAura(66192);
                         }
                     }
@@ -12343,7 +12386,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 {
     // data depends on zoneid/mapid...
     Battleground* bg = GetBattleground();
-    uint16 NumberOfFields = 0;
+    uint16 NumberOfFields = 0; ///< NumberOfFields is unused
     uint32 mapid = GetMapId();
     OutdoorPvP* pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
     InstanceScript* instance = GetInstanceScript();
@@ -17784,7 +17827,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast)
+void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast, uint32 p_EncounterID /*= 0*/, ItemContext p_Context /*= ItemContext::None*/)
 {
     /// Prevent crash
     if (!p_Item)
@@ -17792,27 +17835,27 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
 
     WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT, 16 + 2 + 1 + 4 + 100 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 2 + 1);
 
-    l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
-    l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
-    l_Data << uint32(0);                                    ///< SlotInBag
+    l_Data.appendPackGUID(GetGUID());                               ///< Player GUID
+    l_Data << uint8(p_Item->GetBagSlot());                          ///< Slot
+    l_Data << uint32(0);                                            ///< SlotInBag
 
-    Item::BuildDynamicItemDatas(l_Data, p_Item);
+    Item::BuildDynamicItemDatas(l_Data, p_Item, p_Context);
 
-    l_Data << uint32(0);                                    ///< QuestLogItemID
-    l_Data << uint32(p_Quantity);                           ///< Quantity
-    l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
-    l_Data << uint32(0);                                    ///< Dungeon Encounter ID
-    l_Data << uint32(0);                                    ///< Battle Pet Species ID
-    l_Data << uint32(0);                                    ///< Battle Pet Breed ID
-    l_Data << uint32(0);                                    ///< Battle Pet Breed Quality
-    l_Data << uint32(0);                                    ///< Battle Pet Level
-    l_Data.appendPackGUID(p_Item->GetGUID());               ///< Item GUID
+    l_Data << uint32(0);                                            ///< QuestLogItemID
+    l_Data << uint32(p_Quantity);                                   ///< Quantity
+    l_Data << uint32(GetItemCount(p_Item->GetEntry()));             ///< count of items in inventory
+    l_Data << uint32(p_EncounterID);                                ///< Dungeon Encounter ID
+    l_Data << uint32(0);                                            ///< Battle Pet Species ID
+    l_Data << uint32(0);                                            ///< Battle Pet Breed ID
+    l_Data << uint32(0);                                            ///< Battle Pet Breed Quality
+    l_Data << uint32(0);                                            ///< Battle Pet Level
+    l_Data.appendPackGUID(p_Item->GetGUID());                       ///< Item GUID
 
-    l_Data.WriteBit(p_Received);                            ///< Pushed
-    l_Data.WriteBit(p_Created);                             ///< Created
-    l_Data.WriteBits(1, 2);                                 ///< Display Text
-    l_Data.WriteBit(0);                                     ///< Is Bonus Roll
-    l_Data.WriteBit(0);                                     ///< Is Encounter Loot
+    l_Data.WriteBit(p_Received);                                    ///< Pushed
+    l_Data.WriteBit(p_Created);                                     ///< Created
+    l_Data.WriteBits(p_Context == ItemContext::RaidLfr ? 3 : 1, 2); ///< Display Text
+    l_Data.WriteBit(false);                                         ///< Is Bonus Roll
+    l_Data.WriteBit(p_Context == ItemContext::RaidLfr);             ///< Is Encounter Loot
     l_Data.FlushBits();
 
     if (p_Broadcast && GetGroup())
@@ -20241,7 +20284,7 @@ void Player::KilledPlayerCredit()
     }
 }
 
-void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
+void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id) ///< entry is unused
 {
     QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL, guid);
 }
@@ -24463,7 +24506,7 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
     CharacterDatabase.Execute(stmt);
 }
 
-void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
+void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value) ///< value is unused
 {
     char buf[11];
 
@@ -26735,15 +26778,38 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
 
         if (int32 l_CooldownMod = GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN_BY_HASTE))
         {
-            float l_Haste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
+            float l_Haste = 1.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE);
+            int32 l_Diff = CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_CooldownMod);
 
             if (l_Cooldown > 0)
-                l_Cooldown *= ApplyPct(l_Haste, l_CooldownMod);
+                l_Cooldown -= l_Diff;
 
             if (l_CategoryCooldown > 0)
-                l_CategoryCooldown *= ApplyPct(l_Haste, l_CooldownMod);
+                l_CategoryCooldown -= l_Diff;
 
             l_NeedsCooldownPacket = true;
+        }
+
+        AuraEffectList const& l_ListAuraCooldownByHaste = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE);
+        if (!l_ListAuraCooldownByHaste.empty())
+        {
+            float l_Haste = 1.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE);
+
+            for (AuraEffect* l_AuraEffect : l_ListAuraCooldownByHaste)
+            {
+                if (l_AuraEffect->IsAffectingSpell(p_SpellInfo))
+                {
+                    int32 l_Diff = CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
+
+                    if (l_Cooldown > 0)
+                        l_Cooldown -= l_Diff;
+
+                    if (l_CategoryCooldown > 0)
+                        l_CategoryCooldown -= l_Diff;
+
+                    l_NeedsCooldownPacket = true;
+                }
+            }
         }
 
         if (l_CategoryId)
@@ -28722,7 +28788,7 @@ void Player::RewardPersonnalCurrencies(Unit* p_Victim)
         Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
         for (Unit::AuraEffectList::const_iterator l_I = l_Auras.begin(); l_I != l_Auras.end(); ++l_I)
         {
-            if (l_Iter->first == (*l_I)->GetMiscValue())
+            if (l_Iter->first == (*l_I)->GetMiscValue()) ///< Comparison of integers of different signs: 'const unsigned int' and 'int32' (aka 'int')
                 l_Pct += (*l_I)->GetAmount();
         }
 
@@ -29630,7 +29696,7 @@ void Player::UpdateCharmedAI()
     }
 }
 
-uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const
+uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const ///< runeType is unused
 {
     float l_Cooldown = RUNE_BASE_COOLDOWN * GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
     float l_Modifier = 1.0f;
@@ -29867,7 +29933,50 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         /// Add bonus to item if needed
         newitem->AddItemBonuses(item->itemBonuses);
 
-        SendNewItem(newitem, uint32(item->count), false, false, true);
+        ItemContext l_Context   = ItemContext::None;
+        uint32 l_EncounterID    = 0;
+        if (Creature* l_Creature = Creature::GetCreature(*this, loot->source))
+        {
+            if (InstanceScript* l_InstanceScript = l_Creature->GetInstanceScript())
+                l_EncounterID = l_InstanceScript->GetEncounterIDForBoss(l_Creature);
+
+            switch (GetMap()->GetDifficultyID())
+            {
+                case Difficulty::DifficultyRaidLFR:
+                    l_Context = ItemContext::RaidLfr;
+                    break;
+                case Difficulty::DifficultyRaidNormal:
+                    l_Context = ItemContext::RaidNormal;
+                    break;
+                case Difficulty::DifficultyRaidHeroic:
+                    l_Context = ItemContext::RaidHeroic;
+                    break;
+                case Difficulty::DifficultyRaidMythic:
+                    l_Context = ItemContext::RaidMythic;
+                    break;
+                case Difficulty::DifficultyNormal:
+                    l_Context = ItemContext::DungeonNormal;
+                    break;
+                case Difficulty::DifficultyHeroic:
+                    l_Context = ItemContext::DungeonHeroic;
+                    break;
+                case Difficulty::DifficultyMythic:
+                    l_Context = ItemContext::DungeonMythic;
+                    break;
+                default:
+                    break;
+            }
+
+            /// If item is not equipable, it doesn't need to be displayed
+            /// If item is not from listed difficulties, it doesn't need to be displayed
+            if (!newitem->IsEquipable() || l_Context == ItemContext::None)
+            {
+                l_EncounterID   = 0;
+                l_Context       = ItemContext::None;
+            }
+        }
+
+        SendNewItem(newitem, uint32(item->count), false, false, true, l_EncounterID, l_Context);
 
         /// Handle achievement criteria related to loot
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
@@ -32296,7 +32405,7 @@ void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
     }
 }
 
-void Player::HandleStoreItemCallback(PreparedQueryResult result)
+void Player::HandleStoreItemCallback(PreparedQueryResult result) ///< result is unused
 {
 }
 
@@ -32707,7 +32816,7 @@ void Player::SendRefreshSpellMods()
     uint32 l_MaskIndex;
     ByteBuffer l_PctBuffer;
     ByteBuffer l_FlatBuffer;
-    int i = 0;
+    int i = 0; ///< i is unused
 
     for (int l_SpellModOp = 0; l_SpellModOp < MAX_SPELLMOD; ++l_SpellModOp)
     {
@@ -32728,12 +32837,12 @@ void Player::SendRefreshSpellMods()
 
             l_Mask[l_MaskIndex] = uint32(1) << (l_EffectIndex - (32 * l_MaskIndex));
 
-            float l_PctValue = 1.f;
+            float l_PctValue = 1.0f;
             for (SpellModList::iterator l_It = m_spellMods[l_SpellModOp].begin(); l_It != m_spellMods[l_SpellModOp].end(); ++l_It)
                 if ((*l_It)->type == SPELLMOD_PCT && (*l_It)->mask & l_Mask)
-                    l_PctValue += float((*l_It)->value) / 100.f;
+                    l_PctValue += float((*l_It)->value) / 100.0f;
 
-            if (l_PctValue != 1.f)
+            if (l_PctValue != 1.0f)
             {
                 l_SubPctBuffer << float(l_PctValue);
                 l_SubPctBuffer << uint8(l_EffectIndex);
@@ -32741,7 +32850,7 @@ void Player::SendRefreshSpellMods()
                 ++l_PctModifierTypeCount;
             }
 
-            float l_FlatValue = 0.f;
+            float l_FlatValue = 0.0f;
             for (SpellModList::iterator itr = m_spellMods[l_SpellModOp].begin(); itr != m_spellMods[l_SpellModOp].end(); ++itr)
                 if ((*itr)->type == SPELLMOD_FLAT && (*itr)->mask & l_Mask)
                     l_FlatValue += float((*itr)->value);
@@ -33037,7 +33146,7 @@ void Player::ReloadPetBattles()
     }
     
     uint64 l_ThisGUID = GetGUID();
-    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_ThisGUID](bool p_Success) -> void
+    MS::Utilities::CallBackPtr l_CallBack = std::make_shared<MS::Utilities::Callback>([l_ThisGUID](bool p_Success) -> void ///< p_Success is unused
     {
         if (Player* l_This = HashMapHolder<Player>::Find(l_ThisGUID))
         {
@@ -33335,7 +33444,7 @@ bool Player::IsInGarrison() const
 
 bool Player::IsInShipyard() const
 {
-    return GetShipyardMapID() == GetMapId();
+    return GetShipyardMapID() == GetMapId(); ///< Comparison of integers of different signs: 'int32' (aka 'int') and 'uint32' (aka 'unsigned int')
 }
 
 int32 Player::GetGarrisonMapID() const
@@ -33785,7 +33894,7 @@ void Player::SendSetSpellCharges(SpellCategoryEntry const* p_ChargeCategoryEntry
     if (!p_ChargeCategoryEntry)
         return;
 
-    Clock::time_point l_Now = Clock::now();
+    Clock::time_point l_Now = Clock::now(); ///< l_Now is unused
     auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
     if (l_Itr != m_CategoryCharges.end() && !l_Itr->second.empty())
     {

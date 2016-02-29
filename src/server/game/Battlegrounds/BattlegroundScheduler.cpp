@@ -723,7 +723,7 @@ namespace MS
 
                 for (std::size_t i = 0; i < BattlegroundType::Max; i++)
                 {
-                    float l_OldFrequency = m_BattlegroundOccurences[p_BracketId][i].first;
+                    float l_OldFrequency = m_BattlegroundOccurences[p_BracketId][i].first; ///< l_OldFrequency is unused
                     float l_OldNumProc = m_BattlegroundOccurences[p_BracketId][i].first / (1.0f / (std::max((int32)(l_TotalOccurences - 1), (int32)1)));
 
                     if (i == p_DecidedBg)
