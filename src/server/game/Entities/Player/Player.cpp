@@ -21194,12 +21194,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     l_Times.push_back(getMSTime() - l_StartTime);
 
     /// Player was saved in BG or arena.
-    if (mapEntry && mapEntry->IsBattlegroundOrArena() && m_bgData.bgInstanceID != 0)
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
     {
         InterRealmSession* l_Tunnel = sWorld->GetInterRealmSession();
 
         /// Cross realm battleground
-        if (l_Tunnel && l_Tunnel->IsTunnelOpened())
+        if (l_Tunnel && l_Tunnel->IsTunnelOpened() && m_bgData.bgInstanceID != 0)
         {
             /// Send reconnect notification to cross realm
             l_Tunnel->SendPlayerReconnect(GetGUID(), m_bgData.bgInstanceID, m_bgData.bgTypeID);
