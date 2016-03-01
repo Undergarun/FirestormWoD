@@ -364,10 +364,11 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eSpells::LavaSlashMissileTriggered:
                     {
-                        Position* l_Dest = new Position(p_Dest->_position);
-                        Position* l_Src  = new Position(*me);
+                        Position* l_Dest    = new Position(p_Dest->_position);
+                        Position* l_Src     = new Position(*me);
+                        Creature* l_Me      = me;
 
-                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
+                        AddTimedDelayedOperation(50, [l_Me, l_Dest, l_Src]() -> void
                         {
                             uint8 l_Dist = l_Src->GetExactDist2d(l_Dest);
                             for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
@@ -384,7 +385,7 @@ class boss_flamebender_kagraz : public CreatureScript
                                 l_Target.m_positionZ    = l_Z;
                                 l_Target.m_orientation  = l_O;
 
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                l_Me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
                             }
                             
                             delete l_Dest;
