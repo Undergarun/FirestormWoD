@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
 
@@ -67,7 +75,7 @@ class PlayerScript_Weekly_Event_Bonus : public PlayerScript
     }
 };
 
-void AddSC_weekly_event_bonus()
+void AddSC_WeeklyEventBonusScripts()
 {
     new PlayerScript_Weekly_Event_Bonus();
 };

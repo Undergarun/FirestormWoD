@@ -2282,7 +2282,8 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecializationId(uint8 spec, uint32 id, bool loading = false);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         uint32 GetSpecializationId() const { return _talentMgr->SpecInfo[_talentMgr->ActiveSpec].SpecializationId; }
-        uint32 GetRoleForGroup(uint32 specializationId = 0);
+        uint32 GetRoleForGroup(uint32 specializationId = 0) const;
+        bool IsRangedDamageDealer() const;
         static uint32 GetRoleBySpecializationId(uint32 specializationId);
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;

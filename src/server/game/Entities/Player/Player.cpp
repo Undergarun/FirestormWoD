@@ -311,7 +311,10 @@ TradeData* TradeData::GetTraderData() const
 
 Item* TradeData::GetItem(TradeSlots slot) const
 {
-    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : NULL;
+    if (slot >= TRADE_SLOT_COUNT)
+        return nullptr;
+    
+    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : nullptr;
 }
 
 bool TradeData::HasItem(uint64 itemGuid) const
@@ -2176,6 +2179,15 @@ void Player::Update(uint32 p_time)
             // default combat reach 10
             // TODO add weapon, skill check
 
+            bool l_MustCheckO = true;
+
+            /// Can attack own vehicle in any direction
+            if (m_vehicle)
+            {
+                if (IsOnVehicle(victim) || (m_vehicle->GetBase() && m_vehicle->GetBase()->IsOnVehicle(victim)))
+                    l_MustCheckO = false;
+            }
+
             if (isAttackReady(WeaponAttackType::BaseAttack))
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
@@ -2188,7 +2200,7 @@ void Player::Update(uint32 p_time)
                     }
                 }
                 //120 degrees of radiant range
-                else if (!HasInArc(2*M_PI/3, victim))
+                else if (l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
                 {
                     setAttackTimer(WeaponAttackType::BaseAttack, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
@@ -2250,7 +2262,7 @@ void Player::Update(uint32 p_time)
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     setAttackTimer(WeaponAttackType::OffAttack, 100);
-                else if (!HasInArc(2*M_PI/3, victim))
+                else if (l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
                     setAttackTimer(WeaponAttackType::OffAttack, 100);
                 else
                 {
@@ -5292,6 +5304,11 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
+    /// Prevent load of incorrect passives / spells
+    if (!spellInfo->SpecializationIdList.empty() && std::find(spellInfo->SpecializationIdList.begin(), spellInfo->SpecializationIdList.end(), GetSpecializationId()) == spellInfo->SpecializationIdList.end()
+        && spellInfo->Id != 674)    ///< Ambidextrie hackfix, removed at spec switch (rogue))
+        return false;
+
     /// - Remove non authorized spell (learned when system was buggede)
     if ((spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && (getRaceMask() & RACEMASK_HORDE) == 0)
         || (spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && (getRaceMask() & RACEMASK_ALLIANCE) == 0))
@@ -6650,7 +6667,7 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
     SaveToDB();
 }
 
-uint32 Player::GetRoleForGroup(uint32 specializationId)
+uint32 Player::GetRoleForGroup(uint32 specializationId) const
 {
     if (!specializationId)
         specializationId = GetSpecializationId();
@@ -6658,6 +6675,33 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
     return GetRoleBySpecializationId(specializationId);
 }
 
+bool Player::IsRangedDamageDealer() const
+{
+    if (GetRoleForGroup() != Roles::ROLE_DAMAGE)
+        return false;
+
+    switch (getClass())
+    {
+        case Classes::CLASS_HUNTER:
+        case Classes::CLASS_MAGE:
+        case Classes::CLASS_WARLOCK:
+            return true;
+        default:
+            break;
+    }
+
+    switch (GetSpecializationId())
+    {
+        case SpecIndex::SPEC_DRUID_BALANCE:
+        case SpecIndex::SPEC_PRIEST_SHADOW:
+        case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
 
 uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 {
@@ -10587,7 +10631,7 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     for (AuraApplicationMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= m_Duel->startTime)
+        if (!i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= m_Duel->startTime && !i->second->GetRemoveMode())
             m_Duel->opponent->RemoveAura(i);
         else
             ++i;
@@ -10597,7 +10641,7 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime)
+        if (!i->second->IsPositive() && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime && !i->second->GetRemoveMode())
             RemoveAura(i);
         else
             ++i;
@@ -27103,7 +27147,7 @@ void Player::SetBattlegroundEntryPoint()
             m_bgData.mountSpell = 33943;
 
         // If map is dungeon find linked graveyard
-        if (GetMap()->IsDungeon())
+        if (GetMap()->IsDungeon() && !IsInGarrison())
         {
             if (const WorldSafeLocsEntry* entry = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
                 m_bgData.joinPos = WorldLocation(entry->map_id, entry->x, entry->y, entry->z, 0.0f);

@@ -1795,101 +1795,6 @@ class spell_rog_preparation: public SpellScriptLoader
         }
 };
 
-class spell_rog_deadly_poison: public SpellScriptLoader
-{
-    public:
-        spell_rog_deadly_poison() : SpellScriptLoader("spell_rog_deadly_poison") { }
-
-        class spell_rog_deadly_poison_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
-
-            bool Load()
-            {
-                _stackAmount = 0;
-                // at this point CastItem must already be initialized
-                return GetCaster()->IsPlayer() && GetCastItem();
-            }
-
-            void HandleBeforeHit()
-            {
-                if (Unit* target = GetHitUnit())
-                    // Deadly Poison
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0x80000, 0, GetCaster()->GetGUID()))
-                        _stackAmount = aurEff->GetBase()->GetStackAmount();
-            }
-
-            void HandleAfterHit()
-            {
-                if (_stackAmount < 5)
-                    return;
-
-                Player* player = GetCaster()->ToPlayer();
-
-                if (Unit* target = GetHitUnit())
-                {
-                    Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-                    if (item == GetCastItem())
-                        item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-                    if (!item)
-                        return;
-
-                    // item combat enchantments
-                    for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
-                    {
-                        if (slot > PRISMATIC_ENCHANTMENT_SLOT || slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
-                            continue;
-
-                        SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
-                        if (!enchant)
-                            continue;
-
-                        for (uint8 s = 0; s < 3; ++s)
-                        {
-                            if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
-                                continue;
-
-                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
-                            if (!spellInfo)
-                            {
-                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUIDLow(), enchant->spellid[s]);
-                                continue;
-                            }
-
-                            // Proc only rogue poisons
-                            if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || spellInfo->Dispel != DISPEL_POISON)
-                                continue;
-
-                            // Do not reproc deadly
-                            if (spellInfo->SpellFamilyFlags.IsEqual(0x10000, 0x80000, 0))
-                                continue;
-
-                            if (spellInfo->IsPositive())
-                                player->CastSpell(player, enchant->spellid[s], true, item);
-                            else
-                                player->CastSpell(target, enchant->spellid[s], true, item);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
-            }
-
-            uint8 _stackAmount;
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_deadly_poison_SpellScript();
-        }
-};
-
 /// Shadowstep - 36554
 class spell_rog_shadowstep: public SpellScriptLoader
 {
@@ -3338,7 +3243,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shiv();
     new spell_rog_recuperate();
     new spell_rog_preparation();
-    new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
     new spell_rog_stealth();
     new spell_rog_vanish();

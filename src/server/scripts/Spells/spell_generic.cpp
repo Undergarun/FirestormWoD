@@ -3394,7 +3394,8 @@ class spell_gen_ds_flush_knockback: public SpellScriptLoader
         }
 };
 
-// Orb of Power - 121164 / 121175 / 121176 / 121177
+/// Last Update 6.2.3
+/// Orb of Power - 121164 / 121175 / 121176 / 121177
 class spell_gen_orb_of_power: public SpellScriptLoader
 {
     public:
@@ -3404,45 +3405,63 @@ class spell_gen_orb_of_power: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_orb_of_power_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (Unit* target = GetTarget())
+                Unit* l_Target = GetTarget();
+
+                if (AuraEffect* l_DamageDone = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
                 {
-                    if (AuraEffect* damageDone = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_2))
-                    {
-                        // Max +200% damage done
-                        if (damageDone->GetAmount() + 10 >= 100)
-                            damageDone->ChangeAmount(100);
-                        else
-                            damageDone->ChangeAmount(damageDone->GetAmount() + 10);
-                    }
-                    if (AuraEffect* healing = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
-                    {
-                        // Max -90% heal taken
-                        if (healing->GetAmount() -5 <= -90)
-                            healing->ChangeAmount(-90);
-                        else
-                            healing->ChangeAmount(healing->GetAmount() - 5);
-                    }
-                    if (AuraEffect* damageTaken = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
-                    {
-                        // Max +500% damage taken
-                        if (damageTaken->GetAmount() + 30 >= 500)
-                            damageTaken->ChangeAmount(500);
-                        else
-                            damageTaken->ChangeAmount(damageTaken->GetAmount() + 30);
-                    }
+                    // Max +200% damage done
+                    if (l_DamageDone->GetAmount() + 10 >= 100)
+                        l_DamageDone->ChangeAmount(100);
+                    else
+                        l_DamageDone->ChangeAmount(l_DamageDone->GetAmount() + 10);
+                }
+                if (AuraEffect* l_Healing = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                {
+                    // Max -90% heal taken
+                    if (l_Healing->GetAmount() - 5 <= -90)
+                        l_Healing->ChangeAmount(-90);
+                    else
+                        l_Healing->ChangeAmount(l_Healing->GetAmount() - 5);
+                }
+                if (AuraEffect* l_DamageTaken = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1))
+                {
+                    // Max +500% damage taken
+                    if (l_DamageTaken->GetAmount() + 30 >= 500)
+                        l_DamageTaken->ChangeAmount(500);
+                    else
+                        l_DamageTaken->ChangeAmount(l_DamageTaken->GetAmount() + 30);
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->RemoveFlagsAuras();
+                Unit* l_Target = GetTarget();
+
+                l_Target->RemoveFlagsAuras();
+            }
+
+
+            void OnUpdate(uint32 /*diff*/, AuraEffect* /*aurEff*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->GetMap()->IsBattlegroundOrArena())
+                    l_Player->RemoveAura(GetSpellInfo()->Id);
             }
 
             void Register()
             {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_gen_orb_of_power_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_orb_of_power_AuraScript::OnTick, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectRemove += AuraEffectRemoveFn(spell_gen_orb_of_power_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
@@ -4554,6 +4573,7 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Shadowmeld - 58984
 class spell_gen_shadowmeld : public SpellScriptLoader
 {
@@ -4574,6 +4594,12 @@ class spell_gen_shadowmeld : public SpellScriptLoader
 
                 if (l_Player->IsInPvPCombat())
                     l_Player->SetInPvPCombat(false);
+
+                /// Shadowmeld must remove combat
+                l_Player->CombatStop();
+                l_Player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+                l_Player->InterruptNonMeleeSpells(true);
+                l_Player->getHostileRefManager().deleteReferences();
             }
 
             void Register()

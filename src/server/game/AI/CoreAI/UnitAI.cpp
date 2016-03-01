@@ -91,6 +91,38 @@ void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAg
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
 }
 
+Player* UnitAI::SelectRangedTarget() const
+{
+    std::list<HostileReference*> const& l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    std::list<Player*> l_TargetList;
+    for (HostileReference* l_Iter : l_ThreatList)
+    {
+        if (l_Iter->getTarget()->IsPlayer())
+            l_TargetList.push_back(l_Iter->getTarget()->ToPlayer());
+    }
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    l_TargetList.remove_if([this](Player* p_Player) -> bool
+    {
+        if (!p_Player->IsRangedDamageDealer())
+            return true;
+
+        return false;
+    });
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    JadeCore::Containers::RandomResizeList(l_TargetList, 1);
+
+    return l_TargetList.front();
+}
+
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
