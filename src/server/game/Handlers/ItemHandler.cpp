@@ -1879,7 +1879,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 l_ItemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
                 l_ItemTransmogrifier->SetNotRefundable(m_Player);
                 l_ItemTransmogrifier->ClearSoulboundTradeable(m_Player);
+                l_ItemTransmogrifier->SetState(ITEM_CHANGED, m_Player);
             }
+
+            l_ItemTransmogrified->SetState(ITEM_CHANGED, m_Player);
 
             cost += l_ItemTransmogrified->GetSpecialPrice();
         }
