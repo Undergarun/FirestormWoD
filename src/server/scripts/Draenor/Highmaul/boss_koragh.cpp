@@ -222,7 +222,7 @@ class boss_koragh : public CreatureScript
 
                         me->SetAIAnimKitId(0);
                     }
-                    elsee
+                    else
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
