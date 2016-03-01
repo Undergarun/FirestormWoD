@@ -4234,6 +4234,12 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                 else
                     l_PyroBlast = true;
             }
+            /// Fix Guardian of Elune to deal with current dodge pct
+            else if (l_SpellMod->spellId == 155578 && l_SpellMod->op == SpellModOp::SPELLMOD_COST)
+            {
+                int32 l_DodgeChance = (int32)GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
+                l_SpellMod->value = l_DodgeChance * -1;
+            }
 
              AddPct(l_TotalMul, l_SpellMod->value);
         }
