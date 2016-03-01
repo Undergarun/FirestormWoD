@@ -5271,7 +5271,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
     return false;
 }
 
-bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite, bool p_LearnBattlePet)
+bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool p_IsMountFavorite, bool p_LearnBattlePet, bool p_FromShopItem)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -5443,11 +5443,12 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         }
 
         PlayerSpell* newspell = new PlayerSpell;
-        newspell->state     = state;
-        newspell->active    = active;
-        newspell->dependent = dependent;
-        newspell->disabled  = disabled;
+        newspell->state           = state;
+        newspell->active          = active;
+        newspell->dependent       = dependent;
+        newspell->disabled        = disabled;
         newspell->IsMountFavorite = p_IsMountFavorite;
+        newspell->FromShopItem    = p_FromShopItem;
 
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
         if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
@@ -5742,14 +5743,14 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
 }
 
-void Player::learnSpell(uint32 p_SpellId, bool dependent)
+void Player::learnSpell(uint32 p_SpellId, bool dependent, bool p_FromItemShop)
 {
     PlayerSpellMap::iterator l_Itr = m_spells.find(p_SpellId);
 
     bool l_Disabled = (l_Itr != m_spells.end()) ? l_Itr->second->disabled : false;
     bool l_Active = l_Disabled ? l_Itr->second->active : true;
 
-    bool l_Learning = addSpell(p_SpellId, l_Active, true, dependent, false);
+    bool l_Learning = addSpell(p_SpellId, l_Active, true, dependent, false, false, false, true, p_FromItemShop);
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (l_Learning && IsInWorld())
@@ -6930,8 +6931,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                uint32 item_guidlow = itemFields[14].GetUInt32();
-                                uint32 item_template = itemFields[15].GetUInt32();
+                                uint32 item_guidlow = itemFields[15].GetUInt32();
+                                uint32 item_template = itemFields[16].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
@@ -15466,7 +15467,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
 
         if (pItem->GetTemplate()->Quality == ITEM_QUALITY_HEIRLOOM)
             if (HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(pItem->GetTemplate()->ItemId))
-                AddHeirloom(l_HeirloomEntry);
+                AddHeirloom(l_HeirloomEntry, pItem->HasCustomFlags(ItemCustomFlags::FromStore));
 
         if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
@@ -21423,12 +21424,18 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
+    uint32 l_AllowedGroupRealmMask = sWorld->getIntConfig(CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK);
+
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
     if (PreparedQueryResult accountResult = p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINGB_SPELL))
     {
         do
         {
+            uint32 l_GroupRealmMask = (*accountResult)[4].GetUInt32();
+            if ((l_GroupRealmMask & l_AllowedGroupRealmMask) == 0)
+                continue;
+
             uint32 l_SpellID = (*accountResult)[0].GetUInt32();
             for (uint32 l_I = 0; l_I < sBattlePetSpeciesStore.GetNumRows(); l_I++)
             {
@@ -21439,7 +21446,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
                     m_OldPetBattleSpellToMerge.push_back(std::make_pair(l_SpellID, speciesInfo->id));
                     break;
                 }
-
             }
 
             addSpell((*accountResult)[0].GetUInt32(), (*accountResult)[1].GetBool(), false, false, (*accountResult)[2].GetBool(), true, (*accountResult)[3].GetBool());
@@ -21936,8 +21942,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[14].GetUInt32();
-                uint8  slot     = fields[15].GetUInt8();
+                uint32 bagGuid  = fields[15].GetUInt32();
+                uint8  slot     = fields[16].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -22029,7 +22035,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
                 if (item->GetTemplate()->Quality == ITEM_QUALITY_HEIRLOOM)
                     if (HeirloomEntry const* l_HeirloomEntry = GetHeirloomEntryByItemID(item->GetTemplate()->ItemId))
-                        AddHeirloom(l_HeirloomEntry);
+                        AddHeirloom(l_HeirloomEntry, item->HasCustomFlags(ItemCustomFlags::FromStore));
             }
         }
         while (result->NextRow());
@@ -22106,8 +22112,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[16].GetUInt32();
-    uint32 itemEntry = fields[17].GetUInt32();
+    uint32 itemGuid  = fields[17].GetUInt32();
+    uint32 itemEntry = fields[18].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -22292,7 +22298,7 @@ void Player::_LoadMailedItems(PreparedQueryResult p_MailedItems)
         }
 
         Item* l_Item = NewItemOrBag(l_Proto);
-        if (!l_Item->LoadFromDB(l_ItemGuid, MAKE_NEW_GUID(l_Fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), l_Fields, l_ItemTemplate))
+        if (!l_Item->LoadFromDB(l_ItemGuid, MAKE_NEW_GUID(l_Fields[17].GetUInt32(), 0, HIGHGUID_PLAYER), l_Fields, l_ItemTemplate))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", l_Mail->messageID, l_ItemGuid);
 
@@ -24255,6 +24261,9 @@ void Player::_SaveSkills(SQLTransaction& trans)
 void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans)
 {
     PreparedStatement* stmt = NULL;
+    
+    uint32 l_GroupRealmMask     = sWorld->getIntConfig(WorldIntConfigs::CONFIG_ACCOUNT_BIND_GROUP_MASK);
+    uint32 l_ShopGroupRealmMask = sWorld->getIntConfig(WorldIntConfigs::CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK);
 
     for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end();)
     {
@@ -24299,6 +24308,9 @@ void Player::_SaveSpells(SQLTransaction& charTrans, SQLTransaction& accountTrans
                     stmt->setBool(2, itr->second->active);
                     stmt->setBool(3, itr->second->disabled);
                     stmt->setBool(4, itr->second->IsMountFavorite);
+                    stmt->setUInt32(5, itr->second->FromShopItem ? l_ShopGroupRealmMask : l_GroupRealmMask);
+                    stmt->setUInt32(6, itr->second->FromShopItem ? l_ShopGroupRealmMask : l_GroupRealmMask);
+
                     accountTrans->Append(stmt);
                 }
                 else
@@ -31369,13 +31381,13 @@ void Player::SendRefundInfo(Item* p_Item)
     GetSession()->SendPacket(&l_Data);
 }
 
-bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses)
+Item* Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses, bool p_FromShop)
 {
     ItemPosCountVec l_Dest;
     InventoryResult l_Message = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, p_ItemId, p_Count);
 
     if (l_Message != EQUIP_ERR_OK)
-        return false;
+        return nullptr;
 
     Item* l_Item = StoreNewItem(l_Dest, p_ItemId, true, Item::GenerateItemRandomPropertyId(p_ItemId));
     if (l_Item)
@@ -31387,12 +31399,15 @@ bool Player::AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuse
         Item::GenerateItemBonus(l_Item->GetEntry(), ItemContext::None, l_Bonus);
         l_Item->AddItemBonuses(l_Bonus);
 
+        if (p_FromShop)
+            l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+
         SendNewItem(l_Item, p_Count, true, false);
 
-        return true;
+        return l_Item;
     }
 
-    return false;
+    return nullptr;
 }
 
 void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_ExtendedCost, uint8 p_Error)
@@ -34216,7 +34231,7 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     }
 }
 
-bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel)
+bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel, bool p_UseShopGroupRealmMask)
 {
     if (HasHeirloom(p_HeirloomEntry))
         return false;
@@ -34233,10 +34248,16 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
     if (!sWorld->CanBeSaveInLoginDatabase())
         return true;
 
+    uint32 l_GroupRealmMask = sWorld->getIntConfig(WorldIntConfigs::CONFIG_ACCOUNT_BIND_GROUP_MASK);
+    if (p_UseShopGroupRealmMask)
+        l_GroupRealmMask = sWorld->getIntConfig(WorldIntConfigs::CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK);
+
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_HEIRLOOM);
     l_Statement->setUInt32(0, GetSession()->GetAccountId());
     l_Statement->setUInt32(1, p_HeirloomEntry->ID);
     l_Statement->setUInt32(2, l_HeirloomFlags);
+    l_Statement->setUInt32(3, l_GroupRealmMask);
+    l_Statement->setUInt32(4, l_GroupRealmMask);
     LoginDatabase.Execute(l_Statement);
 
     return true;
@@ -34267,11 +34288,18 @@ void Player::_LoadHeirloomCollection(PreparedQueryResult p_Result)
     if (!p_Result)
         return;
 
+    uint32 l_AllowedGroupRealmMask = sWorld->getIntConfig(CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK);
+
     do
     {
         Field* l_Fields = p_Result->Fetch();
-        uint32 l_HeirloomID = l_Fields[0].GetUInt32();
-        uint32 l_HeirloomFlags = l_Fields[1].GetUInt32();
+
+        uint32 l_HeirloomID     = l_Fields[0].GetUInt32();
+        uint32 l_HeirloomFlags  = l_Fields[1].GetUInt32();
+        uint32 l_GroupRealmMask = l_Fields[2].GetUInt32();
+
+        if ((l_GroupRealmMask & l_AllowedGroupRealmMask) == 0)
+            continue;
 
         HeirloomEntry const* l_HeirloomEntry = sHeirloomStore.LookupEntry(l_HeirloomID);
 
