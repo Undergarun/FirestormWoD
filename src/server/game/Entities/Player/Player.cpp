@@ -6686,7 +6686,7 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
     SaveToDB();
 }
 
-uint32 Player::GetRoleForGroup(uint32 specializationId)
+uint32 Player::GetRoleForGroup(uint32 specializationId) const
 {
     if (!specializationId)
         specializationId = GetSpecializationId();
@@ -6694,6 +6694,33 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
     return GetRoleBySpecializationId(specializationId);
 }
 
+bool Player::IsRangedDamageDealer() const
+{
+    if (GetRoleForGroup() != Roles::ROLE_DAMAGE)
+        return false;
+
+    switch (getClass())
+    {
+        case Classes::CLASS_HUNTER:
+        case Classes::CLASS_MAGE:
+        case Classes::CLASS_WARLOCK:
+            return true;
+        default:
+            break;
+    }
+
+    switch (GetSpecializationId())
+    {
+        case SpecIndex::SPEC_DRUID_BALANCE:
+        case SpecIndex::SPEC_PRIEST_SHADOW:
+        case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
 
 uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 {
@@ -33041,7 +33068,7 @@ uint32 Player::GetUnlockedPetBattleSlot()
     uint32 l_SlotCount = 0;
 
     /// battle pet training
-    if (HasSpell(119467))
+    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
         l_SlotCount++;
 
     /// Newbie
@@ -33154,6 +33181,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     l_CurrentPet->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
 
