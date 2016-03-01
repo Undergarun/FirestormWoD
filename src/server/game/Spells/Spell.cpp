@@ -7464,14 +7464,12 @@ SpellCastResult Spell::CheckRange(bool strict)
         else if (min_range && m_caster->IsWithinCombatRange(target, min_range)) // skip this check if min_range = 0
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_TOO_CLOSE : SPELL_FAILED_DONT_REPORT;
 
-        if (Vehicle* l_Vehicle = m_caster->GetVehicle())
+        /// Allow spells in any direction if the target is own vehicle
+        if (m_caster->IsPlayer() && (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
         {
-            if (!m_caster->IsOnVehicle(target) && !(l_Vehicle->GetBase() && l_Vehicle->GetBase()->IsOnVehicle(target)))
-            {
-                /// Allow spells in any direction if the target is own vehicle
-                if (m_caster->IsPlayer() && (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
-                    return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_UNIT_NOT_INFRONT : SPELL_FAILED_DONT_REPORT;
-            }
+            Vehicle* l_Vehicle = m_caster->GetVehicle();
+            if (l_Vehicle == nullptr || (!m_caster->IsOnVehicle(target) && !(l_Vehicle->GetBase() && l_Vehicle->GetBase()->IsOnVehicle(target))))
+                return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_UNIT_NOT_INFRONT : SPELL_FAILED_DONT_REPORT;
         }
     }
 
