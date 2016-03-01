@@ -3541,6 +3541,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
             case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
+            case 162757: ///< Ice Trap (Iron Marksman)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
@@ -3626,6 +3627,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
                 spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CONE_ENEMY_129;
                 spellInfo->Effects[EFFECT_2].TargetB = 0;
+                break;
+            case 154951: ///< Pin Down (Beastlord Darmac)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -7156,6 +7161,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157659: ///< Rippling Smash (Kromog)
             case 161923: ///< Rune of Crushing Earth (Kromog)
             case 157247: ///< Reverberations (Kromog)
+            case 162516: ///< Whirling Steel (Iron Assembly Warden)
+            case 162672: ///< Goring Swipe (Stubborn Ironhoof & Ornery Ironhoof)
+            case 162675: ///< Ground Slam (Stubborn Ironhoof & Ornery Ironhoof)
+            case 162663: ///< Electrical Storm - DoT (Thunderlord Beast-Tender)
+            case 162772: ///< Colossal Roar (Markog Aba'dir)
+            case 154956: ///< Pin Down - Damage (Beastlord Darmac)
+            case 154960: ///< Pinned Down - DoT (Beastlord Darmac)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:
