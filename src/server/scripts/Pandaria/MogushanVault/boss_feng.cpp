@@ -1236,7 +1236,7 @@ class spell_mogu_wildfire_spark : public SpellScriptLoader
         }
 };
 
-// Wildfire spark - 116784
+/// Wildfire spark - 116784
 class spell_wildfire_spark : public SpellScriptLoader
 {
     public:
@@ -1253,7 +1253,17 @@ class spell_wildfire_spark : public SpellScriptLoader
                         caster->CastSpell(target, 116583, true);
             }
 
-            void ApplyAura(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_wildfire_spark_AuraScript::Cast, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        class spell_wildfire_spark_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_wildfire_spark_SpellScript);
+
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_WILDFIRE_SPARK, caster);
@@ -1261,10 +1271,14 @@ class spell_wildfire_spark : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_wildfire_spark_AuraScript::Cast, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                OnEffectApply += AuraEffectApplyFn(spell_wildfire_spark_AuraScript::ApplyAura, EFFECT_1, SPELL_EFFECT_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHit += SpellEffectFn(spell_wildfire_spark_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_wildfire_spark_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {

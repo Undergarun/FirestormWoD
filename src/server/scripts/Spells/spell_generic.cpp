@@ -925,8 +925,24 @@ class spell_generic_clone: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                switch (m_scriptSpellId)
+                {
+                case 106935: /// Figment of Doubt
+                case 136757:
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                    break;
+                case 126240:
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    break;
+                case 57528:
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
+                    break;
+                default:
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_generic_clone_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                    break;
+                }
             }
         };
 
@@ -3810,7 +3826,7 @@ class spell_gen_dampening : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Drums of Fury - 178207, Drums of Rage - 146555
+/// Drums of Fury - 1178207, Drums of Rage - 146555
 class spell_gen_drums_of_fury : public SpellScriptLoader
 {
     public:
@@ -3855,8 +3871,8 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                OnEffectHitTarget += SpellEffectFn(spell_gen_drums_of_fury_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
                 AfterHit += SpellHitFn(spell_gen_drums_of_fury_SpellScript::HandleAfterHit);
             }
         };
