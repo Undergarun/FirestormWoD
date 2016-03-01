@@ -364,10 +364,11 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eSpells::LavaSlashMissileTriggered:
                     {
-                        Position* l_Dest = new Position(p_Dest->_position);
-                        Position* l_Src  = new Position(*me);
+                        Position* l_Dest    = new Position(p_Dest->_position);
+                        Position* l_Src     = new Position(*me);
+                        Creature* l_Me      = me;
 
-                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
+                        AddTimedDelayedOperation(50, [l_Me, l_Dest, l_Src]() -> void
                         {
                             uint8 l_Dist = l_Src->GetExactDist2d(l_Dest);
                             for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
@@ -384,7 +385,7 @@ class boss_flamebender_kagraz : public CreatureScript
                                 l_Target.m_positionZ    = l_Z;
                                 l_Target.m_orientation  = l_O;
 
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                l_Me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
                             }
                             
                             delete l_Dest;
@@ -489,30 +490,20 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eEvents::EventLavaSlash:
                     {
-                        Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
-                            me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
-                                me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
-                            me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Player* l_Target = SelectRangedTarget())
+                        {
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
-                        m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
+                            m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
+                        }
 
                         m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlashAgain);
                         break;
                     }
                     case eEvents::EventSummonEnchantedArmament:
                     {
-                        Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                        if (Player* l_Target = SelectRangedTarget())
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
-                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
-                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, false);
 
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
                         break;
@@ -522,14 +513,7 @@ class boss_flamebender_kagraz : public CreatureScript
                         if (me->GetPower(Powers::POWER_ENERGY) < 25)
                             break;
 
-                        Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f, true))
-                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f, true))
-                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
-                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Player* l_Target = SelectRangedTarget())
                             me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
 
                         m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, eTimers::TimerMoltenTorrentAgain);
@@ -813,12 +797,8 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
         {
             npc_foundry_flamebender_kagraz_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                m_Initialized       = false;
-
-                m_LavaSlashTarget   = 0;
+                m_LavaSlashTarget = 0;
             }
-
-            bool m_Initialized;
 
             uint64 m_LavaSlashTarget;
 
@@ -826,40 +806,21 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
 
             void Reset() override
             {
-                if (m_Initialized)
-                {
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                    me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-                    me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
-                }
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
             {
-                m_Initialized = true;
-
                 m_LavaSlashTarget = p_Guid;
 
-                Reset();
+                me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
             }
 
-            void JustSummoned(Creature* p_Summon) override
-            {
-                if (m_LavaSlashTargets.empty())
-                    return;
-
-                uint64 l_Guid = m_LavaSlashTargets.front();
-                if (p_Summon->GetEntry() == eCreature::FlamebenderKagrazTrigger && p_Summon->IsAIEnabled && l_Guid)
-                {
-                    p_Summon->AI()->SetGUID(l_Guid, 0);
-
-                    m_LavaSlashTargets.pop();
-                }
-            }
+            void JustSummoned(Creature* p_Summon) override { p_Summon->DespawnOrUnsummon(); }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
@@ -1945,13 +1906,7 @@ class spell_foundry_fixate : public SpellScriptLoader
                 {
                     if (npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI* l_AI = CAST_AI(npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI, l_Wolf->GetAI()))
                     {
-                        if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
-                            p_Targets.push_back(l_Target);
-                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
-                            p_Targets.push_back(l_Target);
-                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
-                            p_Targets.push_back(l_Target);
-                        else if (Unit* l_Target = l_AI->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
+                        if (Player* l_Target = l_AI->SelectRangedTarget())
                             p_Targets.push_back(l_Target);
                     }
                 }

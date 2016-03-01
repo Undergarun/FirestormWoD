@@ -2740,7 +2740,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
         }
 
         *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);       ///< Item display ID
-        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->aura_id : 0);    ///< Enchantment aura ID
+        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->itemVisualID : 0);    ///< Enchantment aura ID
         *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
     }
 
@@ -6673,7 +6673,7 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
     SaveToDB();
 }
 
-uint32 Player::GetRoleForGroup(uint32 specializationId)
+uint32 Player::GetRoleForGroup(uint32 specializationId) const
 {
     if (!specializationId)
         specializationId = GetSpecializationId();
@@ -6681,6 +6681,33 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
     return GetRoleBySpecializationId(specializationId);
 }
 
+bool Player::IsRangedDamageDealer() const
+{
+    if (GetRoleForGroup() != Roles::ROLE_DAMAGE)
+        return false;
+
+    switch (getClass())
+    {
+        case Classes::CLASS_HUNTER:
+        case Classes::CLASS_MAGE:
+        case Classes::CLASS_WARLOCK:
+            return true;
+        default:
+            break;
+    }
+
+    switch (GetSpecializationId())
+    {
+        case SpecIndex::SPEC_DRUID_BALANCE:
+        case SpecIndex::SPEC_PRIEST_SHADOW:
+        case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
 
 uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 {
@@ -15898,7 +15925,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetAppearanceModID());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantItemVisualId(PERM_ENCHANTMENT_SLOT));
     }
     else
     {
@@ -17718,10 +17745,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (apply_dur)
     {
@@ -33000,7 +33027,7 @@ uint32 Player::GetUnlockedPetBattleSlot()
     uint32 l_SlotCount = 0;
 
     /// battle pet training
-    if (HasSpell(119467))
+    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
         l_SlotCount++;
 
     /// Newbie
@@ -33113,6 +33140,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     l_CurrentPet->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
 
