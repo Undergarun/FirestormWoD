@@ -578,10 +578,22 @@ class spell_rog_killing_spree: public SpellScriptLoader
                 KillingSpreeDeselect = 61851
             };
 
+            uint64 m_TargetGUID = 0;
+
             void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     l_Caster->CastSpell(l_Caster, eSpell::KillingSpreeDeselect, true);
+
+                    Unit* l_Target = l_Caster->getVictim();
+                    if (!l_Target && l_Caster->ToPlayer())
+                        l_Target = l_Caster->ToPlayer()->GetSelectedUnit();
+                    if (!l_Target)
+                        return;
+
+                    m_TargetGUID = l_Target->GetGUID();
+                }
             }
 
             void OnTick(AuraEffect const*)
@@ -594,14 +606,13 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
                     if (!l_Caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
                     {
-                        Unit* l_Target = l_Caster->getVictim();
-                        if (!l_Target && l_Caster->ToPlayer())
-                            l_Target = l_Caster->ToPlayer()->GetSelectedUnit();
-                        if (!l_Target)
-                            return;
+                        Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
 
-                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
-                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                        if (l_Target != nullptr)
+                        {
+                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                        }
                     }
                     else
                     {
