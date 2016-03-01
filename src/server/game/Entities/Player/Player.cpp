@@ -2753,7 +2753,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
         }
 
         *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);       ///< Item display ID
-        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->aura_id : 0);    ///< Enchantment aura ID
+        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->itemVisualID : 0);    ///< Enchantment aura ID
         *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
     }
 
@@ -15927,7 +15927,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetAppearanceModID());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantItemVisualId(PERM_ENCHANTMENT_SLOT));
     }
     else
     {
@@ -17747,10 +17747,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (apply_dur)
     {
