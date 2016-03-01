@@ -145,6 +145,9 @@ class boss_koragh : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
+                
+                me->RemoveAura(eSpells::BreakersStrength);
 
                 _Reset();
 
@@ -219,7 +222,7 @@ class boss_koragh : public CreatureScript
 
                         me->SetAIAnimKitId(0);
                     }
-                    else
+                    elsee
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
