@@ -149,6 +149,7 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
     bool IsMountFavorite   : 1;                             // Is flagged as favorite mount spell
+    bool FromShopItem      : 1;
 };
 
 struct PlayerTalent
@@ -1957,7 +1958,7 @@ class Player : public Unit, public GridObject<Player>
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
-        bool AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses = {});
+        Item* AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses = {}, bool p_FromShop = false);
 
         uint32 m_stableSlots;
 
@@ -2240,8 +2241,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false, bool p_LearnBattlePet = true);
-        void learnSpell(uint32 spell_id, bool dependent);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false, bool p_LearnBattlePet = true, bool p_FromShopItem = false);
+        void learnSpell(uint32 spell_id, bool dependent, bool p_FromItemShop = false);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
         void learnDefaultSpells();
@@ -3592,7 +3593,7 @@ class Player : public Unit, public GridObject<Player>
         void _SetInShipyard();
         void _SetOutOfShipyard();
 
-        bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
+        bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0, bool p_UseShopGroupRealmMask = false);
         bool HasHeirloom(uint32 p_ItemID) const;
         bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
         uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
