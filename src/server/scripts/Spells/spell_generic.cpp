@@ -5637,6 +5637,7 @@ class spell_gen_coin_of_many_faces : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Called by Spirit of Chi-Ji (146199), Essence of Yu'lon (146197), Endurance of Niuzao (146193), Flurry of Xuen (146195)
 class spell_legendary_cloaks : public SpellScriptLoader
 {
@@ -5649,15 +5650,13 @@ public:
 
         void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
         {
-            PreventDefaultAction();
-
             Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
             if (l_Attacker == nullptr)
                 return;
 
             /// Doesn't work on 100lvl in WOD
-            if (l_Attacker->getLevel() == 100)
-                return;
+            if (l_Attacker->getLevel() >= 100)
+                PreventDefaultAction();
         }
 
         void Register()
