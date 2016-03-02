@@ -23,8 +23,6 @@
 
 #include <mysql.h>
 
-/// Guideline on field type matching:
-​
 /// |   MySQL type           |  method to use                         |
 /// |------------------------|----------------------------------------|
 /// | TINYINT                | GetBool, GetInt8, GetUInt8             |
@@ -39,7 +37,6 @@
 /// | TINYBLOB, MEDIUMBLOB,  | GetBinary, GetString                   |
 /// | BLOB, LONGBLOB         | GetBinary, GetString                   |
 /// | BINARY, VARBINARY      | GetBinary                              |
-​
 
 class Field
 {
