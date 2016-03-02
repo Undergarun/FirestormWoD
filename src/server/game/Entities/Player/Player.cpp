@@ -11342,8 +11342,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                         }
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) || ///<  '&&' within '||'
-                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)) ///<  '&&' within '||'
+                            if ((attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND)) ||
+                                (attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)))
                             {
                                 CastSpell(this, 66192, true);
                                 RemoveAura(81333);
@@ -11356,8 +11356,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                             RemoveAura(81333);
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) || ///<  '&&' within '||'
-                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)) ///<  '&&' within '||'
+                            if ((attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND)) ||
+                                (attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)))
                                 RemoveAura(66192);
                         }
                     }

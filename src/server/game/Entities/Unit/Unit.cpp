@@ -3921,10 +3921,10 @@ void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
     l_Aura->HandleAuraSpecificPeriodics(p_AurApp, l_Caster);
 
     /// Epicurean
-    if (IsPlayer() && ///<  '&&' within '||'
-        getRace() == RACE_PANDAREN_ALLI ||
+    if (IsPlayer() &&
+        (getRace() == RACE_PANDAREN_ALLI ||
         getRace() == RACE_PANDAREN_HORDE ||
-        getRace() == RACE_PANDAREN_NEUTRAL)
+        getRace() == RACE_PANDAREN_NEUTRAL))
     {
         if (l_Aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
         {
@@ -18224,8 +18224,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
             return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
-        else if (spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108 || ///<  '&&' within '||'
-                 spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032) ///<  '&&' within '||'
+        else if ((spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108) ||
+                 (spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032))
         {
             /// Nothing to do here
             /// We must use the ProcsPerMinuteRate calculated after that

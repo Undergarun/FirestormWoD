@@ -977,7 +977,7 @@ void BattlegroundSM::MineCartsMoves()
                         l_MineCart->GetMotionMaster()->MovePath(NPC_MINE_CART_1 * 10, false);
                         m_PathDone[SM_EAST_PATH][1] = true;
                     }
-                    else if (!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED) || ///> '&&' within '||'
+                    else if ((!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED)) ||
                         l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED))
                     {
                         l_MineCart->GetMotionMaster()->Clear(true);
@@ -1015,7 +1015,7 @@ void BattlegroundSM::MineCartsMoves()
             {
                 if (Creature* l_Track = GetBgMap()->GetCreature(BgCreatures[SM_TRACK_SWITCH_NORTH]))
                 {
-                    if (!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED) || ///> '&&' within '||'
+                    if ((!l_Track->HasAura(BG_SM_TRACK_SWITCH_OPENED) && !l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED)) ||
                         l_Track->HasAura(BG_SM_TRACK_SWITCH_CLOSED))
                     {
                         l_MineCart->GetMotionMaster()->Clear(true);
