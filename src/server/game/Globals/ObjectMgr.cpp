@@ -942,7 +942,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (cInfo->VignetteID && !sVignetteStore.LookupEntry(cInfo->VignetteID))
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature(Entry: %u) has a non - existing vignette id (%u)", cInfo->VignetteID); ///< More '%' conversions than data arguments
+        sLog->outError(LOG_FILTER_SQL, "Creature(Entry: %u) has a non - existing vignette id (%u)", cInfo->Entry, cInfo->VignetteID);
         const_cast<CreatureTemplate*>(cInfo)->VignetteID = 0;
     }
 
@@ -9315,13 +9315,13 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
 
         if (l_Difficulty >= MaxDifficulties)
         {
-            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty); ///< More '%' conversions than data arguments
+            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty, l_CreatureEntry);
             continue;
         }
 
         if (l_GroupSize >= MAX_GROUP_SCALING)
         {
-            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize); ///< More '%' conversions than data arguments
+            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize, l_CreatureEntry);
             continue;
         }
 
