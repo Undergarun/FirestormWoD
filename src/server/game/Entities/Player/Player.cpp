@@ -26841,13 +26841,12 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
         if (int32 l_CooldownMod = GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN_BY_HASTE))
         {
             float l_Haste = 1.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE);
-            int32 l_Diff = CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_CooldownMod);
 
             if (l_Cooldown > 0)
-                l_Cooldown -= l_Diff;
+                l_Cooldown -= CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_CooldownMod);
 
             if (l_CategoryCooldown > 0)
-                l_CategoryCooldown -= l_Diff;
+                l_CategoryCooldown -= CalculatePct(CalculatePct(l_CategoryCooldown, (l_Haste * 100)), l_CooldownMod);
 
             l_NeedsCooldownPacket = true;
         }
@@ -26861,13 +26860,11 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
             {
                 if (l_AuraEffect->IsAffectingSpell(p_SpellInfo))
                 {
-                    int32 l_Diff = CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
-
                     if (l_Cooldown > 0)
-                        l_Cooldown -= l_Diff;
+                        l_Cooldown -= CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
 
                     if (l_CategoryCooldown > 0)
-                        l_CategoryCooldown -= l_Diff;
+                        l_CategoryCooldown -= CalculatePct(CalculatePct(l_CategoryCooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
 
                     l_NeedsCooldownPacket = true;
                 }
