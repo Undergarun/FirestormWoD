@@ -873,8 +873,6 @@ class spell_warr_heroic_leap: public SpellScriptLoader
                 if (!l_Player || !l_SpellDest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (l_SpellDest->GetPositionZ() > l_Player->GetPositionZ() + 5.0f)
-                    return SPELL_FAILED_NOPATH;
                 else if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
                     return SPELL_FAILED_ROOTED;
                 else if (l_Player->GetMap()->IsBattlegroundOrArena())
