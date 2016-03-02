@@ -11342,8 +11342,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                         }
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) || ///<  '&&' within '||'
-                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)) ///<  '&&' within '||'
+                            if ((attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND)) ||
+                                (attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)))
                             {
                                 CastSpell(this, 66192, true);
                                 RemoveAura(81333);
@@ -11356,8 +11356,8 @@ void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType
                             RemoveAura(81333);
                         else if (item->GetTemplate()->InventoryType == INVTYPE_WEAPON)
                         {
-                            if (attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND) || ///<  '&&' within '||'
-                                attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)) ///<  '&&' within '||'
+                            if ((attackType == WeaponAttackType::BaseAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND)) ||
+                                (attackType == WeaponAttackType::OffAttack && GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)))
                                 RemoveAura(66192);
                         }
                     }
@@ -24039,7 +24039,7 @@ void Player::_SaveMail(SQLTransaction& trans)
 
 void Player::_SaveQuestStatus(SQLTransaction& trans)
 {
-    bool isTransaction = !trans.null();
+    bool isTransaction = trans.get() != nullptr;
     if (!isTransaction)
         trans = CharacterDatabase.BeginTransaction();
 
@@ -26818,13 +26818,12 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
         if (int32 l_CooldownMod = GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN_BY_HASTE))
         {
             float l_Haste = 1.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE);
-            int32 l_Diff = CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_CooldownMod);
 
             if (l_Cooldown > 0)
-                l_Cooldown -= l_Diff;
+                l_Cooldown -= CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_CooldownMod);
 
             if (l_CategoryCooldown > 0)
-                l_CategoryCooldown -= l_Diff;
+                l_CategoryCooldown -= CalculatePct(CalculatePct(l_CategoryCooldown, (l_Haste * 100)), l_CooldownMod);
 
             l_NeedsCooldownPacket = true;
         }
@@ -26838,13 +26837,11 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
             {
                 if (l_AuraEffect->IsAffectingSpell(p_SpellInfo))
                 {
-                    int32 l_Diff = CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
-
                     if (l_Cooldown > 0)
-                        l_Cooldown -= l_Diff;
+                        l_Cooldown -= CalculatePct(CalculatePct(l_Cooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
 
                     if (l_CategoryCooldown > 0)
-                        l_CategoryCooldown -= l_Diff;
+                        l_CategoryCooldown -= CalculatePct(CalculatePct(l_CategoryCooldown, (l_Haste * 100)), l_AuraEffect->GetAmount());
 
                     l_NeedsCooldownPacket = true;
                 }
