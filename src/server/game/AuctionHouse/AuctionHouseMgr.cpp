@@ -16,13 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"

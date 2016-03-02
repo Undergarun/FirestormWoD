@@ -19,12 +19,10 @@
 
 #include "BattlegroundSM.h"
 #include "Player.h"
-#include "Language.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "BattlegroundMgr.hpp"
-#include "Player.h"
 #include "GossipDef.h"
 
 BattlegroundSM::BattlegroundSM() : Battleground()

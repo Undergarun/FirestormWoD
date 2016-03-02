@@ -36,7 +36,6 @@ class WorldPacket;
 class BattlegroundMap;
 class Unit;
 
-struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10

@@ -18,7 +18,6 @@
 
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
-#include "Creature.h"
 #include "World.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
