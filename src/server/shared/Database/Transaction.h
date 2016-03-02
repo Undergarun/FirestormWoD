@@ -49,7 +49,7 @@ class Transaction
         bool _cleanedUp;
 
 };
-typedef JadeCore::AutoPtr<Transaction, ACE_Thread_Mutex> SQLTransaction;
+typedef std::shared_ptr<Transaction> SQLTransaction;
 
 /*! Low level class*/
 class TransactionTask : public SQLOperation
