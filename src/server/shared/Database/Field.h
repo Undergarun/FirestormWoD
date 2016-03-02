@@ -23,6 +23,24 @@
 
 #include <mysql.h>
 
+/// Guideline on field type matching:
+​
+/// |   MySQL type           |  method to use                         |
+/// |------------------------|----------------------------------------|
+/// | TINYINT                | GetBool, GetInt8, GetUInt8             |
+/// | SMALLINT               | GetInt16, GetUInt16                    |
+/// | MEDIUMINT, INT         | GetInt32, GetUInt32                    |
+/// | BIGINT                 | GetInt64, GetUInt64                    |
+/// | FLOAT                  | GetFloat                               |
+/// | DOUBLE, DECIMAL        | GetDouble                              |
+/// | CHAR, VARCHAR,         | GetCString, GetString                  |
+/// | TINYTEXT, MEDIUMTEXT,  | GetCString, GetString                  |
+/// | TEXT, LONGTEXT         | GetCString, GetString                  |
+/// | TINYBLOB, MEDIUMBLOB,  | GetBinary, GetString                   |
+/// | BLOB, LONGBLOB         | GetBinary, GetString                   |
+/// | BINARY, VARBINARY      | GetBinary                              |
+​
+
 class Field
 {
     friend class ResultSet;
