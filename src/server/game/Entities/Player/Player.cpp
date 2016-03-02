@@ -2355,12 +2355,17 @@ void Player::Update(uint32 p_time)
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
-                        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                        sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                         {
                             Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                            if (l_Player)
+                            if (l_Player && l_Player->IsInWorld())
+                            {
                                 l_Player->_SetOutOfShipyard();
+                                return true;
+                            }
+
+                            return false;
                         });
                     }
                 }
@@ -2510,12 +2515,22 @@ void Player::Update(uint32 p_time)
 
     m_CriticalOperationLock.acquire();
 
+    std::queue<std::function<bool()>> l_CriticalOperationFallBack;
     while (!m_CriticalOperation.empty())
     {
         if (m_CriticalOperation.front())
-            m_CriticalOperation.front()();
+        {
+            if (!(m_CriticalOperation.front()()))
+                l_CriticalOperationFallBack.push(m_CriticalOperation.front());
+        }
 
         m_CriticalOperation.pop();
+    }
+
+    while (!l_CriticalOperationFallBack.empty())
+    {
+        m_CriticalOperation.push(l_CriticalOperationFallBack.front());
+        l_CriticalOperationFallBack.pop();
     }
 
     m_CriticalOperationLock.release();
@@ -10274,43 +10289,63 @@ void Player::UpdateArea(uint32 newArea)
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && IsInShipyard())
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_SetOutOfShipyard();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_SetInShipyard();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_GarrisonSetOut();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_GarrisonSetIn();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
             }
