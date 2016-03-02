@@ -8,34 +8,6 @@
 	REPLACE INTO creature_questender VALUE (87112, 37062);
 
 	UPDATE `creature_template` SET `npcflag`=129, minlevel=100, maxlevel=100, `exp`=5, faction = 35 WHERE `entry`=86777;
-	DELETE FROM `npc_vendor` WHERE `entry` = 86777 AND `type` = 1;
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109118','0','0','5413','1','0'); -- or 5415, garrison resources x4
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109119','0','0','5413','1','0'); -- or 5415, garrison resources x4
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109124','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109125','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109126','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109127','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109128','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109129','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109131','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109132','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109133','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109134','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109135','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109136','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109137','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109138','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109139','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109140','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109141','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109142','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109143','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109144','0','0','5412','1','0'); -- garrison resources x8
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','109693','0','0','5414','1','0'); -- garrison resources x5
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','110609','0','0','5411','1','0'); -- garrison resources x10
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','111557','0','0','5413','1','0'); -- garrison resources x4
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','120146','0','0','5459','1','0'); -- garrison resources x50
-	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `PlayerConditionID`) VALUE('86777','0','120147','0','0','5460','1','0'); -- savage blood x1
 
 	UPDATE `creature_template` SET `npcflag`=3, minlevel=100, maxlevel=100, `exp`=5, faction = 35 WHERE `entry`=87206;
 

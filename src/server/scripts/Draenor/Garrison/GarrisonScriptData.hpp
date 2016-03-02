@@ -70,7 +70,8 @@ namespace MS { namespace Garrison
         SpellJourneymanLogging                 = 167946, ///< Lumber Mill
         SpellSummonStump                       = 170079, ///< Lumber Mill
         SpellGarrisonPortal                    = 182464, ///< Mage Tower/Spirit Lodge
-        SpellAuraRunesOfPower                  = 178777  ///< Mage Tower/Spirit Lodge
+        SpellAuraRunesOfPower                  = 178777, ///< Mage Tower/Spirit Lodge
+        SpellAuraAmperialConstructVisual       = 166094  ///< Mage Tower/Spirit Lodge
     };
 
     enum DisplayIDs

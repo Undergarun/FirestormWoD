@@ -16,7 +16,7 @@
 namespace MS { namespace Garrison 
 {
     //////////////////////////////////////////////////////////////////////////
-    /// 87112 - Kinja                                                      ///
+    /// 87112 - Fayla Fairfeather                                          ///
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
@@ -175,7 +175,7 @@ namespace MS { namespace Garrison
             if (l_GarrisonMgr == nullptr)
                 return;
 
-            std::vector<uint32> l_TradersEntries; /*= { 86778, 86777, 86779, 86776, 86683 };*/
+            std::vector<uint32> l_TradersEntries = { 86778, 86777, 86779, 86776, 86683 };
             uint32 l_Entry = 0;
 
             if (l_TradersEntries.empty())

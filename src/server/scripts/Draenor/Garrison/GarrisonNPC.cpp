@@ -750,6 +750,7 @@ namespace MS { namespace Garrison
     {
         m_OwnerGuid  = 0;
         m_CheckTimer = 1500;
+        me->AddAura(Spells::SpellAuraAmperialConstructVisual, me);
     }
 
     /// Called when a CreatureAI object is needed for the creature.
@@ -823,7 +824,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                m_CheckTimer = 1000;
+                m_CheckTimer = 2000;
             }
             else
                 m_CheckTimer -= p_Diff;
