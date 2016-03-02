@@ -4897,6 +4897,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StartRecoveryCategory = 133;
                 spellInfo->Effects[3].Effect = 0;
                 break;
+            case 57761: ///< Brain Freeze
+                spellInfo->Effects[0].BasePoints = -100;
+                spellInfo->Effects[1].BasePoints = -100;
+                break;
             case 127424: ///< Jade Fire
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[0].TargetB = 0;
