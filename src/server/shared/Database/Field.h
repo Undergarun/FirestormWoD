@@ -47,7 +47,7 @@ class Field
             {
                 ACE_Stack_Trace l_Trace;
                 printf("%s\n", l_Trace.c_str());
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetUInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetUInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -66,7 +66,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_TINY))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -85,7 +85,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetUInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetUInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -104,7 +104,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_SHORT) && !IsType(MYSQL_TYPE_YEAR))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -123,7 +123,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetUInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetUInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -142,7 +142,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_INT24) && !IsType(MYSQL_TYPE_LONG))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -161,7 +161,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetUInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetUInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -180,7 +180,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_LONGLONG) && !IsType(MYSQL_TYPE_BIT))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0;
             }
@@ -199,7 +199,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_FLOAT))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetFloat() on non-float field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetFloat() on non-float field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0.0f;
             }
@@ -218,7 +218,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsType(MYSQL_TYPE_DOUBLE))
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Warning: GetDouble() on non-double field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetDouble() on non-double field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return 0.0f;
             }
@@ -237,7 +237,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL, "Error: GetCString() on numeric field %s.%s (%s.%s) at index %u. Using type: %s.",
+                sLog->outFatal(LOG_FILTER_SQL, "FATAL: GetCString() on numeric field %s.%s (%s.%s) at index %u. Using type: %s.",
                               meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index, meta.Type);
                 return NULL;
             }
