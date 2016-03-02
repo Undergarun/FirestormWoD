@@ -1,0 +1,1 @@
+ALTER TABLE `item_instance` DROP COLUMN `custom_flags`, ADD COLUMN `custom_flags` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `text`; 
