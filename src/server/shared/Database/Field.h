@@ -335,6 +335,7 @@ class Field
                 case MYSQL_TYPE_INT24:
                 case MYSQL_TYPE_LONG:
                 case MYSQL_TYPE_FLOAT:
+                case MYSQL_TYPE_ENUM:
                     return 4;
                 case MYSQL_TYPE_DOUBLE:
                 case MYSQL_TYPE_LONGLONG:
@@ -362,7 +363,6 @@ class Field
                 case MYSQL_TYPE_GEOMETRY:
                 /*
                 Following types are not sent over the wire:
-                MYSQL_TYPE_ENUM:
                 MYSQL_TYPE_SET:
                 */
                 default:
