@@ -838,12 +838,6 @@ void Player::UpdateDodgePercentage()
         150.3759f     // Druid
     };
 
-    float diminishing = 0.0f;
-    float nondiminishing = 3.0f;
-
-    // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
-    nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
-
     /*
         3.36 + 1.25 (3.36 + 1.25 from 221 agi) on offi -- enhancement shaman -- ask sovak if you dont understand
 
@@ -860,6 +854,9 @@ void Player::UpdateDodgePercentage()
     // Dodge from rating
     float l_BaseDodge = 3.0f;
     float l_Total = 0.0f;
+
+    // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
+    l_BaseDodge += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
 
     if (getClass() == CLASS_MONK || getClass() == CLASS_DRUID || getClass() == CLASS_ROGUE || getClass() == CLASS_HUNTER || getClass() == CLASS_SHAMAN)
         l_BaseDodge += (k_constatBaseRaceAgi[getRace()] * (1 / 176.3760684f));
