@@ -82,4 +82,4 @@ notify:
     channel: wow-notification
     username: Drone
     template: >
-      Build <{{ sys.link }}/{{ repo.fullname }}/{{ build.number }}|{{ repo.name }}#{{ build.number }}> {{ build.branch }} by {{ build.author }} finished with a *{{ build.status }}* status
+      Build <http://ptr.ashran.com/MilleniumStudio/Garrosh/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> {{ build.branch }} by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
