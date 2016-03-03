@@ -1,10 +1,20 @@
-image: milleniumstudio/drone-clang-mariadb-ace
+clone:
+  depth: 20
+  recursive: true
+  submodule_update_remote: true
 
-script:
-  - mkdir build && cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-  - make -j
-  - cd -
+branches:
+  - wod
+  - wod_ptr
+  - interrealm
+
+build:
+  image: milleniumstudio/drone-clang-mariadb-ace
+  commands:
+    - mkdir build && cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+    - make -j
+    - cd -
 
 #deploy:
 #  ssh:
@@ -27,6 +37,7 @@ script:
 notify:
   slack:
     webhook_url: 'https://hooks.slack.com/services/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'
-    on_started: false
-    on_success: true
-    on_failure: true
+    when:
+      started: false
+      success: true
+      failure: true
