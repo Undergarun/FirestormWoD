@@ -143,6 +143,11 @@ namespace MS { namespace Garrison
                 l_NpcVendorPos = { 3.5440f, 2.2147f, 1.6656f, 5.9672f };
                 break;
             case Buildings::TradingPost__TradingPost_Level3:
+                if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
+                    SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismQuestGiver, -2.8987f, -1.3951f, 0.8036f, 0.0550f, TEMPSUMMON_MANUAL_DESPAWN);
+                else
+                    SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismAuctioneer, -2.8987f, -1.3951f, 0.8036f, 0.0550f, TEMPSUMMON_MANUAL_DESPAWN);
+
                 l_NpcVendorPos = { 14.5129f, -4.9367f, 1.6736f, 1.6161f };
                 break;
             default:
@@ -156,9 +161,6 @@ namespace MS { namespace Garrison
 
         if (Creature* l_Creature = me->FindNearestCreature(l_NpcID, 30.0f))
             l_Creature->DespawnOrUnsummon();
-
-
-        l_NpcVendorPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
 
         SummonRelativeCreature(l_NpcID, l_NpcVendorPos, TEMPSUMMON_MANUAL_DESPAWN);
 
@@ -176,9 +178,7 @@ namespace MS { namespace Garrison
                 return;
 
             std::vector<uint32> l_TradersEntries = { 87203, 87202, 87200, 87201, 87204 };
-            uint32 l_Entry = 0;
-
-            l_TradersEntries[urand(0, l_TradersEntries.size() - 1)];
+            uint32 l_Entry = l_TradersEntries[urand(0, l_TradersEntries.size() - 1)];
 
             GetOwner()->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
             GetOwner()->SaveToDB();

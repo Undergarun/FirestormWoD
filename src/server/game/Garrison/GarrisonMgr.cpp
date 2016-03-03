@@ -2739,6 +2739,16 @@ namespace MS { namespace Garrison
         return GarrisonBuilding();
     }
 
+    /// Get building
+    GarrisonBuilding Manager::GetBuildingWithBuildingID(uint32 p_BuildingID) const
+    {
+        for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
+        if (m_Buildings[l_I].BuildingID == p_BuildingID)
+            return m_Buildings[l_I];
+
+        return GarrisonBuilding();
+    }
+
     /// Get buildings
     std::vector<GarrisonBuilding> Manager::GetBuildings() const
     {
@@ -3395,7 +3405,7 @@ namespace MS { namespace Garrison
     {
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
         {
-            GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
+            GameObject* l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
 
             if (l_Gob)
             {
@@ -3408,7 +3418,7 @@ namespace MS { namespace Garrison
 
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsGob.begin(); l_It != m_PlotsGob.end(); ++l_It)
         {
-            GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
+            GameObject* l_Gob = HashMapHolder<GameObject>::Find(l_It->second);
 
             if (l_Gob)
             {
@@ -3423,7 +3433,7 @@ namespace MS { namespace Garrison
         {
             for (uint32 l_Y = 0; l_Y < l_It->second.size(); ++l_Y)
             {
-                GameObject * l_Gob = HashMapHolder<GameObject>::Find(l_It->second[l_Y]);
+                GameObject* l_Gob = HashMapHolder<GameObject>::Find(l_It->second[l_Y]);
 
                 if (l_Gob)
                 {
@@ -3439,7 +3449,7 @@ namespace MS { namespace Garrison
         {
             for (uint32 l_Y = 0; l_Y < l_It->second.size(); ++l_Y)
             {
-                Creature * l_Crea = HashMapHolder<Creature>::Find(l_It->second[l_Y]);
+                Creature* l_Crea = HashMapHolder<Creature>::Find(l_It->second[l_Y]);
 
                 if (l_Crea)
                 {
@@ -3526,7 +3536,7 @@ namespace MS { namespace Garrison
                 {
                     for (uint32 l_I = 0; l_I < m_PlotsCreatures[p_PlotInstanceID].size(); ++l_I)
                     {
-                        Creature * l_Crea = HashMapHolder<Creature>::Find(m_PlotsCreatures[p_PlotInstanceID][l_I]);
+                        Creature* l_Crea = HashMapHolder<Creature>::Find(m_PlotsCreatures[p_PlotInstanceID][l_I]);
 
                         if (l_Crea)
                         {
@@ -3556,7 +3566,7 @@ namespace MS { namespace Garrison
 
                     for (uint32 l_I = 0; l_I < m_PlotsGameObjects[p_PlotInstanceID].size(); ++l_I)
                     {
-                        GameObject * l_Gob = HashMapHolder<GameObject>::Find(m_PlotsGameObjects[p_PlotInstanceID][l_I]);
+                        GameObject* l_Gob = HashMapHolder<GameObject>::Find(m_PlotsGameObjects[p_PlotInstanceID][l_I]);
 
                         if (l_Gob)
                         {

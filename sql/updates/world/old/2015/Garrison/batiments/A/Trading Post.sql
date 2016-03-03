@@ -19,15 +19,12 @@
 
 -- LEVEL 2
 
-	-- UPDATE plot instance when quest is rewarded (doesn't work yet, need to check events 20-50)
-	REPLACE INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) values('87206','0','0','0','50','0','100','0','36948','0','0','0','115','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Type a script description here.');
-
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -144 AND faction_index = 1;
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-144','1','85427','3.75467','-0.927572','2.16588','4.8097');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-144','1','87212','-0.50955','1.16236','2.16656','0.087888');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-144','1','-237027','8.83224','2.37978','1.66627','4.7553');
 
-	UPDATE creature_template SET npcflag = npcflag | 1 | 2, dynamicflags = dynamicflags | 64, unit_flags2 = unit_flags2 | 1 WHERE entry = 87206;
+	UPDATE creature_template SET npcflag = npcflag | 1 | 2, dynamicflags = dynamicflags | 64, unit_flags2 = unit_flags2 | 1, scriptname = "npc_AncientTradingMechanism_Garr" WHERE entry = 87206;
 	REPLACE INTO creature_queststarter VALUE (87206, 36948);
 	REPLACE INTO creature_questender VALUE (87206, 36948);
 

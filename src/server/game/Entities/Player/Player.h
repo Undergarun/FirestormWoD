@@ -193,10 +193,11 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest            = 1,
-    CharWorldStateGarrisonStablesSecondQuest           = 2,
-    CharWorldStateGarrisonWorkshopGearworksInvention   = 3,
-    CharWorldStateGarrisonTradingPostDailyRandomTrader = 4
+    CharWorldStateGarrisonStablesFirstQuest              = 1,
+    CharWorldStateGarrisonStablesSecondQuest             = 2,
+    CharWorldStateGarrisonWorkshopGearworksInvention     = 3,
+    CharWorldStateGarrisonTradingPostDailyRandomTrader   = 4,
+    CharWorldStateGarrisonTradingPostDailyRandomShipment = 5
 };
 
 // Spell modifier (used for modify other spells)
@@ -3460,7 +3461,7 @@ class Player : public Unit, public GridObject<Player>
         /// Summon new pet
         void SummonBattlePet(uint64 p_JournalID);
         /// Get current summoned battle pet
-        Creature * GetSummonedBattlePet();
+        Creature* GetSummonedBattlePet();
         /// Summon last summoned battle pet
         void SummonLastSummonedBattlePet();
 

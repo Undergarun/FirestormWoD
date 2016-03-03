@@ -169,6 +169,8 @@ namespace MS { namespace Garrison
             GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered = false);
             /// Get building
             GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID) const;
+            /// Get Building with ID
+            GarrisonBuilding GetBuildingWithBuildingID(uint32 p_BuildingID) const;
             /// Get building object
             GarrisonBuilding* GetBuildingObject(uint32 p_PlotInstanceID);
             /// Get buildings
