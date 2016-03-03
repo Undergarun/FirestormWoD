@@ -1,0 +1,32 @@
+image: milleniumstudio/drone-clang-mariadb-ace
+
+script:
+  - mkdir build && cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+  - make -j
+  - cd -
+
+#deploy:
+#  ssh:
+#    target: root@0.0.0.0:~/wod.tar
+#    artifacts:
+#      - build/src/server/worldserver/worldserver
+#      - .deploy
+#    cmd: mkdir wod; tar -xf wod.tar -C wod; cd wod; .deploy/remote.sh
+#    when:
+#      branch: wod
+#  ssh:
+#    target: root@0.0.0.0:~/wod.tar
+#    artifacts:
+#      - build/src/server/worldserver/worldserver
+#      - .deploy
+#    cmd: mkdir wod; tar -xf wod.tar -C wod; cd wod; .deploy/remote.sh
+#    when:
+#      branch: wod
+
+notify:
+  slack:
+    webhook_url: 'https://hooks.slack.com/services/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'
+    on_started: false
+    on_success: true
+    on_failure: true
