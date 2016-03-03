@@ -40,7 +40,7 @@ namespace ACE_Based
                     delete this;
             }
         private:
-            ACE_Atomic_Op<ACE_Thread_Mutex, long> m_refs;
+            std::atomic_long m_refs;
     };
 
     enum Priority
