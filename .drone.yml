@@ -81,3 +81,5 @@ notify:
     webhook_url: https://hooks.slack.com/services/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
     channel: wow-notification
     username: Drone
+    template: >
+      Build <{{ sys.link }}/{{ repo.fullname }}/{{ build.number }}|{{ repo.name }}#{{ build.number }}> {{ build.branch }} by {{ build.author }} finished with a *{{ build.status }}* status
