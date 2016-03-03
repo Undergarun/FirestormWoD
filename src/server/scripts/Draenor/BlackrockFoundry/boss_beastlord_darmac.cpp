@@ -38,11 +38,26 @@ class boss_beastlord_darmac : public CreatureScript
         {
             /// Misc
             BeastlordDarmacBonus    = 177536,
+            TargetVehicle           = 155702,
+            RideVehicle             = 155700,
+            CrushArmor              = 155236,
+            PinnedDownDamage        = 154960,
+            RendAndTearTriggered2   = 155061,
+            InfernoBreathDebuff     = 154989,
+            FuryOfTheElekk          = 155460,
+            CunningOfTheWolf        = 155458,
+            SpiritOfTheRylak        = 155459,
+            TantrumPeriodic         = 155520,
             /// Pin Down
             PinDownSearcher         = 155365,
             PinDownMissile          = 154951,
             /// Call the Pack
-            CallThePackCast         = 154975
+            CallThePackCast         = 154975,
+            /// Rend and Tear
+            RendAndTearSearcher     = 155515,
+            RendAndTearJump         = 162279,
+            RendAndTearTriggered    = 162283,
+            RendAndTearJumpSecond   = 162285
         };
 
         enum eEvents
@@ -52,6 +67,12 @@ class boss_beastlord_darmac : public CreatureScript
             EventCallThePack,
             EventPinDown,
             /// Stage Two: Back of the Beast
+            /// Ironcrusher
+            EventTantrum,
+            /// Dreadwing
+            /// Cruelfang
+            EventRendAndTear
+            /// Faultline (Mythic only)
             /// Stage Three: Spiritual Successor
         };
 
@@ -63,18 +84,26 @@ class boss_beastlord_darmac : public CreatureScript
             TimerCallThePackCooldown    = 30 * TimeConstants::IN_MILLISECONDS,
             TimerCallThePackLFRCooldown = 40 * TimeConstants::IN_MILLISECONDS,
             TimerPinDown                = 9 * TimeConstants::IN_MILLISECONDS + 500,
-            TimerPinDownCooldown        = 19 * TimeConstants::IN_MILLISECONDS + 700
+            TimerPinDownCooldown        = 19 * TimeConstants::IN_MILLISECONDS + 700,
+            TimerTantrum                = 22 * TimeConstants::IN_MILLISECONDS,
+            TimerTantrumCooldown        = 23 * TimeConstants::IN_MILLISECONDS,
+            TimerRendAndTear            = 20 * TimeConstants::IN_MILLISECONDS,
+            TimerRendAndTearCooldown    = 12 * TimeConstants::IN_MILLISECONDS
         };
 
         enum eActions
         {
-            ActionCallThePack
+            ActionCallThePack,
+            ActionIroncrusherKilled,
+            ActionCruelfangKilled,
+            ActionDreadwingKilled
         };
 
         enum eCreatures
         {
-            HitchingPost    = 79914,
-            PackBeast       = 77128
+            HitchingPost        = 79914,
+            PackBeast           = 77128,
+            FlameBreathStalker  = 79868
         };
 
         enum eVisuals
@@ -90,14 +119,6 @@ class boss_beastlord_darmac : public CreatureScript
             MoveDreadwing
         };
 
-        enum ePhases
-        {
-            PhaseNone               = 0x00,
-            PhaseFerociousFeet      = 0x01,
-            PhaseBackOfTheBeast     = 0x02 | ePhases::PhaseFerociousFeet,
-            PhaseSpiritualSuccessor = 0x04 | ePhases::PhaseFerociousFeet
-        };
-
         struct boss_beastlord_darmacAI : public BossAI
         {
             boss_beastlord_darmacAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataBeastlordDarmac)
@@ -110,6 +131,10 @@ class boss_beastlord_darmac : public CreatureScript
             EventMap m_Events;
 
             uint8 m_CosmeticMove;
+
+            float m_SwitchStatePct;
+
+            bool m_RendAndTear;
 
             bool CanRespawn() override
             {
@@ -127,11 +152,20 @@ class boss_beastlord_darmac : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 m_Events.Reset();
-                m_Events.SetPhase(ePhases::PhaseNone);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
                 me->RemoveAura(eFoundrySpells::Berserker);
 
+                me->RemoveAura(eSpells::FuryOfTheElekk);
+                me->RemoveAura(eSpells::CunningOfTheWolf);
+                me->RemoveAura(eSpells::SpiritOfTheRylak);
+
                 m_CosmeticMove = eMoves::MoveIronCrusher;
+
+                m_SwitchStatePct = 85.0f;
+
+                m_RendAndTear = false;
 
                 uint32 l_Time = 100;
                 AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -159,16 +193,26 @@ class boss_beastlord_darmac : public CreatureScript
             {
                 if (p_Who->GetTypeId() != TYPEID_PLAYER)
                     return;
+
+                Talk(eTalks::TalkSlay);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                ClearDelayedOperations();
+
                 me->SetWalk(false);
                 me->StopMoving();
 
-                AttackStart(p_Attacker);
-
-                ClearDelayedOperations();
+                uint64 l_Guid = p_Attacker->GetGUID();
+                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                {
+                    if (Unit* l_Attacker = Unit::GetUnit(*me, l_Guid))
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(l_Attacker);
+                    }
+                });
 
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
 
@@ -179,20 +223,35 @@ class boss_beastlord_darmac : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                m_Events.SetPhase(ePhases::PhaseFerociousFeet);
-
-                m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
-                m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFR : eTimers::TimerCallThePack, ePhases::PhaseFerociousFeet);
-                m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDown, ePhases::PhaseFerociousFeet);
+                ///m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
+                ///m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFR : eTimers::TimerCallThePack);
+                ///m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDown);
             }
 
             void EnterEvadeMode() override
             {
-                me->DespawnCreaturesInArea({ eCreatures::PackBeast });
+                std::vector<uint32> l_Beasts = { eFoundryCreatures::BossIroncrusher, eFoundryCreatures::BossDreadwing, eFoundryCreatures::BossCruelfang };
+
+                for (uint32 l_Entry : l_Beasts)
+                {
+                    if (Creature* l_Beast = Creature::GetCreature(*me, m_Instance->GetData64(l_Entry)))
+                    {
+                        if (Vehicle* l_Vehicle = l_Beast->GetVehicleKit())
+                            l_Vehicle->RemoveAllPassengers();
+                    }
+                }
+
+                me->DespawnCreaturesInArea({ eCreatures::PackBeast, eCreatures::FlameBreathStalker });
 
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrushArmor);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PinnedDownDamage);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered2);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoBreathDebuff);
                 }
 
                 CreatureAI::EnterEvadeMode();
@@ -204,6 +263,8 @@ class boss_beastlord_darmac : public CreatureScript
 
                 summons.DespawnAll();
 
+                me->DespawnCreaturesInArea({ eCreatures::PackBeast, eCreatures::FlameBreathStalker });
+
                 _JustDied();
 
                 Talk(eTalks::TalkDeath);
@@ -211,6 +272,12 @@ class boss_beastlord_darmac : public CreatureScript
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrushArmor);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PinnedDownDamage);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered2);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoBreathDebuff);
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                     if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me)))
@@ -220,9 +287,18 @@ class boss_beastlord_darmac : public CreatureScript
                 }
             }
 
+            void JustSummoned(Creature* p_Summon) override
+            {
+                BossAI::JustSummoned(p_Summon);
+
+                if (!me->isInCombat())
+                    p_Summon->DespawnOrUnsummon();
+            }
+
             void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
-                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE &&
+                    p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
                     return;
 
                 switch (p_ID)
@@ -230,16 +306,45 @@ class boss_beastlord_darmac : public CreatureScript
                     case eMoves::MoveIronCrusher:
                     case eMoves::MoveCruelfang:
                     {
+                        if (me->isInCombat())
+                            return;
+
                         ++m_CosmeticMove;
                         break;
                     }
                     case eMoves::MoveDreadwing:
                     {
+                        if (me->isInCombat())
+                            return;
+
                         m_CosmeticMove = eMoves::MoveIronCrusher;
                         break;
                     }
+                    case eSpells::RendAndTearJump:
+                    {
+                        me->CastSpell(me, eSpells::RendAndTearTriggered, true);
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
+                        });
+
+                        return;
+                    }
+                    case eSpells::RendAndTearJumpSecond:
+                    {
+                        me->CastSpell(me, eSpells::RendAndTearTriggered, true);
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            m_RendAndTear = false;
+                        });
+
+                        return;
+                    }
                     default:
-                        break;
+                        return;
                 }
 
                 uint32 l_Time = 100;
@@ -268,6 +373,63 @@ class boss_beastlord_darmac : public CreatureScript
                 });
             }
 
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eActions::ActionIroncrusherKilled:
+                    {
+                        Talk(eTalks::TalkIroncrushersRage);
+
+                        me->CastSpell(me, eSpells::FuryOfTheElekk, true);
+
+                        if (me->HasAura(eSpells::CunningOfTheWolf))
+                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+
+                        if (me->HasAura(eSpells::SpiritOfTheRylak))
+                        {
+
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                        break;
+                    }
+                    case eActions::ActionCruelfangKilled:
+                    {
+                        Talk(eTalks::TalkCruelfangsSwiftness);
+
+                        me->CastSpell(me, eSpells::CunningOfTheWolf, true);
+
+                        if (me->HasAura(eSpells::FuryOfTheElekk))
+                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+
+                        if (me->HasAura(eSpells::SpiritOfTheRylak))
+                        {
+
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                        break;
+                    }
+                    case eActions::ActionDreadwingKilled:
+                    {
+                        Talk(eTalks::TalkDreadwingsFlame);
+
+                        me->CastSpell(me, eSpells::SpiritOfTheRylak, true);
+
+                        if (me->HasAura(eSpells::CunningOfTheWolf))
+                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+
+                        if (me->HasAura(eSpells::FuryOfTheElekk))
+                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr)
@@ -278,6 +440,46 @@ class boss_beastlord_darmac : public CreatureScript
                     case eSpells::PinDownSearcher:
                     {
                         me->CastSpell(*p_Target, eSpells::PinDownMissile, true);
+                        break;
+                    }
+                    case eSpells::TargetVehicle:
+                    {
+                        switch (p_Target->GetEntry())
+                        {
+                            case eFoundryCreatures::BossIroncrusher:
+                            {
+                                Talk(eTalks::TalkMountIroncrusher);
+                                break;
+                            }
+                            case eFoundryCreatures::BossDreadwing:
+                            {
+                                Talk(eTalks::TalkMountDreadwing);
+                                break;
+                            }
+                            case eFoundryCreatures::BossCruelfang:
+                            {
+                                Talk(eTalks::TalkMountCruelfang);
+                                break;
+                            }
+                            /* Mythic only
+                            case eFoundryCreatures::BossFaultline:
+                            {
+                                Talk(eTalks::TalkMountingFaultline);
+                                break;
+                            }
+                            */
+                            default:
+                                break;
+                        }
+
+                        me->CastSpell(p_Target, eSpells::RideVehicle, true);
+                        break;
+                    }
+                    case eSpells::RendAndTearSearcher:
+                    {
+                        m_RendAndTear = true;
+
+                        me->CastSpell(p_Target, eSpells::RendAndTearJump, true);
                         break;
                     }
                     default:
@@ -307,15 +509,65 @@ class boss_beastlord_darmac : public CreatureScript
                 }
             }
 
+            void OnVehicleExited(Unit* p_Vehicle) override
+            {
+                switch (p_Vehicle->GetEntry())
+                {
+                    case eFoundryCreatures::BossIroncrusher:
+                    {
+                        Talk(eTalks::TalkIroncrushersRage);
+                        break;
+                    }
+                    case eFoundryCreatures::BossDreadwing:
+                    {
+                        Talk(eTalks::TalkDreadwingsFlame);
+                        break;
+                    }
+                    case eFoundryCreatures::BossCruelfang:
+                    {
+                        Talk(eTalks::TalkCruelfangsSwiftness);
+                        break;
+                    }
+                    /*
+                    case eFoundryCreatures::BossFaultline:
+                    {
+                        Talk(eTalks::TalkFaultlinesDetermination);
+                        break;
+                    }
+                    */
+                    default:
+                        break;
+                }
+            }
+
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                if (m_SwitchStatePct <= 0.0f)
+                    return;
+
+                if (me->HealthBelowPctDamaged(m_SwitchStatePct, p_Damage))
+                {
+                    /// Darmac will choose a Prime Beast to mount at 85%, 65%, and 45% health
+                    if (m_SwitchStatePct >= 85.0f)
+                        m_SwitchStatePct = 65.0f;
+                    else if (m_SwitchStatePct >= 65.0f)
+                        m_SwitchStatePct = 45.0f;
+                    else if (m_SwitchStatePct >= 45.0f)
+                        m_SwitchStatePct = 0.0f;
+
+                    /// Choose nearest beast
+                    me->CastSpell(me, eSpells::TargetVehicle, true);
+
+                    m_Events.CancelEvent(eEvents::EventTantrum);
+                    m_Events.CancelEvent(eEvents::EventRendAndTear);
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || m_RendAndTear)
                     return;
 
                 m_Events.Update(p_Diff);
@@ -333,13 +585,32 @@ class boss_beastlord_darmac : public CreatureScript
                     case eEvents::EventCallThePack:
                     {
                         me->CastSpell(me, eSpells::CallThePackCast, true);
-                        m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFRCooldown : eTimers::TimerCallThePackCooldown, ePhases::PhaseFerociousFeet);
+                        m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFRCooldown : eTimers::TimerCallThePackCooldown);
                         break;
                     }
                     case eEvents::EventPinDown:
                     {
                         me->CastSpell(me, eSpells::PinDownSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDownCooldown, ePhases::PhaseFerociousFeet);
+                        m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDownCooldown);
+                        break;
+                    }
+                    case eEvents::EventTantrum:
+                    {
+                        Talk(eTalks::TalkTantrumWarn);
+                        Talk(eTalks::TalkTantrum);
+
+                        me->CastSpell(me, eSpells::TantrumPeriodic, false);
+
+                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
+                        break;
+                    }
+                    case eEvents::EventRendAndTear:
+                    {
+                        Talk(eTalks::TalkRendAndTear);
+
+                        me->CastSpell(me, eSpells::RendAndTearSearcher, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTearCooldown);
                         break;
                     }
                     default:
@@ -405,34 +676,202 @@ class npc_foundry_cruelfang : public CreatureScript
 
         enum eSpells
         {
+            HitchingPostChain       = 161300,
+            CruelfangsSwiftness     = 161294,
+            RendAndTearSearcher     = 155385,
+            RendAndTearTriggered    = 155061,
+            RendAndTearJump         = 155060,
+            RendAndTearJumpSecond   = 155567,
+            SavageHowlDamage        = 155198,
+            SavageHowlEnrage        = 155208
         };
 
         enum eEvents
         {
+            EventRendAndTear = 1,
+            EventSavageHowl
+        };
+
+        enum eTimers
+        {
+            TimerRendAndTear            = 13 * TimeConstants::IN_MILLISECONDS,
+            TimerRendAndTearCooldown    = 12 * TimeConstants::IN_MILLISECONDS,
+            TimerSavageHowl             = 17 * TimeConstants::IN_MILLISECONDS,
+            TimerSavageHowlCooldown     = 26 * TimeConstants::IN_MILLISECONDS
+        };
+
+        enum eAction
+        {
+            ActionCruelfangKilled = 2
         };
 
         struct npc_foundry_cruelfangAI : public ScriptedAI
         {
-            npc_foundry_cruelfangAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_cruelfangAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
             EventMap m_Events;
 
+            InstanceScript* m_Instance;
+
+            bool m_IsEvadeMode;
+            bool m_RendAndTear;
+
             void Reset() override
             {
+                me->CastSpell(me, eSpells::CruelfangsSwiftness, true);
+
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 m_Events.Reset();
+
+                m_IsEvadeMode = false;
+                m_RendAndTear = false;
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
+
+                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                m_Events.ScheduleEvent(eEvents::EventSavageHowl, eTimers::TimerSavageHowl);
+            }
+
+            void EnterEvadeMode() override
+            {
+                m_IsEvadeMode = true;
+
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                if (Vehicle* l_Vehicle = me->GetVehicleKit())
+                    l_Vehicle->RemoveAllPassengers();
+
+                CreatureAI::EnterEvadeMode();
+
+                m_IsEvadeMode = false;
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    if (Creature* l_Darmac = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossBeastlordDarmac)))
+                    {
+                        if (l_Darmac->IsAIEnabled)
+                            l_Darmac->AI()->DoAction(eAction::ActionCruelfangKilled);
+                    }
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
+                    return;
+
+                switch (p_ID)
+                {
+                    case eSpells::RendAndTearJump:
+                    {
+                        me->CastSpell(me, eSpells::RendAndTearTriggered, true);
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
+                        });
+
+                        break;
+                    }
+                    case eSpells::RendAndTearJumpSecond:
+                    {
+                        me->CastSpell(me, eSpells::RendAndTearTriggered, true);
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            m_RendAndTear = false;
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::RendAndTearSearcher)
+                {
+                    m_RendAndTear = true;
+
+                    me->CastSpell(p_Target, eSpells::RendAndTearJump, true);
+                }
+            }
+
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::SavageHowlDamage)
+                {
+                    std::list<Unit*> l_Allies;
+
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, 15.0f);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Allies, l_Check);
+                    me->VisitNearbyObject(15.0f, l_Searcher);
+
+                    for (Unit* l_Iter : l_Allies)
+                    {
+                        if (me->IsValidAssistTarget(l_Iter))
+                            l_Iter->CastSpell(l_Iter, eSpells::SavageHowlEnrage, true);
+                    }
+                }
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            {
+                if (p_Apply)
+                {
+                    me->RemoveAura(eSpells::HitchingPostChain);
+
+                    me->ToCreature()->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    p_Passenger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Passenger);
+
+                    if (Unit* l_Target = p_Passenger->getVictim())
+                        AttackStart(l_Target);
+                }
+                else
+                {
+                    p_Passenger->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, p_Passenger);
+
+                    if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
+                        p_Passenger->ToCreature()->AI()->EnterEvadeMode();
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (!UpdateVictim())
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim() || m_RendAndTear)
                     return;
 
                 m_Events.Update(p_Diff);
@@ -442,6 +881,19 @@ class npc_foundry_cruelfang : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventRendAndTear:
+                    {
+                        me->CastSpell(me, eSpells::RendAndTearSearcher, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTearCooldown);
+                        break;
+                    }
+                    case eEvents::EventSavageHowl:
+                    {
+                        me->CastSpell(me, eSpells::SavageHowlDamage, false);
+                        m_Events.ScheduleEvent(eEvents::EventSavageHowl, eTimers::TimerSavageHowlCooldown);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -464,33 +916,183 @@ class npc_foundry_dreadwing : public CreatureScript
 
         enum eSpells
         {
+            HitchingPostChain   = 161300,
+            SearingFangs        = 155028,
+            DreadwingsFlame     = 161291,
+            /// Inferno Breath
+            FaceRandomNonTank   = 155423,
+            FlameBreathStalker  = 161262,   ///< Summons 79868
+            InfernoBreath       = 154988
         };
 
         enum eEvents
         {
+            EventInfernoBreath = 1,
+            EventConflagration
+        };
+
+        enum eTimers
+        {
+            TimerInfernoBreath          = 5 * TimeConstants::IN_MILLISECONDS,
+            TimerInfernoBreathCooldown  = 20 * TimeConstants::IN_MILLISECONDS,
+            TimerConflagration          = 12 * TimeConstants::IN_MILLISECONDS,
+            TimerConflagrationCooldown  = 20 * TimeConstants::IN_MILLISECONDS
+        };
+
+        enum eAction
+        {
+            ActionDreadwingKilled = 3
+        };
+
+        enum eTalk
+        {
+            TalkInfernoBreathWarn
         };
 
         struct npc_foundry_dreadwingAI : public ScriptedAI
         {
-            npc_foundry_dreadwingAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_dreadwingAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
             EventMap m_Events;
 
+            InstanceScript* m_Instance;
+
+            bool m_IsEvadeMode;
+
             void Reset() override
             {
+                me->CastSpell(me, eSpells::SearingFangs, true);
+                me->CastSpell(me, eSpells::DreadwingsFlame, true);
+
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
+                me->RemoveAllAreasTrigger();
+
                 m_Events.Reset();
+
+                m_IsEvadeMode = false;
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
+
+                m_Events.ScheduleEvent(eEvents::EventInfernoBreath, eTimers::TimerInfernoBreath);
+                m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagration);
+            }
+
+            void EnterEvadeMode() override
+            {
+                m_IsEvadeMode = true;
+
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                if (Vehicle* l_Vehicle = me->GetVehicleKit())
+                    l_Vehicle->RemoveAllPassengers();
+
+                CreatureAI::EnterEvadeMode();
+
+                m_IsEvadeMode = false;
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    if (Creature* l_Darmac = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossBeastlordDarmac)))
+                    {
+                        if (l_Darmac->IsAIEnabled)
+                            l_Darmac->AI()->DoAction(eAction::ActionDreadwingKilled);
+                    }
+                }
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
+
+                p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                p_Summon->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            {
+                if (p_Apply)
+                {
+                    me->RemoveAura(eSpells::HitchingPostChain);
+
+                    me->ToCreature()->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    p_Passenger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Passenger);
+
+                    if (Unit* l_Target = p_Passenger->getVictim())
+                        AttackStart(l_Target);
+                }
+                else
+                {
+                    p_Passenger->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, p_Passenger);
+
+                    if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
+                        p_Passenger->ToCreature()->AI()->EnterEvadeMode();
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::FaceRandomNonTank:
+                    {
+                        me->SetFacingTo(me->GetAngle(p_Target));
+
+                        me->CastSpell(p_Target, eSpells::FlameBreathStalker, true);
+
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::InfernoBreath, false);
+                        });
+
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                UpdateOperations(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -501,6 +1103,17 @@ class npc_foundry_dreadwing : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventInfernoBreath:
+                    {
+                        me->CastSpell(me, eSpells::FaceRandomNonTank, true);
+                        m_Events.ScheduleEvent(eEvents::EventInfernoBreath, eTimers::TimerInfernoBreathCooldown);
+                        break;
+                    }
+                    case eEvents::EventConflagration:
+                    {
+                        m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagrationCooldown);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -523,34 +1136,174 @@ class npc_foundry_ironcrusher : public CreatureScript
 
         enum eSpells
         {
+            HitchingPostChain   = 161300,
+            IroncrushersRage    = 161293,
+            TantrumPeriodic     = 155221,
+            StampedeSearcher    = 155416,
+            StampedeCharge      = 155248,
+            StampedeDamage      = 155247,
+            StampedeTriggered   = 155531,
+            CrushArmor          = 155236
         };
 
         enum eEvents
         {
+            EventStampede = 1,
+            EventTantrum,
+            EventCrushArmor
+        };
+
+        enum eTimers
+        {
+            TimerStampede           = 15 * TimeConstants::IN_MILLISECONDS,
+            TimerStampedeCooldown   = 20 * TimeConstants::IN_MILLISECONDS,
+            TimerTantrum            = 25 * TimeConstants::IN_MILLISECONDS,
+            TimerTantrumCooldown    = 23 * TimeConstants::IN_MILLISECONDS,
+            TimerCrushArmor         = 8 * TimeConstants::IN_MILLISECONDS
+        };
+
+        enum eTalk
+        {
+            TalkTantrumWarning
+        };
+
+        enum eAction
+        {
+            ActionIroncrusherKilled = 1
         };
 
         struct npc_foundry_ironcrusherAI : public ScriptedAI
         {
-            npc_foundry_ironcrusherAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_foundry_ironcrusherAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
             EventMap m_Events;
 
+            InstanceScript* m_Instance;
+
+            bool m_IsEvadeMode;
+            bool m_Stampede;
+
             void Reset() override
             {
+                me->CastSpell(me, eSpells::IroncrushersRage, true);
+
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 m_Events.Reset();
+
+                m_IsEvadeMode = false;
+                m_Stampede = false;
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
+
+                m_Events.ScheduleEvent(eEvents::EventStampede, eTimers::TimerStampede);
+                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                m_Events.ScheduleEvent(eEvents::EventCrushArmor, eTimers::TimerCrushArmor);
+            }
+
+            void EnterEvadeMode() override
+            {
+                m_IsEvadeMode = true;
+
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                if (Vehicle* l_Vehicle = me->GetVehicleKit())
+                    l_Vehicle->RemoveAllPassengers();
+
+                CreatureAI::EnterEvadeMode();
+
+                m_IsEvadeMode = false;
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    if (Creature* l_Darmac = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossBeastlordDarmac)))
+                    {
+                        if (l_Darmac->IsAIEnabled)
+                            l_Darmac->AI()->DoAction(eAction::ActionIroncrusherKilled);
+                    }
+                }
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            {
+                if (p_Apply)
+                {
+                    me->RemoveAura(eSpells::HitchingPostChain);
+
+                    me->ToCreature()->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    p_Passenger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Passenger);
+
+                    if (Unit* l_Target = p_Passenger->getVictim())
+                        AttackStart(l_Target);
+                }
+                else
+                {
+                    p_Passenger->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                    if (m_Instance != nullptr)
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, p_Passenger);
+
+                    if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
+                        p_Passenger->ToCreature()->AI()->EnterEvadeMode();
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                /// ...and stomps again.
+                if (p_ID == eSpells::StampedeCharge)
+                {
+                    me->CastSpell(me, eSpells::StampedeTriggered, true);
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        m_Stampede = false;
+                    });
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::StampedeSearcher)
+                {
+                    me->CastSpell(p_Target, eSpells::StampedeCharge, true);
+
+                    m_Stampede = true;
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (!UpdateVictim())
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim() || m_Stampede)
                     return;
 
                 m_Events.Update(p_Diff);
@@ -560,6 +1313,34 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventStampede:
+                    {
+                        /// Stomps the ground,...
+                        me->CastSpell(me, eSpells::StampedeDamage, true);
+                        /// ...charges to a distant enemy,...
+                        me->CastSpell(me, eSpells::StampedeSearcher, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventStampede, eTimers::TimerStampedeCooldown);
+                        break;
+                    }
+                    case eEvents::EventTantrum:
+                    {
+                        Talk(eTalk::TalkTantrumWarning);
+
+                        /// Inflicts 23452 to 25922 Nature damage every 1 sec. for 5 sec.
+                        me->CastSpell(me, eSpells::TantrumPeriodic, false);
+
+                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
+                        break;
+                    }
+                    case eEvents::EventCrushArmor:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::CrushArmor, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventCrushArmor, eTimers::TimerCrushArmor);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -653,10 +1434,29 @@ class npc_foundry_heavy_spear : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                for (uint64 l_Guid : m_AffectedTargets)
+                for (std::set<uint64>::iterator l_Guid = m_AffectedTargets.begin(); l_Guid != m_AffectedTargets.end();)
                 {
-                    if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                    if (Player* l_Player = Player::GetPlayer(*me, (*l_Guid)))
+                    {
+                        l_Guid = m_AffectedTargets.erase(l_Guid);
                         l_Player->RemoveAura(eSpells::PinnedDownDamage, me->GetGUID());
+                    }
+                    else
+                        ++l_Guid;
+                }
+            }
+
+            void JustDespawned() override
+            {
+                for (std::set<uint64>::iterator l_Guid = m_AffectedTargets.begin(); l_Guid != m_AffectedTargets.end();)
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, (*l_Guid)))
+                    {
+                        l_Guid = m_AffectedTargets.erase(l_Guid);
+                        l_Player->RemoveAura(eSpells::PinnedDownDamage, me->GetGUID());
+                    }
+                    else
+                        ++l_Guid;
                 }
             }
 
@@ -712,10 +1512,16 @@ class npc_foundry_thunderlord_pack_pens : public CreatureScript
                 if (p_Action == eAction::ActionCallThePack && m_Instance != nullptr)
                 {
                     if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::BeastsEnclosureDoor)))
-                        l_Door->Use(me);
+                        l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
 
                     for (uint8 l_I = 0; l_I < eData::CallThePackCount; ++l_I)
                         me->CastSpell(me, eSpell::CallThePackSummon, true);
+
+                    AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (GameObject* l_Door = GameObject::GetGameObject(*me, m_Instance->GetData64(eFoundryGameObjects::BeastsEnclosureDoor)))
+                            l_Door->SetGoState(GOState::GO_STATE_READY);
+                    });
                 }
             }
 
@@ -800,14 +1606,18 @@ class spell_foundry_hitching_post_chain : public SpellScriptLoader
 };
 
 /// Pin Down (searcher) - 155365
-class spell_foundry_pin_down_searcher : public SpellScriptLoader
+/// Stampede (searcher) - 155416
+/// Rend and Tear (Cruelfang's searcher) - 155385
+/// Rend and Tear (Beastlord Darmac's searcher) - 155515
+/// Face Random Non-Tank - 155423
+class spell_foundry_ranged_targets_searcher : public SpellScriptLoader
 {
     public:
-        spell_foundry_pin_down_searcher() : SpellScriptLoader("spell_foundry_pin_down_searcher") { }
+        spell_foundry_ranged_targets_searcher() : SpellScriptLoader("spell_foundry_ranged_targets_searcher") { }
 
-        class spell_foundry_pin_down_searcher_SpellScript : public SpellScript
+        class spell_foundry_ranged_targets_searcher_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_pin_down_searcher_SpellScript);
+            PrepareSpellScript(spell_foundry_ranged_targets_searcher_SpellScript);
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -828,13 +1638,82 @@ class spell_foundry_pin_down_searcher : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_pin_down_searcher_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_ranged_targets_searcher_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_foundry_pin_down_searcher_SpellScript();
+            return new spell_foundry_ranged_targets_searcher_SpellScript();
+        }
+};
+
+/// Target Vehicle - 155702
+class spell_foundry_target_vehicle : public SpellScriptLoader
+{
+    public:
+        spell_foundry_target_vehicle() : SpellScriptLoader("spell_foundry_target_vehicle") { }
+
+        class spell_foundry_target_vehicle_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_target_vehicle_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.clear();
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                WorldObject* l_NearestBeast = nullptr;
+                float l_Distance            = 100000.0f;
+
+                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
+                {
+                    if (Creature* l_Ironcrusher = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossIroncrusher)))
+                    {
+                        if (l_Caster->GetDistance(l_Ironcrusher) < l_Distance)
+                        {
+                            l_Distance      = l_Caster->GetDistance(l_Ironcrusher);
+                            l_NearestBeast  = l_Ironcrusher;
+                        }
+                    }
+
+                    if (Creature* l_Dreadwing = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossDreadwing)))
+                    {
+                        if (l_Caster->GetDistance(l_Dreadwing) < l_Distance)
+                        {
+                            l_Distance      = l_Caster->GetDistance(l_Dreadwing);
+                            l_NearestBeast  = l_Dreadwing;
+                        }
+                    }
+
+                    if (Creature* l_Cruelfang = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossCruelfang)))
+                    {
+                        if (l_Caster->GetDistance(l_Cruelfang) < l_Distance)
+                        {
+                            l_Distance      = l_Caster->GetDistance(l_Cruelfang);
+                            l_NearestBeast  = l_Cruelfang;
+                        }
+                    }
+                }
+
+                if (l_NearestBeast == nullptr)
+                    return;
+
+                p_Targets.push_back(l_NearestBeast);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_target_vehicle_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_target_vehicle_SpellScript();
         }
 };
 
@@ -853,7 +1732,8 @@ void AddSC_boss_beastlord_darmac()
 
     /// Spells
     new spell_foundry_hitching_post_chain();
-    new spell_foundry_pin_down_searcher();
+    new spell_foundry_ranged_targets_searcher();
+    new spell_foundry_target_vehicle();
 
     /// AreaTriggers
 }

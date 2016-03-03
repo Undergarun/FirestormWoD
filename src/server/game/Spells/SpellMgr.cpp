@@ -3567,6 +3567,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
             case 155571: ///< Jump Out of Lava (Cinder Wolf)
+            case 162285: ///< Rend and Tear (Beastlord Darmac)
+            case 162279: ///< Rend and Tear (Beastlord Darmac)
+            case 155567: ///< Rend and Tear (Cruelfang)
+            case 155060: ///< Rend and Tear (Cruelfang)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
                 break;
             case 174215: ///< Summon Armament (Flamebender Ka'graz)
@@ -7168,6 +7172,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162772: ///< Colossal Roar (Markog Aba'dir)
             case 154956: ///< Pin Down - Damage (Beastlord Darmac)
             case 154960: ///< Pinned Down - DoT (Beastlord Darmac)
+            case 155222: ///< Tantrum - AoE (Ironcrusher)
+            case 155249: ///< Stampede - 1st (Ironcrusher)
+            case 155531: ///< Stampede - 2nd (Ironcrusher)
+            case 155520: ///< Tantrum - AoE (Beastlord Darmac)
+            case 155061: ///< Rend and Tear - AoE (Cruelfang)
+            case 155198: ///< Savage Howl (Cruelfang)
+            case 162283: ///< Rend and Tear - AoE (Beastlord Darmac)
+            case 154989: ///< Inferno Breath (Dreadwing)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:
