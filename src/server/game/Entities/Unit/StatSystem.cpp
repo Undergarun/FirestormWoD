@@ -781,10 +781,10 @@ void Player::UpdateParryPercentage()
     if (CanParry())
     {
         /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/*/
-        float l_BaseParry = 0.0f;
+        float l_BaseParry = 3.0f;
 
         if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
-            l_BaseParry += 3.0f + (k_constatBaseRaceStr[getRace()] + 0.0739f) * (1 / 176.3760684f);
+            l_BaseParry += (k_constatBaseRaceStr[getRace()] + 0.0739f) * (1 / 176.3760684f);
 
         float l_BonusParry = (GetTotalStatValue(STAT_STRENGTH, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_PARRY) / 162));
         l_Total += l_BaseParry + l_BonusParry / (l_BonusParry * k_constant[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
