@@ -789,7 +789,7 @@ void Player::UpdateParryPercentage()
         float l_BonusParry = (GetTotalStatValue(STAT_STRENGTH, false)  * (1 / 176.3760684f) + (GetRatingBonusValue(CR_PARRY) / 162));
         l_Total += l_BaseParry + l_BonusParry / (l_BonusParry * k_constant[pClass] * k_constantVerticalStretch[pClass] + k_constantVHorizontalShift[pClass]);
 
-        l_Total += CalculatePct(l_Total, GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT));
+        l_Total += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
 
         /// Apply parry from pct of critical strike from gear
         l_Total += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
