@@ -11,6 +11,7 @@ branches:
 build:
   image: milleniumstudio/drone-clang-mariadb-ace
   commands:
+    - nproc
     - mkdir build && cd build
     - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
     - make -j
