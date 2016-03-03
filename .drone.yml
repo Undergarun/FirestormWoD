@@ -78,8 +78,4 @@ build:
 
 notify:
   slack:
-    webhook_url: 'https://hooks.slack.com/services/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'
-    when:
-      started: true
-      success: true
-      failure: true
+    webhook_url: https://hooks.slack.com/services/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
