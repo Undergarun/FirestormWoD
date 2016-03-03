@@ -1962,6 +1962,7 @@ enum ShieldChargeSpells
     SPELL_WARR_SHIELD_CHARGE_CHARGE = 178768
 };
 
+/// Last Update 6.2.3
 /// Shield Charge - 156321
 class spell_warr_shield_charge: public SpellScriptLoader
 {
@@ -1992,11 +1993,19 @@ class spell_warr_shield_charge: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
+                int32 l_RemainingDuration = 0;
                 if (!l_Target)
                     return;
 
                 l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+                if (Aura* l_OldChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                    l_RemainingDuration = l_OldChargeBuff->GetDuration();
                 l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+                if (Aura* l_ChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                {
+                    l_ChargeBuff->SetMaxDuration(l_ChargeBuff->GetDuration() + l_RemainingDuration);
+                    l_ChargeBuff->RefreshDuration();
+                }
             }
 
             void Register()
