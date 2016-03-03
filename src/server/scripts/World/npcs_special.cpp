@@ -60,6 +60,7 @@ EndContentData */
 #include "Vehicle.h"
 #include "Player.h"
 #include "SpellScript.h"
+#include "Chat.h"
 
 /*########
 # npc_air_force_bots
