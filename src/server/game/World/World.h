@@ -695,7 +695,7 @@ struct MotdText
 class World
 {
     public:
-        static std::atomic_uint m_worldLoopCounter;
+        static std::atomic<unsigned int> m_worldLoopCounter;
 
         World();
         ~World();
@@ -1013,7 +1013,7 @@ class World
         void ResetRandomBG();
         //void AutoRestartServer();
     private:
-        static std::atomic_bool m_stopEvent;
+        static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;

@@ -92,9 +92,9 @@ uint32 gOnlineGameMaster = 0;
 #include "GarrisonMgr.hpp"
 #include "ChatLexicsCutter.h"
 
-std::atomic_bool World::m_stopEvent(false);
+std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
-std::atomic_uint World::m_worldLoopCounter(0);
+std::atomic<unsigned int> World::m_worldLoopCounter(0);
 
 float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;

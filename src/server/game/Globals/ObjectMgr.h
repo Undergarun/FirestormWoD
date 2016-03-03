@@ -1701,32 +1701,32 @@ class ObjectMgr
 
     private:
         // first free id for selected id type
-        std::atomic_uint _auctionId;
-        std::atomic_ulong _equipmentSetGuid;
-        std::atomic_uint _itemTextId;
-        std::atomic_uint _mailId;
-        std::atomic_uint _hiPetNumber;
-        std::atomic_ulong _voidItemId;
+        std::atomic<unsigned int>  _auctionId;
+        std::atomic<unsigned long> _equipmentSetGuid;
+        std::atomic<unsigned int>  _itemTextId;
+        std::atomic<unsigned int>  _mailId;
+        std::atomic<unsigned int>  _hiPetNumber;
+        std::atomic<unsigned long> _voidItemId;
 
         // first free low guid for selected guid type
-        std::atomic_uint _hiCharGuid;
-        std::atomic_uint _hiCreatureGuid;
-        std::atomic_uint _hiPetGuid;
-        std::atomic_uint _hiVehicleGuid;
-        std::atomic_uint _hiGoGuid;
-        std::atomic_uint _hiDoGuid;
-        std::atomic_uint _hiCorpseGuid;
-        std::atomic_uint _hiAreaTriggerGuid;
-        std::atomic_uint _hiMoTransGuid;
-        std::atomic_uint m_GarrisonID;
-        std::atomic_uint m_GarrisonBuildingID;
-        std::atomic_uint m_GarrisonFollowerID;
-        std::atomic_uint m_GarrisonMissionID;
-        std::atomic_uint m_GarrisonWorkOrderID;
-        std::atomic_uint m_HiVignetteGuid;
-        std::atomic_uint m_StandaloneSceneInstanceID;
+        std::atomic<unsigned int> _hiCharGuid;
+        std::atomic<unsigned int> _hiCreatureGuid;
+        std::atomic<unsigned int> _hiPetGuid;
+        std::atomic<unsigned int> _hiVehicleGuid;
+        std::atomic<unsigned int> _hiGoGuid;
+        std::atomic<unsigned int> _hiDoGuid;
+        std::atomic<unsigned int> _hiCorpseGuid;
+        std::atomic<unsigned int> _hiAreaTriggerGuid;
+        std::atomic<unsigned int> _hiMoTransGuid;
+        std::atomic<unsigned int> m_GarrisonID;
+        std::atomic<unsigned int> m_GarrisonBuildingID;
+        std::atomic<unsigned int> m_GarrisonFollowerID;
+        std::atomic<unsigned int> m_GarrisonMissionID;
+        std::atomic<unsigned int> m_GarrisonWorkOrderID;
+        std::atomic<unsigned int> m_HiVignetteGuid;
+        std::atomic<unsigned int> m_StandaloneSceneInstanceID;
 
-        std::atomic_uint m_HighItemGuid;
+        std::atomic<unsigned int> m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

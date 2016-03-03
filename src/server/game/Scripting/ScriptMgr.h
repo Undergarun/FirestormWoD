@@ -957,7 +957,7 @@ class ScriptMgr
         /// Registered script count
         uint32 m_ScriptCount;
         /// Atomic op counter for active scripts amount
-        std::atomic_long m_ScheduledScripts;
+        std::atomic<long> m_ScheduledScripts;
         /// Player condition scripts
         MS::Utilities::MutextedMap<uint32, PlayerConditionScript*> m_PlayerConditionScripts;
         /// Battle Pay Product Script
