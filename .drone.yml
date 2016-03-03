@@ -11,27 +11,68 @@ branches:
 build:
   image: milleniumstudio/drone-clang-mariadb-ace
   commands:
-    - nproc
     - mkdir build && cd build
     - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-    - make -j
+    - make -j$(nproc)
+    - make install
     - cd -
 
-#deploy:
-#  ssh:
-#    target: root@0.0.0.0:~/wod.tar
-#    artifacts:
-#      - build/src/server/worldserver/worldserver
+#publish:
+#  sftp:
+#    host: grommash.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/grommash
+#    files:
+#      - /usr/local/bin/worldserver
 #      - .deploy
-#    cmd: mkdir wod; tar -xf wod.tar -C wod; cd wod; .deploy/remote.sh
+#    when:
+#      branch: wod
+#  sftp:
+#    host: mainnoire.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/main_noire
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: sombraluna.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/sombraluna
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: thrall.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/thrall
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: tournament.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/tournament
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
 #    when:
 #      branch: wod
 #  ssh:
-#    target: root@0.0.0.0:~/wod.tar
-#    artifacts:
-#      - build/src/server/worldserver/worldserver
-#      - .deploy
-#    cmd: mkdir wod; tar -xf wod.tar -C wod; cd wod; .deploy/remote.sh
+#    host:
+#      - grommash.firestorm-servers.com
+#      - mainnoire.firestorm-servers.com
+#      - sombraluna.firestorm-servers.com
+#      - thrall.firestorm-servers.com
+#      - tournament.firestorm-servers.com
+#    user: drone
+#    commands:
+#        - for realm in "/home/deploy/"*; do $realm/.deploy/remote.sh; done
 #    when:
 #      branch: wod
 

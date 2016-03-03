@@ -1,6 +1,6 @@
-app_name=wod
+#!/bin/bash
 
-temp_file=~/$app_name.tar
-temp_dir=~/$app_name
-#prod_dir=/home/$app_name
-#prod_name=$(date +%s)
+pwd
+
+#remove files in /home/deploy/*/
+#rm -rf ../*
