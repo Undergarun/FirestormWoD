@@ -29,6 +29,8 @@ build:
       - make install
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
       - cd - && ls -la
+    when:
+      branch: wod
 
 #publish:
 #  docker:
