@@ -807,9 +807,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventRetchedBlackrock:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
-                            me->CastSpell(l_Target, eSpells::RetchedBlackrockMissile, false);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* l_Target = SelectRangedTarget())
                             me->CastSpell(l_Target, eSpells::RetchedBlackrockMissile, false);
 
                         m_Events.ScheduleEvent(eEvents::EventRetchedBlackrock, 15 * TimeConstants::IN_MILLISECONDS);
@@ -817,9 +815,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventExplosiveShard:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 5.0f))
-                            me->CastSpell(l_Target, eSpells::ExplosiveShardMissile, true);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectRangedTarget())
                             me->CastSpell(l_Target, eSpells::ExplosiveShardMissile, true);
 
                         m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 15 * TimeConstants::IN_MILLISECONDS);
