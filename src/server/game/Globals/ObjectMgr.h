@@ -1701,30 +1701,6 @@ class ObjectMgr
         }
 
     private:
-        // first free id for selected id type
-<<<<<<< HEAD
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
-
-        // first free low guid for selected guid type
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCharGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCreatureGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiVehicleGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiGoGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiDoGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiAreaTriggerGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonBuildingID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonFollowerID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonWorkOrderID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
-
         std::atomic<uint32> m_HighItemGuid;
         std::atomic<uint32> m_MailId;
         std::atomic<uint32> m_PetNumber;
@@ -1753,8 +1729,6 @@ class ObjectMgr
         std::atomic<unsigned int> m_GarrisonWorkOrderID;
         std::atomic<unsigned int> m_HiVignetteGuid;
         std::atomic<unsigned int> m_StandaloneSceneInstanceID;
-
-        std::atomic<unsigned int> m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

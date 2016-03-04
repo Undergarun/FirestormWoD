@@ -1019,7 +1019,6 @@ class World
         //void AutoRestartServer();
     private:
         InterRealmSession* m_InterRealmSession;
-        static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
