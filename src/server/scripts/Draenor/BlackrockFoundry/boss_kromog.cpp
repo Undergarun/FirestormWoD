@@ -1033,9 +1033,9 @@ class spell_foundry_slam : public SpellScriptLoader
                         float l_ReducedDamage = 10000.0f;
                         float l_Damage = GetSpell()->GetDamage();
 
-                        int32 l_Damage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
+                        int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
 
-                        GetSpell()->SetDamage(l_Damage);
+                        GetSpell()->SetDamage(l_NewDamage);
                     }
                 }
             }
