@@ -1114,6 +1114,8 @@ class boss_franzok : public CreatureScript
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
                 m_ExitTankGuid = 0;
 
                 m_State = 0;
@@ -2147,7 +2149,7 @@ class npc_foundry_stamping_presses : public CreatureScript
                         AddTimedDelayedOperation(m_StampTimer, [this]() -> void
                         {
                             float l_CheckX = 4.5f;
-                            float l_CheckY = 6.5f;
+                            float l_CheckY = 7.5f;
 
                             std::set<uint64> l_Targets;
 
