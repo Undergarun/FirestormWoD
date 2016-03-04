@@ -7196,7 +7196,7 @@ void ObjectMgr::LoadPetNumber()
         _hiPetNumber = fields[0].GetUInt32()+1;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber.value()-1, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber-1, GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)

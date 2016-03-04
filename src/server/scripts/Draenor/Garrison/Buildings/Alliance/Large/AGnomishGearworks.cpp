@@ -142,7 +142,6 @@ namespace MS {
             else if (l_Owner->HasItemCount(WorkshopGearworks::g_GobItemRelations[l_GobID]))
                 return;
 
-
             SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
             SummonRelativeGameObject(l_GobID, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
 
