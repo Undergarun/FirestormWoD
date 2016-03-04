@@ -15882,6 +15882,11 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             RemoveAura(81099);
             AddAura(81099, this);
         }
+        if (HasAura(23588))
+        {
+            RemoveAura(23588);
+            AddAura(23588, this);
+        }
     }
 
     // close gossips
