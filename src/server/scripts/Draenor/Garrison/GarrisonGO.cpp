@@ -150,7 +150,7 @@ namespace MS { namespace Garrison
             uint32 l_RewardID = l_ShipmentEntry->ResultItemID;
             std::map<uint32, uint32> l_RewardItems;
 
-            l_RewardItems.insert(std::make_pair(l_RewardID, 0));
+            l_RewardItems.insert(std::make_pair(l_RewardID, 1));
 
             using namespace ShipmentContainer;
 
