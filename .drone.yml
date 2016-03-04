@@ -9,11 +9,14 @@ clone:
   submodule_update_remote: true
 
 build:
+  prepare_build:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+        - mkdir /home/realm
   wod_release:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
-      - mkdir /home/realm
-      - mkdir build_release && cd build_release
+      - mkdir build && cd build
       - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j
       - make install
@@ -23,16 +26,15 @@ build:
   wod_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
-      - mkdir /home/realm
-      - mkdir build_asan && cd build_asan
+      - mkdir build && cd build
       - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j
       - make install
       - make clean
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
       - cd - && ls -la
-    when:
-      branch: wod
+#    when:
+#      branch: wod
 
 #publish:
 #  docker:
