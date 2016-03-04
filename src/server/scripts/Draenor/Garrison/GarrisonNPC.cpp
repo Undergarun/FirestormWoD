@@ -60,7 +60,7 @@
 namespace MS { namespace Garrison 
 {
     /// Constructor
-    GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
+    GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)
         : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr), m_Owner(nullptr)
     {
 
@@ -111,7 +111,7 @@ namespace MS { namespace Garrison
     /// Set NPC recipes
     /// @p_Recipes          : Recipes
     /// @p_RecipesSkillID   : Skill line ID
-    void GarrisonNPCAI::SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID)
+    void GarrisonNPCAI::SetRecipes(std::vector<SkillNPC_RecipeEntry>* p_Recipes, uint32 p_RecipesSkillID)
     {
         m_Recipes           = p_Recipes;
         m_RecipesSkillID    = p_RecipesSkillID;
@@ -140,7 +140,7 @@ namespace MS { namespace Garrison
     /// @p_SequenceTable    : Sequence table
     /// @p_SequenceSize     : Size of sequence table,
     /// @p_FirstMovePointID : First move point ID
-    void GarrisonNPCAI::SetupActionSequence(SequencePosition * p_CoordTable, uint8 * p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID)
+    void GarrisonNPCAI::SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID)
     {
         m_CoordTable        = p_CoordTable;
         m_SequencePosition  = 0xFF;
@@ -204,6 +204,15 @@ namespace MS { namespace Garrison
             l_Angle += m_PlotInstanceLocation->O;
 
         return me->SummonCreature(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, p_SummonType);
+    }
+
+    /// Spawn a creature with building relative coords
+    /// @p_Entry      : Creature entry
+    /// @p_Position   : Relative position of the creature
+    /// @p_SummonType : Summon type
+    Creature* GarrisonNPCAI::SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType)
+    {
+        return SummonRelativeCreature(p_Entry, p_Position.X, p_Position.Y, p_Position.Z, p_Position.O, p_SummonType);
     }
 
     /// Spawn a gameobject with building relative coords
@@ -360,7 +369,7 @@ namespace MS { namespace Garrison
     void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
     {
         if (p_Id == CreatureAIDataIDs::OwnerGuid)
-            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
+            m_Owner = HashMapHolder<Player>::Find(p_Guid);
     }
 
     /// Get UInt32 value
@@ -410,7 +419,7 @@ namespace MS { namespace Garrison
     }
 
     /// Show trade skill crafter UI
-    void GarrisonNPCAI::SendTradeSkillUI(Player * p_Player)
+    void GarrisonNPCAI::SendTradeSkillUI(Player* p_Player)
     {
         if (p_Player->IsInGarrison())
         {
@@ -459,7 +468,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_GarrisonFord::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_GarrisonFord::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (!p_Player->GetGarrison())
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -473,7 +482,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonFord::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         if (p_Player->getLevel() >= 88 && !p_Player->GetGarrison())
         {
@@ -531,7 +540,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_CallToArms::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_CallToArms::GetAI(Creature* p_Creature) const
     {
         return new npc_CallToArmsAI(p_Creature);
     }
@@ -540,7 +549,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_CallToArms::npc_CallToArmsAI::npc_CallToArmsAI(Creature * p_Creature)
+    npc_CallToArms::npc_CallToArmsAI::npc_CallToArmsAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
         m_Owner = sObjectAccessor->FindPlayer(me->GetCreatorGUID());
@@ -741,6 +750,7 @@ namespace MS { namespace Garrison
     {
         m_OwnerGuid  = 0;
         m_CheckTimer = 1500;
+        me->AddAura(Spells::SpellAuraAmperialConstructVisual, me);
     }
 
     /// Called when a CreatureAI object is needed for the creature.
@@ -814,7 +824,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                m_CheckTimer = 1000;
+                m_CheckTimer = 2000;
             }
             else
                 m_CheckTimer -= p_Diff;
@@ -1060,6 +1070,41 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_AncientTradingMechanism_Garr::npc_AncientTradingMechanism_Garr()
+        : CreatureScript("npc_AncientTradingMechanism_Garr")
+    {
+    }
+
+    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    {
+        if (p_Player->GetGarrison() == nullptr)
+            return true;
+
+        std::vector<uint64> l_CreatureGuids = p_Player->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::TradingPost);
+
+        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+        {
+            if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
+            {
+                if (l_Creature->AI())
+                {
+                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+
+                    if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr)
+                        l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
+                }
+            }
+        }
+
+        return true;
+    }
+
 
 }   ///< namespace Garrison
 }   ///< namespace MS
@@ -1081,6 +1126,7 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_BarosAlexsom;
         new MS::Garrison::npc_VindicatorMaraad;
         new MS::Garrison::npc_LunarfallLaborer;
+        new MS::Garrison::npc_AncientTradingMechanism_Garr;
 
         /// Barracks
         new MS::Garrison::npc_JonathanStephens;

@@ -70,9 +70,6 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 p_MapID, Difficulty& 
 
 uint32 GetLiquidFlags(uint32 liquidType);
 
-/*PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id);*/
-
 typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSetSpellsByItemID;
 extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 

@@ -23,6 +23,7 @@
 #include "UnitAI.h"
 #include "Common.h"
 #include "InstanceScript.h"
+#include "Player.h"
 
 class WorldObject;
 class Unit;

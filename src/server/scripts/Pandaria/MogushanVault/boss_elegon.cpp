@@ -1965,13 +1965,8 @@ class spell_total_annihilation : public SpellScriptLoader
 
             bool Load()
             {
-                targetCount = 0;
+                targetCount = 1;
                 return true;
-            }
-
-            void CountTargets(std::list<WorldObject*>& targets)
-            {
-                targetCount = targets.size();
             }
 
             void CheckTargets()
@@ -1990,7 +1985,6 @@ class spell_total_annihilation : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_total_annihilation_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CASTER);
                 AfterCast += SpellCastFn(spell_total_annihilation_SpellScript::CheckTargets);
             }
         };

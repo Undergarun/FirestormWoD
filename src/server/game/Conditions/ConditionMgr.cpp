@@ -787,7 +787,7 @@ bool ConditionMgr::IsObjectMeetPhaseCondition(uint32 zone, uint32 entry, WorldOb
         ConditionsByEntryMap::const_iterator i = itr->second.find(entry);
         if (i != itr->second.end())
         {
-            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u spell %u", zone, entry); ///<  More '%' conversions than data arguments
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
             return IsObjectMeetToConditions(object, i->second);
         }
     }
@@ -803,7 +803,7 @@ ConditionContainer  const* ConditionMgr::GetConditionsForPhaseDefinition(uint32 
         ConditionsByEntryMap::const_iterator i = itr->second.find(entry);
         if (i != itr->second.end())
         {
-            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u spell %u", zone, entry); ///<  More '%' conversions than data arguments
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
             return &i->second;
         }
     }

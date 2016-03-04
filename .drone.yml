@@ -1,0 +1,85 @@
+clone:
+  depth: 20
+  recursive: true
+  submodule_update_remote: true
+
+branches:
+  - wod
+  - wod_ptr
+  - interrealm
+
+build:
+  image: milleniumstudio/drone-clang-mariadb-ace
+  commands:
+    - mkdir build && cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+    - make -j$(nproc)
+    - make install
+    - cd -
+
+#publish:
+#  sftp:
+#    host: grommash.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/grommash
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: mainnoire.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/main_noire
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: sombraluna.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/sombraluna
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: thrall.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/thrall
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  sftp:
+#    host: tournament.firestorm-servers.com
+#    username: drone
+#    destination_path: /home/deploy/tournament
+#    files:
+#      - /usr/local/bin/worldserver
+#      - .deploy
+#    when:
+#      branch: wod
+#  ssh:
+#    host:
+#      - grommash.firestorm-servers.com
+#      - mainnoire.firestorm-servers.com
+#      - sombraluna.firestorm-servers.com
+#      - thrall.firestorm-servers.com
+#      - tournament.firestorm-servers.com
+#    user: drone
+#    commands:
+#        - for realm in "/home/deploy/"*; do $realm/.deploy/remote.sh; done
+#    when:
+#      branch: wod
+
+notify:
+  slack:
+    webhook_url: https://hooks.slack.com/services/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
+    channel: wow-notification
+    username: Drone
+    template: >
+      Build <http://ptr.ashran.com/MilleniumStudio/Garrosh/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}

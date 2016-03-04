@@ -1702,6 +1702,7 @@ class ObjectMgr
 
     private:
         // first free id for selected id type
+<<<<<<< HEAD
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
@@ -1728,6 +1729,32 @@ class ObjectMgr
         std::atomic<uint32> m_MailId;
         std::atomic<uint32> m_PetNumber;
         std::atomic<uint64> m_EquipmentSetGuid;
+        std::atomic<unsigned int>  _auctionId;
+        std::atomic<unsigned long> _equipmentSetGuid;
+        std::atomic<unsigned int>  _itemTextId;
+        std::atomic<unsigned int>  _mailId;
+        std::atomic<unsigned int>  _hiPetNumber;
+        std::atomic<unsigned long> _voidItemId;
+
+        // first free low guid for selected guid type
+        std::atomic<unsigned int> _hiCharGuid;
+        std::atomic<unsigned int> _hiCreatureGuid;
+        std::atomic<unsigned int> _hiPetGuid;
+        std::atomic<unsigned int> _hiVehicleGuid;
+        std::atomic<unsigned int> _hiGoGuid;
+        std::atomic<unsigned int> _hiDoGuid;
+        std::atomic<unsigned int> _hiCorpseGuid;
+        std::atomic<unsigned int> _hiAreaTriggerGuid;
+        std::atomic<unsigned int> _hiMoTransGuid;
+        std::atomic<unsigned int> m_GarrisonID;
+        std::atomic<unsigned int> m_GarrisonBuildingID;
+        std::atomic<unsigned int> m_GarrisonFollowerID;
+        std::atomic<unsigned int> m_GarrisonMissionID;
+        std::atomic<unsigned int> m_GarrisonWorkOrderID;
+        std::atomic<unsigned int> m_HiVignetteGuid;
+        std::atomic<unsigned int> m_StandaloneSceneInstanceID;
+
+        std::atomic<unsigned int> m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
