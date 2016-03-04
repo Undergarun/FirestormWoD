@@ -6708,13 +6708,6 @@ bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
         case Classes::CLASS_MAGE:
         case Classes::CLASS_WARLOCK:
             return true;
-        case SpecIndex::SPEC_DRUID_RESTORATION:
-        case SpecIndex::SPEC_MONK_MISTWEAVER:
-        case SpecIndex::SPEC_PALADIN_HOLY:
-        case SpecIndex::SPEC_PRIEST_DISCIPLINE:
-        case SpecIndex::SPEC_PRIEST_HOLY:
-        case SpecIndex::SPEC_SHAMAN_RESTORATION:
-            return p_AllowHeal;
         default:
             break;
     }
@@ -6725,6 +6718,13 @@ bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
         case SpecIndex::SPEC_PRIEST_SHADOW:
         case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
             return true;
+        case SpecIndex::SPEC_DRUID_RESTORATION:
+        case SpecIndex::SPEC_MONK_MISTWEAVER:
+        case SpecIndex::SPEC_PALADIN_HOLY:
+        case SpecIndex::SPEC_PRIEST_DISCIPLINE:
+        case SpecIndex::SPEC_PRIEST_HOLY:
+        case SpecIndex::SPEC_SHAMAN_RESTORATION:
+            return p_AllowHeal;
         default:
             break;
     }
