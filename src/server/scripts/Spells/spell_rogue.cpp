@@ -657,6 +657,65 @@ class spell_rog_killing_spree: public SpellScriptLoader
         }
 };
 
+/// Killing Spree (teleport) - 57840
+class spell_rog_killing_spree_teleport : public SpellScriptLoader
+{
+    public:
+        spell_rog_killing_spree_teleport() : SpellScriptLoader("spell_rog_killing_spree_teleport") { }
+
+        class spell_rog_killing_spree_teleport_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_killing_spree_teleport_SpellScript);
+
+            enum eCreature
+            {
+                BossKromog = 77692
+            };
+
+            void HandleTeleport(SpellEffIndex p_EffIndex)
+            {
+                if (GetExplTargetUnit() == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                /// Players can't be teleported in Kromog's back
+                if (Creature* l_Target = GetExplTargetUnit()->ToCreature())
+                {
+                    if (l_Target->GetEntry() == eCreature::BossKromog)
+                    {
+                        PreventHitEffect(p_EffIndex);
+
+                        Position l_Dest;
+                        l_Target->GetContactPoint(l_Caster, l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ);
+
+                        if (!l_Caster->IsWithinLOS(l_Dest.GetPositionX(), l_Dest.GetPositionY(), l_Dest.GetPositionZ()))
+                        {
+                            float l_Angle = l_Target->GetRelativeAngle(l_Caster);
+                            float l_Dist = l_Caster->GetDistance(l_Dest);
+                            l_Target->GetFirstCollisionPosition(l_Dest, l_Dist, l_Angle);
+                        }
+
+                        /// Calculated as an EffectCharge
+                        l_Caster->NearTeleportTo(l_Dest, true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_killing_spree_teleport_SpellScript::HandleTeleport, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_killing_spree_teleport_SpellScript();
+        }
+};
+
 /// Called by Vanish - 1856
 /// Glyph of Decoy - 56800
 class spell_rog_glyph_of_decoy: public SpellScriptLoader
@@ -3234,6 +3293,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
     new spell_rog_killing_spree();
+    new spell_rog_killing_spree_teleport();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
     new spell_rog_marked_for_death();
