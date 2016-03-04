@@ -9,9 +9,6 @@
 #ifndef BATTLEGROUND_PACKET_FACTORY_HPP
 # define BATTLEGROUND_PACKET_FACTORY_HPP
 
-# include "BattlegroundScheduler.hpp"
-
-# include "BattlegroundMgr.hpp"
 # include "BattlegroundAV.h"
 # include "BattlegroundAB.h"
 # include "BattlegroundDG.h"

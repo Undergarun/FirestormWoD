@@ -1402,7 +1402,16 @@ class spell_ionization_conduction: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                switch (m_scriptSpellId)
+                {
+                case 138743:
+                case 137530:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                    break;
+                }
             }
         };
 

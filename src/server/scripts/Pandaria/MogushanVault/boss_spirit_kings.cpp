@@ -1786,7 +1786,7 @@ class spell_coalescing_shadow : public SpellScriptLoader
         }
 };
 
-// 118162 - Sleight of hand
+/// 118163 - Sleight of hand
 class spell_sleight_of_hand : public SpellScriptLoader
 {
     public:
@@ -1810,8 +1810,8 @@ class spell_sleight_of_hand : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sleight_of_hand_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_sleight_of_hand_AuraScript::Remove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_sleight_of_hand_AuraScript::Apply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_sleight_of_hand_AuraScript::Remove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

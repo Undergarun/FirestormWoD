@@ -3107,13 +3107,32 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_JadeStatue == nullptr)
                     return;
-                
-                Unit* l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
 
-                if (l_TargetOfJadeStatue == nullptr)
+                std::list<Unit*> l_PartyList;
+                std::list<Unit*> l_PartyListValid;
+                l_Caster->GetPartyMembers(l_PartyList);
+
+                for (Unit* l_Target : l_PartyList)
+                {
+                    if (!l_Target->IsValidAssistTarget(l_Target))
+                        continue;
+
+                    if (l_Target->GetDistance(l_JadeStatue) > 40.0f)
+                        continue;
+
+                    if (!l_Target->IsWithinLOSInMap(l_JadeStatue))
+                        continue;
+
+                    l_PartyListValid.push_back(l_Target);
+                }
+
+                if (l_PartyListValid.empty())
                     return;
 
-                l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
+                if (l_PartyListValid.size() > 1)
+                    l_PartyListValid.sort(JadeCore::HealthPctOrderPred());
+
+                l_JadeStatue->CastSpell(l_PartyListValid.front(), GetSpellInfo()->Id, true);
             }
 
             void OnTick(AuraEffect const* p_AurEff)
