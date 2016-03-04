@@ -15,7 +15,7 @@ build:
       - mkdir /home/realm
       - mkdir build_release && cd build_release
       - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j $(nproc)
+      - make -j
       - make install
       - make clean
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
@@ -26,7 +26,7 @@ build:
       - mkdir /home/realm
       - mkdir build_asan && cd build_asan
       - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j $(nproc)
+      - make -j
       - make install
       - make clean
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
