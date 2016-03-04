@@ -12953,8 +12953,8 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
         return healamount;
 
-    // No bonus for Living Seed and Spirint Bond (heal)
-    if (spellProto->Id == 48503 || spellProto->Id == 149254)
+    // No bonus for Living Seed
+    if (spellProto->Id == 48503)
         return healamount;
 
     // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
