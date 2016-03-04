@@ -18217,10 +18217,12 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
         if (spellProto && spellProto->Id == 44448 && procSpell &&
-            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
+            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) ///< Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
             return true;
         // Hack fix Mutilate can Trigger Blindside
         else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
+            return true;
+        else if (spellProto && spellProto->Id == 76669 && procSpell && procSpell->Id == 156322) ///< Eternal flame dot should proc on Illuminated healing
             return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
