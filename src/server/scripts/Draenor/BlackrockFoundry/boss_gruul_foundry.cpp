@@ -456,9 +456,7 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventCaveIn:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f))
-                            me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectRangedTarget())
                             me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
 
                         m_Events.ScheduleEvent(eEvents::EventCaveIn, 30 * TimeConstants::IN_MILLISECONDS);
