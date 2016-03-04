@@ -65,16 +65,16 @@ namespace MS { namespace Garrison
             /// Learn allowed building blue prints
             /// @p_Player     : Target player
             /// @p_Garrison   : Target garrison
-            void LearnAllowedBuildings(Player * p_Player, Manager * p_Garrison);
+            void LearnAllowedBuildings(Player* p_Player, Manager* p_Garrison);
             /// Is that blue print allowed for Purchase a building
             /// @p_BuildingID : Building ID we are looking for
             /// @p_Player     : Target player
-            bool IsBluePrintAllowedForPurchasingBuilding(uint32 p_BuildingID, Player * p_Player);
+            bool IsBluePrintAllowedForPurchasingBuilding(uint32 p_BuildingID, Player* p_Player);
 
             /// Match conditions for building
             /// @p_BuildingID : Building ID we are looking for
             /// @p_Player     : Target player
-            bool MatchsConditionsForBuilding(uint32 p_BuildingID, Player * p_Player);
+            bool MatchsConditionsForBuilding(uint32 p_BuildingID, Player* p_Player);
 
         private:
             std::vector<int32> m_AllowedBluePrints; ///< Allowed blue print list
