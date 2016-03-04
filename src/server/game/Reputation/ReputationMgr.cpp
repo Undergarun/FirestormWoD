@@ -303,7 +303,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                     ///< Algorithm to add Trading Post bonus (+20% from each reputation earning when you have the building lvl 3)
                     if (_player->GetGarrison() != nullptr)
                     {
-                        if (_player->GetGarrison()->GetBuildingWithBuildingID(MS::Garrison::Buildings::TradingPost__TradingPost_Level3).BuildingID)
+                        if (_player->GetGarrison()->GetBuildingWithBuildingID(MS::Garrison::Buildings::TradingPost_TradingPost_Level3).BuildingID)
                             standing *= 1.2;
                     }
 

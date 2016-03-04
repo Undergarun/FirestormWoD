@@ -3397,6 +3397,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 178444: ///< Create Armor Enhancement (garrison loot spell)
+            case 178445: ///< Create Weapon Boost (garrison loot spell)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
+                break;
             case 167946: ///< Journeyman Logging (Lumber Mill)
                 spellInfo->Effects[0].BasePoints = 1;
                 break;

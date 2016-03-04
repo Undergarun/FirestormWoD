@@ -23,7 +23,7 @@ namespace MS { namespace Garrison { namespace Interfaces
             /// When the garrison owner started a quest
             /// @p_Owner : Garrison owner
             /// @p_Quest : Started quest
-            virtual void OnQuestStarted(Player * p_Owner, const Quest * p_Quest) = 0;
+            virtual void OnQuestStarted(Player* p_Owner, const Quest* p_Quest) = 0;
             /// When the garrison owner reward a quest
             /// @p_Owner : Garrison owner
             /// @p_Quest : Rewarded quest
