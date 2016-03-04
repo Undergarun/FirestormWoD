@@ -586,6 +586,7 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Spirit of Redemption (Shapeshift) - 27827
 class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
 {
@@ -602,19 +603,17 @@ class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
                 SpiritOfRedemptionForm          = 27795
             };
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
+                Unit* l_Target = GetTarget();
 
-                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionForm);
-                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
+                l_Target->RemoveAura(eSpells::SpiritOfRedemptionForm);
+                l_Target->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

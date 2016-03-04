@@ -2404,6 +2404,9 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
     }
 
+    if (IsSameRaidBuff(existingAura))
+        return false;
+
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)
         || (sameCaster && m_spellInfo->IsAuraExclusiveBySpecificPerCasterWith(existingSpellInfo)))
@@ -2600,6 +2603,30 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     }
 
     return true;
+}
+
+bool Aura::IsSameRaidBuff(Aura const* p_ExistingAura) const
+{
+    SpellInfo const* l_SpellInfoNew = GetSpellInfo();
+    SpellInfo const* l_SpellInfoExisting = p_ExistingAura->GetSpellInfo();
+
+    if (l_SpellInfoNew == nullptr || l_SpellInfoExisting == nullptr)
+        return false;
+
+    if (SpellInfo const* l_SpellInfo = GetSpellInfo())
+    if (!l_SpellInfoNew->HasAttribute(SpellAttr7::SPELL_ATTR7_CONSOLIDATED_RAID_BUFF))
+        return false;
+
+    if (!l_SpellInfoExisting->HasAttribute(SpellAttr7::SPELL_ATTR7_CONSOLIDATED_RAID_BUFF))
+        return false;
+
+    for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+    {
+        if (l_SpellInfoNew->Effects[l_I].ApplyAuraName != 0 && l_SpellInfoNew->Effects[l_I].ApplyAuraName == l_SpellInfoExisting->Effects[l_I].ApplyAuraName)
+            return true;
+    }
+
+    return false;
 }
 
 void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo)

@@ -3130,8 +3130,8 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
-    // Try victim reflect spell
-    if (CanReflect)
+    /// Try victim reflect spell - 'Spell Reflect normally does not work with AoE spells'
+    if (CanReflect && !spell->IsTargetingArea())
     {
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         Unit::AuraEffectList const& mReflectSpellsSchool = victim->GetAuraEffectsByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);

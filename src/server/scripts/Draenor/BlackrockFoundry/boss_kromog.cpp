@@ -724,7 +724,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                         me->CastSpell(me, eSpells::RuneOfGraspingEarthSelect, true);
                     });
 
-                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS + 50, [this]() -> void
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         if (!m_PlayerGrasped)
                             me->Kill(me);

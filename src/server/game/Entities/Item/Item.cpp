@@ -592,8 +592,11 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 transmogId = fields[8].GetInt32())
     {
-        SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        if (sObjectMgr->GetItemTemplate(transmogId))
+        {
+            SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        }
     }
 
     Tokenizer bonusTokens(fields[9].GetString(), ' ');
