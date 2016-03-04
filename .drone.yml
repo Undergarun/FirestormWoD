@@ -1,78 +1,43 @@
-clone:
-  depth: 20
-  recursive: true
-  submodule_update_remote: true
-
 branches:
   - wod
   - wod_ptr
   - interrealm
 
+clone:
+  depth: 20
+  recursive: true
+  submodule_update_remote: true
+
 build:
-  image: milleniumstudio/drone-clang-mariadb-ace
-  commands:
-    - mkdir build && cd build
-    - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-    - make -j$(nproc)
-    - make install
-    - cd -
+  wod_release:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - mkdir /home/realm
+      - mkdir build_release && cd build_release
+      - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j $(nproc)
+      - make install
+      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
+      - cd - && ls -la
+  wod_asan:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - mkdir /home/realm
+      - mkdir build_asan && cd build_asan
+      - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j $(nproc)
+      - make install
+      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
+      - cd - && ls -la
 
 #publish:
-#  sftp:
-#    host: grommash.firestorm-servers.com
+#  docker:
 #    username: drone
-#    destination_path: /home/deploy/grommash
-#    files:
-#      - /usr/local/bin/worldserver
-#      - .deploy
-#    when:
-#      branch: wod
-#  sftp:
-#    host: mainnoire.firestorm-servers.com
-#    username: drone
-#    destination_path: /home/deploy/main_noire
-#    files:
-#      - /usr/local/bin/worldserver
-#      - .deploy
-#    when:
-#      branch: wod
-#  sftp:
-#    host: sombraluna.firestorm-servers.com
-#    username: drone
-#    destination_path: /home/deploy/sombraluna
-#    files:
-#      - /usr/local/bin/worldserver
-#      - .deploy
-#    when:
-#      branch: wod
-#  sftp:
-#    host: thrall.firestorm-servers.com
-#    username: drone
-#    destination_path: /home/deploy/thrall
-#    files:
-#      - /usr/local/bin/worldserver
-#      - .deploy
-#    when:
-#      branch: wod
-#  sftp:
-#    host: tournament.firestorm-servers.com
-#    username: drone
-#    destination_path: /home/deploy/tournament
-#    files:
-#      - /usr/local/bin/worldserver
-#      - .deploy
-#    when:
-#      branch: wod
-#  ssh:
-#    host:
-#      - grommash.firestorm-servers.com
-#      - mainnoire.firestorm-servers.com
-#      - sombraluna.firestorm-servers.com
-#      - thrall.firestorm-servers.com
-#      - tournament.firestorm-servers.com
-#    user: drone
-#    commands:
-#        - for realm in "/home/deploy/"*; do $realm/.deploy/remote.sh; done
+#    password: $$DOCKER_PASS
+#    email: $$DOCKER_EMAIL
+#    repo: milleniumstudio/docker-wod
+#    tag: latest
+#    file: Dockerfile
 #    when:
 #      branch: wod
 
