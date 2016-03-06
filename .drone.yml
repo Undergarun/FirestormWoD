@@ -19,7 +19,7 @@ build:
     commands:
       - cd build
       - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j
+      - make -j 32
       - make install
       - make clean
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
@@ -29,7 +29,7 @@ build:
     commands:
       - cd build
       - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j
+      - make -j 32
       - make install
       - make clean
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
