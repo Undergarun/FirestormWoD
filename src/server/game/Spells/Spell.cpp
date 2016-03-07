@@ -3732,6 +3732,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         if (m_spellInfo->HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
             SendSpellStart();
 
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && result == SPELL_CAST_OK) ///< Global cooldown should be trigger before cast
+            TriggerGlobalCooldown();
+
         cast(true);
     }
     else

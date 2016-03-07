@@ -602,16 +602,16 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (p_Guid != 0 && p_Guid < sObjectMgr->_hiCharGuid.value())
+    if (p_Guid != 0 && p_Guid < sObjectMgr->_hiCharGuid)
     {
         result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%u'", p_Guid);
         if (result)
-            p_Guid = sObjectMgr->_hiCharGuid.value(); // use first free if exists
+            p_Guid = sObjectMgr->_hiCharGuid; // use first free if exists
         else
             incHighest = false;
     }
     else
-        p_Guid = sObjectMgr->_hiCharGuid.value();
+        p_Guid = sObjectMgr->_hiCharGuid;
 
     // name encoded or empty
 

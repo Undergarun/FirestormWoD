@@ -227,11 +227,11 @@ namespace MS { namespace Garrison { namespace Sites
                 case Buildings::LumberMill_LumberMill_Level3:
                     p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                     break;
-                case Buildings::Barn__Barn_Level2:
+                case Buildings::Barn_Barn_Level2:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     break;
-                case Buildings::Barn__Barn_Level3:
+                case Buildings::Barn_Barn_Level3:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))

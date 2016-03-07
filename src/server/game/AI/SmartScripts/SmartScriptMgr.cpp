@@ -956,6 +956,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         case SMART_ACTION_SEND_SCENARIO_STATE:
         case SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE:
+        case SMART_ACTION_UPDATE_PLOT_INSTANCE:
 
             break;
         default:

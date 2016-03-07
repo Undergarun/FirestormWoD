@@ -1695,37 +1695,37 @@ class spell_arc_visual : public SpellScriptLoader
         }
 };
 
-//  Devastating Arc - 117006
+///  Devastating Arc - 117006
 class spell_devastating_arc : public SpellScriptLoader
 {
     public:
         spell_devastating_arc() : SpellScriptLoader("spell_devastating_arc") { }
 
-        class spell_devastating_arc_AuraScript : public AuraScript
+        class spell_devastating_arc_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_devastating_arc_AuraScript);
+            PrepareSpellScript(spell_devastating_arc_SpellScript);
 
-            void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    std::list<Player*> playerList;
-                    GetPlayerListInGrid(playerList, caster, 25.0f);
+                    std::list<Player*> l_PlayerList;
+                    GetPlayerListInGrid(l_PlayerList, l_Caster, 25.0f);
 
-                    for (auto target : playerList)
-                        caster->AddAura(SPELL_DEVAST_ARC, target);
-                    }
+                    for (auto l_Target : l_PlayerList)
+                        l_Caster->AddAura(SPELL_DEVAST_ARC, l_Target);
+                }
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_devastating_arc_AuraScript::Apply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectHitTarget += SpellEffectFn(spell_devastating_arc_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_devastating_arc_AuraScript();
+            return new spell_devastating_arc_SpellScript();
         }
 };
 

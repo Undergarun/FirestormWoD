@@ -21,7 +21,6 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Arena.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.hpp"
 #include "Creature.h"
