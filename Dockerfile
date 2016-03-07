@@ -14,7 +14,7 @@ VOLUME /usr/local/etc
 VOLUME /opt/firestorm
 VOLUME /var/log/firestorm
 
-ADD /usr/local/bin/worldserver_* /usr/local/bin
+#ADD /usr/local/bin/worldserver_* /usr/local/bin
 ADD contrib/deploy/worldserver_restarter /usr/local/bin
 
 ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
