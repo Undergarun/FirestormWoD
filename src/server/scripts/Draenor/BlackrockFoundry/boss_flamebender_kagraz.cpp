@@ -364,28 +364,32 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eSpells::LavaSlashMissileTriggered:
                     {
-                        Position l_Dest = p_Dest->_position;
-                        Position l_Src  = *me;
+                        Position* l_Dest    = new Position(p_Dest->_position);
+                        Position* l_Src     = new Position(*me);
+                        Creature* l_Me      = me;
 
-                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
+                        AddTimedDelayedOperation(50, [l_Me, l_Dest, l_Src]() -> void
                         {
-                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                            uint8 l_Dist = l_Src->GetExactDist2d(l_Dest);
                             for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
                             {
                                 Position l_Target;
 
-                                float l_O = l_Src.GetAngle(&l_Dest);
-                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
-                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
-                                float l_Z = l_Src.m_positionZ;
+                                float l_O = l_Src->GetAngle(l_Dest);
+                                float l_X = l_Src->m_positionX + (l_I * cos(l_O));
+                                float l_Y = l_Src->m_positionY + (l_I * sin(l_O));
+                                float l_Z = l_Src->m_positionZ;
 
                                 l_Target.m_positionX    = l_X;
                                 l_Target.m_positionY    = l_Y;
                                 l_Target.m_positionZ    = l_Z;
                                 l_Target.m_orientation  = l_O;
 
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                l_Me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
                             }
+                            
+                            delete l_Dest;
+                            delete l_Src;
                         });
 
                         break;

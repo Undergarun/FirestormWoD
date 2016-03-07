@@ -279,6 +279,8 @@ Item::Item()
     // Fuck default constructor, i don't trust it
     m_text = "";
 
+    m_CustomFlags = 0;
+
     _dynamicValuesCount = ITEM_DYNAMIC_END;
 }
 
@@ -441,7 +443,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
 void Item::SaveToDB(SQLTransaction& trans)
 {
-    bool isInTransaction = !(trans.null());
+    bool isInTransaction = trans.get() != nullptr;
     if (!isInTransaction)
         trans = CharacterDatabase.BeginTransaction();
 
@@ -494,6 +496,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
+            stmt->setUInt32(++index, m_CustomFlags);
             stmt->setUInt32(++index, guid);
 
             trans->Append(stmt);
@@ -538,8 +541,8 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
-    //                                              0                1          2       3        4        5         6               7              8            9            10          11         12
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                              0                1          2       3        4        5         6               7              8            9            10          11         12     13     14
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, durability, playedTime, text, custom_flags FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -589,8 +592,11 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 transmogId = fields[8].GetInt32())
     {
-        SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        if (sObjectMgr->GetItemTemplate(transmogId))
+        {
+            SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, transmogId);
+            SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+        }
     }
 
     Tokenizer bonusTokens(fields[9].GetString(), ' ');
@@ -616,6 +622,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[12].GetUInt32());
     SetText(fields[13].GetString());
+    SetCustomFlags(fields[14].GetUInt32());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -1512,7 +1519,7 @@ void Item::SaveRefundDataToDB()
 
 void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 {
-    if (trans && !trans->null())
+    if (trans && trans->get() != nullptr)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
         stmt->setUInt32(0, GetGUIDLow());
@@ -2541,4 +2548,13 @@ void Item::RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* 
         p_Transmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
         p_Player->SetVisibleItemSlot(l_TransmogrifiedItemSlot, p_Transmogrified);
     }
+}
+
+uint32 Item::GetEnchantItemVisualId(EnchantmentSlot p_Slot) const
+{
+    SpellItemEnchantmentEntry const* l_Enchantement = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(p_Slot));
+    if (l_Enchantement == nullptr)
+        return 0;
+
+    return l_Enchantement->itemVisualID;
 }

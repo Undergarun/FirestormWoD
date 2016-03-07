@@ -36,7 +36,6 @@ class WorldPacket;
 class BattlegroundMap;
 class Unit;
 
-struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
@@ -116,14 +115,14 @@ namespace MS
 
             /// Check if the BattlegroundType given is a casual battleground.
             /// @p_Type : The type of the battleground.
-            static bool IsCasualBattleground(Type p_Type)
+            static bool IsCasualBattleground(Type p_Type) ///< IsCasualBattleground is unused
             {
                 return p_Type < BattlegroundType::NumBattlegrounds || p_Type == BattlegroundType::RandomBattleground;
             }
 
             /// Check if the BattlegroundType given is an instance of an arena.
             /// @p_Type : The type of the battleground.
-            static bool IsArena(Type p_Type)
+            static bool IsArena(Type p_Type) ///< IsArena is unused
             {
                 return p_Type >= BeginArena && p_Type <= EndArena;
             }
@@ -137,7 +136,7 @@ namespace MS
 
             /// Return the ArenaType of the battleground.
             /// @p_Type : The type of the battleground.
-            static ArenaType GetArenaType(Type p_Type)
+            static ArenaType GetArenaType(Type p_Type) ///< GetArenaType is unused
             {
                 switch (p_Type)
                 {
@@ -154,7 +153,7 @@ namespace MS
             }
 
             /// Return true if the arena type is skirmish.
-            static bool IsSkirmish(Type p_Type)
+            static bool IsSkirmish(Type p_Type) ///< IsSkirmish is unused
             {
                 switch (p_Type)
                 {
@@ -219,7 +218,7 @@ namespace MS
 
         namespace Maps
         {
-            static BattlegroundType::Type FindAssociatedType(uint32 p_MapId)
+            static BattlegroundType::Type FindAssociatedType(uint32 p_MapId) ///< FindAssociatedType is unused
             {
                 auto l_Itr = k_MapIdToBattlegroundType.find(p_MapId);
                 if (l_Itr != std::end(k_MapIdToBattlegroundType))
@@ -236,7 +235,7 @@ namespace MS
                 Count = sizeof (k_Brackets) / sizeof (k_Brackets[0])
             };
 
-            static Bracket const* FindForLevel(std::size_t p_Level)
+            static Bracket const* FindForLevel(std::size_t p_Level) ///< FindForLevel is unused
             {
                 for (std::size_t i = 0; i < Count; i++)
                 {
@@ -247,13 +246,13 @@ namespace MS
                 return nullptr;
             }
 
-            static Bracket const* RetreiveFromId(Bracket::Id p_Id)
+            static Bracket const* RetreiveFromId(Bracket::Id p_Id) ///< RetreiveFromId is unused
             {
                 return &k_Brackets[p_Id];
             }
         }
 
-        static BattlegroundTypeId GetIdFromType(BattlegroundType::Type p_Type)
+        static BattlegroundTypeId GetIdFromType(BattlegroundType::Type p_Type) ///< GetIdFromType is unused
         {
             switch (p_Type)
             {
@@ -310,7 +309,7 @@ namespace MS
             }
         }
 
-        static BattlegroundType::Type GetTypeFromId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish = false)
+        static BattlegroundType::Type GetTypeFromId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish = false) ///< GetTypeFromId is unused
         {
             switch (p_BgTypeId)
             {
@@ -370,7 +369,7 @@ namespace MS
             }
         }
 
-        static BattlegroundType::Type GetSchedulerType(BattlegroundTypeId p_BgTypeId)
+        static BattlegroundType::Type GetSchedulerType(BattlegroundTypeId p_BgTypeId) ///< GetSchedulerType is unused
         {
             switch (p_BgTypeId)
             {
@@ -427,7 +426,7 @@ namespace MS
             }
         }
 
-        static bool IsArenaType(BattlegroundType::Type p_BgType)
+        static bool IsArenaType(BattlegroundType::Type p_BgType) ///< IsArenaType is unused
         {
             return (p_BgType == BattlegroundType::AllArenas ||
                 p_BgType == BattlegroundType::BladeEdgeArena ||
@@ -439,7 +438,7 @@ namespace MS
                 p_BgType == BattlegroundType::RuinsOfLordaeron);
         }
 
-        static uint8 BGArenaType(BattlegroundType::Type p_BgType)
+        static uint8 BGArenaType(BattlegroundType::Type p_BgType) ///< BGArenaType is unused
         {
             switch (p_BgType)
             {

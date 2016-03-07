@@ -16,14 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DBCEnums.h"
 #include "DBCStructure.h"
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "DatabaseEnv.h"
 #include "AchievementMgr.h"
 #include "Arena.h"
 #include "CellImpl.h"
@@ -42,7 +39,6 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "Chat.h"
-#include "MapUpdater.h"
 #include "WowTime.hpp"
 
 namespace JadeCore

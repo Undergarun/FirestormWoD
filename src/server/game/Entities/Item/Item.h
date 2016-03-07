@@ -260,6 +260,14 @@ namespace ItemBonus
     }
 }
 
+namespace ItemCustomFlags
+{
+    enum
+    {
+        FromStore       = 0x01,
+    };
+}
+
 
 #define MAX_ITEM_SPELLS 5
 
@@ -378,6 +386,7 @@ class Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        uint32 GetEnchantItemVisualId(EnchantmentSlot p_Slot) const;
 
         std::string const& GetText() const { return m_text; }
         inline void SetText(std::string const& text)
@@ -397,6 +406,11 @@ class Item : public Object
                 }
             }
         }
+
+        void SetCustomFlags(uint32 p_Flags) { m_CustomFlags = p_Flags; }
+        void ApplyCustomFlags(uint32 p_Flags) { m_CustomFlags |= p_Flags; }
+        uint32 GetCustomFlags() const { return m_CustomFlags; }
+        bool HasCustomFlags(uint32 p_Flags) const { return m_CustomFlags & p_Flags; }
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
@@ -499,6 +513,7 @@ class Item : public Object
         uint32 m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
+        uint32 m_CustomFlags;
         AllowedLooterSet allowedGUIDs;
 };
 #endif

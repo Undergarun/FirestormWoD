@@ -1761,7 +1761,7 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_TARGET_ANY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_SRC_AREA_ALLY);
         }
     };
 
@@ -1806,8 +1806,15 @@ public:
 
         void Register()
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_auchindons::OnApply,    SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_auchindons::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            switch (m_scriptSpellId)
+            {
+            case 157168:
+                AfterEffectApply += AuraEffectApplyFn(spell_auchindons::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_auchindons::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);                
+                break;
+            default:
+                break;
+            }
         }
     };
 
