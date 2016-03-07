@@ -33,7 +33,7 @@ build:
       - make install
       - make clean
       - mv /usr/local/bin/worldserver /usr/local/bin/worldserver_RelWithDebInfo
-      - cd - && ls -la
+      - cd -
     when:
       branch: wod
   release_asan:
@@ -45,18 +45,19 @@ build:
       - make install
       - make clean
       - mv /usr/local/bin/worldserver /usr/local/bin/worldserver_RelWithDebInfoAsan
-      - cd - && ls -la
+      - cd -
     when:
       branch: wod
 
 publish:
   docker:
+    environment:
+      - DOCKER_LAUNCH_DEBUG=true
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
     repo: milleniumstudio/docker-wod
     tag: latest-ptr
-    file: Dockerfile
     when:
       branch: wod_ptr
 
