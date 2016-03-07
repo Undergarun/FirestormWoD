@@ -433,7 +433,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
                     {
                         l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
@@ -485,7 +485,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
                     {
                         l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
@@ -531,7 +531,7 @@ class spell_at_hun_ice_trap_effect : public AreaTriggerEntityScript
 
             for (auto itr : targetList)
             {
-                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && !itr->isTotem() && !itr->HasAura(eSpells::IceTrapEffect))
+                if (itr != nullptr && l_Caster->IsValidAttackTarget(itr) && !itr->isTotem() && !itr->HasAura(eSpells::IceTrapEffect) && !itr->isStatue())
                     itr->CastSpell(itr, IceTrapEffect, true);
             }
 
@@ -592,8 +592,9 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
                     {
+                        uint32 l_MovementFlag = l_Target->GetUnitMovementFlags();
                         if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
                         {
                             l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
@@ -643,7 +644,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target) && !l_Target->isTotem())
+                    if (l_Target != nullptr && l_AreaTriggerCaster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
                     {
                         l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterExplosiveTrap::SpellExplosiveEffect, true);
                         p_AreaTrigger->Remove(0);

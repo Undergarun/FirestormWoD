@@ -1868,8 +1868,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift
-            if (m_spellInfo && m_spellInfo->Id != 145109 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift and Frenzied Regeneration
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -3114,8 +3114,10 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     Player* player = unitTarget->ToPlayer();
 
+    bool l_FromItemShop = m_CastItem && m_CastItem->HasCustomFlags(ItemCustomFlags::FromStore);
+
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
-    player->learnSpell(spellToLearn, false);
+    player->learnSpell(spellToLearn, false, l_FromItemShop);
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;

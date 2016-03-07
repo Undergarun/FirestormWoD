@@ -627,7 +627,8 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 {
     HandleMovementOpcodes(recvData);
 
-    recvData.read_skip<uint32>();                          /// ACK Index
+    if (recvData.rpos() != recvData.size())
+        recvData.read_skip<uint32>();                          /// ACK Index
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)

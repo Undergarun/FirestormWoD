@@ -1859,7 +1859,7 @@ class spell_crimson_wake_medium : public SpellScriptLoader
         }
 };
 
-// Fixated - 138486
+/// Fixated - 138486
 class spell_fixated : public SpellScriptLoader
 {
     public:
@@ -1877,7 +1877,7 @@ class spell_fixated : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_fixated_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS_PET, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_fixated_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS_PET, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

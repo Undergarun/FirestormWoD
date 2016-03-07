@@ -770,8 +770,10 @@ namespace MS
                         else
                             l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::Warsong, BattlegroundType::StrandOfTheAncients));
 
+                        bool l_IsRatedBattleground = !BattlegroundType::IsArena(p_DecidedBg);   ///< We talk about rated battleground here, not rated arena!
+
                         /// Create the new battleground.
-                        Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(l_RatedBg, Brackets::RetreiveFromId(p_BracketId), BattlegroundType::GetArenaType(p_DecidedBg), false);
+                        Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(l_RatedBg, Brackets::RetreiveFromId(p_BracketId), BattlegroundType::GetArenaType(p_DecidedBg), false, false, false, l_IsRatedBattleground);
                         if (l_Bg == nullptr)
                             return false;
 
