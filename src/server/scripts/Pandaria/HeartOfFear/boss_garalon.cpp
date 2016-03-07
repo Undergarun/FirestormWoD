@@ -1304,36 +1304,6 @@ public:
     }
 };
 
-// 128596, 128599, 128600, 128601 - Weak Points Cosmetic
-class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
-{
-    public:
-        spell_garalon_weak_points_cosmetic() : SpellScriptLoader("spell_garalon_weak_points_cosmetic") { }
-
-        class spell_garalon_weak_points_cosmetic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_garalon_weak_points_cosmetic_AuraScript);
-
-            bool SelectTarget(Unit* target)
-            {
-                if (target->GetEntry() == NPC_GARALON || target->GetEntry() == NPC_GARALON_LEG)
-                    return true;
-
-                return false;
-            }
-
-            void Register()
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_garalon_weak_points_cosmetic_AuraScript::SelectTarget);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_garalon_weak_points_cosmetic_AuraScript();
-        }
-};
-
 // 123081 - Pungency
 class spell_garalon_pungency : public SpellScriptLoader
 {
@@ -1380,6 +1350,5 @@ void AddSC_boss_garalon()
     new spell_garalon_pheromones_summon();      // 128573 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (128573, "spell_garalon_pheromones_summon");
     new spell_garalon_pheromones_trail_dmg();   // 123120 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123120, "spell_garalon_pheromones_trail_dmg");
     new spell_garalon_pheromones_switch();      // 123100 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123100, "spell_garalon_pheromones_switch");
-    new spell_garalon_weak_points_cosmetic();   // 128596, 128599, 128600, 128601
     new spell_garalon_pungency();               // 123081
 }

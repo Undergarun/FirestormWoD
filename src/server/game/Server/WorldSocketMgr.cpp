@@ -104,7 +104,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         long Connections()
         {
-            return static_cast<long> (m_Connections.value());
+            return static_cast<long> (m_Connections);
         }
 
         int AddSocket (WorldSocket* sock)
@@ -198,7 +198,7 @@ class ReactorRunnable : protected ACE_Task_Base
         }
 
     private:
-        typedef ACE_Atomic_Op<ACE_SYNCH_MUTEX, long> AtomicInt;
+        typedef std::atomic<long> AtomicInt;
         typedef std::set<WorldSocket*> SocketSet;
 
         ACE_Reactor* m_Reactor;

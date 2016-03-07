@@ -19,8 +19,8 @@
 
 #include "Common.h"
 #include "Define.h"
-#include "TemporarySummon.h"
 #include "CreatureAI.h"
+#include "TemporarySummon.h"
 #include "SpellMgr.h"
 #include <functional>
 #include <type_traits>

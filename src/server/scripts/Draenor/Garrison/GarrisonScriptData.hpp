@@ -70,7 +70,8 @@ namespace MS { namespace Garrison
         SpellJourneymanLogging                 = 167946, ///< Lumber Mill
         SpellSummonStump                       = 170079, ///< Lumber Mill
         SpellGarrisonPortal                    = 182464, ///< Mage Tower/Spirit Lodge
-        SpellAuraRunesOfPower                  = 178777  ///< Mage Tower/Spirit Lodge
+        SpellAuraRunesOfPower                  = 178777, ///< Mage Tower/Spirit Lodge
+        SpellAuraAmperialConstructVisual       = 166094  ///< Mage Tower/Spirit Lodge
     };
 
     enum DisplayIDs
@@ -118,6 +119,7 @@ namespace MS { namespace Garrison
             Alliance_UnconventionalInventions           = 37091,
             /// Trading Post
             Alliance_TricksOfTheTrade                   = 37088,
+            Alliance_AuctionningForParts                = 36948,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -154,6 +156,7 @@ namespace MS { namespace Garrison
             Horde_UnconventionalInventions              = 37044,
             /// Trading Post
             Horde_TricksOfTheTrade                      = 37062,
+            Horde_AuctionningForParts                   = 37014,
 
             /// Both factions
             Quest_FishFight                             = 34846
@@ -196,7 +199,11 @@ namespace MS { namespace Garrison
         NpcFrostwallGorenHatchling                      = 81398,
         NpcStonetooth                                   = 81396,
         NpcAllianceMiner                                = 77361,
-        NpcHordeMiner                                   = 79837
+        NpcHordeMiner                                   = 79837,
+        NpcAllianceAncientTradingMechanismQuestGiver    = 87206,
+        NpcAllianceAncientTradingMechanismAuctioneer    = 87205,
+        NpcHordeAncientTradingMechanismQuestGiver       = 86806,
+        NpcHordeAncientTradingMechanismAuctioneer       = 87109
     };
 
     namespace WorkshopGearworks

@@ -708,8 +708,11 @@ void InterRealmSession::Handle_BattlefieldPortResp(WorldPacket& packet)
         pPlayer->TradeCancel(false);
         pPlayer->DuelComplete(DUEL_INTERRUPTED);
 
+        if (Transport* l_Transport = pPlayer->GetTransport())
+            l_Transport->RemovePassenger(pPlayer);
+
         if (pPlayer->GetMap())
-            pPlayer->GetMap()->RemovePlayerFromMap(pPlayer, false);     
+            pPlayer->GetMap()->RemovePlayerFromMap(pPlayer, false);
 
         pPlayer->GetSession()->SetInterRealmBG(bgZoneId);
         pPlayer->SetInterRealmPlayerState(InterRealmPlayerState::PlayOnCross);

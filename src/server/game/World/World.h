@@ -420,6 +420,9 @@ enum WorldIntConfigs
     CONFIG_FIRST_PREMADE_MONEY,
     CONFIG_BATTLEPAY_MIN_SECURITY,
     CONFIG_SPELLOG_FLAGS,
+    CONFIG_ACCOUNT_BIND_GROUP_MASK,
+    CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK,
+    CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -697,7 +700,7 @@ struct MotdText
 class World
 {
     public:
-        static ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_worldLoopCounter;
+        static std::atomic<unsigned int> m_worldLoopCounter;
 
         World();
         ~World();
@@ -838,7 +841,7 @@ class World
         void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
-        static bool IsStopped() { return m_stopEvent.value(); }
+        static bool IsStopped() { return m_stopEvent; }
 
         void Update(uint32 diff);
 
@@ -1019,7 +1022,7 @@ class World
         //void AutoRestartServer();
     private:
         InterRealmSession* m_InterRealmSession;
-        static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
+        static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;

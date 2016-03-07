@@ -98,8 +98,13 @@ namespace WebShop
                     for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
                         l_BonusesID.push_back(uint32(atol(*l_Iter)));
 
-                    p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
-                    CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    Item* l_Item = p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
+                    if (l_Item != nullptr)
+                    {
+                        l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+                        l_Item->SetState(ItemUpdateState::ITEM_CHANGED, p_Player);
+                        CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    }
                 } 
                 while (l_Result->NextRow());
 

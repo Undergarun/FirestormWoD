@@ -41,6 +41,14 @@ namespace MS { namespace Garrison
             {
                 /// Constructor
                 npc_FaylaFairfeatherAI(Creature* p_Creature);
+
+                virtual void OnPlotInstanceUnload() override;
+
+                /// When the PlotInstance ID is set
+                /// @p_BuildingID : Set plot instance ID
+                virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
+
+                virtual void OnDataReset() override;
             };
     };
 

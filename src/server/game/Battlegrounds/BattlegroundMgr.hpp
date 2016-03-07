@@ -114,8 +114,12 @@ namespace MS
             /// @p_BracketEntry : The entry of the bracket.
             /// @p_ArenaType    : The type of the arena if it is an arena.
             /// @p_IsSkirmish   : True if the type is a not rated arena (default: false).
+            /// @p_IsWargame    : True if the battleground is a wargame (default: false)
+            /// @p_IsSkirmish   : True if the battleground is a wargame and use tournament rules (default: false).
+            /// @p_RatedBg      : True if the battleground is rated (default: false).
+
             Battleground* CreateNewBattleground(BattlegroundType::Type p_BgTypeId, Bracket const* p_BracketEntry, uint8 p_ArenaType,
-                bool p_IsSkirmish = false, bool p_IsWargame = false, bool p_UseTournamentRules = false);
+                bool p_IsSkirmish = false, bool p_IsWargame = false, bool p_UseTournamentRules = false, bool p_RatedBg = false);
 
             /// Creates the template of the battleground associated to the data given.
             /// Returns the type id.

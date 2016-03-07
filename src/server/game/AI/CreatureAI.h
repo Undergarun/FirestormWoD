@@ -23,6 +23,7 @@
 #include "UnitAI.h"
 #include "Common.h"
 #include "InstanceScript.h"
+#include "Player.h"
 
 class WorldObject;
 class Unit;
@@ -234,6 +235,9 @@ class CreatureAI : public UnitAI
         virtual void OnSpellClick(Unit* /*clicker*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
+
+        /// Called when the attack distance range is calculated
+        virtual void OnCalculateAttackDistance(float& p_AttackDistance) { }
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
