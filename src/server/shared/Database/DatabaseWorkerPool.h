@@ -507,7 +507,7 @@ class DatabaseWorkerPool
                 return;
             }
 
-            if (trans.null())
+            if (trans.get() == nullptr)
                 Execute(stmt);
             else
                 trans->Append(stmt);
@@ -517,7 +517,7 @@ class DatabaseWorkerPool
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
         void ExecuteOrAppend(SQLTransaction& trans, const char* sql)
         {
-            if (trans.null())
+            if (trans.get() == nullptr)
                 Execute(sql);
             else
                 trans->Append(sql);

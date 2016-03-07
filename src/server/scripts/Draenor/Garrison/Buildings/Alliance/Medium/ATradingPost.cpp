@@ -108,7 +108,83 @@ namespace MS { namespace Garrison
     npc_TraderJoseph::npc_TraderJosephAI::npc_TraderJosephAI(Creature* p_Creature)
         : GarrisonNPCAI(p_Creature)
     {
+    }
 
+    void npc_TraderJoseph::npc_TraderJosephAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(std::vector<uint32> {NPCs::NpcAllianceAncientTradingMechanismQuestGiver, NPCs::NpcAllianceAncientTradingMechanismAuctioneer}, 100.0f);
+    }
+
+    void npc_TraderJoseph::npc_TraderJosephAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        Player* l_Owner = GetOwner();
+
+        if (l_Owner == nullptr)
+            return;
+
+        Manager* l_GarrisonMgr = l_Owner->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return;
+
+        SequencePosition l_NpcVendorPos;
+
+        switch (l_GarrisonMgr->GetBuilding(p_PlotInstanceID).BuildingID)
+        {
+            case Buildings::TradingPost_TradingPost_Level1:
+                l_NpcVendorPos = { 2.3595f, -5.2689f, 0.5832f, 1.2362f };
+                break;
+            case Buildings::TradingPost_TradingPost_Level2:
+                if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
+                    SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismQuestGiver, 4.7426f, -8.5494f, 1.6656f, 1.4341f, TEMPSUMMON_MANUAL_DESPAWN);
+                else
+                    SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismAuctioneer, 4.7426f, -8.5494f, 1.6656f, 1.4341f, TEMPSUMMON_MANUAL_DESPAWN);
+
+                l_NpcVendorPos = { 3.5440f, 2.2147f, 1.6656f, 5.9672f };
+                break;
+            case Buildings::TradingPost_TradingPost_Level3:
+                if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
+                    SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismQuestGiver, -2.8987f, -1.3951f, 0.8036f, 0.0550f, TEMPSUMMON_MANUAL_DESPAWN);
+                else
+                    SummonRelativeCreature(NPCs::NpcAllianceAncientTradingMechanismAuctioneer, -2.8987f, -1.3951f, 0.8036f, 0.0550f, TEMPSUMMON_MANUAL_DESPAWN);
+
+                l_NpcVendorPos = { 14.5129f, -4.9367f, 1.6736f, 1.6161f };
+                break;
+            default:
+                break;
+        }
+
+        uint32 l_NpcID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader);
+
+        if (!l_NpcID) ///< Quest or daily refill not done
+            return;
+
+        if (Creature* l_Creature = me->FindNearestCreature(l_NpcID, 30.0f))
+            l_Creature->DespawnOrUnsummon();
+
+        SummonRelativeCreature(l_NpcID, l_NpcVendorPos, TEMPSUMMON_MANUAL_DESPAWN);
+
+        l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_NpcID);
+        l_Owner->SaveToDB();
+    }
+
+    void npc_TraderJoseph::npc_TraderJosephAI::OnDataReset()
+    {
+        if (GetOwner() != nullptr)
+        {
+            MS::Garrison::Manager* l_GarrisonMgr = GetOwner()->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            std::vector<uint32> l_TradersEntries = { 87203, 87202, 87200, 87201, 87204 };
+            uint32 l_Entry = l_TradersEntries[urand(0, l_TradersEntries.size() - 1)];
+
+            GetOwner()->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
+            GetOwner()->SaveToDB();
+
+            OnSetPlotInstanceID(GetPlotInstanceID());
+        }
     }
 
 }   ///< namespace Garrison

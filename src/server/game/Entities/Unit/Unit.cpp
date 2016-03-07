@@ -3130,8 +3130,8 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
-    // Try victim reflect spell
-    if (CanReflect)
+    /// Try victim reflect spell - 'Spell Reflect normally does not work with AoE spells'
+    if (CanReflect && !spell->IsTargetingArea())
     {
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         Unit::AuraEffectList const& mReflectSpellsSchool = victim->GetAuraEffectsByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);
@@ -3921,10 +3921,10 @@ void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
     l_Aura->HandleAuraSpecificPeriodics(p_AurApp, l_Caster);
 
     /// Epicurean
-    if (IsPlayer() && ///<  '&&' within '||'
-        getRace() == RACE_PANDAREN_ALLI ||
+    if (IsPlayer() &&
+        (getRace() == RACE_PANDAREN_ALLI ||
         getRace() == RACE_PANDAREN_HORDE ||
-        getRace() == RACE_PANDAREN_NEUTRAL)
+        getRace() == RACE_PANDAREN_NEUTRAL))
     {
         if (l_Aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
         {
@@ -12953,8 +12953,8 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
         return healamount;
 
-    // No bonus for Living Seed and Spirint Bond (heal)
-    if (spellProto->Id == 48503 || spellProto->Id == 149254)
+    // No bonus for Living Seed
+    if (spellProto->Id == 48503)
         return healamount;
 
     // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
@@ -18217,15 +18217,17 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
         if (spellProto && spellProto->Id == 44448 && procSpell &&
-            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
+            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) ///< Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
             return true;
         // Hack fix Mutilate can Trigger Blindside
         else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
             return true;
+        else if (spellProto && spellProto->Id == 76669 && procSpell && procSpell->Id == 156322) ///< Eternal flame dot should proc on Illuminated healing
+            return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
-        else if (spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108 || ///<  '&&' within '||'
-                 spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032) ///<  '&&' within '||'
+        else if ((spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108) ||
+                 (spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032))
         {
             /// Nothing to do here
             /// We must use the ProcsPerMinuteRate calculated after that
@@ -22191,7 +22193,10 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
         if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
         {
-            float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+            float l_ItemLevelFactor = p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1];
+            l_ItemLevelFactor = std::min(l_ItemLevelFactor, 99.9f);
+
+            float l_AltDamageTakenFactor = 1 - 0.01f * l_ItemLevelFactor;
             l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
         }
     }

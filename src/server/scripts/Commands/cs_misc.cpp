@@ -37,6 +37,7 @@
 #include "GarrisonMgr.hpp"
 #include "BattlegroundPacketFactory.hpp"
 #include "BattlegroundInvitationsMgr.hpp"
+#include "LFGMgr.h"
 
 class misc_commandscript: public CommandScript
 {

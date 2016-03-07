@@ -74,7 +74,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1  : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2  : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3  : Function pour initializing sequence for level 3 building
-    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestID, std::vector<SkillNPC_RecipeEntry> * t_RecipeEntries, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<char const* t_ScriptName, SkillType t_Skill, uint32 t_QuestID, std::vector<SkillNPC_RecipeEntry>* t_RecipeEntries, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class ProfessionBuilding_SkillNPC : public SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>
     {
         public:
@@ -88,7 +88,7 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
             {
                 if (p_Player->IsQuestRewarded(t_QuestID) && p_Player->HasSkill(t_Skill))
                 {
@@ -101,6 +101,8 @@ namespace MS { namespace Garrison
 
                     if (!p_Player->HasSkill(t_Skill))
                         p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                    else
+                        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
                     p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 }
@@ -113,11 +115,11 @@ namespace MS { namespace Garrison
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
             {
                 p_Player->CLOSE_GOSSIP_MENU();
 
-                if (!p_Player->HasSkill(t_Skill))
+                if (!p_Player->HasSkill(t_Skill) && p_Action == GOSSIP_ACTION_INFO_DEF)
                 {
                     if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                     {
@@ -126,6 +128,8 @@ namespace MS { namespace Garrison
                         l_AI->SendTradeSkillUI(p_Player);
                     }
                 }
+                else if (p_Player->HasSkill(t_Skill) && p_Action == GOSSIP_ACTION_INFO_DEF + 1 && p_Player->GetSession())
+                    p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
 
                 return true;
             }

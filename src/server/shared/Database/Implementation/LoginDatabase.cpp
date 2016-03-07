@@ -92,8 +92,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_REALMLIST_SECURITY_LEVEL, "SELECT allowedSecurityLevel from realmlist WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_DEL_ACCOUNT, "DELETE FROM account WHERE id = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite, groupRealmMask) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE groupRealmMask = groupRealmMask | ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite, groupRealmMask FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL_BY_SPELL, "DELETE FROM account_spell WHERE spell = ? AND accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL, "DELETE FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
 
@@ -119,8 +119,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     
     //////////////////////////////////////////////////////////////////////////
     /// Heirloom Collection
-    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags, groupRealmMask FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags, groupRealmMask) VALUE (?, ?, ?, ?) ON DUPLICATE KEY UPDATE groupRealmMask = groupRealmMask | ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_HEILOOM_FLAGS, "UPDATE account_heirlooms SET upgrade_flags = ? WHERE account_id = ? AND heirloom_id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 

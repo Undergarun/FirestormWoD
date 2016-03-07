@@ -1527,7 +1527,7 @@ struct BG_AV_NodeInfo
     bool         Tower;
 };
 
-inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); }
+inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); } ///< 'operator++' declared but not defined
 
 class BattlegroundAVScore : public BattlegroundScore
 {

@@ -1,0 +1,16 @@
+.DS_Store
+.git
+.gitattributes
+.gitignore
+.gitmodules
+CMakeLists.txt
+PreLoad.cmake
+README.md
+build
+cmake
+dep
+doc
+revision.h.in.cmake
+sql
+src
+tools
