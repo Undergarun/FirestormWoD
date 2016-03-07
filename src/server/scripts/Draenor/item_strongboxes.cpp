@@ -67,11 +67,11 @@ class item_strongbox : public ItemScript
                 case 118065:///< Gleaming Ashmaul Strongbox (A)
                 case 120151:///< Gleaming Ashmaul Strongbox (H)
                     l_ItemChance = 100;
-                    l_RareChance = 100;
-                    l_EpicChance = 0;
+                    l_RareChance = 50;
+                    l_EpicChance = 50;
                     break;
-                case 118093:///< Dented Ashmaul Strongbox (H)
-                case 118094:///< Dented Ashmaul Strongbox (A)
+                case 118093:///< Dented Ashmaul Strongbox (H) - NYI
+                case 118094:///< Dented Ashmaul Strongbox (A) - NYI
                     l_ItemChance = 100;
                     l_RareChance = 100;
                     break;
