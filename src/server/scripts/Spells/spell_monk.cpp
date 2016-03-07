@@ -2015,9 +2015,10 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             enum eSpells
             {
-                RenewingMist = 115151,
-                JadeMists    = 165397,
-                PoolOfMists  = 173841
+                RenewingMist    = 115151,
+                JadeMists       = 165397,
+                PoolOfMists     = 173841,
+                ThunderFocusTea = 116680
             };
 
             void HandleAfterCast()
@@ -2042,7 +2043,12 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);                    
+                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                if (Aura* l_ThunderFocusTea = l_Caster->GetAura(eSpells::ThunderFocusTea, l_Caster->GetGUID()))
+                {
+                    if (Aura* l_RenewingMistHot = l_Target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, l_Caster->GetGUID()))
+                        l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(l_RenewingMistHot->GetEffect(EFFECT_1)->GetAmount() + l_ThunderFocusTea->GetEffect(EFFECT_1)->GetAmount());
+                }
             }
 
             void Register()
