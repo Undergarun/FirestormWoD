@@ -1099,6 +1099,19 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOT_2:
+        {
+            /// Custom WoD Script - Glyph of Runic Power (159429)
+            if (Unit* target = GetBase()->GetUnitOwner())
+            {
+                if (target->getClass() == CLASS_DEATH_KNIGHT)
+                {
+                    if (target->HasAura(159429))
+                        target->CastSpell(target, 159430, true);
+                }
+            }
+        }
         case SPELL_AURA_MOD_DECREASE_SPEED:
         {
             /// Custom WoD Script - Glyph of Runic Power (159429)
