@@ -22309,9 +22309,9 @@ void Player::_LoadMailedItems(PreparedQueryResult p_MailedItems)
     {
         Field* l_Fields = p_MailedItems->Fetch();
 
-        uint32 l_ItemGuid     = l_Fields[14].GetUInt32();
-        uint32 l_ItemTemplate = l_Fields[15].GetUInt32();
-        uint32 l_MailId       = l_Fields[17].GetUInt32();
+        uint32 l_ItemGuid     = l_Fields[15].GetUInt32();
+        uint32 l_ItemTemplate = l_Fields[16].GetUInt32();
+        uint32 l_MailId       = l_Fields[18].GetUInt32();
 
         Mail* l_Mail = GetMail(l_MailId);
         if (l_Mail == nullptr)
