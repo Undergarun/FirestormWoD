@@ -7,12 +7,14 @@ RUN apt-get update && \
     apt-get install -y \
     screen
 
-RUN mkdir -p /home/realm/{bin,lib,etc,data,logs,crashlogs}
+RUN mkdir /opt/firestorm
+RUN mkdir /var/log/firestorm
 
-WORKDIR /home/realm
+VOLUME /usr/local/etc
+VOLUME /opt/firestorm
+VOLUME /var/log/firestorm
 
+ADD /usr/local/bin/worldserver_* /usr/local/bin
+ADD contrib/deploy/worldserver_restarter /usr/local/bin
 
-ADD /home/realm/bin/worldserver_* /home/realm/bin
-ADD contrib/deploy/realm_restarter /home/realm/bin
-
-ENTRYPOINT ["screen", "-dmS", "realm", "./bin/realm_restarter"]
+ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
