@@ -38,7 +38,7 @@ build:
       - cd - && ls -la
     when:
       branch: wod
-  release_with_asan:
+  release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
@@ -68,4 +68,4 @@ notify:
     channel: wow-notification
     username: Drone
     template: >
-      Build <https://drone.firestorm-servers.com/MilleniumStudio/Garrosh/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
+      Build <https://drone.firestorm-servers.com/MilleniumStudio/wod/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
