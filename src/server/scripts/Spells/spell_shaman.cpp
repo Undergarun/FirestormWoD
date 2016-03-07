@@ -2969,7 +2969,8 @@ class spell_sha_riptide : public SpellScriptLoader
         }
 };
 
-// Maelstrom Weapon - 53817
+/// Last Update 6.2.3
+/// Maelstrom Weapon - 53817
 uint32 g_MaelstromVisualSpellIds[] { 170588, 170587, 170586, 170585, 60349};
 class spell_sha_maelstrom_weapon: public SpellScriptLoader
 {
@@ -3008,10 +3009,28 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
                         l_Aura->Remove();
             }
 
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                ///< Maelstrom Weapon now increases direct healing done by 5% while in PvP combat (down from a 10% increase to direct healing).
+                if ((l_Player->GetMap() && l_Player->GetMap()->IsBattlegroundOrArena()) || l_Player->IsInPvPCombat())
+                    p_Amount /= 2;
+            }
+
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_sha_maelstrom_weapon_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 OnEffectRemove += AuraEffectRemoveFn(spell_sha_maelstrom_weapon_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_maelstrom_weapon_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_ADD_PCT_MODIFIER);
             }
         };
 
