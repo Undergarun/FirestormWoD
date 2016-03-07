@@ -12,9 +12,21 @@ build:
   prepare_build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
-        - mkdir /home/realm
-        - mkdir build
-  wod_release:
+      - mkdir /home/realm
+      - mkdir build
+  testing:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cd build
+      - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j 32
+      - make install
+      - make clean
+      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Debug
+      - cd - && ls -la
+    when:
+      branch: wod_ptr
+  release:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
@@ -24,7 +36,9 @@ build:
       - make clean
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
       - cd - && ls -la
-  wod_asan:
+    when:
+      branch: wod
+  release_with_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
@@ -32,7 +46,7 @@ build:
       - make -j 32
       - make install
       - make clean
-      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
+      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfoAsan
       - cd - && ls -la
     when:
       branch: wod
