@@ -1,7 +1,6 @@
 branches:
   - wod
   - wod_ptr
-  - interrealm
 
 clone:
   depth: 20
@@ -37,7 +36,7 @@ build:
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
       - cd - && ls -la
     when:
-      branch: wod,interrealm
+      branch: wod
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
@@ -49,7 +48,7 @@ build:
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfoAsan
       - cd - && ls -la
     when:
-      branch: wod,interrealm
+      branch: wod
 
 #publish:
 #  docker:
