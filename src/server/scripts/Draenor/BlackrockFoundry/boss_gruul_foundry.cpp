@@ -394,6 +394,8 @@ class boss_gruul_foundry : public CreatureScript
 
                         me->RemoveAura(eSpells::SpellDestructiveRampage);
 
+                        me->CastSpell(me, eSpells::RageRegenerationAura, true);
+
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -454,9 +456,7 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventCaveIn:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f))
-                            me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectRangedTarget())
                             me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
 
                         m_Events.ScheduleEvent(eEvents::EventCaveIn, 30 * TimeConstants::IN_MILLISECONDS);
@@ -509,6 +509,8 @@ class boss_gruul_foundry : public CreatureScript
 
                         Talk(eTalks::DestructiveRampage);
                         Talk(eTalks::DestructiveRampageStart, me->GetGUID());
+
+                        me->RemoveAura(eSpells::RageRegenerationAura);
 
                         me->CastSpell(me, eSpells::SpellDestructiveRampage, true);
 

@@ -238,7 +238,7 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
             return 2;   ///< 2 second, unk retail value
 
         return p_BaseTime;
@@ -249,7 +249,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
             p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
 
@@ -275,7 +275,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
             p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
         }
@@ -291,11 +291,11 @@ namespace MS { namespace Garrison { namespace Sites
                 case Buildings::LumberMill_LumberMill_Level3:
                     p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                     break;
-                case Buildings::Barn__Barn_Level2:
+                case Buildings::Barn_Barn_Level2:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     break;
-                case Buildings::Barn__Barn_Level3:
+                case Buildings::Barn_Barn_Level3:
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                         p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                     if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))

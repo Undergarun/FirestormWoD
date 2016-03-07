@@ -1869,8 +1869,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift
-            if (m_spellInfo && m_spellInfo->Id != 145109 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift and Frenzied Regeneration
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -3115,8 +3115,10 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     Player* player = unitTarget->ToPlayer();
 
+    bool l_FromItemShop = m_CastItem && m_CastItem->HasCustomFlags(ItemCustomFlags::FromStore);
+
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
-    player->learnSpell(spellToLearn, false);
+    player->learnSpell(spellToLearn, false, l_FromItemShop);
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;
@@ -5889,9 +5891,11 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         }
         else
             m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
-    }
 
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
+        if (m_caster->IsPlayer())
+            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+    }
+    else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         // not all charge effects used in negative spells
         if (m_caster->IsPlayer())

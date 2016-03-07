@@ -1811,6 +1811,9 @@ float Creature::GetAttackDistance(Unit const* player) const
     if (RetDistance < 5)
         RetDistance = 5;
 
+    if (IsAIEnabled)
+        AI()->OnCalculateAttackDistance(RetDistance);
+
     return (RetDistance*aggroRate);
 }
 

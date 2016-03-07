@@ -63,6 +63,7 @@ class boss_kromog : public CreatureScript
 
         enum eTimers
         {
+            TimerFirstCheckMeleePlayers = 5 * TimeConstants::IN_MILLISECONDS,
             TimerCheckMeleePlayers      = 500,
             TimerBerserker              = 540 * TimeConstants::IN_MILLISECONDS,
             TimerAbilityTalk            = 40,
@@ -81,7 +82,7 @@ class boss_kromog : public CreatureScript
             TimerGraspingEarth          = 50 * TimeConstants::IN_MILLISECONDS,
             TimerGraspingEarthAgain     = 112 * TimeConstants::IN_MILLISECONDS,
             TimerThunderingBlows        = 12 * TimeConstants::IN_MILLISECONDS,
-            TimerThunderingBlowsLFR     = 20 * TimeConstants::IN_MILLISECONDS + 500,
+            TimerThunderingBlowsDelay   = 31 * TimeConstants::IN_MILLISECONDS,
             TimerCrushingEarth          = 25 * TimeConstants::IN_MILLISECONDS,
             TimerCrushingEarthAgain     = 16 * TimeConstants::IN_MILLISECONDS,
             TimerAttackTime             = 2 * TimeConstants::IN_MILLISECONDS,
@@ -113,6 +114,8 @@ class boss_kromog : public CreatureScript
             boss_kromogAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataKromog)
             {
                 m_Instance  = p_Creature->GetInstanceScript();
+
+                m_CheckZTimer = 1 * TimeConstants::IN_MILLISECONDS;
             }
 
             InstanceScript* m_Instance;
@@ -128,9 +131,16 @@ class boss_kromog : public CreatureScript
 
             bool m_CrushingEarthBoom;
 
+            uint32 m_CheckZTimer;
+
             bool CanRespawn() override
             {
                 return false;
+            }
+
+            void OnCalculateAttackDistance(float& p_AttackDistance) override
+            {
+                p_AttackDistance = 10.0f;
             }
 
             void Reset() override
@@ -213,7 +223,7 @@ class boss_kromog : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
+                m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerFirstCheckMeleePlayers);
                 m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
                 m_Events.ScheduleEvent(eEvents::EventStoneBreath, eTimers::TimerStoneBreath);
                 m_Events.ScheduleEvent(eEvents::EventWarpedArmor, eTimers::TimerWarpedArmor);
@@ -324,6 +334,7 @@ class boss_kromog : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+                CheckPositionZForPlayers(p_Diff);
 
                 if (!UpdateVictim())
                     return;
@@ -344,22 +355,11 @@ class boss_kromog : public CreatureScript
                             break;
                         }
 
-                        bool l_InMelee = false;
-                        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            if (Player* l_Player = l_Iter->getSource())
-                            {
-                                if (l_Player->IsWithinMeleeRange(me))
-                                {
-                                    l_InMelee = true;
-                                    break;
-                                }
-                            }
+                            if (!l_Target->IsWithinMeleeRange(me))
+                                me->CastSpell(me, eSpells::StoneBreathChannel, false);
                         }
-
-                        /// If there are no valid targets in melee range, Kromog will continue to breathe until he finds one.
-                        if (!l_InMelee)
-                            me->CastSpell(me, eSpells::StoneBreathChannel, false);
 
                         m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
                         break;
@@ -417,17 +417,17 @@ class boss_kromog : public CreatureScript
                     case eEvents::EventGraspingEarth:
                     {
                         /// Thundering Blows Icon Thundering Blows is an ability that Kromog always uses shortly after using Rune of Grasping Earth Icon Rune of Grasping Earth.
-                        m_Events.ScheduleEvent(eEvents::EventThunderingBlows, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
+                        m_Events.ScheduleEvent(eEvents::EventThunderingBlows, eTimers::TimerThunderingBlows);
 
                         /// Those two events have specific timer after Grasping Earth
                         m_Events.RescheduleEvent(eEvents::EventStoneBreath, IsLFR() ? eTimers::TimerStoneBreathSecLFR : eTimers::TimerStoneBreathSecond);
                         m_Events.RescheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmashSec);
 
                         /// Delay those events to proc after Thundering Blows
-                        m_Events.DelayEvent(eEvents::EventCheckMeleePlayers, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventSlam, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventWarpedArmor, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
-                        m_Events.DelayEvent(eEvents::EventCrushingEarth, IsLFR() ? eTimers::TimerThunderingBlowsLFR : eTimers::TimerThunderingBlows);
+                        m_Events.DelayEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerThunderingBlowsDelay);
+                        m_Events.DelayEvent(eEvents::EventSlam, eTimers::TimerThunderingBlowsDelay);
+                        m_Events.DelayEvent(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlowsDelay);
+                        m_Events.DelayEvent(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlowsDelay);
 
                         me->SetFacingTo(2.92434f);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
@@ -529,6 +529,29 @@ class boss_kromog : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
+            void CheckPositionZForPlayers(uint32 const p_Diff)
+            {
+                if (!m_CheckZTimer)
+                    return;
+
+                if (m_CheckZTimer <= p_Diff)
+                {
+                    Map::PlayerList const& l_PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                    {
+                        if (Player* l_Player = l_Iter->getSource())
+                        {
+                            if (l_Player->GetDistance(me) <= g_AllowedDist && l_Player->GetPositionZ() <= g_FloorZ)
+                                l_Player->Kill(l_Player);
+                        }
+                    }
+
+                    m_CheckZTimer = 1 * TimeConstants::IN_MILLISECONDS;
+                }
+                else
+                    m_CheckZTimer -= p_Diff;
+            }
+
             Creature* GetRipplingSmashTrigger(Unit* p_Target) const
             {
                 float l_Distance    = 50000.0f;
@@ -627,12 +650,14 @@ class npc_foundry_grasping_earth : public CreatureScript
             npc_foundry_grasping_earthAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             bool m_Activated;
+            bool m_PlayerGrasped;
 
             void Reset() override
             {
                 me->DisableEvadeMode();
 
                 m_Activated = false;
+                m_PlayerGrasped = false;
 
                 me->CastSpell(me, eSpells::GraspingEarthSpawnVisual, true);
 
@@ -671,6 +696,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 {
                     case eSpells::RuneOfGraspingEarthSelect:
                     {
+                        m_PlayerGrasped = true;
                         p_Target->CastSpell(me, eSpells::RuneOfGraspingEarthVehicle, true);
                         break;
                     }
@@ -690,6 +716,12 @@ class npc_foundry_grasping_earth : public CreatureScript
                         me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_DISPLAY_ID);
 
                         me->CastSpell(me, eSpells::RuneOfGraspingEarthSelect, true);
+                    });
+
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (!m_PlayerGrasped)
+                            me->Kill(me);
                     });
                 }
             }
@@ -997,13 +1029,13 @@ class spell_foundry_slam : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        float l_Distance = l_Target->GetDistance(l_Boss);
-                        if (l_Distance <= 1.0f)
-                            return;
+                        /// Damages will be reduced by 10.000 for each yards separating the target from the boss position
+                        float l_ReducedDamage = 10000.0f;
+                        float l_Damage = GetSpell()->GetDamage();
 
-                        int32 l_Damage = float(GetSpell()->GetDamage()) / l_Distance;
+                        int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
 
-                        GetSpell()->SetDamage(l_Damage);
+                        GetSpell()->SetDamage(l_NewDamage);
                     }
                 }
             }
@@ -1174,6 +1206,39 @@ class spell_foundry_rune_of_crushing_earth : public SpellScriptLoader
         }
 };
 
+/// Rune of Grasping Earth (DoT) - 157059
+class spell_foundry_rune_of_grasping_earth_dot : public SpellScriptLoader
+{
+    public:
+        spell_foundry_rune_of_grasping_earth_dot() : SpellScriptLoader("spell_foundry_rune_of_grasping_earth_dot") { }
+
+        class spell_foundry_rune_of_grasping_earth_dot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript);
+
+            void OnTick(AuraEffect const* p_AurEff)
+            {
+                /// Fists of stone grasp at players, inflicting 12168 to 12792 Nature damage per second, but shielding them from Physical damage and holding them to the ground.
+                /// The damage increases over time.
+                int32 l_Amount = p_AurEff->GetAmount();
+
+                AddPct(l_Amount, 4);
+
+                p_AurEff->GetBase()->GetEffect(SpellEffIndex::EFFECT_1)->ChangeAmount(l_Amount);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_foundry_rune_of_grasping_earth_dot_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_foundry_rune_of_grasping_earth_dot_AuraScript();
+        }
+};
+
 /// Rippling Smash - 161437
 class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
 {
@@ -1303,6 +1368,7 @@ void AddSC_boss_kromog()
     new spell_foundry_fists_of_stone();
     new spell_foundry_rune_of_grasping_earth();
     new spell_foundry_rune_of_crushing_earth();
+    new spell_foundry_rune_of_grasping_earth_dot();
 
     /// AreaTriggers
     new areatrigger_foundry_rippling_smash();

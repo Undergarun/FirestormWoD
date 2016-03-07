@@ -255,7 +255,8 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 {
     HandleMovementOpcodes(p_RecvPacket);
 
-    uint32 l_SplineID = p_RecvPacket.read<uint32>(); ///< l_SplineID is never read 01/18/16
+    if (p_RecvPacket.rpos() != p_RecvPacket.size())
+        p_RecvPacket.read_skip<uint32>();
 
     /// in taxi flight packet received in 2 case:
     /// 1) end taxi path in far (multi-node) flight

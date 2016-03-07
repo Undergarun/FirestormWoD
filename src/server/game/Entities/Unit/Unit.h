@@ -1613,6 +1613,7 @@ class Unit : public WorldObject
         bool isPet() const      { return m_unitTypeMask & UNIT_MASK_PET; }
         bool isHunterPet() const{ return m_unitTypeMask & UNIT_MASK_HUNTER_PET; }
         bool isTotem() const    { return m_unitTypeMask & UNIT_MASK_TOTEM; }
+        bool isStatue() const   { return (GetEntry() == 60849 || GetEntry() == 61146); }
         bool IsVehicle() const  { return m_unitTypeMask & UNIT_MASK_VEHICLE; }
 
         bool IsPetGuardianStuff() const { return m_unitTypeMask & ( UNIT_MASK_SUMMON | UNIT_MASK_GUARDIAN | UNIT_MASK_PET | UNIT_MASK_HUNTER_PET | UNIT_MASK_TOTEM ); }

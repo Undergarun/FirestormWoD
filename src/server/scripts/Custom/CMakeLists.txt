@@ -17,7 +17,6 @@ set(scripts_STAT_SRCS
 	Custom/user_reporting.cpp
 	Custom/warning_update_client.cpp
 	Custom/npc_custom.cpp
-	Custom/weekly_event_bonus.cpp
 )
 
 message("  -> Prepared: Custom")

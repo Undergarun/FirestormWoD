@@ -1544,8 +1544,8 @@ class spell_mage_time_warp : public SpellScriptLoader
             void Register()
             {
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-                OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

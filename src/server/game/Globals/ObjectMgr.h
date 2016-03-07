@@ -1692,32 +1692,32 @@ class ObjectMgr
 
     private:
         // first free id for selected id type
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _equipmentSetGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _itemTextId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _mailId;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetNumber;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint64> _voidItemId;
+        std::atomic<unsigned int>  _auctionId;
+        std::atomic<unsigned long> _equipmentSetGuid;
+        std::atomic<unsigned int>  _itemTextId;
+        std::atomic<unsigned int>  _mailId;
+        std::atomic<unsigned int>  _hiPetNumber;
+        std::atomic<unsigned long> _voidItemId;
 
         // first free low guid for selected guid type
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCharGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCreatureGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiVehicleGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiGoGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiDoGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiAreaTriggerGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiMoTransGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonBuildingID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonFollowerID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonMissionID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonWorkOrderID;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
+        std::atomic<unsigned int> _hiCharGuid;
+        std::atomic<unsigned int> _hiCreatureGuid;
+        std::atomic<unsigned int> _hiPetGuid;
+        std::atomic<unsigned int> _hiVehicleGuid;
+        std::atomic<unsigned int> _hiGoGuid;
+        std::atomic<unsigned int> _hiDoGuid;
+        std::atomic<unsigned int> _hiCorpseGuid;
+        std::atomic<unsigned int> _hiAreaTriggerGuid;
+        std::atomic<unsigned int> _hiMoTransGuid;
+        std::atomic<unsigned int> m_GarrisonID;
+        std::atomic<unsigned int> m_GarrisonBuildingID;
+        std::atomic<unsigned int> m_GarrisonFollowerID;
+        std::atomic<unsigned int> m_GarrisonMissionID;
+        std::atomic<unsigned int> m_GarrisonWorkOrderID;
+        std::atomic<unsigned int> m_HiVignetteGuid;
+        std::atomic<unsigned int> m_StandaloneSceneInstanceID;
 
-        std::atomic_uint m_HighItemGuid;
+        std::atomic<unsigned int> m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;

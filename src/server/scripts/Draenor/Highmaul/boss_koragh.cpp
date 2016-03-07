@@ -145,6 +145,9 @@ class boss_koragh : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
+                
+                me->RemoveAura(eSpells::BreakersStrength);
 
                 _Reset();
 

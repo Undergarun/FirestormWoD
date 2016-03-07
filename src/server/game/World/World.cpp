@@ -96,9 +96,9 @@ uint32 gOnlineGameMaster = 0;
 #include "GarrisonMgr.hpp"
 #include "ChatLexicsCutter.h"
 
-ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
+std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
-ACE_Atomic_Op<ACE_Thread_Mutex, uint32> World::m_worldLoopCounter = 0;
+std::atomic<unsigned int> World::m_worldLoopCounter(0);
 
 float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;
@@ -1484,6 +1484,10 @@ void World::LoadConfigSettings(bool reload)
 
     // Specialization check at spell cast (as it may breaks spells)
     m_bool_configs[CONFIG_DISABLE_SPELL_SPECIALIZATION_CHECK] = ConfigMgr::GetBoolDefault("DisableSpellSpecializationCheck", false);
+
+    m_int_configs[CONFIG_ACCOUNT_BIND_ALLOWED_GROUP_MASK] = ConfigMgr::GetIntDefault("AccountBind.AllowedGroupRealmMask", 0x7FFFFFFF);
+    m_int_configs[CONFIG_ACCOUNT_BIND_GROUP_MASK] = ConfigMgr::GetIntDefault("AccountBind.GroupRealmMask", 1);
+    m_int_configs[CONFIG_ACCOUNT_BIND_SHOP_GROUP_MASK] = ConfigMgr::GetIntDefault("AccountBind.ShopGroupMask", 0x7FFFFFFF);
 
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
@@ -3148,7 +3152,7 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if (!m_ShutdownTimer || m_stopEvent.value())
+    if (!m_ShutdownTimer || m_stopEvent)
         return;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;

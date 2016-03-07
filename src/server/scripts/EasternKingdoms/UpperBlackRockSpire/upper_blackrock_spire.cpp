@@ -2055,9 +2055,17 @@ class spell_eruption: public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
+                switch (m_scriptSpellId)
+                {
+                case 138652:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
+                    break;
+                }
             }
         };
 
