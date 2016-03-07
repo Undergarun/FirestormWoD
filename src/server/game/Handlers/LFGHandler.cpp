@@ -255,7 +255,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
                 }
                 /// Mythic difficulty shouldn't be offered in LFG
                 else if ((l_Dungeon->type != LfgType::TYPEID_RANDOM_DUNGEON && l_Dungeon->type != LfgType::TYPEID_DUNGEON) ||
-                         !l_Dungeon->grouptype || l_Dungeon->difficulty == Difficulty::DifficultyMythic)
+                         (!l_Dungeon->grouptype && l_Dungeon->difficulty == Difficulty::DifficultyMythic))
                     continue;
 
                 l_RandomDungeons.insert(l_Dungeon->Entry());
