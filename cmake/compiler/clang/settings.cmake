@@ -9,7 +9,7 @@ message(STATUS "Clang: Enabled c++11 support")
 
 if(WITH_WARNINGS)
   set(WARNING_FLAGS "-W -Wall -Wextra -Winit-self -Winvalid-pch -Wfatal-errors -Wno-mismatched-tags -Wno-unknown-pragmas")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS} -fcolor-diagnostics")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -Woverloaded-virtual")
   message(STATUS "Clang: All warnings enabled")
 else()
