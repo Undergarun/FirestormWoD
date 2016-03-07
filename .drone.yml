@@ -22,7 +22,7 @@ build:
       - make -j 32
       - make install
       - make clean
-      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Debug
+      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_DebugAsan
       - cd - && ls -la
     when:
       branch: wod_ptr
@@ -37,7 +37,7 @@ build:
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
       - cd - && ls -la
     when:
-      branch: wod
+      branch: wod,interrealm
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
@@ -49,7 +49,7 @@ build:
       - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfoAsan
       - cd - && ls -la
     when:
-      branch: wod
+      branch: wod,interrealm
 
 #publish:
 #  docker:
