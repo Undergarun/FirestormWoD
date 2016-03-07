@@ -49,16 +49,16 @@ build:
     when:
       branch: wod
 
-#publish:
-#  docker:
-#    username: drone
-#    password: $$DOCKER_PASS
-#    email: $$DOCKER_EMAIL
-#    repo: milleniumstudio/docker-wod
-#    tag: latest
-#    file: Dockerfile
-#    when:
-#      branch: wod
+publish:
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest-ptr
+    file: Dockerfile
+    when:
+      branch: wod_ptr
 
 notify:
   slack:
