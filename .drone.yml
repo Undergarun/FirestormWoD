@@ -21,7 +21,7 @@ build:
       - make install
       - make clean
       - mv /usr/local/bin/worldserver /usr/local/bin/worldserver_DebugAsan
-      - cd - && ls -la
+      - cd -
     when:
       branch: wod_ptr
   release:
@@ -51,8 +51,6 @@ build:
 
 publish:
   docker:
-    environment:
-      - DOCKER_LAUNCH_DEBUG=true
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
