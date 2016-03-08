@@ -6675,9 +6675,9 @@ uint32 Player::GetRoleForGroup(uint32 specializationId) const
     return GetRoleBySpecializationId(specializationId);
 }
 
-bool Player::IsRangedDamageDealer() const
+bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
 {
-    if (GetRoleForGroup() != Roles::ROLE_DAMAGE)
+    if (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowHeal && GetRoleForGroup() == Roles::ROLE_HEALER))
         return false;
 
     switch (getClass())
@@ -6696,6 +6696,13 @@ bool Player::IsRangedDamageDealer() const
         case SpecIndex::SPEC_PRIEST_SHADOW:
         case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
             return true;
+        case SpecIndex::SPEC_DRUID_RESTORATION:
+        case SpecIndex::SPEC_MONK_MISTWEAVER:
+        case SpecIndex::SPEC_PALADIN_HOLY:
+        case SpecIndex::SPEC_PRIEST_DISCIPLINE:
+        case SpecIndex::SPEC_PRIEST_HOLY:
+        case SpecIndex::SPEC_SHAMAN_RESTORATION:
+            return p_AllowHeal;
         default:
             break;
     }
@@ -22320,9 +22327,9 @@ void Player::_LoadMailedItems(PreparedQueryResult p_MailedItems)
     {
         Field* l_Fields = p_MailedItems->Fetch();
 
-        uint32 l_ItemGuid     = l_Fields[14].GetUInt32();
-        uint32 l_ItemTemplate = l_Fields[15].GetUInt32();
-        uint32 l_MailId       = l_Fields[17].GetUInt32();
+        uint32 l_ItemGuid     = l_Fields[15].GetUInt32();
+        uint32 l_ItemTemplate = l_Fields[16].GetUInt32();
+        uint32 l_MailId       = l_Fields[18].GetUInt32();
 
         Mail* l_Mail = GetMail(l_MailId);
         if (l_Mail == nullptr)

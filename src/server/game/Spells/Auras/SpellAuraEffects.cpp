@@ -1099,6 +1099,19 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOT_2:
+        {
+            /// Custom WoD Script - Glyph of Runic Power (159429)
+            if (Unit* target = GetBase()->GetUnitOwner())
+            {
+                if (target->getClass() == CLASS_DEATH_KNIGHT)
+                {
+                    if (target->HasAura(159429))
+                        target->CastSpell(target, 159430, true);
+                }
+            }
+        }
         case SPELL_AURA_MOD_DECREASE_SPEED:
         {
             /// Custom WoD Script - Glyph of Runic Power (159429)
@@ -2092,7 +2105,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
 
             /// If the stances are not compatible with the spell, remove it, but not on periodic aura apply on you (aura should continue to tick)
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic())
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic() && !itr->second->GetBase()->GetSpellInfo()->GetDuration())
                 target->RemoveAura(itr);
             else
                 ++itr;

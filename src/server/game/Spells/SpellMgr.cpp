@@ -3553,6 +3553,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
                 break;
             case 156324: ///< Acid Torrent (AoE)
+            case 155225: ///< Melt (Heart of the Mountain)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
             case 177756: ///< Deafening Roar (Bellows Operator)
@@ -3566,6 +3567,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 177891: ///< Rising Flame Kick (Mol'dana Two Blade)
             case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
             case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
+            case 161570: ///< Searing Plates (DoT - Franzok)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
@@ -3716,6 +3718,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 138378: ///< Transfusion (Dark Animus - Throne of Thunder)
                 spellInfo->ExplicitTargetMask = 0;
+                break;
+            case 101257: ///< Wracking Pain dmg
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_100_YARDS);
                 break;
             case 136954: ///< Anima Ring (Dark Animu - Throne of Thunder)
                 for (uint8 l_Itr = 0; l_Itr < 12; ++l_Itr)
