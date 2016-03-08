@@ -43,15 +43,15 @@ build:
     when:
       branch: wod
 
-#publish:
-#  docker:
-#    username: $$DOCKER_USER
-#    password: $$DOCKER_PASS
-#    email: $$DOCKER_EMAIL
-#    repo: milleniumstudio/docker-wod
-#    tag: latest-ptr
-#    when:
-#      branch: wod_ptr
+publish:
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest-ptr
+    when:
+      branch: wod_ptr
 
 notify:
   slack:
