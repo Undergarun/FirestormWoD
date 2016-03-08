@@ -779,6 +779,8 @@ namespace MS { namespace Garrison
     {
         if (!p_Id)
             m_OwnerGuid = p_Guid;
+        else if (p_Id == 1)
+            m_CheckTimer = p_Guid;
     }
 
     void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::UpdateAI(const uint32 p_Diff)
@@ -818,8 +820,11 @@ namespace MS { namespace Garrison
                     {
                         if (Player* l_Player = l_PlayerList.front())
                         {
-                            if (l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                            if (l_Creature->AI() && l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                            {
+                                l_Creature->AI()->SetGUID(2000, 1);
                                 l_Player->NearTeleportTo(l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ, l_Creature->GetOrientation());
+                            }
                         }
                     }
                 }
