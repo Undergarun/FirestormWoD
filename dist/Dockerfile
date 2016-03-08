@@ -18,6 +18,6 @@ VOLUME /var/log/firestorm
 RUN df -h
 
 ADD bin/* /usr/local/bin/
-ADD lib/* /usr/local/lib/
+#ADD lib/* /usr/local/lib/
 
 #ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
