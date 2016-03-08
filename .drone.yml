@@ -18,9 +18,7 @@ build:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
-      - make install
-      - make clean
-      - mv /usr/local/bin/worldserver /usr/local/bin/worldserver_DebugAsan
+      - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_DebugAsan
       - cd -
     when:
       branch: wod_ptr
@@ -30,9 +28,7 @@ build:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
-      - make install
-      - make clean
-      - mv /usr/local/bin/worldserver /usr/local/bin/worldserver_RelWithDebInfo
+      - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_RelWithDebInfo
       - cd -
     when:
       branch: wod
@@ -42,9 +38,7 @@ build:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
-      - make install
-      - make clean
-      - mv /usr/local/bin/worldserver /usr/local/bin/worldserver_RelWithDebInfoAsan
+      - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_RelWithDebInfoAsan
       - cd -
     when:
       branch: wod
