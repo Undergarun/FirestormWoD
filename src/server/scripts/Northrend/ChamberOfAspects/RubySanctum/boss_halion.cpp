@@ -1929,6 +1929,9 @@ class spell_halion_summon_exit_portals: public SpellScriptLoader
 
             void Register()
             {
+                if (GetSpellInfo() == nullptr)
+                    return;
+
                 switch (GetSpellInfo()->Id)
                 {
                     case 74805:
