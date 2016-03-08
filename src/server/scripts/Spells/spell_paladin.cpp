@@ -2619,6 +2619,7 @@ class spell_pal_beacon_of_faith: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Light of Dawn - 85222
 class spell_pal_light_of_dawn : public SpellScriptLoader
 {
@@ -2637,6 +2638,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
             };
 
             int32 m_HolyPower = 0;
+            bool m_AlreadyModufyPower = false;
 
             void HandleOnCast()
             {
@@ -2661,8 +2663,11 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
 
                     SetHitHeal(GetHitHeal() * m_HolyPower);
 
-                    if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA) && !l_Caster->HasAura(eSpells::LightsFavor))
+                    if (!l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA) && !l_Caster->HasAura(eSpells::LightsFavor) && !m_AlreadyModufyPower)
+                    {
+                        m_AlreadyModufyPower = true;
                         l_Caster->ModifyPower(POWER_HOLY_POWER, -m_HolyPower);
+                    }
 
                     if (AuraEffect* l_T17Holy = l_Caster->GetAuraEffect(eSpells::T17Holy2P, EFFECT_0))
                     {
