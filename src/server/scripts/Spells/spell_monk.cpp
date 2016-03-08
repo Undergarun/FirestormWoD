@@ -5426,7 +5426,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
                 GlyphofFreedomRoll = 159534
             };
 
-            void HandleBeforeHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5436,7 +5436,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleBeforeHit);
+                OnCast += SpellCastFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnCast);
             }
         };
 
