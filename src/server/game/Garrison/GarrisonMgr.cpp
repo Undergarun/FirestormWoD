@@ -3126,11 +3126,32 @@ namespace MS { namespace Garrison
         };
 
         GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
-        
-        if (l_Follower == nullptr)
-            return 1;
 
-        return roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1;
+        if (l_Follower == nullptr)
+            return false;
+
+        return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1 : 1;
+    }
+
+    bool Manager::HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID)
+    {
+        GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+
+        if (l_Follower == nullptr)
+            return false;
+
+        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(GetBuilding(p_PlotInstanceID).BuildingID);
+
+        if (l_Building == nullptr)
+            return false;
+
+        for (uint32 l_Ability : l_Follower->Abilities)
+        {
+            if (l_Ability == l_Building->FollowerRequiredGarrAbilityID)
+                return true;
+        }
+
+        return false;
     }
 
     uint32 Manager::CalculateArmoryWorkOrder() const

@@ -201,8 +201,12 @@ namespace MS { namespace Garrison
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
             void DeleteWorkOrder(uint64 p_DBID);
+            /// Calculate the chance to double the work order of the building, depending of the follower
             uint8 CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID);
+            /// Generates random reward for Armory work order
             uint32 CalculateArmoryWorkOrder() const;
+            /// Checks if the building has the required follower assigned to apply bonus
+            bool HasRequiredFollowerAssignedAbility(uint32 p_BuildingID);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID
