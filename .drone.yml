@@ -56,8 +56,6 @@ build:
 
 publish:
   docker:
-#    environment:
-#      - DOCKER_LAUNCH_DEBUG=true
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
@@ -65,7 +63,6 @@ publish:
     tag: latest-ptr
     file: dist/Dockerfile
     context: dist/
-#    storage_driver: devicemapper #we might need to change it later
     when:
       branch: wod_ptr
 
