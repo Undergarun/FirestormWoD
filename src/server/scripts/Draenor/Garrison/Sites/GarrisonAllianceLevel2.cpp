@@ -75,6 +75,9 @@ namespace MS { namespace Garrison { namespace Sites
         /// Achievement "More Plots" alliance side
         if (p_Owner->GetTeamId() == TEAM_ALLIANCE && !p_Owner->GetAchievementMgr().HasAchieved(9100))
             p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9100), nullptr);
+
+        if (p_Owner->HasQuest(Quests::Alliance_LostInTransition))
+            p_Owner->CompleteQuest(Quests::Alliance_LostInTransition);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -85,7 +88,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonAllianceLevel2::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
-
+        /// Hack fix for storehouse, need more work
+        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition)
+            p_Owner->CompleteQuest(Quests::Alliance_LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner

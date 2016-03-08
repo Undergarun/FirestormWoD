@@ -646,7 +646,7 @@ namespace MS { namespace Garrison
             struct npc_garrison_amperial_constructAI : public GarrisonNPCAI
             {
                 uint64 m_OwnerGuid;
-                uint32 m_CheckTimer;
+                uint64 m_CheckTimer;
 
                 /// Constructor
                 npc_garrison_amperial_constructAI(Creature* p_Creature);
