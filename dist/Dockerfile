@@ -17,6 +17,7 @@ VOLUME /var/log/firestorm
 # Check space left on /
 RUN df -h
 
-ADD bin/worldserver_* /usr/local/bin/
+ADD bin/* /usr/local/bin/
+ADD lib/* /usr/local/lib/
 
-ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
+#ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
