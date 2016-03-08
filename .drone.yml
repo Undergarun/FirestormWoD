@@ -8,51 +8,62 @@ clone:
   submodule_update_remote: true
 
 build:
-  prepare_build:
+  before_build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - mkdir build
+      - mkdir -p dist/{bin,lib}
   testing:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DPREFIX=$(pwd)/../dist -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
-      - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_DebugAsan
+      - make clean
       - cd -
-      - ls -lah /usr/local/lib
+      - mv dist/bin/worldserver dist/bin/worldserver_DebugAsan
     when:
       branch: wod_ptr
   release:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DPREFIX=$(pwd)/../dist -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
-      - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_RelWithDebInfo
+      - make install
+      - make clean
       - cd -
+      - mv dist/bin/worldserver dist/bin/worldserver_RelWithDebInfo
     when:
       branch: wod
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DPREFIX=$(pwd)/../dist -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
-      - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_RelWithDebInfoAsan
+      - make install
+      - make clean
       - cd -
+      - mv dist/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
     when:
       branch: wod
+  after_build:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cp -p contrib/deploy/worldserver_restarter dist/bin
 
 publish:
   docker:
+    environment:
+      - DOCKER_LAUNCH_DEBUG=true
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
     repo: milleniumstudio/docker-wod
     tag: latest-ptr
-    storage_driver: devicemapper
+#    storage_driver: devicemapper
     when:
       branch: wod_ptr
 

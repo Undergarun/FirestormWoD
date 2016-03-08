@@ -16,7 +16,7 @@ VOLUME /var/log/firestorm
 
 RUN df -h
 
-ADD build/src/server/worldserver/worldserver_* /usr/local/bin
-ADD contrib/deploy/worldserver_restarter /usr/local/bin
+ADD dist/bin/worldserver_* /usr/local/bin
+ADD dist/bin/worldserver_restarter /usr/local/bin
 
 ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
