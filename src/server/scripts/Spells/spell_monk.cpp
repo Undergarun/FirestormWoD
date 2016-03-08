@@ -1077,6 +1077,9 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
                         if (!(aura->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
                             continue;
 
+                        if (aura->GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)
+                            continue;
+
                         _player->AddAura(aura->GetSpellInfo()->Id, caster);
 
                         if (Aura* targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
