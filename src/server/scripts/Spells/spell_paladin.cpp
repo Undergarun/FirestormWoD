@@ -2007,7 +2007,7 @@ class spell_pal_holy_shock_heal: public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_PROC))
+                        if (Aura* l_AuraPtr = l_Caster->GetAura(PALADIN_SPELL_DAYBREAK_PROC))
                         {
                             int32 l_Heal = 0;
 
@@ -2015,7 +2015,7 @@ class spell_pal_holy_shock_heal: public SpellScriptLoader
                             SpellInfo const* l_SpellInfoImproved = sSpellMgr->GetSpellInfo(PALADIN_SPELL_IMPROVED_DAYBREAK);
 
                             if (l_SpellInfo != nullptr)
-                                l_Heal = CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                                l_Heal = CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_AuraPtr->GetStackAmount());
                             if (l_Caster->HasAura(PALADIN_SPELL_IMPROVED_DAYBREAK) && l_SpellInfoImproved != nullptr)
                                 l_Heal = AddPct(l_Heal, l_SpellInfoImproved->Effects[EFFECT_0].BasePoints);
 
