@@ -20,6 +20,7 @@ build:
       - make -j 32
       - mv src/server/worldserver/worldserver src/server/worldserver/worldserver_DebugAsan
       - cd -
+      - ls -lah /usr/local/lib
     when:
       branch: wod_ptr
   release:

@@ -14,6 +14,8 @@ VOLUME /usr/local/etc
 VOLUME /opt/firestorm
 VOLUME /var/log/firestorm
 
+RUN df -h
+
 ADD build/src/server/worldserver/worldserver_* /usr/local/bin
 ADD contrib/deploy/worldserver_restarter /usr/local/bin
 
