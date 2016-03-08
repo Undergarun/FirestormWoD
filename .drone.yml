@@ -56,14 +56,16 @@ build:
 
 publish:
   docker:
-    environment:
-      - DOCKER_LAUNCH_DEBUG=true
+#    environment:
+#      - DOCKER_LAUNCH_DEBUG=true
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
     repo: milleniumstudio/docker-wod
     tag: latest-ptr
-#    storage_driver: devicemapper
+    file: dist/Dockerfile
+    context: dist/
+#    storage_driver: devicemapper #we might need to change it later
     when:
       branch: wod_ptr
 

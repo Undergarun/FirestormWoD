@@ -14,9 +14,9 @@ VOLUME /usr/local/etc
 VOLUME /opt/firestorm
 VOLUME /var/log/firestorm
 
+# Check space left on /
 RUN df -h
 
-ADD dist/bin/worldserver_* /usr/local/bin
-ADD dist/bin/worldserver_restarter /usr/local/bin
+ADD bin/worldserver_* /usr/local/bin/
 
 ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
