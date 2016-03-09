@@ -583,6 +583,14 @@ class npc_season_2_premade_master : public CreatureScript
             {
                 if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
                 {
+                    /// Player doesn't have enough space
+                    if (p_Player->GetBagsFreeSlots() < 6)
+                    {
+                        Talk(eTalks::TalkNoSpace, p_Player->GetGUID());
+                        p_Player->PlayerTalkClass->SendCloseGossip();
+                        return;
+                    }
+
                     p_Player->GiveLevel(MAX_LEVEL);
                     p_Player->ModifyMoney(50000 * MoneyConstants::GOLD);
 
