@@ -2439,54 +2439,65 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Call by Templars Verdict 85256 - Divine storm 53385 - Eternal Flame 114163
 /// Call by Word of Glory 85673 - Shield of Righteous 53600
 /// Call by Light of dawn 85222 - Final Verdict 157048
 /// Divine Purpose - 86172
 class spell_pal_divine_purpose: public SpellScriptLoader
 {
-public:
-    spell_pal_divine_purpose() : SpellScriptLoader("spell_pal_divine_purpose") { }
+    public:
+        spell_pal_divine_purpose() : SpellScriptLoader("spell_pal_divine_purpose") { }
 
-    class spell_pal_divine_purpose_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_divine_purpose_SpellScript);
-
-        void HandleAfterCast()
+        class spell_pal_divine_purpose_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_pal_divine_purpose_SpellScript);
+
+            uint8 m_HolyPower = 0;
+            void HandleOnPrepare()
             {
-                if (l_Player->getLevel() >= 75 && l_Player->HasSpell(PALADIN_SPELL_DIVINE_PURPOSE))
+                Unit* l_Caster = GetCaster();
+
+                m_HolyPower = l_Caster->GetPower(POWER_HOLY_POWER);
+                if (m_HolyPower > 3)
+                    m_HolyPower = 3;
+            }
+
+            void HandleAfterCast()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
+                    if (l_Player->getLevel() >= 75 && l_Player->HasSpell(PALADIN_SPELL_DIVINE_PURPOSE))
                     {
-                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME || GetSpellInfo()->Id == PALADIN_SPELL_FINAL_VERDICT)
-                            l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
-                    }
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
-                    {
-                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS)
-                            l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
-                    }
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
-                    {
-                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_LIGHT_OF_DAWN)
-                            l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i((sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints / 3) * m_HolyPower))
+                        {
+                            if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME || GetSpellInfo()->Id == PALADIN_SPELL_FINAL_VERDICT)
+                                l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                        }
+                        else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i((sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints / 3) * m_HolyPower))
+                        {
+                            if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS)
+                                l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                        }
+                        else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY && roll_chance_i((sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints / 3) * m_HolyPower))
+                        {
+                            if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_LIGHT_OF_DAWN)
+                                l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
+                        }
                     }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_pal_divine_purpose_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterCast += SpellCastFn(spell_pal_divine_purpose_SpellScript::HandleAfterCast);
+            return new spell_pal_divine_purpose_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_divine_purpose_SpellScript();
-    }
 };
 
 enum SealOfJusticeSpells
