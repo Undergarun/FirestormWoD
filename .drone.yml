@@ -17,36 +17,36 @@ build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DPREFIX=$(pwd)/../dist -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
       - make clean
       - cd -
-      - mv dist/bin/worldserver dist/bin/worldserver_DebugAsan
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_DebugAsan
     when:
       branch: wod_ptr
   release:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DPREFIX=$(pwd)/../dist -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
       - make clean
       - cd -
-      - mv dist/bin/worldserver dist/bin/worldserver_RelWithDebInfo
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
     when:
       branch: wod
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DPREFIX=$(pwd)/../dist -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
       - make clean
       - cd -
-      - mv dist/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
     when:
       branch: wod
   after_build:
@@ -65,6 +65,16 @@ publish:
     context: dist/
     when:
       branch: wod_ptr
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest
+    file: dist/Dockerfile
+    context: dist/
+    when:
+      branch: wod
 
 notify:
   slack:

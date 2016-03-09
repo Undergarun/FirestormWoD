@@ -3,17 +3,18 @@ MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# Add missing packages to get worldserver running
 RUN apt-get update && \
     apt-get install -y \
     screen
 
-RUN mkdir /opt/firestorm
-RUN mkdir /var/log/firestorm
+# Prepare directories for worldserver data
+RUN mkdir /usr/local/{etc,lib}/firestorm /opt/firestorm /var/log/firestorm
 
-VOLUME /usr/local/etc
-VOLUME /opt/firestorm
-VOLUME /var/log/firestorm
+# Declare volumes to share files between host and container (configuration file, logs, dbc, maps ....)
+VOLUME /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm
 
+# Add compiled bins and libs into the image
 ADD bin/* /usr/local/bin/
 #ADD lib/* /usr/local/lib/
 
