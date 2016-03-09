@@ -3313,9 +3313,47 @@ class spell_warr_stances : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Taunt - 355
+class spell_warr_taunt : public SpellScriptLoader
+{
+    public:
+        spell_warr_taunt() : SpellScriptLoader("spell_warr_taunt") { }
+
+        class spell_warr_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_taunt_SpellScript);
+
+            enum eSpells
+            {
+                GladiatorStance = 156291
+            };
+
+            SpellCastResult CheckStance()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                    return SPELL_FAILED_NOT_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_taunt_SpellScript::CheckStance);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_taunt_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
-    new spell_warr_gladiator_stance();
+    new spell_warr_taunt();
     new spell_warr_crazed_berserker();
     new spell_warr_stances();
     new spell_warr_raging_blow_proc();
