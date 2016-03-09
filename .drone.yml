@@ -20,8 +20,7 @@ build:
       - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
-      - ls -la /usr/local/bin; ls -la /usr/local/etc; ls -la /usr/local/etc/firestorm;
-      - mv /usr/local/bin/worldserver dist/bin/worldserver_DebugAsan
+      - mv /usr/local/bin/worldserver ../dist/bin/worldserver_DebugAsan
       - make clean
       - cd -
     when:
@@ -33,7 +32,7 @@ build:
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
-      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
+      - mv /usr/local/bin/worldserver ../dist/bin/worldserver_RelWithDebInfo
       - make clean
       - cd -
     when:
@@ -45,7 +44,7 @@ build:
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
-      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
+      - mv /usr/local/bin/worldserver ../dist/bin/worldserver_RelWithDebInfoAsan
       - make clean
       - cd -
     when:
