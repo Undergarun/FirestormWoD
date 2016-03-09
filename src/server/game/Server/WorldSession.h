@@ -201,7 +201,9 @@ namespace ServiceFlags
 {
     enum
     {
-        Premade = 0x1
+        Premade     = 0x01,
+        Season2Gold = 0x02,
+        Season2Item = 0x04
     };
 }
 
