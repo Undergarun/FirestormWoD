@@ -49,11 +49,11 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
 
     };
 

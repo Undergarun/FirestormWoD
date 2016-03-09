@@ -206,7 +206,7 @@ namespace MS { namespace Garrison
             /// Generates random reward for Armory work order
             uint32 CalculateArmoryWorkOrder() const;
             /// Checks if the building has the required follower assigned to apply bonus
-            bool HasRequiredFollowerAssignedAbility(uint32 p_BuildingID);
+            bool HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID

@@ -202,6 +202,20 @@ namespace MS { namespace Garrison { namespace Sites
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
+                    case Buildings::GemBoutique_GemBoutique_Level3:
+                    {
+                        for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
+                        {
+                            GarrMissionEntry const* l_Entry = sGarrMissionStore.LookupEntry(l_I);
+
+                            if (!l_Entry)
+                                continue;
+
+                            if (l_Entry->MissionType == MissionType::JewelCrafting)
+                                l_GarrisonMgr->AddMission(l_Entry->MissionRecID);
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }

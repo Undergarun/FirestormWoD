@@ -89,6 +89,48 @@ namespace MS { namespace Garrison
         };
     }
 
+    namespace MissionType
+    {
+        enum : uint8
+        {
+            Combat         = 3,
+            Generic        = 4,
+            Salvage        = 5,
+            Logistics      = 6,
+            Wildlife       = 7,
+            Trading        = 8,
+            Construction   = 9,
+            Provision      = 10,
+            Recruitement   = 11,
+            Training       = 12,
+            Patrol         = 13,
+            Research       = 14,
+            Defense        = 15,
+            Exploration    = 16,
+            Siege          = 17,
+            Alchemy        = 18,
+            BlackSmithing  = 19,
+            Enchanting     = 20,
+            Engineering    = 21,
+            Inscription    = 22,
+            JewelCrafting  = 23,
+            LeatherWorking = 24,
+            Tailoring      = 25,
+            Treasure       = 35,
+            PetBattle      = 36,
+            ShipCombat     = 37,
+            ShipOil        = 38,
+            ShipTraining   = 39,
+            ShipTreasure   = 40,
+            ShipSiegeA     = 41,
+            ShipSiegeH     = 42,
+            ShipBonus      = 47,
+            ShipLegendary  = 48,
+            ShipSiegeIHA   = 49,
+            ShipSiegeIHH   = 50
+        };
+    }
+
     namespace MissionFlags
     {
         enum : uint8

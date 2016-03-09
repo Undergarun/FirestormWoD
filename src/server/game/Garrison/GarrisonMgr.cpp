@@ -3135,7 +3135,7 @@ namespace MS { namespace Garrison
 
     bool Manager::HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID)
     {
-        GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+        GarrisonFollower* l_Follower = GetFollowerWithDatabaseID(GetBuilding(p_PlotInstanceID).FollowerAssigned);
 
         if (l_Follower == nullptr)
             return false;
