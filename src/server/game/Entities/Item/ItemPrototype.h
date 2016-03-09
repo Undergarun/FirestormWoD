@@ -368,10 +368,10 @@ enum InventoryType
     INVTYPE_THROWN                              = 25,
     INVTYPE_RANGEDRIGHT                         = 26,
     INVTYPE_QUIVER                              = 27,
-    INVTYPE_RELIC                               = 28
-};
+    INVTYPE_RELIC                               = 28,
 
-#define MAX_INVTYPE                               29
+    MAX_INVTYPE
+};
 
 enum ItemClass
 {

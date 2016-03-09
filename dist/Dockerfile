@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -14,7 +14,7 @@ VOLUME /usr/local/etc
 VOLUME /opt/firestorm
 VOLUME /var/log/firestorm
 
-ADD build/src/server/worldserver/worldserver_* /usr/local/bin
-ADD contrib/deploy/worldserver_restarter /usr/local/bin
+ADD bin/* /usr/local/bin/
+#ADD lib/* /usr/local/lib/
 
-ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
+#ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
