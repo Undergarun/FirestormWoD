@@ -84,6 +84,8 @@ public:
         boss_ichoronAI(Creature* creature) : ScriptedAI(creature), m_waterElements(creature)
         {
             instance  = creature->GetInstanceScript();
+            /// for some reason ichoron can't walk back to it's water basin on evade
+            me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
         }
 
         bool bIsExploded;
