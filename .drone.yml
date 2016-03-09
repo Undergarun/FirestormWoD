@@ -20,9 +20,10 @@ build:
       - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
-      - mv /usr/local/bin/worldserver ../dist/bin/worldserver_DebugAsan
       - make clean
       - cd -
+      - ls -la dist; ls -la /usr/local/bin
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_DebugAsan
     when:
       branch: wod_ptr
   release:
