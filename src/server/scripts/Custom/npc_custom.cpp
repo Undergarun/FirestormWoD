@@ -588,7 +588,7 @@ class npc_season_2_premade_master : public CreatureScript
 
                     p_Player->AddItem(eItems::HexweaveBag, 4);
                     p_Player->AddItem(eItems::TomeOfTheClearMind, 200);
-                    p_Player->AddItem(eItems::ReinsOfTheIllidariFelstalker, 200);
+                    p_Player->AddItem(eItems::ReinsOfTheIllidariFelstalker, 1);
 
                     p_Player->GetSession()->UnsetServiceFlags(ServiceFlags::Season2Gold);
                     Talk(eTalks::TalkLevelOK, p_Player->GetGUID());
