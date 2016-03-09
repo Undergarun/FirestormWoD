@@ -2677,19 +2677,27 @@ void ObjectMgr::LoadItemTemplateCorrections()
         switch (l_ItemTemplate.ItemId)
         {
             // Prevent people opening strongboxed they cant use & abuse some other stuff
-            case 120354: //Gold Strongbox A
-            case 120355: //Silver Strongbox A
-            case 120356: //Bronze Strongbox A
-            case 120353: //Steel Strongbox A
+            case 120354: ///< Gold Strongbox A
+            case 120355: ///< Silver Strongbox A
+            case 120356: ///< Bronze Strongbox A
+            case 120353: ///< Steel Strongbox A
             case 118065: ///< Gleaming Ashmaul Strongbox (A)
+            case 126905: ///< Steel Strongbox A - S2
+            case 126908: ///< Bronze Strongbox A - S2
+            case 126907: ///< Silver Strongbox A - S2
+            case 126906: ///< Gold Strongbox A - S2
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
-            case 111598: //Gold Strongbox H
-            case 111599: //Silver strongbox H
-            case 111600: //Bronze Strongbox H
-            case 119330: //Steel StrongBox H
+            case 111598: ///< Gold Strongbox H
+            case 111599: ///< Silver strongbox H
+            case 111600: ///< Bronze Strongbox H
+            case 119330: ///< Steel StrongBox H
             case 120151: ///< Gleaming Ashmaul Strongbox (H)
+            case 126904: ///< Steel Strongbox H - S2
+            case 126903: ///< Bronze Strongbox H - S2
+            case 126902: ///< Silver Strongbox H - S2
+            case 126901: ///< Gold Strongbox H - S2
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;

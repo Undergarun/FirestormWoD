@@ -27,11 +27,12 @@ class item_strongbox : public ItemScript
 
         bool OnOpen(Player* p_Player, Item* p_Item)
         {
-            int l_ItemChance = 0;
-            int l_RareChance = 0;
-            int l_EpicChance = 0;
-            int l_MinMoney = 0;
-            int l_MinHonor = 0;
+            int l_ItemChance        = 0;
+            int l_UncommonChance    = 0;
+            int l_RareChance        = 0;
+            int l_EpicChance        = 0;
+            int l_MinMoney          = 0;
+            int l_MinHonor          = 0;
 
             ItemTemplate const* l_Proto = p_Item->GetTemplate();
             LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(l_Proto->ItemId);
@@ -40,41 +41,67 @@ class item_strongbox : public ItemScript
             
             switch (l_Proto->ItemId)
             {
-                case 120354: //Gold Strongbox A
-                case 111598: //Gold Strongbox H
-                    l_ItemChance = 40;
-                    l_MinMoney = 25;
-                    l_MinHonor = 150;
+                case 120354: ///< Gold Strongbox A
+                case 126906: ///< Gold Strongbox A - S2
+                case 111598: ///< Gold Strongbox H
+                case 126901: ///< Gold Strongbox H - S2
+                {
+                    l_ItemChance        = 40;
+                    l_UncommonChance    = 25;
+                    l_RareChance        = 75;
+                    l_MinMoney          = 25;
+                    l_MinHonor          = 150;
                     break;
-                case 120355: //Silver Strongbox A
-                case 111599: //Silver strongbox H
-                    l_ItemChance = 30;
-                    l_MinMoney = 10;
-                    l_MinHonor = 100;
+                }
+                case 120355: ///< Silver Strongbox A
+                case 126907: ///< Silver Strongbox A - S2
+                case 111599: ///< Silver strongbox H
+                case 126902: ///< Silver Strongbox H - S2
+                {
+                    l_ItemChance        = 30;
+                    l_UncommonChance    = 50;
+                    l_RareChance        = 50;
+                    l_MinMoney          = 10;
+                    l_MinHonor          = 100;
                     break;
-                case 120356: //Bronze Strongbox A
-                case 111600: //Bronze Strongbox H
-                    l_ItemChance = 25;
-                    l_MinMoney = 8;
-                    l_MinHonor = 70;
+                }
+                case 120356: ///< Bronze Strongbox A
+                case 126908: ///< Bronze Strongbox A - S2
+                case 111600: ///< Bronze Strongbox H
+                case 126903: ///< Bronze Strongbox H - S2
+                {
+                    l_ItemChance        = 25;
+                    l_UncommonChance    = 75;
+                    l_RareChance        = 25;
+                    l_MinMoney          = 8;
+                    l_MinHonor          = 70;
                     break;
-                case 120353: //Steel Strongbox A
-                case 119330: //Steel StrongBox H
-                    l_ItemChance = 30;
-                    l_MinMoney = 2;
-                    l_MinHonor = 30;
+                }
+                case 120353: ///< Steel Strongbox A
+                case 126905: ///< Steel Strongbox A - S2
+                case 119330: ///< Steel StrongBox H
+                case 126904: ///< Steel Strongbox H - S2
+                {
+                    l_ItemChance    = 30;
+                    l_MinMoney      = 2;
+                    l_MinHonor      = 30;
                     break;
-                case 118065:///< Gleaming Ashmaul Strongbox (A)
-                case 120151:///< Gleaming Ashmaul Strongbox (H)
+                }
+                case 118065: ///< Gleaming Ashmaul Strongbox (A)
+                case 120151: ///< Gleaming Ashmaul Strongbox (H)
+                {
+                    l_ItemChance = 100;
+                    l_RareChance = 50;
+                    l_EpicChance = 50;
+                    break;
+                }
+                case 118093: ///< Dented Ashmaul Strongbox (H) - NYI
+                case 118094: ///< Dented Ashmaul Strongbox (A) - NYI
+                {
                     l_ItemChance = 100;
                     l_RareChance = 100;
-                    l_EpicChance = 0;
                     break;
-                case 118093:///< Dented Ashmaul Strongbox (H)
-                case 118094:///< Dented Ashmaul Strongbox (A)
-                    l_ItemChance = 100;
-                    l_RareChance = 100;
-                    break;
+                }
                 default:
                     break;
             }
@@ -108,34 +135,24 @@ class item_strongbox : public ItemScript
             if (roll_chance_i(l_ItemChance))
             {
                 uint32 l_ItemID = l_Items[0];
-                if (l_RareChance && l_EpicChance)   ///< Handle specific containers which can loot both qualities
+
+                /// Default quality will be rare
+                ItemQualities l_Quality = ItemQualities::ITEM_QUALITY_RARE;
+                if (l_EpicChance && roll_chance_i(l_EpicChance))
+                    l_Quality = ItemQualities::ITEM_QUALITY_EPIC;
+                else if (l_RareChance && roll_chance_i(l_RareChance))
+                    l_Quality = ItemQualities::ITEM_QUALITY_RARE;
+                else if (l_UncommonChance && roll_chance_i(l_UncommonChance))
+                    l_Quality = ItemQualities::ITEM_QUALITY_UNCOMMON;
+
+                for (uint32 l_ID : l_Items)
                 {
-                    if (roll_chance_i(l_EpicChance))
+                    if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_ID))
                     {
-                        for (uint32 l_ID : l_Items)
+                        if (l_Template->Quality == l_Quality)
                         {
-                            if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_ID))
-                            {
-                                if (l_Template->Quality == ItemQualities::ITEM_QUALITY_EPIC)
-                                {
-                                    l_ItemID = l_ID;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (uint32 l_ID : l_Items)
-                        {
-                            if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_ID))
-                            {
-                                if (l_Template->Quality == ItemQualities::ITEM_QUALITY_RARE)
-                                {
-                                    l_ItemID = l_ID;
-                                    break;
-                                }
-                            }
+                            l_ItemID = l_ID;
+                            break;
                         }
                     }
                 }

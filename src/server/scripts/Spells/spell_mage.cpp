@@ -3197,6 +3197,9 @@ public:
 
         void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
+            if (GetCaster() == nullptr)
+                return;
+
             Player* l_Player = GetCaster()->ToPlayer();
 
             if (l_Player == nullptr)

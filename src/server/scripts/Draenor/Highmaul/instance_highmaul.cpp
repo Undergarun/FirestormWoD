@@ -829,6 +829,9 @@ class instance_highmaul : public InstanceMapScript
                             if (GameObject* l_Door = sObjectAccessor->FindGameObject(m_ColiseumLFRDoor))
                                 l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
 
+                            if (Creature* l_Margok = sObjectAccessor->FindCreature(m_MargokCosmeticGuid))
+                                l_Margok->DespawnOrUnsummon();
+
                             break;
                         }
                         case eHighmaulDungeons::ImperatorsFall:

@@ -3719,6 +3719,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 138378: ///< Transfusion (Dark Animus - Throne of Thunder)
                 spellInfo->ExplicitTargetMask = 0;
                 break;
+            case 101257: ///< Wracking Pain dmg
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_100_YARDS);
+                break;
             case 136954: ///< Anima Ring (Dark Animu - Throne of Thunder)
                 for (uint8 l_Itr = 0; l_Itr < 12; ++l_Itr)
                     spellInfo->Effects[l_Itr].TriggerSpell = 0;
