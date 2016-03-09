@@ -1028,7 +1028,7 @@ class npc_highmaul_vulgor : public CreatureScript
                         uint8 l_Count = 0;
                         for (Creature* l_Sorcerer : l_BladespireSorcerers)
                         {
-                            l_Sorcerer->SetWalk(true);
+                            l_Sorcerer->SetWalk(false);
                             l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererPos[l_Count]);
                             m_SorcererGuids[l_Count] = l_Sorcerer->GetGUID();
 
@@ -1036,7 +1036,7 @@ class npc_highmaul_vulgor : public CreatureScript
                         }
                     }
 
-                    me->SetWalk(true);
+                    me->SetWalk(false);
                     me->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_VulgorMovePos);
                 }
             }
@@ -1091,6 +1091,21 @@ class npc_highmaul_vulgor : public CreatureScript
                         if (Creature* l_Sorcerer = me->SummonCreature(eHighmaulCreatures::BladespireSorcerer, g_TrashsSpawnPos))
                             l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererSecondPos[l_I]);
                     }
+
+                    if (m_Instance != nullptr)
+                    {
+                        if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
+                            l_InnerGate->SetGoState(GOState::GO_STATE_ACTIVE);
+                    }
+
+                    AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (m_Instance != nullptr)
+                        {
+                            if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
+                                l_InnerGate->SetGoState(GOState::GO_STATE_READY);
+                        }
+                    });
                 }
             }
 
