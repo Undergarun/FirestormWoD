@@ -34636,7 +34636,7 @@ void Player::_LoadWorldStates(PreparedQueryResult p_Result)
     {
         Field* l_Fields = p_Result->Fetch();
         CharacterWorldState l_WorldState;
-        l_WorldState.Value   = l_Fields[1].GetUInt32();
+        l_WorldState.Value   = l_Fields[1].GetUInt64();
         l_WorldState.Changed = false;
 
         m_CharacterWorldStates.insert(std::make_pair(l_Fields[0].GetUInt32(), l_WorldState));
