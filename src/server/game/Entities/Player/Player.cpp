@@ -6576,6 +6576,38 @@ bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
     return false;
 }
 
+bool Player::IsMeleeDamageDealer(bool p_AllowTank /*= false*/) const
+{
+    if (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowTank && GetRoleForGroup() == Roles::ROLE_TANK))
+        return false;
+
+    if (getClass() == Classes::CLASS_ROGUE)
+        return true;
+
+    switch (GetSpecializationId())
+    {
+        case SpecIndex::SPEC_DRUID_FERAL:
+        case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
+        case SpecIndex::SPEC_MONK_WINDWALKER:
+        case SpecIndex::SPEC_WARRIOR_ARMS:
+        case SpecIndex::SPEC_WARRIOR_FURY:
+        case SpecIndex::SPEC_DK_UNHOLY:
+        case SpecIndex::SPEC_DK_FROST:
+        case SpecIndex::SPEC_PALADIN_RETRIBUTION:
+            return true;
+        case SpecIndex::SPEC_DRUID_GUARDIAN:
+        case SpecIndex::SPEC_MONK_BREWMASTER:
+        case SpecIndex::SPEC_WARRIOR_PROTECTION:
+        case SpecIndex::SPEC_DK_BLOOD:
+        case SpecIndex::SPEC_PALADIN_PROTECTION:
+            return p_AllowTank;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 {
    if (specializationId)
