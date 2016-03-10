@@ -3612,7 +3612,7 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     /// Hackfix @ Glyph of the Falling Avenger
     /// Since preventing the aura effect in a spell script doesn't work
     /// A better way to fix this would be to remember which effects are prevented to prevent re-application
-    if ((m_spellInfo->Id == 31842 || m_spellInfo->Id == 31884) && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+    if (target->IsPlayer() && target->getClass() == CLASS_PALADIN && (m_spellInfo->Id == 31842 || m_spellInfo->Id == 31884) && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
         return;
 
     if (apply)
