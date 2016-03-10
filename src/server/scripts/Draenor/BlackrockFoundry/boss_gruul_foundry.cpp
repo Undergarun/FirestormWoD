@@ -50,14 +50,14 @@ class boss_gruul_foundry : public CreatureScript
             EventCaveIn,
             EventPetrifyingSlam,
             EventOverheadSmash,
-            EventDestructiveRampage,
-            EventBerserker
+            EventDestructiveRampage
         };
 
         enum eCosmeticEvents
         {
             CosmeticEventOverheadSmash = 1,
-            CosmeticEventEndOfDestructiveRampage
+            CosmeticEventEndOfDestructiveRampage,
+            CosmeticEventBerserker
         };
 
         enum eActions
@@ -202,7 +202,8 @@ class boss_gruul_foundry : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventPetrifyingSlam, 22 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 44 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDestructiveRampage, 100 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, (IsMythic() || IsHeroic()) ? 360 * TimeConstants::IN_MILLISECONDS : 480 * TimeConstants::IN_MILLISECONDS);
+
+                m_Events.ScheduleEvent(eCosmeticEvents::CosmeticEventBerserker, (IsMythic() || IsHeroic()) ? 360 * TimeConstants::IN_MILLISECONDS : 480 * TimeConstants::IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -427,6 +428,12 @@ class boss_gruul_foundry : public CreatureScript
                         m_CosmeticEvents.Reset();
                         break;
                     }
+                    case eCosmeticEvents::CosmeticEventBerserker:
+                    {
+                        me->CastSpell(me, eFoundrySpells::Berserker, true);
+                        Talk(eTalks::Berserk);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -526,12 +533,6 @@ class boss_gruul_foundry : public CreatureScript
 
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventEndOfDestructiveRampage, 30 * TimeConstants::IN_MILLISECONDS);
                         m_Events.ScheduleEvent(eEvents::EventDestructiveRampage, 110 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                    case eEvents::EventBerserker:
-                    {
-                        me->CastSpell(me, eFoundrySpells::Berserker, true);
-                        Talk(eTalks::Berserk);
                         break;
                     }
                     default:
