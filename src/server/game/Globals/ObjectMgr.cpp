@@ -2527,6 +2527,11 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
         itemTemplate.Name1 = sparse->Name;
         itemTemplate.DisplayInfoID = db2Data->DisplayId;
+
+        auto l_Itr = g_ItemTemplateDisplayIDs.find(itemId);
+        if (l_Itr != g_ItemTemplateDisplayIDs.end())
+            itemTemplate.DisplayInfoID = l_Itr->second;
+
         itemTemplate.Quality = sparse->Quality;
         itemTemplate.Flags = sparse->Flags;
         itemTemplate.Flags2 = sparse->Flags2;
@@ -2634,10 +2639,9 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxMoneyLoot = 0;
         itemTemplate.FlagsCu = 0;
 
-        if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
-            itemTemplate.PvPScalingLevel = pvpItem->ilvl;
-        else
-            itemTemplate.PvPScalingLevel = 0;
+        auto l_Iter = g_PvPItemStoreLevels.find(itemId);
+        if (l_Iter != g_PvPItemStoreLevels.end())
+            itemTemplate.PvPScalingLevel = l_Iter->second;
 
         ++sparseCount;
     }
@@ -9540,34 +9544,31 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
 
     QueryResult result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
 
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `_hotfixs` is empty.");
-        return;
-    }
-
     uint32 l_Count = 0;
 
-    if (!p_Reload)
+    if (result)
     {
-        _hotfixData.clear();
-        _hotfixData.reserve(result->GetRowCount());
+        if (!p_Reload)
+        {
+            _hotfixData.clear();
+            _hotfixData.reserve(result->GetRowCount());
+        }
+
+        do
+        {
+            Field* l_Fields = result->Fetch();
+
+            HotfixInfo l_Infos;
+            l_Infos.Entry       = l_Fields[0].GetUInt32();
+            l_Infos.Type        = l_Fields[1].GetUInt32();
+            l_Infos.Timestamp   = l_Fields[2].GetUInt32();
+
+            l_ProcessHotifx(l_Infos, p_Reload);
+
+            ++l_Count;
+        }
+        while (result->NextRow());
     }
-
-    do
-    {
-        Field* l_Fields = result->Fetch();
-
-        HotfixInfo l_Infos;
-        l_Infos.Entry       = l_Fields[0].GetUInt32();
-        l_Infos.Type        = l_Fields[1].GetUInt32();
-        l_Infos.Timestamp   = l_Fields[2].GetUInt32();
-
-        l_ProcessHotifx(l_Infos, p_Reload);
-
-        ++l_Count;
-    }
-    while (result->NextRow());
 
     result = HotfixDatabase.Query("SELECT ID FROM _custom_items");
 
@@ -9593,6 +9594,19 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
                 l_Infos.Type        = sItemSparseStore.GetHash();
                 l_Infos.Timestamp   = time(nullptr);
                 l_Infos.Entry       = l_ItemID;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            for (uint32 l_I = 0; l_I < sPvpItemStore.GetNumRows(); ++l_I)
+            {
+                PvpItemEntry const* l_Entry = sPvpItemStore.LookupEntry(l_I);
+                if (l_Entry == nullptr || l_Entry->itemId != l_ItemID)
+                    continue;
+
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sPvpItemStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_I;
                 l_ProcessHotifx(l_Infos, p_Reload);
             }
 
