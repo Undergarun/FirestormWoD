@@ -2716,9 +2716,15 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
                     return;
 
                 int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+                l_Damage *= l_Caster->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
 
                 l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
                 l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+
+                if (l_Target->GetTypeId() == TYPEID_UNIT)
+                    l_Damage *= l_Caster->CalculateDamageDealtFactor(l_Caster, l_Target->ToCreature());
+
+                l_Damage = l_Caster->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
 
                 SetHitDamage(l_Damage);
             }
