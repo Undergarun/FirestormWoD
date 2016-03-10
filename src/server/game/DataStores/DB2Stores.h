@@ -28,6 +28,7 @@
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 extern std::map<uint32, uint32> g_ItemDisplayIDs;
+extern std::map<uint32, uint32> g_ItemTemplateDisplayIDs;
 
 extern DB2Storage <AchievementEntry>                sAchievementStore;
 extern DB2Storage <CriteriaEntry>                   sCriteriaStore;
@@ -51,7 +52,10 @@ extern DB2Storage <ItemExtendedCostEntry>           sItemExtendedCostStore;
 extern DB2Storage <ItemSparseEntry>                 sItemSparseStore;
 extern DB2Storage <ItemEffectEntry>                 sItemEffectStore;
 extern DB2Storage <HeirloomEntry>                   sHeirloomStore;
+
 extern DB2Storage <PvpItemEntry>                    sPvpItemStore;
+extern std::map<uint32, uint32>                     g_PvPItemStoreLevels;
+
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
