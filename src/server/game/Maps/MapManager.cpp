@@ -324,7 +324,7 @@ void MapManager::Update(uint32 diff)
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
 
-    std::queue<std::function<void()>> l_Operations;
+    std::queue<std::function<bool()>> l_Operations;
     m_CriticalOperationLock.acquire();
 
     l_Operations = m_CriticalOperation;
@@ -334,12 +334,27 @@ void MapManager::Update(uint32 diff)
 
     m_CriticalOperationLock.release();
 
+    std::queue<std::function<bool()>> l_CriticalOperationFallBack;
     while (!l_Operations.empty())
     {
         if (l_Operations.front())
-            l_Operations.front()();
+        {
+            if (!(l_Operations.front()()))
+                l_CriticalOperationFallBack.push(l_Operations.front());
+        }
 
         l_Operations.pop();
+    }
+
+    if (!l_CriticalOperationFallBack.empty())
+    {
+        m_CriticalOperationLock.acquire();
+        while (!l_CriticalOperationFallBack.empty())
+        {
+            m_CriticalOperation.push(l_CriticalOperationFallBack.front());
+            l_CriticalOperationFallBack.pop();
+        }
+        m_CriticalOperationLock.release();
     }
 
     i_timer.SetCurrent(0);

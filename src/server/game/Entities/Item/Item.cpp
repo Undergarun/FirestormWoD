@@ -2549,3 +2549,12 @@ void Item::RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* 
         p_Player->SetVisibleItemSlot(l_TransmogrifiedItemSlot, p_Transmogrified);
     }
 }
+
+uint32 Item::GetEnchantItemVisualId(EnchantmentSlot p_Slot) const
+{
+    SpellItemEnchantmentEntry const* l_Enchantement = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(p_Slot));
+    if (l_Enchantement == nullptr)
+        return 0;
+
+    return l_Enchantement->itemVisualID;
+}

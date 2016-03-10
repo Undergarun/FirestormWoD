@@ -2206,12 +2206,17 @@ void Player::Update(uint32 p_time)
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
-                        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                        sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                         {
                             Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                            if (l_Player)
+                            if (l_Player && l_Player->IsInWorld())
+                            {
                                 l_Player->_SetOutOfShipyard();
+                                return true;
+                            }
+
+                            return false;
                         });
                     }
                 }
@@ -2361,12 +2366,22 @@ void Player::Update(uint32 p_time)
 
     m_CriticalOperationLock.acquire();
 
+    std::queue<std::function<bool()>> l_CriticalOperationFallBack;
     while (!m_CriticalOperation.empty())
     {
         if (m_CriticalOperation.front())
-            m_CriticalOperation.front()();
+        {
+            if (!(m_CriticalOperation.front()()))
+                l_CriticalOperationFallBack.push(m_CriticalOperation.front());
+        }
 
         m_CriticalOperation.pop();
+    }
+
+    while (!l_CriticalOperationFallBack.empty())
+    {
+        m_CriticalOperation.push(l_CriticalOperationFallBack.front());
+        l_CriticalOperationFallBack.pop();
     }
 
     m_CriticalOperationLock.release();
@@ -2584,7 +2599,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
         }
 
         *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);       ///< Item display ID
-        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->aura_id : 0);    ///< Enchantment aura ID
+        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->itemVisualID : 0);    ///< Enchantment aura ID
         *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
     }
 
@@ -10144,43 +10159,63 @@ void Player::UpdateArea(uint32 newArea)
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && IsInShipyard())
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_SetOutOfShipyard();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_SetInShipyard();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_GarrisonSetOut();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_GarrisonSetIn();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
             }
@@ -15793,7 +15828,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetAppearanceModID());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantItemVisualId(PERM_ENCHANTMENT_SLOT));
     }
     else
     {
@@ -17613,10 +17648,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (apply_dur)
     {
@@ -32870,7 +32905,7 @@ uint32 Player::GetUnlockedPetBattleSlot()
     uint32 l_SlotCount = 0;
 
     /// battle pet training
-    if (HasSpell(119467))
+    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
         l_SlotCount++;
 
     /// Newbie
@@ -32983,6 +33018,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     l_CurrentPet->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
 

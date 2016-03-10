@@ -7772,7 +7772,7 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
             uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
             uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
             {
                 if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
                 {
@@ -7781,6 +7781,8 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
                     if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                         l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
                 }
+
+                return true;
             });
             m_CastItem = nullptr;
         }
@@ -7812,7 +7814,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
             uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
             uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
             {
                 if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
                 {
@@ -7821,6 +7823,8 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
                     if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                         l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
                 }
+
+                return true;
             });
 
             m_CastItem = nullptr;
@@ -7892,7 +7896,7 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
     uint64 l_PlayerGUID = l_Player->GetGUID();
     uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
     {
         if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
         {
@@ -7901,6 +7905,8 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
             if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                 l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
         }
+
+        return true;
     });
 
     m_CastItem = nullptr;
@@ -8231,13 +8237,14 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     uint8 l_BagSlot = m_CastItem->GetBagSlot();
     uint8 l_Slot    = m_CastItem->GetSlot();
 
-    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> void
+    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> bool
     {
         Player* l_Player = HashMapHolder<Player>::Find(l_Guid);
         if (l_Player == nullptr)
-            return;
+            return true;
 
         l_Player->DestroyItem(l_BagSlot, l_Slot, true);
+        return true;
     });
 
     std::vector<uint32> const& l_Heirlooms = l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
