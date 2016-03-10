@@ -1066,21 +1066,21 @@ void Battleground::EndBattleground(uint32 p_Winner)
                 if (!l_Player->GetRandomWinner() && !IsWargame())
                 {
                     // 100cp awarded for the first rated battleground won each day
-                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
+                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BarttlegroundRated);
                     l_Player->SetRandomWinner(true);
                 }
             }
             else if (!isArena() && !IsRatedBG()) // 50cp awarded for each non-rated battleground won
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
 
             if (IsSkirmish())
             {
-                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, ArenaSkirmishRewards::ConquestPointsWinner, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
 
                 uint32 l_HonorReward = ArenaSkirmishRewards::HonorPointsWinnerBase;
                 l_HonorReward += ArenaSkirmishRewards::HonorPointsWinnerBonusPerMinute * (GetElapsedTime() / (IN_MILLISECONDS * MINUTE));
 
-                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorReward, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
             }
 
             l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -1107,7 +1107,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
             }
 
             if (IsSkirmish())
-                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, ArenaSkirmishRewards::HonorPointLoser, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
         }
 
         l_Player->ResetAllPowers();
@@ -1423,6 +1423,8 @@ void Battleground::AddPlayer(Player* player)
     player->RemoveAurasByType(SPELL_AURA_FLY);
     player->ResetAllPowers();
 
+    sScriptMgr->OnEnterBG(player, GetMapId());
+
     // add arena specific auras
     if (isArena())
     {
@@ -1641,7 +1643,13 @@ void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type
             {
                 // reward honor instantly
                 if (doAddHonor)
-                    Source->RewardHonor(NULL, 1, value);    // RewardHonor calls UpdatePlayerScore with doAddHonor = false
+                {
+                    /// RewardHonor calls UpdatePlayerScore with doAddHonor = false
+                    if (isBattleground())
+                        Source->RewardHonor(NULL, 1, value, false, MS::Battlegrounds::RewardCurrencyType::Type::Kill);
+                    else
+                        Source->RewardHonor(NULL, 1, value, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
+                }
                 else
                     itr->second->BonusHonor += value;
             }
