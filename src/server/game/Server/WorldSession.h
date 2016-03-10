@@ -339,6 +339,7 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
+        void LoginPlayer(uint64 p_Guid);
         void LogoutPlayer(bool Save);
         void KickPlayer();
 
@@ -1217,6 +1218,9 @@ class WorldSession
         /// Gms command cooldowns (performances)
         time_t m_TimeLastTicketOnlineList;
 
+        void SetStressTest(bool p_Value) { m_IsStressTestSession = p_Value; }
+        bool IsStressTest() const { return m_IsStressTestSession; }
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1349,6 +1353,8 @@ class WorldSession
         uint32 m_ServiceFlags;
         uint32 m_CustomFlags;
         time_t m_LoginTime;
+
+        bool m_IsStressTestSession;
 };
 #endif
 /// @}

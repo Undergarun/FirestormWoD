@@ -28,6 +28,7 @@ void AddSC_DuelReset();
 void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
 void AddSC_Character_Renderer();
+void AddSC_StressTest();
 
 /// Spells
 void AddSC_deathknight_spell_scripts();
@@ -2105,6 +2106,7 @@ void AddBattlegroundScripts()
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
+    AddSC_StressTest();
     AddSC_event_april();
     AddSC_promotion_new_players();
     AddSC_first_time_connexion();

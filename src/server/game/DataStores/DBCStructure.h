@@ -1239,7 +1239,7 @@ struct SpellItemEnchantmentEntry
     uint32  amount[MAX_ENCHANTMENT_SPELLS];                 // 5-7      m_effectPointsMin[3]
     uint32  spellid[MAX_ENCHANTMENT_SPELLS];                // 8-10     m_effectArg[3]
     char*   description;                                    // 11       m_name_lang
-    uint32  aura_id;                                        // 12       m_itemVisual
+    uint32  itemVisualID;                                   // 12       m_itemVisual
     uint32  slot;                                           // 13       m_flags
     uint32  GemID;                                          // 14       m_src_itemID
     uint32  EnchantmentCondition;                           // 15       m_condition_id

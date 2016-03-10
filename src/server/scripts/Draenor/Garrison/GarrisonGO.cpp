@@ -150,6 +150,7 @@ namespace MS { namespace Garrison
             uint32 l_RewardID = l_ShipmentEntry->ResultItemID;
             std::map<uint32, uint32> l_RewardItems;
 
+            /// Default reward
             l_RewardItems.insert(std::make_pair(l_RewardID, 1));
 
             using namespace ShipmentContainer;
@@ -177,7 +178,7 @@ namespace MS { namespace Garrison
                 case ShipmentShipDestroyerUnk4:
                 case ShipmentShipDestroyerUnk5:
                     break;
-                    /// Custom Handling
+                /// Custom Handling
                 case ShipmentTailoring:
                 case ShipmentTailoringUnk:
                     l_RewardItems.clear();
