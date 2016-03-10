@@ -27,4 +27,6 @@ VOLUME /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm
 ADD bin/* /usr/local/bin/
 #ADD lib/* /usr/local/lib/
 
+EXPOSE 8085
+
 #ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
