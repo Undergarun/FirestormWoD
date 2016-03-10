@@ -1624,7 +1624,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                             me->SetWalk(false);
                             me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
 
-                            Movement::MoveSplineInit l_Init(*me);
+                            Movement::MoveSplineInit l_Init(me);
                             FillCirclePath(l_Pos, 7.0f, me->GetPositionZ(), l_Init.Path(), true);
                             l_Init.SetWalk(true);
                             l_Init.SetCyclic();

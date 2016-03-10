@@ -411,7 +411,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                                 {
                                     if (Creature* l_Kromog = instance->GetCreature(m_KromogGuid))
                                     {
-                                        if (!sObjectMgr->IsDisabledEncounter(GetEncounterIDForBoss(l_Kromog)))
+                                        if (!sObjectMgr->IsDisabledEncounter(GetEncounterIDForBoss(l_Kromog), instance->GetDifficultyID()))
                                             DoCompleteAchievement(eFoundryAchievements::WouldYouGiveMeAHand);
                                     }
                                 }

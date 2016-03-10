@@ -37,6 +37,7 @@ endif()
 
 if(SERVERS OR TOOLS)
   add_subdirectory(g3dlite)
+  add_subdirectory(recastnavigation)
 endif()
 
 if(SERVERS)

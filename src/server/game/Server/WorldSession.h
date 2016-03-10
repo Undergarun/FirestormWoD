@@ -192,6 +192,16 @@ namespace AccountCustomFlags
     };
 }
 
+namespace Taxi
+{
+    class ShowTaxiNodes;
+    class TaxiNodeStatusQuery;
+    class EnableTaxiNode;
+    class TaxiQueryAvailableNodes;
+    class ActivateTaxi;
+    class TaxiRequestEarlyLanding;
+}
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -486,11 +496,11 @@ class WorldSession
         uint16 GetClientBuild() const { return m_ClientBuild; }
 
         /// Return join date as unix timestamp
-        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+        uint64 GetAccountJoinDate() const { return m_AccountJoinDate; }
 
         /// Set join date as unix timestamp
         /// @p_JoinDate : unix timestamp of the account creation
-        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
+        void SetAccountJoinDate(uint64 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
         time_t GetLoginTime() const { return m_LoginTime; }
 
@@ -729,6 +739,7 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
+        void HandleEnableTaxiNodeOpcode(WorldPacket& recvPacket);
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
@@ -1283,7 +1294,7 @@ class WorldSession
 
         uint16 m_ClientBuild;
 
-        uint32 m_AccountJoinDate;
+        uint64 m_AccountJoinDate;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium
