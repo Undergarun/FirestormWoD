@@ -13,30 +13,6 @@ build:
     commands:
       - mkdir build
       - mkdir dist/bin dist/lib
-  testing:
-    image: milleniumstudio/drone-clang-mariadb-ace
-    commands:
-      - cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j 32
-      - make install
-      - make clean
-      - cd -
-      - mv /usr/local/bin/worldserver dist/bin/worldserver_DebugAsan
-    when:
-      branch: wod_ptr
-  release:
-    image: milleniumstudio/drone-clang-mariadb-ace
-    commands:
-      - cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j 32
-      - make install
-      - make clean
-      - cd -
-      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
-    when:
-      branch: wod
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
@@ -47,6 +23,16 @@ build:
       - make clean
       - cd -
       - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
+  release:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j 32
+      - make install
+      - make clean
+      - cd -
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
     when:
       branch: wod
   after_build:
