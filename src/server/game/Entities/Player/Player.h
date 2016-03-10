@@ -1876,7 +1876,7 @@ class Player : public Unit, public GridObject<Player>
         * @param ignore gain multipliers
         */
 
-        void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
+        int32 ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
 
         void ApplyEquipCooldown(Item* pItem);
@@ -2801,7 +2801,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         // @TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
-        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
 
         //End of PvP System
@@ -3601,10 +3601,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
         bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
 
-        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        void AddCriticalOperation(std::function<bool()> const&& p_Function)
         {
             m_CriticalOperationLock.acquire();
-            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperation.push(std::function<bool()>(p_Function));
             m_CriticalOperationLock.release();
         }
 
@@ -3987,7 +3987,7 @@ class Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
 
-        std::queue<std::function<void()>> m_CriticalOperation;
+        std::queue<std::function<bool()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;
 
     private:

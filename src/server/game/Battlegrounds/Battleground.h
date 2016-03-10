@@ -61,6 +61,19 @@ namespace MS
             };
         }
 
+        namespace RewardCurrencyType
+        {
+            enum Type
+            {
+                None                    = 0,
+                Kill                    = 7,
+                BattlegroundWin         = 8,
+                BarttlegroundRated      = 15,
+                BattlegroundObjectif    = 16,
+                ArenaSkyrmish           = 17
+            };
+        }
+
         /// This enum is for INTERNAL purpose, do not use it as a client battleground type id.
         namespace BattlegroundType
         {

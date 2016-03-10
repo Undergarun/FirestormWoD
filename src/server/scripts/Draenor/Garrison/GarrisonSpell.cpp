@@ -452,10 +452,6 @@ namespace MS { namespace Garrison
                     return SPELL_CAST_OK;
                 }
 
-//                 void HandleBeforeCast()
-//                 {
-//                 }
-
                 void OnSpellHit(SpellEffIndex /*p_EffIndex*/)
                 {
                     Unit* l_Caster = GetCaster();

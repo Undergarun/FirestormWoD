@@ -150,6 +150,7 @@ namespace MS { namespace Garrison
             uint32 l_RewardID = l_ShipmentEntry->ResultItemID;
             std::map<uint32, uint32> l_RewardItems;
 
+            /// Default reward
             l_RewardItems.insert(std::make_pair(l_RewardID, 1));
 
             using namespace ShipmentContainer;
@@ -177,7 +178,7 @@ namespace MS { namespace Garrison
                 case ShipmentShipDestroyerUnk4:
                 case ShipmentShipDestroyerUnk5:
                     break;
-                    /// Custom Handling
+                /// Custom Handling
                 case ShipmentTailoring:
                 case ShipmentTailoringUnk:
                     l_RewardItems.clear();
@@ -297,15 +298,17 @@ namespace MS { namespace Garrison
                 }
                 case ShipmentHerbGarden:
                 case ShipmentHerbGardenUnk:
+                    l_RewardItems.clear();
                     l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
                     l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
                     l_RewardItems.insert(std::make_pair(g_HerbEntries[urand(0, 5)], 8));
                     break;
                 case ShipmentMageTower:
                 case ShipmentMageTowerUnk:
+                    l_RewardItems.clear();
                     l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
                     l_ShipmentCurrency.CurrencyAmount = urand(100, 300);
-                    l_RewardItems.insert(std::make_pair(122514, 1));
+                    l_RewardItems.insert(std::make_pair(122514, roll_chance_i(15) ? 1 : 0));
                     break;
                 default:
                 break;

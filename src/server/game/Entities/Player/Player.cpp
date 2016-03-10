@@ -2355,12 +2355,17 @@ void Player::Update(uint32 p_time)
 
                     if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()])
                     {
-                        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                        sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                         {
                             Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                            if (l_Player)
+                            if (l_Player && l_Player->IsInWorld())
+                            {
                                 l_Player->_SetOutOfShipyard();
+                                return true;
+                            }
+
+                            return false;
                         });
                     }
                 }
@@ -2510,12 +2515,22 @@ void Player::Update(uint32 p_time)
 
     m_CriticalOperationLock.acquire();
 
+    std::queue<std::function<bool()>> l_CriticalOperationFallBack;
     while (!m_CriticalOperation.empty())
     {
         if (m_CriticalOperation.front())
-            m_CriticalOperation.front()();
+        {
+            if (!(m_CriticalOperation.front()()))
+                l_CriticalOperationFallBack.push(m_CriticalOperation.front());
+        }
 
         m_CriticalOperation.pop();
+    }
+
+    while (!l_CriticalOperationFallBack.empty())
+    {
+        m_CriticalOperation.push(l_CriticalOperationFallBack.front());
+        l_CriticalOperationFallBack.pop();
     }
 
     m_CriticalOperationLock.release();
@@ -2733,7 +2748,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
         }
 
         *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);       ///< Item display ID
-        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->aura_id : 0);    ///< Enchantment aura ID
+        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->itemVisualID : 0);    ///< Enchantment aura ID
         *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
     }
 
@@ -9484,7 +9499,7 @@ void Player::UpdateHonorFields()
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
-bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken)
+bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType)
 {
     // do not reward honor in arenas, but enable onkill spellproc
     Battleground* l_Bg = GetBattleground();
@@ -9591,13 +9606,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
 
-    float honorMod = 1.0f;
-    Unit::AuraEffectList const& mModHonorGainPercent = GetAuraEffectsByType(SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT);
-    for (Unit::AuraEffectList::const_iterator i = mModHonorGainPercent.begin(); i != mModHonorGainPercent.end(); ++i)
-        honorMod += float(float((*i)->GetAmount()) / 100.0f);
-
-    honor_f *= honorMod;
-
     // Back to int now
     honor = std::max(int32(honor_f), 1);
     // honor - for show honor points in log
@@ -9606,14 +9614,14 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
 
+    // add honor points
+    honor = ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, int32(honor), true, false, false, p_RewardCurrencyType);
+
     WorldPacket data(SMSG_PVP_CREDIT, 4 + 16 + 2 + 4);
     data << uint32(honor);
     data.appendPackGUID(victim_guid);
     data << uint32(victim_rank);
     GetSession()->SendPacket(&data);
-
-    // add honor points
-    ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, int32(honor));
 
     if (InBattleground() && honor > 0)
     {
@@ -9880,20 +9888,34 @@ void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* 
     SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
 }
 
-void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */)
+int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /* = None */)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && p_Count >= 0 &&
             (  p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
             || p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG
             || p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
-        return;
+        return p_Count;
 
     CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_CurrencyID);
     if (!l_CurrencyEntry || !p_Count)
-        return;
+        return 0;
 
     if (!p_IgnoreMultipliers)
+    {
         p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
+
+        if (p_RewardCurrencyType)
+        {
+            float l_Multiplier = 1.0f;
+            Unit::AuraEffectList const& l_ModPvpPercent = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_2);
+            for (Unit::AuraEffectList::const_iterator i = l_ModPvpPercent.begin(); i != l_ModPvpPercent.end(); ++i)
+            {
+                if ((*i)->GetMiscValue() == p_CurrencyID && (*i)->GetMiscValueB() == p_RewardCurrencyType)
+                    AddPct(l_Multiplier, (*i)->GetAmount());
+            }
+            p_Count *= l_Multiplier;
+        }
+    }
 
     int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1; ///< l_precision is never read 01/18/16
     uint32 l_OldTotalCount          = 0;
@@ -9989,7 +10011,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
             {
                 // count was changed to week limit, now we can modify original points.
                 ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, printLog);
-                return;
+                return p_Count;
             }
 
             if (p_CurrencyID == CURRENCY_TYPE_CONQUEST_POINTS)
@@ -10004,7 +10026,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
             {
                 l_CurrencyIT->second.weekCap = CalculateCurrencyWeekCap(p_CurrencyID);
                 SendCurrencies();
-                return;
+                return p_Count;
             }
 
             QuestObjectiveSatisfy(p_CurrencyID, p_Count, QUEST_OBJECTIVE_TYPE_CURRENCY);
@@ -10029,6 +10051,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
             GetSession()->SendPacket(&l_Packet);
         }
     }
+    return p_Count;
 }
 
 void Player::SetCurrency(uint32 id, uint32 count, bool printLog /*= true*/)
@@ -10282,43 +10305,63 @@ void Player::UpdateArea(uint32 newArea)
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && IsInShipyard())
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_SetOutOfShipyard();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonShipyardAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = sObjectAccessor->FindPlayer(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_SetInShipyard();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
 
                 if (l_DraenorBaseMap_Area != MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == l_GarrisonSiteEntry->MapID)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_GarrisonSetOut();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
                 else if (l_DraenorBaseMap_Area == MS::Garrison::gGarrisonInGarrisonAreaID[m_Garrison->GetGarrisonFactionIndex()] && GetMapId() == MS::Garrison::Globals::BaseMap)
                 {
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
 
-                        if (l_Player)
+                        if (l_Player && l_Player->IsInWorld())
+                        {
                             l_Player->_GarrisonSetIn();
+                            return true;
+                        }
+
+                        return false;
                     });
                 }
             }
@@ -15931,7 +15974,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetAppearanceModID());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantItemVisualId(PERM_ENCHANTMENT_SLOT));
     }
     else
     {
@@ -17751,10 +17794,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS  + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (apply_dur)
     {
@@ -27193,6 +27236,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                 CastSpell(this, 26013, true); ///< Deserter
             }
         }
+        sScriptMgr->OnLeaveBG(this, bg->GetMapId());
     }
 }
 
@@ -33034,7 +33078,7 @@ uint32 Player::GetUnlockedPetBattleSlot()
     uint32 l_SlotCount = 0;
 
     /// battle pet training
-    if (HasSpell(119467))
+    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
         l_SlotCount++;
 
     /// Newbie
@@ -33147,6 +33191,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+    l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     l_CurrentPet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     l_CurrentPet->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PETBATTLE);
 

@@ -882,10 +882,12 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
     {
         uint64 l_Guid = p_Player->GetGUID();
 
-        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        sMapMgr->AddCriticalOperation([l_Guid]() -> bool
         {
             if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                 l_Player->SwitchToPhasedMap(eAshranDatas::AshranNeutralMapID);
+
+            return true;
         });
     }
 
@@ -914,10 +916,12 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
         {
             uint64 l_Guid = p_Player->GetGUID();
 
-            sMapMgr->AddCriticalOperation([l_Guid]() -> void
+            sMapMgr->AddCriticalOperation([l_Guid]() -> bool
             {
                 if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                     l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+
+                return true;
             });
         }
     }
