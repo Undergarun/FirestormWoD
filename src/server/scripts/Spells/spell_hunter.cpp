@@ -3324,6 +3324,11 @@ class spell_hun_claw_bite : public SpellScriptLoader
                 {
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
+                        Unit* l_Target = GetHitUnit();
+
+                        if (l_Target == nullptr)
+                            return;
+
                         int32 l_Damage = int32(l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
 
                         SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
@@ -3352,8 +3357,15 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
 
-                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                        l_Damage *= l_Pet->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
+
+                        l_Damage = l_Pet->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                        l_Damage = l_Target->MeleeDamageBonusTaken(l_Pet, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+
+                        if (l_Target->GetTypeId() == TYPEID_UNIT)
+                            l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, l_Target->ToCreature());
+
+                        l_Damage = l_Pet->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
 
                         SetHitDamage(l_Damage);
 
