@@ -916,7 +916,12 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), l_PlayerGuid);
+    LoginPlayer(l_PlayerGuid);
+}
+
+void WorldSession::LoginPlayer(uint64 p_Guid)
+{
+    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), p_Guid);
     LoginDBQueryHolder* l_LoginDBQueryHolder = new LoginDBQueryHolder(GetAccountId());
 
     if (!l_LoginQueryHolder->Initialize() || !l_LoginDBQueryHolder->Initialize())
