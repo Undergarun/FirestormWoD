@@ -34,6 +34,7 @@ std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, s
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
 std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 std::map<uint32, uint32> g_ItemDisplayIDs;
+std::map<uint32, uint32> g_ItemTemplateDisplayIDs;
 
 DB2Storage <AchievementEntry>               sAchievementStore(Achievementfmt);
 DB2Storage <CriteriaEntry>                  sCriteriaStore(Criteriafmt);
@@ -202,6 +203,7 @@ std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+std::map<uint32, uint32> g_PvPItemStoreLevels;
 
 AreaGroupMemebersByID sAreaGroupMemebersByIDStore;
 
@@ -357,7 +359,14 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2",              "item_appearance",              "ID");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2",            "item_extended_cost",           "ID");
     LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2"                                                         );
-    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2"                                                          );
+    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2",                     "pvp_item",                     "ID");
+
+    for (uint32 l_I = 0; l_I < sPvpItemStore.GetNumRows(); ++l_I)
+    {
+        if (PvpItemEntry const* l_Entry = sPvpItemStore.LookupEntry(l_I))
+            g_PvPItemStoreLevels[l_Entry->itemId] = l_Entry->ilvl;
+    }
+
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2"                                                      );
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2"                                               );
 
@@ -543,7 +552,7 @@ void LoadDB2Stores(const std::string& dataPath)
                 }
 
                 if (ItemEntry* l_Entry = const_cast<ItemEntry*>(sItemStore.LookupEntry(l_ModifiedAppearanceEntry->ItemID)))
-                    l_Entry->DisplayId = l_DisplayID;
+                    g_ItemTemplateDisplayIDs[l_ModifiedAppearanceEntry->ItemID] = l_DisplayID;
             }
         }
     }

@@ -3601,10 +3601,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
         bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
 
-        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        void AddCriticalOperation(std::function<bool()> const&& p_Function)
         {
             m_CriticalOperationLock.acquire();
-            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperation.push(std::function<bool()>(p_Function));
             m_CriticalOperationLock.release();
         }
 
@@ -3987,7 +3987,7 @@ class Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
 
-        std::queue<std::function<void()>> m_CriticalOperation;
+        std::queue<std::function<bool()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;
 
     private:
