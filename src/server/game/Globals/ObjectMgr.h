@@ -1685,9 +1685,13 @@ class ObjectMgr
             return false;
         }
 
-        bool IsDisabledEncounter(uint32 p_EncounterID) const
+        bool IsDisabledEncounter(uint32 p_EncounterID, uint32 p_DifficultyID) const
         {
-            return m_DisabledEncounters.find(p_EncounterID) != m_DisabledEncounters.end();
+            auto l_Iter = m_DisabledEncounters.find(std::make_pair(p_EncounterID, p_DifficultyID));
+            if (l_Iter == m_DisabledEncounters.end())
+                return false;
+
+            return true;
         }
 
     private:
@@ -1879,7 +1883,7 @@ class ObjectMgr
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
 
-        std::set<uint32> m_DisabledEncounters;
+        std::set<std::pair<uint32, uint32>> m_DisabledEncounters;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

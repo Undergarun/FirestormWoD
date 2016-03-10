@@ -10756,7 +10756,7 @@ void ObjectMgr::LoadDisabledEncounters()
 
     m_DisabledEncounters.clear();
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID FROM instance_disabled_rankings");
+    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID, DifficultyID FROM instance_disabled_rankings");
 
     if (!l_Result)
     {
@@ -10769,8 +10769,9 @@ void ObjectMgr::LoadDisabledEncounters()
     {
         Field* l_Fields         = l_Result->Fetch();
         uint32 l_EncounterID    = l_Fields[0].GetUInt32();
+        uint32 l_DifficultyID   = l_Fields[1].GetUInt32();
 
-        m_DisabledEncounters.insert(l_EncounterID);
+        m_DisabledEncounters.insert(std::make_pair(l_EncounterID, l_DifficultyID));
 
         l_Count++;
     }

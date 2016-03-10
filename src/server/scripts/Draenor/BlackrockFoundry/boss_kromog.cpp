@@ -269,7 +269,7 @@ class boss_kromog : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RuneOfGraspingEarthVehicle);
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me)))
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::KromogBonusLoot, true);
