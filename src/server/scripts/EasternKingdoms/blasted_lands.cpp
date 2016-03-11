@@ -215,10 +215,12 @@ class npc_blasted_lands_zidormi : public CreatureScript
                     p_Player->RemoveAura(eSpell::TimeTravelling);
 
                     uint64 l_Guid = p_Player->GetGUID();
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                             l_Player->SwitchToPhasedMap(eMaps::NewBlastedLands);
+
+                        return true;
                     });
                 }
                 else
@@ -226,10 +228,12 @@ class npc_blasted_lands_zidormi : public CreatureScript
                     p_Player->CastSpell(p_Player, eSpell::TimeTravelling, true);
 
                     uint64 l_Guid = p_Player->GetGUID();
-                    sMapMgr->AddCriticalOperation([l_Guid]() -> void
+                    sMapMgr->AddCriticalOperation([l_Guid]() -> bool
                     {
                         if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
                             l_Player->SwitchToPhasedMap(eMaps::EasternKingdoms);
+
+                        return true;
                     });
                 }
 
@@ -271,19 +275,23 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
 
                     if (p_NewZoneID == BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
                     {
-                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> bool
                         {
                             if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
                                 l_Player->SwitchToPhasedMap(BLASTED_LANDS_DRAENOR_PHASE);
+
+                            return true;
                         });
                     }
 
                     if (p_NewZoneID != BLASTER_LANDS_ZONE_ID && p_Player->GetMapId() == BLASTER_LANDS_ZONE_ID)
                     {
-                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> void
+                        sMapMgr->AddCriticalOperation([l_PlayerGuid, p_NewZoneID]() -> bool
                         {
                             if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
                                 l_Player->SwitchToPhasedMap(EASTERN_KINGDOM_MAP_ID);
+
+                            return true;
                         });
                     }
                 }

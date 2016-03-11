@@ -162,7 +162,8 @@ namespace MS { namespace Garrison
             Mine            = 4,
             FishingHut      = 5,
             PetMenagerie    = 6,
-            Max             = 7
+            Shipyard        = 7,
+            Max             = 8
         };
     }
 
@@ -477,6 +478,7 @@ namespace MS { namespace Garrison
         232425,     ///< PlotTypes::Mine
         233083,     ///< PlotTypes::FishingHut
         233083,     ///< PlotTypes::PetMenagerie
+        0,          ///< PlotTypes::Shipyard
         /// Alliance
         229501,     ///< PlotTypes::Small
         232283,     ///< PlotTypes::Medium
@@ -484,7 +486,8 @@ namespace MS { namespace Garrison
         232283,     ///< PlotTypes::Farm
         232283,     ///< PlotTypes::Mine
         229501,     ///< PlotTypes::FishingHut
-        229501      ///< PlotTypes::PetMenagerie
+        229501,     ///< PlotTypes::PetMenagerie
+        0           ///< PlotTypes::Shipyard
     };
 
     static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
@@ -497,6 +500,7 @@ namespace MS { namespace Garrison
         232373,     ///< PlotTypes::Mine          same as PlotTypes::Medium
         233958,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
         233958,     ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Shipyard
         /// Alliance
         233957,     ///< PlotTypes::Small
         232409,     ///< PlotTypes::Medium
@@ -504,7 +508,8 @@ namespace MS { namespace Garrison
         232409,     ///< PlotTypes::Farm          same as PlotTypes::Medium
         232409,     ///< PlotTypes::Mine          same as PlotTypes::Medium
         233957,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        233957      ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        233957,     ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0           ///< PlotTypes::Shipyard
     };
 
     static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * FactionIndex::Max] =
@@ -517,6 +522,7 @@ namespace MS { namespace Garrison
         0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
         0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
         0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Shipyard
         /// Alliance
         10,         ///< PlotTypes::Small
         16,         ///< PlotTypes::Medium
@@ -524,7 +530,8 @@ namespace MS { namespace Garrison
         16,         ///< PlotTypes::Farm          same as PlotTypes::Medium
         16,         ///< PlotTypes::Mine          same as PlotTypes::Medium
         10,         ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        10          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        10,         ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0           ///< PlotTypes::Shipyard
     };
 
     static const uint32 gGarrisonBuildingActivationGameObject[FactionIndex::Max] =

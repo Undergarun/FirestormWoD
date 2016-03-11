@@ -2623,7 +2623,13 @@ bool Aura::IsSameRaidBuff(Aura const* p_ExistingAura) const
     for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
     {
         if (l_SpellInfoNew->Effects[l_I].ApplyAuraName != 0 && l_SpellInfoNew->Effects[l_I].ApplyAuraName == l_SpellInfoExisting->Effects[l_I].ApplyAuraName)
-            return true;
+        {
+            if ((l_SpellInfoNew->Effects[l_I].MiscValueB != 0 && l_SpellInfoExisting->Effects[l_I].MiscValueB != 0) &&
+                (l_SpellInfoNew->Effects[l_I].MiscValueB & l_SpellInfoExisting->Effects[l_I].MiscValueB))
+                return true;
+            else if (l_SpellInfoNew->Effects[l_I].MiscValueB == 0 && l_SpellInfoExisting->Effects[l_I].MiscValueB == 0)
+                return true;
+        }
     }
 
     return false;

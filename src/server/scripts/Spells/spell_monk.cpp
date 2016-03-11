@@ -1077,6 +1077,9 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
                         if (!(aura->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
                             continue;
 
+                        if (aura->GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)
+                            continue;
+
                         _player->AddAura(aura->GetSpellInfo()->Id, caster);
 
                         if (Aura* targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
@@ -5426,7 +5429,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
                 GlyphofFreedomRoll = 159534
             };
 
-            void HandleBeforeHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5436,7 +5439,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleBeforeHit);
+                OnCast += SpellCastFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnCast);
             }
         };
 
