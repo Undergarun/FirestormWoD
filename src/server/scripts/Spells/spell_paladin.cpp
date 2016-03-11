@@ -2490,6 +2490,7 @@ class spell_pal_divine_purpose: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_pal_divine_purpose_SpellScript::HandleOnPrepare);
                 AfterCast += SpellCastFn(spell_pal_divine_purpose_SpellScript::HandleAfterCast);
             }
         };

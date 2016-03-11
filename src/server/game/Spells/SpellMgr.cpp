@@ -513,6 +513,12 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
                 return 4 * IN_MILLISECONDS;
             break;
         }
+        case SPELLFAMILY_MAGE:
+        {
+            /// Deep Freeze - 4 seconds in PvP (6.2.3)
+            if (spellproto->Id == 44572)
+                return 4 * IN_MILLISECONDS;
+        }
         default:
             break;
     }

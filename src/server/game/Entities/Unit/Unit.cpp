@@ -4542,8 +4542,8 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
             && !(flag & AURA_INTERRUPT_FLAG_MOVE && (HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->m_spellInfo) ||
             HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))))
         {
-            // Zen Meditation should be channeled, but apply a levitation aura, it handles a movement opcode
-            if (spell->m_spellInfo->Id == 115176 && spell->GetTimer() == 8000)
+            /// Zen Meditation should be channeled, but apply a levitation aura, it handles a movement opcode
+            if (spell->m_spellInfo->Id == 115176)
                 return;
 
             InterruptNonMeleeSpells(false);
@@ -22330,11 +22330,39 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     }
     case SPELLFAMILY_MONK:
     {
-        /// Rising Sun Kick - In pvp, increase reduce by 20%
+        /// Rising Sun Kick - In pvp, damage increase by 20%
         if (p_Spellproto->SpellFamilyFlags[1] & 0x80)
             return 20.0f;
         break;
     }
+    case SPELLFAMILY_DEATHKNIGHT:
+    {
+        /// Frost Strike - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x4)
+            return -10.0f;
+        /// Obliterate - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x20000)
+            return -10.0f;
+        break;
+    }
+    case SPELLFAMILY_MAGE:
+    {
+        /// Ice Nova - In pvp, damage reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x80000)
+            return -20.0f;
+        break;
+    }
+    case SPELLFAMILY_WARRIOR:
+    {
+        /// Execute - In pvp, damage reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x20000000)
+            return -10.0f;
+        /// Mortal Strike - In pvp, damage reduce by 10%
+        if (p_Spellproto->Id == 16856)
+            return -10.0f;
+        break;
+    }
+
     default:
         break;
     }

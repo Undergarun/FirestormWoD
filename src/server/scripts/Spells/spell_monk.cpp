@@ -5823,8 +5823,52 @@ class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Serenity - 152173
+class spell_monk_serenity : public SpellScriptLoader
+{
+    public:
+        spell_monk_serenity() : SpellScriptLoader("spell_monk_serenity") { }
+
+        class spell_monk_serenity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_serenity_AuraScript);
+
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+                {
+                    Aura* l_AuraPtr = l_Player->GetAura(GetSpellInfo()->Id);
+                    if (l_AuraPtr == nullptr)
+                        return;
+
+                    l_AuraPtr->SetMaxDuration(5 * IN_MILLISECONDS);
+                    l_AuraPtr->RefreshDuration();
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_monk_serenity_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_serenity_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_serenity();
     new spell_monk_breath_of_the_serpent_tick();
     new spell_monk_breath_of_the_serpent_heal();
     new spell_monk_breath_of_the_serpent();

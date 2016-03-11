@@ -577,6 +577,7 @@ class spell_hun_burrow_attack : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Steady Focus - 177667
 class spell_hun_steady_focus: public SpellScriptLoader
 {
@@ -589,9 +590,9 @@ class spell_hun_steady_focus: public SpellScriptLoader
 
             enum SteadyFocusSpells
             {
-                SteadyShot  = 56641,
-                CobraShot   = 77767,
-                SteadyFocus = 177668
+                SteadyShot      = 56641,
+                CobraShot       = 77767,
+                SteadyFocus     = 177668
             };
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
@@ -4230,8 +4231,54 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Focusing Shot - 152245
+class spell_hun_focusing_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_focusing_shot() : SpellScriptLoader("spell_hun_focusing_shot") { }
+
+        class spell_hun_focusing_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_focusing_shot_SpellScript);
+
+            enum eSpells
+            {
+                SteadyFocus     = 177667,
+                SteadyFocusProc = 177668
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::SteadyFocus))
+                {
+                    l_Player->CastSpell(l_Player, eSpells::SteadyFocusProc, true);
+
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->CastSpell(l_Pet, eSpells::SteadyFocusProc, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_focusing_shot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_focusing_shot_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_focusing_shot();
     new spell_hun_camouflage_visual();
     new spell_hun_camouflage();
     new spell_hun_camouflage_triggered();
