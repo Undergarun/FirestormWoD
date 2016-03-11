@@ -206,7 +206,7 @@ namespace MS { namespace Garrison
             /// Generates random reward for Armory work order
             uint32 CalculateArmoryWorkOrder() const;
             /// Get follower assigned to building from plot instance ID
-            GarrisonFollower* Manager::GetAssignedFollower(uint32 p_PlotInstanceID);
+            GarrisonFollower* GetAssignedFollower(uint32 p_PlotInstanceID);
             /// Checks if the building has the required follower assigned to apply bonus
             bool HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID);
             /// Add new creature in plot datas, that way any summoned creature can be detected as part of the building
