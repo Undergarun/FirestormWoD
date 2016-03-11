@@ -27,4 +27,7 @@ VOLUME /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm
 ADD bin/* /usr/local/bin/
 #ADD lib/* /usr/local/lib/
 
+# Open the port use by the worldserver on the container
+EXPOSE 8085
+
 #ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]

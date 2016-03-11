@@ -1439,7 +1439,7 @@ class npc_shadow_orb : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                Movement::MoveSplineInit init(*me);
+                Movement::MoveSplineInit init(me);
                 FillCirclePath(HalionSpawnPos, me->GetDistance2d(HalionSpawnPos.GetPositionX(), HalionSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action);
                 init.SetWalk(true);
                 init.SetCyclic();

@@ -188,7 +188,6 @@ bool WMOGroup::open()
             f.read(&fogIdx, 4);
             f.read(&liquidType, 4);
             f.read(&groupWMOID,4);
-
         }
         else if (!strcmp(fourcc,"MOPY"))
         {
@@ -352,9 +351,20 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
-            if (MOPY[2*i]&WMO_MATERIAL_NO_COLLISION ||
-              !(MOPY[2*i]&(WMO_MATERIAL_HINT|WMO_MATERIAL_COLLIDE_HIT)) )
+
+            uint8 l_TriangleFlags = MOPY[2 * i];
+
+            bool l_MOPYIsNoCamCollid      = l_TriangleFlags & 0x02;
+            bool l_MOPYIsDetailFace       = l_TriangleFlags & 0x04;
+            bool l_MOPYIsCollisionFace    = l_TriangleFlags & 0x08;
+            bool l_MOPYIsColor            = (l_TriangleFlags & 0x08) == 0;
+            bool l_MOPYIsRenderFace       = (l_TriangleFlags & 0x24) == 0x20;
+            bool l_MOPYIsTransFace        = (l_TriangleFlags & 0x01) && (l_TriangleFlags & 0x24);
+            bool l_MOPYIsCollidable       = l_MOPYIsCollisionFace || (l_MOPYIsRenderFace && !l_MOPYIsDetailFace);
+
+            if (!l_MOPYIsCollidable || l_TriangleFlags == 0xFF)
                 continue;
+
             // Use this triangle
             for (int j=0; j<3; ++j)
             {

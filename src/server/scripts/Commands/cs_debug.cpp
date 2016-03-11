@@ -2585,7 +2585,7 @@ class debug_commandscript: public CommandScript
             float y         = (float)atof(cy);
             float z         = (float)atof(cz);
 
-            target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
+           // target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
             return true;
         }
 
