@@ -3133,6 +3133,11 @@ namespace MS { namespace Garrison
         return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1 : 1;
     }
 
+    GarrisonFollower* Manager::GetAssignedFollower(uint32 p_PlotInstanceID)
+    {
+        return GetFollowerWithDatabaseID(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+    }
+
     bool Manager::HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID)
     {
         GarrisonFollower* l_Follower = GetFollowerWithDatabaseID(GetBuilding(p_PlotInstanceID).FollowerAssigned);
@@ -3170,6 +3175,11 @@ namespace MS { namespace Garrison
             return l_EpicRewards[urand(0, l_EpicRewards.size() - 1)];
 
         return 0;
+    }
+
+    void Manager::InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid)
+    {
+        m_PlotsCreatures[p_PlotInstanceID].push_back(p_Guid);
     }
 
     /// Get creature plot instance ID
