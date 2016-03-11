@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_Creature   : Target GameObject instance
-    bool npc_WarraTheWeaver::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_WarraTheWeaver::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (!p_Player->HasQuest(Quests::Horde_YourFirstTailoringWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstTailoringWorkOrder))
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstTailoringWorkOrder, 4);
@@ -70,7 +70,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_WarraTheWeaver::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_WarraTheWeaver::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->CLOSE_GOSSIP_MENU();
         return true;
@@ -81,7 +81,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_WarraTheWeaver::GetAI(Creature * p_Creature) const
+    CreatureAI * npc_WarraTheWeaver::GetAI(Creature* p_Creature) const
     {
         return new npc_WarraTheWeaverAI(p_Creature);
     }
@@ -166,7 +166,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_Creature   : Target GameObject instance
-    bool npc_Turga::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_Turga::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (p_Player->HasQuest(Quests::Horde_YourFirstTailoringWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstTailoringWorkOrder))
             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstTailoringWorkOrder, 4);
@@ -183,7 +183,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_Turga::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Turga::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
             reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
@@ -196,9 +196,59 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_Turga::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_Turga::GetAI(Creature* p_Creature) const
     {
         return new npc_TurgaAI(p_Creature);
+    }
+
+    /// Constructor
+    npc_Turga::npc_TurgaAI::npc_TurgaAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        SetAIObstacleManagerEnabled(true);
+    }
+
+    void npc_Turga::npc_TurgaAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_OwnerGuid = p_Guid;
+    }
+
+    void npc_Turga::npc_TurgaAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
+        {
+            if (Manager* l_GarrisonMgr = l_Owner->GetGarrison())
+            {
+                if (l_GarrisonMgr->HasRequiredFollowerAssignedAbility(p_PlotInstanceID))
+                {
+                    GarrisonFollower* l_Follower = l_GarrisonMgr->GetAssignedFollower(p_PlotInstanceID);
+
+                    if (l_Follower == nullptr)
+                        return;
+
+                    GarrFollowerEntry const* l_GarrFollEntry = l_Follower->GetEntry();
+
+                    if (l_GarrFollEntry == nullptr)
+                        return;
+
+                    switch (GetBuildingID())
+                    {
+                        case Buildings::TailoringEmporium_TailoringEmporium_Level2:
+                        case Buildings::TailoringEmporium_TailoringEmporium_Level3:
+                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], 0.4044f, 5.2839f, 0.5047f, 4.7204f, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
     }
 
 }   ///< namespace Garrison

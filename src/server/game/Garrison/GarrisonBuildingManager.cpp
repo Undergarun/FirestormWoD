@@ -28,6 +28,7 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::FishingShack_FishingShack_Level1);
         m_AllowedBluePrints.push_back(Buildings::FishingShack_FishingShack_Level2);
         m_AllowedBluePrints.push_back(Buildings::GemBoutique_GemBoutique_Level1);
+        m_AllowedBluePrints.push_back(Buildings::GemBoutique_GemBoutique_Level2);
         m_AllowedBluePrints.push_back(Buildings::GnomishGearworks_GoblinWorkshop_Level1);
         m_AllowedBluePrints.push_back(Buildings::LumberMill_LumberMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::LumberMill_LumberMill_Level2);
@@ -42,6 +43,7 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::Storehouse_Storehouse_Level1);
         m_AllowedBluePrints.push_back(Buildings::Storehouse_Storehouse_Level2);
         m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);
+        m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level2);
         m_AllowedBluePrints.push_back(Buildings::TheForge_TheForge_Level1);
         m_AllowedBluePrints.push_back(Buildings::TheTannery_TheTannery_Level1);
         m_AllowedBluePrints.push_back(Buildings::TradingPost_TradingPost_Level1);

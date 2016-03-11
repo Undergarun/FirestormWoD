@@ -203,7 +203,9 @@ namespace MS { namespace Garrison
         NpcAllianceAncientTradingMechanismQuestGiver    = 87206,
         NpcAllianceAncientTradingMechanismAuctioneer    = 87205,
         NpcHordeAncientTradingMechanismQuestGiver       = 86806,
-        NpcHordeAncientTradingMechanismAuctioneer       = 87109
+        NpcHordeAncientTradingMechanismAuctioneer       = 87109,
+        NpcHordeJewelCraftingFollower                   = 88546,
+        NpcAllianceJewelCraftingFollower                = 88545
     };
 
     namespace WorkshopGearworks
