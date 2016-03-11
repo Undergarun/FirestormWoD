@@ -22274,11 +22274,22 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     }
     case SPELLFAMILY_MONK:
     {
-        /// Rising Sun Kick - In pvp, increase reduce by 20%
+        /// Rising Sun Kick - In pvp, damage increase by 20%
         if (p_Spellproto->SpellFamilyFlags[1] & 0x80)
             return 20.0f;
         break;
     }
+    case SPELLFAMILY_DEATHKNIGHT:
+    {
+        /// Frost Strike - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x4)
+            return -10.0f;
+        /// Obliterate - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x20000)
+            return -10.0f;
+        break;
+    }
+
     default:
         break;
     }
