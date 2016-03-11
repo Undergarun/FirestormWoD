@@ -341,11 +341,16 @@ void FlightPathMovementGenerator::DoReset(Player* player)
 
     Movement::MoveSplineInit init(player);
     uint32 end = GetPathAtMapEnd();
+
     for (uint32 i = GetCurrentNode(); i != end; ++i)
     {
+        if (i >= i_path.size())
+            break;
+
         G3D::Vector3 vertice(i_path[i]->x, i_path[i]->y, i_path[i]->z);
         init.Path().push_back(vertice);
     }
+
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
     init.SetSmooth();
