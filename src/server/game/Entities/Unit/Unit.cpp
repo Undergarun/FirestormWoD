@@ -22357,6 +22357,9 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Execute - In pvp, damage reduce by 10%
         if (p_Spellproto->SpellFamilyFlags[0] & 0x20000000)
             return -10.0f;
+        /// Mortal Strike - In pvp, damage reduce by 10%
+        if (p_Spellproto->Id == 16856)
+            return -10.0f;
         break;
     }
 
