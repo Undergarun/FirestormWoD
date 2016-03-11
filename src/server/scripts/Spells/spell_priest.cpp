@@ -1355,7 +1355,7 @@ public:
                     if (AuraEffect* l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
                     {
                         int32 l_Amount = l_ReflectiveShield->GetAmount();
-                        if (l_Attacker->IsPlayer())
+                        if (l_Attacker->IsPlayer()) ///< Glyph of Reflective Shield is reduce to 35% in pvp
                             l_Amount /= 2;
                         int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_Amount);
                         l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
