@@ -22296,6 +22296,13 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
             return -20.0f;
         break;
     }
+    case SPELLFAMILY_WARRIOR:
+    {
+        /// Execute - In pvp, damage reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x20000000)
+            return -10.0f;
+        break;
+    }
 
     default:
         break;
