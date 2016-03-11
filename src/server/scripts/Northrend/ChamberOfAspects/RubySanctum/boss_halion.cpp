@@ -1929,7 +1929,7 @@ class spell_halion_summon_exit_portals: public SpellScriptLoader
 
             void Register()
             {
-                switch (GetSpellInfo()->Id)
+                switch (m_scriptSpellId)
                 {
                     case 74805:
                         break;
