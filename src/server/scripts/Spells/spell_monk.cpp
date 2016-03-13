@@ -4765,15 +4765,16 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
                     l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
 
-                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
-                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
-
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
                 l_Bp = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Bp);
+
+                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
+
             }
 
             void Register()
