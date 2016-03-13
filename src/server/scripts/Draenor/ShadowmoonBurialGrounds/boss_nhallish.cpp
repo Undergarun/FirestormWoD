@@ -28,7 +28,8 @@ enum eNhalishCreatures
 
 enum eNhalishGameObjects
 {
-    GameObjectNhalishDoor     = 227851
+    GameObjectNhalishDoor     = 227851,
+    GameObjectNhalishEntrance = 227852
 };
 
 enum eNhallishTalks
@@ -114,12 +115,31 @@ public:
             m_PhaseCounter = 0;             
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            if (m_First)
-            {
-                m_First = false;
+            if (!m_First)
+            {          
                 HandleDoorActivation();
+                HandleDoorEntranceActivation();
+                m_First = true;
             }
         }
+
+        void JustReachedHome() override
+        {
+            _JustReachedHome();
+            summons.DespawnAll(); 
+            DespawnCreaturesInArea(eShadowmoonBurialGroundsCreatures::CreatureExhumeSpirit, me);
+            if (m_Instance != nullptr)
+                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossNhallish, EncounterState::FAIL);
+            /// Adding back to Visibility List
+            std::list<Player*> l_ListVisibility;
+            me->GetPlayerListInGrid(l_ListVisibility, 300.0f);
+            if (l_ListVisibility.empty())
+                return;
+
+            for (Player* l_Itr : l_ListVisibility)
+                l_Itr->SetPhaseMask(1, true);
+        }
+
 
         void HandleDoorActivation() /// Only upon boss Defeat
         {
@@ -154,30 +174,13 @@ public:
             {
                 switch (p_Summon->GetEntry())
                 {
-                    case eNhalishCreatures::CreatureDistrubedSouls:
-                        p_Summon->CastSpell(p_Summon, eShadowmoonBurialGroundsSpells::SpellVortexVisual);
-                        break;
-                    default:
-                        break;
+                case eNhalishCreatures::CreatureDistrubedSouls:
+                    p_Summon->CastSpell(p_Summon, eShadowmoonBurialGroundsSpells::SpellVortexVisual);
+                    break;
+                default:
+                    break;
                 }
             }
-        }
-
-        void JustReachedHome() override
-        {
-            _JustReachedHome();
-            summons.DespawnAll();
-            HandleDoorEntranceActivation();
-            if (m_Instance != nullptr)
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossNhallish, EncounterState::FAIL);
-            // Adding back to Visibility List
-            std::list<Player*> l_ListVisibility;
-            me->GetPlayerListInGrid(l_ListVisibility, 300.0f);
-            if (l_ListVisibility.empty())
-                return;
-
-            for (Player* l_Itr : l_ListVisibility)
-                l_Itr->SetPhaseMask(1, true);
         }
 
         void DoAction(int32 const p_Action) override
@@ -201,13 +204,12 @@ public:
         void EnterCombat(Unit* p_Who) override
         {
             _EnterCombat();
-            HandleDoorActivation();
             Talk(eNhallishTalks::TalkAggro);
             HandleDoorEntranceActivation();     
-            events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 15 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 70 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 6 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 4 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 7 * TimeConstants::IN_MILLISECONDS);
             if (m_Instance != nullptr)
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
@@ -251,13 +253,13 @@ public:
                    l_Creature->GetMotionMaster()->MoveRandom(15.0f);
                    if (roll_chance_i(25))
                    {
-                       switch (urand(0, 1))
+                       switch (urand(0, 4))
                        {
                            case 0:
-                               me->MonsterSay("Thank you.", Language::LANG_UNIVERSAL, me->GetGUID());
+                               l_Creature->MonsterSay("Thank you.", Language::LANG_UNIVERSAL, me->GetGUID());
                                break;
                            case 1:
-                               me->MonsterSay("My torment is over!", Language::LANG_UNIVERSAL, me->GetGUID());
+                               l_Creature->MonsterSay("My torment is over!", Language::LANG_UNIVERSAL, me->GetGUID());
                                break;
                            default:
                                break;
@@ -409,7 +411,7 @@ public:
                     {
                         if (l_LinkAI && l_LinkAI->m_HasDied)
                         {
-                            if (l_LinkAI->m_VictimGUID != NULL)
+                            if (l_LinkAI->m_VictimGUID)
                             {
                                 if (Unit* l_Victim = Unit::GetUnit(*p_Creature, l_LinkAI->m_VictimGUID))
                                 {
@@ -423,6 +425,18 @@ public:
                                     l_Victim->SetPhaseMask(1, true);
                                     p_Creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                                 }
+                            }
+                            else ///< If shit gets messy.
+                            {
+                                p_Player->RemoveAura(ePossessedSoulSpells::SpellSoulless);
+                                /// Returned Soul
+                                if (p_Player->HasAura(ePossessedSoulSpells::SpellSoulShred))
+                                {
+                                    p_Player->CastSpell(p_Player, ePossessedSoulSpells::SpellRegainYourSoul, true);
+                                    p_Player->RemoveAura(ePossessedSoulSpells::SpellSoulShred);
+                                }
+                                p_Player->SetPhaseMask(1, true);
+                                p_Creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                             }
                         }
                     }
@@ -479,7 +493,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->CastSpell(me, ePossessedSoulSpells::SpellLootSparkles);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);    
             me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
@@ -668,7 +682,7 @@ public:
             SpellVoidBlastDot = 153501
         };
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -680,7 +694,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -716,7 +730,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_vortex_SpellScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -728,7 +742,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

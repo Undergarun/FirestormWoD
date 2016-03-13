@@ -26,8 +26,8 @@ public:
 
         InstanceScript* m_Instance = this;
 
-        uint64 m_TalkValue;
         uint64 m_SadanaGUID;
+        uint64 m_SadanaEclipseTriggerGUID;
         uint64 m_NhallishGUID;
         uint64 m_BonemawGUID;
         uint64 m_BonemawMouthGUID;
@@ -50,7 +50,6 @@ public:
             m_NerzhulGUID                    = 0;
             m_BonemawMouthGUID               = 0;
             m_NerzulPropGUID                 = 0;
-            m_TalkValue                      = 0;
             m_WandererFirstTalkGUID          = 0;
             m_WandererSecondTalkGUID         = 0;
             m_WandererThirdTalkGUID          = 0;
@@ -58,7 +57,8 @@ public:
             m_DoorGobjectSadanaFightDoorGUID = 0;
             m_DoorGobjectNerzulGUID          = 0;
             m_DoorGobjectBonemawEntranceGUID = 0;
-            m_DoorGobjectNhalishEntranceGUID = 0;        
+            m_DoorGobjectNhalishEntranceGUID = 0;
+            m_SadanaEclipseTriggerGUID       = 0;
         }
 
         void OnCreatureCreate(Creature* l_Creature) override
@@ -76,11 +76,17 @@ public:
                 case eShadowmoonBurialGroundsBosses::BossBoneMaw:
                     m_BonemawGUID = l_Creature->GetGUID();
                     break;
+                case eShadowmoonBurialGroundsCreatures::CreatureBonemawMouth:
+                    m_BonemawMouthGUID = l_Creature->GetGUID();
+                    break;
                 case eShadowmoonBurialGroundsBosses::BossNerzul:
                     m_NerzhulGUID = l_Creature->GetGUID();
                     break;
                 case eShadowmoonBurialGroundsCreatures::CreatureNerzulVisual:
                     m_NerzulPropGUID = l_Creature->GetGUID();
+                    break;
+                case eShadowmoonBurialGroundsCreatures::CreatureNewDarkEclipse:
+                    m_SadanaEclipseTriggerGUID = l_Creature->GetGUID();
                     break;
                 default:
                     break;
@@ -141,9 +147,6 @@ public:
         {
             switch (p_Type)
             {
-                case eShadowmoonBurialGroundsDatas::DataWandererTalksValues:
-                    m_TalkValue++;
-                    break;
                 case eShadowmoonBurialGroundsDatas::DataWandererFirstTalk:
                     m_WandererFirstTalkGUID = p_Data;
                     break;
@@ -165,17 +168,20 @@ public:
                 case eShadowmoonBurialGroundsDatas::DataBossSadana:
                     return m_SadanaGUID;
                     break;
+                case eShadowmoonBurialGroundsDatas::DataSadanaEclipseTrigger:
+                    return m_SadanaEclipseTriggerGUID;
+                    break;
                 case eShadowmoonBurialGroundsDatas::DataBossNhallish:
                     return m_NhallishGUID;
                     break;
                 case eShadowmoonBurialGroundsDatas::DataBossBonemaw:
                     return m_BonemawGUID;
                     break;
+                case eShadowmoonBurialGroundsDatas::DataBonemawMouth:
+                    return m_BonemawMouthGUID;
+                    break;
                 case eShadowmoonBurialGroundsDatas::DataBossNerzul:
                     return m_NerzhulGUID;
-                    break;
-                case eShadowmoonBurialGroundsDatas::DataWandererTalksValues:
-                    return m_TalkValue;
                     break;
                 case eShadowmoonBurialGroundsDatas::DataWandererFirstTalk:
                     return m_WandererFirstTalkGUID;
