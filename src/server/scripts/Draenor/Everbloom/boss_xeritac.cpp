@@ -266,15 +266,18 @@ public:
                 {
                     m_Count++;
                     printf("Counter is at %u", m_Count);
-                    if (m_Count >= 5 && m_Phase == 1)
+                    if (m_Count >= 4 && m_Phase == 1)
                     {
                         m_Phase = 2;
                         events.Reset();
                         m_Descend = true;
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                        {
+                            me->GetMotionMaster()->MoveChase(l_Victim);
                             me->Attack(l_Victim, true);
+                        }
                         events.ScheduleEvent(eXeritacEvents::EventToxicBolt, urand(7 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         events.ScheduleEvent(eXeritacEvents::EventVenomousString, 16 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventGasVolley, 30 * TimeConstants::IN_MILLISECONDS);
@@ -862,20 +865,23 @@ public:
 
             if (!m_Explosion)
             {
-                // Burst hardcoded
-                if (Player* l_Player = sObjectAccessor->GetPlayer(*me, m_Target))
+                if (m_Target)
                 {
-                    if (!l_Player->HasAura(eGorgedBustersSpells::SpellFixate)) /// Fixated aura
-                        me->AddAura(eGorgedBustersSpells::SpellFixate, l_Player);
-
-                    if (!me->isMoving())
-                        me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
-
-                    if (l_Player->IsWithinDistInMap(me, 1.0f))
+                    // Burst hardcoded
+                    if (Player* l_Player = sObjectAccessor->GetPlayer(*me, m_Target))
                     {
-                        m_Explosion = true;
-                        me->CastSpell(l_Player, eGorgedBustersSpells::SpellBurst);
-                        me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                        if (!l_Player->HasAura(eGorgedBustersSpells::SpellFixate)) /// Fixated aura
+                            me->AddAura(eGorgedBustersSpells::SpellFixate, l_Player);
+
+                        if (!me->isMoving())
+                            me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
+
+                        if (l_Player->IsWithinDistInMap(me, 1.0f))
+                        {
+                            m_Explosion = true;
+                            me->CastSpell(l_Player, eGorgedBustersSpells::SpellBurst);
+                            me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                        }
                     }
                 }
             }
@@ -1067,6 +1073,20 @@ public:
     }
 };
 
+/// Xeritac eggs - 234113
+class everbloom_xertiac_gameobject_eggs : public GameObjectScript
+{
+public:
+    everbloom_xertiac_gameobject_eggs() : GameObjectScript("everbloom_xertiac_gameobject_eggs") {}
+
+    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    {
+        p_Gobject->SummonCreature(eEverbloomCreature::CreatureToxicSpiderling, *p_Gobject, TEMPSUMMON_DEAD_DESPAWN);
+        p_Gobject->Delete();
+        return true;
+    }
+};
+
 void AddSC_boss_xeritac()
 {
     new boss_xeritac();                                 ///< 84550
@@ -1077,4 +1097,5 @@ void AddSC_boss_xeritac()
     new the_everbloom_xeritac_spell_gaseous_volley();   ///< 169382
     new the_everbloom_xeritac_spell_descend();          ///< 169278
     new the_everbloom_xeritac_areatrigger_toxic_gas();  ///< 169224
+    new everbloom_xertiac_gameobject_eggs();            ///< 234113
 }
