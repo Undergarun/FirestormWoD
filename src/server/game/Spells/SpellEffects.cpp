@@ -3159,11 +3159,11 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
             if (Aura* l_Aura = l_It->first)
                 l_Aura->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-
-        /// Glyph of Mass Dispel should dispel Cyclone
-        if (GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
-            unitTarget->RemoveAura(33786);
     }
+
+    /// Mass Dispel should dispel Cyclone, if priest has Glyph of Mass Dispell
+    if (m_spellInfo->Id == 32375 && GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
+        unitTarget->RemoveAura(33786);
 
     DispelChargesList l_DispelList;
     unitTarget->GetDispellableAuraList(m_caster, l_DispelMask, l_DispelList);
