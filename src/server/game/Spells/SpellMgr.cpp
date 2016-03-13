@@ -135,7 +135,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_STUN;
             /// Warbringer -- 7922
             if (spellproto->Id == 7922)
-                return DIMINISHING_STUN;
+                return DIMINISHING_LIMITONLY;
 
             /// Intimidating Shout -- 5246
             if (spellproto->SpellFamilyFlags[0] & 0x40000)
