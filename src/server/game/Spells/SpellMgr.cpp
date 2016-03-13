@@ -6201,6 +6201,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 642:   ///< Divine Shield
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            case 126890:///< Eminence
+            case 117895:///< Eminence (statue)
+                spellInfo->SpellLevel = 100;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)

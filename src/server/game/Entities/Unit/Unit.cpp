@@ -12888,6 +12888,14 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return 1.0f;
 
+    /// No bonus for Ember Tap heal
+    if (spellProto->Id == 114635)
+        return 1.0f;
+
+    // No bonus for Eminence (statue) and Eminence
+    if (spellProto->Id == 117895 || spellProto->Id == 126890)
+        return 1.0f;
+
     float DoneTotalMod = 1.0f;
 
     // Healing done percent
