@@ -33260,7 +33260,6 @@ void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
         l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
     }
 
-    float l_Stnc = (HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
     float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
     float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
 
