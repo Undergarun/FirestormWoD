@@ -98,7 +98,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         {
             // Frostjaw -- 102051
             if (spellproto->SpellFamilyFlags[2] & 0x40000)
-                return DIMINISHING_SILENCE;
+                return DIMINISHING_ROOT;
 
             // Frost Nova -- 122
             if (spellproto->SpellFamilyFlags[0] & 0x40)
