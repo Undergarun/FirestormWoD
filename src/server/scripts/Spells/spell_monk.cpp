@@ -4266,8 +4266,6 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 // Add additionnal stuff depending on spec
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
                 {
-                    l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
-
                     if (l_Player->HasAura(SPELL_MONK_MUSCLE_MEMORY))
                         l_Player->CastSpell(l_Player, SPELL_MONK_CRANES_ZEAL, true);
                 }
