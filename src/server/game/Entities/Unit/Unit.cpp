@@ -11610,6 +11610,13 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
+    /// Frost Orb should remove Polymorph
+    if (IsPlayer() && spellProto && victim && spellProto->Id == 84721)
+    {
+        if (victim->HasAura(118))
+            victim->RemoveAura(118);
+    }
+
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
 
     // done scripted mod (take it from owner)
