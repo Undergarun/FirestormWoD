@@ -910,6 +910,9 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
 
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
 
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
+        AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
     return true;
 }
 
@@ -1892,7 +1895,7 @@ void Creature::setDeathState(DeathState s)
 
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, cinfo->NpcFlags1);
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, cinfo->NpcFlags2);
-        ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+        ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         Motion_Initialize();
         if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
