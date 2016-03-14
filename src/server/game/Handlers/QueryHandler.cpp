@@ -662,8 +662,6 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
         p_RecvPacket.readPackGUID(l_GUID);
         p_RecvPacket >> l_Entry;
 
-        sLog->outAshran("HandleDBQueryBulk %u %u", l_Type, l_Entry);
-
         /// Specific case, localized string not yet supported by the system
         if (l_Type == DB2_REPLY_BROADCAST_TEXT)
         {

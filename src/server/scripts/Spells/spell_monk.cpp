@@ -1077,6 +1077,9 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
                         if (!(aura->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
                             continue;
 
+                        if (aura->GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)
+                            continue;
+
                         _player->AddAura(aura->GetSpellInfo()->Id, caster);
 
                         if (Aura* targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
@@ -2015,9 +2018,10 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             enum eSpells
             {
-                RenewingMist = 115151,
-                JadeMists    = 165397,
-                PoolOfMists  = 173841
+                RenewingMist    = 115151,
+                JadeMists       = 165397,
+                PoolOfMists     = 173841,
+                ThunderFocusTea = 116680
             };
 
             void HandleAfterCast()
@@ -2042,7 +2046,12 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);                    
+                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                if (Aura* l_ThunderFocusTea = l_Caster->GetAura(eSpells::ThunderFocusTea, l_Caster->GetGUID()))
+                {
+                    if (Aura* l_RenewingMistHot = l_Target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, l_Caster->GetGUID()))
+                        l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(l_RenewingMistHot->GetEffect(EFFECT_1)->GetAmount() + l_ThunderFocusTea->GetEffect(EFFECT_1)->GetAmount());
+                }
             }
 
             void Register()
@@ -5420,7 +5429,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
                 GlyphofFreedomRoll = 159534
             };
 
-            void HandleBeforeHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5430,7 +5439,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleBeforeHit);
+                OnCast += SpellCastFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnCast);
             }
         };
 
@@ -5814,8 +5823,52 @@ class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Serenity - 152173
+class spell_monk_serenity : public SpellScriptLoader
+{
+    public:
+        spell_monk_serenity() : SpellScriptLoader("spell_monk_serenity") { }
+
+        class spell_monk_serenity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_serenity_AuraScript);
+
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+                {
+                    Aura* l_AuraPtr = l_Player->GetAura(GetSpellInfo()->Id);
+                    if (l_AuraPtr == nullptr)
+                        return;
+
+                    l_AuraPtr->SetMaxDuration(5 * IN_MILLISECONDS);
+                    l_AuraPtr->RefreshDuration();
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_monk_serenity_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_serenity_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_serenity();
     new spell_monk_breath_of_the_serpent_tick();
     new spell_monk_breath_of_the_serpent_heal();
     new spell_monk_breath_of_the_serpent();

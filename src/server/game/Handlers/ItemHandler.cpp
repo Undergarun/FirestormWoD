@@ -892,7 +892,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             if (l_PriceMod)
                 l_Price -= CalculatePct(l_Price, l_PriceMod);
 
-            bool l_BypassFilter = l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER;
+            bool l_BypassFilter = !(l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER);
 
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type

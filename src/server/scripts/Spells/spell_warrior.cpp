@@ -2615,6 +2615,42 @@ class spell_warr_defensive_stance : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Gladiator Stance - 156291
+class spell_warr_gladiator_stance : public SpellScriptLoader
+{
+    public:
+        spell_warr_gladiator_stance() : SpellScriptLoader("spell_warr_gladiator_stance") { }
+
+        enum eSpells
+        {
+            UnwaveringSentinel = 29144
+        };
+
+        class spell_warr_gladiator_stance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_gladiator_stance_AuraScript);
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->RemoveAura(eSpells::UnwaveringSentinel);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_gladiator_stance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_gladiator_stance_AuraScript();
+        }
+};
+
 /// Last Update 6.2.3
 /// Single-Minded Fury - 81099
 class spell_warr_single_minded_fury : public SpellScriptLoader
@@ -3277,8 +3313,47 @@ class spell_warr_stances : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Taunt - 355
+class spell_warr_taunt : public SpellScriptLoader
+{
+    public:
+        spell_warr_taunt() : SpellScriptLoader("spell_warr_taunt") { }
+
+        class spell_warr_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_taunt_SpellScript);
+
+            enum eSpells
+            {
+                GladiatorStance = 156291
+            };
+
+            SpellCastResult CheckStance()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                    return SPELL_FAILED_NOT_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_taunt_SpellScript::CheckStance);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_taunt_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_taunt();
     new spell_warr_crazed_berserker();
     new spell_warr_stances();
     new spell_warr_raging_blow_proc();

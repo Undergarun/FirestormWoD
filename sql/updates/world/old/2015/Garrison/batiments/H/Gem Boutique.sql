@@ -48,10 +48,19 @@
 	UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_container" WHERE TYPE=45;
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-96 AND faction_index = 0;
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79830','2.55804','2.17175','1.39589','5.85254');
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79832','2.28618','-2.32004','1.45116','0.287999');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79830','2.55804','2.17175','1.39589','5.85254'); -- work orders
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79832','2.28618','-2.32004','1.45116','0.287999'); -- jewelcrafting
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','-237067','9.75476','-3.63255','0.000183','1.39541');
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-131 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','0','79832','2.24944','3.464','1.39201','4.71012');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','0','79830','-0.060981','-4.02778','1.39009','0.861673');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','0','-237067','9.90751','-3.90032','0.000023','5.86465');
+
 -- LEVEL 3
+
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','0','79832','0.514124','-4.4743','1.39035','2.02799');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','0','79830','2.88145','2.79548','1.39093','4.72583');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','0','-237067','9.91948','-3.37288','-0.000305','6.1474');

@@ -311,9 +311,9 @@ class npc_ashran_flight_masters : public CreatureScript
                 return true;
 
             if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
-                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseHordeToAlliance, 0, true);
+                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseHordeToAlliance);
             else
-                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseAllianceToHorde, 0, true);
+                p_Player->ActivateTaxiPathTo(eAshranDatas::TaxiPathBaseAllianceToHorde);
 
             return false;
         }

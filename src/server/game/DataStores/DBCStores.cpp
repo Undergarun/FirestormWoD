@@ -181,6 +181,7 @@ DBCStorage <VehicleEntry> sVehicleStore(VehicleEntryfmt);
 DBCStorage <VehicleSeatEntry> sVehicleSeatStore(VehicleSeatEntryfmt);
 DBCStorage <WMOAreaTableEntry> sWMOAreaTableStore(WMOAreaTableEntryfmt);
 DBCStorage <WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
+DBCStorage<WorldMapTransformsEntry> sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage <World_PVP_AreaEntry> sWorld_PVP_AreaStore(World_PVP_AreaEntryfmt);
 DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage <PhaseEntry> sPhaseStores(PhaseEntryfmt);
@@ -544,7 +545,8 @@ void LoadDBCStores(const std::string& dataPath)
             sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,             dbcPath, "WorldMapArea.dbc");                                                 // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorld_PVP_AreaStore,           dbcPath, "World_PVP_Area.dbc");                                             // 19027
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapTransformsStore,       dbcPath, "WorldMapTransforms.dbc");                                           // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorld_PVP_AreaStore,           dbcPath, "World_PVP_Area.dbc");                                               // 19027
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,            dbcPath, "WorldSafeLocs.dbc");                                                // 17399
 
     for (uint32 l_I = 0; l_I < sWorldSafeLocsStore.GetNumRows(); ++l_I)
@@ -1785,4 +1787,60 @@ bool WorldStateExpressionEntry::Eval(Player* p_Player, std::vector<std::string> 
 
     return false;
 #undef UNPACK_UINT8
+}
+
+void DeterminaAlternateMapPosition(uint32 p_MapID, float p_X, float p_Y, float p_Z, uint32* p_NewMapID /*= nullptr*/, float* p_NewPosX /*= nullptr*/, float* p_NewPosY /*= nullptr*/)
+{
+    ASSERT(p_NewMapID || (p_NewPosX && p_NewPosY));
+
+    WorldMapTransformsEntry const* l_Transformation = nullptr;
+
+    for (uint32 l_I = 0; l_I < sWorldMapTransformsStore.GetNumRows(); ++l_I)
+    {
+        WorldMapTransformsEntry const* l_Transform = sWorldMapTransformsStore.LookupEntry(l_I);
+
+        if (!l_Transform)
+            continue;
+
+        if (l_Transform->MapID != p_MapID)
+            continue;
+
+        if (l_Transform->RegionMinX > p_X || l_Transform->RegionMaxX < p_X)
+            continue;
+        if (l_Transform->RegionMinY > p_Y || l_Transform->RegionMaxY < p_Y)
+            continue;
+        if (l_Transform->RegionMinZ > p_Z || l_Transform->RegionMaxZ < p_Z)
+            continue;
+
+        l_Transformation = l_Transform;
+        break;
+    }
+
+    if (!l_Transformation)
+    {
+        if (p_NewMapID)
+            *p_NewMapID = p_MapID;
+
+        if (p_NewPosX && p_NewPosY)
+        {
+            *p_NewPosX = p_X;
+            *p_NewPosY = p_Y;
+        }
+        return;
+    }
+
+    if (p_NewMapID)
+        *p_NewMapID = l_Transformation->NewMapID;
+
+    if (!p_NewPosX || !p_NewPosY)
+        return;
+
+    if (l_Transformation->RegionScale > 0.0f && l_Transformation->RegionScale < 1.0f)
+    {
+        p_X = (p_X - l_Transformation->RegionMinX) * l_Transformation->RegionScale + l_Transformation->RegionMinX;
+        p_Y = (p_Y - l_Transformation->RegionMinY) * l_Transformation->RegionScale + l_Transformation->RegionMinY;
+    }
+
+    *p_NewPosX = p_X + l_Transformation->RegionOffsetX;
+    *p_NewPosY = p_Y + l_Transformation->RegionOffsetY;
 }
