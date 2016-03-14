@@ -109,7 +109,7 @@ m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLast
 m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
 m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
 timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
-m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
+m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags), m_IsStressTestSession(false), m_AccountJoinDate(0)
 {
     m_InterRealmZoneId = 0;
     m_BackFromCross    = false;
@@ -376,7 +376,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
-    if (IsConnectionIdle())
+    if (IsConnectionIdle() && m_Socket)
         m_Socket->CloseSocket();
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
@@ -594,7 +594,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessLogout() && !m_IsStressTestSession)
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out

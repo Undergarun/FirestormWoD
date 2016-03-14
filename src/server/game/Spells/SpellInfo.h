@@ -181,7 +181,8 @@ enum SpellSpecificType
     SpellSpecificCrowdFavorite,
     SpellSpecificTarrenMillTitle,
     SpellSpecificDisposition,
-    SpellSpecificTowerBuffs
+    SpellSpecificTowerBuffs,
+    SpellSpecificWeeklyEventBuffs
 };
 
 enum SpellCustomAttributes

@@ -633,6 +633,24 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_SceneInstanceId);
         }
 
+        /// Called when a player enter in bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        virtual void OnEnterBG(Player* p_Player, uint32 p_MapID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MapID);
+        }
+
+        /// Called when a leave a bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        virtual void OnLeaveBG(Player* p_Player, uint32 p_MapID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_MapID);
+        }
+
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED

@@ -5385,6 +5385,61 @@ class spell_gen_jewel_of_hellfire_trigger : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Jewel of Hellfire - 187174
+class spell_gen_jewel_of_hellfire : public SpellScriptLoader
+{
+public:
+    spell_gen_jewel_of_hellfire() : SpellScriptLoader("spell_gen_jewel_of_hellfire") { }
+
+    class  spell_gen_jewel_of_hellfire_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_jewel_of_hellfire_AuraScript);
+
+        enum eDatas
+        {
+            MorphMale = 63130,
+            MorphFemale = 63138
+        };
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Player = GetTarget()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->getGender() == GENDER_MALE)
+                l_Player->SetDisplayId(eDatas::MorphMale);
+            else
+                l_Player->SetDisplayId(eDatas::MorphFemale);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Player = GetTarget()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->SetDisplayId(l_Player->GetNativeDisplayId());
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectRemoveFn(spell_gen_jewel_of_hellfire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_gen_jewel_of_hellfire_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_jewel_of_hellfire_AuraScript();
+    }
+};
+
+/// Last Update 6.2.3
+/// Wyrmhunter Hooks - 88914
 class spell_reconfigured_remote_shock : public SpellScriptLoader
 {
     public:
@@ -5421,59 +5476,6 @@ class spell_reconfigured_remote_shock : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_reconfigured_remote_shock_SpellScript();
-        }
-};
-
-/// Last Update 6.2.3
-/// Jewel of Hellfire - 187174
-class spell_gen_jewel_of_hellfire : public SpellScriptLoader
-{
-    public:
-        spell_gen_jewel_of_hellfire() : SpellScriptLoader("spell_gen_jewel_of_hellfire") { }
-
-        class  spell_gen_jewel_of_hellfire_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_jewel_of_hellfire_AuraScript);
-
-            enum eDatas
-            {
-                MorphMale = 63130,
-                MorphFemale = 63138
-            };
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Player = GetTarget()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                if (l_Player->getGender() == GENDER_MALE)
-                    l_Player->SetDisplayId(eDatas::MorphMale);
-                else
-                    l_Player->SetDisplayId(eDatas::MorphFemale);
-            }
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Player = GetTarget()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->RestoreDisplayId();
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_jewel_of_hellfire_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_jewel_of_hellfire_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_jewel_of_hellfire_AuraScript();
         }
 };
 

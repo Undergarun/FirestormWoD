@@ -50,6 +50,11 @@ namespace MS { namespace Garrison
             /// @p_RecipesSkillID   : Skill line ID
             void SetRecipes(std::vector<SkillNPC_RecipeEntry>* p_Recipes, uint32 p_RecipesSkillID);
 
+            /// Set NPC recipes
+            /// @p_Recipes          : Recipes
+            /// @p_RecipesSkillID   : Skill line ID
+            void SetRecipes(std::vector<SkillNPC_RecipeEntry> p_Recipes, uint32 p_RecipesSkillID);
+
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
             /// Show trade skill crafter UI
@@ -314,13 +319,13 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
             /// Called when a player selects a gossip item in the creature's gossip menu.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             /// @p_Sender   : Sender menu
             /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 
@@ -646,7 +651,7 @@ namespace MS { namespace Garrison
             struct npc_garrison_amperial_constructAI : public GarrisonNPCAI
             {
                 uint64 m_OwnerGuid;
-                uint32 m_CheckTimer;
+                uint64 m_CheckTimer;
 
                 /// Constructor
                 npc_garrison_amperial_constructAI(Creature* p_Creature);
@@ -734,6 +739,101 @@ namespace MS { namespace Garrison
             npc_AncientTradingMechanism_Garr();
 
             bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override;
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Followers Script
+    class npc_follower_generic_script : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_follower_generic_script();
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Fearsome Battle Standard (87594 / 86734)
+    class npc_FearsomeBattleStandard : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_FearsomeBattleStandard();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_FearsomeBattleStandardAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_FearsomeBattleStandardAI(Creature* p_Creature);
+
+                enum eEvents
+                {
+                    EventCheckPlayers = 1
+                };
+
+                enum eSpells
+                {
+                    SpellAuraFearsomeBattleStandardPeriodicDmg = 176302
+                };
+
+                EventMap m_Events;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Inspiring Battle Standard (88277 / 88010)
+    class npc_InspiringBattleStandard : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_InspiringBattleStandard();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_InspiringBattleStandardAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_InspiringBattleStandardAI(Creature* p_Creature);
+
+                enum eEvents
+                {
+                    EventCheckPlayers = 1
+                };
+
+                enum eSpells
+                {
+                    SpellAuraInspiringBattleStandardPeriodicDmg = 176252
+                };
+
+                EventMap m_Events;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
     };
 
 }   ///< namespace Garrison

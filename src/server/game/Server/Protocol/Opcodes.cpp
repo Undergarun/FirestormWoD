@@ -1299,7 +1299,7 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     DEFINE_OPCODE_HANDLER(CMSG_SET_TAXI_BENCHMARK_MODE,                         STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleSetTaxiBenchmarkOpcode,        PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_ENABLE_TAXI_NODE,                                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiQueryAvailableNodes,       PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_TAXI_HELLO,                                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiQueryAvailableNodes,       PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_TAXI_QUERY_AVAILABLE_NODES,                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiQueryAvailableNodes, PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_ACTIVATE_TAXI,                                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleActivateTaxiOpcode,            PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_TAXI_NODE_STATUS_QUERY,                          STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiNodeStatusQueryOpcode,     PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_TAXI_REQUEST_EARLY_LANDING,                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiRequestEarlyLandingOpcode, PROCESS_DISTANT_IF_NEED);

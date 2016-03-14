@@ -1352,7 +1352,7 @@ class spell_su_dummy_visual : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScrpt() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_su_dummy_visualAuraScript();
         }
