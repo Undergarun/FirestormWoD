@@ -92,6 +92,7 @@ namespace MS { namespace Garrison
             QUEST_PALE_MOONLIGHT                        = 35174,
             Alliance_LostInTransition                   = 37087,
             Alliance_BiggerIsBetter                     = 36592,
+            Alliance_QianaMoonshadow                    = 34646,
             /// Small profession building quests
             Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
             Alliance_YourFirstAlchemyWorkOrder          = 36641,

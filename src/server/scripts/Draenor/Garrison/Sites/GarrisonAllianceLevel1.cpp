@@ -18,6 +18,7 @@ enum
     GARRISON_PHASE_BASE             = 0x0001,
     GARRISON_PHASE_COMPAGNION       = 0x0002,
     GARRISON_KEEPING_IT_TOGETHER    = 0x0004,
+    GARRISON_QIANNA_MOONSHADOW      = 0x0008,
 };
 
 namespace MS { namespace Garrison { namespace Sites
@@ -118,6 +119,9 @@ namespace MS { namespace Garrison { namespace Sites
 
         if (p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
             l_PhaseMask |= GARRISON_KEEPING_IT_TOGETHER;
+
+        if (p_Owner->GetQuestStatus(Quests::Alliance_QianaMoonshadow) == QUEST_STATUS_COMPLETE || p_Owner->GetQuestStatus(Quests::Alliance_QianaMoonshadow) == QUEST_STATUS_REWARDED)
+            l_PhaseMask |= GARRISON_QIANNA_MOONSHADOW;
 
         return l_PhaseMask;
     }
