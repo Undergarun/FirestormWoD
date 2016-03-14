@@ -3209,7 +3209,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
             // TODO: this cause soul transfer bugged
-            if (m_spellInfo->Speed > 0.0f && unit->IsPlayer() && !m_spellInfo->IsPositive())
+            /// Handle custom flag SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES, some spells are negative but can be casted on allies
+            if (m_spellInfo->Speed > 0.0f && unit->IsPlayer() && !m_spellInfo->IsPositive() && !(m_spellInfo->AttributesCu & SpellCustomAttributes::SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES))
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection

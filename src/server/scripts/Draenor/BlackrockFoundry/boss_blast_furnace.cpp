@@ -2478,6 +2478,7 @@ class spell_foundry_defense_aura : public SpellScriptLoader
 
 /// Bomb (overrider) - 155192
 /// Bomb (overrider - second) - 174716
+/// Bomb (overrider - when mind controlled) - 159558
 class spell_foundry_bomb_overrider : public SpellScriptLoader
 {
     public:

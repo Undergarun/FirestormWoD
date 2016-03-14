@@ -3508,6 +3508,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
                 break;
+            case 159558: ///< Bomb (Furnace Engineer)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES;
+                break;
             case 155201: ///< Electrocution (Furnace Engineer)
                 spellInfo->Effects[EFFECT_0].ChainTarget = 2;
                 break;
