@@ -298,6 +298,7 @@ class spell_rog_death_from_above_return : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Death from Above - 152150
 class spell_rog_death_from_above : public SpellScriptLoader
 {
@@ -314,7 +315,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 DeathFromAboveJump  = 178236
             };
 
-            void HandleOnHit(SpellEffIndex)
+            void HandleAfterCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -343,7 +344,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterCast += SpellCastFn(spell_rog_death_from_above_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleRegisterCombo, EFFECT_5, SPELL_EFFECT_APPLY_AURA);
             }
         };
