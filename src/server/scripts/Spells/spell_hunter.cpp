@@ -577,6 +577,7 @@ class spell_hun_burrow_attack : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Steady Focus - 177667
 class spell_hun_steady_focus: public SpellScriptLoader
 {
@@ -589,9 +590,9 @@ class spell_hun_steady_focus: public SpellScriptLoader
 
             enum SteadyFocusSpells
             {
-                SteadyShot  = 56641,
-                CobraShot   = 77767,
-                SteadyFocus = 177668
+                SteadyShot      = 56641,
+                CobraShot       = 77767,
+                SteadyFocus     = 177668
             };
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
@@ -2695,7 +2696,7 @@ class spell_hun_kill_command: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Kill Command - 83381
 class spell_hun_kill_command_proc : public SpellScriptLoader
 {
@@ -2716,9 +2717,15 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
                     return;
 
                 int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+                l_Damage *= l_Caster->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
 
-                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+
+                if (l_Target->GetTypeId() == TYPEID_UNIT)
+                    l_Damage *= l_Caster->CalculateDamageDealtFactor(l_Caster, l_Target->ToCreature());
+
+                l_Damage = l_Caster->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
 
                 SetHitDamage(l_Damage);
             }
@@ -3318,6 +3325,11 @@ class spell_hun_claw_bite : public SpellScriptLoader
                 {
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
+                        Unit* l_Target = GetHitUnit();
+
+                        if (l_Target == nullptr)
+                            return;
+
                         int32 l_Damage = int32(l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
 
                         SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
@@ -3346,8 +3358,15 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
 
-                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                        l_Damage *= l_Pet->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
+
+                        l_Damage = l_Pet->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                        l_Damage = l_Target->MeleeDamageBonusTaken(l_Pet, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+
+                        if (l_Target->GetTypeId() == TYPEID_UNIT)
+                            l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, l_Target->ToCreature());
+
+                        l_Damage = l_Pet->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
 
                         SetHitDamage(l_Damage);
 
@@ -4212,8 +4231,54 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Focusing Shot - 152245
+class spell_hun_focusing_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_focusing_shot() : SpellScriptLoader("spell_hun_focusing_shot") { }
+
+        class spell_hun_focusing_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_focusing_shot_SpellScript);
+
+            enum eSpells
+            {
+                SteadyFocus     = 177667,
+                SteadyFocusProc = 177668
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(eSpells::SteadyFocus))
+                {
+                    l_Player->CastSpell(l_Player, eSpells::SteadyFocusProc, true);
+
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_Pet->CastSpell(l_Pet, eSpells::SteadyFocusProc, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_hun_focusing_shot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_focusing_shot_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_focusing_shot();
     new spell_hun_camouflage_visual();
     new spell_hun_camouflage();
     new spell_hun_camouflage_triggered();

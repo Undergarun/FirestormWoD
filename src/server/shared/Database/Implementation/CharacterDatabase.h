@@ -29,7 +29,7 @@ enum CharacterDatabaseStatements
         name for a suiting suffix.
     */
 
-    CHAR_DEL_QUEST_POOL_SAVE,
+    CHAR_DEL_QUEST_POOL_SAVE = 1,
     CHAR_INS_QUEST_POOL_SAVE,
     CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM,
     CHAR_DEL_EXPIRED_BANS,

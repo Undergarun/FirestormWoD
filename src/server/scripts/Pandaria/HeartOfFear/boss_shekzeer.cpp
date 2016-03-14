@@ -1727,7 +1727,7 @@ class spell_servant_of_the_empress : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHit += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

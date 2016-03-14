@@ -180,9 +180,13 @@ namespace MS { namespace Garrison
                 if (!l_Owner)
                     return;
 
-                Tokenizer l_Datas(l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+                MS::Garrison::Manager* l_Manager = l_Owner->GetGarrison();
+                if (!l_Manager)
+                    return;
 
-                if (l_Datas.size() < 4 || l_Owner->GetGarrison()->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
+                Tokenizer l_Datas(l_Manager->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+
+                if (l_Datas.size() < 4 || l_Manager->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
                 {
                     InitGatheringPlots(0);
                     UpdateGatheringPlots(p_Recursion + 1);

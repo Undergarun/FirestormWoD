@@ -8,6 +8,9 @@ PTR : [![Build Status](https://magnum.travis-ci.com/MilleniumStudio/Garrosh.svg?
 
 Inter Realm's : [![Build Status](https://travis-ci.com/MilleniumStudio/Garrosh.svg?token=hZCHjLbvZpL1EZh3apwD&branch=interrealm)](https://travis-ci.com/MilleniumStudio/Garrosh)
 
+[![Build Status](https://drone.firestorm-servers.com/api/badges/MilleniumStudio/wod/status.svg)](https://drone.firestorm-servers.com/MilleniumStudio/wod)
+
+
 ## Requirements
 
 + Platform: Linux, Windows or Mac

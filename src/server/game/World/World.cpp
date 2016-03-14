@@ -22,6 +22,7 @@
 
 #include "AnticheatMgr.h"
 #include "Common.h"
+#include "Memory.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
 #include "SystemConfig.h"
@@ -55,6 +56,7 @@
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "GameEventMgr.h"
 #include "PoolMgr.h"
 #include "GridNotifiersImpl.h"
@@ -86,6 +88,8 @@
 #include "TransportMgr.h"
 #include "BattlepayMgr.h"
 #include "InterRealmOpcodes.h"
+#include "MMapFactory.h"
+#include "TaxiPathGraph.h"
 #include <ctime>
 
 uint32 gOnlineGameMaster = 0;
@@ -243,6 +247,7 @@ World::~World()
         delete command;
 
     VMAP::VMapFactory::clear();
+    MMAP::MMapFactory::clear();
 
     //TODO free addSessQueue
 }
@@ -1298,6 +1303,9 @@ void World::LoadConfigSettings(bool reload)
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Using DataDir %s", m_dataPath.c_str());
     }
 
+    m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", true);
+    sLog->outAshran("WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
+
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", 0);
     bool enableIndoor = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", true);
     bool enableLOS = ConfigMgr::GetBoolDefault("vmap.enableLOS", true);
@@ -1311,12 +1319,11 @@ void World::LoadConfigSettings(bool reload)
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
     //VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight:%i, getHeight:%i, indoorCheck:%i PetLOS:%i", enableLOS, enableHeight, enableIndoor, enablePetLOS);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight:%i, getHeight:%i, indoorCheck:%i", enableLOS, enableHeight, enableIndoor);
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap data directory is: %svmaps", m_dataPath.c_str());
 
     m_int_configs[CONFIG_MAX_WHO] = ConfigMgr::GetIntDefault("MaxWhoListReturns", 49);
     m_bool_configs[CONFIG_LIMIT_WHO_ONLINE] = ConfigMgr::GetBoolDefault("LimitWhoOnline", true);
-    m_bool_configs[CONFIG_PET_LOS] = ConfigMgr::GetBoolDefault("vmap.petLOS", true);
     m_bool_configs[CONFIG_START_ALL_SPELLS] = ConfigMgr::GetBoolDefault("PlayerStart.AllSpells", false);
     if (m_bool_configs[CONFIG_START_ALL_SPELLS])
         sLog->outWarn(LOG_FILTER_SERVER_LOADING, "PlayerStart.AllSpells enabled - may not function as intended!");
@@ -1531,6 +1538,16 @@ void World::SetInitialWorldSettings()
     srand((unsigned int)time(NULL));
     std::srand((unsigned int)time(NULL));
 
+    ///- Initialize detour memory management
+    dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
+
+    ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
+    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
+    {
+        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+        vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
+    }
+
     ///- Initialize config settings
     LoadConfigSettings();
 
@@ -1589,6 +1606,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize Spell Difficulty ...");
     sSpellMgr->InitializeSpellDifficulty();
+
+    /// Load weighted graph on taxi nodes path
+    sTaxiPathGraph.Initialize();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
@@ -1723,9 +1743,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group Linked...");                ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemBonusGroupLinked();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Taxi data");
-    sObjectMgr->LoadTaxiData();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();

@@ -35,6 +35,7 @@ EndScriptData */
 #include "DisableMgr.h"
 #include "Group.h"
 #include "LFGMgr.h"
+#include "World.h"
 
 #include "InterRealmOpcodes.h"
 #include "InterRealmSession.h"
@@ -191,6 +192,7 @@ class debug_commandscript: public CommandScript
                 { "addunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugAddUnitStateCommand,    "", NULL },
                 { "getunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,   "", NULL },
                 { "removeunitstate",SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand, "", NULL },
+                { "stresstest",     SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -200,6 +202,77 @@ class debug_commandscript: public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugStressTestCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            std::string l_StrVal = std::string(strtok((char*)p_Args, " "));
+            
+            /// Disconnect all bots
+            if (l_StrVal == "off")
+            {
+                SessionMap const& l_Sessions = sWorld->GetAllSessions();
+                for (auto l_Session : l_Sessions)
+                {
+                    if (l_Session.second->IsStressTest())
+                        l_Session.second->SetStressTest(false);
+                }
+                return true;
+            }
+
+            /// Add new bots
+            if (l_StrVal == "on")
+            {
+                char* l_StrNumber = strtok(NULL, " ");
+                if (l_StrNumber == nullptr)
+                    return false;
+
+                uint32 l_Number = atoi(l_StrNumber);
+
+                if (l_Number > 1000)
+                    return false;
+
+                std::ostringstream l_Query; 
+                l_Query << "SELECT account, guid FROM characters WHERE account NOT IN(0";
+
+                SessionMap const& l_Sessions = sWorld->GetAllSessions();
+                for (auto l_Session : l_Sessions)
+                    l_Query << "," << l_Session.first;
+
+                l_Query << ") GROUP BY account ORDER BY RAND() LIMIT " << l_Number;
+
+                QueryResult l_Result = CharacterDatabase.PQuery(l_Query.str().c_str());
+
+                if (l_Result)
+                {
+                    do 
+                    {
+                        Field* l_Fields = l_Result->Fetch();
+
+                        uint32 l_AccountId = l_Fields[0].GetUInt32();
+                        uint32 l_Guid      = l_Fields[1].GetUInt32();
+
+                        WorldSession* l_NewSession = new WorldSession(l_AccountId, nullptr, SEC_ADMINISTRATOR, false, 0, 5, 0, LOCALE_frFR, 0, false, 0, 0, 0);
+
+                        l_NewSession->SetStressTest(true);
+                        l_NewSession->LoadGlobalAccountData();
+                        l_NewSession->LoadTutorialsData();
+                        sWorld->AddSession(l_NewSession);
+
+                        l_NewSession->LoginPlayer(l_Guid);
+                    }
+                    while (l_Result->NextRow());
+                }
+            }
+
+            return true;
         }
 
         static bool HandleDebugAdjustSplineCommand(ChatHandler* p_Handler, char const* p_Args)
@@ -2544,7 +2617,7 @@ class debug_commandscript: public CommandScript
             float y         = (float)atof(cy);
             float z         = (float)atof(cz);
 
-            target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
+           // target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
             return true;
         }
 

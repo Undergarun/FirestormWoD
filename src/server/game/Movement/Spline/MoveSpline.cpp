@@ -17,23 +17,21 @@
  */
 
 #include "MoveSpline.h"
-#include <sstream>
 #include "Log.h"
+#include "Creature.h"
+
+#include <sstream>
 
 namespace Movement{
-
-extern float computeFallTime(float path_length, bool isSafeFall);
-extern float computeFallElevation(float time_passed, bool isSafeFall, float start_velocy);
-extern float computeFallElevation(float time_passed);
 
 Location MoveSpline::ComputePosition() const
 {
     ASSERT(Initialized());
 
     float u = 1.f;
-    int32 seg_time = spline.length(point_Idx,point_Idx+1);
+    int32 seg_time = spline.length(point_Idx, point_Idx+1);
     if (seg_time > 0)
-        u = (m_TimePassed - spline.length(point_Idx)) / (float)seg_time;
+        u = (time_passed - spline.length(point_Idx)) / (float)seg_time;
     Location c;
     c.orientation = initialOrientation;
     spline.evaluate_percent(point_Idx, u, c);
@@ -50,7 +48,7 @@ Location MoveSpline::ComputePosition() const
         if (splineflags.final_angle)
             c.orientation = facing.angle;
         else if (splineflags.final_point)
-            c.orientation = atan2(facing.f.y - c.y, facing.f.x - c.x);
+            c.orientation = std::atan2(facing.f.y - c.y, facing.f.x - c.x);
         //nothing to do for MoveSplineFlag::Final_Target flag
     }
     else
@@ -59,21 +57,20 @@ Location MoveSpline::ComputePosition() const
         {
             Vector3 hermite;
             spline.evaluate_derivative(point_Idx, u, hermite);
-            c.orientation = atan2(hermite.y, hermite.x);
+            c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
         if (splineflags.orientationInversed)
             c.orientation = -c.orientation;
     }
-
     return c;
 }
 
 void MoveSpline::computeParabolicElevation(float& el) const
 {
-    if (m_TimePassed > effect_start_time)
+    if (time_passed > effect_start_time)
     {
-        float t_passedf = MSToSec(m_TimePassed - effect_start_time);
+        float t_passedf = MSToSec(time_passed - effect_start_time);
         float t_durationf = MSToSec(Duration() - effect_start_time); //client use not modified duration here
 
         // -a*x*x + bx + c:
@@ -84,12 +81,9 @@ void MoveSpline::computeParabolicElevation(float& el) const
 
 void MoveSpline::computeFallElevation(float& el) const
 {
-    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(m_TimePassed));
+    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_passed), false);
     float final_z = FinalDestination().z;
-    if (z_now < final_z)
-        el = final_z;
-    else
-        el = z_now;
+    el = std::max(z_now, final_z);
 }
 
 inline uint32 computeDuration(float length, float velocity)
@@ -99,35 +93,33 @@ inline uint32 computeDuration(float length, float velocity)
 
 struct FallInitializer
 {
-    FallInitializer(float _start_elevation) : start_elevation(_start_elevation) {}
+    FallInitializer(float _start_elevation) : start_elevation(_start_elevation) { }
     float start_elevation;
     inline int32 operator()(Spline<int32>& s, int32 i)
     {
-        return Movement::computeFallTime(start_elevation - s.getPoint(i+1).z,false) * 1000.f;
+        return Movement::computeFallTime(start_elevation - s.getPoint(i+1).z, false) * 1000.f;
     }
 };
 
 enum{
-    minimal_duration = 1,
+    minimal_duration = 1
 };
 
 struct CommonInitializer
 {
-    CommonInitializer(float p_Velocity) : m_Velocity(1000.f / p_Velocity), m_Time(minimal_duration) {}
-
-    float m_Velocity;
-    int32 m_Time;
-
-    inline int32 operator()(Spline<int32>& p_Spline, int32 p_Index)
+    CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) { }
+    float velocityInv;
+    int32 time;
+    inline int32 operator()(Spline<int32>& s, int32 i)
     {
-        m_Time += (p_Spline.SegLength(p_Index) * m_Velocity);
-        return m_Time;
+        time += (s.SegLength(i) * velocityInv);
+        return time;
     }
 };
 
 void MoveSpline::init_spline(const MoveSplineInitArgs& args)
 {
-    const SplineBase::EvaluationMode modes[2] = {SplineBase::ModeLinear,SplineBase::ModeCatmullrom};
+    const SplineBase::EvaluationMode modes[2] = {SplineBase::ModeLinear, SplineBase::ModeCatmullrom};
     if (args.flags.cyclic)
     {
         uint32 cyclic_point = 0;
@@ -153,7 +145,7 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
         spline.initLengths(init);
     }
 
-    // TODO: what to do in such cases? problem is in input data (all points are at same coords)
+    /// @todo what to do in such cases? problem is in input data (all points are at same coords)
     if (spline.length() < minimal_duration)
     {
         sLog->outError(LOG_FILTER_GENERAL, "MoveSpline::init_spline: zero length spline, wrong input data?");
@@ -162,7 +154,7 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
     point_Idx = spline.first();
 }
 
-void MoveSpline::Initialize(const MoveSplineInitArgs& args)
+void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 {
     splineflags = args.flags;
     facing = args.facing;
@@ -170,10 +162,8 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     point_Idx_offset = args.path_Idx_offset;
     initialOrientation = args.initialOrientation;
 
-    onTransport = false;
-    m_TimePassed = 0;
+    time_passed = 0;
     vertical_acceleration = 0.f;
-    m_Velocity = args.velocity;
     effect_start_time = 0;
 
     // Check if its a stop spline
@@ -198,20 +188,21 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     }
 }
 
-MoveSpline::MoveSpline() : m_Id(0), m_TimePassed(0),
-    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0)
+MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
+    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
+    onTransport(false)
 {
     splineflags.done = true;
 }
 
 /// ============================================================================================
 
-bool MoveSplineInitArgs::Validate() const
+bool MoveSplineInitArgs::Validate(Unit* unit) const
 {
 #define CHECK(exp) \
     if (!(exp))\
     {\
-        sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: expression '%s' failed", #exp);\
+        sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: expression '%s' failed for %llu Entry: %u", #exp, unit->GetGUID(), unit->GetEntry());\
         return false;\
     }
     CHECK(path.size() > 1);
@@ -229,14 +220,14 @@ bool MoveSplineInitArgs::_checkPathBounds() const
     if (!(flags & MoveSplineFlag::Catmullrom) && path.size() > 2)
     {
         enum{
-            MAX_OFFSET = (1 << 11) / 2,
+            MAX_OFFSET = (1 << 11) / 2
         };
         Vector3 middle = (path.front()+path.back()) / 2;
         Vector3 offset;
         for (uint32 i = 1; i < path.size()-1; ++i)
         {
             offset = path[i] - middle;
-            if (fabs(offset.x) >= MAX_OFFSET || fabs(offset.y) >= MAX_OFFSET || fabs(offset.z) >= MAX_OFFSET)
+            if (std::fabs(offset.x) >= MAX_OFFSET || std::fabs(offset.y) >= MAX_OFFSET || std::fabs(offset.z) >= MAX_OFFSET)
             {
                 sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::_checkPathBounds check failed");
                 return false;
@@ -248,7 +239,7 @@ bool MoveSplineInitArgs::_checkPathBounds() const
 
 /// ============================================================================================
 
-MoveSpline::UpdateResult MoveSpline::_UpdateState(int32& ms_time_diff)
+MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
 {
     if (Finalized())
     {
@@ -258,12 +249,12 @@ MoveSpline::UpdateResult MoveSpline::_UpdateState(int32& ms_time_diff)
 
     UpdateResult result = Result_None;
 
-    int32 minimal_diff = std::min(ms_time_diff, NextSegTime());
+    int32 minimal_diff = std::min(ms_time_diff, segment_time_elapsed());
     ASSERT(minimal_diff >= 0);
-    m_TimePassed += minimal_diff;
+    time_passed += minimal_diff;
     ms_time_diff -= minimal_diff;
 
-    if (m_TimePassed >= NextTime())
+    if (time_passed >= next_timestamp())
     {
         ++point_Idx;
         if (point_Idx < spline.last())
@@ -275,7 +266,7 @@ MoveSpline::UpdateResult MoveSpline::_UpdateState(int32& ms_time_diff)
             if (spline.isCyclic())
             {
                 point_Idx = spline.first();
-                m_TimePassed = m_TimePassed % Duration();
+                time_passed = time_passed % Duration();
                 result = Result_NextCycle;
             }
             else
@@ -303,7 +294,7 @@ std::string MoveSpline::ToString() const
     else if (splineflags.final_point)
         str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z;
     str << std::endl;
-    str << "time passed: " << m_TimePassed << std::endl;
+    str << "time passed: " << time_passed << std::endl;
     str << "total  time: " << Duration() << std::endl;
     str << "spline point Id: " << point_Idx << std::endl;
     str << "path  point  Id: " << currentPathIdx() << std::endl;
@@ -315,7 +306,7 @@ void MoveSpline::_Finalize()
 {
     splineflags.done = true;
     point_Idx = spline.last() - 1;
-    m_TimePassed = Duration();
+    time_passed = Duration();
 }
 
 int32 MoveSpline::currentPathIdx() const
