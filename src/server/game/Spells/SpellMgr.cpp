@@ -5383,6 +5383,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108212: ///< Burst of Speed
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
+            case 156297: ///< Acid Torrent
+                spellInfo->AttributesEx |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
+                break;
             case 31224: ///< Cloak of Shadows
                 spellInfo->Effects[0].BasePoints = -200;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE;
