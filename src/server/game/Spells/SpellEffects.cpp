@@ -69,6 +69,7 @@
 #include "ArchaeologyMgr.hpp"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "PathGenerator.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -1868,8 +1869,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift
-            if (m_spellInfo && m_spellInfo->Id != 145109 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift and Frenzied Regeneration
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -3114,8 +3115,10 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     Player* player = unitTarget->ToPlayer();
 
+    bool l_FromItemShop = m_CastItem && m_CastItem->HasCustomFlags(ItemCustomFlags::FromStore);
+
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
-    player->learnSpell(spellToLearn, false);
+    player->learnSpell(spellToLearn, false, l_FromItemShop);
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;
@@ -5878,17 +5881,16 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        Position pos;
-        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-
-        if (!m_caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
         {
-            float angle = unitTarget->GetRelativeAngle(m_caster);
-            float dist = m_caster->GetDistance(pos);
-            unitTarget->GetFirstCollisionPosition(pos, dist, angle);
+            Position pos;
+            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+            unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
+            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
-
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, SPEED_CHARGE, m_spellInfo->Id);
+        else
+            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
 
         if (m_caster->IsPlayer())
             m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
@@ -5898,8 +5900,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (m_caster->IsPlayer())
         {
-            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
-
             if (!m_spellInfo->IsPositive())
                 m_caster->Attack(unitTarget, true);
         }
@@ -7772,7 +7772,7 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
             uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
             uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
             {
                 if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
                 {
@@ -7781,6 +7781,8 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
                     if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                         l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
                 }
+
+                return true;
             });
             m_CastItem = nullptr;
         }
@@ -7812,7 +7814,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
             uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
             uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
             {
                 if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
                 {
@@ -7821,6 +7823,8 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
                     if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                         l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
                 }
+
+                return true;
             });
 
             m_CastItem = nullptr;
@@ -7892,7 +7896,7 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
     uint64 l_PlayerGUID = l_Player->GetGUID();
     uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
     {
         if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
         {
@@ -7901,6 +7905,8 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
             if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                 l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
         }
+
+        return true;
     });
 
     m_CastItem = nullptr;
@@ -8231,13 +8237,14 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     uint8 l_BagSlot = m_CastItem->GetBagSlot();
     uint8 l_Slot    = m_CastItem->GetSlot();
 
-    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> void
+    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> bool
     {
         Player* l_Player = HashMapHolder<Player>::Find(l_Guid);
         if (l_Player == nullptr)
-            return;
+            return true;
 
         l_Player->DestroyItem(l_BagSlot, l_Slot, true);
+        return true;
     });
 
     std::vector<uint32> const& l_Heirlooms = l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);

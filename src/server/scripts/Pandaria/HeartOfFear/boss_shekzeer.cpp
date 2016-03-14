@@ -1708,33 +1708,33 @@ class spell_eyes_of_the_empress : public SpellScriptLoader
         }
 };
 
-// 123713 - Servant of the Empress
+/// 123713 - Servant of the Empress
 class spell_servant_of_the_empress : public SpellScriptLoader
 {
-public:
-    spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
+    public:
+        spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
 
-    class spell_servant_of_the_empress_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_servant_of_the_empress_SpellScript);
-
-        void Charm(SpellEffIndex /*effIndex*/)
+        class spell_servant_of_the_empress_SpellScript : public SpellScript
         {
-            if (Unit* caster = GetCaster())
+            PrepareSpellScript(spell_servant_of_the_empress_SpellScript);
+
+            void Charm(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
                 if (Unit* target = GetHitUnit())
                     target->CastSpell(caster, SPELL_SERVANT_OF_THE_EMPRESS, false);
-        }
+            }
 
-        void Register()
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectLaunch += SpellEffectFn(spell_servant_of_the_empress_SpellScript::Charm, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_servant_of_the_empress_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_servant_of_the_empress_SpellScript();
-    }
 };
 
 // 123792 - Cry of Terror
@@ -1772,7 +1772,7 @@ class spell_cry_of_terror : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_cry_of_terror_SpellScript::Cancel, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_cry_of_terror_SpellScript::Cancel, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
             }
         };
 

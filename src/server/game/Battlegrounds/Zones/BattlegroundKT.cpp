@@ -17,7 +17,6 @@
 
 #include "Object.h"
 #include "Player.h"
-#include "Battleground.h"
 #include "BattlegroundKT.h"
 #include "Creature.h"
 #include "GameObject.h"

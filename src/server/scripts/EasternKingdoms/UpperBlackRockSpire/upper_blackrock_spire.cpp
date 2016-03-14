@@ -1368,7 +1368,7 @@ class mob_leeroy_jenkins : public CreatureScript
                         Talk(Talks::TalkLEEEEEEEEEEEEEROOOOY);
                         me->SetWalk(false);
 
-                        Movement::MoveSplineInit l_Init(*me);
+                        Movement::MoveSplineInit l_Init(me);
                         l_Init.Path().push_back(G3D::Vector3(80.363f, -278.893f, 91.463f));
                         l_Init.Path().push_back(G3D::Vector3(54.556f, -263.705f, 94.041f));
                         l_Init.Path().push_back(G3D::Vector3(67.622f, -240.374f, 98.381f));
@@ -2055,9 +2055,17 @@ class spell_eruption: public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
+                switch (m_scriptSpellId)
+                {
+                case 138652:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_eruption_SpellScript::CorrectTargets, EFFECT_2, TARGET_UNIT_CONE_ENEMY_104);
+                    break;
+                }
             }
         };
 

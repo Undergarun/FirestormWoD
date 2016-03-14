@@ -189,7 +189,6 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             bool m_Enabled;
             bool m_FightStarted;
-            bool m_FirstSlagElemental;
 
             uint8 m_ElementalistMoveIndex;
             uint8 m_ElementalistKilled;
@@ -219,7 +218,6 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 m_Enabled = false;
                 m_FightStarted = false;
-                m_FirstSlagElemental = true;
 
                 m_ElementalistMoveIndex = 0;
                 m_ElementalistKilled = 0;
@@ -650,21 +648,17 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                for (uint8 l_I = 0; l_I < (m_FirstSlagElemental ? 1 : 2); ++l_I)
+                                if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[urand(0, 1)][urand(0, 2)]))
                                 {
-                                    if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[l_I][urand(0, 2)]))
-                                    {
-                                        float l_O = l_Elemental->GetAngle(l_Fury);
-                                        float l_X = l_Elemental->GetPositionX() + 30.0f * cos(l_O);
-                                        float l_Y = l_Elemental->GetPositionY() + 30.0f * sin(l_O);
+                                    float l_O = l_Elemental->GetAngle(l_Fury);
+                                    float l_X = l_Elemental->GetPositionX() + 30.0f * cos(l_O);
+                                    float l_Y = l_Elemental->GetPositionY() + 30.0f * sin(l_O);
 
-                                        l_Elemental->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
-                                    }
+                                    l_Elemental->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
                                 }
                             }
                         }
 
-                        m_FirstSlagElemental = false;
                         m_Events.ScheduleEvent(eEvents::EventSlagElemental, 55 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -2078,7 +2072,8 @@ class npc_foundry_slag_elemental : public CreatureScript
             SlagBomb        = 176133,
             DamageShield    = 155176,
             Reanimate       = 155213,
-            DropTarget      = 101438
+            DropTarget      = 101438,
+            ShieldsDown     = 158345
         };
 
         enum eCreature
@@ -2241,8 +2236,12 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         for (Creature* l_Creature : l_Elementalists)
                         {
+                            /// If shielded, breaks shield
                             if (l_Creature->HasAura(eSpells::DamageShield))
                                 l_Creature->RemoveAura(eSpells::DamageShield);
+                            /// If not, refresh the vulnerability
+                            else
+                                l_Creature->CastSpell(l_Creature, eSpells::ShieldsDown, true);
                         }
                     });
                 }
@@ -2738,8 +2737,8 @@ class spell_foundry_shields_down : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 

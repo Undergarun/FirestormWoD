@@ -31,7 +31,7 @@ namespace MS { namespace Garrison
     {
         public:
             /// Constructor
-            Manager(Player * p_Owner);
+            Manager(Player* p_Owner);
 
             /// Create the garrison
             void Create();
@@ -59,10 +59,10 @@ namespace MS { namespace Garrison
             uint32 GetGarrisonCacheTokenCount() const;
 
             /// Get terrain swaps
-            void GetTerrainSwaps(std::set<uint32> & p_TerrainSwaps) const;
+            void GetTerrainSwaps(std::set<uint32>& p_TerrainSwaps) const;
 
             /// Get garrison script
-            Interfaces::GarrisonSite * GetGarrisonScript() const;
+            Interfaces::GarrisonSite* GetGarrisonScript() const;
 
             /// Can upgrade the garrison
             bool CanUpgrade() const;
@@ -74,11 +74,11 @@ namespace MS { namespace Garrison
             /// When the garrison owner leave the garrisson (@See Player::UpdateArea)
             void OnPlayerLeave();
             /// When the garrison owner started a quest
-            void OnQuestStarted(const Quest * p_Quest);
+            void OnQuestStarted(const Quest* p_Quest);
             /// When the garrison owner reward a quest
-            void OnQuestReward(const Quest * p_Quest);
+            void OnQuestReward(const Quest* p_Quest);
             /// When the garrison owner abandon a quest
-            void OnQuestAbandon(const Quest * p_Quest);
+            void OnQuestAbandon(const Quest* p_Quest);
 
             /// When the owner player change level
             /// @p_Level : New owner level
@@ -88,7 +88,7 @@ namespace MS { namespace Garrison
             void SetLastUsedActivationGameObject(uint64 p_Guid);
 
             /// Get GarrSiteLevelEntry for current garrison
-            const GarrSiteLevelEntry * GetGarrisonSiteLevelEntry() const;
+            const GarrSiteLevelEntry* GetGarrisonSiteLevelEntry() const;
             /// Get Garrison Faction Index
             FactionIndex::Type GetGarrisonFactionIndex() const;
 
@@ -169,6 +169,8 @@ namespace MS { namespace Garrison
             GarrisonBuilding PurchaseBuilding(uint32 p_BuildingRecID, uint32 p_PlotInstanceID, bool p_Triggered = false);
             /// Get building
             GarrisonBuilding GetBuilding(uint32 p_PlotInstanceID) const;
+            /// Get Building with ID
+            GarrisonBuilding GetBuildingWithBuildingID(uint32 p_BuildingID) const;
             /// Get building object
             GarrisonBuilding* GetBuildingObject(uint32 p_PlotInstanceID);
             /// Get buildings
@@ -199,7 +201,16 @@ namespace MS { namespace Garrison
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
             void DeleteWorkOrder(uint64 p_DBID);
+            /// Calculate the chance to double the work order of the building, depending of the follower
             uint8 CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID);
+            /// Generates random reward for Armory work order
+            uint32 CalculateArmoryWorkOrder() const;
+            /// Get follower assigned to building from plot instance ID
+            GarrisonFollower* GetAssignedFollower(uint32 p_PlotInstanceID);
+            /// Checks if the building has the required follower assigned to apply bonus
+            bool HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID);
+            /// Add new creature in plot datas, that way any summoned creature can be detected as part of the building
+            void InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID
@@ -309,14 +320,17 @@ namespace MS { namespace Garrison
             uint32 GetShipyardMapId() const;
 
             /// Get shipyard terain swap
-            void GetShipyardTerainSwaps(std::set<uint32> & p_TerrainSwaps) const;
+            void GetShipyardTerainSwaps(std::set<uint32>& p_TerrainSwaps) const;
 
             /// Create shipyard by spell
             bool CreateShipyardBySpell();
 
+            /// Update plot gameobject
+            void UpdatePlot(uint32 p_PlotInstanceID);
+
         public:
             /// Replace garrison script
-            void _SetGarrisonScript(Interfaces::GarrisonSite * p_Script)
+            void _SetGarrisonScript(Interfaces::GarrisonSite* p_Script)
             {
                 m_GarrisonScript = p_Script;
             }
@@ -331,9 +345,6 @@ namespace MS { namespace Garrison
             void InitPlots();
             /// Uninit plots
             void UninitPlots();
-
-            /// Update plot gameobject
-            void UpdatePlot(uint32 p_PlotInstanceID);
 
             /// Update garrison stats
             void UpdateStats();
@@ -380,7 +391,7 @@ namespace MS { namespace Garrison
             std::map<uint32, std::vector<uint64>>   m_PlotsCreatures;
             std::map<uint32, uint32>                m_LastPlotBuildingType; ///< <PlotID, BuildingType>
 
-            Interfaces::GarrisonSite * m_GarrisonScript;
+            Interfaces::GarrisonSite* m_GarrisonScript;
 
             GarrisonMissionReward m_PendingMissionReward;
 

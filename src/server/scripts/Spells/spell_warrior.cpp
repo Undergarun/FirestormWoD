@@ -873,8 +873,6 @@ class spell_warr_heroic_leap: public SpellScriptLoader
                 if (!l_Player || !l_SpellDest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (l_SpellDest->GetPositionZ() > l_Player->GetPositionZ() + 5.0f)
-                    return SPELL_FAILED_NOPATH;
                 else if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
                     return SPELL_FAILED_ROOTED;
                 else if (l_Player->GetMap()->IsBattlegroundOrArena())
@@ -1964,6 +1962,7 @@ enum ShieldChargeSpells
     SPELL_WARR_SHIELD_CHARGE_CHARGE = 178768
 };
 
+/// Last Update 6.2.3
 /// Shield Charge - 156321
 class spell_warr_shield_charge: public SpellScriptLoader
 {
@@ -1994,11 +1993,19 @@ class spell_warr_shield_charge: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
+                int32 l_RemainingDuration = 0;
                 if (!l_Target)
                     return;
 
                 l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+                if (Aura* l_OldChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                    l_RemainingDuration = l_OldChargeBuff->GetDuration();
                 l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+                if (Aura* l_ChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                {
+                    l_ChargeBuff->SetMaxDuration(l_ChargeBuff->GetDuration() + l_RemainingDuration);
+                    l_ChargeBuff->RefreshDuration();
+                }
             }
 
             void Register()
@@ -2608,67 +2615,157 @@ class spell_warr_defensive_stance : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Gladiator Stance - 156291
+class spell_warr_gladiator_stance : public SpellScriptLoader
+{
+    public:
+        spell_warr_gladiator_stance() : SpellScriptLoader("spell_warr_gladiator_stance") { }
+
+        enum eSpells
+        {
+            UnwaveringSentinel = 29144
+        };
+
+        class spell_warr_gladiator_stance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_gladiator_stance_AuraScript);
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->RemoveAura(eSpells::UnwaveringSentinel);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_gladiator_stance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_gladiator_stance_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
 /// Single-Minded Fury - 81099
 class spell_warr_single_minded_fury : public SpellScriptLoader
 {
-public:
-    spell_warr_single_minded_fury() : SpellScriptLoader("spell_warr_single_minded_fury") { }
+    public:
+        spell_warr_single_minded_fury() : SpellScriptLoader("spell_warr_single_minded_fury") { }
 
-    class spell_warr_single_minded_fury_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_single_minded_fury_AuraScript);
-
-        void CalculateFirstEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+        class spell_warr_single_minded_fury_AuraScript : public AuraScript
         {
-            if (GetCaster() == nullptr)
-                return;
+            PrepareAuraScript(spell_warr_single_minded_fury_AuraScript);
 
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            enum eSpells
             {
-                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                CrazedBerserker = 23588
+            };
 
-                if (mainItem && l_OffHandItem)
+            void CalculateFirstEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                    Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                    if (mainItem && l_OffHandItem)
+                    {
+                        if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                            p_Amount = 0;
+                    }
+                    else
                         p_Amount = 0;
                 }
-                else
-                    p_Amount = 0;
             }
-        }
 
-        void CalculateSecondEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
-        {
-            if (GetCaster() == nullptr)
-                return;
-
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            void CalculateSecondEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
-                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                if (GetCaster() == nullptr)
+                    return;
 
-                if (mainItem && l_OffHandItem)
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                    Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                    const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::CrazedBerserker);
+
+                    if (mainItem && l_OffHandItem)
+                    {
+                        if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                            p_Amount = 0;
+                        else if (l_Player->HasAura(23588) && l_SpellInfo != nullptr)
+                        {
+                            if (!l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                                p_Amount = (100 + l_SpellInfo->Effects[EFFECT_1].BasePoints) * (100 + p_Amount) / 100 - 100;
+                        }
+                    }
+                    else
                         p_Amount = 0;
                 }
-                else
-                    p_Amount = 0;
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateFirstEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateSecondEffect, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateFirstEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateSecondEffect, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+            return new spell_warr_single_minded_fury_AuraScript();
         }
-    };
+};
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_single_minded_fury_AuraScript();
-    }
+/// Last Update 6.2.3
+/// Crazed Berserker - 23588
+class spell_warr_crazed_berserker : public SpellScriptLoader
+{
+    public:
+        spell_warr_crazed_berserker() : SpellScriptLoader("spell_warr_crazed_berserker") { }
+
+        class spell_warr_crazed_berserker_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_crazed_berserker_AuraScript);
+
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                    if (l_OffHandItem)
+                    {
+                        if (!l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                            p_Amount = 0;
+                    }
+                    else
+                        p_Amount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_crazed_berserker_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_crazed_berserker_AuraScript();
+        }
 };
 
 /// Called by Colossus Smash - 86346, Sweeping Strikes - 12328 and Recklessness - 1719
@@ -3216,8 +3313,48 @@ class spell_warr_stances : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Taunt - 355
+class spell_warr_taunt : public SpellScriptLoader
+{
+    public:
+        spell_warr_taunt() : SpellScriptLoader("spell_warr_taunt") { }
+
+        class spell_warr_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_taunt_SpellScript);
+
+            enum eSpells
+            {
+                GladiatorStance = 156291
+            };
+
+            SpellCastResult CheckStance()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                    return SPELL_FAILED_NOT_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_taunt_SpellScript::CheckStance);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_taunt_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_taunt();
+    new spell_warr_crazed_berserker();
     new spell_warr_stances();
     new spell_warr_raging_blow_proc();
     new spell_warr_impending_victory();

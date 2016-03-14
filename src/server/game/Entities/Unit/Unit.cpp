@@ -451,10 +451,10 @@ bool Unit::haveOffhandWeapon() const
         return m_canDualWield;
 }
 
-void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
+void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath, bool forceDestination)
 {
-    Movement::MoveSplineInit init(*this);
-    init.MoveTo(x,y,z);
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(x, y, z, generatePath, forceDestination);
     init.SetVelocity(speed);
     init.Launch();
 }
@@ -484,7 +484,7 @@ void Unit::UpdateSplineMovement(uint32 p_Diff)
         float l_Percent = 1.0f;
         float l_TotalTime = movespline->spline.length();
         if (l_TotalTime > 0.0f)
-            l_Percent = (float)movespline->m_TimePassed / l_TotalTime;
+            l_Percent = (float)movespline->time_passed / l_TotalTime;
 
         SendFlightSplineSync(l_Percent);
         m_FlightSplineSyncTimer.Reset(g_FlightSplineSyncDelay);
@@ -3130,8 +3130,8 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
-    // Try victim reflect spell
-    if (CanReflect)
+    /// Try victim reflect spell - 'Spell Reflect normally does not work with AoE spells'
+    if (CanReflect && !spell->IsTargetingArea())
     {
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         Unit::AuraEffectList const& mReflectSpellsSchool = victim->GetAuraEffectsByType(SPELL_AURA_REFLECT_SPELLS_SCHOOL);
@@ -3921,10 +3921,10 @@ void Unit::_ApplyAura(AuraApplication* p_AurApp, uint32 p_EffMask)
     l_Aura->HandleAuraSpecificPeriodics(p_AurApp, l_Caster);
 
     /// Epicurean
-    if (IsPlayer() && ///<  '&&' within '||'
-        getRace() == RACE_PANDAREN_ALLI ||
+    if (IsPlayer() &&
+        (getRace() == RACE_PANDAREN_ALLI ||
         getRace() == RACE_PANDAREN_HORDE ||
-        getRace() == RACE_PANDAREN_NEUTRAL)
+        getRace() == RACE_PANDAREN_NEUTRAL))
     {
         if (l_Aura->GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF)
         {
@@ -4542,8 +4542,8 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
             && !(flag & AURA_INTERRUPT_FLAG_MOVE && (HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->m_spellInfo) ||
             HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))))
         {
-            // Zen Meditation should be channeled, but apply a levitation aura, it handles a movement opcode
-            if (spell->m_spellInfo->Id == 115176 && spell->GetTimer() == 8000)
+            /// Zen Meditation should be channeled, but apply a levitation aura, it handles a movement opcode
+            if (spell->m_spellInfo->Id == 115176)
                 return;
 
             InterruptNonMeleeSpells(false);
@@ -12953,8 +12953,8 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
         return healamount;
 
-    // No bonus for Living Seed and Spirint Bond (heal)
-    if (spellProto->Id == 48503 || spellProto->Id == 149254)
+    // No bonus for Living Seed
+    if (spellProto->Id == 48503)
         return healamount;
 
     // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
@@ -14522,25 +14522,19 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT)
             {
                 Unit* pOwner = GetCharmerOrOwner();
-                if ((isPet() || isGuardian()) && pOwner) // Must check for owner or crash on "Tame Beast"
+                if ((isPet() || isGuardian()) && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
                 {
-                    float base_rate = 1.14f; // base speed is 114% of owner speed
+                    // For every yard over 5, increase speed by 0.01
+                    //  to help prevent pet from lagging behind and despawning
+                    float dist = GetDistance(pOwner);
+                    float base_rate = 1.00f; // base speed is 100% of owner speed
 
-                    if (!isInCombat())
-                    {
-                        // For every yard over 5, increase speed by 0.01
-                        //  to help prevent pet from lagging behind and despawning
-                        float dist = GetDistance(pOwner);
+                    if (dist < 1.0f)
+                        dist = 1.0f;
 
-                        if (dist < 5)
-                            dist = 5;
+                    float mult = base_rate + (dist >= 1.0f ? std::min(0.5f, ((dist - 1.0f) * 0.05f)) : 0.0f);
 
-                        float mult = base_rate + ((dist - 5) * 0.01f);
-
-                        speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
-                    }
-                    else
-                        speed *= base_rate;
+                    speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
                 }
                 else
                     speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
@@ -14602,24 +14596,23 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         rate = 0.01f;
 
     // Update speed only on change
-    bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
+    if (m_speed_rate[p_MovementType] == rate)
+        return;
 
     /// Walk speed can't be faster then run speed
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
-    float l_OldRate = m_speed_rate[p_MovementType]; ///< l_oldrate is never read 01/18/16
     m_speed_rate[p_MovementType] = rate;
 
-    if (!clientSideOnly)
-        propagateSpeedChange();
+    propagateSpeedChange();
 
     // Don't build packets because we've got noone to send
     // them to except self, and self is not created at client.
     if (!IsInWorld())
         return;
 
-    ObjectGuid l_Guid = GetGUID();
+    uint64 l_Guid = GetGUID();
     if (!forced && GetTypeId() != TYPEID_PLAYER)
     {
         WorldPacket l_Data;
@@ -17502,7 +17495,7 @@ void Unit::StopMoving()
 
     // Update position using old spline
     UpdateSplinePosition();
-    Movement::MoveSplineInit(*this).Stop();
+    Movement::MoveSplineInit(this).Stop();
 }
 
 void Unit::SendMovementFlagUpdate(bool self /* = false */)
@@ -18217,15 +18210,17 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
         if (spellProto && spellProto->Id == 44448 && procSpell &&
-            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) // Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
+            (procSpell->Id == 108853 || procSpell->Id == 11366 || procSpell->Id == 11129)) ///< Inferno Blast, Combustion and Pyroblast can Trigger Pyroblast!
             return true;
         // Hack fix Mutilate can Trigger Blindside
         else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
             return true;
+        else if (spellProto && spellProto->Id == 76669 && procSpell && procSpell->Id == 156322) ///< Eternal flame dot should proc on Illuminated healing
+            return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
-        else if (spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108 || ///<  '&&' within '||'
-                 spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032) ///<  '&&' within '||'
+        else if ((spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108) ||
+                 (spellProto && spellProto->Id == 165476 && procSpell && procSpell->Id == 36032))
         {
             /// Nothing to do here
             /// We must use the ProcsPerMinuteRate calculated after that
@@ -18745,6 +18740,17 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 }
             }
         }
+
+        float l_GroundZ = l_KilledCreature->GetMap()->GetHeight(l_KilledCreature->m_positionX, l_KilledCreature->m_positionY, l_KilledCreature->m_positionZ, true, 200.0f);
+
+        if (l_KilledCreature->IsFlying() && l_GroundZ != INVALID_HEIGHT && l_GroundZ != l_KilledCreature->m_positionZ)
+        {
+            Position l_Position = *l_KilledCreature;
+            l_Position.m_positionZ = l_GroundZ;
+
+            l_KilledCreature->GetMotionMaster()->Clear();
+            l_KilledCreature->GetMotionMaster()->MoveLand(EventId::EVENT_FALL_TO_GROUND, l_Position);
+        }
     }
 
     /// Outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
@@ -18800,6 +18806,58 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     }
 
     p_KilledVictim->m_IsInKillingProcess = false;
+}
+
+/// Get interpolated player position based on last received movement informations
+/// @p_AtClientScreen : Interpolated with client network delay ?
+/// @p_ProjectTime    : Time target of prediction
+Position Unit::GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTime)
+{
+    if (!isMoving())
+        return *this;
+
+    if ((m_movementInfo.GetMovementFlags() & (MOVEMENTFLAG_MASK_MOVING_FLY | MOVEMENTFLAG_MASK_TURNING | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN | MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_SPLINE_ELEVATION)) != 0)
+        return *this;
+
+    Position l_InterpolatedPosition;
+
+    uint32 l_LastMoveTimeStamp = m_movementInfoLastTime;
+    uint32 l_CurrentTime = getMSTime() + p_ProjectTime;
+
+    if (p_AtClientScreen && GetTypeId() == TYPEID_PLAYER)
+        l_CurrentTime += ToPlayer()->GetSession()->GetLatency();
+
+    float l_Orientation = m_movementInfo.pos.m_orientation;
+    float l_Distance = (l_CurrentTime - l_LastMoveTimeStamp) / 1000.0f;
+
+    uint32 l_MovementFlags = m_movementInfo.GetMovementFlags();
+    
+    if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_LEFT) != 0)
+        l_Orientation += M_PI / 2.0f;
+    else if ((l_MovementFlags & MOVEMENTFLAG_STRAFE_RIGHT) != 0)
+        l_Orientation -= M_PI / 2.0f;
+    else if ((l_MovementFlags & MOVEMENTFLAG_BACKWARD) != 0)
+        l_Orientation -= M_PI;
+
+    l_Orientation = NormalizeOrientation(l_Orientation);
+
+    bool l_IsBackward = ((l_MovementFlags & MOVEMENTFLAG_BACKWARD) != 0);
+
+    if ((l_MovementFlags & MOVEMENTFLAG_WALKING) != 0)
+        l_Distance *= GetSpeed(MOVE_WALK);
+    else if ((l_MovementFlags & MOVEMENTFLAG_FLYING) != 0)
+        l_Distance *= GetSpeed(l_IsBackward ? MOVE_FLIGHT_BACK : MOVE_FLIGHT);
+    else if ((l_MovementFlags & MOVEMENTFLAG_SWIMMING) != 0)
+        l_Distance *= GetSpeed(l_IsBackward ? MOVE_SWIM_BACK : MOVE_SWIM);
+    else if ((l_MovementFlags & MOVEMENTFLAG_MASK_TURNING) == 0)
+        l_Distance *= GetSpeed(l_IsBackward ? MOVE_RUN_BACK : MOVE_RUN);
+
+    l_InterpolatedPosition.m_positionX = m_movementInfo.pos.m_positionX + (std::cos(l_Orientation) * l_Distance);
+    l_InterpolatedPosition.m_positionY = m_movementInfo.pos.m_positionY + (std::sin(l_Orientation) * l_Distance);
+    l_InterpolatedPosition.m_positionZ = GetMap()->GetHeight(l_InterpolatedPosition.m_positionX, l_InterpolatedPosition.m_positionY, MAX_HEIGHT);
+    l_InterpolatedPosition.m_orientation = m_movementInfo.pos.m_orientation;
+
+    return l_InterpolatedPosition;
 }
 
 void Unit::SetControlled(bool apply, UnitState state)
@@ -21204,8 +21262,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         SendMessageToSet(&data, false);
     }
 
-    Movement::MoveSplineInit init(*this);
-    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();
@@ -21627,7 +21685,7 @@ void Unit::SetInFront(WorldObject const* target)
 
 void Unit::SetFacingTo(float ori)
 {
-    Movement::MoveSplineInit init(*this);
+    Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
     if (GetTransGUID())
         init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
@@ -21644,7 +21702,7 @@ void Unit::SetFacingToObject(WorldObject* object)
         return;
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    Movement::MoveSplineInit init(*this);
+    Movement::MoveSplineInit init(this);
     init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
     init.SetFacing(GetAngle(object));   // when on transport, GetAngle will still return global coordinates (and angle) that needs transforming
     init.Launch();
@@ -22191,7 +22249,10 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
         if ((p_Player->getLevel() <= l_MaxPlayerLevelsByExpansion[l_TargetExpansion - 1]) && p_Player->GetAverageItemLevelEquipped() > l_IntendedItemLevelByExpansion[l_TargetExpansion - 1])
         {
-            float l_AltDamageTakenFactor = 1 - 0.01f * (p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1]);
+            float l_ItemLevelFactor = p_Player->GetAverageItemLevelEquipped() - l_IntendedItemLevelByExpansion[l_TargetExpansion - 1];
+            l_ItemLevelFactor = std::min(l_ItemLevelFactor, 99.9f);
+
+            float l_AltDamageTakenFactor = 1 - 0.01f * l_ItemLevelFactor;
             l_DamageTakenFactor = std::min(l_DamageTakenFactor, l_AltDamageTakenFactor);
         }
     }
@@ -22269,11 +22330,39 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
     }
     case SPELLFAMILY_MONK:
     {
-        /// Rising Sun Kick - In pvp, increase reduce by 20%
+        /// Rising Sun Kick - In pvp, damage increase by 20%
         if (p_Spellproto->SpellFamilyFlags[1] & 0x80)
             return 20.0f;
         break;
     }
+    case SPELLFAMILY_DEATHKNIGHT:
+    {
+        /// Frost Strike - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x4)
+            return -10.0f;
+        /// Obliterate - In pvp, damages reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[1] & 0x20000)
+            return -10.0f;
+        break;
+    }
+    case SPELLFAMILY_MAGE:
+    {
+        /// Ice Nova - In pvp, damage reduce by 20%
+        if (p_Spellproto->SpellFamilyFlags[3] & 0x80000)
+            return -20.0f;
+        break;
+    }
+    case SPELLFAMILY_WARRIOR:
+    {
+        /// Execute - In pvp, damage reduce by 10%
+        if (p_Spellproto->SpellFamilyFlags[0] & 0x20000000)
+            return -10.0f;
+        /// Mortal Strike - In pvp, damage reduce by 10%
+        if (p_Spellproto->Id == 16856)
+            return -10.0f;
+        break;
+    }
+
     default:
         break;
     }

@@ -20,17 +20,17 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_CostanHighwallAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
@@ -67,24 +67,82 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 77775 - Kaya Solasen                                              ////
     //////////////////////////////////////////////////////////////////////////
-    namespace npc_KayaSolasenAIData
+
+    /// Constructor
+    npc_KayaSolasen::npc_KayaSolasen()
+        : CreatureScript("npc_KayaSolasen_Garr")
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+
+    }
+
+    bool npc_KayaSolasen::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstJewelcraftingWorkOrder, 4);
+
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_KayaSolasen::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+
+        return true;
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_KayaSolasen::GetAI(Creature* p_Creature) const
+    {
+        return new npc_KayaSolasenAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_KayaSolasen::npc_KayaSolasenAI::npc_KayaSolasenAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    void npc_KayaSolasen::npc_KayaSolasenAI::SetGUID(uint64 p_Guid, int32 p_Id)
+    {
+        if (p_Id == CreatureAIDataIDs::OwnerGuid)
+            m_OwnerGuid = p_Guid;
+    }
+
+    void npc_KayaSolasen::npc_KayaSolasenAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
         {
-
-        };
-
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
-        {
-
-        };
-
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
-        {
-
-        };
-
-        char ScriptName[] = "npc_KayaSolasen_Garr";
+            if (Manager* l_GarrisonMgr = l_Owner->GetGarrison())
+            {
+                if (l_GarrisonMgr->HasRequiredFollowerAssignedAbility(p_PlotInstanceID))
+                {
+                    switch (GetBuildingID())
+                    {
+                        case Buildings::GemBoutique_GemBoutique_Level2:
+                        case Buildings::GemBoutique_GemBoutique_Level3:
+                            SummonRelativeCreature(NPCs::NpcAllianceJewelCraftingFollower, 1.2960f, 4.8436f, 0.7732f, 6.1639f, TEMPSUMMON_MANUAL_DESPAWN);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
     }
 
 }   ///< namespace Garrison

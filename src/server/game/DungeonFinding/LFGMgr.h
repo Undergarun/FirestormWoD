@@ -162,6 +162,7 @@ enum LfgSlotRandomDungeonID
 
 enum LfgGroupType
 {
+    LfgGroupTypeNone                     = 0,
     LfgGroupeTypeClassic                 = 1,
     LfgGroupeTypeDungeonBC               = 2,
     LfgGroupeTypeHeroicBC                = 3,

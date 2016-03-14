@@ -102,8 +102,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     {
         if (!mapChange)
         {
-            TaxiPathNodeEntry const& node_i = path[i];
-            if (node_i.actionFlag == 1 || node_i.mapid != path[i + 1].mapid)
+            TaxiPathNodeEntry const* node_i = path[i];
+            if (node_i->Flags == 1 || node_i->MapID != path[i + 1]->MapID)
             {
                 cyclic = false;
                 keyFrames.back().Teleport = true;
@@ -111,10 +111,10 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
             }
             else
             {
-                KeyFrame k(node_i);
+                KeyFrame k(*node_i);
                 keyFrames.push_back(k);
-                splinePath.push_back(G3D::Vector3(node_i.x, node_i.y, node_i.z));
-                transport->mapsUsed.insert(k.Node->mapid);
+                splinePath.push_back(G3D::Vector3(node_i->x, node_i->y, node_i->z));
+                transport->mapsUsed.insert(k.Node->MapID);
             }
         }
         else
@@ -287,7 +287,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     float curPathTime = 0.0f;
     if (keyFrames[0].IsStopFrame())
     {
-        curPathTime = float(keyFrames[0].Node->delay);
+        curPathTime = float(keyFrames[0].Node->Delay);
         keyFrames[0].DepartureTime = uint32(curPathTime * IN_MILLISECONDS);
     }
 
@@ -298,7 +298,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         {
             keyFrames[i].ArriveTime = uint32(curPathTime * IN_MILLISECONDS);
             keyFrames[i - 1].NextArriveTime = keyFrames[i].ArriveTime;
-            curPathTime += (float)keyFrames[i].Node->delay;
+            curPathTime += (float)keyFrames[i].Node->Delay;
             keyFrames[i].DepartureTime = uint32(curPathTime * IN_MILLISECONDS);
         }
         else
@@ -350,7 +350,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
 
     // ...at first waypoint
     TaxiPathNodeEntry const* startNode = tInfo->keyFrames.begin()->Node;
-    uint32 mapId = startNode->mapid;
+    uint32 mapId = startNode->MapID;
     float x = startNode->x;
     float y = startNode->y;
     float z = startNode->z;

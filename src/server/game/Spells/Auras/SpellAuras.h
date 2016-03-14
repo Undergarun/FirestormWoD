@@ -197,6 +197,7 @@ class Aura
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
+        bool IsSameRaidBuff(Aura const* existingAura) const;
 
         // Proc system
         // this subsystem is not yet in use - the core of it is functional, but still some research has to be done

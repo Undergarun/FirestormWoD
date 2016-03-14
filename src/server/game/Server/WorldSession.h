@@ -178,7 +178,9 @@ namespace ServiceFlags
 {
     enum
     {
-        Premade = 0x1
+        Premade     = 0x01,
+        Season2Gold = 0x02,
+        Season2Item = 0x04
     };
 }
 
@@ -188,6 +190,16 @@ namespace AccountCustomFlags
     {
         NoChatLocaleFiltering = 0x1
     };
+}
+
+namespace Taxi
+{
+    class ShowTaxiNodes;
+    class TaxiNodeStatusQuery;
+    class EnableTaxiNode;
+    class TaxiQueryAvailableNodes;
+    class ActivateTaxi;
+    class TaxiRequestEarlyLanding;
 }
 
 //class to deal with packet processing
@@ -337,6 +349,7 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
+        void LoginPlayer(uint64 p_Guid);
         void LogoutPlayer(bool Save);
         void KickPlayer();
 
@@ -487,11 +500,11 @@ class WorldSession
         bool GetFirstPremadeMoney() const { return m_FirstPremadeMoney; }
 
         /// Return join date as unix timestamp
-        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+        uint64 GetAccountJoinDate() const { return m_AccountJoinDate; }
 
         /// Set join date as unix timestamp
         /// @p_JoinDate : unix timestamp of the account creation
-        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
+        void SetAccountJoinDate(uint64 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
         time_t GetLoginTime() const { return m_LoginTime; }
 
@@ -730,6 +743,7 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
+        void HandleEnableTaxiNodeOpcode(WorldPacket& recvPacket);
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
@@ -1140,24 +1154,24 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         /// Garrison
         //////////////////////////////////////////////////////////////////////////
-        void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
-        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
-        void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
-        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
+        void HandleGetGarrisonInfoOpcode(WorldPacket& p_RecvData);
+        void HandleRequestGarrisonUpgradeableOpcode(WorldPacket& p_RecvData);
+        void HandleUpgradeGarrisonOpcode(WorldPacket& p_RecvData);
+        void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonMissionNPCHelloOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonRequestSetMissionNPC(WorldPacket& p_RecvData);
-        void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonRequestBuildingsOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonPurchaseBuildingOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonCancelConstructionOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonStartMissionOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonCompleteMissionOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonMissionBonusRollOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvData);
         void HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvData);
-        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
-        void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData);
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket& p_RecvData);
         void HandleGarrisonFollowerRename(WorldPacket& p_RecvData);
         void HandleGarrisonDecommisionShip(WorldPacket& p_RecvData);
 
@@ -1218,6 +1232,9 @@ class WorldSession
 
         /// Gms command cooldowns (performances)
         time_t m_TimeLastTicketOnlineList;
+
+        void SetStressTest(bool p_Value) { m_IsStressTestSession = p_Value; }
+        bool IsStressTest() const { return m_IsStressTestSession; }
 
     private:
         void InitializeQueryCallbackParameters();
@@ -1281,7 +1298,7 @@ class WorldSession
 
         uint16 m_ClientBuild;
 
-        uint32 m_AccountJoinDate;
+        uint64 m_AccountJoinDate;
 
         bool m_FirstPremadeMoney;
 
@@ -1353,6 +1370,8 @@ class WorldSession
         uint32 m_ServiceFlags;
         uint32 m_CustomFlags;
         time_t m_LoginTime;
+
+        bool m_IsStressTestSession;
 };
 #endif
 /// @}

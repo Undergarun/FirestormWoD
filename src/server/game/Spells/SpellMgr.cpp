@@ -513,6 +513,12 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
                 return 4 * IN_MILLISECONDS;
             break;
         }
+        case SPELLFAMILY_MAGE:
+        {
+            /// Deep Freeze - 4 seconds in PvP (6.2.3)
+            if (spellproto->Id == 44572)
+                return 4 * IN_MILLISECONDS;
+        }
         default:
             break;
     }
@@ -3397,6 +3403,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 178444: ///< Create Armor Enhancement (garrison loot spell)
+            case 178445: ///< Create Weapon Boost (garrison loot spell)
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
+                break;
             case 167946: ///< Journeyman Logging (Lumber Mill)
                 spellInfo->Effects[0].BasePoints = 1;
                 break;
@@ -3549,6 +3559,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30;
                 break;
             case 156324: ///< Acid Torrent (AoE)
+            case 155225: ///< Melt (Heart of the Mountain)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
             case 177756: ///< Deafening Roar (Bellows Operator)
@@ -3562,6 +3573,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 177891: ///< Rising Flame Kick (Mol'dana Two Blade)
             case 177855: ///< Ember in the Wind (aura - Mol'dana Two Blade)
             case 154932: ///< Molten Torrent (aura - Flamebender Ka'graz)
+            case 161570: ///< Searing Plates (DoT - Franzok)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
@@ -3712,6 +3724,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 138378: ///< Transfusion (Dark Animus - Throne of Thunder)
                 spellInfo->ExplicitTargetMask = 0;
+                break;
+            case 101257: ///< Wracking Pain dmg
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_100_YARDS);
                 break;
             case 136954: ///< Anima Ring (Dark Animu - Throne of Thunder)
                 for (uint8 l_Itr = 0; l_Itr < 12; ++l_Itr)
@@ -4896,6 +4913,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->StartRecoveryTime = 1500;
                 spellInfo->StartRecoveryCategory = 133;
                 spellInfo->Effects[3].Effect = 0;
+                break;
+            case 57761: ///< Brain Freeze
+                spellInfo->Effects[0].BasePoints = -100;
+                spellInfo->Effects[1].BasePoints = -100;
                 break;
             case 127424: ///< Jade Fire
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;

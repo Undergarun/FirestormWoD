@@ -75,6 +75,9 @@ namespace MS { namespace Garrison { namespace Sites
         /// Achievement "More Plots" alliance side
         if (p_Owner->GetTeamId() == TEAM_ALLIANCE && !p_Owner->GetAchievementMgr().HasAchieved(9100))
             p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9100), nullptr);
+
+        if (p_Owner->HasQuest(Quests::Alliance_LostInTransition))
+            p_Owner->CompleteQuest(Quests::Alliance_LostInTransition);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -85,7 +88,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonAllianceLevel2::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
-
+        /// Hack fix for storehouse, need more work
+        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition)
+            p_Owner->CompleteQuest(Quests::Alliance_LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -197,11 +202,11 @@ namespace MS { namespace Garrison { namespace Sites
                     case Buildings::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
-                    case Buildings::Barn__Barn_Level2:
+                    case Buildings::Barn_Barn_Level2:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::Barn__Barn_Level3:
+                    case Buildings::Barn_Barn_Level3:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
@@ -233,11 +238,11 @@ namespace MS { namespace Garrison { namespace Sites
                     case Buildings::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
-                    case Buildings::Barn__Barn_Level2:
+                    case Buildings::Barn_Barn_Level2:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::Barn__Barn_Level3:
+                    case Buildings::Barn_Barn_Level3:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))

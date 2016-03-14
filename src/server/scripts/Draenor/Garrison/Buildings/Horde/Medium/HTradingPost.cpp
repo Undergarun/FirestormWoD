@@ -16,7 +16,7 @@
 namespace MS { namespace Garrison 
 {
     //////////////////////////////////////////////////////////////////////////
-    /// 87112 - Kinja                                                      ///
+    /// 87112 - Fayla Fairfeather                                          ///
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
@@ -108,7 +108,83 @@ namespace MS { namespace Garrison
     npc_FaylaFairfeather::npc_FaylaFairfeatherAI::npc_FaylaFairfeatherAI(Creature* p_Creature)
         : GarrisonNPCAI(p_Creature)
     {
+    }
 
+    void npc_FaylaFairfeather::npc_FaylaFairfeatherAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(std::vector<uint32> {NPCs::NpcHordeAncientTradingMechanismQuestGiver, NPCs::NpcHordeAncientTradingMechanismAuctioneer}, 100.0f);
+    }
+
+    void npc_FaylaFairfeather::npc_FaylaFairfeatherAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    {
+        Player* l_Owner = GetOwner();
+
+        if (l_Owner == nullptr)
+            return;
+
+        Manager* l_GarrisonMgr = l_Owner->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return;
+
+        SequencePosition l_NpcVendorPos;
+
+        switch (l_GarrisonMgr->GetBuilding(p_PlotInstanceID).BuildingID)
+        {
+            case Buildings::TradingPost_TradingPost_Level1:
+                l_NpcVendorPos = { 7.7799f, -4.4549f, 0.5719f, 0.1100f };
+                break;
+            case Buildings::TradingPost_TradingPost_Level2:
+                if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
+                    SummonRelativeCreature(NPCs::NpcHordeAncientTradingMechanismQuestGiver, -3.7428f, -2.1507f, 0.3379f, 1.4059f, TEMPSUMMON_MANUAL_DESPAWN);
+                else
+                    SummonRelativeCreature(NPCs::NpcHordeAncientTradingMechanismAuctioneer, -3.7428f, -2.1507f, 0.3379f, 1.4059f, TEMPSUMMON_MANUAL_DESPAWN);
+
+                l_NpcVendorPos = { 1.8293f, -1.6102f, 0.2526f, 0.5341f };
+                break;
+            case Buildings::TradingPost_TradingPost_Level3:
+                if (l_Owner->GetQuestStatus(Quests::Alliance_AuctionningForParts) != QUEST_STATUS_REWARDED)
+                    SummonRelativeCreature(NPCs::NpcHordeAncientTradingMechanismQuestGiver, -3.1509f, -4.1658f, 0.6419f, 1.2944f, TEMPSUMMON_MANUAL_DESPAWN);
+                else
+                    SummonRelativeCreature(NPCs::NpcHordeAncientTradingMechanismAuctioneer, -3.1509f, -4.1658f, 0.6419f, 1.2944f, TEMPSUMMON_MANUAL_DESPAWN);
+
+                l_NpcVendorPos = { -5.6686f, -2.3819f, 0.4834f, 0.3087f };
+                break;
+            default:
+                break;
+        }
+
+        uint32 l_NpcID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader);
+
+        if (!l_NpcID) ///< Quest or daily refill not done
+            return;
+
+        if (Creature* l_Creature = me->FindNearestCreature(l_NpcID, 30.0f))
+            l_Creature->DespawnOrUnsummon();
+
+        SummonRelativeCreature(l_NpcID, l_NpcVendorPos, TEMPSUMMON_MANUAL_DESPAWN);
+
+        l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_NpcID);
+        l_Owner->SaveToDB();
+    }
+
+    void npc_FaylaFairfeather::npc_FaylaFairfeatherAI::OnDataReset()
+    {
+        if (GetOwner() != nullptr)
+        {
+            MS::Garrison::Manager* l_GarrisonMgr = GetOwner()->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            std::vector<uint32> l_TradersEntries = { 86778, 86777, 86779, 86776, 86683 };
+            uint32 l_Entry = l_TradersEntries[urand(0, l_TradersEntries.size() - 1)];
+
+            GetOwner()->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
+            GetOwner()->SaveToDB();
+
+            OnSetPlotInstanceID(GetPlotInstanceID());
+        }
     }
 
 }   ///< namespace Garrison

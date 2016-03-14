@@ -860,7 +860,7 @@ enum LifebloomSpells
     SPELL_DRUID_CLEARCASTING = 16870
 };
 
-/// last update : 6.1.2
+/// last update : 6.2.3
 /// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
@@ -872,6 +872,7 @@ public:
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
 
         int32 m_RejuvenationAura = 0;
+        int32 m_RejuvenationAuraAmount = 0;
 
         void HandleAfterHit()
         {
@@ -884,8 +885,12 @@ public:
                 return;
 
             Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+
             if (l_RejuvenationAura && m_RejuvenationAura > 0)
+            {
                 l_RejuvenationAura->SetDuration(m_RejuvenationAura);
+                l_RejuvenationAura->GetEffect(EFFECT_0)->SetAmount(m_RejuvenationAuraAmount);
+            }
         }
 
         void HandleBeforeHit()
@@ -909,6 +914,7 @@ public:
                 {
                     l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
                     m_RejuvenationAura = l_RejuvenationAura->GetDuration();
+                    m_RejuvenationAuraAmount = l_RejuvenationAura->GetEffect(EFFECT_0)->GetAmount();
                 }
                 else
                 {
@@ -924,6 +930,7 @@ public:
                         {
                             l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
                             m_RejuvenationAura = l_RejuvenationDuration;
+                            m_RejuvenationAuraAmount = l_RejuvenationAura->GetEffect(EFFECT_0)->GetAmount();
                         }
                     }
                 }
@@ -947,7 +954,7 @@ public:
             GlyphofRejuvenationEffect   = 96206
         };
 
-        void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        void HandleCalculateAmount(AuraEffect const* p_AurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
