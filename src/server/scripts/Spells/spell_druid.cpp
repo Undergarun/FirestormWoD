@@ -914,7 +914,8 @@ public:
                 {
                     l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
                     m_RejuvenationAura = l_RejuvenationAura->GetDuration();
-                    m_RejuvenationAuraAmount = l_RejuvenationAura->GetEffect(EFFECT_0)->GetAmount();
+                    if (AuraEffect const* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
+                        m_RejuvenationAuraAmount = l_AuraEffect->GetAmount();
                 }
                 else
                 {
@@ -930,7 +931,8 @@ public:
                         {
                             l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
                             m_RejuvenationAura = l_RejuvenationDuration;
-                            m_RejuvenationAuraAmount = l_RejuvenationAura->GetEffect(EFFECT_0)->GetAmount();
+                            if (AuraEffect const* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
+                                m_RejuvenationAuraAmount = l_AuraEffect->GetAmount();
                         }
                     }
                 }
