@@ -2558,3 +2558,5 @@ uint32 Item::GetEnchantItemVisualId(EnchantmentSlot p_Slot) const
 
     return l_Enchantement->itemVisualID;
 }
+
+

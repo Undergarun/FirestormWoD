@@ -831,13 +831,13 @@ namespace MS { namespace Garrison
     {
         InitPlots();    ///< AKA update plots
 
+        /// Enable AI Client collision manager
+        m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
+
         Interfaces::GarrisonSite* l_GarrisonScript = GetGarrisonScript();
 
         if (l_GarrisonScript)
             m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
-
-        /// Enable AI Client collision manager
-        m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
 
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
         {
@@ -3126,11 +3126,37 @@ namespace MS { namespace Garrison
         };
 
         GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
-        
-        if (l_Follower == nullptr)
-            return 1;
 
-        return roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1;
+        if (l_Follower == nullptr)
+            return false;
+
+        return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1 : 1;
+    }
+
+    GarrisonFollower* Manager::GetAssignedFollower(uint32 p_PlotInstanceID)
+    {
+        return GetFollowerWithDatabaseID(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+    }
+
+    bool Manager::HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID)
+    {
+        GarrisonFollower* l_Follower = GetFollowerWithDatabaseID(GetBuilding(p_PlotInstanceID).FollowerAssigned);
+
+        if (l_Follower == nullptr)
+            return false;
+
+        GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(GetBuilding(p_PlotInstanceID).BuildingID);
+
+        if (l_Building == nullptr)
+            return false;
+
+        for (uint32 l_Ability : l_Follower->Abilities)
+        {
+            if (l_Ability == l_Building->FollowerRequiredGarrAbilityID)
+                return true;
+        }
+
+        return false;
     }
 
     uint32 Manager::CalculateArmoryWorkOrder() const
@@ -3149,6 +3175,11 @@ namespace MS { namespace Garrison
             return l_EpicRewards[urand(0, l_EpicRewards.size() - 1)];
 
         return 0;
+    }
+
+    void Manager::InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid)
+    {
+        m_PlotsCreatures[p_PlotInstanceID].push_back(p_Guid);
     }
 
     /// Get creature plot instance ID

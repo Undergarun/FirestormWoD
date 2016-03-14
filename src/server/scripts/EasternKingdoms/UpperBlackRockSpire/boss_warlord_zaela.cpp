@@ -716,7 +716,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                         break;
                     case Events::CirclePath:
                     {
-                        Movement::MoveSplineInit l_Init(*me);
+                        Movement::MoveSplineInit l_Init(me);
 
                         ///< Creating the circle path from the center
                         FillCirclePath(g_CenterPos, 45.0f, me->GetPositionZ() + 10.0f, l_Init.Path(), true);

@@ -28,6 +28,7 @@ void AddSC_DuelReset();
 void AddSC_npc_custom();
 void AddSC_Webshop_Delivery();
 void AddSC_Character_Renderer();
+void AddSC_StressTest();
 
 /// Spells
 void AddSC_deathknight_spell_scripts();
@@ -97,6 +98,7 @@ void AddSC_hotfix_commandscript();
 void AddSC_battlepay_commandscript();
 void AddSC_items_commandscript();
 void AddSC_spellog_commandscript();
+void AddSC_mmaps_commandscript();
 
 /// World
 void AddSC_areatrigger_scripts();
@@ -1222,6 +1224,7 @@ void AddCommandScripts()
     AddSC_hotfix_commandscript();
     AddSC_battlepay_commandscript();
     AddSC_items_commandscript();
+    AddSC_mmaps_commandscript();
     AddSC_spellog_commandscript();
 }
 
@@ -2105,6 +2108,7 @@ void AddBattlegroundScripts()
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
+    AddSC_StressTest();
     AddSC_event_april();
     AddSC_promotion_new_players();
     AddSC_first_time_connexion();

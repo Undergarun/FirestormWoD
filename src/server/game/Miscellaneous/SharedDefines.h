@@ -20,6 +20,7 @@
 #define TRINITY_SHAREDDEFINES_H
 
 #include "Define.h"
+#include "DetourNavMesh.h"
 #include <cassert>
 
 #define UNUSED(x) (void)(x)
@@ -4697,7 +4698,15 @@ enum EventId
 {
     EVENT_SPELLCLICK        = 1001,
     EVENT_CHARGE            = 1003,
-    EVENT_JUMP              = 1004
+    EVENT_JUMP              = 1004,
+
+    /// Special charge event which is used for charge spells that have explicit targets
+    /// and had a path already generated - using it in PointMovementGenerator will not
+    /// create a new spline and launch it
+    EVENT_CHARGE_PREPATH = 1005,
+
+    /// When flying cretude died
+    EVENT_FALL_TO_GROUND  = 1006
 };
 
 /// Last update : 6.2.0 20201
@@ -5022,19 +5031,27 @@ enum RemoveMethod
 /// last update : 6.2.3 20779
 enum ActivateTaxiReply
 {
-    ERR_TAXI_NO_VENDOR_NEARBY           = 13,
-    ERR_TAXI_PLAYER_MOVING              = 10,
-    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 5,
-    ERR_TAXI_PLAYER_BUSY                = 14,
-    ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
-    ERR_TAXI_NOT_STANDING               = 11,
-    ERR_TAXI_PLAYER_SHAPESHIFTED        = 4,
-    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 1,
-    ERR_TAXI_NO_SUCH_PATH               = 3,
-    ERR_TAXI_OK                         = 8,
-    ERR_TAXI_SAME_NODE                  = 12,
-    ERR_TAXI_TOO_FAR_AWAY               = 7,
-    ERR_TAXI_NOT_VISITED                = 9
+    ERR_TAXINOVENDORNEARBY          = 13,
+    ERR_TAXIPLAYERMOVING            = 10,
+    ERR_TAXIPLAYERALREADYMOUNTED    = 5,
+    ERR_TAXIPLAYERBUSY              = 14,
+    ERR_TAXINOTENOUGHMONEY          = 2,
+    ERR_TAXINOTSTANDING             = 11,
+    ERR_TAXIPLAYERSHAPESHIFTED      = 4,
+    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
+    ERR_TAXINOSUCHPATH              = 3,
+    ERR_TAXIOK                      = 8,
+    ERR_TAXISAMENODE                = 12,
+    ERR_TAXITOOFARAWAY              = 7,
+    ERR_TAXINOTVISITED              = 9
+};
+
+enum TaxiNodeStatus
+{
+    TAXISTATUS_NOT_ELIGIBLE     = 2,
+    TAXISTATUS_UNLEARNED        = 1,
+    TAXISTATUS_LEARNED          = 3,
+    TAXISTATUS_NONE             = 0
 };
 
 enum ProfessionUI
