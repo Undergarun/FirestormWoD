@@ -121,6 +121,7 @@ const char WorldSafeLocsEntryfmt[]            = "niffffx";
 const char GtBattlePetTypeDamageModfmt[]      = "xf";
 const char GtBattlePetXPfmt[]                 = "xf";
 const char WorldStateEntryfmt[]               = "n";
+char const WorldMapTransformsfmt[]            = "diffffffxffxxxf";
 const char WorldStateExpressionEntryfmt[]     = "ns";
 
 #endif

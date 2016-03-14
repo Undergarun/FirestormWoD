@@ -48,7 +48,6 @@ CreatureAIFactory<REAL_AI>::Create(void* data) const
 
 typedef FactoryHolder<CreatureAI> CreatureAICreator;
 typedef FactoryHolder<CreatureAI>::FactoryHolderRegistry CreatureAIRegistry;
-typedef FactoryHolder<CreatureAI>::FactoryHolderRepository CreatureAIRepository;
 
 //GO
 struct SelectableGameObjectAI : public FactoryHolder<GameObjectAI>, public Permissible<GameObject>
@@ -76,5 +75,4 @@ GameObjectAIFactory<REAL_GO_AI>::Create(void* data) const
 
 typedef FactoryHolder<GameObjectAI> GameObjectAICreator;
 typedef FactoryHolder<GameObjectAI>::FactoryHolderRegistry GameObjectAIRegistry;
-typedef FactoryHolder<GameObjectAI>::FactoryHolderRepository GameObjectAIRepository;
 #endif

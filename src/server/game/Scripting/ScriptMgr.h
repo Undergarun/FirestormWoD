@@ -826,6 +826,16 @@ class ScriptMgr
         /// @p_SceneInstanceID : Standalone scene instance ID
         void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId);
 
+        /// Called when a player enter in bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        void OnEnterBG(Player* p_Player, uint32 p_MapID);
+
+        /// Called when a leave a bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        void OnLeaveBG(Player* p_Player, uint32 p_MapID);
+
         /// Called when a player regen a power
         /// @p_Player         : Player instance
         /// @p_Power          : Power to be regenerate

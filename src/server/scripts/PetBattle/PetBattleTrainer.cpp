@@ -292,7 +292,7 @@ class npc_PetBattleTrainer : public CreatureScript
                         l_WildBattlePets[l_CurrentPetID] = nullptr;
                 }
 
-                p_Player->GetMotionMaster()->MovePoint(PETBATTLE_ENTER_MOVE_SPLINE_ID, l_PlayerPosition, l_PlayerPosition.m_orientation);
+                p_Player->GetMotionMaster()->MovePointWithRot(PETBATTLE_ENTER_MOVE_SPLINE_ID, l_PlayerPosition.m_positionX, l_PlayerPosition.m_positionY, l_PlayerPosition.m_positionZ, l_PlayerPosition.m_orientation);
             }
             else
                 p_Player->CLOSE_GOSSIP_MENU();

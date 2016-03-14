@@ -153,155 +153,6 @@ enum CharacterCustomizeFlags
 
 static uint32 gCopseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
-// == PlayerTaxi ================================================
-
-PlayerTaxi::PlayerTaxi()
-{
-    memset(m_taximask, 0, sizeof(m_taximask));
-}
-
-void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
-{
-    // class specific initial known nodes
-    switch (chrClass)
-    {
-        case CLASS_DEATH_KNIGHT:
-        {
-            for (uint8 i = 0; i < TaxiMaskSize; ++i)
-                m_taximask[i] |= sOldContinentsNodesMask[i];
-            break;
-        }
-    }
-
-    // race specific initial known nodes: capital and taxi hub masks
-    // @TODO MISSING PANDAREN HORDE/ALLIANCE WORGEN and GOBLIN
-    switch (race)
-    {
-        case RACE_HUMAN:    SetTaximaskNode(2);  break;     // Human
-        case RACE_ORC:      SetTaximaskNode(23); break;     // Orc
-        case RACE_DWARF:    SetTaximaskNode(6);  break;     // Dwarf
-        case RACE_NIGHTELF: SetTaximaskNode(26);
-                            SetTaximaskNode(27); break;     // Night Elf
-        case RACE_UNDEAD_PLAYER: SetTaximaskNode(11); break;// Undead
-        case RACE_TAUREN:   SetTaximaskNode(22); break;     // Tauren
-        case RACE_GNOME:    SetTaximaskNode(6);  break;     // Gnome
-        case RACE_TROLL:    SetTaximaskNode(23); break;     // Troll
-        case RACE_BLOODELF: SetTaximaskNode(82); break;     // Blood Elf
-        case RACE_DRAENEI:  SetTaximaskNode(94); break;     // Draenei
-    }
-
-    // New continent starting masks (It will be accessible only at new map)
-    switch (Player::TeamForRace(race))
-    {
-        case ALLIANCE:
-            SetTaximaskNode(100);
-            SetTaximaskNode(1420);      ///< Ashran flypath (Stormshield)
-            break;
-        case HORDE:
-            SetTaximaskNode(99);
-            SetTaximaskNode(1408);      ///< Ashran flypath (Warspear)
-            break;
-    }
-
-    // Level dependent taxi hubs
-    if (level >= 68)
-        SetTaximaskNode(213);                               //Shattered Sun Staging Area
-}
-
-void PlayerTaxi::LoadTaxiMask(std::string const &data)
-{
-    Tokenizer tokens(data, ' ');
-
-    uint8 index = 0;
-    for (Tokenizer::const_iterator iter = tokens.begin(); index < TaxiMaskSize && iter != tokens.end(); ++iter, ++index)
-    {
-        // load and set bits only for existing taxi nodes
-        m_taximask[index] = sTaxiNodesMask[index] & uint32(atol(*iter));
-    }
-}
-
-void PlayerTaxi::AppendTaximaskTo(ByteBuffer& p_Data, bool p_AllNodes)
-{
-    if (p_AllNodes)
-    {
-        for (uint8 l_I = 0; l_I < TaxiMaskSize; ++l_I)
-            p_Data << uint8(sTaxiNodesMask[l_I]);         // all existed nodes
-    }
-    else
-    {
-        for (uint8 l_I = 0; l_I < TaxiMaskSize; ++l_I)
-            p_Data << uint8(m_taximask[l_I]);             // known nodes
-    }
-}
-
-bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint32 team)
-{
-    ClearTaxiDestinations();
-
-    Tokenizer tokens(values, ' ');
-
-    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
-    {
-        uint32 node = uint32(atol(*iter));
-        AddTaxiDestination(node);
-    }
-
-    if (m_TaxiDestinations.empty())
-        return true;
-
-    // Check integrity
-    if (m_TaxiDestinations.size() < 2)
-        return false;
-
-    for (size_t i = 1; i < m_TaxiDestinations.size(); ++i)
-    {
-        uint32 cost;
-        uint32 path;
-        sObjectMgr->GetTaxiPath(m_TaxiDestinations[i-1], m_TaxiDestinations[i], path, cost);
-        if (!path)
-            return false;
-    }
-
-    // can't load taxi path without mount set (quest taxi path?)
-    if (!sObjectMgr->GetTaxiMountDisplayId(GetTaxiSource(), team, true))
-        return false;
-
-    return true;
-}
-
-std::string PlayerTaxi::SaveTaxiDestinationsToString()
-{
-    if (m_TaxiDestinations.empty())
-        return "";
-
-    std::ostringstream ss;
-
-    for (size_t i=0; i < m_TaxiDestinations.size(); ++i)
-        ss << m_TaxiDestinations[i] << ' ';
-
-    return ss.str();
-}
-
-uint32 PlayerTaxi::GetCurrentTaxiPath() const
-{
-    if (m_TaxiDestinations.size() < 2)
-        return 0;
-
-    uint32 path;
-    uint32 cost;
-
-    sObjectMgr->GetTaxiPath(m_TaxiDestinations[0], m_TaxiDestinations[1], path, cost);
-
-    return path;
-}
-
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
-{
-    for (uint8 i = 0; i < TaxiMaskSize; ++i)
-        ss << uint32(taxi.m_taximask[i]) << ' ';
-    return ss;
-}
-
 //== TradeData =================================================
 
 TradeData* TradeData::GetTraderData() const
@@ -6725,6 +6576,38 @@ bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
     return false;
 }
 
+bool Player::IsMeleeDamageDealer(bool p_AllowTank /*= false*/) const
+{
+    if (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowTank && GetRoleForGroup() == Roles::ROLE_TANK))
+        return false;
+
+    if (getClass() == Classes::CLASS_ROGUE)
+        return true;
+
+    switch (GetSpecializationId())
+    {
+        case SpecIndex::SPEC_DRUID_FERAL:
+        case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
+        case SpecIndex::SPEC_MONK_WINDWALKER:
+        case SpecIndex::SPEC_WARRIOR_ARMS:
+        case SpecIndex::SPEC_WARRIOR_FURY:
+        case SpecIndex::SPEC_DK_UNHOLY:
+        case SpecIndex::SPEC_DK_FROST:
+        case SpecIndex::SPEC_PALADIN_RETRIBUTION:
+            return true;
+        case SpecIndex::SPEC_DRUID_GUARDIAN:
+        case SpecIndex::SPEC_MONK_BREWMASTER:
+        case SpecIndex::SPEC_WARRIOR_PROTECTION:
+        case SpecIndex::SPEC_DK_BLOOD:
+        case SpecIndex::SPEC_PALADIN_PROTECTION:
+            return p_AllowTank;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
 {
    if (specializationId)
@@ -7337,6 +7220,7 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
 
     // remove death flag + set aura
     SetByteValue(UNIT_FIELD_ANIM_TIER, 3, 0x00);
+    RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 
     if (getRace() == RACE_NIGHTELF)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
@@ -7751,7 +7635,7 @@ void Player::RepopAtGraveyard()
     }
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!isAlive() && zone && zone->Flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < -500.0f)
+    if ((!isAlive() && zone && zone->Flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
@@ -7802,8 +7686,10 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (l_ClosestGrave != nullptr)
         TeleportToClosestGrave(l_ClosestGrave);
-    else if (GetPositionZ() < -500.0f)
+    else if (GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+
+    RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 }
 
 void Player::TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId)
@@ -9499,7 +9385,7 @@ void Player::UpdateHonorFields()
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
-bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken)
+bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType)
 {
     // do not reward honor in arenas, but enable onkill spellproc
     Battleground* l_Bg = GetBattleground();
@@ -9606,13 +9492,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     if (GetSession()->IsPremium())
         honor_f *= sWorld->getRate(RATE_HONOR_PREMIUM);
 
-    float honorMod = 1.0f;
-    Unit::AuraEffectList const& mModHonorGainPercent = GetAuraEffectsByType(SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT);
-    for (Unit::AuraEffectList::const_iterator i = mModHonorGainPercent.begin(); i != mModHonorGainPercent.end(); ++i)
-        honorMod += float(float((*i)->GetAmount()) / 100.0f);
-
-    honor_f *= honorMod;
-
     // Back to int now
     honor = std::max(int32(honor_f), 1);
     // honor - for show honor points in log
@@ -9621,14 +9500,14 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
 
+    // add honor points
+    honor = ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, int32(honor), true, false, false, p_RewardCurrencyType);
+
     WorldPacket data(SMSG_PVP_CREDIT, 4 + 16 + 2 + 4);
     data << uint32(honor);
     data.appendPackGUID(victim_guid);
     data << uint32(victim_rank);
     GetSession()->SendPacket(&data);
-
-    // add honor points
-    ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, int32(honor));
 
     if (InBattleground() && honor > 0)
     {
@@ -9895,20 +9774,34 @@ void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* 
     SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
 }
 
-void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */)
+int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /* = None */)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && p_Count >= 0 &&
             (  p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
             || p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG
             || p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
-        return;
+        return p_Count;
 
     CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_CurrencyID);
     if (!l_CurrencyEntry || !p_Count)
-        return;
+        return 0;
 
     if (!p_IgnoreMultipliers)
+    {
         p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
+
+        if (p_RewardCurrencyType)
+        {
+            float l_Multiplier = 1.0f;
+            Unit::AuraEffectList const& l_ModPvpPercent = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_2);
+            for (Unit::AuraEffectList::const_iterator i = l_ModPvpPercent.begin(); i != l_ModPvpPercent.end(); ++i)
+            {
+                if ((*i)->GetMiscValue() == p_CurrencyID && (*i)->GetMiscValueB() == p_RewardCurrencyType)
+                    AddPct(l_Multiplier, (*i)->GetAmount());
+            }
+            p_Count *= l_Multiplier;
+        }
+    }
 
     int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1; ///< l_precision is never read 01/18/16
     uint32 l_OldTotalCount          = 0;
@@ -10004,7 +9897,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
             {
                 // count was changed to week limit, now we can modify original points.
                 ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, printLog);
-                return;
+                return p_Count;
             }
 
             if (p_CurrencyID == CURRENCY_TYPE_CONQUEST_POINTS)
@@ -10019,7 +9912,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
             {
                 l_CurrencyIT->second.weekCap = CalculateCurrencyWeekCap(p_CurrencyID);
                 SendCurrencies();
-                return;
+                return p_Count;
             }
 
             QuestObjectiveSatisfy(p_CurrencyID, p_Count, QUEST_OBJECTIVE_TYPE_CURRENCY);
@@ -10044,6 +9937,7 @@ void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* 
             GetSession()->SendPacket(&l_Packet);
         }
     }
+    return p_Count;
 }
 
 void Player::SetCurrency(uint32 id, uint32 count, bool printLog /*= true*/)
@@ -21219,7 +21113,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
             else                                                // have start node, to it
             {
                 sLog->outError(LOG_FILTER_PLAYER, "Character %u have too short taxi destination list, teleport to original node.", GetGUIDLow());
-                mapId = nodeEntry->map_id;
+                mapId = nodeEntry->MapID;
                 Relocate(nodeEntry->x, nodeEntry->y, nodeEntry->z, 0.0f);
             }
             m_taxi.ClearTaxiDestinations();
@@ -21229,10 +21123,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         {
             // save source node as recall coord to prevent recall and fall from sky
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(node_id);
-            if (nodeEntry && nodeEntry->map_id == GetMapId())
+            if (nodeEntry && nodeEntry->MapID == GetMapId())
             {
                 ASSERT(nodeEntry);                                  // checked in m_taxi.LoadTaxiDestinationsFromString
-                mapId = nodeEntry->map_id;
+                mapId = nodeEntry->MapID;
                 Relocate(nodeEntry->x, nodeEntry->y, nodeEntry->z, 0.0f);
             }
 
@@ -25747,15 +25641,18 @@ void Player::SetRestBonus (float rest_bonus_new)
     SetUInt32Value(PLAYER_FIELD_REST_STATE_BONUS_POOL, uint32(m_rest_bonus));
 }
 
-bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/, bool p_Triggered /*= false*/)
+bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/)
 {
     if (nodes.size() < 2)
+    {
+        GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
         return false;
+    }
 
     // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
     if (GetSession()->isLogingOut() || isInCombat() || HasUnitState(UNIT_STATE_STUNNED) || HasUnitState(UNIT_STATE_ROOT))
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_BUSY);
+        GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
         return false;
     }
 
@@ -25768,20 +25665,20 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         // not let cheating with start flight mounted
         if (IsMounted())
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_ALREADY_MOUNTED);
+            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERALREADYMOUNTED);
             return false;
         }
 
         if (IsInDisallowedMountForm())
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_SHAPESHIFTED);
+            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERSHAPESHIFTED);
             return false;
         }
 
         // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
         if (IsNonMeleeSpellCasted(false))
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXI_PLAYER_BUSY);
+            GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
             return false;
         }
     }
@@ -25810,7 +25707,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(sourcenode);
     if (!node)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXI_NO_SUCH_PATH);
+        GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
         return false;
     }
 
@@ -25828,44 +25725,24 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     // check node starting pos data set case if provided
-    if ((node->x != 0.0f || node->y != 0.0f || node->z != 0.0f) && !p_Triggered)
+    if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
     {
-        if (node->map_id != l_MapID ||
+        if (node->MapID != l_MapID ||
             (node->x - GetPositionX())*(node->x - GetPositionX())+
             (node->y - GetPositionY())*(node->y - GetPositionY())+
             (node->z - GetPositionZ())*(node->z - GetPositionZ()) >
             (2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE)*(2*INTERACTION_DISTANCE))
         {
-            GetSession()->SendActivateTaxiReply(ERR_TAXI_TOO_FAR_AWAY);
+            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
             return false;
         }
     }
     // node must have pos if taxi master case (npc != NULL)
     else if (npc)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXI_UNSPECIFIED_SERVER_ERROR);
+        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
         return false;
     }
-
-    if (nodes.size() == 2)
-    {
-        // Hax - im a lazy cunt - fix me later
-        TaxiPath newNodes;
-        uint32 res = newNodes.CalculateTaxiPath(nodes[0], nodes[1], this);
-        if (res & (TAXIPATH_RES_NO_PATH | TAXIPATH_RES_NO_LINKED_NODES))
-        {
-            GetSession()->SendActivateTaxiReply(ERR_TAXI_NO_SUCH_PATH);
-            return false;
-        }
-
-        std::vector<uint32>& MyNodes = const_cast<std::vector<uint32>& >(nodes);
-        MyNodes.clear();
-        for (auto l_NewNode : newNodes)
-            MyNodes.push_back(l_NewNode->GetID());
-    }
-
-    if (nodes.size() < 2)
-        return false;
     // Prepare to flight start now
 
     // stop combat at start taxi flight if any
@@ -25887,9 +25764,10 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // fill destinations path tail
     uint32 sourcepath = 0;
     uint32 totalcost = 0;
+    uint32 firstcost = 0;
 
     uint32 prevnode = sourcenode;
-    uint32 lastnode = 0;
+    uint32 lastnode;
 
     for (uint32 i = 1; i < nodes.size(); ++i)
     {
@@ -25905,6 +25783,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         }
 
         totalcost += cost;
+        if (i == 1)
+            firstcost = cost;
 
         if (prevnode == sourcenode)
             sourcepath = path;
@@ -25920,12 +25800,12 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // only one mount ID for both sides. Probably not good to use 315 in case DBC nodes
     // change but I couldn't find a suitable alternative. OK to use class because only DK
     // can use this taxi.
-    uint32 mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == NULL || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
+    uint32 mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == nullptr || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
 
     // in spell case allow 0 model
     if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXI_UNSPECIFIED_SERVER_ERROR);
+        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
         m_taxi.ClearTaxiDestinations();
         return false;
     }
@@ -25937,35 +25817,38 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
 
     if (money < totalcost)
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXI_NOT_ENOUGH_MONEY);
+        GetSession()->SendActivateTaxiReply(ERR_TAXINOTENOUGHMONEY);
         m_taxi.ClearTaxiDestinations();
         return false;
     }
 
     //Checks and preparations done, DO FLIGHT
-    ModifyMoney(-int64(totalcost));
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
     // prevent stealth flight
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
-    if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI) || GetSession()->IsPremium())
+    if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
     {
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
+        ASSERT(lastPathNode);
         m_taxi.ClearTaxiDestinations();
-        TeleportTo(lastPathNode->map_id, lastPathNode->x, lastPathNode->y, lastPathNode->z, GetOrientation());
+        ModifyMoney(-int64(totalcost));
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
+        TeleportTo(lastPathNode->MapID, lastPathNode->x, lastPathNode->y, lastPathNode->z, GetOrientation());
         return false;
     }
     else
     {
-        GetSession()->SendActivateTaxiReply(ERR_TAXI_OK);
+        ModifyMoney(-int64(firstcost));
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, firstcost);
+        GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
         GetSession()->SendDoFlight(mount_display_id, sourcepath);
     }
     return true;
 }
 
-bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, bool p_Triggered /*= false*/)
+bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/)
 {
     TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(taxi_path_id);
     if (!entry)
@@ -25974,10 +25857,10 @@ bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, boo
     std::vector<uint32> nodes;
 
     nodes.resize(2);
-    nodes[0] = entry->from;
-    nodes[1] = entry->to;
+    nodes[0] = entry->From;
+    nodes[1] = entry->To;
 
-    return ActivateTaxiPathTo(nodes, NULL, spellid, p_Triggered);
+    return ActivateTaxiPathTo(nodes, nullptr, spellid);
 }
 
 void Player::CleanupAfterTaxiFlight()
@@ -25988,7 +25871,7 @@ void Player::CleanupAfterTaxiFlight()
     getHostileRefManager().setOnlineOfflineState(true);
 }
 
-void Player::ContinueTaxiFlight()
+void Player::ContinueTaxiFlight() const
 {
     uint32 sourceNode = m_taxi.GetTaxiSource();
     if (!sourceNode)
@@ -25997,6 +25880,9 @@ void Player::ContinueTaxiFlight()
     sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Restart character %u taxi flight", GetGUIDLow());
 
     uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourceNode, GetTeam(), true);
+    if (!mountDisplayId)
+        return;
+
     uint32 path = m_taxi.GetCurrentTaxiPath();
 
     // search appropriate start path node
@@ -26004,32 +25890,32 @@ void Player::ContinueTaxiFlight()
 
     TaxiPathNodeList const& nodeList = sTaxiPathNodesByPath[path];
 
-    float distPrev = MAP_SIZE*MAP_SIZE;
+    float distPrev;
     float distNext =
-        (nodeList[0].x-GetPositionX())*(nodeList[0].x-GetPositionX())+
-        (nodeList[0].y-GetPositionY())*(nodeList[0].y-GetPositionY())+
-        (nodeList[0].z-GetPositionZ())*(nodeList[0].z-GetPositionZ());
+        (nodeList[0]->x - GetPositionX())*(nodeList[0]->x - GetPositionX()) +
+        (nodeList[0]->y - GetPositionY())*(nodeList[0]->y - GetPositionY()) +
+        (nodeList[0]->z - GetPositionZ())*(nodeList[0]->z - GetPositionZ());
 
     for (uint32 i = 1; i < nodeList.size(); ++i)
     {
-        TaxiPathNodeEntry const& node = nodeList[i];
-        TaxiPathNodeEntry const& prevNode = nodeList[i-1];
+        TaxiPathNodeEntry const* node = nodeList[i];
+        TaxiPathNodeEntry const* prevNode = nodeList[i - 1];
 
         // skip nodes at another map
-        if (node.mapid != GetMapId())
+        if (node->MapID != GetMapId())
             continue;
 
         distPrev = distNext;
 
         distNext =
-            (node.x-GetPositionX())*(node.x-GetPositionX())+
-            (node.y-GetPositionY())*(node.y-GetPositionY())+
-            (node.z-GetPositionZ())*(node.z-GetPositionZ());
+            (node->x - GetPositionX()) * (node->x - GetPositionX()) +
+            (node->y - GetPositionY()) * (node->y - GetPositionY()) +
+            (node->z - GetPositionZ()) * (node->z - GetPositionZ());
 
         float distNodes =
-            (node.x-prevNode.x)*(node.x-prevNode.x)+
-            (node.y-prevNode.y)*(node.y-prevNode.y)+
-            (node.z-prevNode.z)*(node.z-prevNode.z);
+            (node->x - prevNode->x) * (node->x - prevNode->x) +
+            (node->y - prevNode->y) * (node->y - prevNode->y) +
+            (node->z - prevNode->z) * (node->z - prevNode->z);
 
         if (distNext + distPrev < distNodes)
         {
@@ -26039,25 +25925,6 @@ void Player::ContinueTaxiFlight()
     }
 
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
-}
-
-void Player::TaxiRequestEarlyLanding()
-{
-//     uint32 l_Current = m_taxi.GetCurrentTaxiPath();
-// 
-//     if (!l_Current)
-//         return;
-// 
-//     std::deque<uint32> l_CurrentDestination = m_taxi.GetCurrentDestinationQueue();
-//     std::deque<uint32> l_NewDestination;
-//     l_NewDestination.push_back(l_Current);
-// 
-//     if (!l_CurrentDestination.size())
-//         return;
-// 
-//     l_NewDestination.push_back(l_CurrentDestination[1]);
-// 
-//     m_taxi.SetDestinationQueue(l_NewDestination);
 }
 
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
@@ -27164,7 +27031,7 @@ void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
 void Player::SetBattlegroundEntryPoint()
 {
     // Taxi path store
-    if (!m_taxi.empty())
+    if (!m_taxi.IsPathEmpty())
     {
         m_bgData.mountSpell  = 0;
         m_bgData.taxiPath[0] = m_taxi.GetTaxiSource();
@@ -27228,6 +27095,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                 CastSpell(this, 26013, true); ///< Deserter
             }
         }
+        sScriptMgr->OnLeaveBG(this, bg->GetMapId());
     }
 }
 
@@ -34768,7 +34636,7 @@ void Player::_LoadWorldStates(PreparedQueryResult p_Result)
     {
         Field* l_Fields = p_Result->Fetch();
         CharacterWorldState l_WorldState;
-        l_WorldState.Value   = l_Fields[1].GetUInt32();
+        l_WorldState.Value   = l_Fields[1].GetUInt64();
         l_WorldState.Changed = false;
 
         m_CharacterWorldStates.insert(std::make_pair(l_Fields[0].GetUInt32(), l_WorldState));

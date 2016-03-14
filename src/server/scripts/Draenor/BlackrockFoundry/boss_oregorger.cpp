@@ -815,7 +815,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventExplosiveShard:
                     {
-                        if (Unit* l_Target = SelectRangedTarget())
+                        if (Unit* l_Target = SelectMeleeTarget())
                             me->CastSpell(l_Target, eSpells::ExplosiveShardMissile, true);
 
                         m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 15 * TimeConstants::IN_MILLISECONDS);
