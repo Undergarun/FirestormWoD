@@ -20,10 +20,11 @@ function sendToSlack {
 ulimit -n 4096
 
 if [ $REALM_ASAN_MODE -eq 1 ]; then
-    # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer
-    ASAN_OPTIONS=detect_leaks=0
-    ASAN_OPTIONS=abort_on_error=1
-    worldserver_RelWithDebInfoAsan 2>&1 | asan_symbolize -d > backtrace.log
+    # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerFlags#run-time-flags
+    ASAN_OPTIONS=symbolize=1:detect_leaks=0
+    ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
+
+    gdb -batch -x=commands.gdb worldserver_RelWithDebInfoAsan
 else
     gdb -batch -x=commands.gdb worldserver_RelWithDebInfo
 fi

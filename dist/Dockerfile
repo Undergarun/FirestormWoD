@@ -14,9 +14,10 @@ RUN apt-get update && \
     libmariadbclient-dev \
     zlib1g-dev \
     libcurl4-openssl-dev \
-#    libssl-dev \ # Installed with libcurl
+    libssl-dev \
     screen \
-    gdb
+    gdb \
+    clang
 
 # Prepare directories for worldserver data
 RUN mkdir -p /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm/crashlogs
