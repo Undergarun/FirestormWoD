@@ -170,7 +170,7 @@ class debug_commandscript: public CommandScript
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
-                { "crashtest",      SEC_CONSOLE,        false, &HandleDebugCrashTest,              "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  true,  &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
