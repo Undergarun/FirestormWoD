@@ -2719,6 +2719,19 @@ class Unit : public WorldObject
 
         void SetRooted(bool apply);
 
+        Position m_last_area_position;
+        Position m_last_zone_position;
+        uint32 m_last_area_id;
+        uint32 m_last_zone_id;
+        uint32 GetZoneId(bool forceRecalc = false) const;
+        uint32 GetAreaId(bool forceRecalc = false) const;
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
+
+        Position m_LastNotifyPosition;
+        Position m_LastOutdoorPosition;
+        bool m_LastOutdoorStatus;
+        bool IsOutdoors();
+
     public:
         uint64 _petBattleId;
 

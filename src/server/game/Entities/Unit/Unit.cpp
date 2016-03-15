@@ -311,6 +311,9 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_HealingRainTrigger = 0;
 
     m_PersonnalChauffeur = 0;
+
+    m_LastNotifyPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
+    m_LastOutdoorPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
 }
 
 ////////////////////////////////////////////////////////////
@@ -19922,7 +19925,7 @@ public:
     virtual bool Execute(uint64 , uint32)
     {
         JadeCore::AIRelocationNotifier notifier(m_owner);
-        m_owner.VisitNearbyObject(m_owner.GetVisibilityRange(), notifier);
+        m_owner.VisitNearbyObject(60.0f, notifier);
         return true;
     }
 
@@ -19931,6 +19934,16 @@ public:
         if (!me->m_VisibilityUpdScheduled)
             me->m_Events.AddEvent(new AINotifyTask(me), me->m_Events.CalculateTime(World::Visibility_AINotifyDelay));
     }
+};
+
+float g_RequiredMoveDistanceSq[6] =
+{
+    20.0f,  ///< MAP_COMMON
+    25.0f,  ///< MAP_INSTANCE
+    25.0f,  ///< MAP_RAID
+    16.0f,  ///< MAP_BATTLEGROUND,
+     1.0f,  ///< MAP_ARENA
+    25.0f   ///< MAP_SCENARIO
 };
 
 class Unit::VisibilityUpdateTask : public BasicEvent
@@ -19946,16 +19959,35 @@ public:
     }
 
     static void UpdateVisibility(Unit* me)
-     {
+    {
         if (!me->m_sharedVision.empty())
-            for (SharedVisionList::const_iterator it = me->m_sharedVision.begin();it!= me->m_sharedVision.end();)
+        {
+            for (SharedVisionList::const_iterator it = me->m_sharedVision.begin(); it != me->m_sharedVision.end();)
             {
                 Player * tmp = *it;
                 ++it;
                 tmp->UpdateVisibilityForPlayer();
             }
+        }
+
+        Map* l_Map = me->FindMap();
+        if (!l_Map)
+            return;
+
+        float l_DistanceX = me->m_LastNotifyPosition.GetPositionX() - me->GetPositionX();
+        float l_DistanceY = me->m_LastNotifyPosition.GetPositionY() - me->GetPositionY();
+        float l_DistanceZ = me->m_LastNotifyPosition.GetPositionZ() - me->GetPositionZ();
+        float l_DistanceSQ = l_DistanceX*l_DistanceX + l_DistanceY*l_DistanceY + l_DistanceZ*l_DistanceZ;
+
+        float l_MinDistanceSQ = g_RequiredMoveDistanceSq[l_Map->GetEntry()->instanceType];
+        if (l_DistanceSQ < l_MinDistanceSQ)
+            return;
+
+        me->m_LastNotifyPosition.Relocate(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+
         if (me->isType(TYPEMASK_PLAYER))
             ((Player*)me)->UpdateVisibilityForPlayer();
+
         me->WorldObject::UpdateObjectVisibility(true);
     }
 };
@@ -22456,4 +22488,56 @@ void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, 0);
     }
+}
+
+bool Unit::IsOutdoors()
+{
+    if (GetExactDistSq(&m_LastOutdoorPosition) < 4.0f*4.0f)
+        return m_LastOutdoorStatus;
+    else
+    {
+        m_LastOutdoorPosition.Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        m_LastOutdoorStatus = GetMap()->IsOutdoors(GetPositionX(), GetPositionY(), GetPositionZ());
+        return m_LastOutdoorStatus;
+    }
+}
+
+uint32 Unit::GetZoneId(bool forceRecalc) const
+{
+    if (!forceRecalc && GetExactDistSq(&m_last_zone_position) < 4.0f*4.0f)
+        return m_last_zone_id;
+    else
+    {
+        const_cast<Position*>(&m_last_zone_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        *(const_cast<uint32*>(&m_last_zone_id)) = WorldObject::GetZoneId();
+        return m_last_zone_id;
+    }
+}
+
+uint32 Unit::GetAreaId(bool forceRecalc) const
+{
+    if (!forceRecalc && GetExactDistSq(&m_last_area_position) < 4.0f*4.0f)
+        return m_last_area_id;
+    else
+    {
+        const_cast<Position*>(&m_last_area_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        *(const_cast<uint32*>(&m_last_area_id)) = WorldObject::GetAreaId();
+        return m_last_area_id;
+    }
+}
+
+void Unit::GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc) const
+{
+    if (!forceRecalc && GetExactDistSq(&m_last_area_position) < 4.0f*4.0f && GetExactDistSq(&m_last_zone_position) < 4.0f*4.0f)
+    {
+        zoneid = m_last_zone_id;
+        areaid = m_last_area_id;
+        return;
+    }
+
+    const_cast<Position*>(&m_last_zone_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    const_cast<Position*>(&m_last_area_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    WorldObject::GetZoneAndAreaId(zoneid, areaid);
+    *(const_cast<uint32*>(&m_last_zone_id)) = zoneid;
+    *(const_cast<uint32*>(&m_last_area_id)) = areaid;
 }

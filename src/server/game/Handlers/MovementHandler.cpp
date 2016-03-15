@@ -190,7 +190,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
-    m_Player->GetZoneAndAreaId(newzone, newarea);
+    m_Player->GetZoneAndAreaId(newzone, newarea, true);
     m_Player->UpdateZone(newzone, newarea);
 
     for (uint8 i = 0; i < 9; ++i)
@@ -239,7 +239,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     uint32 l_NewZone, l_NewArea;
 
-    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea);
+    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea, true);
     l_MoverPlayer->UpdateZone(l_NewZone, l_NewArea);
 
     // new zone

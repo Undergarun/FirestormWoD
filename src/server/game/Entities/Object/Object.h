@@ -903,9 +903,9 @@ class WorldObject : public Object, public WorldLocation
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
 
-        uint32 GetZoneId() const;
-        uint32 GetAreaId() const;
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const;
+        virtual uint32 GetZoneId(bool forceRecalc = false) const;
+        virtual uint32 GetAreaId(bool forceRecalc = false) const;
+        virtual void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
 
         InstanceScript* GetInstanceScript();
 
