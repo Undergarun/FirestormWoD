@@ -15,7 +15,8 @@ RUN apt-get update && \
     zlib1g-dev \
     libcurl4-openssl-dev \
 #    libssl-dev \ # Installed with libcurl
-    screen
+    screen \
+    gdb
 
 # Prepare directories for worldserver data
 RUN mkdir /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm
