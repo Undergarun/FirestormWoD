@@ -19,7 +19,7 @@ RUN apt-get update && \
     gdb
 
 # Prepare directories for worldserver data
-RUN mkdir /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm /var/log/firestorm/crashlogs
+RUN mkdir -p /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm/crashlogs
 
 # Declare volumes to share files between host and container (configuration file, logs, dbc, maps ....)
 VOLUME /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm
