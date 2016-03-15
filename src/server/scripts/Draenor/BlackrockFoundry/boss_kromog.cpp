@@ -1030,8 +1030,8 @@ class spell_foundry_slam : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        /// Damages will be reduced by 10.000 for each yards separating the target from the boss position
-                        float l_ReducedDamage = 10000.0f;
+                        /// Damages will be reduced by 12.000 for each yards separating the target from the boss position
+                        float l_ReducedDamage = 12000.0f;
                         float l_Damage = GetSpell()->GetDamage();
 
                         int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
