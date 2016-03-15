@@ -6721,7 +6721,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                         if (l_HasPlayerCondition && m_caster->ToPlayer()->EvalPlayerCondition(l_PlayerConditionID).first)
                             l_ResultOverridedByPlayerCondition = true;
-                        else
+                        else if (l_HasPlayerCondition)
                             l_PlayerConditionFailed = true;
                     }
                 }
