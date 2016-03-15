@@ -34805,32 +34805,32 @@ uint32 Player::GetRandomWeaponFromPrimaryBag(ItemTemplate const* p_Transmogrifie
     return 0;
 }
 
-uint32 Player::GetZoneId(bool forceRecalc) const
+uint32 Player::GetZoneId(bool p_ForceRecalc) const
 {
-    if (forceRecalc)
-        *(const_cast<uint32*>(&m_last_zone_id)) = WorldObject::GetZoneId();
+    if (p_ForceRecalc)
+        *(const_cast<uint32*>(&m_LastZoneId)) = WorldObject::GetZoneId();
 
-    return m_last_zone_id;
+    return m_LastZoneId;
 }
 
-uint32 Player::GetAreaId(bool forceRecalc) const
+uint32 Player::GetAreaId(bool p_ForceRecalc) const
 {
-    if (forceRecalc)
-        *(const_cast<uint32*>(&m_last_area_id)) = WorldObject::GetAreaId();
+    if (p_ForceRecalc)
+        *(const_cast<uint32*>(&m_LastAreaId)) = WorldObject::GetAreaId();
 
-    return m_last_area_id;
+    return m_LastAreaId;
 }
 
-void Player::GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc) const
+void Player::GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRecalc) const
 {
-    if (forceRecalc)
+    if (p_ForceRecalc)
     {
-        WorldObject::GetZoneAndAreaId(zoneid, areaid);
-        *(const_cast<uint32*>(&m_last_zone_id)) = zoneid;
-        *(const_cast<uint32*>(&m_last_area_id)) = areaid;
+        WorldObject::GetZoneAndAreaId(p_ZoneId, p_AreaId);
+        *(const_cast<uint32*>(&m_LastZoneId)) = p_ZoneId;
+        *(const_cast<uint32*>(&m_LastAreaId)) = p_AreaId;
         return;
     }
 
-    zoneid = m_last_zone_id;
-    areaid = m_last_area_id;
+    p_ZoneId = m_LastZoneId;
+    p_AreaId = m_LastAreaId;
 }

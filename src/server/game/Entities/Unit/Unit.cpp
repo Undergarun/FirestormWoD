@@ -22492,7 +22492,7 @@ void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
 
 bool Unit::IsOutdoors()
 {
-    if (GetExactDistSq(&m_LastOutdoorPosition) < 4.0f*4.0f)
+    if (GetExactDistSq(&m_LastOutdoorPosition) < 4.0f * 4.0f)
         return m_LastOutdoorStatus;
     else
     {
@@ -22502,42 +22502,42 @@ bool Unit::IsOutdoors()
     }
 }
 
-uint32 Unit::GetZoneId(bool forceRecalc) const
+uint32 Unit::GetZoneId(bool p_ForceRecalc) const
 {
-    if (!forceRecalc && GetExactDistSq(&m_last_zone_position) < 4.0f*4.0f)
-        return m_last_zone_id;
+    if (!p_ForceRecalc && GetExactDistSq(&m_LastZonePosition) < 4.0f * 4.0f)
+        return m_LastZoneId;
     else
     {
-        const_cast<Position*>(&m_last_zone_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
-        *(const_cast<uint32*>(&m_last_zone_id)) = WorldObject::GetZoneId();
-        return m_last_zone_id;
+        const_cast<Position*>(&m_LastZonePosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        *(const_cast<uint32*>(&m_LastZoneId)) = WorldObject::GetZoneId();
+        return m_LastZoneId;
     }
 }
 
-uint32 Unit::GetAreaId(bool forceRecalc) const
+uint32 Unit::GetAreaId(bool p_ForceRecalc) const
 {
-    if (!forceRecalc && GetExactDistSq(&m_last_area_position) < 4.0f*4.0f)
-        return m_last_area_id;
+    if (!p_ForceRecalc && GetExactDistSq(&m_LastAreaPosition) < 4.0f * 4.0f)
+        return m_LastAreaId;
     else
     {
-        const_cast<Position*>(&m_last_area_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
-        *(const_cast<uint32*>(&m_last_area_id)) = WorldObject::GetAreaId();
-        return m_last_area_id;
+        const_cast<Position*>(&m_LastAreaPosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        *(const_cast<uint32*>(&m_LastAreaId)) = WorldObject::GetAreaId();
+        return m_LastAreaId;
     }
 }
 
-void Unit::GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc) const
+void Unit::GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRecalc) const
 {
-    if (!forceRecalc && GetExactDistSq(&m_last_area_position) < 4.0f*4.0f && GetExactDistSq(&m_last_zone_position) < 4.0f*4.0f)
+    if (!p_ForceRecalc && GetExactDistSq(&m_LastAreaPosition) < 4.0f * 4.0f && GetExactDistSq(&m_LastZonePosition) < 4.0f * 4.0f)
     {
-        zoneid = m_last_zone_id;
-        areaid = m_last_area_id;
+        p_ZoneId = m_LastZoneId;
+        p_AreaId = m_LastAreaId;
         return;
     }
 
-    const_cast<Position*>(&m_last_zone_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
-    const_cast<Position*>(&m_last_area_position)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
-    WorldObject::GetZoneAndAreaId(zoneid, areaid);
-    *(const_cast<uint32*>(&m_last_zone_id)) = zoneid;
-    *(const_cast<uint32*>(&m_last_area_id)) = areaid;
+    const_cast<Position*>(&m_LastZonePosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    const_cast<Position*>(&m_LastAreaPosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    WorldObject::GetZoneAndAreaId(p_ZoneId, p_AreaId);
+    *(const_cast<uint32*>(&m_LastZoneId)) = p_ZoneId;
+    *(const_cast<uint32*>(&m_LastAreaId)) = p_AreaId;
 }
