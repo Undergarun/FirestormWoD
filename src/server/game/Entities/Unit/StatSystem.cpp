@@ -1346,6 +1346,11 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_TotalPct         = GetModifierValue(l_UnitMod, TOTAL_PCT);
     float l_DmgMultiplier    = GetCreatureTemplate()->dmg_multiplier;
 
+    /// Since WoD, there is no need to add specific template for each difficulty (except for LFR and Mythic modes)
+    /// Then for heroic mode we must increase the dmg_multiplier by 20% (guessed from creature_groupsizestats changes)
+    if (GetCreatureTemplate()->expansion == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && GetMap()->GetDifficultyID() == Difficulty::DifficultyRaidHeroic && isWorldBoss())
+        l_DmgMultiplier *= 1.2f;
+
     if (!CanUseAttackType(p_AttType))
     {
         l_WeaponMinDamage = 0;
