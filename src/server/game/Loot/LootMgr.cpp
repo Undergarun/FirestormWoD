@@ -2432,7 +2432,8 @@ void LoadLootTemplates_Spell()
             // ignore 61756 (Northrend Inscription Research (FAST QA VERSION) for example
             if (!(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) || (spellInfo->Attributes & SPELL_ATTR0_TRADESPELL))
             {
-                LootTemplates_Spell.ReportNotExistedId(spell_id);
+                if (!spellInfo->Effects[0].ItemType)
+                    LootTemplates_Spell.ReportNotExistedId(spell_id);
             }
         }
         else
