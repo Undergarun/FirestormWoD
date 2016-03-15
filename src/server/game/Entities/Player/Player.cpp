@@ -925,6 +925,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
         m_StoreDeliveryProcessed[l_I] = false;
 
     m_StoreDeliverySave = false;
+    m_BeaconOfFaithTargetGUID = 0;
 }
 
 Player::~Player()
@@ -5875,6 +5876,13 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (spell_id == 46917 && m_canTitanGrip)
         SetCanTitanGrip(false);
+    if (spell_id == 156910 && GetBeaconOfFaithTarget()) ///< Aura should be remove on Ally to not benefit of it on changing spec
+    {
+        Unit* l_Target = ObjectAccessor::FindUnit(GetBeaconOfFaithTarget());
+        if (l_Target != nullptr)
+            l_Target->RemoveAura(156910, this->GetGUID());
+    }
+
     if (m_canDualWield)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
