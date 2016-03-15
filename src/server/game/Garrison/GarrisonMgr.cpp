@@ -2437,6 +2437,53 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    /// Assign a follower to a building
+    void Manager::AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID)
+    {
+        GarrisonFollower* l_Follower = GetFollowerWithDatabaseID(p_FollowerDBID);
+
+        if (l_Follower == nullptr)
+            return;
+
+        MS::Garrison::GarrisonBuilding* l_Building = GetBuildingObject(p_PlotInstanceID);
+
+        if (l_Building == nullptr)
+        {
+            bool l_NeedSave = false;
+            if (p_PlotInstanceID == 0)
+            {
+                for (GarrisonBuilding& l_Building : m_Buildings)
+                {
+                    if (l_Building.FollowerAssigned == p_FollowerDBID)
+                    {
+                        l_Building.FollowerAssigned = 0;
+                        break;
+                    }
+                }
+
+                l_NeedSave = true;
+            }
+            if (l_Follower->CurrentBuildingID != 0)
+            {
+                l_Follower->CurrentBuildingID = 0;
+                l_NeedSave = true;
+            }
+
+            if (l_NeedSave)
+                Save();
+
+            UpdatePlot(p_PlotInstanceID);
+
+            return;
+        }
+
+        l_Building->FollowerAssigned  = p_FollowerDBID;
+        l_Follower->CurrentBuildingID = l_Building->BuildingID;
+
+        Save();
+        UpdatePlot(p_PlotInstanceID);
+    }
+
     /// Change follower activation state
     void Manager::ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active)
     {
@@ -2830,6 +2877,18 @@ namespace MS { namespace Garrison
 
         UpdateStats();
 
+        switch (l_BuildingEntry->Type)
+        {
+            case BuildingType::Fishing:
+            case BuildingType::Mine:
+            case BuildingType::Farm:
+            {
+                WorldPacket l_NullPacket;
+                m_Owner->GetSession()->HandleGetGarrisonInfoOpcode(l_NullPacket);
+                break;
+            }
+        }
+
         if (GetGarrisonScript())
         {
             GarrPlotInstanceEntry const* l_PlotInstanceEntry = sGarrPlotInstanceStore.LookupEntry(p_PlotInstanceID);
@@ -3128,7 +3187,7 @@ namespace MS { namespace Garrison
         GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
 
         if (l_Follower == nullptr)
-            return 1;
+            return false;
 
         return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1 : 1;
     }

@@ -142,6 +142,8 @@ namespace MS { namespace Garrison
 
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
+            /// Assign a follower to a building
+            void AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID);
             /// Change follower activation state
             void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
             /// Get followers
