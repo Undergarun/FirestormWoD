@@ -170,7 +170,7 @@ class debug_commandscript: public CommandScript
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
-                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
+                { "crashtest",      SEC_CONSOLE,        false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
@@ -211,7 +211,7 @@ class debug_commandscript: public CommandScript
             }
 
             std::string l_StrVal = std::string(strtok((char*)p_Args, " "));
-            
+
             /// Disconnect all bots
             if (l_StrVal == "off")
             {
@@ -236,7 +236,7 @@ class debug_commandscript: public CommandScript
                 if (l_Number > 1000)
                     return false;
 
-                std::ostringstream l_Query; 
+                std::ostringstream l_Query;
                 l_Query << "SELECT account, guid FROM characters WHERE account NOT IN(0";
 
                 SessionMap const& l_Sessions = sWorld->GetAllSessions();
@@ -249,7 +249,7 @@ class debug_commandscript: public CommandScript
 
                 if (l_Result)
                 {
-                    do 
+                    do
                     {
                         Field* l_Fields = l_Result->Fetch();
 
@@ -395,7 +395,7 @@ class debug_commandscript: public CommandScript
             if (!l_String)
                 return false;
 
-            char const* l_Text = l_String;//"||TInterface\\Icons\\trade_archaeology_whitehydrafigurine:20||tMegaera begins to ||cFFF00000||Hspell:139458||h[Rampage]||h||rÿ!";
+            char const* l_Text = l_String;//"||TInterface\\Icons\\trade_archaeology_whitehydrafigurine:20||tMegaera begins to ||cFFF00000||Hspell:139458||h[Rampage]||h||rï¿½!";
             char const* l_Name = "Megaera";
             char const* l_Receiver = "Venomous head";
 
@@ -1110,7 +1110,7 @@ class debug_commandscript: public CommandScript
                 case 0x20:
                 {
                     ///@todo update me ?
-                    // La migration de votre guilde est terminée. Rendez-vous sur [cette page Internet] pour de plus amples informations.
+                    // La migration de votre guilde est terminï¿½e. Rendez-vous sur [cette page Internet] pour de plus amples informations.
                     Player* player = handler->GetSession()->GetPlayer();
                     WorldPacket data(Opcodes(1346), 20);
                     ObjectGuid playerGuid = player->GetGUID();
@@ -2716,7 +2716,7 @@ class debug_commandscript: public CommandScript
 
             if (!arg1 || !arg2)
                 return false;
-                
+
             int32 l_ID = atoi(arg1);
             int32 l_Flags = atoi(arg2);
 
@@ -2743,7 +2743,7 @@ class debug_commandscript: public CommandScript
             WorldPacket l_Data(SMSG_VIGNETTE_UPDATE);
             l_Data.WriteBit(true);                                 ///< ForceUpdate
             l_Data << uint32(0);                                   ///< RemovedCount
-            
+
             //for ()
             //    l_Data.appendPackGUID(IDs);
 
@@ -2766,7 +2766,7 @@ class debug_commandscript: public CommandScript
             {
             }
 
-            l_Data << uint32(0);                                   ///< UpdateDataCount 
+            l_Data << uint32(0);                                   ///< UpdateDataCount
 
             p_Handler->GetSession()->SendPacket(&l_Data);
             return true;
@@ -3312,7 +3312,7 @@ class debug_commandscript: public CommandScript
                 return false;
 
             uint32 l_ConditionID = atoi(l_ArgStr);
-  
+
             auto l_Result = p_Handler->GetSession()->GetPlayer()->EvalPlayerCondition(l_ConditionID);
 
             if (l_Result.first)
@@ -3388,7 +3388,7 @@ class debug_commandscript: public CommandScript
                     ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(i);
                     if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
                         continue;
-                    
+
                     l_SendHotfixPacket(&sItemEffectStore, i);
                 }
 
@@ -3463,7 +3463,7 @@ class debug_commandscript: public CommandScript
             /// Forge SMSG_UPDATE_OBJECT, client need to receive it before SMSG_MIRROR_IMAGE_COMPONENTED_DATA
             UpdateData  l_UpdateData(l_Target->GetMapId());
             WorldPacket l_Packet;
-            
+
             l_Target->BuildValuesUpdateBlockForPlayer(&l_UpdateData, l_Player);
 
             if (l_UpdateData.BuildPacket(&l_Packet))
@@ -3518,7 +3518,7 @@ class debug_commandscript: public CommandScript
                 else
                     data << uint32(0);
             }*/
-            
+
             l_Player->GetSession()->SendPacket(&data);
 
             return true;
