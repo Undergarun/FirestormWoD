@@ -2393,6 +2393,10 @@ class Player : public Unit, public GridObject<Player>
         void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
 
+        uint32 GetZoneId(bool forceRecalc = false) const;
+        uint32 GetAreaId(bool forceRecalc = false) const;
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
+
         void UpdateZoneDependentAuras(uint32 zone_id);    // zones
         void UpdateAreaDependentAuras(uint32 area_id);    // subzones
 
