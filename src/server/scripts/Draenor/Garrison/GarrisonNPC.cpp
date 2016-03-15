@@ -1124,8 +1124,9 @@ namespace MS { namespace Garrison
     bool npc_follower_generic_script::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
 
-        if (l_GarrisonMgr == nullptr)
+        if (l_GarrisonMgr == nullptr || l_AI == nullptr)
             return true;
 
         uint32 l_BuildingPlotInstanceID = l_GarrisonMgr->GetCreaturePlotInstanceID(p_Creature->GetGUID());
@@ -1167,9 +1168,13 @@ namespace MS { namespace Garrison
                             break;
                     }
 
-                    GarrisonNPCAI* l_AI = reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI());
-                    l_AI->SetRecipes(&l_Recipes, SkillType::SKILL_TAILORING);
-                    l_AI->SendTradeSkillUI(p_Player);
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    l_GarrisonAI->SetRecipes(&l_Recipes, SkillType::SKILL_TAILORING);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
                 }
                 default:
                     break;
