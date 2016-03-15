@@ -490,16 +490,22 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_HEART_OF_THE_MOUNTAIN, 113893, 0, 1, 1, 1, 1),
 (@REF_HEART_OF_THE_MOUNTAIN, 113894, 0, 1, 1, 1, 1),
 (@REF_HEART_OF_THE_MOUNTAIN, 113895, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 113896, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 119307, 0, 1, 1, 1, 1), -- Leggings of the Iron Conqueror (Normal)
-(@REF_HEART_OF_THE_MOUNTAIN, 119313, 0, 1, 1, 1, 1), -- Leggings of the Iron Vanquisher (Normal)
-(@REF_HEART_OF_THE_MOUNTAIN, 119320, 0, 1, 1, 1, 1); -- Leggings of the Iron Protector (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN, 113896, 0, 1, 1, 1, 1);
+
+DELETE FROM`reference_loot_template` WHERE entry = @REF_HEART_OF_THE_MOUNTAIN + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_HEART_OF_THE_MOUNTAIN + 1, 119307, 0, 14, 1, 1, 1), -- Leggings of the Iron Conqueror (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN + 1, 119313, 0, 14, 1, 1, 1), -- Leggings of the Iron Vanquisher (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN + 1, 119320, 0, 14, 1, 1, 1); -- Leggings of the Iron Protector (Normal)
 
 UPDATE `creature_template` SET `lootid`= @REF_HEART_OF_THE_MOUNTAIN WHERE `entry`= @REF_HEART_OF_THE_MOUNTAIN;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_HEART_OF_THE_MOUNTAIN;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_HEART_OF_THE_MOUNTAIN, 1, 100, 1, 0, -@REF_HEART_OF_THE_MOUNTAIN, 6);
+(@REF_HEART_OF_THE_MOUNTAIN, 1, 100, 1, 0, -@REF_HEART_OF_THE_MOUNTAIN, 6),
+(@REF_HEART_OF_THE_MOUNTAIN, 2, 100, 2, 0, -(@REF_HEART_OF_THE_MOUNTAIN + 1), 2),
+(@REF_HEART_OF_THE_MOUNTAIN, 3, 100, 4, 0, -(@REF_HEART_OF_THE_MOUNTAIN + 1), 1),
+(@REF_HEART_OF_THE_MOUNTAIN, 4, 100, 8, 0, -(@REF_HEART_OF_THE_MOUNTAIN + 1), 1);
 
 DELETE FROM creature_groupsizestats WHERE entry IN (@REF_HEART_OF_THE_MOUNTAIN, @REF_FOREMAN_FELDSPAR, @REF_PRIMAL_ELEMENTALIST, @REF_HEAT_REGULATOR);
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES

@@ -18507,11 +18507,14 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
             {
                 if (l_Map->IsRaid())
                 {
+                    uint32 l_PlayerCount = l_Map->GetPlayersCountExceptGMs();
+
                     /// Resize item count depending on player count
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_PlayerCount / 5));
+                        std::vector<LootItem> l_RealLoots;
 
                         if (l_Loot->Items.size() > l_Count)
                         {
@@ -18519,7 +18522,6 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                             std::mt19937 l_RandomGenerator(l_RandomDevice());
                             std::shuffle(l_Loot->Items.begin(), l_Loot->Items.end(), l_RandomGenerator);
 
-                            std::vector<LootItem> l_RealLoots;
                             for (LootItem l_LootItem : l_Loot->Items)
                             {
                                 if (!l_Count)
@@ -18529,8 +18531,28 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                                 l_RealLoots.push_back(l_LootItem);
                             }
 
+                            l_Loot->UnlootedCount = 0;
                             l_Loot->Items.clear();
-                            l_Loot->Items = l_RealLoots;
+                        }
+
+                        l_KilledCreature->SetLootMode(LootModes::LOOT_MODE_HARD_MODE_1);
+
+                        /// If at least 15 players, 25% chance to have a third set token
+                        if (l_PlayerCount >= 15 && roll_chance_i(25))
+                            l_KilledCreature->AddLootMode(LootModes::LOOT_MODE_HARD_MODE_2);
+
+                        /// If at least 20 players, 10% chance to have a fourth set token
+                        if (l_PlayerCount >= 20 && roll_chance_i(10))
+                            l_KilledCreature->AddLootMode(LootModes::LOOT_MODE_HARD_MODE_3);
+
+                        /// We must do that again to add set tokens
+                        if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
+                            l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
+
+                        for (LootItem l_Item : l_RealLoots)
+                        {
+                            ++l_Loot->UnlootedCount;
+                            l_Loot->Items.push_back(l_Item);
                         }
                     }
 

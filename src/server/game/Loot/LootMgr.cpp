@@ -400,7 +400,7 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot*
         randomSuffix        = GenerateEnchSuffixFactor(itemid);
         randomPropertyId    = Item::GenerateItemRandomPropertyId(itemid);
 
-        Item::GenerateItemBonus(itemid, p_Context, itemBonuses);
+        Item::GenerateItemBonus(itemid, p_Context, itemBonuses, !(l_ItemTemplate && l_ItemTemplate->HasStats()));
     }
 
     count               = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
