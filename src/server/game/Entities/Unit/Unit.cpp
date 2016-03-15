@@ -16909,7 +16909,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         /// Custom WoD Script
         /// Ruthlessness can proc just from finishing spells
-        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 14181 && procSpell->Id != 408 && procSpell->Id != 2098 && procSpell->Id != 73651 && procSpell->Id != 5171 && procSpell->Id != 26679 && procSpell->Id != 1943)))
+        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 2098 && procSpell->Id != 408 && procSpell->Id != 26679 && procSpell->Id != 1943 && procSpell->Id != 121411)))
             continue;
 
         /// Item - Druid T17 Restoration 4P Bonus - 167714
