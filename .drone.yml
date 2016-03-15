@@ -39,6 +39,7 @@ build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cp -p contrib/deploy/worldserver_restarter dist/bin
+      - cp contrib/deploy/commands.gdb dist/bin
 
 publish:
   docker:
