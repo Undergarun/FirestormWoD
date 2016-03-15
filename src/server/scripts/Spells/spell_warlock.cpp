@@ -1948,6 +1948,11 @@ class spell_warl_drain_soul: public SpellScriptLoader
     public:
         spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
 
+        enum eSpells
+        {
+            GrimoireOfSacrifice = 108503
+        };
+
         class spell_warl_drain_soul_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
@@ -1999,6 +2004,13 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             if (AuraEffect* l_AuraEffect = l_Aura->GetEffect(l_Aura->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
                             {
                                 int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+
+                                if (Aura* l_AuraGoS = l_Caster->GetAura(eSpells::GrimoireOfSacrifice))
+                                {
+                                    if (l_AuraGoS->GetEffect(EFFECT_4))
+                                        AddPct(l_Bp0, l_AuraGoS->GetEffect(EFFECT_4)->GetAmount());
+                                }
+
                                 l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
 
                                 /// Agony stack refresh
