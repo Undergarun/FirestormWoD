@@ -3751,6 +3751,7 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Sword of Light - 53503
 /// Called by Judgment - 20271, Hammer of Wrath - 24275, 158392
 class spell_pal_sword_of_light_damage : public SpellScriptLoader
