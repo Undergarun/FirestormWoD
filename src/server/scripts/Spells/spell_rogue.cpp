@@ -365,6 +365,24 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 SpellRogueEviscerate = 2098
             };
 
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, true);
+            }
+
             void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetCaster() == nullptr)
@@ -387,8 +405,29 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 }
             }
 
+
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, false);
+            }
+
             void Register()
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_death_from_above_AuraScript::OnApply, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_rog_death_from_above_AuraScript::OnRemove, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_death_from_above_AuraScript::OnTick, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
