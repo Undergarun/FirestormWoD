@@ -3756,45 +3756,45 @@ public:
 /// Called by Judgment - 20271, Hammer of Wrath - 24275, 158392
 class spell_pal_sword_of_light_damage : public SpellScriptLoader
 {
-public:
-    spell_pal_sword_of_light_damage() : SpellScriptLoader("spell_pal_sword_of_light_damage") { }
+    public:
+        spell_pal_sword_of_light_damage() : SpellScriptLoader("spell_pal_sword_of_light_damage") { }
 
-    class spell_pal_sword_of_light_damage_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_sword_of_light_damage_SpellScript);
-
-        enum eSpells
+        class spell_pal_sword_of_light_damage_SpellScript : public SpellScript
         {
-            SwordOfLight = 53503,
-            SwordOfLightBonus = 20113
-        };
+            PrepareSpellScript(spell_pal_sword_of_light_damage_SpellScript);
 
-        void HandleOnHit()
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            enum eSpells
             {
-                /// Retribution paladin has increased damage for 30%
-                if (l_Player->GetSpecializationId() == SPEC_PALADIN_RETRIBUTION && l_Player->HasAura(eSpells::SwordOfLightBonus))
-                {
-                    Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                    SpellInfo const* l_SwordOfLightBonus = sSpellMgr->GetSpellInfo(eSpells::SwordOfLightBonus);
+                SwordOfLight = 53503,
+                SwordOfLightBonus = 20113
+            };
 
-                    if (l_SwordOfLightBonus && l_SwordOfLightBonus->Effects[0].BasePoints && mainItem && mainItem->GetTemplate()->IsTwoHandedWeapon())
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SwordOfLightBonus->Effects[0].BasePoints));
+            void HandleOnHit()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    /// Retribution paladin has increased damage for 30%
+                    if (l_Player->GetSpecializationId() == SPEC_PALADIN_RETRIBUTION && l_Player->HasAura(eSpells::SwordOfLightBonus))
+                    {
+                        Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                        SpellInfo const* l_SwordOfLightBonus = sSpellMgr->GetSpellInfo(eSpells::SwordOfLightBonus);
+
+                        if (l_SwordOfLightBonus && l_SwordOfLightBonus->Effects[0].BasePoints && mainItem && mainItem->GetTemplate()->IsTwoHandedWeapon())
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SwordOfLightBonus->Effects[0].BasePoints));
+                    }
                 }
             }
-        }
 
-        void Register() override
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_pal_sword_of_light_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_pal_sword_of_light_damage_SpellScript::HandleOnHit);
+            return new spell_pal_sword_of_light_damage_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_sword_of_light_damage_SpellScript();
-    }
 };
 
 /// Glyph of Denounce - 115654
