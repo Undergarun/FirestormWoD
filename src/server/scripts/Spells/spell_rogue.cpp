@@ -241,6 +241,53 @@ class spell_rog_venom_rush : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Instant Poison - 157607
+class spell_rog_instant_poison : public SpellScriptLoader
+{
+    public:
+        spell_rog_instant_poison() : SpellScriptLoader("spell_rog_instant_poison") { }
+
+        class spell_rog_instant_poison_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_instant_poison_SpellScript);
+
+            enum eSpells
+            {
+                VenomRushAura = 152152,
+                VenomRushProc = 156719
+            };
+
+            void HandleOnHit(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::VenomRushAura))
+                {
+                    if (l_Caster->HasAura(eSpells::VenomRushProc))
+                        l_Caster->RemoveAura(eSpells::VenomRushProc);
+                }
+
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()) && l_Caster->HasAura(eSpells::VenomRushAura);
+                    if (l_MustCast)
+                        l_Caster->CastSpell(l_Caster, eSpells::VenomRushProc, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_instant_poison_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_instant_poison_SpellScript();
+        }
+};
+
 /// Death from Above (Jump back to target) - 178236
 class spell_rog_death_from_above_return : public SpellScriptLoader
 {
@@ -3310,6 +3357,7 @@ class spell_rog_distract : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_instant_poison();
     new spell_rog_distract();
     new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
