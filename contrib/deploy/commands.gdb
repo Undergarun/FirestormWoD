@@ -1,9 +1,9 @@
-set logging file backtrace.log
+set logging file /tmp/backtrace.log
 set logging overwrite on
 set pagination 0
 set logging on
 
-run -c ../etc/worldserver.conf
+run -c /usr/local/etc/firestorm/worldserver.conf
 
 echo \n--- DEBUG: --- START\n\n
 info program

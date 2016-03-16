@@ -29,26 +29,26 @@ else
     gdb -batch -x=commands.gdb worldserver_RelWithDebInfo
 fi
 
-is_killed=`egrep 'SIGTERM|SIGINT' backtrace.log`
+is_killed=`egrep 'SIGTERM|SIGINT' /tmp/backtrace.log`
 if [ -n "$is_killed" ]; then
     # process has been  manually killed so don't do anything, just restart quietly
     continue
 fi
 
 # check if it's a shutdown or restart
-is_ok=$(grep -oP "(?:exited normally|exited with code 02)" backtrace.log)
+is_ok=$(grep -oP "(?:exited normally|exited with code 02)" /tmp/backtrace.log)
 if [ -z "$is_ok" ]; then
     crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).crashlog"
     crashlog_link="http://ptr.firestorm-servers.com/crashlogs_42xx42/$REALM_NAME/$crashlog_filename"
 
     if [ $REALM_ASAN_MODE -eq 0 ]; then
-        crash_location=$(grep -oP 'in \K(.*) at' backtrace.log | head -n 1)
+        crash_location=$(grep -oP 'in \K(.*) at' /tmp/backtrace.log | head -n 1)
         sendToSlack "_ $REALM_NAME _ crashed in \`$crash_location\` <$crashlog_link|Show more...>" "danger"
     else
         sendToSlack "_ $REALM_NAME _ crashed with ASan <$crashlog_link|Show more...>" "danger"
     fi
 
-    mv backtrace.log /var/log/firestorm/crashlogs/$crashlog_filename
+    mv /tmp/backtrace.log /var/log/firestorm/crashlogs/$crashlog_filename
 else
     sendToSlack "_ $REALM_NAME _ exited normally." "good"
 fi
