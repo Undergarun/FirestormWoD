@@ -3187,7 +3187,7 @@ namespace MS { namespace Garrison
         GarrisonFollower* l_Follower = GetFollower(GetBuilding(p_PlotInstanceID).FollowerAssigned);
 
         if (l_Follower == nullptr)
-            return false;
+            return 1;
 
         return HasRequiredFollowerAssignedAbility(p_PlotInstanceID) ? roll_chance_i(l_FollowerLevelBonus[l_Follower->Level]) + 1 : 1;
     }

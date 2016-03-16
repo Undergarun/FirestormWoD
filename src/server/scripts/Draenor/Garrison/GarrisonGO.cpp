@@ -189,11 +189,14 @@ namespace MS { namespace Garrison
                     break;
                 case ShipmentLeathorworking:
                 case ShipmentLeathorworkingUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(110611, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstLeatherworkingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(110611, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                    }
                     break;
                 case ShipmentInscription:
                 case ShipmentInscriptionUnk:
