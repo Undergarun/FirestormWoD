@@ -2246,6 +2246,9 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
             if (SubClass == 0 || SubClass > 4)
                 return 0.0f;
 
+            if (armorQuality == nullptr || armorTotal == nullptr || armorLoc == nullptr)
+                return 0.0f;
+
             return (int)floor(armorQuality->Value[quality] * armorTotal->Value[SubClass - 1] * armorLoc->Value[SubClass - 1] + 0.5f);
         }
         return 0;
