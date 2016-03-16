@@ -149,7 +149,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         case SPELLFAMILY_WARLOCK:
         {
             /// Chaos Wave -- 124915, slow effect
-            if (spellproto->Id == 124915)
+            if (spellproto->SpellFamilyFlags[0] & 0x201000)
                 return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
