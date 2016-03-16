@@ -33,13 +33,13 @@ namespace MS { namespace Garrison
 
     enum GarrisonPhases
     {
-        PhaseMagePortalFrostfireRidge = 0x00000008,
-        PhaseMagePortalSpiresOfArak   = 0x00000010,
-        PhaseMagePortalTalador        = 0x00000020,
-        PhaseMagePortalNagrand        = 0x00000040,
-        PhaseMagePortalShadowmoon     = 0x00000080,
-        PhaseMagePortalGorgrond       = 0x00000100,
-        PhaseLostInTransitionQuest    = 0x00000200
+        PhaseMagePortalFrostfireRidge = 0x00000010,
+        PhaseMagePortalSpiresOfArak   = 0x00000020,
+        PhaseMagePortalTalador        = 0x00000040,
+        PhaseMagePortalNagrand        = 0x00000080,
+        PhaseMagePortalShadowmoon     = 0x00000100,
+        PhaseMagePortalGorgrond       = 0x00000200,
+        PhaseLostInTransitionQuest    = 0x00000400
     };
 
     /// Instance data common IDs
