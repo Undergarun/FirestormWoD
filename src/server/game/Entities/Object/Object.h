@@ -765,11 +765,58 @@ template<class T>
 class GridObject
 {
     public:
-        bool IsInGrid() const { return _gridRef.isValid(); }
-        void AddToGrid(std::vector<T*>& m) { /*ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this);*/ }
-        void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
+        GridObject()
+        {
+            m_GridRef = nullptr;
+            m_Idx     = 0;
+        }
+
+        bool IsInGrid() const
+        {
+            return m_GridRef != nullptr;
+        }
+
+        void AddToGrid(std::vector<T*>& m)
+        {
+            if (IsInGrid())
+                return;
+
+            m_GridRef = &m;
+            m.push_back((T*)this);
+            m_Idx = m.size()-1;
+        }
+
+        void RemoveFromGrid()
+        {
+            /// Sanity check ...
+            if (m_GridRef == nullptr || m_GridRef->empty())
+            {
+                m_GridRef = nullptr;
+                m_Idx =0;
+                return;
+            }
+
+            /// Local reference for easier access to operator []
+            std::vector<T*>& l_GirdRef = *m_GridRef;
+
+            /// Update grid index before the swap
+            uint32 l_End = l_GirdRef.size() - 1;
+            l_GirdRef[l_End]->m_Idx = m_Idx;
+
+            /// Swap the element we want to erase with the last one
+            /// And then delete the last one, to avoid re-order all the vector
+            std::swap(l_GirdRef[l_End], l_GirdRef[m_Idx]);
+            m_GridRef->pop_back();
+
+            /// Clear reference & index
+            m_GridRef = nullptr;
+            m_Idx = 0;
+        }
+
+        uint32 m_Idx;
+
     private:
-        GridReference<T> _gridRef;
+        std::vector<T*>* m_GridRef;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, uint8 ARRAY_SIZE>
