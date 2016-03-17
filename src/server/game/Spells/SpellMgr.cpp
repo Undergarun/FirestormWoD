@@ -328,6 +328,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Frost Shock (with Frozen Power) -- 63685, no flags (6918)
             if (spellproto->SpellIconID == 193 && spellproto->SpellVisual[0] == 39876)
                 return DIMINISHING_ROOT;
+            /// Earthquake -- 77505
+            if (spellproto->Id == 77505)
+                return DIMINISHING_STUN;
+
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
