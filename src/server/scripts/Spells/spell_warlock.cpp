@@ -1125,7 +1125,7 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
                     l_Target->RemoveAura(190187, l_Caster->GetGUID());
             }
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -1139,8 +1139,10 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
                         l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
                 }
 
+                uint8 l_StackAmount = p_AurEff->GetBase()->GetStackAmount();
+
                 /// Generates 2 Demonic Fury every time it deals damage.
-                l_Caster->ModifyPower(POWER_DEMONIC_FURY, 2 * l_Caster->GetPowerCoeff(POWER_DEMONIC_FURY));
+                l_Caster->ModifyPower(POWER_DEMONIC_FURY, 2 * l_Caster->GetPowerCoeff(POWER_DEMONIC_FURY) * l_StackAmount);
             }
 
             void Register()
