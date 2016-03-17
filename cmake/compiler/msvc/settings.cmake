@@ -46,13 +46,11 @@ message(STATUS "MSVC: Disabled POSIX warnings")
 add_definitions("-D_ITERATOR_DEBUG_LEVEL=0")
 add_definitions("-D_NO_DEBUG_HEAP=1")
 
-# disable warnings in Visual Studio 8 and above if not wanted
-if(NOT WITH_WARNINGS)
-  if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
-    message(STATUS "MSVC: Disabled generic compiletime warnings")
-  endif()
+# add support for ACE and Visual Studio 2015
+if(MSVC AND CMAKE_GENERATOR MATCHES "Visual Studio 14")
+  add_definitions(-DACE_LACKS_TIMESPEC_T)
+  add_definitions(-DACE_HAS_POSIX_TIME)
+  message(STATUS "MSVC: Defines ACE_LACKS_TIMESPEC_T and ACE_HAS_POSIX_TIME")
 endif()
 
 # Specify the maximum PreCompiled Header memory allocation limit
