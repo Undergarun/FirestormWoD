@@ -128,6 +128,7 @@ namespace MS { namespace Garrison
             QUEST_BUILD_YOUR_BARRACKS                   = 34461,
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
+            Horde_MissionProbable                       = 34775,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,
@@ -148,7 +149,6 @@ namespace MS { namespace Garrison
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
             Horde_PortablePortals                       = 38351,
             /// Fishing Hut
