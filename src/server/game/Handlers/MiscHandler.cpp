@@ -59,6 +59,7 @@
 #include "TicketMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+#include "../Garrison/GarrisonMgr.hpp"
 
 #include "BattlegroundPacketFactory.hpp"
 
@@ -1899,6 +1900,12 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
     {
         ChatHandler(this).SendSysMessage(LANG_CHAR_NON_MOUNTED);
         return;
+    }
+
+    if (MS::Garrison::Manager* l_GarrisonMgr = m_Player->GetGarrison())
+    {
+        if (l_GarrisonMgr->IsTrainingMount())
+            return;
     }
 
     if (m_Player->isInFlight())                               // not blizz like; no any messages on blizz

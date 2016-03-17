@@ -233,6 +233,8 @@ namespace MS { namespace Garrison
             uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
             /// Check if the players has the right mount
             bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
+            /// Checks training mounts auras
+            bool IsTrainingMount();
 
             /// Tavern System
             void AddGarrisonTavernData(uint32 p_Data);

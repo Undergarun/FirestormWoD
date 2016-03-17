@@ -478,12 +478,19 @@ namespace MS { namespace Garrison
         if (!p_Player->IsInGarrison())
             return;
 
-        if (p_Player->HasQuest(Quests::Alliance_LostInTransition) || p_Player->HasQuest(Quests::Horde_LostInTransition))
+        uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+        switch (p_Quest->GetQuestId())
         {
-            uint32 l_PhaseMask = p_Player->GetPhaseMask();
-            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
-            p_Player->SetPhaseMask(l_PhaseMask, true);
+            case Quests::Alliance_LostInTransition:
+            case Quests::Horde_LostInTransition:
+                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            default:
+                break;
         }
+
+        p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 
     void playerScript_Garrison_Quests_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
@@ -491,12 +498,19 @@ namespace MS { namespace Garrison
         if (!p_Player->IsInGarrison())
             return;
 
-        if (p_Player->HasQuest(Quests::Alliance_LostInTransition) || p_Player->HasQuest(Quests::Horde_LostInTransition))
+        uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+        switch (p_Quest->GetQuestId())
         {
-            uint32 l_PhaseMask = p_Player->GetPhaseMask();
-            l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
-            p_Player->SetPhaseMask(l_PhaseMask, true);
+            case Quests::Alliance_LostInTransition:
+            case Quests::Horde_LostInTransition:
+                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            default:
+                break;
         }
+
+        p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 
     void playerScript_Garrison_Quests_Phases::OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
@@ -504,12 +518,19 @@ namespace MS { namespace Garrison
         if (!p_Player->IsInGarrison())
             return;
 
-        if (p_Player->HasQuest(Quests::Alliance_LostInTransition) || p_Player->HasQuest(Quests::Horde_LostInTransition))
+        uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+        switch (p_Quest->GetQuestId())
         {
-            uint32 l_PhaseMask = p_Player->GetPhaseMask();
-            l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
-            p_Player->SetPhaseMask(l_PhaseMask, true);
+            case Quests::Alliance_LostInTransition:
+            case Quests::Horde_LostInTransition:
+                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            default:
+                break;
         }
+
+        p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 }   ///< namespace Garrison
 }   ///< namespace MS

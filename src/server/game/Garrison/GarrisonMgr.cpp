@@ -4743,6 +4743,16 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    bool Manager::IsTrainingMount()
+    {
+        return m_Owner->HasAura(StablesData::TrainingMountsAuras::RockstuckTrainingMountAura)
+            || m_Owner->HasAura(StablesData::TrainingMountsAuras::IcehoofTrainingMountAura)
+            || m_Owner->HasAura(StablesData::TrainingMountsAuras::MeadowstomperTrainingMountAura)
+            || m_Owner->HasAura(StablesData::TrainingMountsAuras::RiverwallowTrainingMountAura)
+            || m_Owner->HasAura(StablesData::TrainingMountsAuras::SilverpeltTrainingMountAura)
+            || m_Owner->HasAura(StablesData::TrainingMountsAuras::SnarlerTrainingMountAura);
+    }
+
     void Manager::AddGarrisonTavernData(uint32 p_Data)
     {
         SetGarrisonTavernData(p_Data);
