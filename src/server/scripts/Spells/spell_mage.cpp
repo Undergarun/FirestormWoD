@@ -326,6 +326,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 CometStorm  = 153596
             };
 
+            uint16 m_CountTarget = 0;
             bool m_AlreadyLaunch = false;
 
             void HandleAfterHit()
@@ -391,8 +392,28 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 }
             }
 
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                m_CountTarget = p_Targets.size();
+            }
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (m_CountTarget)
+                    SetHitDamage(GetHitDamage() / m_CountTarget);
+            }
+
             void Register()
             {
+                switch (m_scriptSpellId)
+                {
+                case 153596:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_comet_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                    OnEffectHitTarget += SpellEffectFn(spell_mage_comet_storm_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                    break;
+                default:
+                    break;
+                }
                 AfterHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
             }
