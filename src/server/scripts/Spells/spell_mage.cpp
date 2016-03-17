@@ -1892,6 +1892,7 @@ class spell_mage_unstable_magic: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Ice Lance - 30455
 class spell_mage_ice_lance: public SpellScriptLoader
 {
@@ -1921,9 +1922,9 @@ class spell_mage_ice_lance: public SpellScriptLoader
                 int32 l_Damage = GetHitDamage();
                 int32 l_Scale = CalculatePct(l_Damage, l_Multiplier);
 
-                int32 l_ScaleValue = ((l_Scale * 2 ) / 100) * l_RandomScale;
+                int32 l_ScaleValue = (l_Scale / 100) * l_RandomScale;
 
-                l_Damage -= l_Scale;
+                l_Damage -= (l_Scale / 2);
                 l_Damage += l_ScaleValue;
                 SetHitDamage(l_Damage);
             }
