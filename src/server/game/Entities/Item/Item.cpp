@@ -2256,6 +2256,9 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
     else
     {
         ItemArmorShieldEntry const* shieldEntry = sItemArmorShieldStore.LookupEntry(ilvl);
+        if (shieldEntry == nullptr)
+            return 0;
+
         return shieldEntry->Value[quality];
     }
 }
