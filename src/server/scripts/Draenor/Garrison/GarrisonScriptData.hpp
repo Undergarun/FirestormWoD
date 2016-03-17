@@ -100,6 +100,7 @@ namespace MS { namespace Garrison
             Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
             Alliance_YourFirstEngineeringWorkOrder      = 36646,
             Alliance_YourFirstInscriptionWorkOrder      = 36647,
+            Alliance_YourFirstTailoringWorkOrder        = 36643,
             /// Herb garden
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
