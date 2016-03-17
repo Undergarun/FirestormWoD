@@ -43,7 +43,7 @@ EndScriptData */
 
 struct UnitStates
 {
-    uint32      Flag;
+	UnitState   Flag;
     char const* Text;
 };
 
