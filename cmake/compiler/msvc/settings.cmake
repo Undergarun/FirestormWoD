@@ -5,6 +5,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+set(MSVC_EXPECTED_VERSION 18.0.30723) # MSVC Update 3
+
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
+  message(FATAL_ERROR "MSVC: WoDCore requires version ${MSVC_EXPECTED_VERSION} (MSVC 2013 Update 3) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+endif()
+
 if(PLATFORM EQUAL 64)
   # This definition is necessary to work around a bug with Intellisense described
   # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
@@ -29,6 +35,18 @@ add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
 
 # multithreaded compiling on VS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
+# /Zc:throwingNew.
+# When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
+# that the program will eventually be linked with a conforming operator new implementation,
+# and can omit all of these extra null checks from your program.
+# http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
+if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:throwingNew")
+
+# Remove unreferenced COMDAT and speed up the link
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:inline")
+endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
@@ -57,9 +75,4 @@ endif()
 # Fixes a compiler-problem when using PCH - the /Ym flag is adjusted by the compiler in MSVC2012, hence we need to set an upper limit with /Zm to avoid discrepancies)
 # (And yes, this is a verified , unresolved bug with MSVC... *sigh*)
 string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm500" CACHE STRING "" FORCE)
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm2000" CACHE STRING "" FORCE)
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm500")
