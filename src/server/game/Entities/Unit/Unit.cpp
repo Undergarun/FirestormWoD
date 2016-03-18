@@ -13706,7 +13706,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 
         if (MS::Garrison::Manager* l_GarrisonMgr = player->GetGarrison())
         {
-            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID)
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID && player->GetMapId() == 1116)
                 player->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
         }
     }
