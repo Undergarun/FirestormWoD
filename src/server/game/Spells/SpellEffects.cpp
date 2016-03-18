@@ -1370,10 +1370,10 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
         case 49575: ///< Death Grip
         case 92832: ///< Leap of Faith
         case 118283: ///< Ursol's Vortex
-            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
+            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_spellInfo->Id);
             break;
         case 49376: ///< Wild Charge
-            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
             break;
         case 156220: ///< Tactical Retreat
         case 156883: ///< Tactical Retreat (Other)
@@ -7730,7 +7730,10 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
-    m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
+    if (Unit* l_Target = m_targets.GetUnitTarget())
+        m_caster->GetMotionMaster()->CustomJump(l_Target, speedXY, speedZ, m_spellInfo->Id);
+    else
+        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ, m_spellInfo->Id);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
