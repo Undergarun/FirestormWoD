@@ -2739,7 +2739,7 @@ class spell_foundry_shields_down : public SpellScriptLoader
             void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
