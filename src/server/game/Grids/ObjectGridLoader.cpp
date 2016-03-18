@@ -97,7 +97,7 @@ template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const
 }
 
 template <class T>
-void AddObjectHelper(CellCoord &cell, std::vector<T*> &m, uint32 &count, Map* map, T *obj)
+void AddObjectHelper(CellCoord &cell, GridVector<T*> &m, uint32 &count, Map* map, T *obj)
 {
     obj->AddToGrid(m);
     ObjectGridLoader::SetObjectCell(obj, cell);
@@ -109,7 +109,7 @@ void AddObjectHelper(CellCoord &cell, std::vector<T*> &m, uint32 &count, Map* ma
 }
 
 template <class T>
-void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, std::vector<T*> &m, uint32 &count, Map* map)
+void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridVector<T*> &m, uint32 &count, Map* map)
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
@@ -210,7 +210,7 @@ void ObjectGridLoader::LoadN(void)
 }
 
 template<class T>
-void ObjectGridUnloader::Visit(std::vector<T*> &m)
+void ObjectGridUnloader::Visit(GridVector<T*> &m)
 {
     while (!m.empty())
     {
@@ -250,11 +250,11 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
 }
 
 template<class T>
-void ObjectGridCleaner::Visit(std::vector<T*> &m)
+void ObjectGridCleaner::Visit(GridVector<T*> &m)
 {
     // look like we have a crash wile accessing to DynamicObject map here
     // I Guess it's DynamicObject delete pointer, we need to look at it anyway ...
-    for (typename std::vector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (typename GridVector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
         (*iter)->CleanupsBeforeDelete();
 }
 

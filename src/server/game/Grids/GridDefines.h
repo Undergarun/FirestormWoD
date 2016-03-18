@@ -66,12 +66,12 @@ class AreaTrigger;
 typedef TYPELIST_5(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/, AreaTrigger) AllWorldObjectTypes;
 typedef TYPELIST_5(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger) AllGridObjectTypes;
 
-typedef std::vector<Corpse*>          CorpseMapType;
-typedef std::vector<Creature*>        CreatureMapType;
-typedef std::vector<DynamicObject*>   DynamicObjectMapType;
-typedef std::vector<GameObject*>      GameObjectMapType;
-typedef std::vector<Player*>          PlayerMapType;
-typedef std::vector<AreaTrigger*>     AreaTriggerMapType;
+typedef GridVector<Corpse*>          CorpseMapType;
+typedef GridVector<Creature*>        CreatureMapType;
+typedef GridVector<DynamicObject*>   DynamicObjectMapType;
+typedef GridVector<GameObject*>      GameObjectMapType;
+typedef GridVector<Player*>          PlayerMapType;
+typedef GridVector<AreaTrigger*>     AreaTriggerMapType;
 
 enum GridMapTypeMask
 {

@@ -46,7 +46,7 @@ namespace JadeCore
         GuidUnorderedSet vis_guids;
 
         VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) {}
-        template<class T> void Visit(std::vector<T*> &m);
+        template<class T> void Visit(GridVector<T*> &m);
         void SendToSelf(void);
     };
 
@@ -55,7 +55,7 @@ namespace JadeCore
         WorldObject &i_object;
 
         explicit VisibleChangesNotifier(WorldObject &object) : i_object(object) {}
-        template<class T> void Visit(std::vector<T*> &) {}
+        template<class T> void Visit(GridVector<T*> &) {}
         void Visit(PlayerMapType &);
         void Visit(CreatureMapType &);
         void Visit(DynamicObjectMapType &);
@@ -65,7 +65,7 @@ namespace JadeCore
     {
         PlayerRelocationNotifier(Player &player) : VisibleNotifier(player) {}
 
-        template<class T> void Visit(std::vector<T*> &m) { VisibleNotifier::Visit(m); }
+        template<class T> void Visit(GridVector<T*> &m) { VisibleNotifier::Visit(m); }
         void Visit(CreatureMapType &);
         void Visit(PlayerMapType &);
     };
@@ -74,7 +74,7 @@ namespace JadeCore
     {
         Creature &i_creature;
         CreatureRelocationNotifier(Creature &c) : i_creature(c) {}
-        template<class T> void Visit(std::vector<T*> &) {}
+        template<class T> void Visit(GridVector<T*> &) {}
         void Visit(CreatureMapType &);
         void Visit(PlayerMapType &);
     };
@@ -87,7 +87,7 @@ namespace JadeCore
         const float i_radius;
         DelayedUnitRelocation(Cell &c, CellCoord &pair, Map &map, float radius) :
             i_map(map), cell(c), p(pair), i_radius(radius) {}
-        template<class T> void Visit(std::vector<T*> &) {}
+        template<class T> void Visit(GridVector<T*> &) {}
         void Visit(CreatureMapType &);
         void Visit(PlayerMapType   &);
     };
@@ -97,7 +97,7 @@ namespace JadeCore
         Unit &i_unit;
         bool isCreature;
         explicit AIRelocationNotifier(Unit &unit) : i_unit(unit), isCreature(unit.GetTypeId() == TYPEID_UNIT)  {}
-        template<class T> void Visit(std::vector<T*> &) {}
+        template<class T> void Visit(GridVector<T*> &) {}
         void Visit(CreatureMapType &);
     };
 
@@ -107,21 +107,21 @@ namespace JadeCore
         uint32 i_timeDiff;
         GridUpdater(GridType &grid, uint32 diff) : i_grid(grid), i_timeDiff(diff) {}
 
-        template<class T> void updateObjects(std::vector<T*> &m)
+        template<class T> void updateObjects(GridVector<T*> &m)
         {
-            for (typename std::vector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
+            for (typename GridVector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
                 (*iter)->Update(i_timeDiff);
         }
 
         void Visit(CreatureMapType &m)
         {
-            for (std::vector<Creature*>::iterator iter = m.begin(); iter != m.end(); ++iter)
+            for (GridVector<Creature*>::iterator iter = m.begin(); iter != m.end(); ++iter)
                 (*iter)->Update(i_timeDiff);
         }
 
         void Visit(GameObjectMapType &m)
         {
-            for (std::vector<GameObject*>::iterator iter = m.begin(); iter != m.end(); ++iter)
+            for (GridVector<GameObject*>::iterator iter = m.begin(); iter != m.end(); ++iter)
             {
                 if (!(*iter)->IsTransport())
                     (*iter)->Update(i_timeDiff);
@@ -152,7 +152,7 @@ namespace JadeCore
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
         void Visit(DynamicObjectMapType &m);
-        template<class SKIP> void Visit(std::vector<SKIP*> &) {}
+        template<class SKIP> void Visit(GridVector<SKIP*> &) {}
 
         void SendPacket(Player* player)
         {
@@ -182,7 +182,7 @@ namespace JadeCore
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist) { }
 
         void Visit(PlayerMapType &m);
-        template<class SKIP> void Visit(std::vector<SKIP*> &) {}
+        template<class SKIP> void Visit(GridVector<SKIP*> &) {}
 
         void SendPacket(Player* player)
         {
@@ -212,7 +212,7 @@ namespace JadeCore
     {
         uint32 i_timeDiff;
         explicit ObjectUpdater(const uint32 diff) : i_timeDiff(diff) {}
-        template<class T> void Visit(std::vector<T*> &m);
+        template<class T> void Visit(GridVector<T*> &m);
         void Visit(PlayerMapType &) {}
         void Visit(CorpseMapType &) {}
         void Visit(CreatureMapType &);
@@ -241,7 +241,7 @@ namespace JadeCore
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -262,7 +262,7 @@ namespace JadeCore
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -283,7 +283,7 @@ namespace JadeCore
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Do>
@@ -349,7 +349,7 @@ namespace JadeCore
                     i_do((*itr));
         }
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     /// AreaTriggers searchers
@@ -365,7 +365,7 @@ namespace JadeCore
 
         void Visit(AreaTriggerMapType& p_AreaTriggerMap);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -380,7 +380,7 @@ namespace JadeCore
 
         void Visit(AreaTriggerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
     /// Gameobject searchers
 
@@ -396,7 +396,7 @@ namespace JadeCore
 
         void Visit(GameObjectMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // Last accepted by Check GO if any (Check can change requirements at each call)
@@ -412,7 +412,7 @@ namespace JadeCore
 
         void Visit(GameObjectMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -427,7 +427,7 @@ namespace JadeCore
 
         void Visit(GameObjectMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Functor>
@@ -443,7 +443,7 @@ namespace JadeCore
                     _func((*itr));
         }
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
 
     private:
         Functor& _func;
@@ -466,7 +466,7 @@ namespace JadeCore
         void Visit(CreatureMapType &m);
         void Visit(PlayerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // Last accepted by Check Unit if any (Check can change requirements at each call)
@@ -483,7 +483,7 @@ namespace JadeCore
         void Visit(CreatureMapType &m);
         void Visit(PlayerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // All accepted by Check units if any
@@ -500,7 +500,7 @@ namespace JadeCore
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // Creature searchers
@@ -517,7 +517,7 @@ namespace JadeCore
 
         void Visit(CreatureMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // Last accepted by Check Creature if any (Check can change requirements at each call)
@@ -533,7 +533,7 @@ namespace JadeCore
 
         void Visit(CreatureMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -548,7 +548,7 @@ namespace JadeCore
 
         void Visit(CreatureMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Do>
@@ -567,7 +567,7 @@ namespace JadeCore
                     i_do((*itr));
         }
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // Player searchers
@@ -584,7 +584,7 @@ namespace JadeCore
 
         void Visit(PlayerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -599,7 +599,7 @@ namespace JadeCore
 
         void Visit(PlayerMapType &m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Check>
@@ -615,7 +615,7 @@ namespace JadeCore
 
         void Visit(PlayerMapType& m);
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Do>
@@ -634,7 +634,7 @@ namespace JadeCore
                     i_do((*itr));
         }
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     template<class Do>
@@ -654,7 +654,7 @@ namespace JadeCore
                     i_do((*itr));
         }
 
-        template<class NOT_INTERESTED> void Visit(std::vector<NOT_INTERESTED*> &) {}
+        template<class NOT_INTERESTED> void Visit(GridVector<NOT_INTERESTED*> &) {}
     };
 
     // CHECKS && DO classes

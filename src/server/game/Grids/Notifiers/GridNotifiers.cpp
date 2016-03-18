@@ -259,9 +259,9 @@ void UnfriendlyMessageDistDeliverer::Visit(PlayerMapType &m)
 }
 
 template<class T>
-void ObjectUpdater::Visit(std::vector<T*> &m)
+void ObjectUpdater::Visit(GridVector<T*> &m)
 {
-    for (typename std::vector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (typename GridVector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         if (!(*iter))
             continue;
