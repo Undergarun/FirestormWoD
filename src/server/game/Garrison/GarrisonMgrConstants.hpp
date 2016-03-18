@@ -497,18 +497,18 @@ namespace MS { namespace Garrison
         232373,     ///< PlotTypes::Medium
         232410,     ///< PlotTypes::Large
         232373,     ///< PlotTypes::Farm          same as PlotTypes::Medium
-        232373,     ///< PlotTypes::Mine          same as PlotTypes::Medium
-        233958,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        233958,     ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
         0,          ///< PlotTypes::Shipyard
         /// Alliance
         233957,     ///< PlotTypes::Small
         232409,     ///< PlotTypes::Medium
         232411,     ///< PlotTypes::Large
-        232409,     ///< PlotTypes::Farm          same as PlotTypes::Medium
-        232409,     ///< PlotTypes::Mine          same as PlotTypes::Medium
-        233957,     ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        233957,     ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
         0           ///< PlotTypes::Shipyard
     };
 
@@ -527,10 +527,10 @@ namespace MS { namespace Garrison
         10,         ///< PlotTypes::Small
         16,         ///< PlotTypes::Medium
         24,         ///< PlotTypes::Large
-        16,         ///< PlotTypes::Farm          same as PlotTypes::Medium
-        16,         ///< PlotTypes::Mine          same as PlotTypes::Medium
-        10,         ///< PlotTypes::FishingHut    same as PlotTypes::Small
-        10,         ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
+        0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
+        0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
+        0,          ///< PlotTypes::FishingHut    same as PlotTypes::Small
+        0,          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
         0           ///< PlotTypes::Shipyard
     };
 

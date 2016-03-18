@@ -67,6 +67,8 @@
 #include "BattlegroundDG.h"
 #include "Guild.h"
 #include "DB2Stores.h"
+#include "../../Garrison/GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -311,6 +313,9 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_HealingRainTrigger = 0;
 
     m_PersonnalChauffeur = 0;
+
+    m_LastNotifyPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
+    m_LastOutdoorPosition.Relocate(-5000.0f, -5000.0f, -5000.0f, 0.0f);
 }
 
 ////////////////////////////////////////////////////////////
@@ -4086,8 +4091,8 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
-        /// Hack fix for Sunfire
-        if (spellProto->Id == 164815)
+        /// Hack fix for Sunfire and Rising Sun Kick
+        if (spellProto->Id == 164815 || spellProto->Id == 130320)
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -13698,6 +13703,12 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 
         if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
+
+        if (MS::Garrison::Manager* l_GarrisonMgr = player->GetGarrison())
+        {
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID && player->GetMapId() == 1116)
+                player->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
+        }
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -13715,6 +13726,12 @@ void Unit::Dismount()
     {
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
         thisPlayer->RemoveAurasDueToSpell(143314);
+
+        if (MS::Garrison::Manager* l_GarrisonMgr = thisPlayer->GetGarrison())
+        {
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID)
+                thisPlayer->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, false);
+        }
     }
 
     uint64 l_Guid = GetGUID();
@@ -16909,7 +16926,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         /// Custom WoD Script
         /// Ruthlessness can proc just from finishing spells
-        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 14181 && procSpell->Id != 408 && procSpell->Id != 2098 && procSpell->Id != 73651 && procSpell->Id != 5171 && procSpell->Id != 26679 && procSpell->Id != 1943)))
+        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 2098 && procSpell->Id != 408 && procSpell->Id != 26679 && procSpell->Id != 1943 && procSpell->Id != 121411)))
             continue;
 
         /// Item - Druid T17 Restoration 4P Bonus - 167714
@@ -18504,11 +18521,14 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
             {
                 if (l_Map->IsRaid())
                 {
+                    uint32 l_PlayerCount = l_Map->GetPlayersCountExceptGMs();
+
                     /// Resize item count depending on player count
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_PlayerCount / 5));
+                        std::vector<LootItem> l_RealLoots;
 
                         if (l_Loot->Items.size() > l_Count)
                         {
@@ -18516,7 +18536,6 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                             std::mt19937 l_RandomGenerator(l_RandomDevice());
                             std::shuffle(l_Loot->Items.begin(), l_Loot->Items.end(), l_RandomGenerator);
 
-                            std::vector<LootItem> l_RealLoots;
                             for (LootItem l_LootItem : l_Loot->Items)
                             {
                                 if (!l_Count)
@@ -18526,8 +18545,28 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                                 l_RealLoots.push_back(l_LootItem);
                             }
 
+                            l_Loot->UnlootedCount = 0;
                             l_Loot->Items.clear();
-                            l_Loot->Items = l_RealLoots;
+                        }
+
+                        l_KilledCreature->SetLootMode(LootModes::LOOT_MODE_HARD_MODE_1);
+
+                        /// If at least 15 players, 25% chance to have a third set token
+                        if (l_PlayerCount >= 15 && roll_chance_i(25))
+                            l_KilledCreature->AddLootMode(LootModes::LOOT_MODE_HARD_MODE_2);
+
+                        /// If at least 20 players, 10% chance to have a fourth set token
+                        if (l_PlayerCount >= 20 && roll_chance_i(10))
+                            l_KilledCreature->AddLootMode(LootModes::LOOT_MODE_HARD_MODE_3);
+
+                        /// We must do that again to add set tokens
+                        if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
+                            l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
+
+                        for (LootItem l_Item : l_RealLoots)
+                        {
+                            ++l_Loot->UnlootedCount;
+                            l_Loot->Items.push_back(l_Item);
                         }
                     }
 
@@ -19922,7 +19961,7 @@ public:
     virtual bool Execute(uint64 , uint32)
     {
         JadeCore::AIRelocationNotifier notifier(m_owner);
-        m_owner.VisitNearbyObject(m_owner.GetVisibilityRange(), notifier);
+        m_owner.VisitNearbyObject(60.0f, notifier);
         return true;
     }
 
@@ -19931,6 +19970,16 @@ public:
         if (!me->m_VisibilityUpdScheduled)
             me->m_Events.AddEvent(new AINotifyTask(me), me->m_Events.CalculateTime(World::Visibility_AINotifyDelay));
     }
+};
+
+float g_RequiredMoveDistanceSq[6] =
+{
+    20.0f,  ///< MAP_COMMON
+    25.0f,  ///< MAP_INSTANCE
+    25.0f,  ///< MAP_RAID
+    16.0f,  ///< MAP_BATTLEGROUND,
+     1.0f,  ///< MAP_ARENA
+    25.0f   ///< MAP_SCENARIO
 };
 
 class Unit::VisibilityUpdateTask : public BasicEvent
@@ -19946,16 +19995,35 @@ public:
     }
 
     static void UpdateVisibility(Unit* me)
-     {
+    {
         if (!me->m_sharedVision.empty())
-            for (SharedVisionList::const_iterator it = me->m_sharedVision.begin();it!= me->m_sharedVision.end();)
+        {
+            for (SharedVisionList::const_iterator it = me->m_sharedVision.begin(); it != me->m_sharedVision.end();)
             {
                 Player * tmp = *it;
                 ++it;
                 tmp->UpdateVisibilityForPlayer();
             }
+        }
+
+        Map* l_Map = me->FindMap();
+        if (!l_Map)
+            return;
+
+        float l_DistanceX = me->m_LastNotifyPosition.GetPositionX() - me->GetPositionX();
+        float l_DistanceY = me->m_LastNotifyPosition.GetPositionY() - me->GetPositionY();
+        float l_DistanceZ = me->m_LastNotifyPosition.GetPositionZ() - me->GetPositionZ();
+        float l_DistanceSQ = l_DistanceX*l_DistanceX + l_DistanceY*l_DistanceY + l_DistanceZ*l_DistanceZ;
+
+        float l_MinDistanceSQ = g_RequiredMoveDistanceSq[l_Map->GetEntry()->instanceType];
+        if (l_DistanceSQ < l_MinDistanceSQ)
+            return;
+
+        me->m_LastNotifyPosition.Relocate(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+
         if (me->isType(TYPEMASK_PLAYER))
             ((Player*)me)->UpdateVisibilityForPlayer();
+
         me->WorldObject::UpdateObjectVisibility(true);
     }
 };
@@ -20861,7 +20929,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
     }
 
-    if (!modelid)
+    if (!modelid && form != FORM_STEALTH)
         modelid = GetNativeDisplayId();
     return modelid;
 }
@@ -22456,4 +22524,56 @@ void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, 0);
     }
+}
+
+bool Unit::IsOutdoors()
+{
+    if (GetExactDistSq(&m_LastOutdoorPosition) < 4.0f * 4.0f)
+        return m_LastOutdoorStatus;
+    else
+    {
+        m_LastOutdoorPosition.Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        m_LastOutdoorStatus = GetMap()->IsOutdoors(GetPositionX(), GetPositionY(), GetPositionZ());
+        return m_LastOutdoorStatus;
+    }
+}
+
+uint32 Unit::GetZoneId(bool p_ForceRecalc) const
+{
+    if (!p_ForceRecalc && GetExactDistSq(&m_LastZonePosition) < 4.0f * 4.0f)
+        return m_LastZoneId;
+    else
+    {
+        const_cast<Position*>(&m_LastZonePosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        *(const_cast<uint32*>(&m_LastZoneId)) = WorldObject::GetZoneId();
+        return m_LastZoneId;
+    }
+}
+
+uint32 Unit::GetAreaId(bool p_ForceRecalc) const
+{
+    if (!p_ForceRecalc && GetExactDistSq(&m_LastAreaPosition) < 4.0f * 4.0f)
+        return m_LastAreaId;
+    else
+    {
+        const_cast<Position*>(&m_LastAreaPosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+        *(const_cast<uint32*>(&m_LastAreaId)) = WorldObject::GetAreaId();
+        return m_LastAreaId;
+    }
+}
+
+void Unit::GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRecalc) const
+{
+    if (!p_ForceRecalc && GetExactDistSq(&m_LastAreaPosition) < 4.0f * 4.0f && GetExactDistSq(&m_LastZonePosition) < 4.0f * 4.0f)
+    {
+        p_ZoneId = m_LastZoneId;
+        p_AreaId = m_LastAreaId;
+        return;
+    }
+
+    const_cast<Position*>(&m_LastZonePosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    const_cast<Position*>(&m_LastAreaPosition)->Relocate(GetPositionX(), GetPositionY(), GetPositionZ());
+    WorldObject::GetZoneAndAreaId(p_ZoneId, p_AreaId);
+    *(const_cast<uint32*>(&m_LastZoneId)) = p_ZoneId;
+    *(const_cast<uint32*>(&m_LastAreaId)) = p_AreaId;
 }

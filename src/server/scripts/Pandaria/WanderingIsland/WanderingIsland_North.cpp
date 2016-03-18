@@ -1584,14 +1584,15 @@ class mob_huojin_trainee : public CreatureScript
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
                     damage = 0;
-                    if(attacker && attacker->IsPlayer())
-                        attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
                     me->CombatStop();
                     me->setFaction(35);
                     isInCombat = false;
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     Talk(urand(0, 7));
                     me->GetMotionMaster()->MovePoint(0, 1446.322876f, 3389.027588f, 173.782471f);
+
+                    if (attacker && attacker->IsPlayer())
+                        attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
                 }
             }
 
@@ -1624,8 +1625,9 @@ class mob_huojin_trainee : public CreatureScript
                         punch -= diff;
                 }
 
-                if (me->GetPositionX() == 1446.322876f && me->GetPositionY() == 3389.027588f && me->GetPositionZ() == 173.782471f)
-                    me->ForcedDespawn(1000);
+                if (me->GetPositionX() >= 1446.0f  && me->GetPositionX() <= 1447.0f &&
+                    me->GetPositionY() >= 3389.0f && me->GetPositionY() <= 3390.0f)
+                    me->DespawnOrUnsummon();
             }
         };
 };

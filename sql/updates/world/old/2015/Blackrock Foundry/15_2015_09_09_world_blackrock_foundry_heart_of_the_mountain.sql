@@ -361,13 +361,14 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '%s использует |cFFFF0000|Hspell:156446|h[Взрывную волну]|h|r! Прячься!'
 );
 
-DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 156934, 158247, 155176, 158345, 176121, 155225, 155288, 177756, 163532);
+DELETE FROM spell_script_names WHERE spell_id IN (156345, 158424, 160379, 155192, 174716, 159558, 156934, 158247, 155176, 158345, 176121, 155225, 155288, 177756, 163532);
 INSERT INTO spell_script_names VALUES
 (156345, 'spell_foundry_ignite_aura'),
 (158424, 'spell_foundry_blast_wave'),
 (160379, 'spell_foundry_defense_aura'),
 (155192, 'spell_foundry_bomb_overrider'),
 (174716, 'spell_foundry_bomb_overrider'),
+(159558, 'spell_foundry_bomb_overrider'),
 (156934, 'spell_foundry_rupture_aura'),
 (158247, 'spell_foundry_hot_blooded_aura'),
 (155176, 'spell_foundry_damage_shield'),
@@ -489,16 +490,22 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_HEART_OF_THE_MOUNTAIN, 113893, 0, 1, 1, 1, 1),
 (@REF_HEART_OF_THE_MOUNTAIN, 113894, 0, 1, 1, 1, 1),
 (@REF_HEART_OF_THE_MOUNTAIN, 113895, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 113896, 0, 1, 1, 1, 1),
-(@REF_HEART_OF_THE_MOUNTAIN, 119307, 0, 1, 1, 1, 1), -- Leggings of the Iron Conqueror (Normal)
-(@REF_HEART_OF_THE_MOUNTAIN, 119313, 0, 1, 1, 1, 1), -- Leggings of the Iron Vanquisher (Normal)
-(@REF_HEART_OF_THE_MOUNTAIN, 119320, 0, 1, 1, 1, 1); -- Leggings of the Iron Protector (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN, 113896, 0, 1, 1, 1, 1);
+
+DELETE FROM`reference_loot_template` WHERE entry = @REF_HEART_OF_THE_MOUNTAIN + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_HEART_OF_THE_MOUNTAIN + 1, 119307, 0, 14, 1, 1, 1), -- Leggings of the Iron Conqueror (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN + 1, 119313, 0, 14, 1, 1, 1), -- Leggings of the Iron Vanquisher (Normal)
+(@REF_HEART_OF_THE_MOUNTAIN + 1, 119320, 0, 14, 1, 1, 1); -- Leggings of the Iron Protector (Normal)
 
 UPDATE `creature_template` SET `lootid`= @REF_HEART_OF_THE_MOUNTAIN WHERE `entry`= @REF_HEART_OF_THE_MOUNTAIN;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_HEART_OF_THE_MOUNTAIN;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_HEART_OF_THE_MOUNTAIN, 1, 100, 1, 0, -@REF_HEART_OF_THE_MOUNTAIN, 6);
+(@REF_HEART_OF_THE_MOUNTAIN, 1, 100, 1, 0, -@REF_HEART_OF_THE_MOUNTAIN, 6),
+(@REF_HEART_OF_THE_MOUNTAIN, 2, 100, 2, 0, -(@REF_HEART_OF_THE_MOUNTAIN + 1), 2),
+(@REF_HEART_OF_THE_MOUNTAIN, 3, 100, 4, 0, -(@REF_HEART_OF_THE_MOUNTAIN + 1), 1),
+(@REF_HEART_OF_THE_MOUNTAIN, 4, 100, 8, 0, -(@REF_HEART_OF_THE_MOUNTAIN + 1), 1);
 
 DELETE FROM creature_groupsizestats WHERE entry IN (@REF_HEART_OF_THE_MOUNTAIN, @REF_FOREMAN_FELDSPAR, @REF_PRIMAL_ELEMENTALIST, @REF_HEAT_REGULATOR);
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES

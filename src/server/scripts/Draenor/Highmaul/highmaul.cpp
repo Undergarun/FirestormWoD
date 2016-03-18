@@ -179,6 +179,15 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                         AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro2); });
                         AddTimedDelayedOperation(38 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro3); });
 
+                        AddTimedDelayedOperation(54 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance != nullptr)
+                            {
+                                if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
+                                    l_InnerGate->SetGoState(GOState::GO_STATE_ACTIVE);
+                            }
+                        });
+
                         AddTimedDelayedOperation(55 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             Talk(eTalks::Intro4);
@@ -190,16 +199,7 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(56 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            if (m_Instance != nullptr)
-                            {
-                                if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
-                                    l_InnerGate->SetGoState(GOState::GO_STATE_ACTIVE);
-                            }
-                        });
-
-                        AddTimedDelayedOperation(61 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(59 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (m_Instance != nullptr)
                             {
