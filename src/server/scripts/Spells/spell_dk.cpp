@@ -3498,6 +3498,9 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->HasAura(eSpells::DarkTransformation))
+                    return;
+
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);
 
                 if (Pet* l_Pet = l_Player->GetPet())
