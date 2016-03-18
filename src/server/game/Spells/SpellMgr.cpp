@@ -3613,7 +3613,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 154938: ///< Molten Torrent (AoE Damage - 154938)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
             case 162349: ///< Fists of Stone (Kromog)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_BLOCKABLE_SPELL;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
