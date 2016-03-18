@@ -2072,7 +2072,8 @@ class npc_foundry_slag_elemental : public CreatureScript
             SlagBomb        = 176133,
             DamageShield    = 155176,
             Reanimate       = 155213,
-            DropTarget      = 101438
+            DropTarget      = 101438,
+            ShieldsDown     = 158345
         };
 
         enum eCreature
@@ -2235,8 +2236,12 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         for (Creature* l_Creature : l_Elementalists)
                         {
+                            /// If shielded, breaks shield
                             if (l_Creature->HasAura(eSpells::DamageShield))
                                 l_Creature->RemoveAura(eSpells::DamageShield);
+                            /// If not, refresh the vulnerability
+                            else
+                                l_Creature->CastSpell(l_Creature, eSpells::ShieldsDown, true);
                         }
                     });
                 }
@@ -2473,6 +2478,7 @@ class spell_foundry_defense_aura : public SpellScriptLoader
 
 /// Bomb (overrider) - 155192
 /// Bomb (overrider - second) - 174716
+/// Bomb (overrider - when mind controlled) - 159558
 class spell_foundry_bomb_overrider : public SpellScriptLoader
 {
     public:
@@ -2732,7 +2738,7 @@ class spell_foundry_shields_down : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };

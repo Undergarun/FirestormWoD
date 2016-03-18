@@ -831,13 +831,13 @@ namespace MS { namespace Garrison
     {
         InitPlots();    ///< AKA update plots
 
+        /// Enable AI Client collision manager
+        m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
+
         Interfaces::GarrisonSite* l_GarrisonScript = GetGarrisonScript();
 
         if (l_GarrisonScript)
             m_Owner->SetPhaseMask(l_GarrisonScript->GetPhaseMask(m_Owner), true);
-
-        /// Enable AI Client collision manager
-        m_Owner->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_AI_OBSTACLE);
 
         for (std::map<uint32, uint64>::iterator l_It = m_PlotsActivateGob.begin(); l_It != m_PlotsActivateGob.end(); ++l_It)
         {

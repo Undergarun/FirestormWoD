@@ -271,7 +271,10 @@ class UnitAI
                 targetList.resize(maxTargets);
         }
 
-        Player* SelectRangedTarget() const;
+        /// In mostly cases, heals will be targeted too
+        Player* SelectRangedTarget(bool p_AllowHeal = true) const;
+        /// In mostly cases, tanks will not be targeted
+        Player* SelectMeleeTarget(bool p_AllowTank = false) const;
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }

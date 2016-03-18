@@ -1253,7 +1253,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_SET_TAXI_BENCHMARK_MODE                = 0x0455, ///< 6.2.3 20726
     CMSG_ENABLE_TAXI_NODE                       = 0x190D, ///< 6.2.3 20726
-    CMSG_TAXI_HELLO                             = 0x0336, ///< 6.2.3 20726
+    CMSG_TAXI_QUERY_AVAILABLE_NODES             = 0x0336, ///< 6.2.3 20726
     CMSG_ACTIVATE_TAXI                          = 0x037A, ///< 6.2.3 20726
     CMSG_TAXI_NODE_STATUS_QUERY                 = 0x1DAD, ///< 6.2.3 20726
     CMSG_TAXI_REQUEST_EARLY_LANDING             = 0x0755, ///< 6.2.3 20726
@@ -1521,7 +1521,7 @@ enum Opcodes
     CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x08D5, ///< 6.2.3 20726
     CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x0000, ///<  (unused)
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x018D, ///< 6.2.3 20726
-    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x088E, ///< 6.2.3 20726
+    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0896, ///< 6.2.3 20726
     CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x0C8A, ///< 6.2.3 20726
     CMSG_GUILD_QUERY_NEWS                          = 0x09C6, ///< 6.2.3 20726
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000, ///< (unused)

@@ -910,6 +910,9 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
 
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
 
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
+        AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+
     return true;
 }
 
@@ -1834,6 +1837,9 @@ void Creature::setDeathState(DeathState s)
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_NONE);
 
+        SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 0);
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+
         setActive(false);
 
         if (!isPet() && GetCreatureTemplate()->SkinLootId)
@@ -1889,7 +1895,7 @@ void Creature::setDeathState(DeathState s)
 
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, cinfo->NpcFlags1);
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, cinfo->NpcFlags2);
-        ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+        ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         Motion_Initialize();
         if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
@@ -1902,7 +1908,7 @@ void Creature::setDeathState(DeathState s)
 
 void Creature::Respawn(bool force)
 {
-    Movement::MoveSplineInit(*this).Stop(true);
+    Movement::MoveSplineInit(this).Stop(true);
     DestroyForNearbyPlayers();
 
     if (force)
@@ -2424,14 +2430,14 @@ bool Creature::_IsTargetAcceptable(const Unit* target) const
     }
 
     const Unit* myVictim = getAttackerForHelper();
-    const Unit* targetVictim = target->getAttackerForHelper();
+    const Unit* tarGetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-    if (myVictim == target || targetVictim == this || IsHostileTo(target))
+    if (myVictim == target || tarGetVictim == this || IsHostileTo(target))
         return true;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
-    if (targetVictim && IsFriendlyTo(targetVictim))
+    if (tarGetVictim && IsFriendlyTo(tarGetVictim))
         return true;
 
     // if the target's victim is not friendly, or the target is friendly, the target is not acceptable

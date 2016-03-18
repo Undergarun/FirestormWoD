@@ -946,13 +946,16 @@ void Player::UpdateSpellCritChance(uint32 school)
 
 void Player::UpdateMasteryPercentage()
 {
-    // No mastery
-    float value = 0.0f;
+    /// No mastery
+    float l_Value = 0.0f;
     if (CanMastery() && getLevel() >= 80)
     {
-        // Mastery from SPELL_AURA_MASTERY aura
-        value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
+        /// Mastery from SPELL_AURA_MASTERY aura
+        l_Value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
         float l_Modifier = 0;
+
+        /// Mastery from rating
+        float l_RatingValue = GetRatingBonusValue(CombatRating::CR_MASTERY);
 
         ///< Add rating pct
         AuraEffectList const& l_ModRatingPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_INCREASE_RATING_PCT);
@@ -961,13 +964,12 @@ void Player::UpdateMasteryPercentage()
             if ((*l_Iter)->GetMiscValue() & (1 << CombatRating::CR_MASTERY))
                 l_Modifier += float((*l_Iter)->GetAmount());
         }
-        AddPct(value, l_Modifier);
+        AddPct(l_RatingValue, l_Modifier);
 
-        // Mastery from rating
-        value += GetRatingBonusValue(CombatRating::CR_MASTERY);
-        value = value < 0.0f ? 0.0f : value;
+        l_Value += l_RatingValue;
+        l_Value = l_Value < 0.0f ? 0.0f : l_Value;
     }
-    SetFloatValue(PLAYER_FIELD_MASTERY, value);
+    SetFloatValue(PLAYER_FIELD_MASTERY, l_Value);
 
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
@@ -987,7 +989,7 @@ void Player::UpdateMasteryPercentage()
                         l_AurEff->ChangeAmount(0, true, true);
                     else
                     {
-                        l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+                        l_AurEff->ChangeAmount((int32)(l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
                     }
                 }
             }
@@ -1343,6 +1345,11 @@ void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     float l_TotalValue       = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct         = GetModifierValue(l_UnitMod, TOTAL_PCT);
     float l_DmgMultiplier    = GetCreatureTemplate()->dmg_multiplier;
+
+    /// Since WoD, there is no need to add specific template for each difficulty (except for LFR and Mythic modes)
+    /// Then for heroic mode we must increase the dmg_multiplier by 20% (guessed from creature_groupsizestats changes)
+    if (GetCreatureTemplate()->expansion == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && GetMap()->GetDifficultyID() == Difficulty::DifficultyRaidHeroic && isWorldBoss())
+        l_DmgMultiplier *= 1.2f;
 
     if (!CanUseAttackType(p_AttType))
     {

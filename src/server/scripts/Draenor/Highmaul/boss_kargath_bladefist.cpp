@@ -1085,18 +1085,21 @@ class npc_highmaul_vulgor : public CreatureScript
                     if (Creature* l_Thoktar = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ThoktarIronskull)))
                         l_Thoktar->AI()->DoAction(eActions::ContinueIntro);
 
-                    /// Spawn new trash mobs
-                    for (uint8 l_I = 0; l_I < 2; ++l_I)
-                    {
-                        if (Creature* l_Sorcerer = me->SummonCreature(eHighmaulCreatures::BladespireSorcerer, g_TrashsSpawnPos))
-                            l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererSecondPos[l_I]);
-                    }
-
                     if (m_Instance != nullptr)
                     {
                         if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
                             l_InnerGate->SetGoState(GOState::GO_STATE_ACTIVE);
                     }
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        /// Spawn new trash mobs
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (Creature* l_Sorcerer = me->SummonCreature(eHighmaulCreatures::BladespireSorcerer, g_TrashsSpawnPos))
+                                l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererSecondPos[l_I]);
+                        }
+                    });
 
                     AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
@@ -1624,7 +1627,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                             me->SetWalk(false);
                             me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
 
-                            Movement::MoveSplineInit l_Init(*me);
+                            Movement::MoveSplineInit l_Init(me);
                             FillCirclePath(l_Pos, 7.0f, me->GetPositionZ(), l_Init.Path(), true);
                             l_Init.SetWalk(true);
                             l_Init.SetCyclic();

@@ -127,12 +127,10 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
-    UpdateCreatureGroupSizeStats();
 }
 
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
-    UpdateCreatureGroupSizeStats();
     p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
 }
 
@@ -1431,7 +1429,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
 
-    if (sObjectMgr->IsDisabledEncounter(p_EncounterID))
+    if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
         return;
 
     /// Reset datas before each attempt
@@ -1482,7 +1480,7 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
 
-    if (sObjectMgr->IsDisabledEncounter(p_EncounterID))
+    if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
         return;
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;

@@ -3256,7 +3256,7 @@ class spell_item_legs_of_iron : public SpellScriptLoader
                     if (Item* l_Item = GetCastItem())
                     {
                         uint32 l_ItemID = 0;
-                        uint32 l_Bonus  = 0;
+                        std::vector<uint32> l_Bonuses;
 
                         switch (l_Player->getClass())
                         {
@@ -3298,17 +3298,17 @@ class spell_item_legs_of_iron : public SpellScriptLoader
                         }
 
                         if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
-                            l_Bonus = eBonusIDs::Mythic;
+                            l_Bonuses.push_back(eBonusIDs::Mythic);
                         else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
-                            l_Bonus = eBonusIDs::Heroic;
+                            l_Bonuses.push_back(eBonusIDs::Heroic);
 
                         switch (GetSpellInfo()->Id)
                         {
                             case eSpellIDs::HeroicQuestToken:
-                                l_Bonus = eBonusIDs::Heroic;
+                                l_Bonuses.push_back(eBonusIDs::Heroic);
                                 break;
                             case eSpellIDs::MythicQuestToken:
-                                l_Bonus = eBonusIDs::Mythic;
+                                l_Bonuses.push_back(eBonusIDs::Mythic);
                                 break;
                             case eSpellIDs::NormalQuestToken:
                             default:
@@ -3335,8 +3335,11 @@ class spell_item_legs_of_iron : public SpellScriptLoader
 
                             if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
                             {
-                                if (l_Bonus)
-                                    l_NewItem->AddItemBonus(l_Bonus);
+                                /// Context must be normal, difficulty bonus is already added
+                                Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+
+                                if (!l_Bonuses.empty())
+                                    l_NewItem->AddItemBonuses(l_Bonuses);
 
                                 l_Player->SendNewItem(l_NewItem, l_Count, false, true);
                             }
@@ -3409,7 +3412,7 @@ class spell_item_chest_of_iron : public SpellScriptLoader
                     if (Item* l_Item = GetCastItem())
                     {
                         uint32 l_ItemID = 0;
-                        uint32 l_Bonus  = 0;
+                        std::vector<uint32> l_Bonuses;
 
                         switch (l_Player->getClass())
                         {
@@ -3451,17 +3454,17 @@ class spell_item_chest_of_iron : public SpellScriptLoader
                         }
 
                         if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
-                            l_Bonus = eBonusIDs::Mythic;
+                            l_Bonuses.push_back(eBonusIDs::Mythic);
                         else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
-                            l_Bonus = eBonusIDs::Heroic;
+                            l_Bonuses.push_back(eBonusIDs::Heroic);
 
                         switch (GetSpellInfo()->Id)
                         {
                             case eSpellIDs::HeroicQuestToken:
-                                l_Bonus = eBonusIDs::Heroic;
+                                l_Bonuses.push_back(eBonusIDs::Heroic);
                                 break;
                             case eSpellIDs::MythicQuestToken:
-                                l_Bonus = eBonusIDs::Mythic;
+                                l_Bonuses.push_back(eBonusIDs::Mythic);
                                 break;
                             case eSpellIDs::NormalQuestToken:
                             default:
@@ -3488,8 +3491,11 @@ class spell_item_chest_of_iron : public SpellScriptLoader
 
                             if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
                             {
-                                if (l_Bonus)
-                                    l_NewItem->AddItemBonus(l_Bonus);
+                                /// Context must be normal, difficulty bonus is already added
+                                Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+
+                                if (!l_Bonuses.empty())
+                                    l_NewItem->AddItemBonuses(l_Bonuses);
 
                                 l_Player->SendNewItem(l_NewItem, l_Count, false, true);
                             }
@@ -3562,7 +3568,7 @@ class spell_item_helm_of_iron : public SpellScriptLoader
                     if (Item* l_Item = GetCastItem())
                     {
                         uint32 l_ItemID = 0;
-                        uint32 l_Bonus  = 0;
+                        std::vector<uint32> l_Bonuses;
 
                         switch (l_Player->getClass())
                         {
@@ -3604,17 +3610,17 @@ class spell_item_helm_of_iron : public SpellScriptLoader
                         }
 
                         if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
-                            l_Bonus = eBonusIDs::Mythic;
+                            l_Bonuses.push_back(eBonusIDs::Mythic);
                         else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
-                            l_Bonus = eBonusIDs::Heroic;
+                            l_Bonuses.push_back(eBonusIDs::Heroic);
 
                         switch (GetSpellInfo()->Id)
                         {
                             case eSpellIDs::HeroicQuestToken:
-                                l_Bonus = eBonusIDs::Heroic;
+                                l_Bonuses.push_back(eBonusIDs::Heroic);
                                 break;
                             case eSpellIDs::MythicQuestToken:
-                                l_Bonus = eBonusIDs::Mythic;
+                                l_Bonuses.push_back(eBonusIDs::Mythic);
                                 break;
                             case eSpellIDs::NormalQuestToken:
                             default:
@@ -3641,8 +3647,11 @@ class spell_item_helm_of_iron : public SpellScriptLoader
 
                             if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
                             {
-                                if (l_Bonus)
-                                    l_NewItem->AddItemBonus(l_Bonus);
+                                /// Context must be normal, difficulty bonus is already added
+                                Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+
+                                if (!l_Bonuses.empty())
+                                    l_NewItem->AddItemBonuses(l_Bonuses);
 
                                 l_Player->SendNewItem(l_NewItem, l_Count, false, true);
                             }
@@ -3715,7 +3724,7 @@ class spell_item_shoulders_of_iron : public SpellScriptLoader
                     if (Item* l_Item = GetCastItem())
                     {
                         uint32 l_ItemID = 0;
-                        uint32 l_Bonus  = 0;
+                        std::vector<uint32> l_Bonuses;
 
                         switch (l_Player->getClass())
                         {
@@ -3757,17 +3766,17 @@ class spell_item_shoulders_of_iron : public SpellScriptLoader
                         }
 
                         if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
-                            l_Bonus = eBonusIDs::Mythic;
+                            l_Bonuses.push_back(eBonusIDs::Mythic);
                         else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
-                            l_Bonus = eBonusIDs::Heroic;
+                            l_Bonuses.push_back(eBonusIDs::Heroic);
 
                         switch (GetSpellInfo()->Id)
                         {
                             case eSpellIDs::HeroicQuestToken:
-                                l_Bonus = eBonusIDs::Heroic;
+                                l_Bonuses.push_back(eBonusIDs::Heroic);
                                 break;
                             case eSpellIDs::MythicQuestToken:
-                                l_Bonus = eBonusIDs::Mythic;
+                                l_Bonuses.push_back(eBonusIDs::Mythic);
                                 break;
                             case eSpellIDs::NormalQuestToken:
                             default:
@@ -3794,8 +3803,11 @@ class spell_item_shoulders_of_iron : public SpellScriptLoader
 
                             if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
                             {
-                                if (l_Bonus)
-                                    l_NewItem->AddItemBonus(l_Bonus);
+                                /// Context must be normal, difficulty bonus is already added
+                                Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+
+                                if (!l_Bonuses.empty())
+                                    l_NewItem->AddItemBonuses(l_Bonuses);
 
                                 l_Player->SendNewItem(l_NewItem, l_Count, false, true);
                             }
@@ -3868,7 +3880,7 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
                     if (Item* l_Item = GetCastItem())
                     {
                         uint32 l_ItemID = 0;
-                        uint32 l_Bonus  = 0;
+                        std::vector<uint32> l_Bonuses;
 
                         switch (l_Player->getClass())
                         {
@@ -3910,17 +3922,17 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
                         }
 
                         if (l_Item->HasItemBonus(eBonusIDs::TokenMythic))
-                            l_Bonus = eBonusIDs::Mythic;
+                            l_Bonuses.push_back(eBonusIDs::Mythic);
                         else if (l_Item->HasItemBonus(eBonusIDs::TokenHeroic))
-                            l_Bonus = eBonusIDs::Heroic;
+                            l_Bonuses.push_back(eBonusIDs::Heroic);
 
                         switch (GetSpellInfo()->Id)
                         {
                             case eSpellIDs::HeroicQuestToken:
-                                l_Bonus = eBonusIDs::Heroic;
+                                l_Bonuses.push_back(eBonusIDs::Heroic);
                                 break;
                             case eSpellIDs::MythicQuestToken:
-                                l_Bonus = eBonusIDs::Mythic;
+                                l_Bonuses.push_back(eBonusIDs::Mythic);
                                 break;
                             case eSpellIDs::NormalQuestToken:
                             default:
@@ -3947,8 +3959,11 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
 
                             if (Item* l_NewItem = l_Player->StoreNewItem(l_Dest, l_ItemID, true))
                             {
-                                if (l_Bonus)
-                                    l_NewItem->AddItemBonus(l_Bonus);
+                                /// Context must be normal, difficulty bonus is already added
+                                Item::GenerateItemBonus(l_ItemID, ItemContext::RaidNormal, l_Bonuses);
+
+                                if (!l_Bonuses.empty())
+                                    l_NewItem->AddItemBonuses(l_Bonuses);
 
                                 l_Player->SendNewItem(l_NewItem, l_Count, false, true);
                             }

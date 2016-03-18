@@ -500,7 +500,7 @@ SpellValue::SpellValue(SpellInfo const* proto)
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID, bool skipCheck) :
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
 m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
-, m_spellValue(new SpellValue(m_spellInfo))
+, m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_caster))
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_skipCheck = skipCheck;
@@ -3209,7 +3209,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
             // TODO: this cause soul transfer bugged
-            if (m_spellInfo->Speed > 0.0f && unit->IsPlayer() && !m_spellInfo->IsPositive())
+            /// Handle custom flag SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES, some spells are negative but can be casted on allies
+            if (m_spellInfo->Speed > 0.0f && unit->IsPlayer() && !m_spellInfo->IsPositive() && !(m_spellInfo->AttributesCu & SpellCustomAttributes::SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES))
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -6166,11 +6167,11 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->IsPlayer() && VMAP::VMapFactory::createOrGetVMapManager()->isLineOfSightCalcEnabled())
     {
         if (m_spellInfo->Attributes & SPELL_ATTR0_OUTDOORS_ONLY &&
-                !m_caster->GetMap()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
+            !m_caster->IsOutdoors())
             return SPELL_FAILED_ONLY_OUTDOORS;
 
         if (m_spellInfo->Attributes & SPELL_ATTR0_INDOORS_ONLY &&
-                m_caster->GetMap()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
+                m_caster->IsOutdoors())
             return SPELL_FAILED_ONLY_INDOORS;
     }
 
@@ -6614,6 +6615,24 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (Unit* target = m_targets.GetUnitTarget())
                         if (!target->isAlive())
                             return SPELL_FAILED_BAD_TARGETS;
+
+                Unit* target = m_targets.GetUnitTarget();
+
+                if (!target)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                Position pos;
+                target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
+
+                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+
+                bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+                if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
+                    return SPELL_FAILED_OUT_OF_RANGE; 
+                else if (!result)
+                    return SPELL_FAILED_NOPATH;
+
                 break;
             }
             case SPELL_EFFECT_SKINNING:
