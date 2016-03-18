@@ -7654,6 +7654,10 @@ void Player::RepopAtGraveyard()
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
         l_ClosestGrave = bg->GetClosestGraveYard(this);
+    else if (IsInGarrison())
+    {
+        l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+    }
     // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
     else if (GetMap()->IsDungeon())
     {
