@@ -776,7 +776,7 @@ class GridObject
             return m_GridRef != nullptr;
         }
 
-        void AddToGrid(std::vector<T*>& m)
+        void AddToGrid(GridVector<T*>& m)
         {
             if (IsInGrid())
                 return;
@@ -797,16 +797,33 @@ class GridObject
             }
 
             /// Local reference for easier access to operator []
-            std::vector<T*>& l_GirdRef = *m_GridRef;
+            GridVector<T*>& l_GirdRef = *m_GridRef;
 
-            /// Update grid index before the swap
-            uint32 l_End = l_GirdRef.size() - 1;
-            l_GirdRef[l_End]->m_Idx = m_Idx;
+            if (!m_GridRef->m_Iterate || (m_GridRef->m_Idx >= m_GridRef->size() - 1 || m_Idx > m_GridRef->m_Idx))
+            {
+                /// Update grid index before the swap
+                uint32 l_End = l_GirdRef.size() - 1;
+                l_GirdRef[l_End]->m_Idx = m_Idx;
 
-            /// Swap the element we want to erase with the last one
-            /// And then delete the last one, to avoid re-order all the vector
-            std::swap(l_GirdRef[l_End], l_GirdRef[m_Idx]);
-            m_GridRef->pop_back();
+                /// Swap the element we want to erase with the last one
+                /// And then delete the last one, to avoid re-order all the vector
+                std::swap(l_GirdRef[l_End], l_GirdRef[m_Idx]);
+                m_GridRef->pop_back();
+            }
+            else
+            {
+                auto& l_Current = l_GirdRef[m_GridRef->m_Idx];
+                auto& l_New     = l_GirdRef[m_Idx];
+
+                l_New = std::move(l_Current);
+                l_New->m_Idx = m_Idx;
+
+                l_Current = std::move(m_GridRef->back());
+                l_Current->m_Idx = m_GridRef->m_Idx;
+
+                m_GridRef->m_Idx--;
+                m_GridRef->pop_back();
+            }
 
             /// Clear reference & index
             m_GridRef = nullptr;
@@ -816,7 +833,7 @@ class GridObject
         uint32 m_Idx;
 
     private:
-        std::vector<T*>* m_GridRef;
+        GridVector<T*>* m_GridRef;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, uint8 ARRAY_SIZE>

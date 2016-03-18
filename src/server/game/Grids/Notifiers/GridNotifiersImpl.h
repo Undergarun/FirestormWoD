@@ -28,9 +28,9 @@
 #include "SpellAuras.h"
 
 template<class T>
-inline void JadeCore::VisibleNotifier::Visit(std::vector<T*> &m)
+inline void JadeCore::VisibleNotifier::Visit(GridVector<T*> &m)
 {
-    for (typename std::vector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (typename GridVector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         vis_guids.erase((*iter)->GetGUID());
         i_player.UpdateVisibilityOf(*iter, i_data, i_visibleNow);
@@ -39,16 +39,33 @@ inline void JadeCore::VisibleNotifier::Visit(std::vector<T*> &m)
 
 inline void JadeCore::ObjectUpdater::Visit(CreatureMapType &m)
 {
-    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if ((*iter)->IsInWorld())
-            (*iter)->Update(i_timeDiff);
+    m.m_Iterate = true;
+
+    uint32 l_Size = m.size();
+
+    for (m.m_Idx = 0; m.m_Idx < std::min(l_Size, (uint32)m.size()); m.m_Idx++)
+    {
+        if (m[m.m_Idx]->IsInWorld())
+            m[m.m_Idx]->Update(i_timeDiff);
+    }
+
+    m.m_Iterate = false;
+    m.m_Idx     = 0;
 }
 
 inline void JadeCore::ObjectUpdater::Visit(GameObjectMapType &m)
 {
-    for (GameObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if ((*iter)->IsInWorld() && !(*iter)->IsTransport())
-            (*iter)->Update(i_timeDiff);
+    m.m_Iterate = true;
+    uint32 l_Size = m.size();
+
+    for (m.m_Idx = 0; m.m_Idx < l_Size; m.m_Idx++)
+    {
+        if (m[m.m_Idx]->IsInWorld() && !m[m.m_Idx]->IsTransport())
+            m[m.m_Idx]->Update(i_timeDiff);
+    }
+
+    m.m_Iterate = false;
+    m.m_Idx     = 0;
 }
 
 // SEARCHERS & LIST SEARCHERS & WORKERS
