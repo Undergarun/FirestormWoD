@@ -771,6 +771,12 @@ class GridObject
             m_Idx     = 0;
         }
 
+        ~GridObject()
+        {
+            if (IsInGrid())
+                RemoveFromGrid();
+        }
+
         bool IsInGrid() const
         {
             return m_GridRef != nullptr;

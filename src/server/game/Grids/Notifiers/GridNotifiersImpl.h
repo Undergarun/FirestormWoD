@@ -41,9 +41,7 @@ inline void JadeCore::ObjectUpdater::Visit(CreatureMapType &m)
 {
     m.m_Iterate = true;
 
-    uint32 l_Size = m.size();
-
-    for (m.m_Idx = 0; m.m_Idx < std::min(l_Size, (uint32)m.size()); m.m_Idx++)
+    for (m.m_Idx = 0; m.m_Idx < m.size(); m.m_Idx++)
     {
         if (m[m.m_Idx]->IsInWorld())
             m[m.m_Idx]->Update(i_timeDiff);
