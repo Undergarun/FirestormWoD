@@ -501,13 +501,12 @@ class boss_kromog : public CreatureScript
                     {
                         float l_BaseX = me->m_positionX;
                         float l_BaseY = me->m_positionY;
-                        float l_BaseO = me->m_orientation - (M_PI / 2.0f);
-                        float l_Step  = M_PI / (float)eFoundryDatas::MaxReverberationSpawns;
+                        float l_BaseO = me->m_orientation;
 
                         for (uint8 l_I = 0; l_I < eFoundryDatas::MaxReverberationSpawns; ++l_I)
                         {
-                            float l_Range       = frand(15.0f, 25.0f);
-                            float l_Orientation = l_BaseO + (l_Step * (float)l_I);
+                            float l_Range       = frand(25.0f, 35.0f);
+                            float l_Orientation = l_BaseO + frand(-(M_PI / 2.0f), M_PI / 2.0f);
 
                             float l_X = l_BaseX + l_Range * cos(l_Orientation);
                             float l_Y = l_BaseY + l_Range * sin(l_Orientation);
