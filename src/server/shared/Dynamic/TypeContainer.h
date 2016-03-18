@@ -30,6 +30,8 @@
 #include "Dynamic/TypeList.h"
 #include "GridRefManager.h"
 
+template<class T> class GridVector;
+
 /*
  * @class ContainerMapList is a mulit-type container for map elements
  * By itself its meaningless but collaborate along with TypeContainers,
@@ -38,7 +40,7 @@
 template<class OBJECT> struct ContainerMapList
 {
     //std::map<OBJECT_HANDLE, OBJECT *> _element;
-    GridRefManager<OBJECT> _element;
+    GridVector<OBJECT*> _element;
 };
 
 template<> struct ContainerMapList<TypeNull>                /* nothing is in type null */
