@@ -188,7 +188,7 @@ namespace MS { namespace Garrison
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
-            bool HasBuildingType(BuildingType::Type p_BuildingType) const;
+            bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
             GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
             /// Get Level of the building
