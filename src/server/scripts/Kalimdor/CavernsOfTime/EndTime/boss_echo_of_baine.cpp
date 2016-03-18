@@ -275,7 +275,7 @@ class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
-			{
+            {
                 if (!GetCaster() || !GetHitUnit())
                     return;
 

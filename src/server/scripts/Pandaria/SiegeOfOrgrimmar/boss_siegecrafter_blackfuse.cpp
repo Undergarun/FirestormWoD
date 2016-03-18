@@ -58,50 +58,50 @@ enum eSays
 
 class boss_siegecrafter_blackfuse : public CreatureScript
 {
-	public:
-		boss_siegecrafter_blackfuse() : CreatureScript("boss_siegecrafter_blackfuse") { }
+    public:
+        boss_siegecrafter_blackfuse() : CreatureScript("boss_siegecrafter_blackfuse") { }
 
-		struct boss_siegecrafter_blackfuseAI : public BossAI
-		{
-			boss_siegecrafter_blackfuseAI(Creature* creature) : BossAI(creature, DATA_SIEGECRAFTER_BLACKFUSE)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
-			
-			EventMap events;
-			InstanceScript* pInstance;
-			
-			void Reset()
-			{
-				Reset();
-				
-				events.Reset();
-				
-				summons.DespawnAll();
-				
-				if (pInstance)
+        struct boss_siegecrafter_blackfuseAI : public BossAI
+        {
+            boss_siegecrafter_blackfuseAI(Creature* creature) : BossAI(creature, DATA_SIEGECRAFTER_BLACKFUSE)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
+            
+            EventMap events;
+            InstanceScript* pInstance;
+            
+            void Reset()
+            {
+                Reset();
+                
+                events.Reset();
+                
+                summons.DespawnAll();
+                
+                if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-			}
-			
-			void JustReachedHome()
+            }
+            
+            void JustReachedHome()
             {
                 _JustReachedHome();
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_SIEGECRAFTER_BLACKFUSE, FAIL);
             }
-			
-			void EnterCombat(Unit* attacker)
+            
+            void EnterCombat(Unit* attacker)
             {
-				// @TODO: Set in combat for other protectors
+                // @TODO: Set in combat for other protectors
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                     pInstance->SetBossState(DATA_SIEGECRAFTER_BLACKFUSE, IN_PROGRESS);
                 }
             }
-			
-			void JustSummoned(Creature* summon)
+            
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -110,12 +110,12 @@ class boss_siegecrafter_blackfuse : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
-			void KilledUnit(Unit* who)
+            
+            void KilledUnit(Unit* who)
             {
             }
-			
-			void JustDied(Unit* killer)
+            
+            void JustDied(Unit* killer)
             {
                 _JustDied();
 
@@ -125,8 +125,8 @@ class boss_siegecrafter_blackfuse : public CreatureScript
                     pInstance->SetBossState(DATA_SIEGECRAFTER_BLACKFUSE, DONE);
                 }
             }
-			
-			void UpdateAI(const uint32 diff)
+            
+            void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -135,50 +135,50 @@ class boss_siegecrafter_blackfuse : public CreatureScript
                     return;
 
                 events.Update(diff);
-			}
-		};
+            }
+        };
 
         CreatureAI* GetAI(Creature* pCreature) const
-		{
-			return new boss_siegecrafter_blackfuseAI(pCreature);
-		}
+        {
+            return new boss_siegecrafter_blackfuseAI(pCreature);
+        }
 };
 
 class mob_automated_shredder : public CreatureScript
 {
-	public:
-		mob_automated_shredder() : CreatureScript("mob_automated_shredder") { }
+    public:
+        mob_automated_shredder() : CreatureScript("mob_automated_shredder") { }
 
-		struct mob_automated_shredderAI : public ScriptedAI
-		{
-			mob_automated_shredderAI(Creature* creature) : ScriptedAI(creature)
-			{
-				pInstance = creature->GetInstanceScript();
-			}
+        struct mob_automated_shredderAI : public ScriptedAI
+        {
+            mob_automated_shredderAI(Creature* creature) : ScriptedAI(creature)
+            {
+                pInstance = creature->GetInstanceScript();
+            }
 
-			InstanceScript* pInstance;
-			EventMap events;
+            InstanceScript* pInstance;
+            EventMap events;
 
-			void Reset()
-			{
-				events.Reset();
-			}
+            void Reset()
+            {
+                events.Reset();
+            }
 
-			void UpdateAI(const uint32 diff)
-			{
-				if (!UpdateVictim())
-					return;
-			}
-		};
-		
-		CreatureAI* GetAI(Creature* creature) const
-		{
-			return new mob_automated_shredderAI(creature);
-		}
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+            }
+        };
+        
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_automated_shredderAI(creature);
+        }
 };
 
 void AddSC_siegecrafter_blackfuse()
 {
-	new boss_siegecrafter_blackfuse();
+    new boss_siegecrafter_blackfuse();
     new mob_automated_shredder();
 };

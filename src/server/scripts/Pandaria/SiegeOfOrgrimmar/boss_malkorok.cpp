@@ -62,22 +62,22 @@ class boss_malkorok : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -85,7 +85,7 @@ class boss_malkorok : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_MALKOROK, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -95,7 +95,7 @@ class boss_malkorok : public CreatureScript
                     pInstance->SetBossState(DATA_MALKOROK, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -105,11 +105,11 @@ class boss_malkorok : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -120,7 +120,7 @@ class boss_malkorok : public CreatureScript
                     pInstance->SetBossState(DATA_MALKOROK, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
