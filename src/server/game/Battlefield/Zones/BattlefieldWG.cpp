@@ -544,7 +544,7 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
         case NPC_TAUNKA_SPIRIT_GUIDE:
         {
             TeamId teamId = (creature->GetEntry() == NPC_DWARVEN_SPIRIT_GUIDE ? TEAM_ALLIANCE : TEAM_HORDE);
-            uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId());
+            uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId(true));
             if (m_GraveyardList[graveyardId])
                 m_GraveyardList[graveyardId]->SetSpirit(creature, teamId);
             break;

@@ -744,7 +744,7 @@ enum eUnitFlags3
 {
     UNIT_FLAG3_UNK1                         = 0x00000001,
     UNIT_FLAG3_UNK2                         = 0x00000002,
-    UNIT_FLAG3_UNK3                         = 0x00000004,
+    UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT   = 0x00000004,
     UNIT_FLAG3_UNK4                         = 0x00000008,
     UNIT_FLAG3_UNK5                         = 0x00000010,
     UNIT_FLAG3_UNK6                         = 0x00000020,
@@ -2718,6 +2718,19 @@ class Unit : public WorldObject
         uint64 m_PersonnalChauffeur;
 
         void SetRooted(bool apply);
+
+        Position m_LastAreaPosition;
+        Position m_LastZonePosition;
+        uint32 m_LastAreaId;
+        uint32 m_LastZoneId;
+        uint32 GetZoneId(bool p_ForceRecalc = false) const;
+        uint32 GetAreaId(bool p_ForceRecalc = false) const;
+        void GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRecalc = false) const;
+
+        Position m_LastNotifyPosition;
+        Position m_LastOutdoorPosition;
+        bool m_LastOutdoorStatus;
+        bool IsOutdoors();
 
     public:
         uint64 _petBattleId;

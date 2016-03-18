@@ -166,16 +166,23 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_KAGRAZ, 113924, 0, 1, 1, 1, 1),
 (@REF_KAGRAZ, 113925, 0, 1, 1, 1, 1),
 (@REF_KAGRAZ, 120077, 0, 1, 1, 1, 1),
-(@REF_KAGRAZ, 119193, 0, 1, 1, 1, 1),
-(@REF_KAGRAZ, 119305, 0, 1, 1, 1, 1),
-(@REF_KAGRAZ, 119315, 0, 1, 1, 1, 1),
-(@REF_KAGRAZ, 119318, 0, 1, 1, 1, 1);
+(@REF_KAGRAZ, 119193, 0, 1, 1, 1, 1);
+
+# Set tokens
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KAGRAZ + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KAGRAZ + 1, 119305, 0, 14, 1, 1, 1),
+(@REF_KAGRAZ + 1, 119315, 0, 14, 1, 1, 1),
+(@REF_KAGRAZ + 1, 119318, 0, 14, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_KAGRAZ WHERE `entry`= @REF_KAGRAZ;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KAGRAZ;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_KAGRAZ, 1, 100, 1, 0, -@REF_KAGRAZ, 6);
+(@REF_KAGRAZ, 1, 100, 1, 0, -@REF_KAGRAZ, 6),
+(@REF_KAGRAZ, 2, 100, 2, 0, -(@REF_KAGRAZ + 1), 2),
+(@REF_KAGRAZ, 3, 100, 4, 0, -(@REF_KAGRAZ + 1), 1),
+(@REF_KAGRAZ, 4, 100, 8, 0, -(@REF_KAGRAZ + 1), 1);
 
 DELETE FROM creature_groupsizestats WHERE entry = @REF_KAGRAZ;
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES

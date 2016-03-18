@@ -3209,7 +3209,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
             // TODO: this cause soul transfer bugged
-            if (m_spellInfo->Speed > 0.0f && unit->IsPlayer() && !m_spellInfo->IsPositive())
+            /// Handle custom flag SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES, some spells are negative but can be casted on allies
+            if (m_spellInfo->Speed > 0.0f && unit->IsPlayer() && !m_spellInfo->IsPositive() && !(m_spellInfo->AttributesCu & SpellCustomAttributes::SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES))
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -6166,11 +6167,11 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->IsPlayer() && VMAP::VMapFactory::createOrGetVMapManager()->isLineOfSightCalcEnabled())
     {
         if (m_spellInfo->Attributes & SPELL_ATTR0_OUTDOORS_ONLY &&
-                !m_caster->GetMap()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
+            !m_caster->IsOutdoors())
             return SPELL_FAILED_ONLY_OUTDOORS;
 
         if (m_spellInfo->Attributes & SPELL_ATTR0_INDOORS_ONLY &&
-                m_caster->GetMap()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
+                m_caster->IsOutdoors())
             return SPELL_FAILED_ONLY_INDOORS;
     }
 
@@ -6704,7 +6705,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // get the lock entry
                 uint32 lockId = 0;
-                bool l_OverridePlayerCondition = false;
+                bool l_ResultOverridedByPlayerCondition = false;
+                bool l_PlayerConditionFailed = false;
                 if (GameObject* go = m_targets.GetGOTarget())
                 {
                     lockId = go->GetGOInfo()->GetLockId();
@@ -6712,8 +6714,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_BAD_TARGETS;
 
                     GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(go->GetEntry());
-                    if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
-                        l_OverridePlayerCondition = true;
+
+                    if (l_Template && l_Template->type == GAMEOBJECT_TYPE_CHEST && m_caster->IsPlayer())
+                    {
+                        uint32 l_PlayerConditionID = l_Template->chest.conditionID1;
+                        bool l_HasPlayerCondition = l_PlayerConditionID != 0 && (sPlayerConditionStore.LookupEntry(l_Template->chest.conditionID1) != nullptr || sScriptMgr->HasPlayerConditionScript(l_Template->chest.conditionID1));
+
+                        if (l_HasPlayerCondition && m_caster->ToPlayer()->EvalPlayerCondition(l_PlayerConditionID).first)
+                            l_ResultOverridedByPlayerCondition = true;
+                        else if (l_HasPlayerCondition)
+                            l_PlayerConditionFailed = true;
+                    }
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
                     lockId = itm->GetTemplate()->LockID;
@@ -6722,12 +6733,15 @@ SpellCastResult Spell::CheckCast(bool strict)
                 int32 reqSkillValue = 0;
                 int32 skillValue = 0;
 
+                if (l_PlayerConditionFailed)
+                    return SPELL_FAILED_ERROR;
+
                 // check lock compatibility
                 SpellCastResult res = CanOpenLock(i, lockId, skillId, reqSkillValue, skillValue);
-                if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
+                if (res != SPELL_CAST_OK && !l_ResultOverridedByPlayerCondition)
                     return res;
 
-                if (l_OverridePlayerCondition)
+                if (l_ResultOverridedByPlayerCondition)
                     res = SPELL_CAST_OK;
 
                 // chance for fail at orange mining/herb/LockPicking gathering attempt

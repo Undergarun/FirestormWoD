@@ -1370,10 +1370,10 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
         case 49575: ///< Death Grip
         case 92832: ///< Leap of Faith
         case 118283: ///< Ursol's Vortex
-            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
+            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_spellInfo->Id);
             break;
         case 49376: ///< Wild Charge
-            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
             break;
         case 156220: ///< Tactical Retreat
         case 156883: ///< Tactical Retreat (Other)
@@ -2526,8 +2526,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     uint32 lockId = 0;
     uint64 guid = 0;
-    bool l_OverridePlayerCondition = false;
-
+    bool l_ResultOverridedByPlayerCondition = false;
+    bool l_PlayerConditionFailed = false;
     // Get lockId
     if (gameObjTarget)
     {
@@ -2576,8 +2576,17 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         guid = gameObjTarget->GetGUID();
 
         GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(gameObjTarget->GetEntry());
-        if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
-            l_OverridePlayerCondition = true;
+
+        if (l_Template && l_Template->type == GAMEOBJECT_TYPE_CHEST && m_caster->IsPlayer())
+        {
+            uint32 l_PlayerConditionID = l_Template->chest.conditionID1;
+            bool l_HasPlayerCondition = l_PlayerConditionID != 0 && (sPlayerConditionStore.LookupEntry(l_Template->chest.conditionID1) != nullptr || sScriptMgr->HasPlayerConditionScript(l_Template->chest.conditionID1));
+
+            if (l_HasPlayerCondition && m_caster->ToPlayer()->EvalPlayerCondition(l_PlayerConditionID).first)
+                l_ResultOverridedByPlayerCondition = true;
+            else if (l_HasPlayerCondition)
+                l_PlayerConditionFailed = true;
+        }
     }
     else if (itemTarget)
     {
@@ -2591,8 +2600,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 reqSkillValue = 0;
     int32 skillValue;
 
+    if (l_PlayerConditionFailed)
+        return;
+
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-    if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
+    if (res != SPELL_CAST_OK && !l_ResultOverridedByPlayerCondition)
     {
         SendCastResult(res);
         return;
@@ -7730,7 +7742,10 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
-    m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
+    if (Unit* l_Target = m_targets.GetUnitTarget())
+        m_caster->GetMotionMaster()->CustomJump(l_Target, speedXY, speedZ, m_spellInfo->Id);
+    else
+        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ, m_spellInfo->Id);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)

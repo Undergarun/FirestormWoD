@@ -932,6 +932,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_StoreDeliverySave = false;
 
     m_InterRealmPlayerState = InterRealmPlayerState::None;
+    m_BeaconOfFaithTargetGUID = 0;
 }
 
 Player::~Player()
@@ -2181,7 +2182,7 @@ void Player::Update(uint32 p_time)
         if (p_time >= m_zoneUpdateTimer)
         {
             uint32 newzone, newarea;
-            GetZoneAndAreaId(newzone, newarea);
+            GetZoneAndAreaId(newzone, newarea, true);
 
             if (m_zoneUpdateId != newzone)
                 UpdateZone(newzone, newarea);                // also update area
@@ -3122,7 +3123,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
 
     // Update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 l_NewZone, l_NewArea;
-    GetZoneAndAreaId(l_NewZone, l_NewArea);
+    GetZoneAndAreaId(l_NewZone, l_NewArea, true);
     UpdateZone(l_NewZone, l_NewArea);
 }
 
@@ -5882,6 +5883,13 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (spell_id == 46917 && m_canTitanGrip)
         SetCanTitanGrip(false);
+    if (spell_id == 156910 && GetBeaconOfFaithTarget()) ///< Aura should be remove on Ally to not benefit of it on changing spec
+    {
+        Unit* l_Target = ObjectAccessor::FindUnit(GetBeaconOfFaithTarget());
+        if (l_Target != nullptr)
+            l_Target->RemoveAura(156910, this->GetGUID());
+    }
+
     if (m_canDualWield)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
@@ -7275,7 +7283,7 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
     /// Trigger update zone for alive state zone updates
     uint32 l_NewZone, l_NewArea;
 
-    GetZoneAndAreaId(l_NewZone, l_NewArea);
+    GetZoneAndAreaId(l_NewZone, l_NewArea, true);
     UpdateZone(l_NewZone, l_NewArea);
 
     sOutdoorPvPMgr->HandlePlayerResurrects(this, l_NewZone);
@@ -7653,6 +7661,10 @@ void Player::RepopAtGraveyard()
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
         l_ClosestGrave = bg->GetClosestGraveYard(this);
+    else if (IsInGarrison())
+    {
+        l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+    }
     // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
     else if (GetMap()->IsDungeon())
     {
@@ -21955,7 +21967,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
     if (result)
     {
-        uint32 zoneId = GetZoneId();
+        uint32 zoneId = GetZoneId(true);
 
         std::map<uint32, Bag*> bagMap;                                  // fast guid lookup for bags
         std::map<uint32, Item*> invalidBagMap;                          // fast guid lookup for bags
@@ -23354,7 +23366,7 @@ void Player::SaveToDB(bool create /*=false*/, std::shared_ptr<MS::Utilities::Cal
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
-        stmt->setUInt16(index++, GetZoneId());
+        stmt->setUInt16(index++, GetZoneId(true));
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
 
         ss.str("");
@@ -23498,7 +23510,7 @@ void Player::SaveToDB(bool create /*=false*/, std::shared_ptr<MS::Utilities::Cal
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
-        stmt->setUInt16(index++, GetZoneId());
+        stmt->setUInt16(index++, GetZoneId(true));
         stmt->setUInt32(index++, uint32(m_deathExpireTime));
 
         ss.str("");
@@ -27621,7 +27633,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     // update zone
     uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone, newarea);
+    GetZoneAndAreaId(newzone, newarea, true);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
     ResetTimeSync();
@@ -34838,4 +34850,34 @@ uint32 Player::GetRandomWeaponFromPrimaryBag(ItemTemplate const* p_Transmogrifie
     }
 
     return 0;
+}
+
+uint32 Player::GetZoneId(bool p_ForceRecalc) const
+{
+    if (p_ForceRecalc)
+        *(const_cast<uint32*>(&m_LastZoneId)) = WorldObject::GetZoneId();
+
+    return m_LastZoneId;
+}
+
+uint32 Player::GetAreaId(bool p_ForceRecalc) const
+{
+    if (p_ForceRecalc)
+        *(const_cast<uint32*>(&m_LastAreaId)) = WorldObject::GetAreaId();
+
+    return m_LastAreaId;
+}
+
+void Player::GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRecalc) const
+{
+    if (p_ForceRecalc)
+    {
+        WorldObject::GetZoneAndAreaId(p_ZoneId, p_AreaId);
+        *(const_cast<uint32*>(&m_LastZoneId)) = p_ZoneId;
+        *(const_cast<uint32*>(&m_LastAreaId)) = p_AreaId;
+        return;
+    }
+
+    p_ZoneId = m_LastZoneId;
+    p_AreaId = m_LastAreaId;
 }

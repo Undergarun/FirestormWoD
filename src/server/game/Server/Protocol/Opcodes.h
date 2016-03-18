@@ -1521,7 +1521,7 @@ enum Opcodes
     CMSG_GUILD_REPLACE_GUILD_MASTER                = 0x08D5, ///< 6.2.3 20726
     CMSG_GUILD_CHANGE_NAME_REQUEST                 = 0x0000, ///<  (unused)
     CMSG_GUILD_PERMISSIONS_QUERY                   = 0x018D, ///< 6.2.3 20726
-    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x088E, ///< 6.2.3 20726
+    CMSG_GUILD_EVENT_LOG_QUERY                     = 0x0896, ///< 6.2.3 20726
     CMSG_GUILD_NEWS_UPDATE_STICKY                  = 0x0C8A, ///< 6.2.3 20726
     CMSG_GUILD_QUERY_NEWS                          = 0x09C6, ///< 6.2.3 20726
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE            = 0x0000, ///< (unused)

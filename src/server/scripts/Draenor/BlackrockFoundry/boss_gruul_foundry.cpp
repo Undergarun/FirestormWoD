@@ -291,6 +291,7 @@ class boss_gruul_foundry : public CreatureScript
                     me->AttackStop();
 
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                     m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventOverheadSmash, 2 * TimeConstants::IN_MILLISECONDS);
                 }
@@ -302,9 +303,7 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     case eSpells::InfernoSlice:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::InfernoStrike, true);
-
+                        DoCastVictim(eSpells::InfernoStrike, true);
                         break;
                     }
                     case eSpells::OverheadSmash:
@@ -313,6 +312,7 @@ class boss_gruul_foundry : public CreatureScript
                         {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                             AddTimedDelayedOperation(50, [this]() -> void
                             {
@@ -377,9 +377,11 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     case eCosmeticEvents::CosmeticEventOverheadSmash:
                     {
-                        float l_O = frand(0, 2 * M_PI);
+                        me->SetFacingTo(frand(0, 2 * M_PI));
 
-                        me->SetFacingTo(l_O);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                         AddTimedDelayedOperation(50, [this]() -> void
                         {
@@ -398,7 +400,7 @@ class boss_gruul_foundry : public CreatureScript
                         me->CastSpell(me, eSpells::RageRegenerationAura, true);
 
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
+                        me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
                         me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         if (Spell* l_CurrentSpell = me->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL))
@@ -494,12 +496,11 @@ class boss_gruul_foundry : public CreatureScript
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
-                            float l_O = me->GetAngle(l_Target);
-
-                            me->SetFacingTo(l_O);
+                            me->SetFacingTo(me->GetAngle(l_Target));
 
                             me->SetReactState(ReactStates::REACT_PASSIVE);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                             AddTimedDelayedOperation(50, [this]() -> void
                             {

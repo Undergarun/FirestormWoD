@@ -149,7 +149,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         case SPELLFAMILY_WARLOCK:
         {
             /// Chaos Wave -- 124915, slow effect
-            if (spellproto->Id == 124915)
+            if (spellproto->SpellFamilyFlags[0] & 0x201000)
                 return DIMINISHING_NONE;
             // Mortal Coil -- 6789
             if (spellproto->SpellFamilyFlags[0] & 0x80000)
@@ -328,6 +328,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Frost Shock (with Frozen Power) -- 63685, no flags (6918)
             if (spellproto->SpellIconID == 193 && spellproto->SpellVisual[0] == 39876)
                 return DIMINISHING_ROOT;
+            /// Earthquake -- 77505
+            if (spellproto->Id == 77505)
+                return DIMINISHING_STUN;
+
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -3508,6 +3512,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
                 break;
+            case 159558: ///< Bomb (Furnace Engineer)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES;
+                break;
             case 155201: ///< Electrocution (Furnace Engineer)
                 spellInfo->Effects[EFFECT_0].ChainTarget = 2;
                 break;
@@ -3606,6 +3613,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 154938: ///< Molten Torrent (AoE Damage - 154938)
+            case 162349: ///< Fists of Stone (Kromog)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
@@ -5382,6 +5390,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 108212: ///< Burst of Speed
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+                break;
+            case 156297: ///< Acid Torrent
+                spellInfo->AttributesEx |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 break;
             case 31224: ///< Cloak of Shadows
                 spellInfo->Effects[0].BasePoints = -200;

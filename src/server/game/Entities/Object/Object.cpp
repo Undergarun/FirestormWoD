@@ -329,9 +329,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     const Unit          * l_Unit            = ToUnit();
     const GameObject    * l_GameObject      = ToGameObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
+    const WorldObject   * l_WorldObject     = isType(TYPEMASK_ITEM) ? nullptr : (const WorldObject*)this;
 
     uint32 l_FrameCount = l_GameObject && l_GameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT ? l_GameObject->GetGOValue()->Transport.StopFrames->size() : 0;
-    const WorldObject   * l_WorldObject = (const WorldObject*)this;
 
     /// Normalize movement to avoid client crash
     if (l_Unit)
@@ -343,7 +343,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
 
-    if (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId())
+    if (l_WorldObject && (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId()))
         p_Flags |= UPDATEFLAG_HAS_ANIMKITS_CREATE;
 
     p_Data->WriteBit(p_Flags & UPDATEFLAG_NO_BIRTH_ANIM);           ///< No birth animation
@@ -1777,17 +1777,17 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
-uint32 WorldObject::GetZoneId() const
+uint32 WorldObject::GetZoneId(bool /*forceRecalc*/) const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
 }
 
-uint32 WorldObject::GetAreaId() const
+uint32 WorldObject::GetAreaId(bool /*forceRecalc*/) const
 {
     return GetBaseMap()->GetAreaId(m_positionX, m_positionY, m_positionZ);
 }
 
-void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
+void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool /*forceRecalc*/) const
 {
     GetBaseMap()->GetZoneAndAreaId(zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
@@ -2992,14 +2992,14 @@ void WorldObject::SetZoneScript()
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
         {
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId(true)))
                 m_zoneScript = bf;
             else
             {
-                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId(true)))
                     m_zoneScript = bf;
                 else
-                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId(true));
             }
         }
     }
@@ -3890,7 +3890,7 @@ struct WorldObjectChangeAccumulator
         Player* source = NULL;
         for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = *iter;
 
             BuildPacket(source);
 
@@ -3908,7 +3908,7 @@ struct WorldObjectChangeAccumulator
         Creature* source = NULL;
         for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = *iter;
             if (!source->GetSharedVisionList().empty())
             {
                 SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
@@ -3923,7 +3923,7 @@ struct WorldObjectChangeAccumulator
         DynamicObject* source = NULL;
         for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-            source = iter->getSource();
+            source = *iter;
             uint64 guid = source->GetCasterGUID();
 
             if (IS_PLAYER_GUID(guid))
@@ -3946,7 +3946,7 @@ struct WorldObjectChangeAccumulator
         }
     }
 
-    template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
+    template<class SKIP> void Visit(std::vector<SKIP*> &) {}
 };
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
