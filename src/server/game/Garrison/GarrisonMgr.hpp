@@ -142,6 +142,8 @@ namespace MS { namespace Garrison
 
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
+            /// Assign a follower to a building
+            void AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID);
             /// Change follower activation state
             void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
             /// Get followers
@@ -231,6 +233,8 @@ namespace MS { namespace Garrison
             uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
             /// Check if the players has the right mount
             bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
+            /// Checks training mounts auras
+            bool IsTrainingMount();
 
             /// Tavern System
             void AddGarrisonTavernData(uint32 p_Data);

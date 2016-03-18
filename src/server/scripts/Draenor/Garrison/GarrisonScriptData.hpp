@@ -33,13 +33,13 @@ namespace MS { namespace Garrison
 
     enum GarrisonPhases
     {
-        PhaseMagePortalFrostfireRidge = 0x00000008,
-        PhaseMagePortalSpiresOfArak   = 0x00000010,
-        PhaseMagePortalTalador        = 0x00000020,
-        PhaseMagePortalNagrand        = 0x00000040,
-        PhaseMagePortalShadowmoon     = 0x00000080,
-        PhaseMagePortalGorgrond       = 0x00000100,
-        PhaseLostInTransitionQuest    = 0x00000200
+        PhaseMagePortalFrostfireRidge = 0x00000010,
+        PhaseMagePortalSpiresOfArak   = 0x00000020,
+        PhaseMagePortalTalador        = 0x00000040,
+        PhaseMagePortalNagrand        = 0x00000080,
+        PhaseMagePortalShadowmoon     = 0x00000100,
+        PhaseMagePortalGorgrond       = 0x00000200,
+        PhaseLostInTransitionQuest    = 0x00000400
     };
 
     /// Instance data common IDs
@@ -100,6 +100,7 @@ namespace MS { namespace Garrison
             Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
             Alliance_YourFirstEngineeringWorkOrder      = 36646,
             Alliance_YourFirstInscriptionWorkOrder      = 36647,
+            Alliance_YourFirstTailoringWorkOrder        = 36643,
             /// Herb garden
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
@@ -127,6 +128,7 @@ namespace MS { namespace Garrison
             QUEST_BUILD_YOUR_BARRACKS                   = 34461,
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
+            Horde_MissionProbable                       = 34775,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,
@@ -147,7 +149,6 @@ namespace MS { namespace Garrison
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
             Horde_PortablePortals                       = 38351,
             /// Fishing Hut

@@ -13,15 +13,22 @@
 #include "Spell.h"
 #include "../GarrisonScriptData.hpp"
 
-enum
-{
-    GARRISON_PHASE_BASE             = 0x0001,
-    GARRISON_PHASE_COMPAGNION       = 0x0002,
-    GARRISON_KEEPING_IT_TOGETHER    = 0x0004,
-};
-
 namespace MS { namespace Garrison { namespace Sites
 {
+    enum GarrisonPhases
+    {
+        GarrisonPhaseBase             = 0x00000001,
+        GarrisonPhaseCompagnon        = 0x00000002,
+        GarrisonKeepingItTogether     = 0x00000004,
+        PhaseMagePortalFrostfireRidge = 0x00000010,
+        PhaseMagePortalSpiresOfArak   = 0x00000020,
+        PhaseMagePortalTalador        = 0x00000040,
+        PhaseMagePortalNagrand        = 0x00000080,
+        PhaseMagePortalShadowmoon     = 0x00000100,
+        PhaseMagePortalGorgrond       = 0x00000200,
+        PhaseLostInTransitionQuest    = 0x00000400
+    };
+
     /// Constructor
     InstanceMapScript_GarrisonAllianceLevel1::InstanceMapScript_GarrisonAllianceLevel1()
         : InstanceMapScript("instance_Garrison_A1", MapIDs::MapGarrisonAllianceLevel1)
@@ -85,9 +92,6 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
-        /// Hack fix for storehouse, need more work
-        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition)
-            p_Owner->CompleteQuest(Quests::Alliance_LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -111,13 +115,16 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     uint32 InstanceScript_GarrisonAllianceLevel1::GetPhaseMask(Player* p_Owner)
     {
-        uint32 l_PhaseMask = GARRISON_PHASE_BASE;
+        uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
 
         if (p_Owner->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) == QUEST_STATUS_REWARDED)
-            l_PhaseMask |= GARRISON_PHASE_COMPAGNION;
+            l_PhaseMask |= GarrisonPhases::GarrisonPhaseCompagnon;
 
         if (p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
-            l_PhaseMask |= GARRISON_KEEPING_IT_TOGETHER;
+            l_PhaseMask |= GarrisonPhases::GarrisonKeepingItTogether;
+
+        if (p_Owner->HasQuest(Quests::Alliance_LostInTransition) || p_Owner->HasQuest(Quests::Horde_LostInTransition))
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
 
         return l_PhaseMask;
     }
