@@ -2256,7 +2256,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE || me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
