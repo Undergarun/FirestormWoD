@@ -329,9 +329,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     const Unit          * l_Unit            = ToUnit();
     const GameObject    * l_GameObject      = ToGameObject();
     const AreaTrigger   * l_AreaTrigger     = ToAreaTrigger();
+    const WorldObject   * l_WorldObject     = isType(TYPEMASK_ITEM) ? nullptr : (const WorldObject*)this;
 
     uint32 l_FrameCount = l_GameObject && l_GameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT ? l_GameObject->GetGOValue()->Transport.StopFrames->size() : 0;
-    const WorldObject   * l_WorldObject = (const WorldObject*)this;
 
     /// Normalize movement to avoid client crash
     if (l_Unit)
@@ -343,7 +343,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
 
-    if (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId())
+    if (l_WorldObject && (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId()))
         p_Flags |= UPDATEFLAG_HAS_ANIMKITS_CREATE;
 
     p_Data->WriteBit(p_Flags & UPDATEFLAG_NO_BIRTH_ANIM);           ///< No birth animation
