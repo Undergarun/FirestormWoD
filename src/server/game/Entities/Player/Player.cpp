@@ -20945,7 +20945,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         }
 
         /// Item conversion
-        SQLTransaction& l_Transaction = CharacterDatabase.BeginTransaction();
+        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
         for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Items.begin(); l_Iterator != sObjectMgr->FactionChange_Items.end(); ++l_Iterator)
         {
             uint32 l_ItemAlliance = l_Iterator->first;
