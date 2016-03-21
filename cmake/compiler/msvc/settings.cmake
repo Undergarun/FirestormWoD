@@ -48,6 +48,18 @@ if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:inline")
 endif()
 
+# Disable incremental linking in debug builds.
+# To prevent linking getting stuck (which might be fixed in a later VS version).
+macro(DisableIncrementalLinking variable)
+  string(REGEX REPLACE "/INCREMENTAL *" "" ${variable} "${${variable}}")
+  set(${variable} "${${variable}} /INCREMENTAL:NO")
+endmacro()
+
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO)
+
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
 message(STATUS "MSVC: Overloaded standard names")
