@@ -8,9 +8,9 @@
 enum Data
 {
     DATA_ECHO_OF_SYLVANAS   = 0,
-	DATA_ECHO_OF_BAINE      = 1,
-	DATA_ECHO_OF_TYRANDE    = 2,
-	DATA_ECHO_OF_JAINA      = 3,
+    DATA_ECHO_OF_BAINE      = 1,
+    DATA_ECHO_OF_TYRANDE    = 2,
+    DATA_ECHO_OF_JAINA      = 3,
     DATA_MUROZOND           = 4,
     DATA_JAINA_EVENT        = 5,
     DATA_ECHO_1             = 6,

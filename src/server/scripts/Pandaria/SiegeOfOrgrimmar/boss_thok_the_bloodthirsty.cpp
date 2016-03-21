@@ -23,11 +23,11 @@
 
 enum eSpells
 {
-    SPELL_ACCELERATION	           =143411,
-    SPELL_ACID_BREATH	           =143780,
-    SPELL_BERSERK	               =26662,
+    SPELL_ACCELERATION             =143411,
+    SPELL_ACID_BREATH              =143780,
+    SPELL_BERSERK                  =26662,
     SPELL_BLOOD_FRENZY             =143442,
-    SPELL_DEAFENING_SCREECH	       =143343,
+    SPELL_DEAFENING_SCREECH        =143343,
     SPELL_FEARSOME_ROAR            =143426,
     SPELL_FIXATE                   =146540,
     SPELL_FREEZING_BREATH          =143773,
@@ -57,22 +57,22 @@ class boss_thok_the_bloodthirsty : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
             }
-			
+            
             EventMap events;
             InstanceScript* pInstance;
-			
+            
             void Reset()
             {
                 Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
-				
+                
                 if (pInstance)
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -80,7 +80,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 if (pInstance)
                     pInstance->SetBossState(DATA_THOK_THE_BLOODTHIRSTY, FAIL);
             }
-			
+            
             void EnterCombat(Unit* attacker)
             {
                 // @TODO: Set in combat for other protectors
@@ -90,7 +90,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     pInstance->SetBossState(DATA_THOK_THE_BLOODTHIRSTY, IN_PROGRESS);
                 }
             }
-			
+            
             void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
@@ -100,11 +100,11 @@ class boss_thok_the_bloodthirsty : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
+            
             void KilledUnit(Unit* who)
             {
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 _JustDied();
@@ -115,7 +115,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     pInstance->SetBossState(DATA_THOK_THE_BLOODTHIRSTY, DONE);
                 }
             }
-			
+            
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -160,7 +160,7 @@ class mob_korkron_jailer : public CreatureScript
                 return;
             }
         };
-		
+        
         CreatureAI* GetAI(Creature* creature) const
         {
         return new mob_korkron_jailerAI(creature);
@@ -193,7 +193,7 @@ class mob_akolik : public CreatureScript
                     return;
             }
         };
-		
+        
         CreatureAI* GetAI(Creature* creature) const
         {
         return new mob_akolikAI(creature);
@@ -226,7 +226,7 @@ class mob_waterspeaker_gorai : public CreatureScript
                     return;
             }
         };
-		
+        
         CreatureAI* GetAI(Creature* creature) const
         {
         return new mob_waterspeaker_goraiAI(creature);
@@ -259,7 +259,7 @@ class mob_montak : public CreatureScript
                     return;
             }
         };
-		
+        
         CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_montakAI(creature);
