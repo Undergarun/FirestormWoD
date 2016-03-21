@@ -14,11 +14,13 @@ RUN apt-get update && \
     libmariadbclient-dev \
     zlib1g-dev \
     libcurl4-openssl-dev \
-#    libssl-dev \ # Installed with libcurl
-    screen
+    libssl-dev \
+    screen \
+    gdb \
+    clang
 
 # Prepare directories for worldserver data
-RUN mkdir /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm
+RUN mkdir -p /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm/crashlogs
 
 # Declare volumes to share files between host and container (configuration file, logs, dbc, maps ....)
 VOLUME /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm
@@ -30,4 +32,4 @@ ADD bin/* /usr/local/bin/
 # Open the port use by the worldserver on the container
 EXPOSE 8085
 
-#ENTRYPOINT ["screen", "-dmS", "worldserver", "worldserver_restarter"]
+#ENTRYPOINT ["screen", "-dmS", "worldserver", "run-worldserver"]

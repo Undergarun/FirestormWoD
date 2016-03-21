@@ -2725,8 +2725,6 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
                 if (l_Target->GetTypeId() == TYPEID_UNIT)
                     l_Damage *= l_Caster->CalculateDamageDealtFactor(l_Caster, l_Target->ToCreature());
 
-                l_Damage = l_Caster->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
-
                 SetHitDamage(l_Damage);
             }
 
@@ -3365,8 +3363,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
                         if (l_Target->GetTypeId() == TYPEID_UNIT)
                             l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, l_Target->ToCreature());
-
-                        l_Damage = l_Pet->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
 
                         SetHitDamage(l_Damage);
 

@@ -10,24 +10,25 @@ namespace WebShop
         GoldAdded           = 3002,
         DontHaveEnoughSpace = 3003
     };
-
+    
+    /// ...of Draenor Spell
     enum ProfessionBookSpells
     {
-        Alchemy = 156614,
-        Blacksmithing = 169923,
-        Enchanting = 161788,
-        Engineering = 161787,
-        Inscription = 161789,
-        JewelCrafting = 169926,
-        LeatherWorking = 169925,
-        Tailoring = 169924,
-        FirstAid = 160329,
-        Cooking = 160360,
-        Herbalism = 158745,
-        Mining = 158754,
-        Skinning = 158756,
-        Archaeology = 158762,
-        Fishing = 160326
+        Alchemy         = 156614,
+        Blacksmithing   = 169923,
+        Enchanting      = 161788,
+        Engineering     = 161787,
+        Inscription     = 161789,
+        JewelCrafting   = 169926,
+        LeatherWorking  = 169925,
+        Tailoring       = 169924,
+        FirstAid        = 160329,
+        Cooking         = 160360,
+        Herbalism       = 160319,
+        Mining          = 160315,
+        Skinning        = 160321,
+        Archaeology     = 158762,
+        Fishing         = 160326
     };
 
     enum ProfessionAdditionalSpells

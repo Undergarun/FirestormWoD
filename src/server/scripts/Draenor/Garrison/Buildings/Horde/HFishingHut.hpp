@@ -17,7 +17,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 79892 - Mak'jin                                                   ////
     //////////////////////////////////////////////////////////////////////////
-	
+    
     class npc_MakJin_Garr : public CreatureScript
     {
         public:
@@ -34,14 +34,14 @@ namespace MS { namespace Garrison
             virtual CreatureAI* GetAI(Creature* p_Creature) const override;
 
     };
-	
+    
     class npc_MakJin_GarrAI : public GarrisonNPCAI
     {
         public:
             /// Constructor
             npc_MakJin_GarrAI(Creature* p_Creature);
     };
-	
+    
 }   ///< namespace Garrison
 }   ///< namespace MS
 
