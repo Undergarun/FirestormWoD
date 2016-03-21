@@ -301,8 +301,11 @@ class boss_razorscale_controller : public CreatureScript
                         case EVENT_REBUILD_HARPOON:
                             if (instance->GetBossState(BOSS_RAZORSCALE) != IN_PROGRESS)
                                 return;
+
                             if (Creature* commander = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_EXPEDITION_COMMANDER) : 0))
-                                commander->AI()->DoAction(ACTION_FIRE_OUT);
+                                if (commander->IsAIEnabled)
+                                    commander->AI()->DoAction(ACTION_FIRE_OUT);
+
                             DoAction(ACTION_REMOVE_HARPOON);
                             DoAction(ACTION_PLACE_BROKEN_HARPOON);
                             if (Is25ManRaid())
