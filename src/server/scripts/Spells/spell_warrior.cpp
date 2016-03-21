@@ -1806,7 +1806,7 @@ class spell_warr_glyph_of_executor : public SpellScriptLoader
 };
 
 /// Execute (Arms) - 163201
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 class spell_warr_execute: public SpellScriptLoader
 {
     public:
@@ -1818,7 +1818,8 @@ class spell_warr_execute: public SpellScriptLoader
 
             enum eSpells
             {
-                SuddenDeath = 52437
+                SuddenDeath = 52437,
+                ExecuteExtra = 168874
             };
 
             void HandleEnergize(SpellEffIndex p_EffIndex)
@@ -1849,8 +1850,9 @@ class spell_warr_execute: public SpellScriptLoader
                         l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
-                    /// Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
-                    l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+
+                    int32 l_Bp = l_RageConsumed * (405.0f / l_MaxConsumed);
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::ExecuteExtra, nullptr, &l_Bp, nullptr, true);
                 }
                 /// Sudden Death
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
