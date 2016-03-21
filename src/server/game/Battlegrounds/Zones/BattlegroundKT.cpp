@@ -86,7 +86,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                         if (Player* player = ObjectAccessor::FindPlayer(guid))
                         {
                             AccumulateScore(player->GetBGTeam() == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE, m_playersZone[guid]);
-                            UpdatePlayerScore(player, SCORE_ORB_SCORE, m_playersZone[guid]);
+                            UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[m_playersZone[guid]]);
                         }
                     }
                 }
