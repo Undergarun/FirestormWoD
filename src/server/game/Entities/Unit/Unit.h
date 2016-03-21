@@ -744,7 +744,7 @@ enum eUnitFlags3
 {
     UNIT_FLAG3_UNK1                         = 0x00000001,
     UNIT_FLAG3_UNK2                         = 0x00000002,
-    UNIT_FLAG3_UNK3                         = 0x00000004,
+    UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT   = 0x00000004,
     UNIT_FLAG3_UNK4                         = 0x00000008,
     UNIT_FLAG3_UNK5                         = 0x00000010,
     UNIT_FLAG3_UNK6                         = 0x00000020,

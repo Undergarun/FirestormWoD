@@ -173,13 +173,13 @@ class instance_zulaman : public InstanceMapScript
                 if (dataHead1 == 'Z' && dataHead2 == 'A')
                 {
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-				    {
-					    uint32 tmpState;
-					    loadStream >> tmpState;
-					    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-						    tmpState = NOT_STARTED;
-					    SetBossState(i, EncounterState(tmpState));
-				    }
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
                     loadStream >> uiMainGate;
                     loadStream >> QuestMinute;
                     DoUpdateWorldState(3104, QuestMinute);

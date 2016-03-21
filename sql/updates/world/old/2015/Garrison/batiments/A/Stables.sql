@@ -478,6 +478,14 @@
 	(173686, "spell_garrison_stables_lasso"),
 	(174070, "spell_garrison_stables_lasso");
 
+	REPLACE INTO spell_script_names VALUES
+	(174221, "spell_garrison_stables_training_mounts"),
+	(174219, "spell_garrison_stables_training_mounts"),
+	(174218, "spell_garrison_stables_training_mounts"),
+	(174216, "spell_garrison_stables_training_mounts"),
+	(174220, "spell_garrison_stables_training_mounts"),
+	(174222, "spell_garrison_stables_training_mounts");
+
 	-- /!\ HOTFIX DATABASE /!\
 	REPLACE INTO mount (ID, SpellID, Category, CreatureDisplayID, Flags, `Name`, Description) VALUES 
 	(600002, 174216, 230, 59757, 0, "Snarler in Training", "Summons a Snarler in training"), -- grogneur/loup/snarler/wolf - 86851

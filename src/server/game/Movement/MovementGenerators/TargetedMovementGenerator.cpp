@@ -45,6 +45,9 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     {
         if (!i_offset)
         {
+            if (i_target->IsWithinMeleeRange(owner))
+                return;
+
             // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
         }
