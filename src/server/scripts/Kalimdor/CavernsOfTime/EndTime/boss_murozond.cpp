@@ -90,7 +90,7 @@ class boss_murozond : public CreatureScript
         {
             boss_murozondAI(Creature* creature) : BossAI(creature, DATA_MUROZOND)
             {
-				me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);

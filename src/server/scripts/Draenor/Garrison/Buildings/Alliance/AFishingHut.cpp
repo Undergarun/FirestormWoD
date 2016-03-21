@@ -299,7 +299,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_RonAshton::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_RonAshton::GetAI(Creature* p_Creature) const
     {
         return new npc_RonAshtonAI(p_Creature);
     }

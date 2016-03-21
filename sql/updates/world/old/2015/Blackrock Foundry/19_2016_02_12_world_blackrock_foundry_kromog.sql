@@ -144,16 +144,22 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_KROMOG, 113935, 0, 1, 1, 1, 1),
 (@REF_KROMOG, 113936, 0, 1, 1, 1, 1),
 (@REF_KROMOG, 113937, 0, 1, 1, 1, 1),
-(@REF_KROMOG, 113938, 0, 1, 1, 1, 1),
-(@REF_KROMOG, 119308, 0, 1, 1, 1, 1),
-(@REF_KROMOG, 119312, 0, 1, 1, 1, 1),
-(@REF_KROMOG, 119321, 0, 1, 1, 1, 1);
+(@REF_KROMOG, 113938, 0, 1, 1, 1, 1);
+
+DELETE FROM reference_loot_template WHERE entry = @REF_KROMOG + 1;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KROMOG + 1, 119308, 0, 14, 1, 1, 1),
+(@REF_KROMOG + 1, 119312, 0, 14, 1, 1, 1),
+(@REF_KROMOG + 1, 119321, 0, 14, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_KROMOG WHERE `entry`= @REF_KROMOG;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KROMOG;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_KROMOG, 1, 100, 1, 0, -@REF_KROMOG, 6);
+(@REF_KROMOG, 1, 100, 1, 0, -@REF_KROMOG, 6),
+(@REF_KROMOG, 2, 100, 2, 0, -(@REF_KROMOG + 1), 2),
+(@REF_KROMOG, 3, 100, 4, 0, -(@REF_KROMOG + 1), 1),
+(@REF_KROMOG, 4, 100, 8, 0, -(@REF_KROMOG + 1), 1);
 
 DELETE FROM creature_groupsizestats WHERE entry = @REF_KROMOG;
 INSERT INTO creature_groupsizestats (entry, difficulty, groupSize, health) VALUES

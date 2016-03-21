@@ -497,9 +497,9 @@ class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
             PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
-			{
-				if(!GetCaster() || !GetHitUnit())
-					return;
+            {
+                if(!GetCaster() || !GetHitUnit())
+                    return;
 
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_DEATH_GRIP, true);
             }

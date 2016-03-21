@@ -400,7 +400,7 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot*
         randomSuffix        = GenerateEnchSuffixFactor(itemid);
         randomPropertyId    = Item::GenerateItemRandomPropertyId(itemid);
 
-        Item::GenerateItemBonus(itemid, p_Context, itemBonuses);
+        Item::GenerateItemBonus(itemid, p_Context, itemBonuses, !(l_ItemTemplate && l_ItemTemplate->HasStats()));
     }
 
     count               = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
@@ -2432,7 +2432,8 @@ void LoadLootTemplates_Spell()
             // ignore 61756 (Northrend Inscription Research (FAST QA VERSION) for example
             if (!(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) || (spellInfo->Attributes & SPELL_ATTR0_TRADESPELL))
             {
-                LootTemplates_Spell.ReportNotExistedId(spell_id);
+                if (!spellInfo->Effects[0].ItemType)
+                    LootTemplates_Spell.ReportNotExistedId(spell_id);
             }
         }
         else
