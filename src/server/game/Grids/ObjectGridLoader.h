@@ -60,7 +60,7 @@ class ObjectGridStoper
 {
     public:
         void Visit(CreatureMapType &m);
-        template<class T> void Visit(GridVector<T*> &) {}
+        template<class T> void Visit(GridRefManager<T> &) {}
 };
 
 //Move the foreign creatures back to respawn positions before unloading the NGrid
@@ -69,20 +69,20 @@ class ObjectGridEvacuator
     public:
         void Visit(CreatureMapType &m);
         void Visit(GameObjectMapType &m);
-        template<class T> void Visit(GridVector<T*> &) {}
+        template<class T> void Visit(GridRefManager<T> &) {}
 };
 
 //Clean up and remove from world
 class ObjectGridCleaner
 {
     public:
-        template<class T> void Visit(GridVector<T*> &);
+        template<class T> void Visit(GridRefManager<T> &);
 };
 
 //Delete objects before deleting NGrid
 class ObjectGridUnloader
 {
     public:
-        template<class T> void Visit(GridVector<T*> &m);
+        template<class T> void Visit(GridRefManager<T> &m);
 };
 #endif

@@ -765,81 +765,11 @@ template<class T>
 class GridObject
 {
     public:
-        GridObject()
-        {
-            m_GridRef = nullptr;
-            m_Idx     = 0;
-        }
-
-        ~GridObject()
-        {
-            if (IsInGrid())
-                RemoveFromGrid();
-        }
-
-        bool IsInGrid() const
-        {
-            return m_GridRef != nullptr;
-        }
-
-        void AddToGrid(GridVector<T*>& m)
-        {
-            if (IsInGrid())
-                return;
-
-            m_GridRef = &m;
-            m.push_back((T*)this);
-            m_Idx = m.size()-1;
-        }
-
-        void RemoveFromGrid()
-        {
-            /// Sanity check ...
-            if (m_GridRef == nullptr || m_GridRef->empty())
-            {
-                m_GridRef = nullptr;
-                m_Idx =0;
-                return;
-            }
-
-            /// Local reference for easier access to operator []
-            GridVector<T*>& l_GirdRef = *m_GridRef;
-
-            if (!m_GridRef->m_Iterate || (m_GridRef->m_Idx >= m_GridRef->size() - 1 || m_Idx > m_GridRef->m_Idx))
-            {
-                /// Update grid index before the swap
-                uint32 l_End = l_GirdRef.size() - 1;
-                l_GirdRef[l_End]->m_Idx = m_Idx;
-
-                /// Swap the element we want to erase with the last one
-                /// And then delete the last one, to avoid re-order all the vector
-                std::swap(l_GirdRef[l_End], l_GirdRef[m_Idx]);
-                m_GridRef->pop_back();
-            }
-            else
-            {
-                auto& l_Current = l_GirdRef[m_GridRef->m_Idx];
-                auto& l_New     = l_GirdRef[m_Idx];
-
-                l_New = std::move(l_Current);
-                l_New->m_Idx = m_Idx;
-
-                l_Current = std::move(m_GridRef->back());
-                l_Current->m_Idx = m_GridRef->m_Idx;
-
-                m_GridRef->m_Idx--;
-                m_GridRef->pop_back();
-            }
-
-            /// Clear reference & index
-            m_GridRef = nullptr;
-            m_Idx = 0;
-        }
-
-        uint32 m_Idx;
-
+        bool IsInGrid() const { return _gridRef.isValid(); }
+        void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
+        void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
     private:
-        GridVector<T*>* m_GridRef;
+        GridReference<T> _gridRef;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, uint8 ARRAY_SIZE>
