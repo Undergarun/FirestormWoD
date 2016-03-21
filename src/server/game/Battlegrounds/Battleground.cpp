@@ -931,9 +931,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
         if (winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
-            loser_team_rating = loser_team->GetRating(slot); ///< loser_team_rating is never read 01/18/16
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
-            winner_team_rating = winner_team->GetRating(slot); ///< winner_team_rating is never read 01/18/16
             winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
             winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
