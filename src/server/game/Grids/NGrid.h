@@ -29,21 +29,6 @@
 
 #define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 
-template<class T>
-class GridVector : public std::vector<T>
-{
-    public:
-
-        GridVector()
-        {
-            m_Idx     = 0;
-            m_Iterate = false;
-        }
-
-        uint32 m_Idx;
-        bool   m_Iterate;
-};
-
 class GridInfo
 {
 public:
