@@ -214,7 +214,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
         {
             /// World Map Phases
-            switch (p_Player->GetZoneId())
+            switch (p_Player->GetZoneId(true))
             {
                 case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
                 {
@@ -391,7 +391,7 @@ namespace MS { namespace Garrison
         }
 
         /// World Map Phases
-        switch (p_Player->GetZoneId())
+        switch (p_Player->GetZoneId(true))
         {
             case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
             case GarrisonPortals::DraenorZones::ZoneGorgrond:
@@ -424,7 +424,7 @@ namespace MS { namespace Garrison
         }
 
         /// World Map Phases
-        switch (p_Player->GetZoneId())
+        switch (p_Player->GetZoneId(true))
         {
             case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
             case GarrisonPortals::DraenorZones::ZoneGorgrond:
@@ -457,7 +457,7 @@ namespace MS { namespace Garrison
         }
 
         /// World Map Phases
-        switch (p_Player->GetZoneId())
+        switch (p_Player->GetZoneId(true))
         {
             case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
             case GarrisonPortals::DraenorZones::ZoneGorgrond:

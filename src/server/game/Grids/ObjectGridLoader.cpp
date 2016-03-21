@@ -36,7 +36,7 @@ void ObjectGridEvacuator::Visit(CreatureMapType &m)
     // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end();)
     {
-        Creature* c = *iter;
+        Creature* c = iter->getSource();
         ++iter;
 
         ASSERT(!c->isPet() && "ObjectGridRespawnMover must not be called for pets");
@@ -52,7 +52,7 @@ void ObjectGridEvacuator::Visit(GameObjectMapType &m)
     // move to respawn point to prevent this case. For player view in respawn grid this will be normal respawn.
     for (GameObjectMapType::iterator iter = m.begin(); iter != m.end();)
     {
-        GameObject* go = *iter;
+        GameObject* go = iter->getSource();
         ++iter;
 
         go->GetMap()->GameObjectRespawnRelocation(go, true);
@@ -70,7 +70,7 @@ class ObjectWorldLoader
 
         void Visit(CorpseMapType &m);
 
-        template<class T> void Visit(std::vector<T*>&) { }
+        template<class T> void Visit(GridRefManager<T>&) { }
 
     private:
         Cell i_cell;
@@ -97,7 +97,7 @@ template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const
 }
 
 template <class T>
-void AddObjectHelper(CellCoord &cell, GridVector<T*> &m, uint32 &count, Map* map, T *obj)
+void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
 {
     obj->AddToGrid(m);
     ObjectGridLoader::SetObjectCell(obj, cell);
@@ -109,7 +109,7 @@ void AddObjectHelper(CellCoord &cell, GridVector<T*> &m, uint32 &count, Map* map
 }
 
 template <class T>
-void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridVector<T*> &m, uint32 &count, Map* map)
+void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
@@ -210,11 +210,11 @@ void ObjectGridLoader::LoadN(void)
 }
 
 template<class T>
-void ObjectGridUnloader::Visit(GridVector<T*> &m)
+void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 {
-    while (!m.empty())
+    while (!m.isEmpty())
     {
-        T *obj = *m.begin();
+        T *obj = m.getFirst()->getSource();
         // if option set then object already saved at this moment
         if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
@@ -233,29 +233,29 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     // stop any fights at grid de-activation and remove dynobjects created at cast by creatures
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        if ((*iter)->isInCombat())
+        if (iter->getSource()->isInCombat())
         {
-            (*iter)->CombatStop();
-            (*iter)->DeleteThreatList();
+            iter->getSource()->CombatStop();
+            iter->getSource()->DeleteThreatList();
             // If creature calling RemoveCharmedBy during EnterEvadeMode, RemoveCharmedBy call AIM_Initialize so AI() pointer may be corrupt
             // Maybe we need to lock AI during the call of EnterEvadeMode ?
-            (*iter)->SetLockAI(true);
-            if ((*iter)->IsAIEnabled)
-                (*iter)->AI()->EnterEvadeMode();    // Calls RemoveAllAuras
-            (*iter)->SetLockAI(false);
+            iter->getSource()->SetLockAI(true);
+            if (iter->getSource()->IsAIEnabled)
+                iter->getSource()->AI()->EnterEvadeMode();    // Calls RemoveAllAuras
+            iter->getSource()->SetLockAI(false);
         }
-        (*iter)->RemoveAllDynObjects();
-        (*iter)->RemoveAllAreasTrigger();       // Calls RemoveFromWorld, needs to be after RemoveAllAuras or we invalidate the Owner pointer of the aura
+        iter->getSource()->RemoveAllDynObjects();
+        iter->getSource()->RemoveAllAreasTrigger();       // Calls RemoveFromWorld, needs to be after RemoveAllAuras or we invalidate the Owner pointer of the aura
     }
 }
 
 template<class T>
-void ObjectGridCleaner::Visit(GridVector<T*> &m)
+void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 {
     // look like we have a crash wile accessing to DynamicObject map here
     // I Guess it's DynamicObject delete pointer, we need to look at it anyway ...
-    for (typename GridVector<T*>::iterator iter = m.begin(); iter != m.end(); ++iter)
-        (*iter)->CleanupsBeforeDelete();
+    for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->CleanupsBeforeDelete();
 }
 
 template void ObjectGridUnloader::Visit(CreatureMapType &);
