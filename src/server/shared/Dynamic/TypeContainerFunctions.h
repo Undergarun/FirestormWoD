@@ -35,7 +35,7 @@ namespace JadeCore
     // count functions
     template<class SPECIFIC_TYPE> size_t Count(const ContainerMapList<SPECIFIC_TYPE> &elements, SPECIFIC_TYPE* /*fake*/)
     {
-        return elements._element.size();
+        return elements._element.getSize();
     }
 
     template<class SPECIFIC_TYPE> size_t Count(const ContainerMapList<TypeNull> &/*elements*/, SPECIFIC_TYPE* /*fake*/)
