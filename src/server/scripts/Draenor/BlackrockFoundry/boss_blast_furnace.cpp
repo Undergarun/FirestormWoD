@@ -2240,8 +2240,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                             if (l_Creature->HasAura(eSpells::DamageShield))
                                 l_Creature->RemoveAura(eSpells::DamageShield);
                             /// If not, refresh the vulnerability
-                            else
-                                l_Creature->CastSpell(l_Creature, eSpells::ShieldsDown, true);
+                            else if (Aura* l_Aura = l_Creature->GetAura(eSpells::ShieldsDown))
+                                l_Aura->RefreshDuration();
                         }
                     });
                 }
@@ -2256,7 +2256,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE || me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -2738,7 +2738,7 @@ class spell_foundry_shields_down : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
