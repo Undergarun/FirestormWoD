@@ -20040,7 +20040,12 @@ void Unit::OnRelocated()
 void Unit::UpdateObjectVisibility(bool forced)
 {
     if (forced)
-        VisibilityUpdateTask::UpdateVisibility(this);
+    {
+        if (isType(TYPEMASK_PLAYER))
+            ((Player*)this)->UpdateVisibilityForPlayer();
+
+        WorldObject::UpdateObjectVisibility(true);
+    }
     else
         m_Events.AddEvent(new VisibilityUpdateTask(this), m_Events.CalculateTime(1));
     AINotifyTask::ScheduleAINotify(this);
