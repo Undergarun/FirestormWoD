@@ -4364,9 +4364,10 @@ class spell_warl_demonbolt : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                float l_HastePct = l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                /* Wainting fot more information */
+                /*float l_HastePct = 2.0f - l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
-                p_Amount *= l_HastePct;
+                p_Amount *= l_HastePct;*/
             }
 
             void Register()

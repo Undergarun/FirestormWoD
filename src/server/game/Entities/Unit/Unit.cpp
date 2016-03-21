@@ -2879,6 +2879,40 @@ int32 Unit::GetMechanicResistChance(const SpellInfo* spell)
     return resist_mech;
 }
 
+uint32 Unit::GetDodgeChance(const Unit* p_Victim)
+{
+    int32 dodgeChance = int32(p_Victim->GetUnitDodgeChance(this));
+
+    /// Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
+    dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
+    dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
+    /// Reduce dodge chance by attacker expertise rating
+    if (dodgeChance < 0)
+        dodgeChance = 0;
+
+    return dodgeChance;
+}
+
+uint32 Unit::GetParryChance(const Unit* p_Victim)
+{
+    int32 l_ParryChance = int32(p_Victim->GetUnitParryChance(this));
+
+    if (l_ParryChance < 0)
+        l_ParryChance = 0;
+
+    return l_ParryChance;
+}
+
+uint32 Unit::GetBlockChance(const Unit* p_Victim)
+{
+    int32 l_BlockChance = int32(p_Victim->GetUnitBlockChance(this));
+
+    if (l_BlockChance < 0)
+        l_BlockChance = 0;
+
+    return l_BlockChance;
+}
+
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 {
@@ -2906,8 +2940,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    tmp += victim->GetMechanicResistChance(spell) * 100;
-    if (roll < tmp)
+    int32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    tmp += l_Resist;
+    if (roll < l_Resist)
         return SPELL_MISS_RESIST;
 
     // Charge spells aren't suppose to takecare of dodge parry or block
@@ -2930,7 +2965,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         {
             int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
-            if (roll < tmp)
+            if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
         }
 
@@ -2989,67 +3024,28 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        // Roll dodge
-        int32 dodgeChance = int32(victim->GetUnitDodgeChance(this) * 100.0f);
-        // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
-        dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
-        dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
-        // Reduce dodge chance by attacker expertise rating
-        if (IsPlayer())
-            dodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-        else
-            dodgeChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        if (dodgeChance < 0)
-            dodgeChance = 0;
+        uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
 
-        if (roll < (tmp += dodgeChance))
+        tmp += l_DodgeChance;
+        if (roll < l_DodgeChance)
             return SPELL_MISS_DODGE;
     }
 
     if (canParry)
     {
-        // Roll parry
-        int32 parryChance = int32(victim->GetUnitParryChance(this) * 100.0f);
-        float l_ExpertisePercentage = 0.0f;
+        uint32 l_ParryChance = GetParryChance(victim) * 100;
 
-        // Reduce parry chance by attacker expertise rating
-        if (IsPlayer())
-            l_ExpertisePercentage = ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
-        else
-        {
-            if (isPet() && GetOwner())
-            {
-                if (GetOwner()->ToPlayer())
-                    l_ExpertisePercentage = ((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
-            }
-
-            parryChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        }
-
-        if (victim->getLevel() >= getLevel())
-        {
-            uint8 l_LevelDiff = std::min(victim->getLevel() - getLevel(), 3);
-            l_ExpertisePercentage -= g_BaseEnemyParryChance[l_LevelDiff] * 100.0f;
-        }
-
-        parryChance -= int32(l_ExpertisePercentage);
-
-        if (parryChance < 0)
-            parryChance = 0;
-
-        tmp += parryChance;
-        if (roll < tmp)
+        tmp += l_ParryChance;
+        if (roll < l_ParryChance)
             return SPELL_MISS_PARRY;
     }
 
     if (canBlock)
     {
-        int32 blockChance = int32(victim->GetUnitBlockChance(this) * 100.0f);
-        if (blockChance < 0)
-            blockChance = 0;
-        tmp += blockChance;
+        uint32 l_BlockChance = GetBlockChance(victim) * 100;
 
-        if (roll < tmp)
+        tmp += l_BlockChance;
+        if (roll < l_BlockChance)
             return SPELL_MISS_BLOCK;
     }
 

@@ -27,8 +27,8 @@ namespace eEnchantmentMarkProc
         Warsong         = 159675,
         BleedingHollow  = 173322,
         Frostwolf       = 159676,
-        //Blackrock       = 159679,
-        //Shadowmoon      = 159678
+        Blackrock       = 159679,
+        Shadowmoon      = 159678
     };
 }
 namespace eEnchantmentMarkAura
@@ -39,8 +39,8 @@ namespace eEnchantmentMarkAura
         Warsong         = 159682,
         BleedingHollow  = 173321,
         Frostwolf       = 159683,
-        //Blackrock       = 159685,
-        //Shadowmoon      = 159684
+        Blackrock       = 159685,
+        Shadowmoon      = 159684
     };
 }
 namespace eEnchantmentMarkIds
@@ -51,8 +51,8 @@ namespace eEnchantmentMarkIds
         Warsong         = 5355,
         BleedingHollow  = 5384,
         Frostwolf       = 5356,
-        //Blackrock       = 5336,
-        //Shadowmoon      = 5335
+        Blackrock       = 5336,
+        Shadowmoon      = 5335
     };
 }
 
@@ -71,6 +71,12 @@ class spell_enchantment_mark : public SpellScriptLoader
                     return;
 
                 Player* l_Player = GetOwner()->ToPlayer();
+
+                if (GetSpellInfo()->Id == 159685 && l_Player->GetHealthPct() >= 60.0f)
+                {
+                    PreventDefaultAction();
+                    return;
+                }
 
                 uint32 l_ProcAuraId = 0;
                 uint32 l_EnchantId = 0;
@@ -106,16 +112,14 @@ class spell_enchantment_mark : public SpellScriptLoader
                         l_ProcAuraId = eEnchantmentMarkProc::Frostwolf;
                         l_EnchantId = eEnchantmentMarkIds::Frostwolf;
                         break;
-                    /*
-                     case eEnchantmentMarkAura::Blackrock:
-                        l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
-                        l_EnchantId = eEnchantmentMarkIds::Blackrock;
-                        break;
                     case eEnchantmentMarkAura::Shadowmoon:
                         l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
                         l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
                         break;
-                     */
+                     case eEnchantmentMarkAura::Blackrock:
+                        l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
+                        l_EnchantId = eEnchantmentMarkIds::Blackrock;
+                        break;
                     default:
                         break;
                 }
@@ -137,7 +141,16 @@ class spell_enchantment_mark : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                switch (m_scriptSpellId)
+                {
+                    case 159684:
+                    case 159685:
+                        OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                    break;
+                    default:
+                        OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                        break;
+                }
             }
         };
 
