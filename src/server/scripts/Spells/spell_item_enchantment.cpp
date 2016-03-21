@@ -28,7 +28,7 @@ namespace eEnchantmentMarkProc
         BleedingHollow  = 173322,
         Frostwolf       = 159676,
         //Blackrock       = 159679,
-        //Shadowmoon      = 159678
+        Shadowmoon      = 159678
     };
 }
 namespace eEnchantmentMarkAura
@@ -40,7 +40,7 @@ namespace eEnchantmentMarkAura
         BleedingHollow  = 173321,
         Frostwolf       = 159683,
         //Blackrock       = 159685,
-        //Shadowmoon      = 159684
+        Shadowmoon      = 159684
     };
 }
 namespace eEnchantmentMarkIds
@@ -52,7 +52,7 @@ namespace eEnchantmentMarkIds
         BleedingHollow  = 5384,
         Frostwolf       = 5356,
         //Blackrock       = 5336,
-        //Shadowmoon      = 5335
+        Shadowmoon      = 5335
     };
 }
 
@@ -106,14 +106,14 @@ class spell_enchantment_mark : public SpellScriptLoader
                         l_ProcAuraId = eEnchantmentMarkProc::Frostwolf;
                         l_EnchantId = eEnchantmentMarkIds::Frostwolf;
                         break;
+                    case eEnchantmentMarkAura::Shadowmoon:
+                        l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
+                        l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
+                        break;
                     /*
                      case eEnchantmentMarkAura::Blackrock:
                         l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
                         l_EnchantId = eEnchantmentMarkIds::Blackrock;
-                        break;
-                    case eEnchantmentMarkAura::Shadowmoon:
-                        l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
-                        l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
                         break;
                      */
                     default:
