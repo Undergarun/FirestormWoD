@@ -9,7 +9,7 @@ World of Warcraft Warlords of Draenor (6.X) emulator based on TrinityCore projec
 + Processor with SSE2 support
 + ACE ≥ 6.2.0
 + MySQL ≥ 5.5.0+
-+ CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
++ CMake ≥ 3.2+
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
 + MS Visual Studio ≥ 12 (2013) (Windows only)
