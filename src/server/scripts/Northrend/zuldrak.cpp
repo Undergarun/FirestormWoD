@@ -866,10 +866,10 @@ public:
                     }
                 }
                 if (evadeMode)
-		{
+        {
                    EnterEvadeMode();
-	           return;
-		}
+               return;
+        }
             }
 
             if (uiCleaveTimer <= uiDiff)

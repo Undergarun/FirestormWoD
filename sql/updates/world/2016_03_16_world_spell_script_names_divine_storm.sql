@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE spell_id = 53385 AND ScriptName = 'spell_pal_sword_of_light_damage';

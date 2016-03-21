@@ -13,7 +13,7 @@ enum eSpells
     SPELL_RUSHING_RAGE      = 124302,
     SPELL_YAUNGOL_STOMP     = 124289,
     SPELL_PIERCE_ARMOR      = 6016,
-    SPELL_SHOCK_AND_AWE		= 118538,
+    SPELL_SHOCK_AND_AWE     = 118538,
     SPELL_HOZEN_RAGE        = 115006,
     SPELL_HOZEN_STRIKE      = 115041,
     SPELL_CLUB              = 115028,
@@ -26,7 +26,7 @@ enum eSpells
 enum eEvents
 {
     EVENT_PIERCE_ARMOR          = 1,
-    EVENT_SHOCK_AND_AWE			= 2,
+    EVENT_SHOCK_AND_AWE         = 2,
     EVENT_BELLOWING_RAGE        = 3,
     EVENT_RUSHING_RAGE          = 4,
     EVENT_YAUNGOL_STOMP         = 5,

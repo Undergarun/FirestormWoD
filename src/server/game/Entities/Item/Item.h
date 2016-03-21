@@ -368,7 +368,7 @@ class Item : public Object
         * @param p_MapDifficulty: Information about the current difficulty we are to determine the right bonus to apply
         * @param p_ItemBonus: Vector of bonus to fill
         */
-        static void GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus);
+        static void GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus, bool p_OnlyDifficulty = false);
 
         static ItemContext GetItemContextFromDifficulty(Difficulty p_Difficulty);
 

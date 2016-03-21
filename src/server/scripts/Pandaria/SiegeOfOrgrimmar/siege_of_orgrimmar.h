@@ -151,8 +151,8 @@ enum eCreatures
     // Garrosh Hellscream
     NPC_GARROSH_HELLSCREAM              = 71865,
     NPC_SIEGE_ENGINEER                  = 71984,
-	NPC_WARBRINGER_KORKRON              = 71979,
-	NPC_WOLF_RIDER_FARSEER              = 71983
+    NPC_WARBRINGER_KORKRON              = 71979,
+    NPC_WOLF_RIDER_FARSEER              = 71983
 };
 
 enum eFallenProtectors

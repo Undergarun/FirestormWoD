@@ -1777,17 +1777,17 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
-uint32 WorldObject::GetZoneId() const
+uint32 WorldObject::GetZoneId(bool /*forceRecalc*/) const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
 }
 
-uint32 WorldObject::GetAreaId() const
+uint32 WorldObject::GetAreaId(bool /*forceRecalc*/) const
 {
     return GetBaseMap()->GetAreaId(m_positionX, m_positionY, m_positionZ);
 }
 
-void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
+void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool /*forceRecalc*/) const
 {
     GetBaseMap()->GetZoneAndAreaId(zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
@@ -2992,14 +2992,14 @@ void WorldObject::SetZoneScript()
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
         {
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId(true)))
                 m_zoneScript = bf;
             else
             {
-                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId(true)))
                     m_zoneScript = bf;
                 else
-                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId(true));
             }
         }
     }

@@ -574,19 +574,19 @@ class at_tott_ozumat : public AreaTriggerScript
 
         bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
         {
-		    if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
-		    {
-			    if (pInstance->GetData(DATA_NEPTULON_EVENT) != DONE
+            if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+            {
+                if (pInstance->GetData(DATA_NEPTULON_EVENT) != DONE
                     && pInstance->GetBossState(DATA_OZUMAT) != IN_PROGRESS
                     && pInstance->GetBossState(DATA_OZUMAT) != DONE)
-			    {
+                {
                     pInstance->SetData(DATA_NEPTULON_EVENT, DONE);
                     if (Creature* pNeptulon = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_NEPTULON)))
                     {
                         pNeptulon->AI()->DoAction(ACTION_NEPTULON_START_EVENT);
                     }
-			    }
-		    }
+                }
+            }
             return true;
         }
 };
