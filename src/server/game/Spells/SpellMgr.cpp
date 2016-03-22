@@ -3609,6 +3609,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].MiscValueB = 300;
                 break;
             case 155074: ///< Charring Breath (Cinder Wolf)
+            case 173790: ///< Spirit Bond (Stubborn Ironhoof)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 155049: ///< Singe (Cinder Wolf)
@@ -3658,6 +3659,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154951: ///< Pin Down (Beastlord Darmac)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 155653: ///< Flame Infusion (Pack Beast)
+                spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -7215,6 +7220,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155198: ///< Savage Howl (Cruelfang)
             case 162283: ///< Rend and Tear - AoE (Beastlord Darmac)
             case 154989: ///< Inferno Breath (Dreadwing)
+            case 156824: ///< Inferno Pyre - DoT (Dreadwing)
+            case 156823: ///< Superheated Scrap - DoT (Beastlord Darmac)
+            case 155657: ///< Flame Infusion - DoT (Pack Beast)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:

@@ -660,11 +660,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                 switch (p_CriteriaID)
                 {
                     case eFoundryCriterias::DreadwingMountedFirst:
-                        return l_DifficultyOK + (m_DarmacBeastMountedFirst == eFoundryDatas::DataDreadwingFirst);
+                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataDreadwingFirst);
                     case eFoundryCriterias::IroncrusherMountedFirst:
-                        return l_DifficultyOK + (m_DarmacBeastMountedFirst == eFoundryDatas::DataIronCrusherFirst);
+                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataIronCrusherFirst);
                     case eFoundryCriterias::CruelfangMountedFirst:
-                        return l_DifficultyOK + (m_DarmacBeastMountedFirst == eFoundryDatas::DataCruelfangFirst);
+                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataCruelfangFirst);
                     default:
                         break;
                 }

@@ -1,6 +1,6 @@
 SET NAMES utf8;
 
-DELETE FROM spell_script_names WHERE spell_id IN (162653, 161300, 155365, 155702, 155416, 155385, 155515, 155423);
+DELETE FROM spell_script_names WHERE spell_id IN (162653, 161300, 155365, 155702, 155416, 155385, 155515, 155423, 155603, 173974);
 INSERT INTO spell_script_names VALUES
 (162653, "spell_foundry_electrical_storm"),
 (161300, "spell_foundry_hitching_post_chain"),
@@ -9,17 +9,26 @@ INSERT INTO spell_script_names VALUES
 (155416, "spell_foundry_ranged_targets_searcher"),
 (155385, "spell_foundry_ranged_targets_searcher"),
 (155515, "spell_foundry_ranged_targets_searcher"),
-(155423, "spell_foundry_ranged_targets_searcher");
+(155423, "spell_foundry_ranged_targets_searcher"),
+(155603, "spell_foundry_ranged_targets_searcher"),
+(173974, "spell_foundry_infusion_of_flames");
 
-DELETE FROM areatrigger_template WHERE spell_id IN (162657, 162757, 155026);
+DELETE FROM areatrigger_template WHERE spell_id IN (162657, 162757, 155026, 155503, 155653);
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`) VALUES
 (162657, 0, 6976, 7.5, 7.5, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_electrical_storm"),
 (162757, 0, 6982, 6, 6, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_ice_trap"),
-(155026, 0, 6417, 3, 3, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "");
+(155026, 0, 6417, 3, 3, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_inferno_breath"),
+(155503, 0, 6416, 3, 3, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_superheated_shrapnel"),
+(155653, 0, 6268, 3, 3, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_flame_infusion");
 
-DELETE FROM conditions WHERE SourceEntry IN (173790);
+DELETE FROM conditions WHERE SourceEntry IN (173790, 155604, 155650);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
-(13, 1, 173790, 31, 0, 3, 80423);
+(13, 1, 173790, 31, 0, 3, 80423),
+(13, 1, 155604, 31, 0, 3, 76796),
+(13, 1, 155650, 31, 0, 3, 77128);
+
+UPDATE instance_disabled_rankings SET Comment = "Beastlord Darmac - Normal - Tests in progress" WHERE EncounterID = 1694 AND DifficultyID = 14;
+UPDATE instance_disabled_rankings SET Comment = "Beastlord Darmac - Heroic - Tests in progress" WHERE EncounterID = 1694 AND DifficultyID = 15;
 
 DELETE FROM achievement_criteria_data WHERE criteria_id IN (24675, 24676, 24677);
 INSERT INTO achievement_criteria_data VALUES
@@ -222,3 +231,27 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     "¡%s prepara su |cFFFF0404|Hspell:154989|h[Aliento Infernal]|h|r!",
     "%s готовится применить |cFFFF0404|Hspell:154989|h[Дыхание преисподней]|h|r!"
 );
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_DARMAC;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_DARMAC, 113939, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113940, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113941, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113942, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113943, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113944, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113945, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113946, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113947, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113948, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113949, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113950, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113951, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 113952, 0, 1, 1, 1, 1),
+(@REF_DARMAC, 119192, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_DARMAC WHERE `entry`= @REF_DARMAC;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_DARMAC;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_DARMAC, 1, 100, 1, 0, -@REF_DARMAC, 6);

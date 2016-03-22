@@ -57,7 +57,11 @@ class boss_beastlord_darmac : public CreatureScript
             RendAndTearSearcher     = 155515,
             RendAndTearJump         = 162279,
             RendAndTearTriggered    = 162283,
-            RendAndTearJumpSecond   = 162285
+            RendAndTearJumpSecond   = 162285,
+            /// Superheated Shrapnel
+            FaceRandomNonTank       = 155603,
+            FlameBreathStalkerProc  = 161262,   ///< Summons 79868
+            SuperheatedShrapnel     = 155497
         };
 
         enum eEvents
@@ -70,6 +74,7 @@ class boss_beastlord_darmac : public CreatureScript
             /// Ironcrusher
             EventTantrum,
             /// Dreadwing
+            EventSuperheatedShrapnel,
             /// Cruelfang
             EventRendAndTear
             /// Faultline (Mythic only)
@@ -78,17 +83,19 @@ class boss_beastlord_darmac : public CreatureScript
 
         enum eTimers
         {
-            TimerBerserker              = 12 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS,
-            TimerCallThePack            = 8 * TimeConstants::IN_MILLISECONDS,
-            TimerCallThePackLFR         = 18 * TimeConstants::IN_MILLISECONDS,
-            TimerCallThePackCooldown    = 30 * TimeConstants::IN_MILLISECONDS,
-            TimerCallThePackLFRCooldown = 40 * TimeConstants::IN_MILLISECONDS,
-            TimerPinDown                = 9 * TimeConstants::IN_MILLISECONDS + 500,
-            TimerPinDownCooldown        = 19 * TimeConstants::IN_MILLISECONDS + 700,
-            TimerTantrum                = 22 * TimeConstants::IN_MILLISECONDS,
-            TimerTantrumCooldown        = 23 * TimeConstants::IN_MILLISECONDS,
-            TimerRendAndTear            = 20 * TimeConstants::IN_MILLISECONDS,
-            TimerRendAndTearCooldown    = 12 * TimeConstants::IN_MILLISECONDS
+            TimerBerserker                      = 12 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS,
+            TimerCallThePack                    = 8 * TimeConstants::IN_MILLISECONDS,
+            TimerCallThePackLFR                 = 18 * TimeConstants::IN_MILLISECONDS,
+            TimerCallThePackCooldown            = 30 * TimeConstants::IN_MILLISECONDS,
+            TimerCallThePackLFRCooldown         = 40 * TimeConstants::IN_MILLISECONDS,
+            TimerPinDown                        = 9 * TimeConstants::IN_MILLISECONDS + 500,
+            TimerPinDownCooldown                = 19 * TimeConstants::IN_MILLISECONDS + 700,
+            TimerTantrum                        = 22 * TimeConstants::IN_MILLISECONDS,
+            TimerTantrumCooldown                = 23 * TimeConstants::IN_MILLISECONDS,
+            TimerRendAndTear                    = 20 * TimeConstants::IN_MILLISECONDS,
+            TimerRendAndTearCooldown            = 12 * TimeConstants::IN_MILLISECONDS,
+            TimerSuperheatedShrapnel            = 12 * TimeConstants::IN_MILLISECONDS,
+            TimerSuperheatedShrapnelCooldown    = 25 * TimeConstants::IN_MILLISECONDS
         };
 
         enum eActions
@@ -119,6 +126,15 @@ class boss_beastlord_darmac : public CreatureScript
             MoveDreadwing
         };
 
+        enum eStates
+        {
+            StateNone,
+            StateFirstMount,
+            StateSecondMount,
+            StateThirdMount,
+            StateNoneSecond
+        };
+
         struct boss_beastlord_darmacAI : public BossAI
         {
             boss_beastlord_darmacAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataBeastlordDarmac)
@@ -133,6 +149,7 @@ class boss_beastlord_darmac : public CreatureScript
             uint8 m_CosmeticMove;
 
             float m_SwitchStatePct;
+            uint8 m_State;
 
             bool m_RendAndTear;
 
@@ -164,6 +181,7 @@ class boss_beastlord_darmac : public CreatureScript
                 m_CosmeticMove = eMoves::MoveIronCrusher;
 
                 m_SwitchStatePct = 85.0f;
+                m_State = eStates::StateNone;
 
                 m_RendAndTear = false;
 
@@ -223,9 +241,9 @@ class boss_beastlord_darmac : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                ///m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
-                ///m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFR : eTimers::TimerCallThePack);
-                ///m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDown);
+                m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
+                m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFR : eTimers::TimerCallThePack);
+                m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDown);
             }
 
             void EnterEvadeMode() override
@@ -280,7 +298,7 @@ class boss_beastlord_darmac : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoBreathDebuff);
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me)))
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::BeastlordDarmacBonus, true);
@@ -293,6 +311,17 @@ class boss_beastlord_darmac : public CreatureScript
 
                 if (!me->isInCombat())
                     p_Summon->DespawnOrUnsummon();
+
+                if (p_Summon->GetEntry() == eCreatures::FlameBreathStalker)
+                {
+                    p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
+
+                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                    p_Summon->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+                }
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -387,9 +416,7 @@ class boss_beastlord_darmac : public CreatureScript
                             m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
 
                         if (me->HasAura(eSpells::SpiritOfTheRylak))
-                        {
-
-                        }
+                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
 
                         m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
                         break;
@@ -404,9 +431,7 @@ class boss_beastlord_darmac : public CreatureScript
                             m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
 
                         if (me->HasAura(eSpells::SpiritOfTheRylak))
-                        {
-
-                        }
+                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
 
                         m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
                         break;
@@ -423,6 +448,7 @@ class boss_beastlord_darmac : public CreatureScript
                         if (me->HasAura(eSpells::FuryOfTheElekk))
                             m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
 
+                        m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
                         break;
                     }
                     default:
@@ -480,6 +506,26 @@ class boss_beastlord_darmac : public CreatureScript
                         m_RendAndTear = true;
 
                         me->CastSpell(p_Target, eSpells::RendAndTearJump, true);
+                        break;
+                    }
+                    case eSpells::FaceRandomNonTank:
+                    {
+                        me->SetFacingTo(me->GetAngle(p_Target));
+
+                        me->CastSpell(p_Target, eSpells::FlameBreathStalkerProc, true);
+
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::SuperheatedShrapnel, false);
+                        });
+
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
                         break;
                     }
                     default:
@@ -548,12 +594,26 @@ class boss_beastlord_darmac : public CreatureScript
                 if (me->HealthBelowPctDamaged(m_SwitchStatePct, p_Damage))
                 {
                     /// Darmac will choose a Prime Beast to mount at 85%, 65%, and 45% health
-                    if (m_SwitchStatePct >= 85.0f)
-                        m_SwitchStatePct = 65.0f;
-                    else if (m_SwitchStatePct >= 65.0f)
-                        m_SwitchStatePct = 45.0f;
-                    else if (m_SwitchStatePct >= 45.0f)
-                        m_SwitchStatePct = 0.0f;
+                    switch (++m_State)
+                    {
+                        case eStates::StateFirstMount:
+                        {
+                            m_SwitchStatePct = 65.0f;
+                            break;
+                        }
+                        case eStates::StateSecondMount:
+                        {
+                            m_SwitchStatePct = 45.0f;
+                            break;
+                        }
+                        case eStates::StateThirdMount:
+                        {
+                            m_SwitchStatePct = 0.0f;
+                            break;
+                        }
+                        default:
+                            break;
+                    }
 
                     /// Choose nearest beast
                     me->CastSpell(me, eSpells::TargetVehicle, true);
@@ -602,6 +662,16 @@ class boss_beastlord_darmac : public CreatureScript
                         me->CastSpell(me, eSpells::TantrumPeriodic, false);
 
                         m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
+                        break;
+                    }
+                    case eEvents::EventSuperheatedShrapnel:
+                    {
+                        Talk(eTalks::TalkSuperheatedShrapnelWarn);
+                        Talk(eTalks::TalkSuperheatedShrapnel);
+
+                        me->CastSpell(me, eSpells::FaceRandomNonTank, true);
+
+                        m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnelCooldown);
                         break;
                     }
                     case eEvents::EventRendAndTear:
@@ -922,7 +992,10 @@ class npc_foundry_dreadwing : public CreatureScript
             /// Inferno Breath
             FaceRandomNonTank   = 155423,
             FlameBreathStalker  = 161262,   ///< Summons 79868
-            InfernoBreath       = 154988
+            InfernoBreath       = 154988,
+            /// Conflagration
+            ConflagrationSearch = 155399,
+            ConflagrationProc   = 154981
         };
 
         enum eEvents
@@ -1084,6 +1157,11 @@ class npc_foundry_dreadwing : public CreatureScript
 
                         break;
                     }
+                    case eSpells::ConflagrationSearch:
+                    {
+                        me->CastSpell(p_Target, eSpells::ConflagrationProc, true);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1111,6 +1189,7 @@ class npc_foundry_dreadwing : public CreatureScript
                     }
                     case eEvents::EventConflagration:
                     {
+                        me->CastSpell(me, eSpells::ConflagrationSearch, true);
                         m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagrationCooldown);
                         break;
                     }
@@ -1401,7 +1480,10 @@ class npc_foundry_heavy_spear : public CreatureScript
         enum eSpells
         {
             PinDownVisualAura   = 155376,
-            PinnedDownDamage    = 154960
+            PinnedDownDamage    = 154960,
+            FlameInfusion       = 155604,
+            SeekingEmbersSearch = 155610,
+            SeekingEmbersProc   = 155611
         };
 
         struct npc_foundry_heavy_spearAI : public ScriptedAI
@@ -1428,8 +1510,21 @@ class npc_foundry_heavy_spear : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                if (p_SpellInfo->Id == eSpells::PinnedDownDamage)
-                    m_AffectedTargets.insert(p_Target->GetGUID());
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::PinnedDownDamage:
+                    {
+                        m_AffectedTargets.insert(p_Target->GetGUID());
+                        break;
+                    }
+                    case eSpells::SeekingEmbersSearch:
+                    {
+                        me->CastSpell(p_Target, eSpells::SeekingEmbersProc, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
 
             void JustDied(Unit* p_Killer) override
@@ -1458,6 +1553,12 @@ class npc_foundry_heavy_spear : public CreatureScript
                     else
                         ++l_Guid;
                 }
+            }
+
+            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_SpellInfo->Id == eSpells::FlameInfusion)
+                    me->CastSpell(me, eSpells::SeekingEmbersSearch, true);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1552,6 +1653,46 @@ class npc_foundry_thunderlord_pack_pens : public CreatureScript
         }
 };
 
+/// Pack Beast - 77128
+class npc_foundry_pack_beast : public CreatureScript
+{
+    public:
+        npc_foundry_pack_beast() : CreatureScript("npc_foundry_pack_beast") { }
+
+        enum eSpells
+        {
+            FlameInfusionTriggered      = 155650,
+            FlameInfusionAreaTrigger    = 155653
+        };
+
+        struct npc_foundry_pack_beastAI : public ScriptedAI
+        {
+            npc_foundry_pack_beastAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->isAlive())
+                    return;
+
+                if (me->GetAreaTrigger(eSpells::FlameInfusionAreaTrigger) != nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::FlameInfusionTriggered)
+                    me->CastSpell(me, eSpells::FlameInfusionAreaTrigger, true);
+            }
+
+            void JustDespawned() override
+            {
+                me->RemoveAllAreasTrigger();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_pack_beastAI(p_Creature);
+        }
+};
+
 /// Hitching Post Chain - 161300
 class spell_foundry_hitching_post_chain : public SpellScriptLoader
 {
@@ -1610,6 +1751,7 @@ class spell_foundry_hitching_post_chain : public SpellScriptLoader
 /// Rend and Tear (Cruelfang's searcher) - 155385
 /// Rend and Tear (Beastlord Darmac's searcher) - 155515
 /// Face Random Non-Tank - 155423
+/// Face Random Non-Tank - 155603
 class spell_foundry_ranged_targets_searcher : public SpellScriptLoader
 {
     public:
@@ -1717,6 +1859,281 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
         }
 };
 
+/// Infusion of Flames! - 173974
+class spell_foundry_infusion_of_flames : public SpellScriptLoader
+{
+    public:
+        spell_foundry_infusion_of_flames() : SpellScriptLoader("spell_foundry_infusion_of_flames") { }
+
+        class spell_foundry_infusion_of_flames_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_infusion_of_flames_SpellScript);
+
+            enum eCreatures
+            {
+                HeavySpear  = 76796,
+                PackBeast   = 77128
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (p_Object->GetEntry() != eCreatures::HeavySpear &&
+                        p_Object->GetEntry() != eCreatures::PackBeast)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_infusion_of_flames_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_infusion_of_flames_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_infusion_of_flames_SpellScript();
+        }
+};
+
+/// Inferno Breath - 155026
+class areatrigger_foundry_inferno_breath : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_inferno_breath() : AreaTriggerEntityScript("areatrigger_foundry_inferno_breath") { }
+
+        enum eSpell
+        {
+            InfernoPyre = 156824
+        };
+
+        std::set<uint64> m_AffectedPlayers;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 1.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::InfernoPyre))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Caster->CastSpell(l_Iter, eSpell::InfernoPyre, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::InfernoPyre);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::InfernoPyre);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_inferno_breath();
+        }
+};
+
+/// Superheated Shrapnel - 155503
+class areatrigger_foundry_superheated_shrapnel : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_superheated_shrapnel() : AreaTriggerEntityScript("areatrigger_foundry_superheated_shrapnel") { }
+
+        enum eSpell
+        {
+            SuperheatedScrap = 156823
+        };
+
+        std::set<uint64> m_AffectedPlayers;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 1.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::SuperheatedScrap))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Caster->CastSpell(l_Iter, eSpell::SuperheatedScrap, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::SuperheatedScrap);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::SuperheatedScrap);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_superheated_shrapnel();
+        }
+};
+
+/// Flame Infusion - 155653
+class areatrigger_foundry_flame_infusion : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_flame_infusion() : AreaTriggerEntityScript("areatrigger_foundry_flame_infusion") { }
+
+        enum eSpell
+        {
+            FlameInfusionDoT = 155657
+        };
+
+        std::set<uint64> m_AffectedPlayers;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 1.5f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::FlameInfusionDoT, l_Caster->GetGUID()))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Caster->CastSpell(l_Iter, eSpell::FlameInfusionDoT, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::FlameInfusionDoT, l_Caster->GetGUID());
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                for (uint64 l_Guid : m_AffectedPlayers)
+                {
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, l_Guid))
+                        l_Unit->RemoveAura(eSpell::FlameInfusionDoT, l_Caster->GetGUID());
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_flame_infusion();
+        }
+};
+
 void AddSC_boss_beastlord_darmac()
 {
     /// Boss
@@ -1729,11 +2146,16 @@ void AddSC_boss_beastlord_darmac()
     new npc_foundry_hitching_post();
     new npc_foundry_heavy_spear();
     new npc_foundry_thunderlord_pack_pens();
+    new npc_foundry_pack_beast();
 
     /// Spells
     new spell_foundry_hitching_post_chain();
     new spell_foundry_ranged_targets_searcher();
     new spell_foundry_target_vehicle();
+    new spell_foundry_infusion_of_flames();
 
     /// AreaTriggers
+    new areatrigger_foundry_inferno_breath();
+    new areatrigger_foundry_superheated_shrapnel();
+    new areatrigger_foundry_flame_infusion();
 }
