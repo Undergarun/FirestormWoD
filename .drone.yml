@@ -12,7 +12,7 @@ build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - mkdir build
-      - mkdir dist/bin dist/lib
+      - mkdir dist/bin dist/lib dist/etc
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
@@ -39,7 +39,7 @@ build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cp -p contrib/deploy/run-worldserver dist/bin
-      - cp contrib/deploy/commands.gdb dist/bin
+      - cp contrib/deploy/commands.gdb dist/etc
 
 publish:
   docker:
