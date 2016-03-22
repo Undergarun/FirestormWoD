@@ -2940,7 +2940,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    uint32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
     tmp += l_Resist;
     if (roll < l_Resist)
         return SPELL_MISS_RESIST;
@@ -2963,7 +2963,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            uint32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
             if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
@@ -12958,7 +12958,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 48503)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    // No bonus for Lifebloom : Final heal
     if (spellProto->Id == 33778)
         return healamount;
 
