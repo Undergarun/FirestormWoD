@@ -815,7 +815,7 @@ class boss_oregorger : public CreatureScript
                     }
                     case eEvents::EventExplosiveShard:
                     {
-                        if (Unit* l_Target = SelectRangedTarget())
+                        if (Unit* l_Target = SelectMeleeTarget())
                             me->CastSpell(l_Target, eSpells::ExplosiveShardMissile, true);
 
                         m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 15 * TimeConstants::IN_MILLISECONDS);
@@ -1297,23 +1297,7 @@ class spell_foundry_acid_torrent_searcher : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
-                {
-                    if (p_Object == nullptr)
-                        return true;
-
-                    if (!p_Object->isInFront(l_Caster))
-                        return true;
-
-                    return false;
-                });
-
-                if (p_Targets.empty())
-                    return;
-
-                p_Targets.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
-
-                WorldObject* l_Object = (*p_Targets.begin());
+                WorldObject* l_Object = l_Caster->getVictim();
 
                 p_Targets.clear();
                 p_Targets.push_back(l_Object);

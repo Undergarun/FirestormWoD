@@ -59,9 +59,61 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','-227694','1.94279','2.13936','0.772606','3.19582');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','-227693','1.64658','7.37304','2.52241','4.84515');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','-227695','-3.65367','0.263912','0.754906','0.03537');
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','77356','3.18657','4.81055','1.25747','5.73736');
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','77775','3.38835','-0.812792','1.25761','0.428072');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','77356','3.18657','4.81055','1.25747','5.73736'); -- trainers
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','1','77775','3.38835','-0.812792','1.25761','0.428072'); -- work orders
+
+	REPLACE INTO `creature_queststarter` (`id`, `quest`) VALUES
+	('88546','37320'),
+	('88546','37321'),
+	('88546','37323'),
+	('88546','37324'),
+	('88546','37319'),
+	('88546','37325'),
+	('88545','37320'),
+	('88545','37321'),
+	('88545','37323'),
+	('88545','37324'),
+	('88545','37319'),
+	('88545','37325');
+
+	REPLACE INTO `creature_questender` (`id`, `quest`) VALUES
+	('88546','37320'),
+	('88546','37321'),
+	('88546','37323'),
+	('88546','37324'),
+	('88546','37319'),
+	('88546','37325'),
+	('88545','37320'),
+	('88545','37321'),
+	('88545','37323'),
+	('88545','37324'),
+	('88545','37319'),
+	('88545','37325');
+
+	update creature_template set npcflag = npcflag | 1 | 2, minlevel = 100, maxlevel = 100 where entry in (88545, 88546);
+
+	DELETE FROM pool_quest WHERE pool_entry = 30007;
+	DELETE FROM pool_template WHERE entry = 30007;
+	INSERT INTO pool_template VALUE (30007, 1, "Garrison Gem Boutique daily quests");
+	INSERT INTO pool_quest VALUES
+	(37320, 30007, "Jewelcrafting Special Order: A Fine Choker"),
+	(37321, 30007, "Jewelcrafting Special Order: A Yellow Brighter Than Gold"),
+	(37323, 30007, "Jewelcrafting Special Order: Blue the Shade of Sky and Sea"),
+	(37319, 30007, "Jewelcrafting Special Order: Wedding Bands"),
+	(37325, 30007, "Out of Stock: True Iron Ore"),
+	(37324, 30007, "Out of Stock: Blackrock Ore");
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-131 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','1','77775','3.08504','-1.53735','1.27167','0.322052');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','1','77356','2.00509','-5.48272','1.27167','2.02243');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','1','-228550','0.5779','2.17636','0.771561','6.2149');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','1','-236651','4.60241','4.03468','0.77301','4.49882');
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-132 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','1','-228550','1.43425','-6.26701','0.769791','1.66745');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','1','77356','3.28106','-2.54661','1.27136','1.746');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','1','77775','-0.04974','-1.10121','1.27156','0.049543');

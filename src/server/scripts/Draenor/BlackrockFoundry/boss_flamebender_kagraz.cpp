@@ -371,7 +371,7 @@ class boss_flamebender_kagraz : public CreatureScript
                         AddTimedDelayedOperation(50, [l_Me, l_Dest, l_Src]() -> void
                         {
                             uint8 l_Dist = l_Src->GetExactDist2d(l_Dest);
-                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            for (uint8 l_I = 0; l_I < l_Dist; ++l_I)
                             {
                                 Position l_Target;
 
@@ -861,7 +861,7 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
                             if (Creature* l_Kagraz = me->FindNearestCreature(eFoundryCreatures::BossFlamebenderKagraz, 100.0f))
                             {
                                 uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
-                                for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                                for (uint8 l_I = 0; l_I < l_Dist; ++l_I)
                                 {
                                     Position l_Target;
 

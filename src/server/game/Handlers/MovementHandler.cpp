@@ -146,7 +146,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             // short preparations to continue flight
             FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-            flight->Initialize(*GetPlayer());
+            flight->Initialize(GetPlayer());
             return;
         }
 
@@ -190,7 +190,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
-    m_Player->GetZoneAndAreaId(newzone, newarea);
+    m_Player->GetZoneAndAreaId(newzone, newarea, true);
     m_Player->UpdateZone(newzone, newarea);
 
     for (uint8 i = 0; i < 9; ++i)
@@ -239,7 +239,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     uint32 l_NewZone, l_NewArea;
 
-    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea);
+    l_MoverPlayer->GetZoneAndAreaId(l_NewZone, l_NewArea, true);
     l_MoverPlayer->UpdateZone(l_NewZone, l_NewArea);
 
     // new zone
@@ -480,6 +480,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     l_Mover->SendMessageToSet(&data, m_Player);
 
     l_Mover->m_movementInfo = l_MovementInfo;
+    l_Mover->m_movementInfoLastTime = l_MSTime - GetLatency();
 
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
     if (l_Mover->GetVehicle())
@@ -494,7 +495,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        float l_MaxDepth = -500.0f;
+        /*float l_MaxDepth = -500.0f;
 
         /// Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)
@@ -513,8 +514,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
             default:
                 break;
         }
-
-        if (l_MovementInfo.pos.GetPositionZ() < l_MaxDepth)
+        */
+        if (l_MovementInfo.pos.GetPositionZ() < l_PlayerMover->GetMap()->GetMinHeight(l_MovementInfo.pos.GetPositionX(), l_MovementInfo.pos.GetPositionY()))
         {
             if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
             {
@@ -523,6 +524,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
                 // TODO: discard movement packets after the player is rooted
                 if (l_PlayerMover->isAlive())
                 {
+                    ///l_PlayerMover->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
                     l_PlayerMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM/etc
                     // change the death state to CORPSE to prevent the death timer from

@@ -2558,7 +2558,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
         if (l_Dungeon && l_Dungeon->map > 0)
         {
             /// Mythic difficulty shouldn't be offered in LFG
-            if (!l_Dungeon->grouptype || l_Dungeon->difficulty == Difficulty::DifficultyMythic)
+            if (!l_Dungeon->grouptype && l_Dungeon->difficulty == Difficulty::DifficultyMythic)
             {
                 m_InvalidDungeons.insert(*l_Iter);
                 l_CachedDungeon.erase(l_Iter++);

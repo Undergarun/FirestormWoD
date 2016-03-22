@@ -8,6 +8,7 @@
 
 	REPLACE INTO creature_queststarter VALUE (79862, 37060);
 	REPLACE INTO creature_questender VALUE (79862, 37060);
+	UPDATE quest_template_objective SET flags = flags | 0x04 WHERE questid IN (37087, 37060); -- tempfix for first quest
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-51 AND faction_index = 0;
 	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-51','0','79862','1.66546','-0.009018','1.31065','-0.01372');
 

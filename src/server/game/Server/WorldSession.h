@@ -178,7 +178,9 @@ namespace ServiceFlags
 {
     enum
     {
-        Premade = 0x1
+        Premade     = 0x01,
+        Season2Gold = 0x02,
+        Season2Item = 0x04
     };
 }
 
@@ -188,6 +190,16 @@ namespace AccountCustomFlags
     {
         NoChatLocaleFiltering = 0x1
     };
+}
+
+namespace Taxi
+{
+    class ShowTaxiNodes;
+    class TaxiNodeStatusQuery;
+    class EnableTaxiNode;
+    class TaxiQueryAvailableNodes;
+    class ActivateTaxi;
+    class TaxiRequestEarlyLanding;
 }
 
 //class to deal with packet processing
@@ -337,6 +349,7 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
+        void LoginPlayer(uint64 p_Guid);
         void LogoutPlayer(bool Save);
         void KickPlayer();
 
@@ -483,11 +496,11 @@ class WorldSession
         uint16 GetClientBuild() const { return m_ClientBuild; }
 
         /// Return join date as unix timestamp
-        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+        uint64 GetAccountJoinDate() const { return m_AccountJoinDate; }
 
         /// Set join date as unix timestamp
         /// @p_JoinDate : unix timestamp of the account creation
-        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
+        void SetAccountJoinDate(uint64 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
         time_t GetLoginTime() const { return m_LoginTime; }
 
@@ -726,6 +739,7 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
+        void HandleEnableTaxiNodeOpcode(WorldPacket& recvPacket);
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
@@ -1215,6 +1229,9 @@ class WorldSession
         /// Gms command cooldowns (performances)
         time_t m_TimeLastTicketOnlineList;
 
+        void SetStressTest(bool p_Value) { m_IsStressTestSession = p_Value; }
+        bool IsStressTest() const { return m_IsStressTestSession; }
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1277,7 +1294,7 @@ class WorldSession
 
         uint16 m_ClientBuild;
 
-        uint32 m_AccountJoinDate;
+        uint64 m_AccountJoinDate;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium
@@ -1347,6 +1364,8 @@ class WorldSession
         uint32 m_ServiceFlags;
         uint32 m_CustomFlags;
         time_t m_LoginTime;
+
+        bool m_IsStressTestSession;
 };
 #endif
 /// @}

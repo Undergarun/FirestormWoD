@@ -142,6 +142,8 @@ namespace MS { namespace Garrison
 
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
+            /// Assign a follower to a building
+            void AssignFollowerToBuilding(uint64 p_FollowerDBID, uint32 p_PlotInstanceID);
             /// Change follower activation state
             void ChangeFollowerActivationState(uint64 p_FollowerDBID, bool p_Active);
             /// Get followers
@@ -188,7 +190,7 @@ namespace MS { namespace Garrison
             /// Has active building
             bool HasActiveBuilding(uint32 p_BuildingID) const;
             /// Has building type
-            bool HasBuildingType(BuildingType::Type p_BuildingType) const;
+            bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
             GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
             /// Get Level of the building
@@ -201,8 +203,16 @@ namespace MS { namespace Garrison
             uint64 StartWorkOrder(uint32 p_PlotInstanceID, uint32 p_ShipmentID);
             /// Delete work order
             void DeleteWorkOrder(uint64 p_DBID);
+            /// Calculate the chance to double the work order of the building, depending of the follower
             uint8 CalculateAssignedFollowerShipmentBonus(uint32 p_PlotInstanceID);
+            /// Generates random reward for Armory work order
             uint32 CalculateArmoryWorkOrder() const;
+            /// Get follower assigned to building from plot instance ID
+            GarrisonFollower* GetAssignedFollower(uint32 p_PlotInstanceID);
+            /// Checks if the building has the required follower assigned to apply bonus
+            bool HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID);
+            /// Add new creature in plot datas, that way any summoned creature can be detected as part of the building
+            void InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID
@@ -223,6 +233,8 @@ namespace MS { namespace Garrison
             uint32 GetGarrisonLevel() { return m_GarrisonLevel; };
             /// Check if the players has the right mount
             bool CheckGarrisonStablesQuestsConditions(uint32 p_QuestID, Player* p_Player);
+            /// Checks training mounts auras
+            bool IsTrainingMount();
 
             /// Tavern System
             void AddGarrisonTavernData(uint32 p_Data);

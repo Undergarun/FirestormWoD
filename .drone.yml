@@ -1,7 +1,6 @@
 branches:
   - wod
   - wod_ptr
-  - interrealm
 
 clone:
   depth: 20
@@ -9,44 +8,60 @@ clone:
   submodule_update_remote: true
 
 build:
-  prepare_build:
+  before_build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
-        - mkdir /home/realm
-        - mkdir build
-  wod_release:
-    image: milleniumstudio/drone-clang-mariadb-ace
-    commands:
-      - cd build
-      - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
-      - make -j 32
-      - make install
-      - make clean
-      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_RelWithDebInfo
-      - cd - && ls -la
-  wod_asan:
+      - mkdir build
+      - mkdir dist/bin dist/lib
+  release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cd build
-      - cmake .. -DPREFIX=/home/realm -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
       - make clean
-      - mv /home/realm/bin/worldserver /home/realm/bin/worldserver_Asan
-      - cd - && ls -la
+      - cd -
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
+  release:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j 32
+      - make install
+      - make clean
+      - cd -
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
     when:
       branch: wod
+  after_build:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cp -p contrib/deploy/run-worldserver dist/bin
+      - cp contrib/deploy/commands.gdb dist/bin
 
-#publish:
-#  docker:
-#    username: drone
-#    password: $$DOCKER_PASS
-#    email: $$DOCKER_EMAIL
-#    repo: milleniumstudio/docker-wod
-#    tag: latest
-#    file: Dockerfile
-#    when:
-#      branch: wod
+publish:
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest-ptr
+    file: dist/Dockerfile
+    context: dist/
+    when:
+      branch: wod_ptr
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest
+    file: dist/Dockerfile
+    context: dist/
+    when:
+      branch: wod
 
 notify:
   slack:
@@ -54,4 +69,4 @@ notify:
     channel: wow-notification
     username: Drone
     template: >
-      Build <https://drone.firestorm-servers.com/MilleniumStudio/Garrosh/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
+      Build <https://drone.firestorm-servers.com/MilleniumStudio/wod/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}

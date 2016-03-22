@@ -326,6 +326,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 CometStorm  = 153596
             };
 
+            uint16 m_CountTarget = 0;
             bool m_AlreadyLaunch = false;
 
             void HandleAfterHit()
@@ -391,8 +392,28 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 }
             }
 
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                m_CountTarget = p_Targets.size();
+            }
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                if (m_CountTarget)
+                    SetHitDamage(GetHitDamage() / m_CountTarget);
+            }
+
             void Register()
             {
+                switch (m_scriptSpellId)
+                {
+                case 153596:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_comet_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                    OnEffectHitTarget += SpellEffectFn(spell_mage_comet_storm_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                    break;
+                default:
+                    break;
+                }
                 AfterHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleAfterHit);
                 AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
             }
@@ -1871,6 +1892,7 @@ class spell_mage_unstable_magic: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Ice Lance - 30455
 class spell_mage_ice_lance: public SpellScriptLoader
 {
@@ -1900,9 +1922,9 @@ class spell_mage_ice_lance: public SpellScriptLoader
                 int32 l_Damage = GetHitDamage();
                 int32 l_Scale = CalculatePct(l_Damage, l_Multiplier);
 
-                int32 l_ScaleValue = ((l_Scale * 2 ) / 100) * l_RandomScale;
+                int32 l_ScaleValue = (l_Scale / 100) * l_RandomScale;
 
-                l_Damage -= l_Scale;
+                l_Damage -= (l_Scale / 2);
                 l_Damage += l_ScaleValue;
                 SetHitDamage(l_Damage);
             }
@@ -3197,6 +3219,9 @@ public:
 
         void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
+            if (GetCaster() == nullptr)
+                return;
+
             Player* l_Player = GetCaster()->ToPlayer();
 
             if (l_Player == nullptr)

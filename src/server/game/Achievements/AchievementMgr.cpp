@@ -860,16 +860,25 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             ca.date = time_t(fields[2].GetUInt32());
             ca.changed = false;
             ca.first_guid = MAKE_NEW_GUID(first_guid, 0, HIGHGUID_PLAYER);
-            ca.completedByThisCharacter = false;
+            ca.completedByThisCharacter = first_guid == GetOwner()->GetGUIDLow();
             m_CompletedAchievementsLock.release();
 
             _achievementPoints += achievement->Points;
 
+            bool l_CanAddTitle = achievement->Flags & AchievementFlags::ACHIEVEMENT_FLAG_ACCOUNT || GetOwner()->GetGUIDLow() == first_guid;
+
             // Title achievement rewards are retroactive
-            if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
-                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
-                        GetOwner()->SetTitle(titleEntry);
+            if (l_CanAddTitle)
+            {
+                if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
+                {
+                    if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                    {
+                        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                            GetOwner()->SetTitle(titleEntry);
+                    }
+                }
+            }
 
         }
         while (achievementAccountResult->NextRow());
@@ -941,6 +950,15 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             
             m_CompletedAchievementsLock.release();
             _achievementPoints += achievement->Points;
+
+            if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
+            {
+                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                {
+                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                        GetOwner()->SetTitle(titleEntry);
+                }
+            }
 
         }
         while (achievementResult->NextRow());

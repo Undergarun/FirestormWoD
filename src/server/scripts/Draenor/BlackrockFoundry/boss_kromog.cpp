@@ -265,7 +265,7 @@ class boss_kromog : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RuneOfGraspingEarthVehicle);
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me)))
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::KromogBonusLoot, true);
@@ -501,7 +501,7 @@ class boss_kromog : public CreatureScript
 
                         for (uint8 l_I = 0; l_I < eFoundryDatas::MaxReverberationSpawns; ++l_I)
                         {
-                            float l_Range       = frand(15.0f, 25.0f);
+                            float l_Range       = frand(25.0f, 35.0f);
                             float l_Orientation = l_BaseO + frand(-(M_PI / 2.0f), M_PI / 2.0f);
 
                             float l_X = l_BaseX + l_Range * cos(l_Orientation);
@@ -1025,8 +1025,8 @@ class spell_foundry_slam : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        /// Damages will be reduced by 10.000 for each yards separating the target from the boss position
-                        float l_ReducedDamage = 10000.0f;
+                        /// Damages will be reduced by 12.000 for each yards separating the target from the boss position
+                        float l_ReducedDamage = 12000.0f;
                         float l_Damage = GetSpell()->GetDamage();
 
                         int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));

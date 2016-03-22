@@ -2527,6 +2527,11 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
         itemTemplate.Name1 = sparse->Name;
         itemTemplate.DisplayInfoID = db2Data->DisplayId;
+
+        auto l_Itr = g_ItemTemplateDisplayIDs.find(itemId);
+        if (l_Itr != g_ItemTemplateDisplayIDs.end())
+            itemTemplate.DisplayInfoID = l_Itr->second;
+
         itemTemplate.Quality = sparse->Quality;
         itemTemplate.Flags = sparse->Flags;
         itemTemplate.Flags2 = sparse->Flags2;
@@ -2634,10 +2639,9 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxMoneyLoot = 0;
         itemTemplate.FlagsCu = 0;
 
-        if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
-            itemTemplate.PvPScalingLevel = pvpItem->ilvl;
-        else
-            itemTemplate.PvPScalingLevel = 0;
+        auto l_Iter = g_PvPItemStoreLevels.find(itemId);
+        if (l_Iter != g_PvPItemStoreLevels.end())
+            itemTemplate.PvPScalingLevel = l_Iter->second;
 
         ++sparseCount;
     }
@@ -2677,19 +2681,27 @@ void ObjectMgr::LoadItemTemplateCorrections()
         switch (l_ItemTemplate.ItemId)
         {
             // Prevent people opening strongboxed they cant use & abuse some other stuff
-            case 120354: //Gold Strongbox A
-            case 120355: //Silver Strongbox A
-            case 120356: //Bronze Strongbox A
-            case 120353: //Steel Strongbox A
+            case 120354: ///< Gold Strongbox A
+            case 120355: ///< Silver Strongbox A
+            case 120356: ///< Bronze Strongbox A
+            case 120353: ///< Steel Strongbox A
             case 118065: ///< Gleaming Ashmaul Strongbox (A)
+            case 126905: ///< Steel Strongbox A - S2
+            case 126908: ///< Bronze Strongbox A - S2
+            case 126907: ///< Silver Strongbox A - S2
+            case 126906: ///< Gold Strongbox A - S2
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
-            case 111598: //Gold Strongbox H
-            case 111599: //Silver strongbox H
-            case 111600: //Bronze Strongbox H
-            case 119330: //Steel StrongBox H
+            case 111598: ///< Gold Strongbox H
+            case 111599: ///< Silver strongbox H
+            case 111600: ///< Bronze Strongbox H
+            case 119330: ///< Steel StrongBox H
             case 120151: ///< Gleaming Ashmaul Strongbox (H)
+            case 126904: ///< Steel Strongbox H - S2
+            case 126903: ///< Bronze Strongbox H - S2
+            case 126902: ///< Silver Strongbox H - S2
+            case 126901: ///< Gold Strongbox H - S2
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -5077,13 +5089,13 @@ void ObjectMgr::LoadEventScripts()
     {
         for (size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
         {
-            TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
+            TaxiPathNodeEntry const* node = sTaxiPathNodesByPath[path_idx][node_idx];
 
-            if (node.arrivalEventID)
-                evt_scripts.insert(node.arrivalEventID);
+            if (node->ArrivalEventID)
+                evt_scripts.insert(node->ArrivalEventID);
 
-            if (node.departureEventID)
-                evt_scripts.insert(node.departureEventID);
+            if (node->DepartureEventID)
+                evt_scripts.insert(node->DepartureEventID);
         }
     }
 
@@ -5864,52 +5876,48 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         }
     }
 
-    for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+
+    uint32 requireFlag = (team == ALLIANCE) ? TAXI_NODE_FLAG_ALLIANCE : TAXI_NODE_FLAG_HORDE;
+    for (uint32 i = 0; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-        if (!node)
+        if (!node || !(node->Flags & requireFlag))
             continue;
 
-        if (node->map_id != mapid)
+        if (node->MapID != mapid)
         {
-            if (l_MapOverrides.find(node->map_id) != l_MapOverrides.end() && l_MapOverrides[node->map_id] != mapid)
+            if (l_MapOverrides.find(node->MapID) != l_MapOverrides.end() && l_MapOverrides[node->MapID] != mapid)
                 continue;
         }
 
-        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight)
-            continue;
-
-        uint8  field   = (uint8)((i - 1) / 8);
-        uint32 submask = 1 << ((i-1) % 8);
+        uint8  field   = (uint8)((node->ID - 1) / 8);
+        uint32 submask = 1 << ((node->ID - 1) % 8);
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
-        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
-        if (node->m_Flags == 0)
-            continue;
-
-        float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
+        float dist2 = (node->x - x)*(node->x - x) + (node->y - y)*(node->y - y) + (node->z - z)*(node->z - z);
         if (found)
         {
             if (dist2 < dist)
             {
                 dist = dist2;
-                id = i;
+                id = node->ID;
             }
         }
         else
         {
             found = true;
             dist = dist2;
-            id = i;
+            id = node->ID;
         }
     }
 
     return id;
 }
+
 
 void ObjectMgr::GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost)
 {
@@ -6017,7 +6025,7 @@ void ObjectMgr::LoadGraveyardZones()
         }
 
         if (areaEntry->ParentAreaID != 0 && zoneId != 33 && zoneId != 5287 && zoneId != 6170 && zoneId != 6176 && zoneId != 6450 && zoneId != 6451
-                             && zoneId != 6452 && zoneId != 6453 && zoneId != 6454 && zoneId != 6455 && zoneId != 6456 && zoneId != 6450)
+            && zoneId != 6452 && zoneId != 6453 && zoneId != 6454 && zoneId != 6455 && zoneId != 6456 && zoneId != 6450 && zoneId != 7004 && zoneId != 7078)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
             continue;
@@ -9540,34 +9548,31 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
 
     QueryResult result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
 
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `_hotfixs` is empty.");
-        return;
-    }
-
     uint32 l_Count = 0;
 
-    if (!p_Reload)
+    if (result)
     {
-        _hotfixData.clear();
-        _hotfixData.reserve(result->GetRowCount());
+        if (!p_Reload)
+        {
+            _hotfixData.clear();
+            _hotfixData.reserve(result->GetRowCount());
+        }
+
+        do
+        {
+            Field* l_Fields = result->Fetch();
+
+            HotfixInfo l_Infos;
+            l_Infos.Entry       = l_Fields[0].GetUInt32();
+            l_Infos.Type        = l_Fields[1].GetUInt32();
+            l_Infos.Timestamp   = l_Fields[2].GetUInt32();
+
+            l_ProcessHotifx(l_Infos, p_Reload);
+
+            ++l_Count;
+        }
+        while (result->NextRow());
     }
-
-    do
-    {
-        Field* l_Fields = result->Fetch();
-
-        HotfixInfo l_Infos;
-        l_Infos.Entry       = l_Fields[0].GetUInt32();
-        l_Infos.Type        = l_Fields[1].GetUInt32();
-        l_Infos.Timestamp   = l_Fields[2].GetUInt32();
-
-        l_ProcessHotifx(l_Infos, p_Reload);
-
-        ++l_Count;
-    }
-    while (result->NextRow());
 
     result = HotfixDatabase.Query("SELECT ID FROM _custom_items");
 
@@ -9593,6 +9598,19 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
                 l_Infos.Type        = sItemSparseStore.GetHash();
                 l_Infos.Timestamp   = time(nullptr);
                 l_Infos.Entry       = l_ItemID;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            for (uint32 l_I = 0; l_I < sPvpItemStore.GetNumRows(); ++l_I)
+            {
+                PvpItemEntry const* l_Entry = sPvpItemStore.LookupEntry(l_I);
+                if (l_Entry == nullptr || l_Entry->itemId != l_ItemID)
+                    continue;
+
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sPvpItemStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_I;
                 l_ProcessHotifx(l_Infos, p_Reload);
             }
 
@@ -10626,69 +10644,6 @@ uint32 ObjectMgr::GetQuestObjectiveQuestId(uint32 objectiveId) const
     return l_It->second;
 }
 
-void ObjectMgr::LoadTaxiData()
-{
-    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
-    {
-        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
-        if (!entry->from || !entry->to)
-            continue;
-
-        TaxiNode* node = GetTaxiNodeByID(entry->from);
-        if (node)
-            node->AddConnectedNode(entry->to);
-        else
-        {
-            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->from);
-            if (!nodeEntry)
-                continue;
-
-            Position nodePos;
-            nodePos.m_positionX = nodeEntry->x;
-            nodePos.m_positionY = nodeEntry->y;
-            nodePos.m_positionZ = nodeEntry->z;
-            nodePos.m_orientation = 0.f;
-
-            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
-            node->AddConnectedNode(entry->to);
-
-            _taxiNodes[entry->from] = node;
-        }
-    }
-
-    // fill data for empty nodes (nodes which have no outoing paths, however have paths to)
-    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
-    {
-        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
-        if (!entry->from || !entry->to)
-            continue;
-
-        TaxiNode* node = GetTaxiNodeByID(entry->to);
-        if (node)
-            continue;
-
-        TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->to);
-        if (!nodeEntry)
-            continue;
-
-        Position nodePos;
-        nodePos.m_positionX = nodeEntry->x;
-        nodePos.m_positionY = nodeEntry->y;
-        nodePos.m_positionZ = nodeEntry->z;
-        nodePos.m_orientation = 0.f;
-
-        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
-
-        _taxiNodes[entry->to] = node;
-    }
-}
-
 CreatureGroupSizeStat const* ObjectMgr::GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const
 {
     auto l_DifficultyIterator = m_CreatureGroupSizeStore.find(p_Entry);
@@ -10801,7 +10756,7 @@ void ObjectMgr::LoadDisabledEncounters()
 
     m_DisabledEncounters.clear();
 
-    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID FROM instance_disabled_rankings");
+    QueryResult l_Result = WorldDatabase.Query("SELECT EncounterID, DifficultyID FROM instance_disabled_rankings");
 
     if (!l_Result)
     {
@@ -10814,8 +10769,9 @@ void ObjectMgr::LoadDisabledEncounters()
     {
         Field* l_Fields         = l_Result->Fetch();
         uint32 l_EncounterID    = l_Fields[0].GetUInt32();
+        uint32 l_DifficultyID   = l_Fields[1].GetUInt32();
 
-        m_DisabledEncounters.insert(l_EncounterID);
+        m_DisabledEncounters.insert(std::make_pair(l_EncounterID, l_DifficultyID));
 
         l_Count++;
     }

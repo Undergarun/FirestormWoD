@@ -2072,7 +2072,8 @@ class npc_foundry_slag_elemental : public CreatureScript
             SlagBomb        = 176133,
             DamageShield    = 155176,
             Reanimate       = 155213,
-            DropTarget      = 101438
+            DropTarget      = 101438,
+            ShieldsDown     = 158345
         };
 
         enum eCreature
@@ -2235,8 +2236,12 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         for (Creature* l_Creature : l_Elementalists)
                         {
+                            /// If shielded, breaks shield
                             if (l_Creature->HasAura(eSpells::DamageShield))
                                 l_Creature->RemoveAura(eSpells::DamageShield);
+                            /// If not, refresh the vulnerability
+                            else if (Aura* l_Aura = l_Creature->GetAura(eSpells::ShieldsDown))
+                                l_Aura->RefreshDuration();
                         }
                     });
                 }
@@ -2251,7 +2256,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE || me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -2473,6 +2478,7 @@ class spell_foundry_defense_aura : public SpellScriptLoader
 
 /// Bomb (overrider) - 155192
 /// Bomb (overrider - second) - 174716
+/// Bomb (overrider - when mind controlled) - 159558
 class spell_foundry_bomb_overrider : public SpellScriptLoader
 {
     public:

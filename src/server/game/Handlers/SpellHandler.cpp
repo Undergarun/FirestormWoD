@@ -1207,6 +1207,32 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
         return;
     }
 
+    ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_ItemID);
+    if (!l_ItemProto)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown item id %u", l_ItemID);
+        p_RecvData.rfinish();
+        return;
+    }
+
+    bool l_Found = false;
+    for (int l_I = 0; l_I < MAX_ITEM_PROTO_SPELLS; ++l_I)
+    {
+        if (l_ItemProto->Spells[l_I].SpellId == l_SpellID)
+        {
+            l_Found = true;
+            break;
+        }
+    }
+
+    /// Cheater?
+    if (!l_Found)
+    {
+        sLog->outAshran("HandleUseToyOpcode: Player %s [%u] Trying to spoof packet and cast spell %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_SpellID);
+        p_RecvData.rfinish();
+        return;
+    }
+
     SpellCastTargets l_Targets;
 
     l_Targets.Initialize(l_TargetFlags, l_TargetGUID, l_TargetItemGUID, l_DestinationTargetGUID, l_DestinationTargetPosition, l_SourceTargetGUID, l_SourceTargetPosition);

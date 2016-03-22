@@ -179,4 +179,6 @@ void LoadDBCStores(const std::string& dataPath);
 
 uint32 GetQuestUniqueBitFlag(uint32 questId);
 
+void DeterminaAlternateMapPosition(uint32 p_MapID, float p_X, float p_Y, float p_Z, uint32* p_NewMapID = nullptr, float* p_NewPosX = nullptr, float* p_NewPosY = nullptr);
+
 #endif

@@ -515,7 +515,6 @@ namespace MS { namespace Garrison
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
             /// @Morgoporc Dont worry, this code will disappear
-            p_Player->GetGarrison()->AddFollower(34);
             p_Player->GetGarrison()->AddFollower(153);
             p_Player->GetGarrison()->AddFollower(92);
         }
@@ -779,6 +778,8 @@ namespace MS { namespace Garrison
     {
         if (!p_Id)
             m_OwnerGuid = p_Guid;
+        else if (p_Id == 1)
+            m_CheckTimer = p_Guid;
     }
 
     void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::UpdateAI(const uint32 p_Diff)
@@ -818,8 +819,11 @@ namespace MS { namespace Garrison
                     {
                         if (Player* l_Player = l_PlayerList.front())
                         {
-                            if (l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                            if (l_Creature->AI() && l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                            {
+                                l_Creature->AI()->SetGUID(2000, 1);
                                 l_Player->NearTeleportTo(l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ, l_Creature->GetOrientation());
+                            }
                         }
                     }
                 }
@@ -1105,6 +1109,213 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_follower_generic_script::npc_follower_generic_script()
+        : CreatureScript("npc_follower_generic_script")
+    {
+    }
+
+    bool npc_follower_generic_script::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_GarrisonMgr == nullptr || l_AI == nullptr)
+            return true;
+
+        uint32 l_BuildingPlotInstanceID = l_GarrisonMgr->GetCreaturePlotInstanceID(p_Creature->GetGUID());
+
+        /// @TODO : if (!l_BuildingPlotInstanceID), script the possibility to get the follower escorting the player
+        if (l_BuildingPlotInstanceID)
+        {
+            GarrisonBuilding l_Building = l_GarrisonMgr->GetBuilding(l_BuildingPlotInstanceID);
+
+            switch (l_Building.BuildingID)
+            {
+                /// Gem Boutique has custom handling
+                case Buildings::TailoringEmporium_TailoringEmporium_Level2:
+                case Buildings::TailoringEmporium_TailoringEmporium_Level3:
+                {
+                    std::vector<SkillNPC_RecipeEntry> l_Recipes;
+
+                    switch (p_Player->GetTeamId())
+                    {
+                        case TEAM_HORDE:
+                        {
+                            l_Recipes =
+                            {
+                                { 176315, 0 },
+                                { 176316, 0 }
+                            };
+                            break;
+                        }
+                        case TEAM_ALLIANCE:
+                        {
+                            l_Recipes =
+                            {
+                                { 176313, 0 },
+                                { 176314, 0 }
+                            };
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    l_GarrisonAI->SetRecipes(&l_Recipes, SkillType::SKILL_TAILORING);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
+                }
+                default:
+                    break;
+            }
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Fearsome Battle Standard (87594 / 86734)
+
+    /// Constructor
+    npc_FearsomeBattleStandard::npc_FearsomeBattleStandard()
+        : CreatureScript("npc_FearsomeBattleStandard")
+    {
+    }
+
+    /// Constructor
+    npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::npc_FearsomeBattleStandardAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_FearsomeBattleStandard::GetAI(Creature* p_Creature) const
+    {
+        return new npc_FearsomeBattleStandardAI(p_Creature);
+    }
+
+    void npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::Reset()
+    {
+        m_Events.Reset();
+
+        m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+        me->DespawnOrUnsummon(60 * TimeConstants::IN_MILLISECONDS);
+    }
+
+    void npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        m_Events.Update(p_Diff);
+
+        if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)
+        {
+            float l_AuraRadius = 8.0f;
+            float l_CheckRadius = l_AuraRadius + 5.0f;
+            std::list<Unit*> l_TargetList;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, l_CheckRadius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_TargetList, l_Check);
+
+            std::list<Player*> l_PlayerList;
+            GetPlayerListInGrid(l_PlayerList, me, l_CheckRadius);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (me->GetDistance(l_Unit) <= l_AuraRadius && !l_Unit->HasAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg))
+                    me->AddAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg, l_Unit);
+                else if (me->GetDistance(l_Unit) > l_AuraRadius && l_Unit->HasAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg))
+                    l_Unit->RemoveAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg);
+            }
+
+            m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Inspiring Battle Standard (88277 / 88010)
+
+    /// Constructor
+    npc_InspiringBattleStandard::npc_InspiringBattleStandard()
+        : CreatureScript("npc_InspiringBattleStandard")
+    {
+    }
+
+    /// Constructor
+    npc_InspiringBattleStandard::npc_InspiringBattleStandardAI::npc_InspiringBattleStandardAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_InspiringBattleStandard::GetAI(Creature* p_Creature) const
+    {
+        return new npc_InspiringBattleStandardAI(p_Creature);
+    }
+
+    void npc_InspiringBattleStandard::npc_InspiringBattleStandardAI::Reset()
+    {
+        m_Events.Reset();
+
+        m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+        me->DespawnOrUnsummon(60 * TimeConstants::IN_MILLISECONDS);
+    }
+
+    void npc_InspiringBattleStandard::npc_InspiringBattleStandardAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        m_Events.Update(p_Diff);
+
+        if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)
+        {
+            float l_AuraRadius = 8.0f;
+            float l_CheckRadius = l_AuraRadius + 5.0f;
+            std::list<Unit*> l_TargetList;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, l_CheckRadius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_TargetList, l_Check);
+
+            std::list<Player*> l_PlayerList;
+            GetPlayerListInGrid(l_PlayerList, me, l_CheckRadius);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (me->GetDistance(l_Unit) <= l_AuraRadius && !l_Unit->HasAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg))
+                    me->AddAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg, l_Unit);
+                else if (me->GetDistance(l_Unit) > l_AuraRadius && l_Unit->HasAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg))
+                    l_Unit->RemoveAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg);
+            }
+
+            m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        }
+    }
 
 }   ///< namespace Garrison
 }   ///< namespace MS
@@ -1117,6 +1328,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_garrison_amperial_construct;
     new MS::Garrison::npc_garrison_atheeru_palestar;
     new MS::Garrison::npc_GarrisonStablesCreatures;
+    new MS::Garrison::npc_follower_generic_script;
 
     /// Alliance
     {

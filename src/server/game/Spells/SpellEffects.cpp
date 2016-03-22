@@ -69,6 +69,7 @@
 #include "ArchaeologyMgr.hpp"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "PathGenerator.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -1369,10 +1370,10 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
         case 49575: ///< Death Grip
         case 92832: ///< Leap of Faith
         case 118283: ///< Ursol's Vortex
-            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
+            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_spellInfo->Id);
             break;
         case 49376: ///< Wild Charge
-            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
             break;
         case 156220: ///< Tactical Retreat
         case 156883: ///< Tactical Retreat (Other)
@@ -2525,8 +2526,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     uint32 lockId = 0;
     uint64 guid = 0;
-    bool l_OverridePlayerCondition = false;
-
+    bool l_ResultOverridedByPlayerCondition = false;
+    bool l_PlayerConditionFailed = false;
     // Get lockId
     if (gameObjTarget)
     {
@@ -2575,8 +2576,17 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         guid = gameObjTarget->GetGUID();
 
         GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(gameObjTarget->GetEntry());
-        if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
-            l_OverridePlayerCondition = true;
+
+        if (l_Template && l_Template->type == GAMEOBJECT_TYPE_CHEST && m_caster->IsPlayer())
+        {
+            uint32 l_PlayerConditionID = l_Template->chest.conditionID1;
+            bool l_HasPlayerCondition = l_PlayerConditionID != 0 && (sPlayerConditionStore.LookupEntry(l_Template->chest.conditionID1) != nullptr || sScriptMgr->HasPlayerConditionScript(l_Template->chest.conditionID1));
+
+            if (l_HasPlayerCondition && m_caster->ToPlayer()->EvalPlayerCondition(l_PlayerConditionID).first)
+                l_ResultOverridedByPlayerCondition = true;
+            else if (l_HasPlayerCondition)
+                l_PlayerConditionFailed = true;
+        }
     }
     else if (itemTarget)
     {
@@ -2590,8 +2600,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 reqSkillValue = 0;
     int32 skillValue;
 
+    if (l_PlayerConditionFailed)
+        return;
+
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-    if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
+    if (res != SPELL_CAST_OK && !l_ResultOverridedByPlayerCondition)
     {
         SendCastResult(res);
         return;
@@ -5880,17 +5893,16 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        Position pos;
-        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-
-        if (!m_caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
         {
-            float angle = unitTarget->GetRelativeAngle(m_caster);
-            float dist = m_caster->GetDistance(pos);
-            unitTarget->GetFirstCollisionPosition(pos, dist, angle);
+            Position pos;
+            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+            unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
+            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
-
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, SPEED_CHARGE, m_spellInfo->Id);
+        else
+            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
 
         if (m_caster->IsPlayer())
             m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
@@ -5900,8 +5912,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (m_caster->IsPlayer())
         {
-            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
-
             if (!m_spellInfo->IsPositive())
                 m_caster->Attack(unitTarget, true);
         }
@@ -7732,7 +7742,10 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
-    m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
+    if (Unit* l_Target = m_targets.GetUnitTarget())
+        m_caster->GetMotionMaster()->CustomJump(l_Target, speedXY, speedZ, m_spellInfo->Id);
+    else
+        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ, m_spellInfo->Id);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)

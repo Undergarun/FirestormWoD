@@ -13,13 +13,20 @@
 #include "Spell.h"
 #include "../GarrisonScriptData.hpp"
 
-enum
-{
-    GARRISON_PHASE_BASE = 0x0001,
-};
-
 namespace MS { namespace Garrison { namespace Sites
 {
+    enum GarrisonPhases
+    {
+        GarrisonPhaseBase             = 0x00000001,
+        PhaseMagePortalFrostfireRidge = 0x00000010,
+        PhaseMagePortalSpiresOfArak   = 0x00000020,
+        PhaseMagePortalTalador        = 0x00000040,
+        PhaseMagePortalNagrand        = 0x00000080,
+        PhaseMagePortalShadowmoon     = 0x00000100,
+        PhaseMagePortalGorgrond       = 0x00000200,
+        PhaseLostInTransitionQuest    = 0x00000400
+    };
+
     /// Constructor
     InstanceMapScript_GarrisonAllianceLevel2::InstanceMapScript_GarrisonAllianceLevel2()
         : InstanceMapScript("instance_Garrison_A2", MapIDs::MapGarrisonAllianceLevel2)
@@ -85,7 +92,6 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonAllianceLevel2::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
-
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -109,7 +115,10 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     uint32 InstanceScript_GarrisonAllianceLevel2::GetPhaseMask(Player* p_Owner)
     {
-        uint32 l_PhaseMask = GARRISON_PHASE_BASE;
+        uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
+
+        if (p_Owner->HasQuest(Quests::Alliance_LostInTransition) || p_Owner->HasQuest(Quests::Horde_LostInTransition))
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
 
         return l_PhaseMask;
     }

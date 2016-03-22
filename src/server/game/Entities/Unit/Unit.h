@@ -578,6 +578,7 @@ enum UnitState
     UNIT_STATE_FLEEING_MOVE    = 0x02000000,
     UNIT_STATE_CHASE_MOVE      = 0x04000000,
     UNIT_STATE_FOLLOW_MOVE     = 0x08000000,
+    UNIT_STATE_IGNORE_PATHFINDING = 0x10000000,                 // do not use pathfinding in any MovementGenerator
     UNIT_STATE_UNATTACKABLE    = (UNIT_STATE_IN_FLIGHT | UNIT_STATE_ONVEHICLE),
     // for real move using movegen check and stop (except unstoppable flight)
     UNIT_STATE_MOVING          = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE ,
@@ -743,7 +744,7 @@ enum eUnitFlags3
 {
     UNIT_FLAG3_UNK1                         = 0x00000001,
     UNIT_FLAG3_UNK2                         = 0x00000002,
-    UNIT_FLAG3_UNK3                         = 0x00000004,
+    UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT   = 0x00000004,
     UNIT_FLAG3_UNK4                         = 0x00000008,
     UNIT_FLAG3_UNK5                         = 0x00000010,
     UNIT_FLAG3_UNK6                         = 0x00000020,
@@ -1042,6 +1043,7 @@ public:
 
     Unit* GetAttacker() const { return m_attacker; };
     Unit* GetVictim() const { return m_victim; };
+
     SpellInfo const* GetSpellInfo() const { return m_spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return m_schoolMask; };
     DamageEffectType GetDamageType() const { return m_damageType; };
@@ -1571,7 +1573,12 @@ class Unit : public WorldObject
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
         Unit* getVictim() const { return m_attacking; }
-
+        // Use this only when 100% sure there is a victim
+        Unit* EnsureVictim() const
+        {
+            ASSERT(m_attacking);
+            return m_attacking;
+        }
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
@@ -1944,7 +1951,7 @@ class Unit : public WorldObject
         void JumpTo(float speedXY, float speedZ, bool forward = true);
         void JumpTo(WorldObject* obj, float speedZ);
 
-        void MonsterMoveWithSpeed(float x, float y, float z, float speed);
+        void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
         //void SetFacing(float ori, WorldObject* obj = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMovementFlagUpdate(bool self = false);
@@ -2518,6 +2525,11 @@ class Unit : public WorldObject
             return GetPositionZ() - offset;
         }
 
+        /// Get interpolated player position based on last received movement informations
+        /// @p_AtClientScreen : Interpolated with client network delay ?
+        /// @p_ProjectTime    : Time target of prediction
+        Position GetInterpolatedPosition(bool p_AtClientScreen, uint32 p_ProjectTime);
+
         void SetControlled(bool apply, UnitState state);
 
         /// Control Alert
@@ -2706,6 +2718,19 @@ class Unit : public WorldObject
         uint64 m_PersonnalChauffeur;
 
         void SetRooted(bool apply);
+
+        Position m_LastAreaPosition;
+        Position m_LastZonePosition;
+        uint32 m_LastAreaId;
+        uint32 m_LastZoneId;
+        uint32 GetZoneId(bool p_ForceRecalc = false) const;
+        uint32 GetAreaId(bool p_ForceRecalc = false) const;
+        void GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRecalc = false) const;
+
+        Position m_LastNotifyPosition;
+        Position m_LastOutdoorPosition;
+        bool m_LastOutdoorStatus;
+        bool IsOutdoors();
 
     public:
         uint64 _petBattleId;
