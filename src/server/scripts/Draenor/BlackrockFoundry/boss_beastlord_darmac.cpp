@@ -627,6 +627,12 @@ class boss_beastlord_darmac : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
+                if (me->GetDistance(me->GetHomePosition()) >= 75.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!UpdateVictim() || m_RendAndTear)
                     return;
 
