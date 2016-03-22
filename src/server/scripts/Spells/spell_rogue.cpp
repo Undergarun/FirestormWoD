@@ -2892,6 +2892,7 @@ class spell_rog_find_weakness : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Call by Leech Vitality - 116921
 /// Glyph of Recovery - 146625
 class spell_rog_glyph_of_recovery : public SpellScriptLoader
@@ -2905,7 +2906,8 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphofRecovery = 146625
+                GlyphofRecovery = 146625,
+                Conversion      = 73651
             };
 
             void HandleOnHit()
@@ -2913,6 +2915,9 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofRecovery))
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::Conversion))
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphofRecovery))
