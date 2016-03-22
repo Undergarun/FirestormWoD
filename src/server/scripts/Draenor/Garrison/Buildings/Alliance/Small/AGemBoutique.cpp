@@ -95,8 +95,12 @@ namespace MS { namespace Garrison
     /// @p_Action   : Action
     bool npc_KayaSolasen::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
+
+        l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }

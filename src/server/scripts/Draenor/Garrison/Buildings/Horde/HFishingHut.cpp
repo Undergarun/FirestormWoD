@@ -35,11 +35,9 @@ namespace MS { namespace Garrison
     {
         if (p_Quest->GetQuestId() == Quests::Horde_AnglinInOurGarrison)
         {
-            if (p_Player && p_Creature)
-            {
                 if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 {
-                    CreatureAI* l_AI = p_Creature->AI();
+                    GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
                     if (l_AI == nullptr)
                         return true;
@@ -51,10 +49,8 @@ namespace MS { namespace Garrison
                         p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
                     }
 
-                    if (GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(l_AI))
-                        l_GarrisonMgr->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
+                    l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
                 }
-            }
         }
 
         return true;

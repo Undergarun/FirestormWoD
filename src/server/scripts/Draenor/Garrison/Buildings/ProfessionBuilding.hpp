@@ -57,7 +57,7 @@ namespace MS { namespace Garrison
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
             {
                 if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-                    reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+                    static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
 
                 return true;
             }
@@ -123,7 +123,11 @@ namespace MS { namespace Garrison
                 {
                     if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                     {
-                        GarrisonNPCAI* l_AI = reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI());
+                        GarrisonNPCAI* l_AI = static_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                        if (l_AI == nullptr)
+                            return true;
+
                         l_AI->SetRecipes(t_RecipeEntries, t_Skill);
                         l_AI->SendTradeSkillUI(p_Player);
                     }

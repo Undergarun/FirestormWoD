@@ -177,12 +177,12 @@ namespace MS { namespace Garrison
     bool npc_HomerStonefield_Garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
-        if (l_AI == nullptr || p_Creature == nullptr || l_GarrisonMgr == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
+        if (l_GarrisonMgr == nullptr || l_AI == nullptr)
             return false;
 
-        uint32 l_PlotInstanceID = reinterpret_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID();
+        uint32 l_PlotInstanceID = l_AI->GetPlotInstanceID();
 
         if (!l_PlotInstanceID)
             return false;
@@ -207,9 +207,9 @@ namespace MS { namespace Garrison
     bool npc_HomerStonefield_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
-        if (l_AI == nullptr || p_Creature == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
+        if (l_AI == nullptr)
             return true;
 
         switch (p_Action)
@@ -236,27 +236,27 @@ namespace MS { namespace Garrison
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4: ///< Send shipment for fur
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast); ///< Fur
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast); ///< Fur
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5: ///< Send shipment for leather
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast); ///< Leather
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast); ///< Leather
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6: ///< Send shipment for Meat
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast); ///< Meat
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast); ///< Meat
                 break;
             case GOSSIP_ACTION_INFO_DEF + 7: ///< Send shipment for more fur + savage blood
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast); ///< ShipmentPowerfulFurredBeast
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast); ///< ShipmentPowerfulFurredBeast
                 break;
             case GOSSIP_ACTION_INFO_DEF + 8: ///< Send shipment for more leather + savage blood
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast); ///< ShipmentPowerfulLeatheredBeast
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast); ///< ShipmentPowerfulLeatheredBeast
                 break;
             case GOSSIP_ACTION_INFO_DEF + 9: ///< Send shipment for more meat + savage blood
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast); ///< ShipmentPowerfulMeatyBeast
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast); ///< ShipmentPowerfulMeatyBeast
                 break;
             default:
                 break;
