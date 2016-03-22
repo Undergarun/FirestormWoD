@@ -1,23 +1,5 @@
-FROM debian:jessie
+FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
-
-ENV DEBIAN_FRONTEND noninteractive
-
-# Add MariaDB repository
-RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-RUN echo 'deb [arch=amd64,i386] http://ftp.igh.cnrs.fr/pub/mariadb/repo/10.1/debian jessie main' > /etc/apt/sources.list.d/mariadb.list
-
-# Add missing packages to get worldserver running
-RUN apt-get update && \
-    apt-get install -y \
-    libace-dev \
-    libmariadbclient-dev \
-    zlib1g-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    screen \
-    gdb \
-    clang
 
 # Prepare directories for worldserver data
 RUN mkdir -p /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /var/log/firestorm/crashlogs
