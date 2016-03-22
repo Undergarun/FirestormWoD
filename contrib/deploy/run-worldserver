@@ -1,9 +1,6 @@
 #!/bin/bash
 
-### CONFIGURATION ###
-realm_version="6.2.3 TEST"
 slack_hook_urls=("https://hooks.slack.com/services/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")
-### CONFIGURATION END ###
 
 function sendToSlack {
     msg=$1
@@ -12,19 +9,20 @@ function sendToSlack {
     for hook_url in "${slack_hook_urls[@]}"
     do
         curl -X POST \
-             --data-urlencode 'payload={"attachments": [{"pretext": "*'"$realm_version"'*", "text": "'"$msg"'", "color": "'"$color"'", "mrkdwn_in": ["pretext", "text"]}]}' \
+             --data-urlencode 'payload={"attachments": [{"pretext": "*'"$REALM_VERSION"'*", "text": "'"$msg"'", "color": "'"$color"'", "mrkdwn_in": ["pretext", "text"]}]}' \
              $hook_url
     done
 }
 
 ulimit -n 4096
 
-if [ $REALM_ASAN_MODE -eq 1 ]; then
+if [ $ASAN_MODE -eq 1 ]; then
     # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerFlags#run-time-flags
     ASAN_OPTIONS=symbolize=1:detect_leaks=0
     ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
 
     gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
+    # ./worldserver_Asan 2>&1 | asan_symbolize -d > /tmp/   backtrace.log
 else
     gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfo
 fi
@@ -41,14 +39,14 @@ if [ -z "$is_ok" ]; then
     crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).crashlog"
     crashlog_link="http://ptr.firestorm-servers.com/crashlogs_42xx42/$REALM_NAME/$crashlog_filename"
 
-    if [ $REALM_ASAN_MODE -eq 0 ]; then
+    if [ $ASAN_MODE -eq 0 ]; then
         crash_location=$(grep -oP 'in \K(.*) at' /tmp/backtrace.log | head -n 1)
         sendToSlack "_ $REALM_NAME _ crashed in \`$crash_location\` <$crashlog_link|Show more...>" "danger"
     else
         sendToSlack "_ $REALM_NAME _ crashed with ASan <$crashlog_link|Show more...>" "danger"
     fi
 
-    mv /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
+    mv /tmp/backtrace.log $HOST_LOG_DIR/crashlogs/$crashlog_filename
 else
     sendToSlack "_ $REALM_NAME _ exited normally." "good"
 fi
