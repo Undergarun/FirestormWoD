@@ -24,9 +24,9 @@ if [ $REALM_ASAN_MODE -eq 1 ]; then
     ASAN_OPTIONS=symbolize=1:detect_leaks=0
     ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
 
-    gdb -batch -x=/usr/local/etc/firestorm/commands.gdb worldserver_RelWithDebInfoAsan
+    gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
 else
-    gdb -batch -x=/usr/local/etc/firestorm/commands.gdb worldserver_RelWithDebInfo
+    gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfo
 fi
 
 is_killed=`egrep 'SIGTERM|SIGINT' /tmp/backtrace.log`
