@@ -312,12 +312,18 @@ namespace MS { namespace Garrison
             me->DespawnOrUnsummon(8 * IN_MILLISECONDS);
 
             Position const l_Pos = *l_Summoner;
+            uint64 l_GUID = l_Summoner->GetGUID();
 
-            AddTimedDelayedOperation(8 * IN_MILLISECONDS, [this, l_Summoner]() -> void
+            AddTimedDelayedOperation(8 * IN_MILLISECONDS, [this, l_GUID]() -> void
             {
-                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellIronTrap);
-                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellImprovedIronTrap);
-                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellDeadlyIronTrap);
+                Player* l_Summoner = HashMapHolder<Player>::Find(l_GUID);
+
+                if (l_Summoner != nullptr)
+                {
+                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellIronTrap);
+                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellImprovedIronTrap);
+                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellDeadlyIronTrap);
+                }
             });
 
             if (l_Summoner->GetTeamId() == TEAM_HORDE)
