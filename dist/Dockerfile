@@ -7,7 +7,7 @@ RUN mkdir -p /usr/local/etc/firestorm /usr/local/lib/firestorm /opt/firestorm /v
 # Declare volumes to share files between host and container (configuration file, logs, dbc, maps ....)
 VOLUME /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm
 
-# Add compiled bins and libs into the image
+# Add compiled bins and libs into the container
 ADD bin/* /usr/local/bin/
 #ADD lib/* /usr/local/lib/
 
