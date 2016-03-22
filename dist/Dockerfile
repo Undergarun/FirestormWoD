@@ -1,6 +1,11 @@
 FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
+RUN apt-get update && \
+    apt-get install -y \
+    gdb \
+    curl
+
 # Prepare directories for worldserver data
 RUN mkdir -p /usr/local/lib/firestorm /usr/local/etc/firestorm /opt/firestorm /var/log/firestorm/crashlogs
 
