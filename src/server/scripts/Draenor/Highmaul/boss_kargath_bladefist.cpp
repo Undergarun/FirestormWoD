@@ -370,7 +370,10 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite100);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InThePit);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::KargathBonusLoot, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::KargathBonusLoot, true);
 
                     ResetAllPlayersFavor(me);
                     ResetRavenousBloodmaws();
@@ -1140,7 +1143,7 @@ class npc_highmaul_vulgor : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                UpdateOperations();
+                UpdateOperations(p_Diff);
 
                 if (!UpdateVictim())
                     return;
