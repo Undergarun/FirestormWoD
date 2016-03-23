@@ -2945,7 +2945,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
-    if (unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
+    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
         return;
 
     if (spellHitTarget)
