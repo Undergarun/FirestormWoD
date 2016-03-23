@@ -12288,6 +12288,10 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
                 DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                 DealSpellDamage(&damageInfo, true);
 
+                /// In case when we have SpellVisual for this spell loaded from DBC - multistrike should have spell animation too with increased speed
+                if (p_ProcSpell->SpellVisual[0])
+                    SendPlaySpellVisual(p_ProcSpell->SpellVisual[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
+
                 if (p_OwnerAuraEffect)
                 {
                     int32 overkill = damageInfo.damage - p_Target->GetHealth() > 0 ? damageInfo.damage - p_Target->GetHealth() : 0;
