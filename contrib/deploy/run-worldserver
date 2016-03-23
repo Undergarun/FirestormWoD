@@ -37,7 +37,7 @@ fi
 is_ok=$(grep -oP "(?:exited normally|exited with code 02)" /tmp/backtrace.log)
 if [ -z "$is_ok" ]; then
     crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).crashlog"
-    crashlog_link="http://ptr.firestorm-servers.com/crashlogs_42xx42/$REALM_NAME/$crashlog_filename"
+    crashlog_link="$HOST_URL/logs_42x/$REALM_NAME/crashlogs/$crashlog_filename"
 
     if [ $ASAN_MODE -eq 0 ]; then
         crash_location=$(grep -oP 'in \K(.*) at' /tmp/backtrace.log | head -n 1)
