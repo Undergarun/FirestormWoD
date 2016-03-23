@@ -51,7 +51,7 @@ int m_ServiceStatus = -1;
 
 /// libcurl need to be rebuild for VS2015 when we abandon multi support.
 
-#if defined (_MSC_VER) && _MSC_VER <= 1900
+#if defined (_MSC_VER) && _MSC_VER >= 1900
 #pragma comment (lib, "legacy_stdio_definitions.lib")
 
 extern "C" { FILE __iob_func[3]{ *stdin, *stdout,  *stderr };  }
