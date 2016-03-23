@@ -105,10 +105,6 @@ class boss_kromog : public CreatureScript
             ReverberationTrigger    = 77929
         };
 
-        enum eVisuals
-        {
-        };
-
         struct boss_kromogAI : public BossAI
         {
             boss_kromogAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataKromog)
@@ -1031,6 +1027,14 @@ class spell_foundry_slam : public SpellScriptLoader
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
                         /// Damages will be reduced by 12.000 for each yards separating the target from the boss position
                         float l_ReducedDamage = 12000.0f;
+
+                        /// Melee players should take reduced damage for this spell, I don't know why or how much, but it seems it's a custom calculation for them
+                        if (Player* l_Player = l_Target->ToPlayer())
+                        {
+                            if (l_Player->IsMeleeDamageDealer())
+                                AddPct(l_ReducedDamage, 50);
+                        }
+
                         float l_Damage = GetSpell()->GetDamage();
 
                         int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
