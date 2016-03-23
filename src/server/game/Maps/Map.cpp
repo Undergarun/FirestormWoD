@@ -2820,8 +2820,10 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
         {
             Group* group = player->GetGroup();
 
+            bool l_IsGarrisonTransfet = i_mapEntry && (i_mapEntry->Flags & MapFlags::MAP_FLAG_GARRISON) != 0;
+
             // increase current instances (hourly limit)
-            if (!group || !group->isLFGGroup())
+            if (!group || !group->isLFGGroup() || l_IsGarrisonTransfet)
                 player->AddInstanceEnterTime(GetInstanceId(), time(NULL));
 
             // get or create an instance save for the map
@@ -2845,7 +2847,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
             }
             else
             {
-                if (group)
+                if (group && !l_IsGarrisonTransfet)
                 {
                     // solo saves should be reset when entering a group
                     InstanceGroupBind* groupBind = group->GetBoundInstance(this);

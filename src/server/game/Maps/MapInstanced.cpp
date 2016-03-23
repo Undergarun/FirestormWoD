@@ -144,6 +144,8 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));
         InstanceSave* pSave = pBind ? pBind->save : NULL;
 
+        bool l_IsGarrisonTransfet = i_mapEntry && (i_mapEntry->Flags & MapFlags::MAP_FLAG_GARRISON) != 0;
+
         // the player's permanent player bind is taken into consideration first
         // then the player's group bind and finally the solo bind.
         if (!pBind || !pBind->perm)
@@ -151,7 +153,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             InstanceGroupBind* groupBind = NULL;
             Group* group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
-            if (group)
+            if (group && !l_IsGarrisonTransfet)
             {
                 groupBind = group->GetBoundInstance(this);
                 if (groupBind)

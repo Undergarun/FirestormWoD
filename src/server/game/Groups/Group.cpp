@@ -2530,7 +2530,7 @@ void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 
 void Group::_homebindIfInstance(Player* player)
 {
-    if (player && !player->isGameMaster() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
+    if (player && !player->isGameMaster() && !player->IsInGarrison() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())
         player->m_InstanceValid = false;
 }
 
