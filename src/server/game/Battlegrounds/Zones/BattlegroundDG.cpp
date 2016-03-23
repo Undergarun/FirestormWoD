@@ -605,7 +605,7 @@ void BattlegroundDG::_postUpdateImpl_Flags(uint32 p_Diff)
             m_HonorScoreTics[l_Team] += BG_DG_TickPoints[l_Points];
             if (m_HonorScoreTics[l_Team] >= m_HonorTics)
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(6), (l_Team == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(6), (l_Team == TEAM_ALLIANCE) ? ALLIANCE : HORDE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
                 m_HonorScoreTics[l_Team] -= m_HonorTics;
             }
 
@@ -902,7 +902,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* p_Player)
         SpawnBGObject(BG_DG_OBJECT_CART_ALLIANCE, RESPAWN_IMMEDIATELY);
     }
     // For flag capture is reward 2 honorable kills
-    RewardHonorToTeam(GetBonusHonorFromKill(12), p_Player->GetBGTeam());
+    RewardHonorToTeam(GetBonusHonorFromKill(12), p_Player->GetBGTeam(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
 
     if (p_Player->GetBGTeam() == ALLIANCE)
         SendMessageToAll(LANG_BG_DG_CAPTURED_HORDE_CART, CHAT_MSG_BG_SYSTEM_ALLIANCE, p_Player);
