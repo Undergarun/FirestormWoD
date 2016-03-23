@@ -9525,7 +9525,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (Battleground* bg = GetBattleground())
         {
-            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
+            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false, p_RewardCurrencyType); //false: prevent looping
         }
     }
 
@@ -9804,14 +9804,14 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
 
         if (p_RewardCurrencyType)
         {
-            float l_Multiplier = 1.0f;
+            float l_Multiplier = 0.0f;
             Unit::AuraEffectList const& l_ModPvpPercent = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_2);
             for (Unit::AuraEffectList::const_iterator i = l_ModPvpPercent.begin(); i != l_ModPvpPercent.end(); ++i)
             {
                 if ((*i)->GetMiscValue() == p_CurrencyID && (*i)->GetMiscValueB() == p_RewardCurrencyType)
-                    AddPct(l_Multiplier, (*i)->GetAmount());
+                    l_Multiplier += (*i)->GetAmount();
             }
-            p_Count *= l_Multiplier;
+            p_Count *= (l_Multiplier / 100);
         }
     }
 
