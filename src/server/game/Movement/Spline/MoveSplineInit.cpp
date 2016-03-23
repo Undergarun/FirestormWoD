@@ -388,7 +388,7 @@ namespace Movement
         packet.Write(&l_Data);
 
         unit->SendMessageToSet(&l_Data, true);
-
+        
 
         //////////////////////////////////////////////////////////////////////////
 
@@ -585,8 +585,7 @@ namespace Movement
 
         unit->SendMessageToSet(&l_Data, true);
 
-
-      /*  uint64 l_MoverGUID = unit->GetGUID();
+        /*uint64 l_MoverGUID = unit->GetGUID();
         uint64 l_TransportGUID = unit->GetTransGUID();
 
         uint8   l_FinalFacingMode = MonsterMoveStop;

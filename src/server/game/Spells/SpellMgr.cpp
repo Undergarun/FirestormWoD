@@ -328,6 +328,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Frost Shock (with Frozen Power) -- 63685, no flags (6918)
             if (spellproto->SpellIconID == 193 && spellproto->SpellVisual[0] == 39876)
                 return DIMINISHING_ROOT;
+            /// Earthquake -- 77505
+            if (spellproto->Id == 77505)
+                return DIMINISHING_STUN;
+
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -3609,7 +3613,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 154938: ///< Molten Torrent (AoE Damage - 154938)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
             case 162349: ///< Fists of Stone (Kromog)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_BLOCKABLE_SPELL;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
             case 155745: ///< Charring Breath (Jump - Overheated Cinderwolf)
@@ -4422,7 +4429,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
             case 178236:///< Death from Above (jump dest)
-                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_TARGET_BACK;
                 spellInfo->Effects[0].ValueMultiplier = 40.0f;
                 break;
             case 139498: ///< Web Spray

@@ -2094,11 +2094,16 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             uint64 m_Target;
 
+            /// UnitState::UNIT_STATE_CASTING cannot be used because Fixate is a channeled spell
+            bool m_Burn;
+
             void Reset() override
             {
                 m_Events.Reset();
 
                 m_Target = 0;
+
+                m_Burn = false;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             }
@@ -2175,6 +2180,11 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         break;
                     }
+                    case eSpells::Burn:
+                    {
+                        m_Burn = false;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -2240,8 +2250,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                             if (l_Creature->HasAura(eSpells::DamageShield))
                                 l_Creature->RemoveAura(eSpells::DamageShield);
                             /// If not, refresh the vulnerability
-                            else
-                                l_Creature->CastSpell(l_Creature, eSpells::ShieldsDown, true);
+                            else if (Aura* l_Aura = l_Creature->GetAura(eSpells::ShieldsDown))
+                                l_Aura->RefreshDuration();
                         }
                     });
                 }
@@ -2256,7 +2266,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE || m_Burn)
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -2278,6 +2288,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                     {
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                             me->CastSpell(l_Target, eSpells::Burn, false);
+
+                        m_Burn = true;
 
                         m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -2738,8 +2750,8 @@ class spell_foundry_shields_down : public SpellScriptLoader
 
             void Register() override
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectApply += AuraEffectApplyFn(spell_foundry_shields_down_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_foundry_shields_down_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

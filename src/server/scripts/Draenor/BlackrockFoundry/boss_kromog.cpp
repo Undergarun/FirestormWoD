@@ -501,13 +501,12 @@ class boss_kromog : public CreatureScript
                     {
                         float l_BaseX = me->m_positionX;
                         float l_BaseY = me->m_positionY;
-                        float l_BaseO = me->m_orientation - (M_PI / 2.0f);
-                        float l_Step  = M_PI / (float)eFoundryDatas::MaxReverberationSpawns;
+                        float l_BaseO = me->m_orientation;
 
                         for (uint8 l_I = 0; l_I < eFoundryDatas::MaxReverberationSpawns; ++l_I)
                         {
-                            float l_Range       = frand(15.0f, 25.0f);
-                            float l_Orientation = l_BaseO + (l_Step * (float)l_I);
+                            float l_Range       = frand(25.0f, 35.0f);
+                            float l_Orientation = l_BaseO + frand(-(M_PI / 2.0f), M_PI / 2.0f);
 
                             float l_X = l_BaseX + l_Range * cos(l_Orientation);
                             float l_Y = l_BaseY + l_Range * sin(l_Orientation);
@@ -1032,6 +1031,14 @@ class spell_foundry_slam : public SpellScriptLoader
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
                         /// Damages will be reduced by 12.000 for each yards separating the target from the boss position
                         float l_ReducedDamage = 12000.0f;
+
+                        /// Melee players should take reduced damage for this spell, I don't know why or how much, but it seems it's a custom calculation for them
+                        if (Player* l_Player = l_Target->ToPlayer())
+                        {
+                            if (l_Player->IsMeleeDamageDealer())
+                                AddPct(l_ReducedDamage, 50);
+                        }
+
                         float l_Damage = GetSpell()->GetDamage();
 
                         int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));

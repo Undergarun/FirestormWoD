@@ -67,6 +67,8 @@
 #include "BattlegroundDG.h"
 #include "Guild.h"
 #include "DB2Stores.h"
+#include "../../Garrison/GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -4089,8 +4091,8 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
-        /// Hack fix for Sunfire
-        if (spellProto->Id == 164815)
+        /// Hack fix for Sunfire and Rising Sun Kick
+        if (spellProto->Id == 164815 || spellProto->Id == 130320)
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -13701,6 +13703,12 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 
         if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
+
+        if (MS::Garrison::Manager* l_GarrisonMgr = player->GetGarrison())
+        {
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID && player->GetMapId() == 1116)
+                player->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
+        }
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -13718,6 +13726,12 @@ void Unit::Dismount()
     {
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
         thisPlayer->RemoveAurasDueToSpell(143314);
+
+        if (MS::Garrison::Manager* l_GarrisonMgr = thisPlayer->GetGarrison())
+        {
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID)
+                thisPlayer->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, false);
+        }
     }
 
     uint64 l_Guid = GetGUID();
@@ -20026,7 +20040,12 @@ void Unit::OnRelocated()
 void Unit::UpdateObjectVisibility(bool forced)
 {
     if (forced)
-        VisibilityUpdateTask::UpdateVisibility(this);
+    {
+        if (isType(TYPEMASK_PLAYER))
+            ((Player*)this)->UpdateVisibilityForPlayer();
+
+        WorldObject::UpdateObjectVisibility(true);
+    }
     else
         m_Events.AddEvent(new VisibilityUpdateTask(this), m_Events.CalculateTime(1));
     AINotifyTask::ScheduleAINotify(this);

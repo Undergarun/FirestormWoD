@@ -181,35 +181,47 @@ namespace MS { namespace Garrison
                 /// Custom Handling
                 case ShipmentTailoring:
                 case ShipmentTailoringUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(111556, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstTailoringWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstTailoringWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(111556, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113264), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113264), 1));
+                    }
                     break;
                 case ShipmentLeathorworking:
                 case ShipmentLeathorworkingUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(110611, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstLeatherworkingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(110611, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                    }
                     break;
                 case ShipmentInscription:
                 case ShipmentInscriptionUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(112377, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstInscriptionWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstInscriptionWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(112377, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                    }
                     break;
                 case ShipmentBlacksmitthing:
                 case ShipmentBlacksmitthingUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(108257, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstBlacksmithingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(108257, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113263), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113263), 1));
+                    }
                     break;
                 case ShipmentArmory:
                 case ShipmentArmoryUnk:
@@ -224,35 +236,47 @@ namespace MS { namespace Garrison
                     break;
                 case ShipmentAlchemyLab:
                 case ShipmentAlchemyUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(108996, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstAlchemyWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstAlchemyWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(108996, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113262), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113262), 1));
+                    }
                     break;
                 case ShipmentEngineering:
                 case ShipmentEngineeringUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(111366, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstEngineeringWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstEngineeringWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(111366, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113264), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113264), 1));
+                    }
                     break;
                 case ShipmentEnchanting:
                 case ShipmentEnchantingUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(115504, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstEnchantingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstEnchantingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(115504, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113264), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113264), 1));
+                    }
                     break;
                 case ShipmentJewelCrafting:
                 case ShipmentJewelCraftingUnk:
-                    l_RewardItems.clear();
-                    l_RewardItems.insert(std::make_pair(115524, 2));
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstJewelcraftingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(115524, 2));
 
-                    if (roll_chance_i(15))
-                        l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113263 : 113264), 1));
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113263 : 113264), 1));
+                    }
                     break;
                 case ShipmentLumberMill:
                 case ShipmentTradingPost:

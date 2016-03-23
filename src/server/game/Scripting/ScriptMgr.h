@@ -836,6 +836,12 @@ class ScriptMgr
         /// @p_MapID    : Map ID
         void OnLeaveBG(Player* p_Player, uint32 p_MapID);
 
+        /// Called when a player finish a movement like a jump
+        /// @p_Player   : Player instance
+        /// @p_SpellID  : Spell ID
+        /// @p_TargetGUID : Target GUID
+        void OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID);
+
         /// Called when a player regen a power
         /// @p_Player         : Player instance
         /// @p_Power          : Power to be regenerate
