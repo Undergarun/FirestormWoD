@@ -1,8 +1,7 @@
 FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt-get install -y \
     gdb \
     curl
 
