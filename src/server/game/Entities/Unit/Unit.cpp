@@ -19184,7 +19184,7 @@ void Unit::SetRooted(bool apply)
 
 void Unit::SetFeared(bool apply)
 {
-    if (apply && !HasAuraType(SPELL_AURA_MOD_ROOT) && !HasAuraType(SPELL_AURA_MOD_ROOT_2))
+    if (apply)
     {
         SetTarget(0);
 
