@@ -153,7 +153,7 @@ void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
     m_HonorScoreTics[team_index] += Points;
     if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
-        RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
+        RewardHonorToTeam(GetBonusHonorFromKill(1), Team, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
         m_HonorScoreTics[team_index] -= m_HonorTics;
     }
     UpdateTeamScore(Team);
