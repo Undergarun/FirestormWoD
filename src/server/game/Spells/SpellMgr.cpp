@@ -7348,3 +7348,35 @@ SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Power
 
     return NULL;
 }
+
+void SpellMgr::LoadSpellUpgradeItemStage()
+{
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT ItemBonusTreeCategory, ItemClass, ItemSubClassMask, InventoryTypeMask, MaxIlevel FROM spell_upgrade_item_stage");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell upgrade item stage. DB table `spell_upgrade_item_stage` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        SpellUpgradeItemStage l_SpellUpgradeItemStage;
+
+        uint32 l_ItemBonusTreeCategory            = l_Fields[0].GetUInt32();
+        l_SpellUpgradeItemStage.ItemClass         = l_Fields[1].GetInt32();
+        l_SpellUpgradeItemStage.ItemSubclassMask  = l_Fields[2].GetInt32();
+        l_SpellUpgradeItemStage.InventoryTypeMask = l_Fields[3].GetInt32();
+        l_SpellUpgradeItemStage.MaxIlevel         = l_Fields[4].GetInt32();
+
+        m_SpellUpgradeItemStages[l_ItemBonusTreeCategory].push_back(l_SpellUpgradeItemStage);
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell upgrade item stage.", l_Count);
+}

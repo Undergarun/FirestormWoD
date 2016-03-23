@@ -8011,6 +8011,88 @@ SpellCastResult Spell::CheckItems()
                  }
                  break;
             }
+            case SPELL_EFFECT_CHANGE_ITEM_BONUSES:
+            {
+                Item* l_ItemTarget = m_targets.GetItemTarget();
+                if (l_ItemTarget == nullptr)
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+
+                uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[i].MiscValue;
+                uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[i].MiscValueB;
+
+                std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+                if (l_OldItemBonusTreeCategory == l_NewItemBonusTreeCategory)
+                {
+                    uint32 l_MaxIlevel = 0;
+                    bool   l_Found = false;
+
+                    auto& l_ItemStageUpgradeRules = sSpellMgr->GetSpellUpgradeItemStage(l_OldItemBonusTreeCategory);
+                    if (!l_ItemStageUpgradeRules.empty())
+                    {
+                        for (auto l_Itr : l_ItemStageUpgradeRules)
+                        {
+                            if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
+                                continue;
+
+                            if (l_Itr.ItemSubclassMask != 0)
+                            {
+                                if ((l_Itr.ItemSubclassMask & (1 << l_ItemTarget->GetTemplate()->SubClass)) == 0)
+                                    continue;
+                            }
+
+                            if (l_Itr.InventoryTypeMask != 0)
+                            {
+                                if ((l_Itr.InventoryTypeMask & (1 << l_ItemTarget->GetTemplate()->InventoryType)) == 0)
+                                    continue;
+                            }
+
+                            if ((l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) >= l_Itr.MaxIlevel)
+                                continue;
+
+                            l_Found = true;
+                            l_MaxIlevel = l_Itr.MaxIlevel;
+                            break;
+                        }
+
+                        if (!l_Found)
+                            return SPELL_FAILED_NO_VALID_TARGETS;
+
+                        std::vector<uint32> l_UpgradeBonusStages;
+
+                        switch (l_ItemTarget->GetTemplate()->ItemLevel)
+                        {
+                            case 630:
+                                l_UpgradeBonusStages = { 525, 558, 559, 594, 619, 620 };
+                                break;
+                            case 640:
+                                l_UpgradeBonusStages = { 525, 526, 527, 593, 617, 618 };
+                            default:
+                                break;
+                        }
+
+                        if (l_UpgradeBonusStages.empty())
+                            return SPELL_FAILED_NO_VALID_TARGETS;
+
+                        int32 l_CurrentIdx = -1;
+
+                        for (int l_Idx = 0; l_Idx < l_UpgradeBonusStages.size(); l_Idx++)
+                        {
+                            for (auto l_BonusId : l_CurrentItemBonus)
+                            {
+                                if (l_BonusId == l_UpgradeBonusStages[l_Idx])
+                                {
+                                    l_CurrentIdx = l_Idx;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (l_CurrentIdx == -1 || l_CurrentIdx == l_UpgradeBonusStages.size() - 1)
+                            return SPELL_FAILED_NO_VALID_TARGETS;
+                    }
+                }
+                break;
+            }
             default:
                 break;
         }

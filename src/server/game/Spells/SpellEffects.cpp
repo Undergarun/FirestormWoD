@@ -8285,6 +8285,94 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValueB;
 
+    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+
+    /// Dynamic bonus change (item stage upgrade)
+    if (l_OldItemBonusTreeCategory == l_NewItemBonusTreeCategory)
+    {
+        uint32 l_MaxIlevel = 0;
+        bool   l_Found = false;
+
+        auto& l_ItemStageUpgradeRules = sSpellMgr->GetSpellUpgradeItemStage(l_OldItemBonusTreeCategory);
+        if (l_ItemStageUpgradeRules.empty())
+            return;
+
+        for (auto l_Itr : l_ItemStageUpgradeRules)
+        {
+            if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
+                continue;
+
+            if (l_Itr.ItemSubclassMask != 0)
+            {
+                if ((l_Itr.ItemSubclassMask & (1 << l_ItemTarget->GetTemplate()->SubClass)) == 0)
+                    continue;
+            }
+
+            if (l_Itr.InventoryTypeMask != 0)
+            {
+                if ((l_Itr.InventoryTypeMask & (1 << l_ItemTarget->GetTemplate()->InventoryType)) == 0)
+                    continue;
+            }
+
+            if (l_ItemTarget->GetItemLevelBonusFromItemBonuses() >= l_Itr.MaxIlevel)
+                continue;
+
+            l_Found     = true;
+            l_MaxIlevel = l_Itr.MaxIlevel;
+            break;
+        }
+
+        if (!l_Found)
+            return;
+
+        std::vector<uint32> l_UpgradeBonusStages;
+
+        switch (l_ItemTarget->GetTemplate()->ItemLevel)
+        {
+            case 630:
+                l_UpgradeBonusStages = { 525, 558, 559, 594, 619, 620 };
+                break;
+            case 640:
+                l_UpgradeBonusStages = { 525, 526, 527, 593, 617, 618 };
+            default:
+                break;
+        }
+
+        if (l_UpgradeBonusStages.empty())
+        {
+            sLog->outAshran("Spell::EffectChangeItemBonus: Item level isn't handle for spell %u", m_spellInfo->Id);
+            return;
+        }
+
+        int32 l_CurrentIdx = -1;
+
+        for (int l_Idx = 0; l_Idx < l_UpgradeBonusStages.size(); l_Idx++)
+        {
+            for (auto l_BonusId : l_CurrentItemBonus)
+            {
+                if (l_BonusId == l_UpgradeBonusStages[l_Idx])
+                {
+                    l_CurrentIdx = l_Idx;
+                    break;
+                }
+            }
+        }
+
+        if (l_CurrentIdx == -1 || l_CurrentIdx == l_UpgradeBonusStages.size() - 1)
+            return;
+
+        /// All is fine, now we can update item bonus
+        l_ItemTarget->RemoveItemBonus(l_UpgradeBonusStages[l_CurrentIdx]);
+        l_ItemTarget->AddItemBonus(l_UpgradeBonusStages[l_CurrentIdx + 1]);
+        l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
+
+        /// Update item display ID if needed
+        if (l_ItemTarget->IsEquipped())
+            m_caster->ToPlayer()->SetVisibleItemSlot(l_ItemTarget->GetSlot(), l_ItemTarget);
+
+        return;
+    }
+
     ItemBonusTreeNodeEntry const* l_OldBonusTree = nullptr;
     ItemBonusTreeNodeEntry const* l_NewBonusTree = nullptr;
 
@@ -8309,8 +8397,6 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     if (l_OldBonusTree == nullptr
         || l_NewBonusTree == nullptr)
         return;
-
-    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
 
     /// Check if the selected item have the old bonus, and with the right context
     bool l_BonusFound = false;
