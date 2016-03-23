@@ -5714,7 +5714,7 @@ class spell_gen_transmorphose : public SpellScriptLoader
             void Register()
             {
                 AfterEffectApply += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApplyandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnRemoveandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApplyandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
