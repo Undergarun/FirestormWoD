@@ -158,7 +158,7 @@ class item_strongbox : public ItemScript
                 }
 
                 p_Player->AddItem(l_ItemID, 1);
-                p_Player->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+                p_Player->SendDisplayToast(l_ItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
             }
             else
             {
