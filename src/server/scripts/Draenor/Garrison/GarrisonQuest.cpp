@@ -486,6 +486,12 @@ namespace MS { namespace Garrison
             case Quests::Horde_LostInTransition:
                 l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
                 break;
+            case Quests::Alliance_AshranAppearance:
+                p_Player->m_taxi.SetTaximaskNode(1547);
+                break;
+            case Quests::Horde_AshranAppearance:
+                p_Player->m_taxi.SetTaximaskNode(1549);
+                break;
             default:
                 break;
         }

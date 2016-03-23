@@ -177,7 +177,7 @@ namespace MS { namespace Garrison
             GetOwner()->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader, l_Entry);
             GetOwner()->SaveToDB();
 
-            OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
 

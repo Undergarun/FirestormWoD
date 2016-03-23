@@ -441,7 +441,12 @@ namespace MS { namespace Garrison
                 l_Data << uint32(m_Recipes->size());    ///< Skill known ability spell id condition count
 
                 for (uint32 l_I = 0; l_I < m_Recipes->size(); ++l_I)
-                    l_Data << m_Recipes->at(l_I).AbilitySpellIDPlayerCondition;
+                {
+                    if (!p_Player->EvalPlayerCondition(m_Recipes->at(l_I).AbilitySpellIDPlayerCondition).first)
+                        l_Data << m_Recipes->at(l_I).AbilitySpellIDPlayerCondition;
+                    else
+                        l_Data << uint32(0);
+                }
 
                 p_Player->SendDirectMessage(&l_Data);
             }
