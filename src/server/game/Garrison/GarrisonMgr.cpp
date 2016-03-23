@@ -3918,7 +3918,7 @@ namespace MS { namespace Garrison
                         l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
 
                         /// Reapply the rotation on coords
-                        G3D::Vector3 l_FinalPosition = l_Mat * l_NonRotatedPosition;
+                        l_FinalPosition = l_Mat * l_NonRotatedPosition;
                     }
 
                     uint32 l_AnimProgress   = 0;

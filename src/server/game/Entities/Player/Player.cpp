@@ -9532,7 +9532,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (Battleground* bg = GetBattleground())
         {
-            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
+            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false, p_RewardCurrencyType); //false: prevent looping
         }
     }
 
@@ -9811,14 +9811,14 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
 
         if (p_RewardCurrencyType)
         {
-            float l_Multiplier = 1.0f;
+            float l_Multiplier = 0.0f;
             Unit::AuraEffectList const& l_ModPvpPercent = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_2);
             for (Unit::AuraEffectList::const_iterator i = l_ModPvpPercent.begin(); i != l_ModPvpPercent.end(); ++i)
             {
                 if ((*i)->GetMiscValue() == p_CurrencyID && (*i)->GetMiscValueB() == p_RewardCurrencyType)
-                    AddPct(l_Multiplier, (*i)->GetAmount());
+                    l_Multiplier += (*i)->GetAmount();
             }
-            p_Count *= l_Multiplier;
+            p_Count *= (l_Multiplier / 100);
         }
     }
 
@@ -20894,6 +20894,46 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     }
 
     Object::_Create(guid, 0, HIGHGUID_PLAYER);
+
+    if (m_atLoginFlags & AT_LOGIN_CHANGE_ITEM_FACTION)
+    {
+        uint8 l_CurrentRace = fields[3].GetUInt8();
+
+        BattlegroundTeamId l_Team = BG_TEAM_ALLIANCE;
+        switch (l_CurrentRace)
+        {
+            case RACE_ORC:
+            case RACE_GOBLIN:
+            case RACE_TAUREN:
+            case RACE_UNDEAD_PLAYER:
+            case RACE_TROLL:
+            case RACE_BLOODELF:
+            case RACE_PANDAREN_HORDE:
+                l_Team = BG_TEAM_HORDE;
+                break;
+            default:
+                break;
+        }
+
+        /// Item conversion
+        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Items.begin(); l_Iterator != sObjectMgr->FactionChange_Items.end(); ++l_Iterator)
+        {
+            uint32 l_ItemAlliance = l_Iterator->first;
+            uint32 l_ItemHorde = l_Iterator->second;
+
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
+            l_Statement->setUInt32(0, (l_Team == BG_TEAM_ALLIANCE ? l_ItemAlliance : l_ItemHorde));
+            l_Statement->setUInt32(1, (l_Team == BG_TEAM_ALLIANCE ? l_ItemHorde : l_ItemAlliance));
+            l_Statement->setUInt32(2, guid);
+            l_Transaction->Append(l_Statement);
+        }
+
+        CharacterDatabase.DirectCommitTransaction(l_Transaction);
+
+        RemoveAtLoginFlag(AT_LOGIN_CHANGE_ITEM_FACTION, true);
+        return false;
+    }
 
     m_name = fields[2].GetString();
 

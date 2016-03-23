@@ -47,8 +47,8 @@ namespace eEnchantmentMarkIds
 {
     enum
     {
-        Thunderlord     = 5352,
-        Warsong         = 5355,
+        Thunderlord     = 5330,
+        Warsong         = 5337,
         BleedingHollow  = 5384,
         Frostwolf       = 5356,
         //Blackrock       = 5336,

@@ -3558,6 +3558,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
             case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
+            case 162757: ///< Ice Trap (Iron Marksman)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
@@ -3585,6 +3586,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156039: ///< Drop the Hammer (Aknor Steelbringer)
             case 155571: ///< Jump Out of Lava (Cinder Wolf)
+            case 162285: ///< Rend and Tear (Beastlord Darmac)
+            case 162279: ///< Rend and Tear (Beastlord Darmac)
+            case 155567: ///< Rend and Tear (Cruelfang)
+            case 155060: ///< Rend and Tear (Cruelfang)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
                 break;
             case 174215: ///< Summon Armament (Flamebender Ka'graz)
@@ -3604,6 +3609,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].MiscValueB = 300;
                 break;
             case 155074: ///< Charring Breath (Cinder Wolf)
+            case 173790: ///< Spirit Bond (Stubborn Ironhoof)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 155049: ///< Singe (Cinder Wolf)
@@ -3649,6 +3655,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
                 spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_CONE_ENEMY_129;
                 spellInfo->Effects[EFFECT_2].TargetB = 0;
+                break;
+            case 154951: ///< Pin Down (Beastlord Darmac)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 155653: ///< Flame Infusion (Pack Beast)
+                spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -4429,7 +4443,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
             case 178236:///< Death from Above (jump dest)
-                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_TARGET_BACK;
                 spellInfo->Effects[0].ValueMultiplier = 40.0f;
                 break;
             case 139498: ///< Web Spray
@@ -7191,6 +7205,24 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157659: ///< Rippling Smash (Kromog)
             case 161923: ///< Rune of Crushing Earth (Kromog)
             case 157247: ///< Reverberations (Kromog)
+            case 162516: ///< Whirling Steel (Iron Assembly Warden)
+            case 162672: ///< Goring Swipe (Stubborn Ironhoof & Ornery Ironhoof)
+            case 162675: ///< Ground Slam (Stubborn Ironhoof & Ornery Ironhoof)
+            case 162663: ///< Electrical Storm - DoT (Thunderlord Beast-Tender)
+            case 162772: ///< Colossal Roar (Markog Aba'dir)
+            case 154956: ///< Pin Down - Damage (Beastlord Darmac)
+            case 154960: ///< Pinned Down - DoT (Beastlord Darmac)
+            case 155222: ///< Tantrum - AoE (Ironcrusher)
+            case 155249: ///< Stampede - 1st (Ironcrusher)
+            case 155531: ///< Stampede - 2nd (Ironcrusher)
+            case 155520: ///< Tantrum - AoE (Beastlord Darmac)
+            case 155061: ///< Rend and Tear - AoE (Cruelfang)
+            case 155198: ///< Savage Howl (Cruelfang)
+            case 162283: ///< Rend and Tear - AoE (Beastlord Darmac)
+            case 154989: ///< Inferno Breath (Dreadwing)
+            case 156824: ///< Inferno Pyre - DoT (Dreadwing)
+            case 156823: ///< Superheated Scrap - DoT (Beastlord Darmac)
+            case 155657: ///< Flame Infusion - DoT (Pack Beast)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:
