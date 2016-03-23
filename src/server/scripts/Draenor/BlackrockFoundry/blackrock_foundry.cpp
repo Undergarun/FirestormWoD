@@ -2798,7 +2798,7 @@ class npc_foundry_thunderlord_beast_tender : public CreatureScript
                     me->CastSpell(p_Target, eSpells::ElectricalStormAT, true);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 me->RemoveAllAreasTrigger();
             }
