@@ -2094,11 +2094,16 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             uint64 m_Target;
 
+            /// UnitState::UNIT_STATE_CASTING cannot be used because Fixate is a channeled spell
+            bool m_Burn;
+
             void Reset() override
             {
                 m_Events.Reset();
 
                 m_Target = 0;
+
+                m_Burn = false;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             }
@@ -2173,6 +2178,11 @@ class npc_foundry_slag_elemental : public CreatureScript
                             m_Events.ScheduleEvent(eEvent::EventBurn, 5 * TimeConstants::IN_MILLISECONDS);
                         });
 
+                        break;
+                    }
+                    case eSpells::Burn:
+                    {
+                        m_Burn = false;
                         break;
                     }
                     default:
@@ -2256,7 +2266,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE || me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE || m_Burn)
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -2278,6 +2288,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                     {
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                             me->CastSpell(l_Target, eSpells::Burn, false);
+
+                        m_Burn = true;
 
                         m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
