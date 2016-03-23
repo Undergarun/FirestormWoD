@@ -919,12 +919,7 @@ class spell_dk_death_siphon: public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_Caster = GetCaster();
-
-                int32 bp = GetHitDamage() * (GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100);
-                l_Caster->CastCustomSpell(l_Caster, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
-
-                Player* l_Player = l_Caster->ToPlayer();
+                Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
 

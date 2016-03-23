@@ -715,6 +715,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
+    /// Death Siphon
+    if (spellProto && spellProto->Id == 108196)
+    {
+        int32 bp = damage * 4;
+        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
+    }
+
     /// @todo update me ?
     /// Custom MoP Script
     if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId() == SPEC_MONK_BREWMASTER && HasAura(115315))
