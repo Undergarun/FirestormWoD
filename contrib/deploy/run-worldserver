@@ -14,9 +14,9 @@ function sendToSlack {
 }
 
 function updateSQL {
-    cat /usr/local/share/firestorm/characters/*.sql | mysql -f -h $MYSQL_CHAR_ADDR -u $MYSQL_CHAR_USER -p$MYSQL_CHAR_PASSWD $MYSQL_CHAR_TABLE
-    cat /usr/local/share/firestorm/world/*.sql      | mysql -f -h $MYSQL_WORLD_ADDR -u $MYSQL_WORLD_USER -p$MYSQL_WORLD_PASSWD $MYSQL_WORLD_TABLE
-    cat /usr/local/share/firestorm/hotfix/*.sql     | mysql -f -h $MYSQL_HOTFIX_ADDR -u $MYSQL_HOTFIX_USER -p$MYSQL_HOTFIX_PASSWD $MYSQL_HOTFIX_TABLE
+    cat /usr/local/share/firestorm/sql/characters/*.sql | mysql -f -h "$MYSQL_CHAR_ADDR" -u $MYSQL_CHAR_USER -p "$MYSQL_CHAR_PASSWD" $MYSQL_CHAR_TABLE
+    cat /usr/local/share/firestorm/sql/world/*.sql      | mysql -f -h "$MYSQL_WORLD_ADDR" -u $MYSQL_WORLD_USER -p "$MYSQL_WORLD_PASSWD" $MYSQL_WORLD_TABLE
+    cat /usr/local/share/firestorm/sql/hotfix/*.sql     | mysql -f -h "$MYSQL_HOTFIX_ADDR" -u $MYSQL_HOTFIX_USER -p "$MYSQL_HOTFIX_PASSWD" $MYSQL_HOTFIX_TABLE
 }
 
 function runWorldserver {
