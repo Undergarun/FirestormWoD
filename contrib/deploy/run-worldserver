@@ -46,7 +46,7 @@ if [ -z "$is_ok" ]; then
         sendToSlack "_ $REALM_NAME _ crashed with ASan <$crashlog_link|Show more...>" "danger"
     fi
 
-    mv /tmp/backtrace.log $HOST_LOG_DIR/crashlogs/$crashlog_filename
+    mv /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
 else
     sendToSlack "_ $REALM_NAME _ exited normally." "good"
 fi
