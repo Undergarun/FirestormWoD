@@ -4082,17 +4082,25 @@ namespace MS { namespace Garrison
 
             if (l_CurrentAvailableMission < l_MaxMissionCount)
             {
-                uint32 l_MaxFollowerLevel = 90;
+                uint32 l_AVGFollowerLevel = 0;
                 uint32 l_MaxFollowerItemLevel = 600;
+                uint32 l_FollowerNpcCount = 0;
 
-                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_AVGFollowerLevel, &l_MaxFollowerItemLevel, &l_FollowerNpcCount](const GarrisonFollower & p_Follower) -> void
                 {
                     if (!p_Follower.IsNPC())
                         return;
 
-                    l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                    l_AVGFollowerLevel      += p_Follower.Level;
                     l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+
+                    l_FollowerNpcCount++;
                 });
+
+                if (l_FollowerNpcCount == 0)
+                    l_FollowerNpcCount = 1;
+
+                l_AVGFollowerLevel /= l_FollowerNpcCount;
 
                 std::vector<const GarrMissionEntry*> l_Candidates;
 
@@ -4120,6 +4128,28 @@ namespace MS { namespace Garrison
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
 
+                    /// Faction speific mission (No generic way to handle it)
+                    switch (GetGarrisonFactionIndex())
+                    {
+                        case FactionIndex::Alliance:
+                            switch (l_Entry->MissionRecID)
+                            {
+                                case 2: ///< Gronnlings Abound
+                                case 7: ///< Stonefury Rescue
+                                    continue;
+                            }
+                            break;
+
+                        case FactionIndex::Horde:
+                            switch (l_Entry->MissionRecID)
+                            {
+                                case 66: ///< Killing the Corrupted
+                                case 91: ///< Rangari Rescue
+                                    continue;
+                            }
+                            break;
+                    }
+
                     uint32 l_RewardCount = 0;
                     for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
                     {
@@ -4138,7 +4168,34 @@ namespace MS { namespace Garrison
                             break;
                         }
 
-                        ++ l_RewardCount;
+                        /// Special case for XP item, if the owner is already at max level he doesn't need this item anymore
+                        if (m_Owner->getLevel() == MAX_LEVEL && l_RewardEntry->ItemID == 120205)
+                        {
+                            l_RewardCount = 0;
+                            break;
+                        }
+
+                        /// Follower case
+                        if (l_RewardEntry->ItemID)
+                        {
+                            ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_RewardEntry->ItemID);
+
+                            if (l_Template && l_Template->Spells[0].SpellId != 0)
+                            {
+                                SpellInfo const* l_Spell = sSpellMgr->GetSpellInfo(l_Template->Spells[0].SpellId);
+
+                                if (l_Spell && l_Spell->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
+                                {
+                                    if (GetFollower(l_Spell->Effects[0].MiscValue) != nullptr)
+                                    {
+                                        l_RewardCount = 0;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        ++l_RewardCount;
                     }
 
                     /// All missions should have a reward
@@ -4146,7 +4203,7 @@ namespace MS { namespace Garrison
                         continue;
 
                     /// Max Level cap : 2
-                    if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
+                    if (l_Entry->RequiredLevel > (int32)(l_AVGFollowerLevel + 2))
                         continue;
 
                     if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
