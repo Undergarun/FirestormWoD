@@ -5673,8 +5673,60 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Transmorphose - 162313
+class spell_gen_transmorphose : public SpellScriptLoader
+{
+    public:
+        spell_gen_transmorphose() : SpellScriptLoader("spell_gen_transmorphose") { }
+
+        class  spell_gen_transmorphose_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_transmorphose_AuraScript);
+
+            void OnApplyandRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(l_Player->getRace(), l_Player->getClass());
+                if (l_Info == nullptr)
+                    return;
+
+                Gender l_NewGender = (Gender)l_Player->getGender();
+                if (l_Player->getGender() == GENDER_MALE)            ///< MALE
+                    l_NewGender = GENDER_FEMALE;
+                else if (l_Player->getGender() == GENDER_FEMALE)     ///< FEMALE
+                    l_NewGender = GENDER_MALE;
+                else
+                    return;
+
+                /// Set gender
+                l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NewGender);
+                l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NewGender);
+
+                /// Change display ID
+                l_Player->InitDisplayIds();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApplyandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnRemoveandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_transmorphose_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_transmorphose();
     new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
