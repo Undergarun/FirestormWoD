@@ -366,11 +366,8 @@ class spell_rog_death_from_above : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
-                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
-                    }
+                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
+                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
                 }
             }
 

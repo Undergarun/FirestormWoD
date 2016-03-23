@@ -4443,7 +4443,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
             case 178236:///< Death from Above (jump dest)
-                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_BACK;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_TARGET_BACK;
                 spellInfo->Effects[0].ValueMultiplier = 40.0f;
                 break;
             case 139498: ///< Web Spray
