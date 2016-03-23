@@ -6,15 +6,12 @@ RUN apt-get install -y \
     curl
 
 # Prepare directories for worldserver data
-RUN mkdir -p /usr/local/lib/firestorm \
-             /usr/local/etc/firestorm \
-             /usr/local/opt/firestorm \
-             /usr/local/var/log/firestorm/crashlogs
+RUN mkdir -p /usr/local/share/firestorm
 
-# Add compiled bins and libs into the container
+# Add compiled bins and some data into the container
 ADD bin/* /usr/local/bin/
-#ADD lib/* /usr/local/lib/firestorm
 ADD etc/* /usr/local/etc/
+ADD sql/* /usr/local/share/firestorm/
 
 # Declare volumes to share files between host and container (configuration file, logs, dbc, maps ....)
 VOLUME /usr/local/etc/firestorm /usr/local/opt/firestorm /usr/local/var/log/firestorm
@@ -22,4 +19,4 @@ VOLUME /usr/local/etc/firestorm /usr/local/opt/firestorm /usr/local/var/log/fire
 # Open the port use by the worldserver on the container
 EXPOSE 8085
 
-ENTRYPOINT ["run-worldserver"]
+#ENTRYPOINT ["run-worldserver"]
