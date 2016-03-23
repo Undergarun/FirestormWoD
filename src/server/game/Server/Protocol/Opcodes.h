@@ -513,10 +513,11 @@ enum Opcodes
         SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x1674, ///< 6.2.3 20726
         SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x0A6B, ///< 6.2.3 20726
         SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x17F0, ///< 6.2.3 20726
-        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x11BE, ///< 6.2.3 20726
-        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x0BC3, ///< 6.2.3 20726
+        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0BC3, ///< 6.2.3 20726
+        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x0A5B, ///< 6.2.3 20726
         SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x16DC, ///< 6.2.3 20726
 
+        /// Black Market
         SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x1760, ///< 6.2.3 20726
         SMSG_BLACK_MARKET_OUTBID                                = 0x164F, ///< 6.2.3 20726
         SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT                  = 0x0B68, ///< 6.2.3 20726
