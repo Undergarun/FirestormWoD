@@ -26609,7 +26609,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
 void Player::UpdateHomebindTime(uint32 time)
 {
     // GMs never get homebind timer online
-    if (m_InstanceValid || isGameMaster())
+    if (m_InstanceValid || isGameMaster() || IsInGarrison())
     {
         if (m_HomebindTimer)                                 // instance valid, but timer not reset
         {
