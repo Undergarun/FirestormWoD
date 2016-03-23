@@ -273,7 +273,7 @@ bool AchievementCriteriaData::IsValid(CriteriaEntry const* p_Criteria)
     }
 }
 
-bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue1 /*= 0*/) const
+bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint32 p_MiscValue1 /*= 0*/) const
 {
     switch (dataType)
     {
@@ -386,7 +386,7 @@ bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source,
     return false;
 }
 
-bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue /*= 0*/) const
+bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Target, uint32 p_MiscValue /*= 0*/) const
 {
     for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
         if (!itr->Meets(criteria_id, p_Source, p_Target, p_MiscValue))

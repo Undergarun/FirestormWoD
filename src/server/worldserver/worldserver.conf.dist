@@ -351,12 +351,12 @@ DetectPosCollision = 1
 #    TargetPosRecalculateRange
 #        Description: Max distance from movement target point (+moving unit size) and targeted
 #                     object (+size) after that new target movement point calculated.
-#        Range:       0.5-1.5
+#        Range:       0.5-5.0
 #        Default:     1.5
 #                     0.5 - (Minimum, Contact Range, More sensitive reaction to target movement)
-#                     1.5 - (Maximum, Melee attack range, Less CPU usage)
+#                     5.0 - (Maximum, Melee attack range, Less CPU usage)
 
-TargetPosRecalculateRange = 1.5
+TargetPosRecalculateRange = 5.0
 
 #
 #    UpdateUptimeInterval

@@ -105,6 +105,10 @@ class boss_kromog : public CreatureScript
             ReverberationTrigger    = 77929
         };
 
+        enum eVisuals
+        {
+        };
+
         struct boss_kromogAI : public BossAI
         {
             boss_kromogAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataKromog)

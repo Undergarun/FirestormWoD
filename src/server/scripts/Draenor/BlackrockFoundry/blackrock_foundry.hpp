@@ -82,10 +82,6 @@ enum eFoundryCreatures
     /// Iron Assembly - Part 3
     /// Beastlord Darmac
     BossBeastlordDarmac     = 76865,
-    BossCruelfang           = 76884,
-    BossDreadwing           = 76874,
-    BossIroncrusher         = 76945,
-    ThunderlordPackPens     = 77631,
     /// Operator Thogar
     BossOperatorThogar      = 76906,
     /// Iron Maidens
@@ -151,9 +147,6 @@ enum eFoundryGameObjects
     KromogsDoorEast             = 236840,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
-    TheBeastGate                = 231841,
-    BeastsEnclosureDoor         = 232021,
-    TerminusDoor                = 237307,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
@@ -188,7 +181,6 @@ enum eFoundryDatas
     IronTaskmasterAggro,
     AknorDied,
     GraspingEarthTime,
-    DarmacBeastMountedFirst,
 
     /// Counters
     /// Gruul
@@ -202,11 +194,7 @@ enum eFoundryDatas
     /// Blast Furnace
     MaxPrimalElementalists  = 4,
     /// Kromog
-    MaxReverberationSpawns  = 15,
-    /// Beastlord Darmac
-    DataDreadwingFirst      = 1,
-    DataIronCrusherFirst    = 2,
-    DataCruelfangFirst      = 3
+    MaxReverberationSpawns  = 15
 };
 
 enum eFoundrySpells
@@ -222,20 +210,7 @@ enum eFoundryAchievements
     YaWeveGotTime           = 8930,
     StampStampRevolution    = 8980,
     TheSteelHasBeenBrought  = 8929,
-    WouldYouGiveMeAHand     = 8983,
-    FainWouldLieDown        = 8981
-};
-
-enum eFoundryCriterias
-{
-    DreadwingMountedFirst   = 24675,
-    IroncrusherMountedFirst = 24676,
-    CruelfangMountedFirst   = 24677
-};
-
-enum eFoundryWorldState
-{
-    WorldStateDarmacAchievement = 9127
+    WouldYouGiveMeAHand     = 8983
 };
 
 enum eFoundryVisuals
