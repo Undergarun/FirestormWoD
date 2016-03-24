@@ -22,6 +22,8 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::KromogsDoorEast,             eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::BlackForgePortcullis,        eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::BlackForgeGate,              eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::TheBeastGate,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -71,6 +73,13 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_KromogGuid                = 0;
 
                 m_IronAssemblyEntrance      = 0;
+                m_DarmacBeastMountedFirst   = 0;
+                m_BeastlordDarmacGuid       = 0;
+                m_CruelfangGuid             = 0;
+                m_DreadwingGuid             = 0;
+                m_IroncrusherGuid           = 0;
+                m_ThunderlordPackPens       = 0;
+                m_BeastsEnclosureDoor       = 0;
 
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
@@ -119,6 +128,14 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             /// Iron Assembly
             uint64 m_IronAssemblyEntrance;
+            /// The Breaking Grounds
+            uint32 m_DarmacBeastMountedFirst;
+            uint64 m_BeastlordDarmacGuid;
+            uint64 m_CruelfangGuid;
+            uint64 m_DreadwingGuid;
+            uint64 m_IroncrusherGuid;
+            uint64 m_ThunderlordPackPens;
+            uint64 m_BeastsEnclosureDoor;
 
             /// Blackhand's Crucible
             uint64 m_SpikeGateGuid;
@@ -173,6 +190,21 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryCreatures::BossKromog:
                         m_KromogGuid = p_Creature->GetGUID();
                         break;
+                    case eFoundryCreatures::BossBeastlordDarmac:
+                        m_BeastlordDarmacGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::BossCruelfang:
+                        m_CruelfangGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::BossDreadwing:
+                        m_DreadwingGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::BossIroncrusher:
+                        m_IroncrusherGuid = p_Creature->GetGUID();
+                        break;
+                    case eFoundryCreatures::ThunderlordPackPens:
+                        m_ThunderlordPackPens = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -194,6 +226,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::KromogsDoorEast:
                     case eFoundryGameObjects::BlackForgePortcullis:
                     case eFoundryGameObjects::BlackForgeGate:
+                    case eFoundryGameObjects::TheBeastGate:
+                    case eFoundryGameObjects::TerminusDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
@@ -237,6 +271,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::CrucibleDoor:
                         m_CrucibleEntrance = p_GameObject->GetGUID();
                         break;
+                    case eFoundryGameObjects::BeastsEnclosureDoor:
+                        m_BeastsEnclosureDoor = p_GameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -258,6 +295,8 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::KromogsDoorEast:
                     case eFoundryGameObjects::BlackForgePortcullis:
                     case eFoundryGameObjects::BlackForgeGate:
+                    case eFoundryGameObjects::TheBeastGate:
+                    case eFoundryGameObjects::TerminusDoor:
                         AddDoor(p_GameObject, false);
                         break;
                     default:
@@ -438,6 +477,21 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DataBeastlordDarmac:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::FAIL:
+                            {
+                                m_DarmacBeastMountedFirst = 0;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -522,6 +576,14 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DarmacBeastMountedFirst:
+                    {
+                        if (instance->IsLFR())
+                            break;
+
+                        m_DarmacBeastMountedFirst = p_Data;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -572,11 +634,42 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_MoltenTorrentStalkerGuid;
                     case eFoundryCreatures::BossKromog:
                         return m_KromogGuid;
+                    case eFoundryCreatures::BossBeastlordDarmac:
+                        return m_BeastlordDarmacGuid;
+                    case eFoundryCreatures::BossCruelfang:
+                        return m_CruelfangGuid;
+                    case eFoundryCreatures::BossDreadwing:
+                        return m_DreadwingGuid;
+                    case eFoundryCreatures::BossIroncrusher:
+                        return m_IroncrusherGuid;
+                    case eFoundryCreatures::ThunderlordPackPens:
+                        return m_ThunderlordPackPens;
+                    case eFoundryGameObjects::BeastsEnclosureDoor:
+                        return m_BeastsEnclosureDoor;
                     default:
                         break;
                 }
 
                 return 0;
+            }
+
+            bool CheckAchievementCriteriaMeet(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue1) override
+            {
+                bool l_DifficultyOK = !instance->IsLFR();
+
+                switch (p_CriteriaID)
+                {
+                    case eFoundryCriterias::DreadwingMountedFirst:
+                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataDreadwingFirst);
+                    case eFoundryCriterias::IroncrusherMountedFirst:
+                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataIronCrusherFirst);
+                    case eFoundryCriterias::CruelfangMountedFirst:
+                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataCruelfangFirst);
+                    default:
+                        break;
+                }
+
+                return false;
             }
 
             bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = nullptr) const override
