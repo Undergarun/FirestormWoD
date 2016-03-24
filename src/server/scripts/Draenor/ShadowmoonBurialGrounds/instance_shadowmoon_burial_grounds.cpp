@@ -9,6 +9,8 @@
 #include "InstanceScript.h"
 #include "shadowmoon_burial_grounds.hpp"
 
+#define ShadowlandNpcDisplayId 58948
+
 class instance_shadowmoon_burial_grounds : public InstanceMapScript
 {
 public:
@@ -33,6 +35,7 @@ public:
         uint64 m_BonemawMouthGUID;
         uint64 m_NerzhulGUID;
         uint64 m_NerzulPropGUID;
+		uint64 m_PortalToTheShadowLandReturnGUID;
         uint64 m_WandererFirstTalkGUID;
         uint64 m_WandererSecondTalkGUID;
         uint64 m_WandererThirdTalkGUID; 
@@ -44,21 +47,22 @@ public:
 
         void Initialize() override
         {
-            m_SadanaGUID                     = 0;
-            m_NhallishGUID                   = 0;
-            m_BonemawGUID                    = 0;
-            m_NerzhulGUID                    = 0;
-            m_BonemawMouthGUID               = 0;
-            m_NerzulPropGUID                 = 0;
-            m_WandererFirstTalkGUID          = 0;
-            m_WandererSecondTalkGUID         = 0;
-            m_WandererThirdTalkGUID          = 0;
-            m_DoorGobjectSadanaGUID          = 0;
-            m_DoorGobjectSadanaFightDoorGUID = 0;
-            m_DoorGobjectNerzulGUID          = 0;
-            m_DoorGobjectBonemawEntranceGUID = 0;
-            m_DoorGobjectNhalishEntranceGUID = 0;
-            m_SadanaEclipseTriggerGUID       = 0;
+            m_SadanaGUID                      = 0;
+            m_NhallishGUID                    = 0;
+            m_BonemawGUID                     = 0;
+            m_NerzhulGUID                     = 0;
+            m_BonemawMouthGUID                = 0;
+            m_NerzulPropGUID                  = 0;
+            m_WandererFirstTalkGUID           = 0;
+            m_WandererSecondTalkGUID          = 0;
+            m_WandererThirdTalkGUID           = 0;
+            m_DoorGobjectSadanaGUID           = 0;
+            m_DoorGobjectSadanaFightDoorGUID  = 0;
+            m_DoorGobjectNerzulGUID           = 0;
+            m_DoorGobjectBonemawEntranceGUID  = 0;
+            m_DoorGobjectNhalishEntranceGUID  = 0;
+            m_SadanaEclipseTriggerGUID        = 0;
+			m_PortalToTheShadowLandReturnGUID = 0;
         }
 
         void OnCreatureCreate(Creature* l_Creature) override
@@ -67,29 +71,32 @@ public:
             {
                 switch (l_Creature->GetEntry())
                 {
-                case eShadowmoonBurialGroundsBosses::BossSadana:
-                    m_SadanaGUID = l_Creature->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsBosses::BossNhallish:
-                    m_NhallishGUID = l_Creature->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsBosses::BossBoneMaw:
-                    m_BonemawGUID = l_Creature->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsCreatures::CreatureBonemawMouth:
-                    m_BonemawMouthGUID = l_Creature->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsBosses::BossNerzul:
-                    m_NerzhulGUID = l_Creature->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsCreatures::CreatureNerzulVisual:
-                    m_NerzulPropGUID = l_Creature->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsCreatures::CreatureNewDarkEclipse:
-                    m_SadanaEclipseTriggerGUID = l_Creature->GetGUID();
-                    break;
-                default:
-                    break;
+					case eShadowmoonBurialGroundsBosses::BossSadana:
+						m_SadanaGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsBosses::BossNhallish:
+						m_NhallishGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsBosses::BossBoneMaw:
+						m_BonemawGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsCreatures::CreatureBonemawMouth:
+						m_BonemawMouthGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsBosses::BossNerzul:
+						m_NerzhulGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsCreatures::CreatureNerzulVisual:
+						m_NerzulPropGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsCreatures::CreatureNewDarkEclipse:
+						m_SadanaEclipseTriggerGUID = l_Creature->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsDatas::DataPortalToTheShadowlandReturn:
+						m_PortalToTheShadowLandReturnGUID = l_Creature->GetGUID();
+						break;
+					default:
+						break;
                 }
             }
         }
@@ -104,7 +111,16 @@ public:
             {
                 case eShadowmoonBurialGroundsBosses::BossNerzul:
                 {
-                    // Dungeon Achievement
+					if (m_Instance != nullptr)
+					{
+						if (Creature* l_ShadowlandPortalReturn = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataPortalToTheShadowlandReturn)))
+						{
+							l_ShadowlandPortalReturn->SetDisplayId(ShadowlandNpcDisplayId);
+							l_ShadowlandPortalReturn->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);					
+						}
+					}
+
+                    /// Dungeon Achievement
                     if (p_Unit->GetMap()->IsHeroic())
                         this->DoCompleteAchievement(eShadowmoonBurialGroundsAchivement::AchievementShadowmoonBurialGroundsHeroic);
                     else
@@ -122,23 +138,23 @@ public:
             {
                 switch (p_Go->GetEntry())
                 {
-                case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaDoor:
-                    m_DoorGobjectSadanaGUID = p_Go->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaFightDoor:
-                    m_DoorGobjectSadanaFightDoorGUID = p_Go->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsGameObjects::GameObjectNerzulDoor:
-                    m_DoorGobjectNerzulGUID = p_Go->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsGameObjects::GameObjectNhalishDoorEntrance:
-                    m_DoorGobjectNhalishEntranceGUID = p_Go->GetGUID();
-                    break;
-                case eShadowmoonBurialGroundsGameObjects::GameObjectBonemawDoorEntrance:
-                    m_DoorGobjectBonemawEntranceGUID = p_Go->GetGUID();
-                    break;
-                default:
-                    break;
+					case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaDoor:
+						m_DoorGobjectSadanaGUID = p_Go->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsGameObjects::GameObjectSadanaFightDoor:
+						m_DoorGobjectSadanaFightDoorGUID = p_Go->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsGameObjects::GameObjectNerzulDoor:
+						m_DoorGobjectNerzulGUID = p_Go->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsGameObjects::GameObjectNhalishDoorEntrance:
+						m_DoorGobjectNhalishEntranceGUID = p_Go->GetGUID();
+						break;
+					case eShadowmoonBurialGroundsGameObjects::GameObjectBonemawDoorEntrance:
+						m_DoorGobjectBonemawEntranceGUID = p_Go->GetGUID();
+						break;
+					default:
+						break;
                 }
             }
         }
@@ -210,6 +226,8 @@ public:
                 case eShadowmoonBurialGroundsDatas::DataNerzulProp:
                     return m_NerzulPropGUID;
                     break;
+				case eShadowmoonBurialGroundsDatas::DataPortalToTheShadowlandReturn:
+					return m_PortalToTheShadowLandReturnGUID;
                 default:
                     break;
             }

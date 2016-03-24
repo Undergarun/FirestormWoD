@@ -3833,6 +3833,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = NULL;
                 break;
             case 153501: ///< Void Blast
+            case 153070: ///< Void Devestation
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
@@ -3842,6 +3843,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 153686: ///< Body Slam
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
+			case 154469: ///< Ritaul Of Bones - Darkness
             case 153692: ///< Necrotic Pitch Debuff
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;

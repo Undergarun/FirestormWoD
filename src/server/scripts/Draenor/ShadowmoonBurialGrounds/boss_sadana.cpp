@@ -463,7 +463,7 @@ public:
                 if (Creature* l_Creature = Creature::GetCreature(*me, m_CommunionGuid))
                 {
                     l_Creature->UpdatePosition(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ(), l_Creature->GetOrientation(), true);  
-                    if (me->IsWithinDistInMap(l_Creature, 2.0f))
+                    if (me->IsWithinDistInMap(l_Creature, 3.5f))
                     {           
                         m_CommunionInRange = false;    
                         l_Creature->DespawnOrUnsummon();
@@ -527,7 +527,7 @@ public:
                     events.ScheduleEvent(eSadanaEvents::EventDeathSpike, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eSadanaEvents::EventDarkEclipse:
-                {              
+                {
                     events.Reset();
                     /// Activate shadow runes;
                     std::list<Creature*> l_ListShadowrunes;
@@ -559,7 +559,13 @@ public:
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                     me->AttackStop();
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->AddAura(eSadanaSpells::SpellDarkEclipsePeriodicDummy, me); /// Please work
+
+                    if (InstanceScript* l_Instance = me->GetInstanceScript())
+                    {
+                        if (Creature* l_NearestEclipseTrigger = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataSadanaEclipseTrigger)))
+                            l_NearestEclipseTrigger->AddAura(eSadanaSpells::SpellDarkEclipsePeriodicDummy, l_NearestEclipseTrigger); /// Please work
+                    }
+                
                     events.ScheduleEvent(eSadanaEvents::EventDarkEclipse, 60 * TimeConstants::IN_MILLISECONDS);
                     events.ScheduleEvent(eSadanaEvents::EventDarkEclipseFinish, 27 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -781,12 +787,12 @@ public:
         {
             events.Reset();
             me->setFaction(HostileFaction);
-            me->SetReactState(ReactStates::REACT_PASSIVE);          
+            me->SetCanFly(true);
+            me->SetDisableGravity(true);
+            me->SetReactState(ReactStates::REACT_PASSIVE);     
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(EUnitFields::UNIT_FIELD_LEVEL, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->CastSpell(me, eSadanaSpells::SpellDaggerAuraFunctioning);
-            me->SetDisableGravity(true);
-            me->SetCanFly(true);
+            me->CastSpell(me, eSadanaSpells::SpellDaggerAuraFunctioning);        
             events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 2 * TimeConstants::IN_MILLISECONDS);
         }
 
@@ -1136,36 +1142,6 @@ public:
     
     shadowmoon_burial_grounds_sadana_spell_dark_eclipse() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_eclipse") { }
 
-    class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_SpellScript);
-
-        void CorrectTargets(std::list<WorldObject*>& p_Targets)
-        {
-            /// Picks the Elcipse Trigger for the target.
-            p_Targets.clear();
-
-            if (GetCaster())
-            {
-                if (InstanceScript* l_Instance = GetCaster()->GetInstanceScript())
-                {
-                    if (Creature* l_NearestEclipseTrigger = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataSadanaEclipseTrigger)))
-                        p_Targets.push_back(l_NearestEclipseTrigger);
-                }
-            }
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_NEARBY_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_SpellScript();
-    }
-
     class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript : public AuraScript
     {
         PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript);
@@ -1224,7 +1200,7 @@ public:
             if (!GetCaster() || !GetHitUnit())
                 return;
 
-            if (GetCaster()->HasAura(eEclipseSpells::SpellLunaryPurtiyBuff))
+            if (GetHitUnit()->HasAura(eEclipseSpells::SpellLunaryPurtiyBuff))
                 SetHitDamage(0);
         }
 
