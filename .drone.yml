@@ -12,9 +12,10 @@ build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - mkdir build
-      - mkdir dist/bin dist/lib dist/etc
+      - mkdir dist/bin dist/etc dist/sql dist/sql/characters dist/sql/world dist/sql/hotfix
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
+    pull: true
     commands:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
@@ -25,6 +26,7 @@ build:
       - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
   release:
     image: milleniumstudio/drone-clang-mariadb-ace
+    pull: true
     commands:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
@@ -40,6 +42,9 @@ build:
     commands:
       - cp -p contrib/deploy/run-worldserver dist/bin
       - cp contrib/deploy/commands.gdb dist/etc
+      - cp sql/updates/characters/*.sql dist/sql/characters
+      - cp sql/updates/world/*.sql dist/sql/world
+      - cp sql/updates/hotfix/*.sql dist/sql/hotfix
 
 publish:
   docker:

@@ -2467,6 +2467,7 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Eviscerate - 2098
 class spell_rog_evicerate : public SpellScriptLoader
 {
@@ -2487,9 +2488,12 @@ class spell_rog_evicerate : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
 
                 Unit* l_Caster = GetCaster();
-
+                Unit* l_Target = GetHitUnit();
                 uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (l_ComboPoint)
                 {
@@ -2500,8 +2504,8 @@ class spell_rog_evicerate : public SpellScriptLoader
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
-                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
 
                 SetHitDamage(l_Damage);
             }

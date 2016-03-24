@@ -134,7 +134,7 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
 
             if (m_HonorScoreTicks[team] >= m_HonorTicks)
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(1), (team == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(1), (team == BG_TEAM_ALLIANCE) ? ALLIANCE : HORDE, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
                 m_HonorScoreTicks[team] -= m_HonorTicks;
             }
 

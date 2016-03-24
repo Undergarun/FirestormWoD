@@ -272,7 +272,7 @@ class UnitAI
         }
 
         /// In mostly cases, heals will be targeted too
-        Player* SelectRangedTarget(bool p_AllowHeal = true) const;
+        Player* SelectRangedTarget(float p_MinDist = 10.0f, bool p_AllowHeal = true) const;
         /// In mostly cases, tanks will not be targeted
         Player* SelectMeleeTarget(bool p_AllowTank = false) const;
 

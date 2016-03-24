@@ -1225,6 +1225,7 @@ enum Opcodes
     CMSG_SUMMON_RESPONSE                        = 0x0577, ///< 6.2.3 20726
     CMSG_SET_FACTION_ATWAR                      = 0x1582, ///< 6.2.3 20726
     CMSG_UNSET_FACTION_ATWAR                    = 0x077D, ///< 6.2.3 20726
+    CMSG_USE_CRITTER_ITEM                       = 0x0408, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles

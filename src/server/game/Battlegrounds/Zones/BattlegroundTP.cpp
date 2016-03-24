@@ -351,7 +351,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player *Source)
         RewardReputationToTeam(1172, m_ReputationCapture, HORDE);
     }
     //for flag capture is reward 2 honorable kills
-    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetBGTeam());
+    RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetBGTeam(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundObjectif);
 
     SpawnBGObject(BG_TP_OBJECT_H_FLAG, BG_TP_FLAG_RESPAWN_TIME);
     SpawnBGObject(BG_TP_OBJECT_A_FLAG, BG_TP_FLAG_RESPAWN_TIME);
