@@ -6549,17 +6549,20 @@ uint32 Player::GetRoleForGroup(uint32 specializationId) const
     return GetRoleBySpecializationId(specializationId);
 }
 
-bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
+bool Player::IsRangedDamageDealer(Creature* p_Source, float p_MinDist /*= 10.0f*/, bool p_AllowHeal /*= true*/) const
 {
-    if (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowHeal && GetRoleForGroup() == Roles::ROLE_HEALER))
-        return false;
+    bool l_OK = false;
+
+    if (p_Source == nullptr || (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowHeal && GetRoleForGroup() == Roles::ROLE_HEALER)))
+        return l_OK;
 
     switch (getClass())
     {
         case Classes::CLASS_HUNTER:
         case Classes::CLASS_MAGE:
         case Classes::CLASS_WARLOCK:
-            return true;
+            l_OK = true;
+            break;
         default:
             break;
     }
@@ -6569,19 +6572,24 @@ bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
         case SpecIndex::SPEC_DRUID_BALANCE:
         case SpecIndex::SPEC_PRIEST_SHADOW:
         case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
-            return true;
+            l_OK = true;
+            break;
         case SpecIndex::SPEC_DRUID_RESTORATION:
         case SpecIndex::SPEC_MONK_MISTWEAVER:
         case SpecIndex::SPEC_PALADIN_HOLY:
         case SpecIndex::SPEC_PRIEST_DISCIPLINE:
         case SpecIndex::SPEC_PRIEST_HOLY:
         case SpecIndex::SPEC_SHAMAN_RESTORATION:
-            return p_AllowHeal;
+            l_OK = p_AllowHeal;
+            break;
         default:
             break;
     }
 
-    return false;
+    if (GetDistance(p_Source) < p_MinDist)
+        l_OK = false;
+
+    return l_OK;
 }
 
 bool Player::IsMeleeDamageDealer(bool p_AllowTank /*= false*/) const
