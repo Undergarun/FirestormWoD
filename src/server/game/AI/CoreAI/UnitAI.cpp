@@ -44,14 +44,18 @@ void UnitAI::DoMeleeAttackIfReady()
         return;
 
     Unit* victim = me->getVictim();
+
+    if (!me->IsWithinMeleeRange(victim))
+        return;
+
     //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
+    if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim);
         me->resetAttackTimer();
     }
 
-    if (me->haveOffhandWeapon() && me->isAttackReady(WeaponAttackType::OffAttack) && me->IsWithinMeleeRange(victim))
+    if (me->haveOffhandWeapon() && me->isAttackReady(WeaponAttackType::OffAttack))
     {
         me->AttackerStateUpdate(victim, WeaponAttackType::OffAttack);
         me->resetAttackTimer(WeaponAttackType::OffAttack);
@@ -91,7 +95,7 @@ void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAg
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
 }
 
-Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/) const
+Player* UnitAI::SelectRangedTarget(float p_MinDist /*= 10.0f*/, bool p_AllowHeal /*= true*/) const
 {
     std::list<HostileReference*> const& l_ThreatList = me->getThreatManager().getThreatList();
     if (l_ThreatList.empty())
@@ -107,9 +111,9 @@ Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/) const
     if (l_TargetList.empty())
         return nullptr;
 
-    l_TargetList.remove_if([this, p_AllowHeal](Player* p_Player) -> bool
+    l_TargetList.remove_if([this, p_AllowHeal, p_MinDist](Player* p_Player) -> bool
     {
-        if (!p_Player->IsRangedDamageDealer(p_AllowHeal))
+        if (!p_Player->IsRangedDamageDealer(me->ToCreature(), p_MinDist, p_AllowHeal))
             return true;
 
         return false;
