@@ -113,7 +113,7 @@ Player* UnitAI::SelectRangedTarget(float p_MinDist /*= 10.0f*/, bool p_AllowHeal
 
     l_TargetList.remove_if([this, p_AllowHeal, p_MinDist](Player* p_Player) -> bool
     {
-        if (!p_Player->IsRangedDamageDealer(me, p_MinDist, p_AllowHeal))
+        if (!p_Player->IsRangedDamageDealer(me->ToCreature(), p_MinDist, p_AllowHeal))
             return true;
 
         return false;
