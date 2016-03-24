@@ -1772,12 +1772,13 @@ class spell_foundry_ranged_targets_searcher : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                Unit* l_Caster = GetCaster();
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || !p_Object->IsPlayer())
                         return true;
 
-                    if (!p_Object->ToPlayer()->IsRangedDamageDealer())
+                    if (!p_Object->ToPlayer()->IsRangedDamageDealer(l_Caster->ToCreature()))
                         return true;
 
                     return false;
