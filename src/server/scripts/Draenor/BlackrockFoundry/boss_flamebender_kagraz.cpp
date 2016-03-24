@@ -1483,6 +1483,13 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
+            /// In case of unexpected reset
+            void JustDespawned() override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr)
