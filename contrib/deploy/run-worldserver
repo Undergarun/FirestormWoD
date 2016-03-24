@@ -51,19 +51,19 @@ function analyseCrash {
 }
 
 function isKilled {
-    return $(grep -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
+    return $(grep -m1 -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
 }
 
 function isCrash {
-    return $(grep -icP 'SIGABRT|SIGSEGV' /tmp/backtrace.log)
+    return $(grep -m1 -icP 'SIGABRT|SIGSEGV' /tmp/backtrace.log)
 }
 
 function isShutdown {
-    return $(grep -ic 'exited with code 02' /tmp/backtrace.log)
+    return $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log)
 }
 
 function isReboot {
-    return $(grep -ic 'exited normally' /tmp/backtrace.log)
+    return $(grep -m1 -ic 'exited normally' /tmp/backtrace.log)
 }
 
 ###### MAIN ######
