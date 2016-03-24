@@ -813,20 +813,7 @@ void Battleground::RewardHonorToTeam(uint32 p_Honor, uint32 TeamID, MS::Battlegr
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         if (Player* l_Player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
-        {
-            if (p_RewardCurrencyType)
-            {
-                float l_Multiplier = 0.0f;
-                Unit::AuraEffectList const& l_ModPvpPercent = l_Player->GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_2);
-                for (Unit::AuraEffectList::const_iterator i = l_ModPvpPercent.begin(); i != l_ModPvpPercent.end(); ++i)
-                {
-                    if ((*i)->GetMiscValue() == CURRENCY_TYPE_HONOR_POINTS && (*i)->GetMiscValueB() == p_RewardCurrencyType)
-                        l_Multiplier += (*i)->GetAmount();
-                }
-                p_Honor *= (l_Multiplier / 100);
-            }
-            UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, p_Honor);
-        }
+            UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, p_Honor, p_RewardCurrencyType);
     }
 }
 

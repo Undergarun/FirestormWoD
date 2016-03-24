@@ -9811,14 +9811,14 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
 
         if (p_RewardCurrencyType)
         {
-            float l_Multiplier = 0.0f;
+            float l_Multiplier = 1.0f;
             Unit::AuraEffectList const& l_ModPvpPercent = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_2);
             for (Unit::AuraEffectList::const_iterator i = l_ModPvpPercent.begin(); i != l_ModPvpPercent.end(); ++i)
             {
                 if ((*i)->GetMiscValue() == p_CurrencyID && (*i)->GetMiscValueB() == p_RewardCurrencyType)
-                    l_Multiplier += (*i)->GetAmount();
+                    AddPct(l_Multiplier, (*i)->GetAmount());
             }
-            p_Count *= (l_Multiplier / 100);
+            p_Count *= l_Multiplier;
         }
     }
 
