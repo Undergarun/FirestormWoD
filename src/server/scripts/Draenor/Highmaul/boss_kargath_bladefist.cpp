@@ -3528,9 +3528,14 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == eSpells::BerserkerRush && !p_Targets.empty())
                 {
-                    p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                    Unit* l_Caster = GetCaster();
+
+                    p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                     {
                         if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
+                            return true;
+
+                        if (!p_Object->isInFront(l_Caster))
                             return true;
 
                         if (Player* l_Player = p_Object->ToPlayer())
