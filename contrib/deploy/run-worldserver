@@ -1,10 +1,9 @@
 #!/bin/bash
 
-slack_hook_urls=("https://hooks.slack.com/services/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")
-
 function sendToSlack {
     msg=$1
     color=$2
+    slack_hook_urls=("https://hooks.slack.com/services/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")
 
     for hook_url in "${slack_hook_urls[@]}"
     do
@@ -14,39 +13,70 @@ function sendToSlack {
     done
 }
 
-ulimit -n 4096
+function updateSQL {
+    cat /usr/local/share/firestorm/sql/characters/*.sql | mysql -f -h "$MYSQL_CHAR_ADDR" -u $MYSQL_CHAR_USER --password="$MYSQL_CHAR_PASSWD" $MYSQL_CHAR_TABLE
+    cat /usr/local/share/firestorm/sql/world/*.sql      | mysql -f -h "$MYSQL_WORLD_ADDR" -u $MYSQL_WORLD_USER --password="$MYSQL_WORLD_PASSWD" $MYSQL_WORLD_TABLE
+    cat /usr/local/share/firestorm/sql/hotfix/*.sql     | mysql -f -h "$MYSQL_HOTFIX_ADDR" -u $MYSQL_HOTFIX_USER --password="$MYSQL_HOTFIX_PASSWD" $MYSQL_HOTFIX_TABLE
+}
 
-if [ $ASAN_MODE -eq 1 ]; then
-    # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerFlags#run-time-flags
-    ASAN_OPTIONS=symbolize=1:detect_leaks=0
-    ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
+function runWorldserver {
+    # Increase allowed file descriptors
+    ulimit -n 4096
 
-    gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
-    # ./worldserver_Asan 2>&1 | asan_symbolize -d > /tmp/   backtrace.log
-else
-    gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfo
-fi
+    if [ $ASAN_MODE ]; then
+        # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerFlags#run-time-flags
+        ASAN_OPTIONS=symbolize=1:detect_leaks=0
+        ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
 
-is_killed=`egrep 'SIGTERM|SIGINT' /tmp/backtrace.log`
-if [ -n "$is_killed" ]; then
-    # process has been  manually killed so don't do anything, just restart quietly
-    continue
-fi
+        gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
+        # ./worldserver_Asan 2>&1 | asan_symbolize -d > /tmp/   backtrace.log
+    else
+        gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfo
+    fi
+}
 
-# check if it's a shutdown or restart
-is_ok=$(grep -oP "(?:exited normally|exited with code 02)" /tmp/backtrace.log)
-if [ -z "$is_ok" ]; then
-    crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).crashlog"
-    crashlog_link="$HOST_URL/logs_42x/$REALM_NAME/crashlogs/$crashlog_filename"
+function analyseCrash {
+    crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).log"
+    crashlog_link="$HOST_ADDR/logs_42x/$REALM_NAME/crashlogs/$crashlog_filename"
 
-    if [ $ASAN_MODE -eq 0 ]; then
+    if [ $ASAN_MODE ]; then
         crash_location=$(grep -oP 'in \K(.*) at' /tmp/backtrace.log | head -n 1)
         sendToSlack "_ $REALM_NAME _ crashed in \`$crash_location\` <$crashlog_link|Show more...>" "danger"
     else
         sendToSlack "_ $REALM_NAME _ crashed with ASan <$crashlog_link|Show more...>" "danger"
     fi
 
-    mv /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
-else
-    sendToSlack "_ $REALM_NAME _ exited normally." "good"
+    # Only if it's a crash we made the log avalaible
+    cp /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
+}
+
+function isKilled {
+    return $(grep -m1 -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
+}
+
+function isCrash {
+    return $(grep -m1 -icP 'SIGABRT|SIGSEGV' /tmp/backtrace.log)
+}
+
+function isShutdown {
+    return $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log)
+}
+
+function isReboot {
+    return $(grep -m1 -ic 'exited normally' /tmp/backtrace.log)
+}
+
+###### MAIN ######
+
+updateSQL
+runWorldserver
+
+if [ isKilled ]; then # If process has been manually killed, don't do anything. Just restart quietly
+    exit 0
+elif [ isCrash ]; then
+    analyseCrash
+elif [ isShutdown ]; then
+    sendToSlack "_ $REALM_NAME _ has been shut down." "good"
+elif [ isReboot ]; then
+    sendToSlack "_ $REALM_NAME _ has been rebooted." "good"
 fi
