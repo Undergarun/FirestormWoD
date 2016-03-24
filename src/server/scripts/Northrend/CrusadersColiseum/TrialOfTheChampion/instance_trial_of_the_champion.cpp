@@ -304,7 +304,7 @@ public:
             return 0;
         }
 
-        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint64 /*miscvalue1*/)
         {
             switch(criteria_id)
             {
