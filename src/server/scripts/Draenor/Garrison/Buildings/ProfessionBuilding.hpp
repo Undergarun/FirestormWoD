@@ -82,7 +82,7 @@ namespace MS { namespace Garrison
             ProfessionBuilding_SkillNPC()
                 : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
             {
-
+                m_Recipes = *t_RecipeEntries;
             }
 
             /// Called when a player opens a gossip dialog with the GameObject.
@@ -128,7 +128,7 @@ namespace MS { namespace Garrison
                         if (l_AI == nullptr)
                             return true;
 
-                        l_AI->SetRecipes(t_RecipeEntries, t_Skill);
+                        l_AI->SetRecipes(m_Recipes, t_Skill);
                         l_AI->SendTradeSkillUI(p_Player);
                     }
                 }
@@ -138,6 +138,8 @@ namespace MS { namespace Garrison
                 return true;
             }
 
+        private:
+            std::vector<SkillNPC_RecipeEntry> m_Recipes;
     };
 
 }   ///< namespace Garrison

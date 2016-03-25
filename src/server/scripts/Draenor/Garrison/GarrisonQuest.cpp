@@ -375,6 +375,10 @@ namespace MS { namespace Garrison
             }
         }
 
+        /// Little fix for The Tannery
+        if (p_Player->HasAura(172424))
+            p_Player->RemoveAura(172424);
+
         switch (p_Player->GetMapId())
         {
             /// Garrison Phases
