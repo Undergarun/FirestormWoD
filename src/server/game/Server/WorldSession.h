@@ -808,6 +808,7 @@ class WorldSession
         void HandleBuyReagentBankOpcode(WorldPacket& recvPacket);
         void HandleSortReagentBankBagsOpcode(WorldPacket& recvPacket);
         void HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData);
+        void HandleUseCritterItemOpcode(WorldPacket& p_RecvData);
 
         void HandleTrainerListOpcode(WorldPacket& recvPacket);
         void HandleTrainerBuySpellOpcode(WorldPacket& recvPacket);

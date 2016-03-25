@@ -4729,6 +4729,143 @@ class npc_frozen_trail_packer : public CreatureScript
         }
 };
 
+/////////////////////////////////////////////////////////////
+/// Ethereal Soul-Trader - 27914
+class npc_ethereal_soul_trader : public CreatureScript
+{
+    public:
+        npc_ethereal_soul_trader() : CreatureScript("npc_ethereal_soul_trader") { }
+
+        struct npc_ethereal_soul_traderAI : public PassiveAI
+        {
+            npc_ethereal_soul_traderAI(Creature* p_Creature) : PassiveAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EtherealPetAura                 = 50051,
+                EtherealPetOnKillStealEssence   = 50101
+            };
+
+            std::queue<uint64> m_PendingTargets;
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveFollow(p_Owner, PET_FOLLOW_DIST, (3 * M_PI) / 2);
+
+                p_Owner->CastSpell(p_Owner, eSpells::EtherealPetAura, true);
+            }
+
+            void JustDespawned() override
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                    l_Owner->RemoveAura(eSpells::EtherealPetAura);
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            {
+                m_PendingTargets.push(p_Guid);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_PendingTargets.empty())
+                    return;
+
+                if (uint64 l_Guid = m_PendingTargets.front())
+                {
+                    m_PendingTargets.pop();
+
+                    if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                        me->CastSpell(l_Target, eSpells::EtherealPetOnKillStealEssence, false);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ethereal_soul_traderAI(p_Creature);
+        }
+};
+
+/// Ethereal Pet Aura - 50051
+class spell_ethereal_pet_aura : public SpellScriptLoader
+{
+    public:
+        spell_ethereal_pet_aura() : SpellScriptLoader("spell_ethereal_pet_aura") { }
+
+        class spell_ethereal_pet_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ethereal_pet_aura_AuraScript);
+
+            enum eDatas
+            {
+                EtherealSoulTrader = 27914
+            };
+
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetTarget() || !p_EventInfo.GetActionTarget() || !GetTarget()->IsPlayer())
+                    return;
+
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                Creature* l_BattlePet = l_Player->GetSummonedBattlePet();
+                if (l_BattlePet == nullptr || l_BattlePet->GetEntry() != eDatas::EtherealSoulTrader)
+                    return;
+
+                if (l_BattlePet->IsAIEnabled)
+                    l_BattlePet->AI()->SetGUID(p_EventInfo.GetActionTarget()->GetGUID(), 0);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_ethereal_pet_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ethereal_pet_aura_AuraScript();
+        }
+};
+
+/// Ethereal Pet OnKill Steal Essence - 50101
+class spell_ethereal_pet_onkill_steal_essence : public SpellScriptLoader
+{
+    public:
+        spell_ethereal_pet_onkill_steal_essence() : SpellScriptLoader("spell_ethereal_pet_onkill_steal_essence") { }
+
+        class spell_ethereal_pet_onkill_steal_essence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ethereal_pet_onkill_steal_essence_AuraScript);
+
+            enum eData
+            {
+                EtherealPetOnKillGiveToken = 50063
+            };
+
+            void HandleRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eData::EtherealPetOnKillGiveToken, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ethereal_pet_onkill_steal_essence_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ethereal_pet_onkill_steal_essence_AuraScript();
+        }
+};
+/////////////////////////////////////////////////////////////
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4782,4 +4919,11 @@ void AddSC_npcs_special()
     new npc_consecration();
     new npc_xuen_the_white_tiger();
     new npc_frozen_trail_packer();
+
+    /////////////////////////////////////////////////////////////
+    /// Ethereal Soul-Trader
+    new npc_ethereal_soul_trader();
+    new spell_ethereal_pet_aura();
+    new spell_ethereal_pet_onkill_steal_essence();
+    /////////////////////////////////////////////////////////////
 }

@@ -48,6 +48,8 @@ class boss_beastlord_darmac : public CreatureScript
             CunningOfTheWolf        = 155458,
             SpiritOfTheRylak        = 155459,
             TantrumPeriodic         = 155520,
+            SearedFleshDebuff       = 155030,
+            ConflagrationDebuff     = 154981,
             /// Pin Down
             PinDownSearcher         = 155365,
             PinDownMissile          = 154951,
@@ -60,8 +62,8 @@ class boss_beastlord_darmac : public CreatureScript
             RendAndTearJumpSecond   = 162285,
             /// Superheated Shrapnel
             FaceRandomNonTank       = 155603,
-            FlameBreathStalkerProc  = 161262,   ///< Summons 79868
-            SuperheatedShrapnel     = 155497
+            SuperheatedShrapnel     = 155497,
+            SuperheatedShrapnelDoT  = 155499
         };
 
         enum eEvents
@@ -108,9 +110,8 @@ class boss_beastlord_darmac : public CreatureScript
 
         enum eCreatures
         {
-            HitchingPost        = 79914,
-            PackBeast           = 77128,
-            FlameBreathStalker  = 79868
+            HitchingPost    = 79914,
+            PackBeast       = 77128
         };
 
         enum eVisuals
@@ -155,7 +156,11 @@ class boss_beastlord_darmac : public CreatureScript
 
             bool CanRespawn() override
             {
-                return false;
+                if (m_Instance == nullptr)
+                    return false;
+
+                /// Allow respawn during tests
+                return sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty());
             }
 
             void Reset() override
@@ -169,6 +174,10 @@ class boss_beastlord_darmac : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 m_Events.Reset();
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
 
@@ -259,7 +268,7 @@ class boss_beastlord_darmac : public CreatureScript
                     }
                 }
 
-                me->DespawnCreaturesInArea({ eCreatures::PackBeast, eCreatures::FlameBreathStalker });
+                me->DespawnCreaturesInArea({ eCreatures::PackBeast });
 
                 if (m_Instance != nullptr)
                 {
@@ -270,6 +279,9 @@ class boss_beastlord_darmac : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered2);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoBreathDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuperheatedShrapnelDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearedFleshDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ConflagrationDebuff);
                 }
 
                 CreatureAI::EnterEvadeMode();
@@ -281,7 +293,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                 summons.DespawnAll();
 
-                me->DespawnCreaturesInArea({ eCreatures::PackBeast, eCreatures::FlameBreathStalker });
+                me->DespawnCreaturesInArea({ eCreatures::PackBeast });
 
                 _JustDied();
 
@@ -296,6 +308,9 @@ class boss_beastlord_darmac : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RendAndTearTriggered2);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InfernoBreathDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuperheatedShrapnelDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearedFleshDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ConflagrationDebuff);
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                     if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
@@ -311,17 +326,6 @@ class boss_beastlord_darmac : public CreatureScript
 
                 if (!me->isInCombat())
                     p_Summon->DespawnOrUnsummon();
-
-                if (p_Summon->GetEntry() == eCreatures::FlameBreathStalker)
-                {
-                    p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
-
-                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
-                    p_Summon->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
-                }
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -512,18 +516,20 @@ class boss_beastlord_darmac : public CreatureScript
                     {
                         me->SetFacingTo(me->GetAngle(p_Target));
 
-                        me->CastSpell(p_Target, eSpells::FlameBreathStalkerProc, true);
-
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                         AddTimedDelayedOperation(50, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::SuperheatedShrapnel, false);
                         });
 
-                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
                         });
 
                         break;
@@ -550,37 +556,6 @@ class boss_beastlord_darmac : public CreatureScript
 
                         break;
                     }
-                    default:
-                        break;
-                }
-            }
-
-            void OnVehicleExited(Unit* p_Vehicle) override
-            {
-                switch (p_Vehicle->GetEntry())
-                {
-                    case eFoundryCreatures::BossIroncrusher:
-                    {
-                        Talk(eTalks::TalkIroncrushersRage);
-                        break;
-                    }
-                    case eFoundryCreatures::BossDreadwing:
-                    {
-                        Talk(eTalks::TalkDreadwingsFlame);
-                        break;
-                    }
-                    case eFoundryCreatures::BossCruelfang:
-                    {
-                        Talk(eTalks::TalkCruelfangsSwiftness);
-                        break;
-                    }
-                    /*
-                    case eFoundryCreatures::BossFaultline:
-                    {
-                        Talk(eTalks::TalkFaultlinesDetermination);
-                        break;
-                    }
-                    */
                     default:
                         break;
                 }
@@ -650,7 +625,11 @@ class boss_beastlord_darmac : public CreatureScript
                     }
                     case eEvents::EventCallThePack:
                     {
-                        me->CastSpell(me, eSpells::CallThePackCast, true);
+                        me->CastSpell(me, eSpells::CallThePackCast, false);
+
+                        /// Call the Pack can be casted while walking
+                        me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
+
                         m_Events.ScheduleEvent(eEvents::EventCallThePack, IsLFR() ? eTimers::TimerCallThePackLFRCooldown : eTimers::TimerCallThePackCooldown);
                         break;
                     }
@@ -765,6 +744,7 @@ class npc_foundry_cruelfang : public CreatureScript
         enum eEvents
         {
             EventRendAndTear = 1,
+            EventRendAndTearSec,
             EventSavageHowl
         };
 
@@ -789,6 +769,7 @@ class npc_foundry_cruelfang : public CreatureScript
             }
 
             EventMap m_Events;
+            EventMap m_CosmeticEvents;
 
             InstanceScript* m_Instance;
 
@@ -804,6 +785,7 @@ class npc_foundry_cruelfang : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 m_IsEvadeMode = false;
                 m_RendAndTear = false;
@@ -858,12 +840,7 @@ class npc_foundry_cruelfang : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::RendAndTearTriggered, true);
 
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
-                        });
-
+                        m_CosmeticEvents.ScheduleEvent(eEvents::EventRendAndTearSec, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eSpells::RendAndTearJumpSecond:
@@ -947,6 +924,14 @@ class npc_foundry_cruelfang : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
+                m_CosmeticEvents.Update(p_Diff);
+
+                if (m_CosmeticEvents.ExecuteEvent() == eEvents::EventRendAndTearSec)
+                {
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
+                }
+
                 if (!UpdateVictim() || m_RendAndTear)
                     return;
 
@@ -997,7 +982,6 @@ class npc_foundry_dreadwing : public CreatureScript
             DreadwingsFlame     = 161291,
             /// Inferno Breath
             FaceRandomNonTank   = 155423,
-            FlameBreathStalker  = 161262,   ///< Summons 79868
             InfernoBreath       = 154988,
             /// Conflagration
             ConflagrationSearch = 155399,
@@ -1095,17 +1079,6 @@ class npc_foundry_dreadwing : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* p_Summon) override
-            {
-                p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
-
-                p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-                p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-                p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-
-                p_Summon->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
-            }
-
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
             {
                 if (p_Apply)
@@ -1147,9 +1120,9 @@ class npc_foundry_dreadwing : public CreatureScript
                     {
                         me->SetFacingTo(me->GetAngle(p_Target));
 
-                        me->CastSpell(p_Target, eSpells::FlameBreathStalker, true);
-
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                         AddTimedDelayedOperation(50, [this]() -> void
                         {
@@ -1158,7 +1131,9 @@ class npc_foundry_dreadwing : public CreatureScript
 
                         AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
                         });
 
                         break;
@@ -1675,21 +1650,16 @@ class npc_foundry_pack_beast : public CreatureScript
         {
             npc_foundry_pack_beastAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void JustDied(Unit* p_Killer) override
             {
-                if (me->isAlive())
-                    return;
-
-                if (me->GetAreaTrigger(eSpells::FlameInfusionAreaTrigger) != nullptr)
-                    return;
-
-                if (p_SpellInfo->Id == eSpells::FlameInfusionTriggered)
+                if (me->HasAura(eSpells::FlameInfusionTriggered))
                     me->CastSpell(me, eSpells::FlameInfusionAreaTrigger, true);
             }
 
-            void JustDespawned() override
+            void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) override
             {
-                me->RemoveAllAreasTrigger();
+                if (p_AreaTrigger->GetSpellId() == eSpells::FlameInfusionAreaTrigger)
+                    me->DespawnOrUnsummon(50);
             }
         };
 
@@ -1772,12 +1742,13 @@ class spell_foundry_ranged_targets_searcher : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                Unit* l_Caster = GetCaster();
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || !p_Object->IsPlayer())
                         return true;
 
-                    if (!p_Object->ToPlayer()->IsRangedDamageDealer())
+                    if (!p_Object->ToPlayer()->IsRangedDamageDealer(l_Caster->ToCreature()))
                         return true;
 
                     return false;
@@ -1821,7 +1792,7 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
                 {
                     if (Creature* l_Ironcrusher = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossIroncrusher)))
                     {
-                        if (l_Caster->GetDistance(l_Ironcrusher) < l_Distance)
+                        if (l_Ironcrusher->isAlive() && l_Caster->GetDistance(l_Ironcrusher) < l_Distance)
                         {
                             l_Distance      = l_Caster->GetDistance(l_Ironcrusher);
                             l_NearestBeast  = l_Ironcrusher;
@@ -1830,7 +1801,7 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
 
                     if (Creature* l_Dreadwing = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossDreadwing)))
                     {
-                        if (l_Caster->GetDistance(l_Dreadwing) < l_Distance)
+                        if (l_Dreadwing->isAlive() && l_Caster->GetDistance(l_Dreadwing) < l_Distance)
                         {
                             l_Distance      = l_Caster->GetDistance(l_Dreadwing);
                             l_NearestBeast  = l_Dreadwing;
@@ -1839,7 +1810,7 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
 
                     if (Creature* l_Cruelfang = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossCruelfang)))
                     {
-                        if (l_Caster->GetDistance(l_Cruelfang) < l_Distance)
+                        if (l_Cruelfang->isAlive() && l_Caster->GetDistance(l_Cruelfang) < l_Distance)
                         {
                             l_Distance      = l_Caster->GetDistance(l_Cruelfang);
                             l_NearestBeast  = l_Cruelfang;

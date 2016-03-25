@@ -93,7 +93,9 @@ namespace MS { namespace Garrison
             Alliance_BuildYourBarracks                  = 34587,
             Alliance_LostInTransition                   = 37087,
             Alliance_BiggerIsBetter                     = 36592,
+            Alliance_AshranAppearance                   = 36624,
             Alliance_QianaMoonshadow                    = 34646,
+
             /// Small profession building quests
             Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
             Alliance_YourFirstAlchemyWorkOrder          = 36641,
@@ -131,6 +133,7 @@ namespace MS { namespace Garrison
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
             Horde_MissionProbable                       = 34775,
+            Horde_AshranAppearance                      = 36706,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,

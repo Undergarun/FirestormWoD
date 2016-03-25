@@ -1380,7 +1380,8 @@ class spell_hun_glyph_of_aspect_of_the_beast: public SpellScriptLoader
         }
 };
 
-// Glaive Toss (damage) - 120761 and 121414
+/// Last Update 6.2.3
+/// Glaive Toss (damage) - 120761 and 121414
 class spell_hun_glaive_toss_damage: public SpellScriptLoader
 {
     public:
@@ -1394,11 +1395,6 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& p_Targets)
             {
-                if (GetSpellInfo()->Id == 121414)
-                {
-                    p_Targets.clear();
-                    return;
-                }
                 Unit* l_Caster = GetCaster();
                 Unit* l_OriginalCaster = GetOriginalCaster();
                 Unit* l_MainTarget = nullptr;

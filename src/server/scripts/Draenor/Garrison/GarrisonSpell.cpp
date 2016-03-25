@@ -518,6 +518,44 @@ namespace MS { namespace Garrison
             }
     };
 
+    /// Well-rested - 172425
+    class spell_garrison_well_rested : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_well_rested() : SpellScriptLoader("spell_garrison_well_rested") { }
+
+            class spell_garrison_well_rested_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_garrison_well_rested_AuraScript);
+
+                enum eSpells
+                {
+                    SpellWellRestedTrackingAura = 172424
+                };
+
+                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    if (l_Owner->HasAura(eSpells::SpellWellRestedTrackingAura))
+                        l_Owner->RemoveAura(eSpells::SpellWellRestedTrackingAura);
+                }
+
+                void Register() override
+                {
+                    OnEffectApply += AuraEffectApplyFn(spell_garrison_well_rested_AuraScript::OnAuraApply, EFFECT_0, SPELL_AURA_MOD_PERCENT_STAT, AURA_EFFECT_HANDLE_REAL);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_garrison_well_rested_AuraScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

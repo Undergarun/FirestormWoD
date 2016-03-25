@@ -3005,7 +3005,7 @@ void ObjectMgr::LoadItemSpecs()
                 }
 
                 if (!hasPrimary)
-                    hasPrimary = hasSecondary && itemSpecStats.ItemSpecStatCount == 1; ///< If only 1 was found, it doesnt have any stats, therefore ignore primary stat check
+                    hasPrimary = hasSecondary && itemSpecStats.ItemSpecStatCount == 1 && !itemSpec->PrimaryStat; ///< If only 1 was found, it doesnt have any stats, therefore ignore primary stat check
 
                 if (!hasPrimary || !hasSecondary)
                     continue;

@@ -7461,7 +7461,14 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
 
-        /// Poisoned Ammo
+        /// Ignite should remove Polymorph
+        if (GetSpellInfo()->Id == 12654 && caster && target)
+        {
+            if (target->HasAura(118))
+                target->RemoveAura(118);
+        }
+
+        /// Poisoned Ammo and Devouring Plague
         if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);

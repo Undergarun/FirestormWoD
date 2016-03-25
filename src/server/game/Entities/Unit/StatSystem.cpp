@@ -780,7 +780,7 @@ void Player::UpdateParryPercentage()
 
     if (CanParry())
     {
-        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/*/
+        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/ */
         float l_BaseParry = 3.0f;
 
         if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)

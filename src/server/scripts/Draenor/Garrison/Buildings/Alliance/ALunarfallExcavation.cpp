@@ -121,18 +121,15 @@ namespace MS { namespace Garrison
     /// @p_Action   : Action
     bool npc_TimothyLeens::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        p_Player->PlayerTalkClass->ClearMenus();
-        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
+        p_Player->PlayerTalkClass->ClearMenus();
+
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-        }
+            l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }

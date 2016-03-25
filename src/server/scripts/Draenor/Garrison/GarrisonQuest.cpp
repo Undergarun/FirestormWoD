@@ -375,6 +375,10 @@ namespace MS { namespace Garrison
             }
         }
 
+        /// Little fix for The Tannery
+        if (p_Player->HasAura(172424))
+            p_Player->RemoveAura(172424);
+
         switch (p_Player->GetMapId())
         {
             /// Garrison Phases
@@ -485,6 +489,12 @@ namespace MS { namespace Garrison
             case Quests::Alliance_LostInTransition:
             case Quests::Horde_LostInTransition:
                 l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            case Quests::Alliance_AshranAppearance:
+                p_Player->m_taxi.SetTaximaskNode(1547);
+                break;
+            case Quests::Horde_AshranAppearance:
+                p_Player->m_taxi.SetTaximaskNode(1549);
                 break;
             default:
                 break;

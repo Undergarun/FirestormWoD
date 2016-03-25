@@ -46,11 +46,16 @@
 	(77383, 0, 116376, 0, 0, 5326, 1), 
 	(77383, 0, 120258, 0, 0, 5326, 1);
 
-	DELETE FROM creature_queststarter WHERE id=77383 AND quest=36642;
+	DELETE FROM creature_queststarter WHERE quest=36642;
 	INSERT INTO creature_queststarter(`id`, `quest`) values('77383','36642');
+	INSERT INTO creature_queststarter(`id`, `quest`) values('78207','36642');
 
-	DELETE FROM creature_questender WHERE id=78207 AND quest=36642;
-	INSERT INTO creature_questender(`id`, `quest`) values('78207','36642');
+	DELETE FROM creature_questender WHERE quest=36642;
+	INSERT INTO creature_questender(`id`, `quest`) values('77383','36642');
+	INSERT INTO creature_queststarter(`id`, `quest`) values('78207','36642');
+
+	DELETE FROM spell_script_names WHERE spell_id = 172425;
+	INSERT INTO spell_script_names VALUE (172425, "spell_garrison_well_rested");
 
 	INSERT INTO gameobject_template (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `data24`, `data25`, `data26`, `data27`, `data28`, `data29`, `data30`, `data31`, `data32`, `unkInt32`, `BuildVerified`) VALUES(233763, 5, 15599, "Leatherworking Skin", "", "", "", 0.6977344, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19702) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `type` = VALUES(`type`), `displayId` = VALUES(`displayId`), `name` = VALUES(`name`), `IconName` = VALUES(`IconName`), `castBarCaption` = VALUES(`castBarCaption`), `unk1` = VALUES(`unk1`), `size` = VALUES(`size`), `questItem1` = VALUES(`questItem1`), `questItem2` = VALUES(`questItem2`), `questItem3` = VALUES(`questItem3`), `questItem4` = VALUES(`questItem4`), `questItem5` = VALUES(`questItem5`), `questItem6` = VALUES(`questItem6`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), `data8` = VALUES(`data8`), `data9` = VALUES(`data9`), `data10` = VALUES(`data10`), `data11` = VALUES(`data11`), `data12` = VALUES(`data12`), `data13` = VALUES(`data13`), `data14` = VALUES(`data14`), `data15` = VALUES(`data15`), `data16` = VALUES(`data16`), `data17` = VALUES(`data17`), `data18` = VALUES(`data18`), `data19` = VALUES(`data19`), `data20` = VALUES(`data20`), `data21` = VALUES(`data21`), `data22` = VALUES(`data22`), `data23` = VALUES(`data23`), `data24` = VALUES(`data24`), `data25` = VALUES(`data25`), `data26` = VALUES(`data26`), `data27` = VALUES(`data27`), `data28` = VALUES(`data28`), `data29` = VALUES(`data29`), `data30` = VALUES(`data30`), `data31` = VALUES(`data31`), `data32` = VALUES(`data32`), `unkInt32` = VALUES(`unkInt32`), `BuildVerified` = VALUES(`BuildVerified`);
 	INSERT INTO gameobject_template (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `data24`, `data25`, `data26`, `data27`, `data28`, `data29`, `data30`, `data31`, `data32`, `unkInt32`, `BuildVerified`) VALUES(233765, 5, 15414, "Leatherworking Skin", "", "", "", 0.5500001, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19702) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `type` = VALUES(`type`), `displayId` = VALUES(`displayId`), `name` = VALUES(`name`), `IconName` = VALUES(`IconName`), `castBarCaption` = VALUES(`castBarCaption`), `unk1` = VALUES(`unk1`), `size` = VALUES(`size`), `questItem1` = VALUES(`questItem1`), `questItem2` = VALUES(`questItem2`), `questItem3` = VALUES(`questItem3`), `questItem4` = VALUES(`questItem4`), `questItem5` = VALUES(`questItem5`), `questItem6` = VALUES(`questItem6`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), `data8` = VALUES(`data8`), `data9` = VALUES(`data9`), `data10` = VALUES(`data10`), `data11` = VALUES(`data11`), `data12` = VALUES(`data12`), `data13` = VALUES(`data13`), `data14` = VALUES(`data14`), `data15` = VALUES(`data15`), `data16` = VALUES(`data16`), `data17` = VALUES(`data17`), `data18` = VALUES(`data18`), `data19` = VALUES(`data19`), `data20` = VALUES(`data20`), `data21` = VALUES(`data21`), `data22` = VALUES(`data22`), `data23` = VALUES(`data23`), `data24` = VALUES(`data24`), `data25` = VALUES(`data25`), `data26` = VALUES(`data26`), `data27` = VALUES(`data27`), `data28` = VALUES(`data28`), `data29` = VALUES(`data29`), `data30` = VALUES(`data30`), `data31` = VALUES(`data31`), `data32` = VALUES(`data32`), `unkInt32` = VALUES(`unkInt32`), `BuildVerified` = VALUES(`BuildVerified`);
@@ -67,6 +72,46 @@
 
 	UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_container" WHERE TYPE = 45;
 
+	/*
+	belle tente bleue et or :   172446, 86327
+	bleue et violette :         172462, 86333
+	bleue et verte :            172463, 86334
+	tente en peau de fer :      172464, 86335
+	tente de paria :            172465, 86336
+	tente d'enchanteur :        172467, 86337
+	tente en cuir sauvage :     172468, 86338
+	Tente d’archimage:          172470, 86339
+	Tente de brute,  :          172471, 86340
+	Tente résistante :          172472, 86341
+	Tente de croisé :           172473, 86342
+	Hutte en patchwork :        172484, 86346
+	Taudis de Tissemort :       172480, 86345
+	Tente cloutée de nomade :   172494, 86354
+	Tente affreusement poilue : 172490, 86350
+	Taudis du docteur vaudou :  172493, 86353
+	Tente simple :              172489, 86349
+
+	Alliance
+	tente de haut-elfe :        172478, 86344
+	Tente ornée de l'alliance : 172491, 86351
+	retraite d'elune :          172487, 86347
+
+	Horde
+	tente d'elfe de sang :      172476, 86343
+	tente ornée de la horde :   172492, 86352
+	confins d'orgrimmar :       172488, 86348
+	*/
+
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -121 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-121','1','77383','2.08292','2.99057','1.2731','4.61301');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-121','1','78207','1.30021','-4.95093','1.27335','1.80128');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-121','1','-236685','7.10094','-4.04133','0.000114','6.17595');
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -122 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-122','1','77383','3.70585','-4.06848','1.27309','1.50573');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-122','1','78207','2.13447','3.07103','1.27296','4.75021');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-122','1','-236685','7.32018','-4.21772','0.000374','6.21497');
