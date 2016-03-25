@@ -14,9 +14,38 @@ function sendToSlack {
 }
 
 function updateSQL {
-    cat /usr/local/share/firestorm/sql/characters/*.sql | mysql -f -h "$MYSQL_CHAR_ADDR" -u $MYSQL_CHAR_USER --password="$MYSQL_CHAR_PASSWD" $MYSQL_CHAR_TABLE
-    cat /usr/local/share/firestorm/sql/world/*.sql      | mysql -f -h "$MYSQL_WORLD_ADDR" -u $MYSQL_WORLD_USER --password="$MYSQL_WORLD_PASSWD" $MYSQL_WORLD_TABLE
-    cat /usr/local/share/firestorm/sql/hotfix/*.sql     | mysql -f -h "$MYSQL_HOTFIX_ADDR" -u $MYSQL_HOTFIX_USER --password="$MYSQL_HOTFIX_PASSWD" $MYSQL_HOTFIX_TABLE
+    if [ -f /tmp/sql-updates-errors.log ]; then
+        rm /tmp/sql-updates-errors.log
+    fi
+
+    cat /usr/local/share/firestorm/sql/characters/*.sql > /tmp/characters.sql
+    mysql \
+        -h "$MYSQL_CHAR_ADDR" \
+        -u $MYSQL_CHAR_USER \
+        -p$MYSQL_CHAR_PASSWD \
+        -f \
+        $MYSQL_CHAR_TABLE < /tmp/characters.sql 2> /tmp/sql-updates-errors.log
+
+    cat /usr/local/share/firestorm/sql/world/*.sql > /tmp/world.sql
+    mysql \
+        -h "$MYSQL_WORLD_ADDR" \
+        -u $MYSQL_WORLD_USER \
+        -p$MYSQL_WORLD_PASSWD \
+        -f \
+        $MYSQL_WORLD_TABLE < /tmp/world.sql 2>> /tmp/sql-updates-errors.log
+
+    cat /usr/local/share/firestorm/sql/hotfix/*.sql > /tmp/hotfix.sql
+    mysql \
+        -h "$MYSQL_HOTFIX_ADDR" \
+        -u $MYSQL_HOTFIX_USER \
+        -p$MYSQL_HOTFIX_PASSWD \
+        -f \
+        $MYSQL_HOTFIX_TABLE < /tmp/hotfix.sql 2>> /tmp/sql-updates-errors.log
+
+    if [ -f /tmp/sql-updates-errors.log ]; then
+        mv /tmp/sql-updates-errors.log /usr/local/var/log/firestorm
+        sendToSlack "_ $REALM_NAME _ is starting with SQL errors in update files <$HOST_ADDR/logs_42x/$REALM_NAME/sql-updates-errors.log|Show more...>" "warning"
+    fi
 }
 
 function runWorldserver {
@@ -39,9 +68,11 @@ function analyseCrash {
     crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).log"
     crashlog_link="$HOST_ADDR/logs_42x/$REALM_NAME/crashlogs/$crashlog_filename"
 
-    if [ $ASAN_MODE ]; then
-        crash_location=$(grep -oP 'in \K(.*) at' /tmp/backtrace.log | head -n 1)
-        sendToSlack "_ $REALM_NAME _ crashed in \`$crash_location\` <$crashlog_link|Show more...>" "danger"
+    if [ $ASAN_MODE -eq 0]; then
+        crash_location=$(grep -m 1 -P 'in (.*) at' /tmp/backtrace.log)
+        crash_in=$(echo $crash_location | grep -oP 'in \K(.*)(?= at)')
+        crash_at=$(echo $crash_location | grep -oP 'at /.*/\K(.*)')
+        sendToSlack "_ $REALM_NAME _ crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
     else
         sendToSlack "_ $REALM_NAME _ crashed with ASan <$crashlog_link|Show more...>" "danger"
     fi
@@ -51,19 +82,19 @@ function analyseCrash {
 }
 
 function isKilled {
-    return $(grep -m1 -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
+    echo $(grep -m1 -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
 }
 
 function isCrash {
-    return $(grep -m1 -icP 'SIGABRT|SIGSEGV' /tmp/backtrace.log)
+    echo $(grep -m1 -icP 'SIGABRT|SIGSEGV' /tmp/backtrace.log)
 }
 
 function isShutdown {
-    return $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log)
+    echo $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log)
 }
 
 function isReboot {
-    return $(grep -m1 -ic 'exited normally' /tmp/backtrace.log)
+    echo $(grep -m1 -ic 'exited normally' /tmp/backtrace.log)
 }
 
 ###### MAIN ######
@@ -71,12 +102,12 @@ function isReboot {
 updateSQL
 runWorldserver
 
-if [ isKilled ]; then # If process has been manually killed, don't do anything. Just restart quietly
+if [ "$(isKilled)" -eq 1 ]; then # If process has been manually killed, don't do anything. Just restart quietly
     exit 0
-elif [ isCrash ]; then
+elif [ "$(isCrash)" -eq 1 ]; then
     analyseCrash
-elif [ isShutdown ]; then
+elif [ "$(isShutdown)" -eq 1 ]; then
     sendToSlack "_ $REALM_NAME _ has been shut down." "good"
-elif [ isReboot ]; then
+elif [ "$(isReboot)" -eq 1 ]; then
     sendToSlack "_ $REALM_NAME _ has been rebooted." "good"
 fi

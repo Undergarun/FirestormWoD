@@ -8356,7 +8356,7 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
                     continue;
             }
 
-            if (l_ItemTarget->GetItemLevelBonusFromItemBonuses() >= l_Itr.MaxIlevel)
+            if ((int32)l_ItemTarget->GetItemLevelBonusFromItemBonuses() >= l_Itr.MaxIlevel)
                 continue;
 
             l_Found     = true;
@@ -8388,7 +8388,7 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
 
         int32 l_CurrentIdx = -1;
 
-        for (int l_Idx = 0; l_Idx < l_UpgradeBonusStages.size(); l_Idx++)
+        for (int l_Idx = 0; l_Idx < (int)l_UpgradeBonusStages.size(); l_Idx++)
         {
             for (auto l_BonusId : l_CurrentItemBonus)
             {

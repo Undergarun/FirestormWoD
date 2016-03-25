@@ -2932,12 +2932,12 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript);
 
-            uint8 l_Count;
+            uint8 m_Count;
             uint64 m_Targets[eDatas::MaxAffectedTargets];
 
             bool Load() override
             {
-                l_Count = 0;
+                m_Count = 0;
 
                 for (uint8 l_I = 0; l_I < eDatas::MaxAffectedTargets; ++l_I)
                     m_Targets[l_I] = 0;
@@ -2948,7 +2948,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
             bool TargetsAlreadySelected() const
             {
                 bool l_Return = false;
-                for (uint8 l_I = 0; l_I < l_Count; ++l_I)
+                for (uint8 l_I = 0; l_I < m_Count; ++l_I)
                 {
                     if (!m_Targets[l_I])
                         return false;
@@ -2983,31 +2983,29 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_TanksList.empty())
-                    return;
-
-                l_TanksList.remove_if([this, l_OpenWoundsStacks](Player* p_Player) -> bool
+                if (!l_TanksList.empty())
                 {
-                    if (p_Player->GetRoleForGroup() != Roles::ROLE_TANK)
-                        return true;
-
-                    if (p_Player->HasAura(eDatas::SpellObscured))
-                        return true;
-
-                    if (Aura* l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                    l_TanksList.remove_if([this, l_OpenWoundsStacks](Player* p_Player) -> bool
                     {
-                        if (l_OpenWounds->GetStackAmount() != l_OpenWoundsStacks)
+                        if (p_Player->GetRoleForGroup() != Roles::ROLE_TANK)
                             return true;
-                    }
 
-                    return false;
-                });
+                        if (p_Player->HasAura(eDatas::SpellObscured))
+                            return true;
 
-                if (l_TanksList.empty())
-                    return;
+                        if (Aura* l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                        {
+                            if (l_OpenWounds->GetStackAmount() != l_OpenWoundsStacks)
+                                return true;
+                        }
+
+                        return false;
+                    });
+                }
 
                 /// Just in case of all tanks have the same amount of Open Wounds
-                JadeCore::RandomResizeList(l_TanksList, eDatas::MaxLFRTank);
+                if (!l_TanksList.empty())
+                    JadeCore::RandomResizeList(l_TanksList, eDatas::MaxLFRTank);
 
                 l_HealersList.remove_if([this](Player* p_Player) -> bool
                 {
@@ -3020,10 +3018,8 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_HealersList.empty())
-                    return;
-
-                JadeCore::RandomResizeList(l_HealersList, eDatas::MaxLFRHealer);
+                if (!l_HealersList.empty())
+                    JadeCore::RandomResizeList(l_HealersList, eDatas::MaxLFRHealer);
 
                 l_DamagersList.remove_if([this](Player* p_Player) -> bool
                 {
@@ -3036,32 +3032,30 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_DamagersList.empty() || l_DamagersList.size() < eDatas::MaxLFRDamagers)
-                    return;
+                if (!l_DamagersList.empty() && l_DamagersList.size() < eDatas::MaxLFRDamagers)
+                    JadeCore::RandomResizeList(l_DamagersList, eDatas::MaxLFRDamagers);
 
-                JadeCore::RandomResizeList(l_DamagersList, eDatas::MaxLFRDamagers);
-
-                l_Count = 0;
+                m_Count = 0;
 
                 for (Player* l_Player : l_TanksList)
                 {
                     p_Targets.push_back(l_Player);
-                    m_Targets[l_Count] = l_Player->GetGUID();
-                    ++l_Count;
+                    m_Targets[m_Count] = l_Player->GetGUID();
+                    ++m_Count;
                 }
 
                 for (Player* l_Player : l_HealersList)
                 {
                     p_Targets.push_back(l_Player);
-                    m_Targets[l_Count] = l_Player->GetGUID();
-                    ++l_Count;
+                    m_Targets[m_Count] = l_Player->GetGUID();
+                    ++m_Count;
                 }
 
                 for (Player* l_Player : l_DamagersList)
                 {
                     p_Targets.push_back(l_Player);
-                    m_Targets[l_Count] = l_Player->GetGUID();
-                    ++l_Count;
+                    m_Targets[m_Count] = l_Player->GetGUID();
+                    ++m_Count;
                 }
             }
 
@@ -3075,7 +3069,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
                 if (TargetsAlreadySelected())
                 {
-                    for (uint8 l_I = 0; l_I < l_Count; ++l_I)
+                    for (uint8 l_I = 0; l_I < m_Count; ++l_I)
                     {
                         /// Spell has SPELL_ATTR3_ONLY_TARGET_PLAYERS
                         if (WorldObject* l_Object = Player::GetPlayer(*l_Caster, m_Targets[l_I]))
@@ -3105,15 +3099,15 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 {
                     l_PlayerList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
 
-                    l_Count = 0;
+                    m_Count = 0;
                     for (Player* l_Player : l_PlayerList)
                     {
-                        if (l_Count >= eDatas::MaxAffectedTargets)
+                        if (m_Count >= eDatas::MaxAffectedTargets)
                             break;
 
-                        m_Targets[l_Count] = l_Player->GetGUID();
+                        m_Targets[m_Count] = l_Player->GetGUID();
                         p_Targets.push_back(l_Player);
-                        ++l_Count;
+                        ++m_Count;
                     }
                 }
 
@@ -3534,9 +3528,14 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == eSpells::BerserkerRush && !p_Targets.empty())
                 {
-                    p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                    Unit* l_Caster = GetCaster();
+
+                    p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                     {
                         if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
+                            return true;
+
+                        if (!p_Object->isInFront(l_Caster))
                             return true;
 
                         if (Player* l_Player = p_Object->ToPlayer())
