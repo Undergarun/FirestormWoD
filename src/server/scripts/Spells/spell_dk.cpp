@@ -1803,8 +1803,7 @@ class spell_dk_death_grip: public SpellScriptLoader
                     return;
 
                 if (!l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) ///< Deterrence
-                    l_Target->CastSpell(l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_SpellTrigerID, true);
-
+                    l_Target->CastSpell(l_Caster, l_SpellTrigerID, true);
             }
 
             void Register()

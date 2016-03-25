@@ -6177,6 +6177,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96840: ///< Flame Patch for Glyph of the Blazing Trail
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
                 break;
+            case 103828: ///< Warbringer
             case 100:   ///< Charge
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;

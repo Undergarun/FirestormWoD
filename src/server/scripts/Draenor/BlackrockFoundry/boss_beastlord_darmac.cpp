@@ -155,7 +155,11 @@ class boss_beastlord_darmac : public CreatureScript
 
             bool CanRespawn() override
             {
-                return false;
+                if (m_Instance == nullptr)
+                    return false;
+
+                /// Allow respawn during tests
+                return sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty());
             }
 
             void Reset() override
@@ -550,37 +554,6 @@ class boss_beastlord_darmac : public CreatureScript
 
                         break;
                     }
-                    default:
-                        break;
-                }
-            }
-
-            void OnVehicleExited(Unit* p_Vehicle) override
-            {
-                switch (p_Vehicle->GetEntry())
-                {
-                    case eFoundryCreatures::BossIroncrusher:
-                    {
-                        Talk(eTalks::TalkIroncrushersRage);
-                        break;
-                    }
-                    case eFoundryCreatures::BossDreadwing:
-                    {
-                        Talk(eTalks::TalkDreadwingsFlame);
-                        break;
-                    }
-                    case eFoundryCreatures::BossCruelfang:
-                    {
-                        Talk(eTalks::TalkCruelfangsSwiftness);
-                        break;
-                    }
-                    /*
-                    case eFoundryCreatures::BossFaultline:
-                    {
-                        Talk(eTalks::TalkFaultlinesDetermination);
-                        break;
-                    }
-                    */
                     default:
                         break;
                 }
@@ -1675,6 +1648,11 @@ class npc_foundry_pack_beast : public CreatureScript
         {
             npc_foundry_pack_beastAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            void Reset() override
+            {
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
+            }
+
             void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
             {
                 if (me->isAlive())
@@ -1772,12 +1750,13 @@ class spell_foundry_ranged_targets_searcher : public SpellScriptLoader
                 if (p_Targets.empty())
                     return;
 
-                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                Unit* l_Caster = GetCaster();
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr || !p_Object->IsPlayer())
                         return true;
 
-                    if (!p_Object->ToPlayer()->IsRangedDamageDealer())
+                    if (!p_Object->ToPlayer()->IsRangedDamageDealer(l_Caster->ToCreature()))
                         return true;
 
                     return false;
@@ -1821,7 +1800,7 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
                 {
                     if (Creature* l_Ironcrusher = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossIroncrusher)))
                     {
-                        if (l_Caster->GetDistance(l_Ironcrusher) < l_Distance)
+                        if (l_Ironcrusher->isAlive() && l_Caster->GetDistance(l_Ironcrusher) < l_Distance)
                         {
                             l_Distance      = l_Caster->GetDistance(l_Ironcrusher);
                             l_NearestBeast  = l_Ironcrusher;
@@ -1830,7 +1809,7 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
 
                     if (Creature* l_Dreadwing = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossDreadwing)))
                     {
-                        if (l_Caster->GetDistance(l_Dreadwing) < l_Distance)
+                        if (l_Dreadwing->isAlive() && l_Caster->GetDistance(l_Dreadwing) < l_Distance)
                         {
                             l_Distance      = l_Caster->GetDistance(l_Dreadwing);
                             l_NearestBeast  = l_Dreadwing;
@@ -1839,7 +1818,7 @@ class spell_foundry_target_vehicle : public SpellScriptLoader
 
                     if (Creature* l_Cruelfang = Creature::GetCreature(*l_Caster, l_Instance->GetData64(eFoundryCreatures::BossCruelfang)))
                     {
-                        if (l_Caster->GetDistance(l_Cruelfang) < l_Distance)
+                        if (l_Cruelfang->isAlive() && l_Caster->GetDistance(l_Cruelfang) < l_Distance)
                         {
                             l_Distance      = l_Caster->GetDistance(l_Cruelfang);
                             l_NearestBeast  = l_Cruelfang;

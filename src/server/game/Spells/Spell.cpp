@@ -8054,7 +8054,7 @@ SpellCastResult Spell::CheckItems()
                                     continue;
                             }
 
-                            if ((l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) >= l_Itr.MaxIlevel)
+                            if (int32(l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) >= l_Itr.MaxIlevel)
                                 continue;
 
                             l_Found = true;
@@ -8083,7 +8083,7 @@ SpellCastResult Spell::CheckItems()
 
                         int32 l_CurrentIdx = -1;
 
-                        for (int l_Idx = 0; l_Idx < l_UpgradeBonusStages.size(); l_Idx++)
+                        for (int l_Idx = 0; l_Idx < (int)l_UpgradeBonusStages.size(); l_Idx++)
                         {
                             for (auto l_BonusId : l_CurrentItemBonus)
                             {

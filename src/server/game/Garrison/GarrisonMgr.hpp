@@ -287,7 +287,7 @@ namespace MS { namespace Garrison
             uint32 GenerateCrewAbilityIdForShip(GarrisonFollower const& p_Follower);
 
             /// Generate random NPC Ability
-            uint32 GenerateRandomAbility();
+            uint32 GenerateRandomAbility(GarrisonFollower* p_Follower);
 
             /// Generate random trait
             uint32 GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities);

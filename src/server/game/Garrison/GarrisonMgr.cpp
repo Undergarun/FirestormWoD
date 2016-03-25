@@ -4456,25 +4456,32 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    /// TODO: Only class specific - not fully random
-    uint32 Manager::GenerateRandomAbility()
+    uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
     {
         std::vector<uint32> l_PossibleEntiers;
 
-        for (uint32 l_ID = 0; l_ID < sGarrAbilityStore.GetNumRows(); ++l_ID)
+        for (uint32 l_ID = 0; l_ID < sGarrFollowerXAbilityStore.GetNumRows(); ++l_ID)
         {
-            GarrAbilityEntry const* l_Entry = sGarrAbilityStore.LookupEntry(l_ID);
+            GarrFollowerXAbilityEntry const* l_FollowerXAbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_ID);
 
-            if (!l_Entry)
+            if (!l_FollowerXAbilityEntry || l_FollowerXAbilityEntry->FactionIndex != GetGarrisonFactionIndex() ||l_FollowerXAbilityEntry->FollowerID != p_Follower->FollowerID)
                 continue;
 
-            if (l_Entry->FollowerType != FollowerType::NPC)
+            GarrAbilityEntry const* l_AbilityEntry = sGarrAbilityStore.LookupEntry(l_FollowerXAbilityEntry->AbilityID);
+
+            if (!l_AbilityEntry)
                 continue;
 
-            if (l_Entry->AbilityType != 0)
+            if (l_AbilityEntry->FollowerType != FollowerType::NPC)
                 continue;
 
-            l_PossibleEntiers.push_back(l_Entry->ID);
+            if (l_AbilityEntry->AbilityType != 0)
+                continue;
+
+            if (std::find(p_Follower->Abilities.begin(), p_Follower->Abilities.end(), l_AbilityEntry->ID) != p_Follower->Abilities.end())
+                continue;
+
+            l_PossibleEntiers.push_back(l_AbilityEntry->ID);
         }
 
         if (!l_PossibleEntiers.size())
@@ -4579,7 +4586,7 @@ namespace MS { namespace Garrison
             {
                 if ((CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) + CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2)) < 2)
                 {
-                    if (uint32 l_NewAbility = GenerateRandomAbility())
+                    if (uint32 l_NewAbility = GenerateRandomAbility(&p_Follower))
                     {
                         p_Follower.Abilities.push_back(l_NewAbility);
                     }
