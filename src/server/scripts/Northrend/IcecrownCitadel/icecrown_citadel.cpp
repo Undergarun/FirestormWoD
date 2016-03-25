@@ -3109,10 +3109,10 @@ class npc_darkfallen_blood_knight : public CreatureScript
                             {
                                 DoCastVictim(SPELL_BLOOD_MIRROR_DUMMY);
 
-                                if (Unit* l_Victim = me->getVictim())
+                                if (Unit* victim = me->getVictim())
                                 {
-                                    l_Victim->CastSpell(target, SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                    me->CastSpell(l_Victim, SPELL_BLOOD_MIRROR_BUFF, true);
+                                    victim->CastSpell(target, SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                    me->CastSpell(victim, SPELL_BLOOD_MIRROR_BUFF, true);
                                 }
                             }
                             Events.ScheduleEvent(EVENT_MIRROR, urand(32000, 37000));

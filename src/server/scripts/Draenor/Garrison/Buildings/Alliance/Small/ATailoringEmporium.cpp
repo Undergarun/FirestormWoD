@@ -194,8 +194,12 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_KaylieMacdonald::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
+
+        l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }

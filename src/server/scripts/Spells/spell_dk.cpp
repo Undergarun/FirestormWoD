@@ -1361,8 +1361,8 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            int32 m_AbsorbPct, m_HpPct, m_AmountAbsorb = 0;
-            uint32 m_Absorbed = 0;
+            int32 m_AbsorbPct, m_HpPct = 0;
+            uint32 m_Absorbed, m_AmountAbsorb = 0;
 
             enum eSpells
             {
@@ -1373,6 +1373,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             bool Load()
             {
+                m_Absorbed = 0;
                 m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
                 m_HpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
                 return true;
@@ -1396,7 +1397,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                m_Absorbed += absorbAmount;
+                m_Absorbed += dmgInfo.GetDamage();
             }
 
             void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
@@ -1469,6 +1470,10 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                         return;
 
                     float l_RemainingPct = 0.0f;
+
+                    if (m_Absorbed > m_AmountAbsorb)
+                        m_Absorbed = m_AmountAbsorb;
+
                     float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
