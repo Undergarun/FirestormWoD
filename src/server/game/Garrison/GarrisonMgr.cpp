@@ -3014,7 +3014,7 @@ namespace MS { namespace Garrison
     }
 
     /// Has building type
-    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType) const
+    bool Manager::HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive) const
     {
         for (std::vector<GarrisonBuilding>::const_iterator l_It = m_Buildings.begin(); l_It != m_Buildings.end(); ++l_It)
         {
@@ -3023,7 +3023,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->Type == p_BuildingType && (*l_It).Active == true)
+            if (l_BuildingEntry->Type == p_BuildingType && (p_DontNeedActive ? true : (*l_It).Active == true))
                 return true;
         }
 
@@ -3454,7 +3454,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry || l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
                 continue;
 
-            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->Type))
+            if (HasBuildingType((BuildingType::Type)l_BuildingEntry->Type, true))
                 continue;
 
             uint32 l_PlotID = 0;
@@ -3616,7 +3616,11 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 return;
 
-            if (!l_Building.Active && l_BuildingEntry->BuildingCategory != BuildingCategory::Prebuilt)
+            if (!l_Building.Active &&
+                (l_BuildingEntry->Type != BuildingType::Mine &&
+                 l_BuildingEntry->Type != BuildingType::Farm &&
+                 l_BuildingEntry->Type != BuildingType::Fishing && 
+                 l_BuildingEntry->Type != BuildingType::PetMenagerie))
             {
                 l_GobEntry = gGarrisonBuildingPlotGameObject[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)];
 
@@ -3628,6 +3632,28 @@ namespace MS { namespace Garrison
             else
             {
                 l_GobEntry = l_BuildingEntry->GameObjects[GetGarrisonFactionIndex()];
+
+                if (!l_Building.Active && l_BuildingEntry->Level > 1 && 
+                    (l_BuildingEntry->Type == BuildingType::Mine ||
+                     l_BuildingEntry->Type == BuildingType::Farm ||
+                     l_BuildingEntry->Type == BuildingType::Fishing ||
+                     l_BuildingEntry->Type == BuildingType::PetMenagerie))
+                {
+                    uint32 l_TargetLevel = l_BuildingEntry->Level - 1;
+
+                    for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
+                    {
+                        GarrBuildingEntry const* l_CurrentEntry = sGarrBuildingStore.LookupEntry(l_I);
+
+                        if (!l_CurrentEntry || l_CurrentEntry->Type != l_BuildingEntry->Type || l_CurrentEntry->Level != l_TargetLevel)
+                            continue;
+
+                        l_GobEntry          = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
+                        l_SpanwActivateGob  = true;
+
+                        break;
+                    }
+                }
             }
         }
 
@@ -3700,8 +3726,38 @@ namespace MS { namespace Garrison
 
                 if (l_IsPlotBuilding)
                     l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(GetPlotType(p_PlotInstanceID), GetGarrisonFactionIndex());
-                else if ((l_Building.Active || (l_BuildingEntry && l_BuildingEntry->BuildingCategory == BuildingCategory::Prebuilt)) && l_Building.BuildingID)
-                    l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(-(int32)l_Building.BuildingID, GetGarrisonFactionIndex());
+                else if ((l_Building.Active || 
+                         (l_BuildingEntry && (l_BuildingEntry->Type == BuildingType::Mine 
+                                           || l_BuildingEntry->Type == BuildingType::PetMenagerie 
+                                           || l_BuildingEntry->Type == BuildingType::Fishing 
+                                           || l_BuildingEntry->Type == BuildingType::Farm))
+                         ) 
+                        && l_Building.BuildingID)
+                {
+                    uint32 l_BuildingID = l_Building.BuildingID;
+
+                    if (!l_Building.Active && l_BuildingEntry->Level > 1 &&
+                        (l_BuildingEntry->Type == BuildingType::Mine ||
+                         l_BuildingEntry->Type == BuildingType::Farm ||
+                         l_BuildingEntry->Type == BuildingType::Fishing ||
+                         l_BuildingEntry->Type == BuildingType::PetMenagerie))
+                    {
+                        uint32 l_TargetLevel = l_BuildingEntry->Level - 1;
+
+                        for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
+                        {
+                            GarrBuildingEntry const* l_CurrentEntry = sGarrBuildingStore.LookupEntry(l_I);
+
+                            if (!l_CurrentEntry || l_CurrentEntry->Type != l_BuildingEntry->Type || l_CurrentEntry->Level != l_TargetLevel)
+                                continue;
+
+                            l_BuildingID = l_CurrentEntry->ID;
+                            break;
+                        }
+                    }
+
+                    l_Contents = sObjectMgr->GetGarrisonPlotBuildingContent(-(int32)l_BuildingID, GetGarrisonFactionIndex());
+                }
 
                 for (uint32 l_I = 0; l_I < l_Contents.size(); ++l_I)
                 {
@@ -3780,38 +3836,96 @@ namespace MS { namespace Garrison
 
                 if (l_SpanwActivateGob)
                 {
-                    /// For this part we use an matrix to transform plot coord in, order to get the position without the rotation
-                    /// Once we have the "non rotated" position, we compute activation game object position in a 2 dimensional system
-                    /// And after we reapply the rotation on coords to transform and get the correct final position
-                    G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
-                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_PlotInfo.O);
+                    G3D::Vector3 l_FinalPosition;
+                    float l_FinalOrientation = l_PlotInfo.O;
 
-                    /// transform plot coord
-                    G3D::Vector3 l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
-
-                    GameObjectDisplayInfoEntry const* l_GobDispInfo = sGameObjectDisplayInfoStore.LookupEntry(l_Gob->GetDisplayId());
-
-                    /// Work with plot AABB
-                    if (l_GobDispInfo)
+                    if (   l_BuildingEntry->Type == BuildingType::Farm
+                        || l_BuildingEntry->Type == BuildingType::Mine
+                        || l_BuildingEntry->Type == BuildingType::PetMenagerie
+                        || l_BuildingEntry->Type == BuildingType::Fishing)
                     {
-                        /// Get AABB on X axis
-                        float l_XAxisSize = fabs(l_GobDispInfo->maxX - l_GobDispInfo->minX) * l_Gob->GetFloatValue(OBJECT_FIELD_SCALE);
+                        uint32 l_Lvl = GetGarrisonSiteLevelEntry()->Level;
 
-                        /// We use a "diminish return" on box size for big plots
-                        l_NonRotatedPosition.x += l_XAxisSize * (gGarrisonBuildingPlotAABBDiminishReturnFactor[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)] / l_XAxisSize);
+                        if (GetGarrisonFactionIndex() == FactionIndex::Alliance)
+                        {
+                            switch (l_BuildingEntry->Type)
+                            {
+                                case BuildingType::Farm:
+                                    l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(1859.0985f, 155.4274f, 79.0399f) : G3D::Vector3(1855.8151f, 151.5068f, 78.4132f));
+                                    l_FinalOrientation  = (l_Lvl == 2 ? 0.956567f : 0.857591f);
+                                    break;
+                                case BuildingType::Mine:
+                                    l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(1898.2411f,  89.8438f, 83.5268f) : G3D::Vector3(1898.6614f,  88.5848f, 83.5269f));
+                                    l_FinalOrientation  = (l_Lvl == 2 ? 0.673824f : 0.555211f);
+                                    break;
+                                case BuildingType::Fishing:
+                                    l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(2010.6321f, 166.1842f, 83.5260f) : G3D::Vector3(2013.2568f, 166.8641f, 83.7605f));
+                                    l_FinalOrientation  = (l_Lvl == 2 ? 3.756512f : 3.879798f);
+                                    break;
+                                case BuildingType::PetMenagerie:    ///< Only level 3 garrison
+                                    l_FinalPosition     = G3D::Vector3(1909.9861f, 328.0322f, 88.9653f);
+                                    l_FinalOrientation  = 5.132511f;
+                                    break;
+                            }
+                        }
+                        else        ///< FactionIndex::Horde
+                        {
+                            switch (l_BuildingEntry->Type)
+                            {
+                                case BuildingType::Farm:
+                                    l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(5433.7769f, 4574.0503f, 136.0184f) : G3D::Vector3(5431.2168f, 4573.4658f, 136.1743f));
+                                    l_FinalOrientation  = (l_Lvl == 2 ? 5.840217f : 5.998074f);
+                                    break;
+                                case BuildingType::Mine:
+                                    l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(5476.3716f, 4446.7773f, 144.4951f) : G3D::Vector3(5474.9707f, 4443.2588f, 144.6435f));
+                                    l_FinalOrientation  = (l_Lvl == 2 ? 0.955031f : 0.99013f);
+                                    break;
+                                case BuildingType::Fishing:
+                                    l_FinalPosition     = (l_Lvl == 2 ? G3D::Vector3(5476.4160f, 4613.2881f, 134.4511f) : G3D::Vector3(5478.0010f, 4614.4854f, 134.4501f));
+                                    l_FinalOrientation  = (l_Lvl == 2 ? 5.023405f : 5.306918f);
+                                    break;
+                                case BuildingType::PetMenagerie:    ///< Only level 3 garrison
+                                    l_FinalPosition     = G3D::Vector3(5620.6782f, 4649.7178f, 142.2780f);
+                                    l_FinalOrientation  = 4.230919f;
+                                    break;
+                            }
+                        }
                     }
+                    else
+                    {
+                        /// For this part we use an matrix to transform plot coord in, order to get the position without the rotation
+                        /// Once we have the "non rotated" position, we compute activation game object position in a 2 dimensional system
+                        /// And after we reapply the rotation on coords to transform and get the correct final position
+                        G3D::Matrix3 l_Mat = G3D::Matrix3::identity();
+                        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), -l_PlotInfo.O);
 
-                    l_Mat = G3D::Matrix3::identity();
-                    l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
+                        /// transform plot coord
+                        G3D::Vector3 l_NonRotatedPosition = l_Mat * G3D::Vector3(l_PlotInfo.X, l_PlotInfo.Y, l_PlotInfo.Z);
 
-                    /// Reapply the rotation on coords
-                    G3D::Vector3 l_FinalPosition = l_Mat * l_NonRotatedPosition;
+                        GameObjectDisplayInfoEntry const* l_GobDispInfo = sGameObjectDisplayInfoStore.LookupEntry(l_Gob->GetDisplayId());
+
+                        /// Work with plot AABB
+                        if (l_GobDispInfo)
+                        {
+                            /// Get AABB on X axis
+                            float l_XAxisSize = fabs(l_GobDispInfo->maxX - l_GobDispInfo->minX) * l_Gob->GetFloatValue(OBJECT_FIELD_SCALE);
+
+                            /// We use a "diminish return" on box size for big plots
+                            l_NonRotatedPosition.x += l_XAxisSize * (gGarrisonBuildingPlotAABBDiminishReturnFactor[GetPlotType(p_PlotInstanceID) + (GetGarrisonFactionIndex() * PlotTypes::Max)] / l_XAxisSize);
+                        }
+
+                        l_Mat = G3D::Matrix3::identity();
+                        l_Mat = l_Mat.fromAxisAngle(G3D::Vector3(0, 0, 1), l_PlotInfo.O);
+
+                        /// Reapply the rotation on coords
+                        l_FinalPosition = l_Mat * l_NonRotatedPosition;
+                    }
 
                     uint32 l_AnimProgress   = 0;
                     uint32 l_Health         = 255;
 
-                    GameObject* l_ActivationGob = m_Owner->SummonGameObject(gGarrisonBuildingActivationGameObject[GetGarrisonFactionIndex()], l_FinalPosition.x, l_FinalPosition.y, l_FinalPosition.z, l_PlotInfo.O, 0, 0, 0, 0, 0, 0, 0, l_AnimProgress, l_Health);
-                
+                    GameObject* l_ActivationGob = m_Owner->SummonGameObject(gGarrisonBuildingActivationGameObject[GetGarrisonFactionIndex()], l_FinalPosition.x, l_FinalPosition.y, l_FinalPosition.z, l_FinalOrientation, 0, 0, 0, 0, 0, 0, 0, l_AnimProgress, l_Health);
+
                     if (l_ActivationGob)
                     {
                         m_PlotsActivateGob[p_PlotInstanceID] = l_ActivationGob->GetGUID();
@@ -3968,17 +4082,25 @@ namespace MS { namespace Garrison
 
             if (l_CurrentAvailableMission < l_MaxMissionCount)
             {
-                uint32 l_MaxFollowerLevel = 90;
+                uint32 l_AVGFollowerLevel = 0;
                 uint32 l_MaxFollowerItemLevel = 600;
+                uint32 l_FollowerNpcCount = 0;
 
-                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_AVGFollowerLevel, &l_MaxFollowerItemLevel, &l_FollowerNpcCount](const GarrisonFollower & p_Follower) -> void
                 {
                     if (!p_Follower.IsNPC())
                         return;
 
-                    l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                    l_AVGFollowerLevel      += p_Follower.Level;
                     l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+
+                    l_FollowerNpcCount++;
                 });
+
+                if (l_FollowerNpcCount == 0)
+                    l_FollowerNpcCount = 1;
+
+                l_AVGFollowerLevel /= l_FollowerNpcCount;
 
                 std::vector<const GarrMissionEntry*> l_Candidates;
 
@@ -4006,6 +4128,28 @@ namespace MS { namespace Garrison
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
                         continue;
 
+                    /// Faction speific mission (No generic way to handle it)
+                    switch (GetGarrisonFactionIndex())
+                    {
+                        case FactionIndex::Alliance:
+                            switch (l_Entry->MissionRecID)
+                            {
+                                case 2: ///< Gronnlings Abound
+                                case 7: ///< Stonefury Rescue
+                                    continue;
+                            }
+                            break;
+
+                        case FactionIndex::Horde:
+                            switch (l_Entry->MissionRecID)
+                            {
+                                case 66: ///< Killing the Corrupted
+                                case 91: ///< Rangari Rescue
+                                    continue;
+                            }
+                            break;
+                    }
+
                     uint32 l_RewardCount = 0;
                     for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
                     {
@@ -4024,7 +4168,34 @@ namespace MS { namespace Garrison
                             break;
                         }
 
-                        ++ l_RewardCount;
+                        /// Special case for XP item, if the owner is already at max level he doesn't need this item anymore
+                        if (m_Owner->getLevel() == MAX_LEVEL && l_RewardEntry->ItemID == 120205)
+                        {
+                            l_RewardCount = 0;
+                            break;
+                        }
+
+                        /// Follower case
+                        if (l_RewardEntry->ItemID)
+                        {
+                            ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_RewardEntry->ItemID);
+
+                            if (l_Template && l_Template->Spells[0].SpellId != 0)
+                            {
+                                SpellInfo const* l_Spell = sSpellMgr->GetSpellInfo(l_Template->Spells[0].SpellId);
+
+                                if (l_Spell && l_Spell->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
+                                {
+                                    if (GetFollower(l_Spell->Effects[0].MiscValue) != nullptr)
+                                    {
+                                        l_RewardCount = 0;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        ++l_RewardCount;
                     }
 
                     /// All missions should have a reward
@@ -4032,7 +4203,7 @@ namespace MS { namespace Garrison
                         continue;
 
                     /// Max Level cap : 2
-                    if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
+                    if (l_Entry->RequiredLevel > (int32)(l_AVGFollowerLevel + 2))
                         continue;
 
                     if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
@@ -4285,25 +4456,32 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    /// TODO: Only class specific - not fully random
-    uint32 Manager::GenerateRandomAbility()
+    uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
     {
         std::vector<uint32> l_PossibleEntiers;
 
-        for (uint32 l_ID = 0; l_ID < sGarrAbilityStore.GetNumRows(); ++l_ID)
+        for (uint32 l_ID = 0; l_ID < sGarrFollowerXAbilityStore.GetNumRows(); ++l_ID)
         {
-            GarrAbilityEntry const* l_Entry = sGarrAbilityStore.LookupEntry(l_ID);
+            GarrFollowerXAbilityEntry const* l_FollowerXAbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_ID);
 
-            if (!l_Entry)
+            if (!l_FollowerXAbilityEntry || l_FollowerXAbilityEntry->FactionIndex != GetGarrisonFactionIndex() ||l_FollowerXAbilityEntry->FollowerID != p_Follower->FollowerID)
                 continue;
 
-            if (l_Entry->FollowerType != FollowerType::NPC)
+            GarrAbilityEntry const* l_AbilityEntry = sGarrAbilityStore.LookupEntry(l_FollowerXAbilityEntry->AbilityID);
+
+            if (!l_AbilityEntry)
                 continue;
 
-            if (l_Entry->AbilityType != 0)
+            if (l_AbilityEntry->FollowerType != FollowerType::NPC)
                 continue;
 
-            l_PossibleEntiers.push_back(l_Entry->ID);
+            if (l_AbilityEntry->AbilityType != 0)
+                continue;
+
+            if (std::find(p_Follower->Abilities.begin(), p_Follower->Abilities.end(), l_AbilityEntry->ID) != p_Follower->Abilities.end())
+                continue;
+
+            l_PossibleEntiers.push_back(l_AbilityEntry->ID);
         }
 
         if (!l_PossibleEntiers.size())
@@ -4408,7 +4586,7 @@ namespace MS { namespace Garrison
             {
                 if ((CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) + CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2)) < 2)
                 {
-                    if (uint32 l_NewAbility = GenerateRandomAbility())
+                    if (uint32 l_NewAbility = GenerateRandomAbility(&p_Follower))
                     {
                         p_Follower.Abilities.push_back(l_NewAbility);
                     }

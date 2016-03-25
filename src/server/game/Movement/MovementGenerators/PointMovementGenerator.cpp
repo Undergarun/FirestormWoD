@@ -198,9 +198,14 @@ void AssistanceMovementGenerator::Finalize(Unit* unit)
         unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(Unit* unit, uint32)
+bool EffectMovementGenerator::Update(Unit* p_Unit, uint32)
 {
-    return !unit->movespline->Finalized();
+    if (p_Unit->movespline->Finalized())
+    {
+        if (Player* l_Player = p_Unit->ToPlayer())
+            sScriptMgr->OnFinishMovement(l_Player, _id, _arrivalSpellTargetGuid);
+    }
+    return !p_Unit->movespline->Finalized();
 }
 
 void EffectMovementGenerator::Finalize(Unit* unit)
@@ -219,6 +224,8 @@ void EffectMovementGenerator::Finalize(Unit* unit)
         else
             unit->GetMotionMaster()->Initialize();
     }
+
+    MovementInform(unit);
 
     if (unit->ToCreature()->AI())
         unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);

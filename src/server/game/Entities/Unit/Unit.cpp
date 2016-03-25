@@ -715,6 +715,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
+    /// Death Siphon
+    if (spellProto && spellProto->Id == 108196)
+    {
+        int32 bp = damage * 4;
+        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
+    }
+
     /// @todo update me ?
     /// Custom MoP Script
     if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId() == SPEC_MONK_BREWMASTER && HasAura(115315))
@@ -2879,6 +2886,40 @@ int32 Unit::GetMechanicResistChance(const SpellInfo* spell)
     return resist_mech;
 }
 
+uint32 Unit::GetDodgeChance(const Unit* p_Victim)
+{
+    int32 dodgeChance = int32(p_Victim->GetUnitDodgeChance(this));
+
+    /// Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
+    dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
+    dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
+    /// Reduce dodge chance by attacker expertise rating
+    if (dodgeChance < 0)
+        dodgeChance = 0;
+
+    return dodgeChance;
+}
+
+uint32 Unit::GetParryChance(const Unit* p_Victim)
+{
+    int32 l_ParryChance = int32(p_Victim->GetUnitParryChance(this));
+
+    if (l_ParryChance < 0)
+        l_ParryChance = 0;
+
+    return l_ParryChance;
+}
+
+uint32 Unit::GetBlockChance(const Unit* p_Victim)
+{
+    int32 l_BlockChance = int32(p_Victim->GetUnitBlockChance(this));
+
+    if (l_BlockChance < 0)
+        l_BlockChance = 0;
+
+    return l_BlockChance;
+}
+
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 {
@@ -2906,8 +2947,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    tmp += victim->GetMechanicResistChance(spell) * 100;
-    if (roll < tmp)
+    uint32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    tmp += l_Resist;
+    if (roll < l_Resist)
         return SPELL_MISS_RESIST;
 
     // Charge spells aren't suppose to takecare of dodge parry or block
@@ -2928,9 +2970,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            uint32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
-            if (roll < tmp)
+            if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
         }
 
@@ -2989,67 +3031,28 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        // Roll dodge
-        int32 dodgeChance = int32(victim->GetUnitDodgeChance(this) * 100.0f);
-        // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
-        dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
-        dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
-        // Reduce dodge chance by attacker expertise rating
-        if (IsPlayer())
-            dodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-        else
-            dodgeChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        if (dodgeChance < 0)
-            dodgeChance = 0;
+        uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
 
-        if (roll < (tmp += dodgeChance))
+        tmp += l_DodgeChance;
+        if (roll < l_DodgeChance)
             return SPELL_MISS_DODGE;
     }
 
     if (canParry)
     {
-        // Roll parry
-        int32 parryChance = int32(victim->GetUnitParryChance(this) * 100.0f);
-        float l_ExpertisePercentage = 0.0f;
+        uint32 l_ParryChance = GetParryChance(victim) * 100;
 
-        // Reduce parry chance by attacker expertise rating
-        if (IsPlayer())
-            l_ExpertisePercentage = ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
-        else
-        {
-            if (isPet() && GetOwner())
-            {
-                if (GetOwner()->ToPlayer())
-                    l_ExpertisePercentage = ((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
-            }
-
-            parryChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        }
-
-        if (victim->getLevel() >= getLevel())
-        {
-            uint8 l_LevelDiff = std::min(victim->getLevel() - getLevel(), 3);
-            l_ExpertisePercentage -= g_BaseEnemyParryChance[l_LevelDiff] * 100.0f;
-        }
-
-        parryChance -= int32(l_ExpertisePercentage);
-
-        if (parryChance < 0)
-            parryChance = 0;
-
-        tmp += parryChance;
-        if (roll < tmp)
+        tmp += l_ParryChance;
+        if (roll < l_ParryChance)
             return SPELL_MISS_PARRY;
     }
 
     if (canBlock)
     {
-        int32 blockChance = int32(victim->GetUnitBlockChance(this) * 100.0f);
-        if (blockChance < 0)
-            blockChance = 0;
-        tmp += blockChance;
+        uint32 l_BlockChance = GetBlockChance(victim) * 100;
 
-        if (roll < tmp)
+        tmp += l_BlockChance;
+        if (roll < l_BlockChance)
             return SPELL_MISS_BLOCK;
     }
 
@@ -9716,12 +9719,15 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
-        case 166012:///< Item  Hunter WoD PvP Survival 4P Bonus
+        case 166012:///< Item - Hunter WoD PvP Survival 4P Bonus
         {
             if (!procSpell)
                 return false;
 
             if (procSpell->Id != 3674)
+                return false;
+
+            if (procEx & PROC_EX_INTERNAL_MULTISTRIKE)
                 return false;
 
             break;
@@ -11614,6 +11620,13 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
+    /// Frost Orb should remove Polymorph
+    if (IsPlayer() && spellProto && victim && spellProto->Id == 84721)
+    {
+        if (victim->HasAura(118))
+            victim->RemoveAura(118);
+    }
+
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
 
     // done scripted mod (take it from owner)
@@ -12278,6 +12291,10 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
                 DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                 DealSpellDamage(&damageInfo, true);
 
+                /// In case when we have SpellVisual for this spell loaded from DBC - multistrike should have spell animation too with increased speed
+                if (p_ProcSpell->SpellVisual[0])
+                    SendPlaySpellVisual(p_ProcSpell->SpellVisual[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
+
                 if (p_OwnerAuraEffect)
                 {
                     int32 overkill = damageInfo.damage - p_Target->GetHealth() > 0 ? damageInfo.damage - p_Target->GetHealth() : 0;
@@ -12885,6 +12902,14 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return 1.0f;
 
+    /// No bonus for Ember Tap heal
+    if (spellProto->Id == 114635)
+        return 1.0f;
+
+    // No bonus for Eminence (statue) and Eminence
+    if (spellProto->Id == 117895 || spellProto->Id == 126890)
+        return 1.0f;
+
     float DoneTotalMod = 1.0f;
 
     // Healing done percent
@@ -12962,7 +12987,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 48503)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    // No bonus for Lifebloom : Final heal
     if (spellProto->Id == 33778)
         return healamount;
 
@@ -19162,7 +19187,7 @@ void Unit::SetRooted(bool apply)
 
 void Unit::SetFeared(bool apply)
 {
-    if (apply && !HasAuraType(SPELL_AURA_MOD_ROOT) && !HasAuraType(SPELL_AURA_MOD_ROOT_2))
+    if (apply)
     {
         SetTarget(0);
 
@@ -20040,7 +20065,12 @@ void Unit::OnRelocated()
 void Unit::UpdateObjectVisibility(bool forced)
 {
     if (forced)
-        VisibilityUpdateTask::UpdateVisibility(this);
+    {
+        if (isType(TYPEMASK_PLAYER))
+            ((Player*)this)->UpdateVisibilityForPlayer();
+
+        WorldObject::UpdateObjectVisibility(true);
+    }
     else
         m_Events.AddEvent(new VisibilityUpdateTask(this), m_Events.CalculateTime(1));
     AINotifyTask::ScheduleAINotify(this);

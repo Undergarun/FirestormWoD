@@ -29,6 +29,7 @@
 #include "SpellInfo.h"
 #include "GuildMgr.h"
 #include "Spell.h"
+#include "ScriptMgr.h"
 #include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
@@ -2273,4 +2274,24 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData) ///<
 
         return true;
     });*/
+}
+
+void WorldSession::HandleUseCritterItemOpcode(WorldPacket& p_RecvData)
+{
+    uint64 l_ItemGuid = 0;
+
+    p_RecvData.readPackGUID(l_ItemGuid);
+
+    if (Item* l_Item = m_Player->GetItemByGuid(l_ItemGuid))
+    {
+        SpellCastTargets l_Targets;
+
+        l_Targets.Initialize(0, 0, 0, 0, WorldLocation(), 0, WorldLocation());
+        l_Targets.SetElevation(0.0f);
+        l_Targets.SetSpeed(0.0f);
+        l_Targets.Update(m_Player);
+
+        if (!sScriptMgr->OnItemUse(m_Player, l_Item, l_Targets))
+            m_Player->CastItemUseSpell(l_Item, l_Targets, 0, 0, 0);
+    }
 }

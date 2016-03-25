@@ -1797,6 +1797,10 @@ class Unit : public WorldObject
         float GetUnitMissChanceSpell(Unit const* p_Attacker) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
+        uint32 GetDodgeChance(const Unit* p_Victim);
+        uint32 GetParryChance(const Unit* p_Victim);
+        uint32 GetBlockChance(const Unit* p_Victim);
+
         bool CanUseAttackType(uint8 attacktype) const
         {
             switch (attacktype)

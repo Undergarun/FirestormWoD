@@ -48,7 +48,7 @@ class boss_asira_dawnslayer : public CreatureScript
         {
             boss_asira_dawnslayerAI(Creature* creature) : BossAI(creature, DATA_ASIRA)
             {
-				me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);

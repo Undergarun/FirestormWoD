@@ -2940,6 +2940,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
     }
 
+    /// Custom WoD Script - Shadowmeld
+    if (unitTarget->HasAura(58984) && !m_caster->IsFriendlyTo(unitTarget))
+        return;
+
+    /// Custom WoD Script - Death from Above should give immunity to all spells while rogue is in jump effect
+    if (unitTarget->GetGUID() != m_caster->GetGUID() && unitTarget->getClass() == CLASS_ROGUE && unitTarget->getLevel() == 100 && unitTarget->HasAura(152150))
+        return;
+
     if (spellHitTarget)
     {
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
@@ -6705,7 +6713,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // get the lock entry
                 uint32 lockId = 0;
-                bool l_OverridePlayerCondition = false;
+                bool l_ResultOverridedByPlayerCondition = false;
+                bool l_PlayerConditionFailed = false;
                 if (GameObject* go = m_targets.GetGOTarget())
                 {
                     lockId = go->GetGOInfo()->GetLockId();
@@ -6713,8 +6722,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_BAD_TARGETS;
 
                     GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(go->GetEntry());
-                    if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
-                        l_OverridePlayerCondition = true;
+
+                    if (l_Template && l_Template->type == GAMEOBJECT_TYPE_CHEST && m_caster->IsPlayer())
+                    {
+                        uint32 l_PlayerConditionID = l_Template->chest.conditionID1;
+                        bool l_HasPlayerCondition = l_PlayerConditionID != 0 && (sPlayerConditionStore.LookupEntry(l_Template->chest.conditionID1) != nullptr || sScriptMgr->HasPlayerConditionScript(l_Template->chest.conditionID1));
+
+                        if (l_HasPlayerCondition && m_caster->ToPlayer()->EvalPlayerCondition(l_PlayerConditionID).first)
+                            l_ResultOverridedByPlayerCondition = true;
+                        else if (l_HasPlayerCondition)
+                            l_PlayerConditionFailed = true;
+                    }
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
                     lockId = itm->GetTemplate()->LockID;
@@ -6723,12 +6741,15 @@ SpellCastResult Spell::CheckCast(bool strict)
                 int32 reqSkillValue = 0;
                 int32 skillValue = 0;
 
+                if (l_PlayerConditionFailed)
+                    return SPELL_FAILED_ERROR;
+
                 // check lock compatibility
                 SpellCastResult res = CanOpenLock(i, lockId, skillId, reqSkillValue, skillValue);
-                if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
+                if (res != SPELL_CAST_OK && !l_ResultOverridedByPlayerCondition)
                     return res;
 
-                if (l_OverridePlayerCondition)
+                if (l_ResultOverridedByPlayerCondition)
                     res = SPELL_CAST_OK;
 
                 // chance for fail at orange mining/herb/LockPicking gathering attempt
@@ -7997,6 +8018,88 @@ SpellCastResult Spell::CheckItems()
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
+            }
+            case SPELL_EFFECT_CHANGE_ITEM_BONUSES:
+            {
+                Item* l_ItemTarget = m_targets.GetItemTarget();
+                if (l_ItemTarget == nullptr)
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+
+                uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[i].MiscValue;
+                uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[i].MiscValueB;
+
+                std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+                if (l_OldItemBonusTreeCategory == l_NewItemBonusTreeCategory)
+                {
+                    uint32 l_MaxIlevel = 0;
+                    bool   l_Found = false;
+
+                    auto& l_ItemStageUpgradeRules = sSpellMgr->GetSpellUpgradeItemStage(l_OldItemBonusTreeCategory);
+                    if (!l_ItemStageUpgradeRules.empty())
+                    {
+                        for (auto l_Itr : l_ItemStageUpgradeRules)
+                        {
+                            if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
+                                continue;
+
+                            if (l_Itr.ItemSubclassMask != 0)
+                            {
+                                if ((l_Itr.ItemSubclassMask & (1 << l_ItemTarget->GetTemplate()->SubClass)) == 0)
+                                    continue;
+                            }
+
+                            if (l_Itr.InventoryTypeMask != 0)
+                            {
+                                if ((l_Itr.InventoryTypeMask & (1 << l_ItemTarget->GetTemplate()->InventoryType)) == 0)
+                                    continue;
+                            }
+
+                            if (int32(l_ItemTarget->GetTemplate()->ItemLevel + l_ItemTarget->GetItemLevelBonusFromItemBonuses()) >= l_Itr.MaxIlevel)
+                                continue;
+
+                            l_Found = true;
+                            l_MaxIlevel = l_Itr.MaxIlevel;
+                            break;
+                        }
+
+                        if (!l_Found)
+                            return SPELL_FAILED_NO_VALID_TARGETS;
+
+                        std::vector<uint32> l_UpgradeBonusStages;
+
+                        switch (l_ItemTarget->GetTemplate()->ItemLevel)
+                        {
+                            case 630:
+                                l_UpgradeBonusStages = { 525, 558, 559, 594, 619, 620 };
+                                break;
+                            case 640:
+                                l_UpgradeBonusStages = { 525, 526, 527, 593, 617, 618 };
+                            default:
+                                break;
+                        }
+
+                        if (l_UpgradeBonusStages.empty())
+                            return SPELL_FAILED_NO_VALID_TARGETS;
+
+                        int32 l_CurrentIdx = -1;
+
+                        for (int l_Idx = 0; l_Idx < (int)l_UpgradeBonusStages.size(); l_Idx++)
+                        {
+                            for (auto l_BonusId : l_CurrentItemBonus)
+                            {
+                                if (l_BonusId == l_UpgradeBonusStages[l_Idx])
+                                {
+                                    l_CurrentIdx = l_Idx;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (l_CurrentIdx == -1 || l_CurrentIdx == l_UpgradeBonusStages.size() - 1)
+                            return SPELL_FAILED_NO_VALID_TARGETS;
+                    }
+                }
+                break;
             }
             default:
                 break;

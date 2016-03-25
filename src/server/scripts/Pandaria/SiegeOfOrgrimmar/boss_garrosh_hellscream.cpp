@@ -38,12 +38,12 @@ enum eSpells
     SPELL_EMPOWERED_WHIRLING_CORRUPTION = 145037,
     SPELL_GRIPPING_DESPAIR              = 145183,
     SPELL_HELLSCREAMS_WARSONG           = 144821,
-    SPELL_MALEFICE_25	                = 147209,
+    SPELL_MALEFICE_25                   = 147209,
     SPELL_MANIFEST_RAGE_25              = 147011,
-    SPELL_REALM_OF_YSHAARJ 	            = 144954,
+    SPELL_REALM_OF_YSHAARJ              = 144954,
     SPELL_SUMMON_FADING_BREATH          = 147296,
     SPELL_TOUCH_OH_YSHAARJ              = 145065,
-    SPELL_WEAK_MINDED	                = 145331,
+    SPELL_WEAK_MINDED                   = 145331,
     SPELL_WHIRLING_CORRUPTION           = 144985,
     SPELL_SHAARJS_PROTECTION            = 144945
 };

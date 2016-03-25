@@ -1447,7 +1447,7 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Touch of Karma - 122470
 class spell_monk_touch_of_karma: public SpellScriptLoader
 {
@@ -1487,7 +1487,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 p_Amount = l_Caster->CountPctFromMaxHealth(l_HealthPct);
             }
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Caster = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
@@ -1531,6 +1531,11 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                         l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
                     l_Damage /= 6;
                     l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
+                }
+                else
+                {
+                    p_AbsorbAmount = 0;
+                    l_Caster->RemoveAura(122470, l_Caster->GetGUID());
                 }
             }
 
@@ -4261,8 +4266,6 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 // Add additionnal stuff depending on spec
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
                 {
-                    l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
-
                     if (l_Player->HasAura(SPELL_MONK_MUSCLE_MEMORY))
                         l_Player->CastSpell(l_Player, SPELL_MONK_CRANES_ZEAL, true);
                 }
@@ -4760,15 +4763,16 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
                     l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
 
-                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
-                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
-
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
                 l_Bp = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Bp);
+
+                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
+
             }
 
             void Register()

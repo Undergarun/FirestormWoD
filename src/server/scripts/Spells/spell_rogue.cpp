@@ -366,11 +366,8 @@ class spell_rog_death_from_above : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
-                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
-                    }
+                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
+                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
                 }
             }
 
@@ -2470,6 +2467,7 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Eviscerate - 2098
 class spell_rog_evicerate : public SpellScriptLoader
 {
@@ -2490,9 +2488,12 @@ class spell_rog_evicerate : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
 
                 Unit* l_Caster = GetCaster();
-
+                Unit* l_Target = GetHitUnit();
                 uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (l_ComboPoint)
                 {
@@ -2503,8 +2504,8 @@ class spell_rog_evicerate : public SpellScriptLoader
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
-                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
 
                 SetHitDamage(l_Damage);
             }
@@ -2895,6 +2896,7 @@ class spell_rog_find_weakness : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Call by Leech Vitality - 116921
 /// Glyph of Recovery - 146625
 class spell_rog_glyph_of_recovery : public SpellScriptLoader
@@ -2908,7 +2910,8 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphofRecovery = 146625
+                GlyphofRecovery = 146625,
+                Conversion      = 73651
             };
 
             void HandleOnHit()
@@ -2916,6 +2919,9 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofRecovery))
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::Conversion))
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphofRecovery))

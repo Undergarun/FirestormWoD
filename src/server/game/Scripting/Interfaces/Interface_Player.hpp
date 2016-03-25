@@ -651,6 +651,16 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_MapID);
         }
 
+        /// Called when a player finish a movement like a jump
+        /// @p_Player   : Player instance
+        /// @p_SpellID  : Spell ID
+        /// @p_TargetGUID : Target GUID
+        virtual void OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SpellID);
+            UNUSED(p_TargetGUID);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED

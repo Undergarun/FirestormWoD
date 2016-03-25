@@ -317,7 +317,10 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
                 }
             }
 

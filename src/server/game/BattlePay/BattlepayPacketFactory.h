@@ -20,7 +20,7 @@ namespace Battlepay
 
         /// Client error enum
         /// See Blizzard_StoreUISecure.lua
-        /// Last update : 6.0.3 19116
+        /// Last update : 6.2.3 20779
         enum Error
         {
             InvalidPaymentMethod       = 25,

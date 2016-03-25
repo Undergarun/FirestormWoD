@@ -808,11 +808,13 @@ void Battleground::YellToAll(Creature* creature, const char* text, uint32 langua
         }
 }
 
-void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
+void Battleground::RewardHonorToTeam(uint32 p_Honor, uint32 TeamID, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /* = None */)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
-            UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, Honor);
+    {
+        if (Player* l_Player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
+            UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, p_Honor, p_RewardCurrencyType);
+    }
 }
 
 void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
@@ -931,9 +933,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
         if (winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
-            loser_team_rating = loser_team->GetRating(slot); ///< loser_team_rating is never read 01/18/16
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
-            winner_team_rating = winner_team->GetRating(slot); ///< winner_team_rating is never read 01/18/16
             winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
             winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
@@ -1062,11 +1062,12 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())))
             {
-                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, !IsWargame());
+                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, !IsWargame(), MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
                 if (!l_Player->GetRandomWinner() && !IsWargame())
                 {
                     // 100cp awarded for the first rated battleground won each day
-                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BarttlegroundRated);
+                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST, true, false, false, MS::Battlegrounds::RewardCurrencyType::Type::BattlegroundWin);
+
                     l_Player->SetRandomWinner(true);
                 }
             }
@@ -1619,7 +1620,7 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type, uint32 value, bool doAddHonor)
+void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type, uint32 value, bool doAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType)
 {
     //this procedure is called from virtual function implemented in bg subclass
     BattlegroundScoreMap::const_iterator itr = PlayerScores.find(Source->GetGUID());
@@ -1646,7 +1647,7 @@ void Battleground::UpdatePlayerScore(Player* Source, Player* victim, uint32 type
                 {
                     /// RewardHonor calls UpdatePlayerScore with doAddHonor = false
                     if (isBattleground())
-                        Source->RewardHonor(NULL, 1, value, false, MS::Battlegrounds::RewardCurrencyType::Type::Kill);
+                        Source->RewardHonor(NULL, 1, value, false, p_RewardCurrencyType);
                     else
                         Source->RewardHonor(NULL, 1, value, false, MS::Battlegrounds::RewardCurrencyType::Type::ArenaSkyrmish);
                 }

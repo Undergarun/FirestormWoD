@@ -6549,17 +6549,20 @@ uint32 Player::GetRoleForGroup(uint32 specializationId) const
     return GetRoleBySpecializationId(specializationId);
 }
 
-bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
+bool Player::IsRangedDamageDealer(Creature* p_Source, float p_MinDist /*= 10.0f*/, bool p_AllowHeal /*= true*/) const
 {
-    if (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowHeal && GetRoleForGroup() == Roles::ROLE_HEALER))
-        return false;
+    bool l_OK = false;
+
+    if (p_Source == nullptr || (GetRoleForGroup() != Roles::ROLE_DAMAGE && !(p_AllowHeal && GetRoleForGroup() == Roles::ROLE_HEALER)))
+        return l_OK;
 
     switch (getClass())
     {
         case Classes::CLASS_HUNTER:
         case Classes::CLASS_MAGE:
         case Classes::CLASS_WARLOCK:
-            return true;
+            l_OK = true;
+            break;
         default:
             break;
     }
@@ -6569,19 +6572,24 @@ bool Player::IsRangedDamageDealer(bool p_AllowHeal /*= true*/) const
         case SpecIndex::SPEC_DRUID_BALANCE:
         case SpecIndex::SPEC_PRIEST_SHADOW:
         case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
-            return true;
+            l_OK = true;
+            break;
         case SpecIndex::SPEC_DRUID_RESTORATION:
         case SpecIndex::SPEC_MONK_MISTWEAVER:
         case SpecIndex::SPEC_PALADIN_HOLY:
         case SpecIndex::SPEC_PRIEST_DISCIPLINE:
         case SpecIndex::SPEC_PRIEST_HOLY:
         case SpecIndex::SPEC_SHAMAN_RESTORATION:
-            return p_AllowHeal;
+            l_OK = p_AllowHeal;
+            break;
         default:
             break;
     }
 
-    return false;
+    if (GetDistance(p_Source) < p_MinDist)
+        l_OK = false;
+
+    return l_OK;
 }
 
 bool Player::IsMeleeDamageDealer(bool p_AllowTank /*= false*/) const
@@ -7654,6 +7662,10 @@ void Player::RepopAtGraveyard()
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
         l_ClosestGrave = bg->GetClosestGraveYard(this);
+    else if (IsInGarrison())
+    {
+        l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+    }
     // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
     else if (GetMap()->IsDungeon())
     {
@@ -9521,7 +9533,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (Battleground* bg = GetBattleground())
         {
-            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
+            bg->UpdatePlayerScore(this, NULL, SCORE_BONUS_HONOR, honor, false, p_RewardCurrencyType); //false: prevent looping
         }
     }
 
@@ -20883,6 +20895,46 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     Object::_Create(guid, 0, HIGHGUID_PLAYER);
 
+    if (m_atLoginFlags & AT_LOGIN_CHANGE_ITEM_FACTION)
+    {
+        uint8 l_CurrentRace = fields[3].GetUInt8();
+
+        BattlegroundTeamId l_Team = BG_TEAM_ALLIANCE;
+        switch (l_CurrentRace)
+        {
+            case RACE_ORC:
+            case RACE_GOBLIN:
+            case RACE_TAUREN:
+            case RACE_UNDEAD_PLAYER:
+            case RACE_TROLL:
+            case RACE_BLOODELF:
+            case RACE_PANDAREN_HORDE:
+                l_Team = BG_TEAM_HORDE;
+                break;
+            default:
+                break;
+        }
+
+        /// Item conversion
+        SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Items.begin(); l_Iterator != sObjectMgr->FactionChange_Items.end(); ++l_Iterator)
+        {
+            uint32 l_ItemAlliance = l_Iterator->first;
+            uint32 l_ItemHorde = l_Iterator->second;
+
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
+            l_Statement->setUInt32(0, (l_Team == BG_TEAM_ALLIANCE ? l_ItemAlliance : l_ItemHorde));
+            l_Statement->setUInt32(1, (l_Team == BG_TEAM_ALLIANCE ? l_ItemHorde : l_ItemAlliance));
+            l_Statement->setUInt32(2, guid);
+            l_Transaction->Append(l_Statement);
+        }
+
+        CharacterDatabase.DirectCommitTransaction(l_Transaction);
+
+        RemoveAtLoginFlag(AT_LOGIN_CHANGE_ITEM_FACTION, true);
+        return false;
+    }
+
     m_name = fields[2].GetString();
 
     // check name limitations
@@ -25960,7 +26012,6 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             ASSERT(spellInfo);
             continue;
         }
-
         // Not send cooldown for this spells
         if (spellInfo->IsCooldownStartedOnEvent())
             continue;
@@ -25972,7 +26023,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         {
             if (idSchoolMask & (1 << i))
             {
-                if (((1 << i) & spellInfo->GetSchoolMask()) && GetSpellCooldownDelay(unSpellId) < unTimeMs/IN_MILLISECONDS)
+                if (((1 << i) & spellInfo->GetSchoolMask()) && GetSpellCooldownDelay(unSpellId) < unTimeMs)
                 {
                     SpellSchools school = GetFirstSchoolInMask(spellInfo->GetSchoolMask());
                     if ((1 << school) != spellInfo->GetSchoolMask())
@@ -26565,7 +26616,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
 void Player::UpdateHomebindTime(uint32 time)
 {
     // GMs never get homebind timer online
-    if (m_InstanceValid || isGameMaster())
+    if (m_InstanceValid || isGameMaster() || IsInGarrison())
     {
         if (m_HomebindTimer)                                 // instance valid, but timer not reset
         {
@@ -33216,15 +33267,14 @@ void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
         l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
     }
 
-    float l_Stnc = (HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
     float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
     float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
 
     float l_Offlow = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
     float l_Offhigh = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
 
-    p_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
-    p_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+    p_Low = (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+    p_High = (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

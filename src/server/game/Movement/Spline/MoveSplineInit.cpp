@@ -255,14 +255,14 @@ void MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
         {
             uint32 count = spline.getPointCount() - 3;
             for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.push_back(array[i + 2]);
+                movementSpline.Points.push_back(G3D::Vector3(array[i + 2].x + (float(i) / 1000.f), array[i + 2].y, array[i + 2].z));
         }
         else
         {
             uint32 count = spline.getPointCount() - 3;
-            movementSpline.Points.push_back(array[1]);
+            movementSpline.Points.push_back(G3D::Vector3(array[1].x + (float(50) / 1000.f), array[1].y, array[1].z));
             for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.push_back(array[i + 1]);
+                movementSpline.Points.push_back(G3D::Vector3(array[i + 1].x + (float(i) / 1000.f), array[i + 1].y, array[i + 1].z));
         }
     }
     else
@@ -270,7 +270,7 @@ void MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
         uint32 lastIdx = spline.getPointCount() - 3;
         G3D::Vector3 const* realPath = &spline.getPoint(1);
 
-        movementSpline.Points.push_back(realPath[lastIdx]);
+        movementSpline.Points.push_back(G3D::Vector3(realPath[lastIdx].x + (float(50) / 1000.f), realPath[lastIdx].y, realPath[lastIdx].z));
 
         if (lastIdx > 1)
         {
@@ -388,7 +388,7 @@ namespace Movement
         packet.Write(&l_Data);
 
         unit->SendMessageToSet(&l_Data, true);
-
+        
 
         //////////////////////////////////////////////////////////////////////////
 
@@ -585,8 +585,7 @@ namespace Movement
 
         unit->SendMessageToSet(&l_Data, true);
 
-
-      /*  uint64 l_MoverGUID = unit->GetGUID();
+        /*uint64 l_MoverGUID = unit->GetGUID();
         uint64 l_TransportGUID = unit->GetTransGUID();
 
         uint8   l_FinalFacingMode = MonsterMoveStop;

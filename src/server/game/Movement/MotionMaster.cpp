@@ -441,6 +441,32 @@ void MotionMaster::CustomJump(float x, float y, float z, float speedXY, float sp
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
+void MotionMaster::CustomJump(Unit* p_Target, float speedXY, float speedZ, uint32 id)
+{
+    if (p_Target == nullptr)
+        return;
+
+    float x, y, z;
+    p_Target->GetPosition(x, y, z);
+
+    speedZ *= 2.3f;
+    speedXY *= 2.3f;
+
+    if (speedXY <= 0.1f)
+        return;
+
+    float moveTimeHalf = speedZ / Movement::gravity;
+    float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
+    max_height /= 15.0f;
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(x, y, z, false);
+    init.SetParabolic(max_height, 0);
+    init.SetVelocity(speedXY);
+    init.Launch();
+    Mutate(new EffectMovementGenerator(id, 0, p_Target->GetGUID()), MOTION_SLOT_CONTROLLED);
+}
+
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
 {
     float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);

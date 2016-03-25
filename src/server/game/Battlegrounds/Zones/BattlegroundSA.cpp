@@ -1001,6 +1001,8 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
             }
             else if (Status == BG_SA_ROUND_TWO)
             {
+                Status = BG_SA_END;
+
                 RoundScores[1].winner = Attackers;
                 RoundScores[1].time = TotalTime;
                 ToggleTimer();

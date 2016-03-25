@@ -614,6 +614,16 @@ typedef std::map<std::string, DataStoreMapPair> DatastoreDifficultyKey;
 using ItemSourceSkills = std::map<uint32, std::vector<uint32>>;
 using TradeSpellSkills = std::map<uint32, std::list<SkillLineAbilityEntry const*>>;
 
+struct SpellUpgradeItemStage
+{
+    int32 ItemClass;
+    int32 ItemSubclassMask;
+    int32 InventoryTypeMask;
+    int32 MaxIlevel;
+};
+
+using SpellUpgradeItemStages = std::map<uint32, std::vector<SpellUpgradeItemStage>>;
+
 class SpellMgr
 {
     friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
@@ -750,6 +760,11 @@ class SpellMgr
             return m_SkillTradeSpells[p_Skill];
         }
 
+        std::vector<SpellUpgradeItemStage> const& GetSpellUpgradeItemStage(uint32 p_ItemBonusTreeCategory)
+        {
+            return m_SpellUpgradeItemStages[p_ItemBonusTreeCategory];
+        }
+
     // Modifiers
     public:
 
@@ -784,6 +799,7 @@ class SpellMgr
         void LoadForbiddenSpells();
         void InitializeItemUpgradeDatas();
         void LoadSpellPlaceHolder();
+        void LoadSpellUpgradeItemStage();
 
         std::vector<uint32>        mSpellCreateItemList;
 
@@ -827,6 +843,7 @@ class SpellMgr
         DatastoreDifficultyKey     mDatastoreSpellDifficultyKey;
         ItemSourceSkills           m_ItemSourceSkills;
         TradeSpellSkills           m_SkillTradeSpells;
+        SpellUpgradeItemStages     m_SpellUpgradeItemStages;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

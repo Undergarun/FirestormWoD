@@ -1717,8 +1717,6 @@ class spell_sha_bloodlust : public SpellScriptLoader
                     l_Target->HasAura(SHAMAN_SPELL_SATED) || l_Target->HasAura(MAGE_SPELL_TEMPORAL_DISPLACEMENT) ||
                     l_Target->HasAura(HUNTER_SPELL_FATIGUED))
                     PreventHitAura();
-
-                l_Target->CastSpell(l_Target, ShamanSpells::SHAMAN_SPELL_SATED, true);
             }
 
 
