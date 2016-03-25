@@ -54,11 +54,10 @@ function runWorldserver {
 
     if [ $ASAN_MODE -eq 1 ]; then
         # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerFlags#run-time-flags
-        ASAN_OPTIONS=symbolize=1:detect_leaks=0
-        ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
+        export ASAN_OPTIONS=abort_on_error=1:detect_leaks=0:symbolize=1
+        export ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
 
-        #gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
-        worldserver_RelWithDebInfoAsan 2> /tmp/backtrace.log
+        gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
     else
         gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfo
     fi
