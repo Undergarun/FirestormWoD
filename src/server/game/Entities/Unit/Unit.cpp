@@ -9719,12 +9719,15 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
-        case 166012:///< Item  Hunter WoD PvP Survival 4P Bonus
+        case 166012:///< Item - Hunter WoD PvP Survival 4P Bonus
         {
             if (!procSpell)
                 return false;
 
             if (procSpell->Id != 3674)
+                return false;
+
+            if (procEx & PROC_EX_INTERNAL_MULTISTRIKE)
                 return false;
 
             break;
