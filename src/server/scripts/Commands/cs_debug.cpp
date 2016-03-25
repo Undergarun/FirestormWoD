@@ -2685,8 +2685,9 @@ class debug_commandscript: public CommandScript
         {
             p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
 
-            int l_Pigs[24];
-            l_Pigs[42] = 42; ///< KABOUM
+            Player* l_Pig = new Player(p_Handler->GetSession());
+            delete l_Pig;
+            l_Pig->isAFK();
 
             return true;
         }
