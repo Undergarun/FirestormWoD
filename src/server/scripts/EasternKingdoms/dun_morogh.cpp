@@ -247,7 +247,8 @@ public:
                     me->GetMotionMaster()->MovePoint(2, -5173.97f, 716.153f, 293.668f);
                     break;
                 case 3:
-                    Passenger->RemoveAurasDueToSpell(SPELL_IRRADIE);
+                    if (Passenger)
+                        Passenger->RemoveAurasDueToSpell(SPELL_IRRADIE);
                     me->GetMotionMaster()->MovePoint(3, -5175.65f, 699.32f, 293.668f);
                     break;
                 case 4:
