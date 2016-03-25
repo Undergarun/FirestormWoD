@@ -738,6 +738,7 @@ class npc_foundry_cruelfang : public CreatureScript
         enum eEvents
         {
             EventRendAndTear = 1,
+            EventRendAndTearSec,
             EventSavageHowl
         };
 
@@ -762,6 +763,7 @@ class npc_foundry_cruelfang : public CreatureScript
             }
 
             EventMap m_Events;
+            EventMap m_CosmeticEvents;
 
             InstanceScript* m_Instance;
 
@@ -777,6 +779,7 @@ class npc_foundry_cruelfang : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 m_IsEvadeMode = false;
                 m_RendAndTear = false;
@@ -831,12 +834,7 @@ class npc_foundry_cruelfang : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::RendAndTearTriggered, true);
 
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
-                        });
-
+                        m_CosmeticEvents.ScheduleEvent(eEvents::EventRendAndTearSec, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eSpells::RendAndTearJumpSecond:
@@ -919,6 +917,14 @@ class npc_foundry_cruelfang : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+
+                m_CosmeticEvents.Update(p_Diff);
+
+                if (m_CosmeticEvents.ExecuteEvent() == eEvents::EventRendAndTearSec)
+                {
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
+                }
 
                 if (!UpdateVictim() || m_RendAndTear)
                     return;
