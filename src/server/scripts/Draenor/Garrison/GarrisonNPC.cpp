@@ -13,6 +13,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
+#include "GossipDef.h"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Large/AGnomishGearworks.hpp"
@@ -1241,6 +1242,14 @@ namespace MS { namespace Garrison
 
                     break;
                 }
+                case Buildings::TheForge_TheForge_Level2:
+                case Buildings::TheForge_TheForge_Level3:
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to get the first buff", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "I want to get the second buff", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+
+                    /// add on gossip select hook
+                    break;
                 default:
                     break;
             }

@@ -18406,8 +18406,11 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     return true;
 }
 
-void Unit::SendDurabilityLoss(Player * p_Receiver, uint32 p_Percent)
+void Unit::SendDurabilityLoss(Player* p_Receiver, uint32 p_Percent)
 {
+    if (p_Receiver->HasAuraType(AuraType::SPELL_AURA_DONT_LOOSE_DURABILITY))
+        return;
+
     WorldPacket l_Data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
     l_Data << uint32(p_Percent);
 

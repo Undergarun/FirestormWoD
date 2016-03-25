@@ -45,6 +45,7 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);
         m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level2);
         m_AllowedBluePrints.push_back(Buildings::TheForge_TheForge_Level1);
+        m_AllowedBluePrints.push_back(Buildings::TheForge_TheForge_Level2);
         m_AllowedBluePrints.push_back(Buildings::TheTannery_TheTannery_Level1);
         m_AllowedBluePrints.push_back(Buildings::TheTannery_TheTannery_Level2);
         m_AllowedBluePrints.push_back(Buildings::TradingPost_TradingPost_Level1);
