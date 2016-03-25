@@ -2683,10 +2683,10 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player* l_CrashPlayer = nullptr;
-            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+            p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
 
-            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
+            int l_Pigs[24];
+            l_Pigs[42] = 42; ///< KABOUM
 
             return true;
         }
