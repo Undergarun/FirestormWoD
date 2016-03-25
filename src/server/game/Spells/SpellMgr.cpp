@@ -5405,6 +5405,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
+            case 118922: ///< Posthaste
             case 108212: ///< Burst of Speed
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
@@ -6170,6 +6171,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 781:   ///< Disengage
                 spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 111400:///< Burning Rush
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_NOT_ABOVEWATER + AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
