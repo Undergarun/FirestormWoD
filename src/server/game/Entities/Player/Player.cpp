@@ -26033,7 +26033,6 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
             ASSERT(spellInfo);
             continue;
         }
-
         // Not send cooldown for this spells
         if (spellInfo->IsCooldownStartedOnEvent())
             continue;
@@ -26045,7 +26044,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         {
             if (idSchoolMask & (1 << i))
             {
-                if (((1 << i) & spellInfo->GetSchoolMask()) && GetSpellCooldownDelay(unSpellId) < unTimeMs/IN_MILLISECONDS)
+                if (((1 << i) & spellInfo->GetSchoolMask()) && GetSpellCooldownDelay(unSpellId) < unTimeMs)
                 {
                     SpellSchools school = GetFirstSchoolInMask(spellInfo->GetSchoolMask());
                     if ((1 << school) != spellInfo->GetSchoolMask())
@@ -26638,7 +26637,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
 void Player::UpdateHomebindTime(uint32 time)
 {
     // GMs never get homebind timer online
-    if (m_InstanceValid || isGameMaster())
+    if (m_InstanceValid || isGameMaster() || IsInGarrison())
     {
         if (m_HomebindTimer)                                 // instance valid, but timer not reset
         {
@@ -33295,15 +33294,14 @@ void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
         l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
     }
 
-    float l_Stnc = (HasAura(SPELL_MONK_STANCE_OF_THE_FIERCE_TIGER)) ? 1.2f : 1.0f;
     float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
     float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
 
     float l_Offlow = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
     float l_Offhigh = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMaxDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMaxDamage / 2 / l_OffhandWeaponSpeed;
 
-    p_Low = l_Stnc * (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
-    p_High = l_Stnc * (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
+    p_Low = (l_Dwm * (l_MainWeaponMinDamage / l_MainWeaponSpeed + l_Offm * l_Offlow) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f - 1);
+    p_High = (l_Dwm * (l_MainWeaponMaxDamage / l_MainWeaponSpeed + l_Offm * l_Offhigh) + GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) / 3.5f + 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

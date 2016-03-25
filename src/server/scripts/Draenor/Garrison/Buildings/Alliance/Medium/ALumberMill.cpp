@@ -91,17 +91,15 @@ namespace MS { namespace Garrison
 
     bool npc_JustinTimberLord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        CreatureAI* l_AI = p_Creature->AI();
-        p_Player->PlayerTalkClass->ClearMenus();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
+        p_Player->PlayerTalkClass->ClearMenus();
+
         if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-        }
+            l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }

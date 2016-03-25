@@ -359,17 +359,24 @@ class spell_mage_comet_storm : public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == eCometDatas::CometStorm)
                 {
-                    int32 l_Damage = GetHitDamage();;
+                    int32 l_Damage = GetHitDamage();
 
-                    /// Damage split between all enemies 
-                    if (GetSpell()->GetUnitTargetCount() > 1)
-                        l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        /// Damage split between all enemies 
+                        if (GetSpell()->GetUnitTargetCount() > 1)
+                            l_Damage = int32(GetHitDamage() / GetSpell()->GetUnitTargetCount());
 
-                    /// Comet Storm (Frost) damage has increased by 94% but deals 33.3% less damage in PvP combat. - 6.1
-                    if (GetHitUnit() && GetHitUnit()->IsPlayer())
-                        l_Damage = l_Damage - CalculatePct(l_Damage, 33.3f);
+                        /// Comet Storm (Frost) damage has increased by 94% but deals 33.3% less damage in PvP combat. - 6.1
+                        if (l_Target && l_Target->IsPlayer())
+                            l_Damage = l_Damage - CalculatePct(l_Damage, 33.3f);
 
-                    SetHitDamage(l_Damage);
+                        SetHitDamage(l_Damage);
+
+                        /// Polymorph
+                        if (l_Target->HasAura(118))
+                            l_Target->RemoveAura(118);
+                    }
                 }
             }
 

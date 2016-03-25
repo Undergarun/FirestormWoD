@@ -225,8 +225,7 @@ void EffectMovementGenerator::Finalize(Unit* unit)
             unit->GetMotionMaster()->Initialize();
     }
 
-    if (unit->ToCreature()->AI())
-        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
+    MovementInform(unit);
 }
 
 void EffectMovementGenerator::MovementInform(Unit* unit)

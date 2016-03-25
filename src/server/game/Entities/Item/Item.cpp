@@ -2562,5 +2562,14 @@ uint32 Item::GetEnchantItemVisualId(EnchantmentSlot p_Slot) const
     if (l_Enchantement == nullptr)
         return 0;
 
+    /// Special handler for SPELL_EFFECT_APPLY_ENCHANT_ILLUSION that should change visual effect of item
+    SpellItemEnchantmentEntry const* l_EnchantementIllusion = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
+    if (l_EnchantementIllusion != nullptr)
+    {
+        uint32 l_IllusionVisualID = l_EnchantementIllusion->itemVisualID;
+        if (l_IllusionVisualID != 0)
+            return l_IllusionVisualID;
+    }
+
     return l_Enchantement->itemVisualID;
 }

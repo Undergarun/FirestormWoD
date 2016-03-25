@@ -57,7 +57,7 @@ namespace MS { namespace Garrison
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
             {
                 if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
-                    reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+                    static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
 
                 return true;
             }
@@ -82,7 +82,7 @@ namespace MS { namespace Garrison
             ProfessionBuilding_SkillNPC()
                 : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
             {
-
+                m_Recipes = *t_RecipeEntries;
             }
 
             /// Called when a player opens a gossip dialog with the GameObject.
@@ -123,8 +123,12 @@ namespace MS { namespace Garrison
                 {
                     if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
                     {
-                        GarrisonNPCAI* l_AI = reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI());
-                        l_AI->SetRecipes(t_RecipeEntries, t_Skill);
+                        GarrisonNPCAI* l_AI = static_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                        if (l_AI == nullptr)
+                            return true;
+
+                        l_AI->SetRecipes(m_Recipes, t_Skill);
                         l_AI->SendTradeSkillUI(p_Player);
                     }
                 }
@@ -134,6 +138,8 @@ namespace MS { namespace Garrison
                 return true;
             }
 
+        private:
+            std::vector<SkillNPC_RecipeEntry> m_Recipes;
     };
 
 }   ///< namespace Garrison

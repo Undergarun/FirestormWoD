@@ -850,8 +850,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 
                 OpcodeHandler* handler = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
                 if (!handler || handler->status == STATUS_UNHANDLED)
-                    return 0;
-
+                {
                 // Our Idle timer will reset on any non PING opcodes.
                 // Catches people idling on the login screen and any lingering ingame connections.
                 m_Session->ResetTimeOutTime();

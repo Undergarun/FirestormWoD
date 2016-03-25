@@ -1897,6 +1897,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
     sSpellMgr->LoadSpellLinked();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells upgrade item stage...");
+    sSpellMgr->LoadSpellUpgradeItemStage();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells invalid...");
     sObjectMgr->LoadSpellInvalid();
 

@@ -300,7 +300,7 @@ namespace MS
                 l_Battleground->EnableTournamentRules();
 
             /// We store the battleground.
-            m_Battlegrounds[p_BracketEntry->m_Id][p_BgType].emplace_back(std::make_pair(l_Battleground->GetInstanceID(), l_Battleground));
+            m_Battlegrounds[p_BracketEntry->m_Id][p_RatedBg ? BattlegroundType::RatedBg10v10 : p_BgType].emplace_back(std::make_pair(l_Battleground->GetInstanceID(), l_Battleground));
 
             return l_Battleground;
         }

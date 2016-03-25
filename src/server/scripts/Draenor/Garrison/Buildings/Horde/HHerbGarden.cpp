@@ -230,7 +230,7 @@ namespace MS { namespace Garrison
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
 
-        if (!p_Player || !p_Creature || !l_GarrisonMgr || !l_AI || p_Creature->GetScriptName() != CreatureScript::GetName())
+        if (!p_Player || !p_Creature || !l_GarrisonMgr || !l_AI)
             return true;
 
         p_Player->PlayerTalkClass->ClearMenus();

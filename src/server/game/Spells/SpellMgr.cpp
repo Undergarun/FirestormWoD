@@ -98,7 +98,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         {
             // Frostjaw -- 102051
             if (spellproto->SpellFamilyFlags[2] & 0x40000)
-                return DIMINISHING_SILENCE;
+                return DIMINISHING_ROOT;
 
             // Frost Nova -- 122
             if (spellproto->SpellFamilyFlags[0] & 0x40)
@@ -135,7 +135,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_STUN;
             /// Warbringer -- 7922
             if (spellproto->Id == 7922)
-                return DIMINISHING_STUN;
+                return DIMINISHING_LIMITONLY;
 
             /// Intimidating Shout -- 5246
             if (spellproto->SpellFamilyFlags[0] & 0x40000)
@@ -5405,6 +5405,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
+            case 118922: ///< Posthaste
             case 108212: ///< Burst of Speed
                 spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
@@ -6170,6 +6171,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 781:   ///< Disengage
                 spellInfo->Effects[0].TriggerSpell = 0; ///< Handled in Player::HandleFall()
+                spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
                 break;
             case 111400:///< Burning Rush
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_NOT_ABOVEWATER + AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
@@ -6177,6 +6179,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96840: ///< Flame Patch for Glyph of the Blazing Trail
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
                 break;
+            case 103828: ///< Warbringer
             case 100:   ///< Charge
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
                 break;
@@ -6214,6 +6217,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 642:   ///< Divine Shield
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
+            case 126890:///< Eminence
+            case 117895:///< Eminence (statue)
+                spellInfo->SpellLevel = 100;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
@@ -6289,10 +6296,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 980: ///< Agony
                 spellInfo->StackAmount = 10;
                 break;
-            case 131740: ///< Corruption (Malefic Grasp)
-            case 131736: ///< Unstable Affliction (Malefic Grasp)
-            case 132566: ///< Seed of Corruption (Malefic Grasp)
-            case 131737: ///< Agony (Malefic Grasp)
             case 42463:  ///< Seal of Truth
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
@@ -7379,4 +7382,36 @@ SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Power
     }
 
     return NULL;
+}
+
+void SpellMgr::LoadSpellUpgradeItemStage()
+{
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT ItemBonusTreeCategory, ItemClass, ItemSubClassMask, InventoryTypeMask, MaxIlevel FROM spell_upgrade_item_stage");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell upgrade item stage. DB table `spell_upgrade_item_stage` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        SpellUpgradeItemStage l_SpellUpgradeItemStage;
+
+        uint32 l_ItemBonusTreeCategory            = l_Fields[0].GetUInt32();
+        l_SpellUpgradeItemStage.ItemClass         = l_Fields[1].GetInt32();
+        l_SpellUpgradeItemStage.ItemSubclassMask  = l_Fields[2].GetInt32();
+        l_SpellUpgradeItemStage.InventoryTypeMask = l_Fields[3].GetInt32();
+        l_SpellUpgradeItemStage.MaxIlevel         = l_Fields[4].GetInt32();
+
+        m_SpellUpgradeItemStages[l_ItemBonusTreeCategory].push_back(l_SpellUpgradeItemStage);
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell upgrade item stage.", l_Count);
 }

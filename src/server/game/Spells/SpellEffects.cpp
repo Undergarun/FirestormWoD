@@ -316,7 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
@@ -3159,11 +3159,11 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
             if (Aura* l_Aura = l_It->first)
                 l_Aura->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-
-        /// Glyph of Mass Dispel should dispel Cyclone
-        if (GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
-            unitTarget->RemoveAura(33786);
     }
+
+    /// Mass Dispel should dispel Cyclone, if priest has Glyph of Mass Dispell
+    if (m_spellInfo->Id == 32375 && GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
+        unitTarget->RemoveAura(33786);
 
     DispelChargesList l_DispelList;
     unitTarget->GetDispellableAuraList(m_caster, l_DispelMask, l_DispelList);
@@ -8202,6 +8202,48 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
+void Spell::EffectEnchantIllusion(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+    if (!itemTarget)
+        return;
+
+    Player* p_caster = (Player*)m_caster;
+
+    uint32 l_EnchantId = m_spellInfo->Effects[effIndex].MiscValue;
+    if (!l_EnchantId)
+        return;
+
+    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(l_EnchantId);
+    if (!pEnchant)
+        return;
+    /// If we don't have visual id for this enchant illusion - nothing to do
+    if (!pEnchant->itemVisualID)
+        return;
+
+    /// Item can be in trade slot and have owner diff. from caster
+    Player* l_ItemOwner = itemTarget->GetOwner();
+    if (!l_ItemOwner)
+        return;
+
+    auto l_Enchant = BONUS_ENCHANTMENT_SLOT;
+
+    /// remove old enchanting before applying new if equipped
+    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, false);
+
+    itemTarget->SetEnchantment(l_Enchant, l_EnchantId, 0, 0);
+
+    /// add new enchant illusion effect on item
+    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, true);
+
+    l_ItemOwner->RemoveTradeableItem(itemTarget);
+    itemTarget->ClearSoulboundTradeable(l_ItemOwner);
+}
+
 void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
@@ -8285,6 +8327,94 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValueB;
 
+    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+
+    /// Dynamic bonus change (item stage upgrade)
+    if (l_OldItemBonusTreeCategory == l_NewItemBonusTreeCategory)
+    {
+        uint32 l_MaxIlevel = 0;
+        bool   l_Found = false;
+
+        auto& l_ItemStageUpgradeRules = sSpellMgr->GetSpellUpgradeItemStage(l_OldItemBonusTreeCategory);
+        if (l_ItemStageUpgradeRules.empty())
+            return;
+
+        for (auto l_Itr : l_ItemStageUpgradeRules)
+        {
+            if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
+                continue;
+
+            if (l_Itr.ItemSubclassMask != 0)
+            {
+                if ((l_Itr.ItemSubclassMask & (1 << l_ItemTarget->GetTemplate()->SubClass)) == 0)
+                    continue;
+            }
+
+            if (l_Itr.InventoryTypeMask != 0)
+            {
+                if ((l_Itr.InventoryTypeMask & (1 << l_ItemTarget->GetTemplate()->InventoryType)) == 0)
+                    continue;
+            }
+
+            if ((int32)l_ItemTarget->GetItemLevelBonusFromItemBonuses() >= l_Itr.MaxIlevel)
+                continue;
+
+            l_Found     = true;
+            l_MaxIlevel = l_Itr.MaxIlevel;
+            break;
+        }
+
+        if (!l_Found)
+            return;
+
+        std::vector<uint32> l_UpgradeBonusStages;
+
+        switch (l_ItemTarget->GetTemplate()->ItemLevel)
+        {
+            case 630:
+                l_UpgradeBonusStages = { 525, 558, 559, 594, 619, 620 };
+                break;
+            case 640:
+                l_UpgradeBonusStages = { 525, 526, 527, 593, 617, 618 };
+            default:
+                break;
+        }
+
+        if (l_UpgradeBonusStages.empty())
+        {
+            sLog->outAshran("Spell::EffectChangeItemBonus: Item level isn't handle for spell %u", m_spellInfo->Id);
+            return;
+        }
+
+        int32 l_CurrentIdx = -1;
+
+        for (int l_Idx = 0; l_Idx < (int)l_UpgradeBonusStages.size(); l_Idx++)
+        {
+            for (auto l_BonusId : l_CurrentItemBonus)
+            {
+                if (l_BonusId == l_UpgradeBonusStages[l_Idx])
+                {
+                    l_CurrentIdx = l_Idx;
+                    break;
+                }
+            }
+        }
+
+        if (l_CurrentIdx == -1 || l_CurrentIdx == l_UpgradeBonusStages.size() - 1)
+            return;
+
+        /// All is fine, now we can update item bonus
+        l_ItemTarget->RemoveItemBonus(l_UpgradeBonusStages[l_CurrentIdx]);
+        l_ItemTarget->AddItemBonus(l_UpgradeBonusStages[l_CurrentIdx + 1]);
+        l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
+
+        /// Update item display ID if needed
+        if (l_ItemTarget->IsEquipped())
+            m_caster->ToPlayer()->SetVisibleItemSlot(l_ItemTarget->GetSlot(), l_ItemTarget);
+
+        return;
+    }
+
     ItemBonusTreeNodeEntry const* l_OldBonusTree = nullptr;
     ItemBonusTreeNodeEntry const* l_NewBonusTree = nullptr;
 
@@ -8309,8 +8439,6 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     if (l_OldBonusTree == nullptr
         || l_NewBonusTree == nullptr)
         return;
-
-    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
 
     /// Check if the selected item have the old bonus, and with the right context
     bool l_BonusFound = false;

@@ -375,7 +375,7 @@ namespace MS
                             break;
                         case BATTLEGROUND_KT:
                             l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->OrbHandles);
-                            l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->Score * 10);
+                            l_Buffer << uint32(((BattleGroundKTScore*)l_ScoreBeginIT->second)->Score);
                             break;
                         case BATTLEGROUND_DG:
                             l_Buffer << uint32(((BattlegroundDGScore*)l_ScoreBeginIT->second)->m_AssaultedMines);

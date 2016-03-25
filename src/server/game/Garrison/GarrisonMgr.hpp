@@ -92,6 +92,8 @@ namespace MS { namespace Garrison
             /// Get Garrison Faction Index
             FactionIndex::Type GetGarrisonFactionIndex() const;
 
+        /// Plot section
+        public:
             /// Get plots for level
             std::vector<GarrisonPlotInstanceInfoLocation> GetPlots();
             /// Get plot by position
@@ -109,6 +111,8 @@ namespace MS { namespace Garrison
             /// Return Daily Tavern Datas
             std::vector<uint32>& GetGarrisonTavernDatas() { return m_GarrisonDailyTavernData; };
 
+        /// Mission section
+        public:
             /// Add mission
             bool AddMission(uint32 p_MissionRecID);
             /// Player have mission
@@ -140,6 +144,8 @@ namespace MS { namespace Garrison
             /// Get all completed missions
             std::vector<GarrisonMission> GetCompletedMissions() const;
 
+        /// Follower section
+        public:
             /// Add follower
             bool AddFollower(uint32 p_FollowerID);
             /// Assign a follower to a building
@@ -163,6 +169,17 @@ namespace MS { namespace Garrison
             /// Check if any followers has ability in parameter
             bool HasFollowerAbility(uint32 p_AbilityID) const;
 
+        /// Blueprint section
+        public:
+            /// Get known blueprints
+            std::vector<int32> GetKnownBlueprints() const;
+            /// Learn blue print
+            bool LearnBlueprint(uint32 p_BuildingRecID);
+            /// Known blue print
+            bool KnownBlueprint(uint32 p_BuildingRecID) const;
+
+        /// Building section
+        public:
             /// Can build building X at slot instance Y
             bool IsBuildingPlotInstanceValid(uint32 p_BuildingRecID, uint32 p_PlotInstanceID) const;
             /// Player fill all condition
@@ -236,17 +253,11 @@ namespace MS { namespace Garrison
             /// Checks training mounts auras
             bool IsTrainingMount();
 
-            /// Tavern System
+        /// Tavern System
+        public:
             void AddGarrisonTavernData(uint32 p_Data);
             void SetGarrisonTavernData(uint32 p_Data);
             void CleanGarrisonTavernData();
-
-            /// Get known blueprints
-            std::vector<int32> GetKnownBlueprints() const;
-            /// Learn blue print
-            bool LearnBlueprint(uint32 p_BuildingRecID);
-            /// Known blue print
-            bool KnownBlueprint(uint32 p_BuildingRecID) const;
 
             /// Get known specializations
             std::vector<int32> GetKnownSpecializations() const;
@@ -276,7 +287,7 @@ namespace MS { namespace Garrison
             uint32 GenerateCrewAbilityIdForShip(GarrisonFollower const& p_Follower);
 
             /// Generate random NPC Ability
-            uint32 GenerateRandomAbility();
+            uint32 GenerateRandomAbility(GarrisonFollower* p_Follower);
 
             /// Generate random trait
             uint32 GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities);
