@@ -2207,9 +2207,8 @@ class spell_dru_eclipse : public PlayerScript
 
             if (p_Player == nullptr
                 || p_Player->getClass() != Classes::CLASS_DRUID
-                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE
-                || (p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_MOONKIN && p_Player->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE))
-                return false;
+                || p_Player->GetSpecializationId(p_Player->GetActiveSpec()) != SpecIndex::SPEC_DRUID_BALANCE)
+                 return false;
 
             return true;
         }
