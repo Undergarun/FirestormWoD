@@ -52,13 +52,12 @@ function runWorldserver {
     # Increase allowed file descriptors
     ulimit -n 4096
 
-    if [ $ASAN_MODE ]; then
+    if [ $ASAN_MODE -eq 1 ]; then
         # for options see https://github.com/google/sanitizers/wiki/AddressSanitizerFlags#run-time-flags
-        ASAN_OPTIONS=symbolize=1:detect_leaks=0
-        ASAN_SYMBOLIZER_PATH=$(which asan_symbolize)
+        export ASAN_OPTIONS=abort_on_error=1:detect_leaks=0:symbolize=1
+        export ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer-3.5)
 
-        gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfoAsan
-        # ./worldserver_Asan 2>&1 | asan_symbolize -d > /tmp/   backtrace.log
+        worldserver_RelWithDebInfoAsan 2> /tmp/backtrace.log
     else
         gdb -batch -x=/usr/local/etc/commands.gdb worldserver_RelWithDebInfo
     fi
@@ -68,14 +67,20 @@ function analyseCrash {
     crashlog_filename="crashdump_$(date +\%Y-\%m-\%d-\%H-\%M-\%S).log"
     crashlog_link="$HOST_ADDR/logs_42x/$REALM_NAME/crashlogs/$crashlog_filename"
 
-    if [ $ASAN_MODE -eq 0]; then
-        crash_location=$(grep -m 1 -P 'in (.*) at' /tmp/backtrace.log)
+    if [ $ASAN_MODE -eq 1 ]; then
+        # cleanup backtrace.log to get only asan output
+        csplit --prefix=/tmp/backtrace-split.log --quiet /tmp/backtrace.log "/================/+1"; mv -f /tmp/backtrace-split.log01 /tmp/backtrace.log
+
+        crash_location=$(grep -m 1 -P 'in.*src\/server' /tmp/backtrace.log)
+        crash_in=$(echo $crash_location | grep -oP 'in \K(.*)(?= )')
+        crash_at=$(echo $crash_location | grep -oP ' /.*/\K(.*)')
+    else
+        crash_location=$(grep -m 1 -P 'in .* at' /tmp/backtrace.log)
         crash_in=$(echo $crash_location | grep -oP 'in \K(.*)(?= at)')
         crash_at=$(echo $crash_location | grep -oP 'at /.*/\K(.*)')
-        sendToSlack "_ $REALM_NAME _ crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
-    else
-        sendToSlack "_ $REALM_NAME _ crashed with ASan <$crashlog_link|Show more...>" "danger"
     fi
+
+    sendToSlack "_ $REALM_NAME _ crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
 
     # Only if it's a crash we made the log avalaible
     cp /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
@@ -86,15 +91,21 @@ function isKilled {
 }
 
 function isCrash {
-    echo $(grep -m1 -icP 'SIGABRT|SIGSEGV' /tmp/backtrace.log)
+    echo $(grep -m1 -icP 'SIGABRT|SIGSEGV|ERROR: AddressSanitizer' /tmp/backtrace.log)
 }
 
 function isShutdown {
-    echo $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log)
+    if [ $? -eq 0 -o $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log) -eq 1 ]; then
+        echo 1
+    fi
+    echo 0
 }
 
 function isReboot {
-    echo $(grep -m1 -ic 'exited normally' /tmp/backtrace.log)
+    if [ $? -eq 2 -o $(grep -m1 -ic 'exited normally' /tmp/backtrace.log) -eq 1 ]; then
+        echo 1
+    fi
+    echo 0
 }
 
 ###### MAIN ######

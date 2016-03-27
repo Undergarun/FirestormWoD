@@ -13838,7 +13838,16 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         }
 
         if (l_MountCapability->RequiredMap != -1 && int32(GetMapId()) != l_MountCapability->RequiredMap)
-            continue;
+        {
+            bool l_ByPass = false;
+
+            /// Blasted Lands, level 90
+            if (l_MountCapability->RequiredMap == 1 && GetMapId() == 1190)
+                l_ByPass = true;
+
+            if (!l_ByPass)
+                continue;
+        }
 
         if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaId))
             continue;

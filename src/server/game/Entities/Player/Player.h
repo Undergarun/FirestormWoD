@@ -2225,7 +2225,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSpecializationId() const { return _talentMgr->SpecInfo[_talentMgr->ActiveSpec].SpecializationId; }
         uint32 GetRoleForGroup(uint32 specializationId = 0) const;
 
-        bool IsRangedDamageDealer(Creature* p_Source, float p_MinDist = 10.0f, bool p_AllowHeal = true) const;
+        bool IsRangedDamageDealer(bool p_AllowHeal = true) const;
         bool IsMeleeDamageDealer(bool p_AllowTank = false) const;
 
         static uint32 GetRoleBySpecializationId(uint32 specializationId);
