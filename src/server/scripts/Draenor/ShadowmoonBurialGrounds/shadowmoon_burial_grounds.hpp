@@ -7,7 +7,25 @@
 ///
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "InstanceScript.h"
+#include "ScriptedCosmeticAI.hpp"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "ScriptUtils.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Vehicle.h"
+#include "GameObjectAI.h"
+#include "Group.h"
+#include "MoveSplineInit.h"
+#include "CreatureTextMgr.h"
+
+#define InvisibleDisplay 11686
+#define FriendlyFaction 35
+#define HostileFaction 16
+#define AttackableYetNotHostileFaction 7
 
 static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 {
@@ -19,12 +37,6 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
     for (std::list<Creature*>::iterator l_Iter = l_CreaturesList.begin(); l_Iter != l_CreaturesList.end(); ++l_Iter)
         (*l_Iter)->DespawnOrUnsummon();
 }
-
-
-#define InvisibleDisplay 11686
-#define FriendlyFaction 35
-#define HostileFaction 16
-#define AttackableYetNotHostileFaction 7
 
 enum eShadowmoonBurialGroundsDatas
 {
@@ -53,7 +65,7 @@ enum eShadowmoonBurialGroundsBosses
     BossBoneMaw  = 75452,
     BossNerzul   = 76407,
     BossNhallish = 75829,
-    BossSadana   = 75509,
+    BossSadana   = 75509
 };
 
 enum eShadowmoonBurialGroundsCreatures

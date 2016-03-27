@@ -415,6 +415,11 @@ public:
         DisplayBanshee = 9534
     };
 
+    enum ePossessedSoulActions
+    {
+        ActionTimeout = 1
+    };
+
     bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
     {   
         if (p_Creature)
@@ -452,6 +457,7 @@ public:
         }
 
         uint64 m_VictimGUID;
+        bool m_HasDiedBeforeTimeout;
         bool m_HasDied;
 
         void Reset() override
@@ -468,6 +474,18 @@ public:
             }      
         }
 
+        void DoAction(int32 const p_Action) override
+        {
+            switch (p_Action)
+            {
+                case ePossessedSoulActions::ActionTimeout:
+                    m_HasDiedBeforeTimeout = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void SetGUID(uint64 p_Guid, int32 /*p_Param*/) override
         {
             m_VictimGUID = p_Guid;
@@ -478,6 +496,11 @@ public:
                 {
                     l_Victim->CastSpell(me, ePossessedSoulSpells::SpellCloneMe);
                     me->CastSpell(l_Victim, ePossessedSoulSpells::SpellSoulShred);
+
+                    AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        DoAction(ePossessedSoulActions::ActionTimeout);
+                    });
                 }
             }         
         }
@@ -494,7 +517,16 @@ public:
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);            
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);    
+            
+            if (!m_HasDiedBeforeTimeout)
+            {
+                if (m_VictimGUID)
+                {
+                    if (Unit* l_Victim = Unit::GetUnit(*me, m_VictimGUID))
+                        l_Victim->AddAura(ePossessedSoulSpells::SpellRegainYourSoul, l_Victim);
+                }
+            }
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -643,12 +675,10 @@ public:
             if (!GetCaster())
                 return;
 
-            if (!GetExplTargetDest())
-                return;
-
-           const WorldLocation* l_WorldLocation = GetExplTargetDest();
-           if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eVoidDevestationSpells::SpellVoidDevstationAreaTrigger))
-           GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, l_SpellInfo->GetDuration());
+            GetCaster()->MonsterSay("hoomos", LANG_UNIVERSAL, GetCaster()->GetGUID());
+   
+            if (Position const* l_Pos = GetExplTargetDest())
+                GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Pos->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
         }
 
         void Register()
@@ -795,7 +825,7 @@ public:
             {
                 if (Creature* l_Nhalish = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNhallish)))
                 {
-                    if (Creature* Soul = GetCaster()->SummonCreature(eNhalishCreatures::CreatureSoul, GetHitUnit()->GetPositionX(), GetHitUnit()->GetPositionY(), GetHitUnit()->GetPositionZ(), GetHitUnit()->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS, GetHitUnit()->GetGUID()))
+                    if (Creature* Soul = GetCaster()->SummonCreature(eNhalishCreatures::CreatureSoul, GetHitUnit()->GetPositionX(), GetHitUnit()->GetPositionY(), GetHitUnit()->GetPositionZ(), GetHitUnit()->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, 500 * TimeConstants::IN_MILLISECONDS, GetHitUnit()->GetGUID()))
                     {
                         if (boss_nhalish::boss_nhalishAI* l_LinkAI = CAST_AI(boss_nhalish::boss_nhalishAI, l_Nhalish->GetAI()))
                         {
@@ -830,7 +860,7 @@ public:
                             Soul->SetPhaseMask(m_PhaseId, true);
                             l_LinkAI->m_PhaseCounter++;
                             if (Soul->IsAIEnabled)
-                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);                     
+                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);    
                         }
                     }
                 }
@@ -894,7 +924,8 @@ void AddSC_boss_nhalish()
     new boss_nhalish();                                                     ///< 75829
     new shadowmoon_burial_grounds_nhalish_creature_soul();                  ///< 75899
     new shadowmoon_burial_grounds_nhalish_creature_nhalish_prop();          ///< 75442
-    new shadowmoon_burial_grounds_nhalish_creature_void_devestation();      ///< 153068
+    new shadowmoon_burial_grounds_nhalish_creature_void_devestation();      ///< 543531
+    new shadowmoon_burial_grounds_nhalish_spell_void_devestation();         ///< 153068
     new shadowmoon_burial_grounds_nhalish_spell_planar_shift();             ///< 153623
     new shadowmoon_burial_grounds_nhalish_spell_soul_steal();               ///< 152962
     new shadowmoon_burial_grounds_nhalish_spell_void_blast();               ///< 152792
