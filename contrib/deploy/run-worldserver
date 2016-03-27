@@ -95,11 +95,17 @@ function isCrash {
 }
 
 function isShutdown {
-    echo $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log)
+    if [ $? -eq 0 -o $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log) -eq 1 ]; then
+        echo 1
+    fi
+    echo 0
 }
 
 function isReboot {
-    echo $(grep -m1 -ic 'exited normally' /tmp/backtrace.log)
+    if [ $? -eq 2 -o $(grep -m1 -ic 'exited normally' /tmp/backtrace.log) -eq 1 ]; then
+        echo 1
+    fi
+    echo 0
 }
 
 ###### MAIN ######
