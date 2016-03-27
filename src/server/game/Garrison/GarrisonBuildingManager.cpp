@@ -19,6 +19,7 @@ namespace MS { namespace Garrison
     BuildingManager::BuildingManager()
     {
         m_AllowedBluePrints.push_back(Buildings::AlchemyLab_AlchemyLab_Level1);
+        m_AllowedBluePrints.push_back(Buildings::AlchemyLab_AlchemyLab_Level2);
         m_AllowedBluePrints.push_back(Buildings::Barn_Barn_Level1);
         m_AllowedBluePrints.push_back(Buildings::Barn_Barn_Level2);
         m_AllowedBluePrints.push_back(Buildings::Barracks_Barracks_Level1);

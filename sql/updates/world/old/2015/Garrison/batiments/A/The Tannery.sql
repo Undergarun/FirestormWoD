@@ -101,6 +101,33 @@
 	tente ornée de la horde :   172492, 86352
 	confins d'orgrimmar :       172488, 86348
 	*/
+	
+	DELETE FROM spell_script_names WHERE spell_id IN (172413, 172501, 172502, 172503, 172504, 172505, 172506, 172507, 172508, 172509, 172510, 172511, 172512, 172513, 172514, 172515, 172516, 172517, 172518, 172519, 172520, 172521, 172522, 172523);
+	INSERT INTO spell_script_names VALUES
+	(172413, "spell_garrison_tent_spawn"),
+	(172501, "spell_garrison_tent_spawn"),
+	(172502, "spell_garrison_tent_spawn"),
+	(172503, "spell_garrison_tent_spawn"),
+	(172504, "spell_garrison_tent_spawn"),
+	(172505, "spell_garrison_tent_spawn"),
+	(172506, "spell_garrison_tent_spawn"),
+	(172507, "spell_garrison_tent_spawn"),
+	(172508, "spell_garrison_tent_spawn"),
+	(172509, "spell_garrison_tent_spawn"),
+	(172510, "spell_garrison_tent_spawn"),
+	(172511, "spell_garrison_tent_spawn"),
+	(172512, "spell_garrison_tent_spawn"),
+	(172513, "spell_garrison_tent_spawn"),
+	(172514, "spell_garrison_tent_spawn"),
+	(172515, "spell_garrison_tent_spawn"),
+	(172516, "spell_garrison_tent_spawn"),
+	(172517, "spell_garrison_tent_spawn"),
+	(172518, "spell_garrison_tent_spawn"),
+	(172519, "spell_garrison_tent_spawn"),
+	(172520, "spell_garrison_tent_spawn"),
+	(172521, "spell_garrison_tent_spawn"),
+	(172522, "spell_garrison_tent_spawn"),
+	(172523, "spell_garrison_tent_spawn");
 
 -- LEVEL 2
 

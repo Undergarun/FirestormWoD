@@ -314,8 +314,7 @@ namespace MS { namespace Garrison
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -4.1991f, -0.8694f, 0.8636f, 0.4778f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
-                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
-                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             }
                             break;
                         default:
