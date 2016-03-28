@@ -11,7 +11,7 @@ build:
   before_build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
-      - echo $COMMIT
+      - env
       - mkdir build
       - mkdir dist/bin dist/etc dist/sql dist/sql/characters dist/sql/world dist/sql/hotfix
   release_asan:
