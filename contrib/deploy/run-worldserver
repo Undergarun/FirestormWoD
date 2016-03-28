@@ -86,39 +86,45 @@ function analyseCrash {
     cp /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
 }
 
-function isKilled {
-    echo $(grep -m1 -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
-}
-
 function isCrash {
     echo $(grep -m1 -icP 'SIGABRT|SIGSEGV|ERROR: AddressSanitizer' /tmp/backtrace.log)
 }
 
 function isShutdown {
-    if [ $? -eq 0 -o $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log) -eq 1 ]; then
+    exit_code=$1
+
+    if [ $exit_code -eq 0 -o $(grep -m1 -ic 'exited with code 02' /tmp/backtrace.log) -eq 1 ]; then
         echo 1
+    else
+        echo 0
     fi
-    echo 0
 }
 
 function isReboot {
-    if [ $? -eq 2 -o $(grep -m1 -ic 'exited normally' /tmp/backtrace.log) -eq 1 ]; then
+    exit_code=$1
+
+    if [ $exit_code -eq 2 -o $(grep -m1 -ic 'exited normally' /tmp/backtrace.log) -eq 1 ]; then
         echo 1
+    else
+        echo 0
     fi
-    echo 0
+}
+
+function isKilled {
+    echo $(grep -m1 -icP 'SIGTERM|SIGINT' /tmp/backtrace.log)
 }
 
 ###### MAIN ######
 
 updateSQL
 runWorldserver
+worldserver_exit_code=$?
 
-if [ "$(isKilled)" -eq 1 ]; then # If process has been manually killed, don't do anything. Just restart quietly
-    exit 0
-elif [ "$(isCrash)" -eq 1 ]; then
+if [ "$(isCrash)" -eq 1 ]; then
     analyseCrash
-elif [ "$(isShutdown)" -eq 1 ]; then
+elif [ "$(isShutdown {$worldserver_exit_code:-1})" -eq 1 ]; then
     sendToSlack "_ $REALM_NAME _ has been shut down." "good"
-elif [ "$(isReboot)" -eq 1 ]; then
+elif [ "$(isReboot {$worldserver_exit_code:-1})" -eq 1 ]; then
     sendToSlack "_ $REALM_NAME _ has been rebooted." "good"
-fi
+elif [ "$(isKilled {$worldserver_exit_code:-1})" -eq 1 ]; then
+    sendToSlack "_ $REALM_NAME _ has been killed." "danger"
