@@ -11,6 +11,7 @@ build:
   before_build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
+      - echo $COMMIT
       - mkdir build
       - mkdir dist/bin dist/etc dist/sql dist/sql/characters dist/sql/world dist/sql/hotfix
   release_asan:
@@ -56,7 +57,7 @@ publish:
     file: dist/Dockerfile
     context: dist/
     build_args:
-      - COMMIT=$$DRONE_COMMIT
+      - COMMIT=$$COMMIT
     when:
       branch: wod_ptr
   docker:
@@ -68,7 +69,7 @@ publish:
     file: dist/Dockerfile
     context: dist/
     build_args:
-      - COMMIT=$$DRONE_COMMIT
+      - COMMIT=$$COMMIT
     when:
       branch: wod
 
