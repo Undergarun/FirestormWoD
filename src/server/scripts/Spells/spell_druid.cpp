@@ -3035,6 +3035,7 @@ class spell_dru_savage_roar: public SpellScriptLoader
             PrepareSpellScript(spell_dru_savage_roar_SpellScript);
 
             int32 m_ComboPoint = 0;
+            int32 m_OldDuration = 0;
 
             SpellCastResult CheckCast()
             {
@@ -3049,7 +3050,13 @@ class spell_dru_savage_roar: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
+                if (!l_Caster)
+                    return;
+
                 m_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+
+                if (Aura* l_SavageRoar = l_Caster->GetAura(GetSpellInfo()->Id))
+                    m_OldDuration = l_SavageRoar->GetDuration();
             }
 
 
@@ -3057,8 +3064,21 @@ class spell_dru_savage_roar: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (Aura* l_Aura = l_Caster->GetAura(GetSpellInfo()->Id))
-                    l_Aura->SetDuration(GetSpellInfo()->GetDuration() + (m_ComboPoint * 6 * IN_MILLISECONDS));
+                if (!l_Caster)
+                    return;
+                
+                int32 l_BonusDuration = m_ComboPoint * 6 * IN_MILLISECONDS;
+                int32 l_MaxDuration = GetSpellInfo()->GetMaxDuration();
+                int32 l_NewDuration = m_OldDuration + GetSpellInfo()->GetDuration() + l_BonusDuration;
+
+                if (Aura* l_SavageRoar = l_Caster->GetAura(GetSpellInfo()->Id))
+                {
+                    /// Can't be more then 130% of max duration
+                    if (l_NewDuration > l_MaxDuration)
+                        l_NewDuration = l_MaxDuration;
+
+                    l_SavageRoar->SetDuration(l_NewDuration);
+                }
             }
 
             void Register()
