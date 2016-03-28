@@ -16,4 +16,4 @@ VOLUME /usr/local/etc/firestorm /usr/local/opt/firestorm /usr/local/var/log/fire
 # Open the port use by the worldserver on the container
 EXPOSE 8085
 
-ENTRYPOINT ["run-worldserver"]
+#ENTRYPOINT ["run-worldserver"]
