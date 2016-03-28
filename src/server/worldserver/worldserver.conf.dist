@@ -2845,9 +2845,9 @@ PlayerDump.DisallowOverwrite = 1
 #
 
 Appender.Console=1,3,0
-Appender.Server=0,0,0
-Appender.GM=0,0,0
-Appender.DBErrors=0,0,0
+Appender.Server=2,2,0,Server.log,w
+Appender.GM=2,2,15,gm/gm_%s.log
+Appender.DBErrors=2,2,0,DBErrors.log,w
 Appender.Char=2,2,0,Char.log,w
 Appender.RA=2,2,0,RA.log
 Appender.Warden=2,4,0,Warden.log
@@ -2862,7 +2862,7 @@ Appender.SQLDriver=2,2,0,SQLDriver.log
 #                     (Using spaces as separator).
 #        Default:     "Console Server GM DBErrors Char RA Warden Chat"
 
-Appenders=Console Server GM DBErrors Char RA Warden Chat
+Appenders=Console Server GM DBErrors Char RA Warden Chat CharDump Arenas SQLDev SQLDriver
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -2950,7 +2950,7 @@ Logger.Opcodes=41,6,Console Server
 #                     (Using spaces as separator).
 #        Default:     "Root Chat DBErrors GM RA Warden Character Load"
 
-Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
+Loggers=Root Chat DBErrors GM RA Warden WorldServer Character Arenas SQLDriver SQLDev CharDump Load Opcodes
 
 #
 ###################################################################################################
