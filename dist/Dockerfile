@@ -5,7 +5,7 @@ RUN apt-get install -y \
     gdb \
     curl
 
-RUN echo $REALM_COMMIT
+RUN echo $COMMIT
 
 # Add compiled bins and some data into the container
 ADD bin /usr/local/bin/

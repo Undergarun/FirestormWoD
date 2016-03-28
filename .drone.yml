@@ -48,8 +48,6 @@ build:
 
 publish:
   docker:
-    environment:
-      - REALM_COMMIT=$$DRONE_COMMIT
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
@@ -57,11 +55,11 @@ publish:
     tag: latest-ptr
     file: dist/Dockerfile
     context: dist/
+    build_args:
+      - COMMIT=$$DRONE_COMMIT
     when:
       branch: wod_ptr
   docker:
-    environment:
-      - REALM_COMMIT=$$DRONE_COMMIT
     username: $$DOCKER_USER
     password: $$DOCKER_PASS
     email: $$DOCKER_EMAIL
@@ -69,6 +67,8 @@ publish:
     tag: latest
     file: dist/Dockerfile
     context: dist/
+    build_args:
+      - COMMIT=$$DRONE_COMMIT
     when:
       branch: wod
 
