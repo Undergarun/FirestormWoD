@@ -44,7 +44,7 @@ function updateSQL {
 
     if [ -f /tmp/sql-updates-errors.log ]; then
         mv /tmp/sql-updates-errors.log /usr/local/var/log/firestorm
-        sendToSlack "_ $REALM_NAME _ is starting with SQL errors in update files <$HOST_ADDR/logs_42x/$REALM_NAME/sql-updates-errors.log|Show more...>" "warning"
+        sendToSlack "_${REALM_NAME}_ is starting with SQL errors in update files <$HOST_ADDR/logs_42x/$REALM_NAME/sql-updates-errors.log|Show more...>" "warning"
     fi
 }
 
@@ -80,7 +80,7 @@ function analyseCrash {
         crash_at=$(echo $crash_location | grep -oP 'at /.*/\K(.*)')
     fi
 
-    sendToSlack "_ $REALM_NAME _ crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
+    sendToSlack "_${REALM_NAME}_ (<https://github.com/MilleniumStudio/wod/commit/$COMMIT|${COMMIT:0:7}>) crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
 
     # Only if it's a crash we made the log avalaible
     cp /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename
@@ -129,9 +129,9 @@ worldserver_exit_code=$?
 if [ "$(isCrash)" -eq 1 ]; then
     analyseCrash
 elif [ "$(isShutdown $worldserver_exit_code)" -eq 1 ]; then
-    sendToSlack "_ $REALM_NAME _ has been shut down." "good"
+    sendToSlack "_${REALM_NAME}_ has been shut down." "good"
 elif [ "$(isReboot $worldserver_exit_code)" -eq 1 ]; then
-    sendToSlack "_ $REALM_NAME _ has been rebooted." "good"
+    sendToSlack "_${REALM_NAME}_ has been rebooted." "good"
 elif [ "$(isKilled $worldserver_exit_code)" -eq 1 ]; then
-    sendToSlack "_ $REALM_NAME _ has been killed." "danger"
+    sendToSlack "_${REALM_NAME}_ has been killed." "danger"
 fi

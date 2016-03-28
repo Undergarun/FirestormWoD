@@ -2,13 +2,11 @@ FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
 ARG COMMIT
+ENV COMMIT $COMMIT
 
 RUN apt-get install -y \
     gdb \
     curl
-
-ENV COMMIT $COMMIT
-RUN echo $COMMIT
 
 # Add compiled bins and some data into the container
 ADD bin /usr/local/bin/
