@@ -21718,10 +21718,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     if ((getMSTime() - l_StartTime) > 50)
     {
-        sLog->outAshran("Player::LoadFromDB profiling =======");
+        sLog->outInfo(LOG_FILTER_PROFILING, "Player::LoadFromDB profiling =======");
         for (int32 l_I = 0; l_I < (int32)l_Times.size(); l_I++)
-            sLog->outAshran("Index [%u] : %u ms", l_I, l_Times[l_I]);
-        sLog->outAshran("====================================");
+            sLog->outInfo(LOG_FILTER_PROFILING, "Index [%u] : %u ms", l_I, l_Times[l_I]);
+        sLog->outInfo(LOG_FILTER_PROFILING, "====================================");
+
     }
 
     return true;
