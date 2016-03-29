@@ -20,6 +20,11 @@
     \ingroup world
 */
 
+// Ugly hack allowing to use a version of libcurl built by VS2013
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma comment(lib, "legacy_stdio_definitions.lib")
+#endif
+
 #include "AnticheatMgr.h"
 #include "Common.h"
 #include "Memory.h"
