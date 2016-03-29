@@ -4582,6 +4582,42 @@ public:
     }
 };
 
+/// Sargerei Disguise - 119134, Called by: 176567
+class spell_item_sargerei_disguise : public SpellScriptLoader
+{
+public:
+    spell_item_sargerei_disguise() : SpellScriptLoader("spell_item_sargerei_disguise") { }
+
+    class spell_item_sargerei_disguise_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_sargerei_disguise_SpellScript);
+
+        enum eSpells
+        {
+            SargereiDisguise = 176568
+        };
+
+        void AfterCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(l_Caster, eSpells::SargereiDisguise, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_sargerei_disguise_SpellScript::AfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_sargerei_disguise_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4674,4 +4710,5 @@ void AddSC_item_spell_scripts()
     new spell_item_faded_wizard_hat();
     new spell_item_reflecting_prism();
     new spell_item_ascend_to_karabor();
+    new spell_item_sargerei_disguise();
 }
