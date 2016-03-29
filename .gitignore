@@ -187,4 +187,4 @@ cmake_install.cmake
 install_manifest.txt
 
 # Lib curl
-/dep/curl/libcurl*
+/dep/curl/lib/libcurl*
