@@ -397,7 +397,7 @@ class ByteBuffer
             l_Time.tm_mon = (l_Date >> 20) & 0xF;
             l_Time.tm_year = ((l_Date >> 24) & 0x1F) + 100;
 
-            return uint32(mktime(&l_Time) + timezone);
+            return uint32(mktime(&l_Time) + _timezone);
         }
 
         ByteBuffer& ReadPackedTime(uint32& p_Time)
