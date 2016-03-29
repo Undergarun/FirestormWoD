@@ -24914,6 +24914,12 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 
     for (Player* l_Target : l_PlayerList)
     {
+        if (PlayerSocial* l_Social = l_Target->GetSocial())
+        {
+            if (l_Social->HasIgnore(GUID_LOPART(GetGUID())))
+                continue;
+        }
+
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
