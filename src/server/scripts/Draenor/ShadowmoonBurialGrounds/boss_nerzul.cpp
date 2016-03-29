@@ -3,7 +3,7 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "shadowmoon_burial_grounds.hpp"
@@ -26,7 +26,7 @@ enum eNerzulCreatures
 {
     CreatureOmenOfDeath                  = 76462,
     CreatureRitualOfBones                = 76518,
-    CreatureRitualOfBonesDarknessTrigger = 534556,
+    CreatureRitualOfBonesDarknessTrigger = 534556
 };
 
 enum eNerzulActions
@@ -49,6 +49,12 @@ Position const g_PositionRituaOfSoulInitialLeft      = { 1718.061f, -860.241,  7
 Position const g_PositionShadowLandPortal            = { 1727.250f, -810.651f, 73.806f, 3.561160f};
 
 Position const g_PositionPortalFall					 = {1688.65f, -846.008f, 101.105f, 0.768471f};
+
+Position const g_PositionVoidSpawns[2]               =
+{
+    {1758.760f, -736.028f, 234.828f, 1.251060f},
+    {1738.349f, -726.317f, 234.828f, 1.092460f}
+};
 
 /// Nerz'ul - 76407
 class boss_nerzul : public CreatureScript
@@ -992,33 +998,61 @@ public:
     }
 };
 
-/// Enter the Shadowlands - 239083
-class shadowmoon_burial_grounds_gameobject_enter_the_shadowlands : public GameObjectScript
+/// Nerzul door - 233920
+class shadowmoon_burial_grounds_gameobject_nerzul_door : public GameObjectScript
 {
 public:
-    shadowmoon_burial_grounds_gameobject_enter_the_shadowlands() : GameObjectScript("shadowmoon_burial_grounds_gameobject_enter_the_shadowlands") {}
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    shadowmoon_burial_grounds_gameobject_nerzul_door() : GameObjectScript("shadowmoon_burial_grounds_gameobject_nerzul_door") { }
+
+    struct shadowmoon_burial_grounds_gameobject_nerzul_doorAI : public GameObjectAI
     {
-        if (InstanceScript* l_Instance = p_Player->GetInstanceScript())
+        shadowmoon_burial_grounds_gameobject_nerzul_doorAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject) { }
+
+        bool m_Activated;
+        std::list<uint64> m_ListVoidSpawnsGuid;     
+
+        void Reset() override
         {
-            if (Creature* l_Nerzul = l_Instance->instance->GetCreature(l_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNerzul)))
+            m_Activated = false;
+            for (uint8 l_I = 0; l_I < 2; l_I++)
             {
-                if (l_Nerzul->IsAIEnabled)
+                if (Creature* l_Creature = go->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureVoidSpawn, g_PositionVoidSpawns[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                    m_ListVoidSpawnsGuid.push_back(l_Creature->GetGUID());
+            }
+        }
+
+        void UpdateAI(uint32 p_Diff) override
+        {
+            if (!m_ListVoidSpawnsGuid.empty())
+            {
+                for (uint64 l_Itr : m_ListVoidSpawnsGuid)
                 {
-                    if (boss_nerzul::boss_nerzulAI* l_LinkAI = CAST_AI(boss_nerzul::boss_nerzulAI, l_Nerzul->GetAI()))
+                    if (Creature* l_Creature = Creature::GetCreature(*go, l_Itr))
                     {
-                        if (l_LinkAI->m_PrePortalKillingCount >= 2)
-                        {
-                            p_Player->NearTeleportTo(g_PositionNerzulHome.GetPositionX(), g_PositionNerzulHome.GetPositionY(), g_PositionNerzulHome.GetPositionZ(), g_PositionNerzulHome.GetOrientation(), true);
-                            return true;
-                        }
+                        if (l_Creature->isDead())
+                            m_ListVoidSpawnsGuid.remove(l_Itr);
                     }
                 }
             }
+            else
+            {
+                if (!m_Activated)
+                {
+                    m_Activated = true;
+                    go->SetLootState(LootState::GO_READY);
+                    go->UseDoorOrButton();
+                }
+            }
         }
+    };
+
+    GameObjectAI* GetAI(GameObject* p_GameObject) const override
+    {
+        return new shadowmoon_burial_grounds_gameobject_nerzul_doorAI(p_GameObject);
     }
 };
+
 
 void AddSC_boss_nerzul()
 {
@@ -1032,5 +1066,5 @@ void AddSC_boss_nerzul()
 	new shadowmoon_burial_grounds_nerzul_spell_maleovlence();				    ///< 154442 
     new shadowmoon_burial_grounds_nerzul_spell_omen_of_death_damage();          ///< 154353
     new shadowmoon_burial_grounds_nerzul_spell_purple_beam();                   ///< 179655 
-    new shadowmoon_burial_grounds_gameobject_enter_the_shadowlands();           ///< 239083
+    new shadowmoon_burial_grounds_gameobject_nerzul_door();                     ///< 233920
 }
