@@ -4366,6 +4366,41 @@ class spell_item_curious_bronze_timepiece_horde : public SpellScriptLoader
         }
 };
 
+/// Bladespire Relic - 118662, Called by: 175604
+class spell_item_ascend_to_bladespire : public SpellScriptLoader
+{
+public:
+    spell_item_ascend_to_bladespire() : SpellScriptLoader("spell_item_ascend_to_bladespire") { }
+
+    class spell_item_ascend_to_bladespire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_ascend_to_bladespire_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(1116, 6802.729004f, 5861.151855f, 258.688385f, 5.067857f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_ascend_to_bladespire_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_ascend_to_bladespire_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4454,4 +4489,5 @@ void AddSC_item_spell_scripts()
     new spell_item_celestial_defender();
     new spell_item_curious_bronze_timepiece_alliance();
     new spell_item_curious_bronze_timepiece_horde();
+    new spell_item_ascend_to_bladespire();
 }
