@@ -49,9 +49,9 @@ namespace MS { namespace Garrison
             {
                 for (uint32 l_I = 0; l_I < sGarrFollowerLevelXPStore.GetNumRows(); ++l_I)
                 {
-                    const GarrFollowerLevelXPEntry * l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
+                    const GarrFollowerLevelXPEntry* l_CurrentLevelData = sGarrFollowerLevelXPStore.LookupEntry(l_I);
 
-                    if (l_CurrentLevelData && l_CurrentLevelData->Level == Level)
+                    if (l_CurrentLevelData && l_CurrentLevelData->Level == Level) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'const int32' (aka 'const int')
                     {
                         return l_CurrentLevelData->RequiredExperience;
                     }
@@ -195,7 +195,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Write follower into a packet
-    void GarrisonFollower::Write(ByteBuffer & p_Buffer) const
+    void GarrisonFollower::Write(ByteBuffer& p_Buffer) const
     {
         p_Buffer << uint64(this->DatabaseID);
         p_Buffer << uint32(this->FollowerID);

@@ -983,13 +983,13 @@ class spell_static_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_static_burst_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr aurEff)
+            void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (Unit* target = GetTarget())
                 {
                     if (Unit* caster = GetCaster())
                     {
-                        if (AuraPtr staticWound = caster->AddAura(SPELL_STATIC_WOUND, target))
+                        if (Aura* staticWound = caster->AddAura(SPELL_STATIC_WOUND, target))
                             staticWound->ModStackAmount(9);
                     }
                 }
@@ -1017,13 +1017,13 @@ class spell_static_wound: public SpellScriptLoader
         {
             PrepareAuraScript(spell_static_wound_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr aurEff)
+            void OnPeriodic(AuraEffect const* aurEff)
             {
-                if (AuraPtr staticWound = aurEff->GetBase())
+                if (Aura* staticWound = aurEff->GetBase())
                     staticWound->ModStackAmount(-1);
             }
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1134,7 +1134,7 @@ class spell_focused_lightning_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_focused_lightning_periodic_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr aurEff)
+            void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_FOCUSED_LIGHTNING_AREA, true);
@@ -1142,7 +1142,7 @@ class spell_focused_lightning_periodic: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_focused_lightning_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_focused_lightning_periodic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
             }
         };
 
@@ -1276,7 +1276,7 @@ class spell_lightning_storm_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_lightning_storm_periodic_AuraScript);
 
-            void OnPeriodic(constAuraEffectPtr aurEff)
+            void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1332,7 +1332,7 @@ class spell_ionization: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -1345,7 +1345,7 @@ class spell_ionization: public SpellScriptLoader
         {
             PrepareAuraScript(spell_ionization_AuraScript);
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1402,7 +1402,19 @@ class spell_ionization_conduction: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                switch (m_scriptSpellId)
+                {
+                case 138743:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                    break;
+                case 138133:
+                case 137530:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                    break;
+                default:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ionization_conduction_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+                    break;
+                }
             }
         };
 

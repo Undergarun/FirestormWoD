@@ -602,16 +602,16 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (p_Guid != 0 && p_Guid < sObjectMgr->_hiCharGuid.value())
+    if (p_Guid != 0 && p_Guid < sObjectMgr->_hiCharGuid)
     {
         result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%u'", p_Guid);
         if (result)
-            p_Guid = sObjectMgr->_hiCharGuid.value(); // use first free if exists
+            p_Guid = sObjectMgr->_hiCharGuid; // use first free if exists
         else
             incHighest = false;
     }
     else
-        p_Guid = sObjectMgr->_hiCharGuid.value();
+        p_Guid = sObjectMgr->_hiCharGuid;
 
     // name encoded or empty
 
@@ -1008,12 +1008,17 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                         ROLLBACK(DUMP_FILE_BROKEN);
                     }
 
+                    l_Index = GetFieldIndexFromColumn("itemEntry", l_Columns) + 1;
+                    uint32 l_ItemEntry = atoi(getnth(l_Line, l_Index).c_str());
+
+                    // Delete Sapphire/Jade/Sunstone/Ruby Panther
+                    if (l_ItemEntry == 83090 || l_ItemEntry == 83088 || l_ItemEntry == 83089 || l_ItemEntry == 83087)
+                        l_AllowedAppend = false;
+
                     uint32 flags = atoi(l_Line.substr(s, e - s).c_str());
+
                     if (!(flags & 1))
                     {
-                        l_Index = GetFieldIndexFromColumn("itemEntry", l_Columns) + 1;
-                        uint32 l_ItemEntry = atoi(getnth(l_Line, l_Index).c_str());
-
                         /// Don't delete sac even if they aren't bounded, cause items can be inside
                         ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(l_ItemEntry);
                         if (l_Item && l_Item->InventoryType != INVTYPE_BAG)

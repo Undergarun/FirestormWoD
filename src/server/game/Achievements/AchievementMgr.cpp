@@ -16,14 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DBCEnums.h"
 #include "DBCStructure.h"
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "DatabaseEnv.h"
 #include "AchievementMgr.h"
 #include "Arena.h"
 #include "CellImpl.h"
@@ -42,7 +39,6 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "Chat.h"
-#include "MapUpdater.h"
 #include "WowTime.hpp"
 
 namespace JadeCore
@@ -277,7 +273,7 @@ bool AchievementCriteriaData::IsValid(CriteriaEntry const* p_Criteria)
     }
 }
 
-bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint32 p_MiscValue1 /*= 0*/) const
+bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue1 /*= 0*/) const
 {
     switch (dataType)
     {
@@ -390,7 +386,7 @@ bool AchievementCriteriaData::Meets(uint32 p_CriteriaID, Player const* p_Source,
     return false;
 }
 
-bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Target, uint32 p_MiscValue /*= 0*/) const
+bool AchievementCriteriaDataSet::Meets(Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue /*= 0*/) const
 {
     for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
         if (!itr->Meets(criteria_id, p_Source, p_Target, p_MiscValue))
@@ -864,16 +860,25 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             ca.date = time_t(fields[2].GetUInt32());
             ca.changed = false;
             ca.first_guid = MAKE_NEW_GUID(first_guid, 0, HIGHGUID_PLAYER);
-            ca.completedByThisCharacter = false;
+            ca.completedByThisCharacter = first_guid == GetOwner()->GetGUIDLow();
             m_CompletedAchievementsLock.release();
 
             _achievementPoints += achievement->Points;
 
+            bool l_CanAddTitle = achievement->Flags & AchievementFlags::ACHIEVEMENT_FLAG_ACCOUNT || GetOwner()->GetGUIDLow() == first_guid;
+
             // Title achievement rewards are retroactive
-            if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
-                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
-                        GetOwner()->SetTitle(titleEntry);
+            if (l_CanAddTitle)
+            {
+                if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
+                {
+                    if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                    {
+                        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                            GetOwner()->SetTitle(titleEntry);
+                    }
+                }
+            }
 
         }
         while (achievementAccountResult->NextRow());
@@ -945,6 +950,15 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             
             m_CompletedAchievementsLock.release();
             _achievementPoints += achievement->Points;
+
+            if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
+            {
+                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                {
+                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                        GetOwner()->SetTitle(titleEntry);
+                }
+            }
 
         }
         while (achievementResult->NextRow());
@@ -2851,9 +2865,6 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         {
-            if (!p_ReferencePlayer || !p_Unit)
-                return false;
-
             // if miscValues != 0, it contains the questID.
             if (p_MiscValue1)
             {
@@ -2868,8 +2879,11 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
             }
 
             if (AchievementCriteriaDataSet const* l_Data = sAchievementMgr->GetCriteriaDataSet(p_Criteria))
-                if (!l_Data->Meets(p_ReferencePlayer, p_Unit))
+            {
+                if (p_Unit && !l_Data->Meets(p_ReferencePlayer, p_Unit))
                     return false;
+            }
+
             break;
         }
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:

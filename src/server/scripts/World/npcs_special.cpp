@@ -60,6 +60,7 @@ EndContentData */
 #include "Vehicle.h"
 #include "Player.h"
 #include "SpellScript.h"
+#include "Chat.h"
 
 /*########
 # npc_air_force_bots
@@ -216,7 +217,7 @@ class npc_air_force_bots : public CreatureScript
                             if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                                 return;
 
-                            AuraPtr markAura = who->GetAura(SPELL_GUARDS_MARK);
+                            Aura* markAura = who->GetAura(SPELL_GUARDS_MARK);
                             if (markAura)
                             {
                                 // the target wasn't able to move out of our range within 25 seconds
@@ -1344,8 +1345,8 @@ class npc_rogue_trainer : public CreatureScript
 
                             // Cast spells that teach dual spec
                             // Both are also ImplicitTarget self and must be cast by player
-                            player->CastSpell(player, 63680, true, NULL, NULLAURA_EFFECT, player->GetGUID());
-                            player->CastSpell(player, 63624, true, NULL, NULLAURA_EFFECT, player->GetGUID());
+                            player->CastSpell(player, 63680, true, NULL, nullptr, player->GetGUID());
+                            player->CastSpell(player, 63624, true, NULL, nullptr, player->GetGUID());
 
                             // Should show another Gossip text with "Congratulations..."
                             player->PlayerTalkClass->SendCloseGossip();
@@ -1712,7 +1713,8 @@ class npc_snake_trap : public CreatureScript
                             else
                                 spell = SPELL_CRIPPLING_POISON;
 
-                            DoCast(me->getVictim(), spell);
+                            if (!me->getVictim()->HasAura(spell))
+                                DoCast(me->getVictim(), spell);
                         }
 
                         SpellTimer = VIPER_TIMER;
@@ -1720,7 +1722,10 @@ class npc_snake_trap : public CreatureScript
                     else //Venomous Snake
                     {
                         if (urand(0, 2) == 0) //33% chance to cast
-                            DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        {
+                            if (!me->getVictim()->HasAura(SPELL_DEADLY_POISON))
+                                DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        }
                         SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                     }
                 }
@@ -2168,7 +2173,7 @@ class npc_lightwell : public CreatureScript
                 me->SetMaxHealth(p_Owner->GetMaxHealth());
                 me->SetHealth(p_Owner->GetHealth());
 
-                if (AuraPtr l_Charges = me->AddAura(eSpells::ChargeAura, me))
+                if (Aura* l_Charges = me->AddAura(eSpells::ChargeAura, me))
                 {
                     l_Charges->SetCharges(15);
                     l_Charges->GetEffect(EFFECT_0)->ChangeAmount(15);
@@ -2222,7 +2227,7 @@ class npc_lightwell : public CreatureScript
                                 for (auto itr : l_TempList)
                                 {
                                     me->CastSpell(itr, eSpells::LightWellHeal, true);
-                                    if (AuraPtr l_Charges = me->GetAura(eSpells::ChargeAura))
+                                    if (Aura* l_Charges = me->GetAura(eSpells::ChargeAura))
                                     {
                                         l_Charges->DropCharge();
                                         l_Charges->GetEffect(0)->ChangeAmount(l_Charges->GetCharges());
@@ -3583,7 +3588,7 @@ class npc_bloodworm : public CreatureScript
 
             void Burst()
             {
-                if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                 {
                     uint32 stacks = std::min<uint32>(bloodGorged->GetStackAmount(), 10);
                     int32 damage = stacks *  10;
@@ -3616,7 +3621,7 @@ class npc_bloodworm : public CreatureScript
                 {
                     if (me->GetOwner())
                     {
-                        if (AuraPtr bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
+                        if (Aura* bloodGorged = me->GetAura(BLOODWORM_BLOOD_STACKS))
                         {
                             // 10% per stack
                             int32 stacks = bloodGorged->GetStackAmount() * 10;
@@ -4701,6 +4706,166 @@ class npc_xuen_the_white_tiger : public CreatureScript
         }
 };
 
+/// Frozen Trail Packer - 64227
+class npc_frozen_trail_packer : public CreatureScript
+{
+    public:
+        npc_frozen_trail_packer() : CreatureScript("npc_frozen_trail_packer") { }
+
+        struct npc_frozen_trail_packerAI : public ScriptedAI
+        {
+            npc_frozen_trail_packerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            {
+                if (p_Player->AddItem(86125, 1)) ///< Kafa Press
+                    me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_frozen_trail_packerAI(p_Creature);
+        }
+};
+
+/////////////////////////////////////////////////////////////
+/// Ethereal Soul-Trader - 27914
+class npc_ethereal_soul_trader : public CreatureScript
+{
+    public:
+        npc_ethereal_soul_trader() : CreatureScript("npc_ethereal_soul_trader") { }
+
+        struct npc_ethereal_soul_traderAI : public PassiveAI
+        {
+            npc_ethereal_soul_traderAI(Creature* p_Creature) : PassiveAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EtherealPetAura                 = 50051,
+                EtherealPetOnKillStealEssence   = 50101
+            };
+
+            std::queue<uint64> m_PendingTargets;
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveFollow(p_Owner, PET_FOLLOW_DIST, (3 * M_PI) / 2);
+
+                p_Owner->CastSpell(p_Owner, eSpells::EtherealPetAura, true);
+            }
+
+            void JustDespawned() override
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                    l_Owner->RemoveAura(eSpells::EtherealPetAura);
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            {
+                m_PendingTargets.push(p_Guid);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_PendingTargets.empty())
+                    return;
+
+                if (uint64 l_Guid = m_PendingTargets.front())
+                {
+                    m_PendingTargets.pop();
+
+                    if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                        me->CastSpell(l_Target, eSpells::EtherealPetOnKillStealEssence, false);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ethereal_soul_traderAI(p_Creature);
+        }
+};
+
+/// Ethereal Pet Aura - 50051
+class spell_ethereal_pet_aura : public SpellScriptLoader
+{
+    public:
+        spell_ethereal_pet_aura() : SpellScriptLoader("spell_ethereal_pet_aura") { }
+
+        class spell_ethereal_pet_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ethereal_pet_aura_AuraScript);
+
+            enum eDatas
+            {
+                EtherealSoulTrader = 27914
+            };
+
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (!GetTarget() || !p_EventInfo.GetActionTarget() || !GetTarget()->IsPlayer())
+                    return;
+
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                Creature* l_BattlePet = l_Player->GetSummonedBattlePet();
+                if (l_BattlePet == nullptr || l_BattlePet->GetEntry() != eDatas::EtherealSoulTrader)
+                    return;
+
+                if (l_BattlePet->IsAIEnabled)
+                    l_BattlePet->AI()->SetGUID(p_EventInfo.GetActionTarget()->GetGUID(), 0);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_ethereal_pet_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ethereal_pet_aura_AuraScript();
+        }
+};
+
+/// Ethereal Pet OnKill Steal Essence - 50101
+class spell_ethereal_pet_onkill_steal_essence : public SpellScriptLoader
+{
+    public:
+        spell_ethereal_pet_onkill_steal_essence() : SpellScriptLoader("spell_ethereal_pet_onkill_steal_essence") { }
+
+        class spell_ethereal_pet_onkill_steal_essence_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ethereal_pet_onkill_steal_essence_AuraScript);
+
+            enum eData
+            {
+                EtherealPetOnKillGiveToken = 50063
+            };
+
+            void HandleRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eData::EtherealPetOnKillGiveToken, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ethereal_pet_onkill_steal_essence_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ethereal_pet_onkill_steal_essence_AuraScript();
+        }
+};
+/////////////////////////////////////////////////////////////
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4753,4 +4918,12 @@ void AddSC_npcs_special()
     new npc_training_dummy_tanking();
     new npc_consecration();
     new npc_xuen_the_white_tiger();
+    new npc_frozen_trail_packer();
+
+    /////////////////////////////////////////////////////////////
+    /// Ethereal Soul-Trader
+    new npc_ethereal_soul_trader();
+    new spell_ethereal_pet_aura();
+    new spell_ethereal_pet_onkill_steal_essence();
+    /////////////////////////////////////////////////////////////
 }

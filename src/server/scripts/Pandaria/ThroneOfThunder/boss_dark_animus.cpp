@@ -1813,7 +1813,7 @@ class spell_crimson_wake_slow : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crimson_wake_slow_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_CRIMSON_WAKE_MEDIUM, true);
@@ -1841,7 +1841,7 @@ class spell_crimson_wake_medium : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crimson_wake_medium_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_CRIMSON_WAKE_FAST, true);
@@ -1859,7 +1859,7 @@ class spell_crimson_wake_medium : public SpellScriptLoader
         }
 };
 
-// Fixated - 138486
+/// Fixated - 138486
 class spell_fixated : public SpellScriptLoader
 {
     public:
@@ -1869,7 +1869,7 @@ class spell_fixated : public SpellScriptLoader
         {
             PrepareAuraScript(spell_fixated_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->ToCreature()->DespawnOrUnsummon();
@@ -1925,11 +1925,11 @@ class spell_matter_swap : public SpellScriptLoader
         {
             PrepareAuraScript(spell_matter_swap_AuraScript);
 
-            void HandleEffectUpdate(uint32 p_Diff, AuraEffectPtr p_AurEff)
+            void HandleEffectUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
             {
-                if (AuraPtr l_MatterSwap = p_AurEff->GetBase())
+                if (Aura* l_MatterSwap = p_AurEff->GetBase())
                 {
-                    if (AuraEffectPtr l_Effect0 = l_MatterSwap->GetEffect(EFFECT_0))
+                    if (AuraEffect* l_Effect0 = l_MatterSwap->GetEffect(EFFECT_0))
                     {
                         if (Unit* l_Target = GetUnitOwner())
                         {
@@ -1979,7 +1979,7 @@ class spell_matter_swap : public SpellScriptLoader
                             if (!p_Player || !p_Player->HasAura(SPELL_TARGETED_MATTER_SWAP))
                                 return true;
 
-                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_CasterGuid) == NULLAURA)
+                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_CasterGuid) == nullptr)
                                 return true;
 
                             return false;
@@ -2009,7 +2009,7 @@ class spell_matter_swap : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
@@ -2031,7 +2031,7 @@ class spell_matter_swap : public SpellScriptLoader
                             if (!p_Player || !p_Player->HasAura(SPELL_TARGETED_MATTER_SWAP))
                                 return true;
 
-                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_CasterGuid) == NULLAURA)
+                            if (p_Player->GetAura(SPELL_TARGETED_MATTER_SWAP, l_CasterGuid) == nullptr)
                                 return true;
 
                             return false;
@@ -2133,7 +2133,7 @@ class spell_anima_ring : public SpellScriptLoader
                         float l_X = l_Target->GetPositionX() + ((6.f) * cos(m_Angle));
                         float l_Y = l_Target->GetPositionY() + ((6.f) * sin(m_Angle));
 
-                        l_Target->CastSpell(l_X, l_Y, l_Target->GetPositionZ(), g_AnimaRingSpells[p_EffIndex], true, NULL, NULLAURA_EFFECT, l_Caster->GetGUID());
+                        l_Target->CastSpell(l_X, l_Y, l_Target->GetPositionZ(), g_AnimaRingSpells[p_EffIndex], true, NULL, nullptr, l_Caster->GetGUID());
 
                         m_Angle += (M_PI * 2.f) / 12.f;
                     }
@@ -2173,7 +2173,7 @@ class spell_activation_sequence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_activation_sequence_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Creature* l_DarkAnimus = GetTarget()->ToCreature())
                     l_DarkAnimus->AI()->DoAction(ACTION_ACTIVATE_GOLEM);

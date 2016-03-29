@@ -82,6 +82,10 @@ enum eFoundryCreatures
     /// Iron Assembly - Part 3
     /// Beastlord Darmac
     BossBeastlordDarmac     = 76865,
+    BossCruelfang           = 76884,
+    BossDreadwing           = 76874,
+    BossIroncrusher         = 76945,
+    ThunderlordPackPens     = 77631,
     /// Operator Thogar
     BossOperatorThogar      = 76906,
     /// Iron Maidens
@@ -105,7 +109,9 @@ enum eFoundryGameObjects
     CrucibleRight               = 233839,
     FurnaceGate                 = 227423,
     /// The Black Forge - Part 2
-    BlackForgePortcullis        = 238836,
+    BlackForgeEntrance          = 238836,
+    BlackForgePortcullis        = 236847,
+    BlackForgeGate              = 237306,
     VolatileBlackrockOre        = 237308,
     HansgarAndFranzokEntrance   = 229318,
     HansgarAndFranzokExit       = 229319,
@@ -140,8 +146,14 @@ enum eFoundryGameObjects
     ConveyorBelt009             = 236843,
     ConveyorBelt010             = 236844,
     FirewallDoor                = 236845,
+    BurningFrontDoor            = 236842,
+    KromogsDoorSouth            = 236839,
+    KromogsDoorEast             = 236840,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
+    TheBeastGate                = 231841,
+    BeastsEnclosureDoor         = 232021,
+    TerminusDoor                = 237307,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
     CrucibleDoor                = 233006
@@ -165,6 +177,9 @@ enum eFoundryDatas
     /// Other boss datas
     DataForemanFeldspar     = eFoundryDatas::MaxBossData,
 
+    /// Some define datas
+    FriendlyFaction         = 35,
+
     /// Misc
     PristineTrueIronOres    = 0,
     VolatileOreGrinded,
@@ -172,6 +187,8 @@ enum eFoundryDatas
     PlayerStamped,
     IronTaskmasterAggro,
     AknorDied,
+    GraspingEarthTime,
+    DarmacBeastMountedFirst,
 
     /// Counters
     /// Gruul
@@ -183,7 +200,13 @@ enum eFoundryDatas
     MaxOregorgerCollisions  = 8,
     MaxOregorgerPaths       = 12,
     /// Blast Furnace
-    MaxPrimalElementalists  = 4
+    MaxPrimalElementalists  = 4,
+    /// Kromog
+    MaxReverberationSpawns  = 15,
+    /// Beastlord Darmac
+    DataDreadwingFirst      = 1,
+    DataIronCrusherFirst    = 2,
+    DataCruelfangFirst      = 3
 };
 
 enum eFoundrySpells
@@ -198,7 +221,21 @@ enum eFoundryAchievements
     HeShootsHeOres          = 8979,
     YaWeveGotTime           = 8930,
     StampStampRevolution    = 8980,
-    TheSteelHasBeenBrought  = 8929
+    TheSteelHasBeenBrought  = 8929,
+    WouldYouGiveMeAHand     = 8983,
+    FainWouldLieDown        = 8981
+};
+
+enum eFoundryCriterias
+{
+    DreadwingMountedFirst   = 24675,
+    IroncrusherMountedFirst = 24676,
+    CruelfangMountedFirst   = 24677
+};
+
+enum eFoundryWorldState
+{
+    WorldStateDarmacAchievement = 9127
 };
 
 enum eFoundryVisuals
@@ -208,6 +245,14 @@ enum eFoundryVisuals
     ConveyorsStop   = 7336,
     ConveyorsStart2 = 6975,
     ConveyorsStart3 = 6974
+};
+
+enum eFoundryDungeons
+{
+    Slagworks           = 847,
+    BlackForge          = 846,
+    IronAssembly        = 848,
+    BlackhandsCrucible  = 823
 };
 
 #endif

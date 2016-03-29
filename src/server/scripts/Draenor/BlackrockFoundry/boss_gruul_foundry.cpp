@@ -50,14 +50,14 @@ class boss_gruul_foundry : public CreatureScript
             EventCaveIn,
             EventPetrifyingSlam,
             EventOverheadSmash,
-            EventDestructiveRampage,
-            EventBerserker
+            EventDestructiveRampage
         };
 
         enum eCosmeticEvents
         {
             CosmeticEventOverheadSmash = 1,
-            CosmeticEventEndOfDestructiveRampage
+            CosmeticEventEndOfDestructiveRampage,
+            CosmeticEventBerserker
         };
 
         enum eActions
@@ -202,7 +202,8 @@ class boss_gruul_foundry : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventPetrifyingSlam, 22 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 44 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDestructiveRampage, 100 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, (IsMythic() || IsHeroic()) ? 360 * TimeConstants::IN_MILLISECONDS : 480 * TimeConstants::IN_MILLISECONDS);
+
+                m_Events.ScheduleEvent(eCosmeticEvents::CosmeticEventBerserker, (IsMythic() || IsHeroic()) ? 360 * TimeConstants::IN_MILLISECONDS : 480 * TimeConstants::IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -289,6 +290,9 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     me->AttackStop();
 
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                    me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
+
                     m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventOverheadSmash, 2 * TimeConstants::IN_MILLISECONDS);
                 }
             }
@@ -299,29 +303,23 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     case eSpells::InfernoSlice:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::InfernoStrike, true);
-
+                        DoCastVictim(eSpells::InfernoStrike, true);
                         break;
                     }
                     case eSpells::OverheadSmash:
                     {
-                        AddTimedDelayedOperation(50, [this]() -> void
+                        if (!me->HasAura(eSpells::SpellDestructiveRampage))
                         {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
-                            if (!me->HasAura(eSpells::SpellDestructiveRampage))
+                            AddTimedDelayedOperation(50, [this]() -> void
                             {
-                                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                {
-                                    AttackStart(l_Target);
-
-                                    me->GetMotionMaster()->Clear();
-                                    me->GetMotionMaster()->MoveChase(l_Target);
-                                }
-                            }
-                        });
+                                if (Unit* l_Target = me->getVictim())
+                                    me->SetFacingTo(me->GetAngle(l_Target));
+                            });
+                        }
 
                         me->CastSpell(me, eSpells::OverheadSmashAoE, true);
                         break;
@@ -363,6 +361,12 @@ class boss_gruul_foundry : public CreatureScript
                 p_Value = 0;
             }
 
+            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask p_SchoolMask, SpellInfo const* p_SpellInfo) override
+            {
+                if (me->HasAura(eSpells::SpellDestructiveRampage))
+                    p_Threat = 0;
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
@@ -373,11 +377,11 @@ class boss_gruul_foundry : public CreatureScript
                 {
                     case eCosmeticEvents::CosmeticEventOverheadSmash:
                     {
-                        float l_O = frand(0, 2 * M_PI);
+                        me->SetFacingTo(frand(0, 2 * M_PI));
 
-                        me->SetFacingTo(l_O);
                         me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                         AddTimedDelayedOperation(50, [this]() -> void
                         {
@@ -392,6 +396,12 @@ class boss_gruul_foundry : public CreatureScript
                         Talk(eTalks::DestructiveRampageEnd, me->GetGUID());
 
                         me->RemoveAura(eSpells::SpellDestructiveRampage);
+
+                        me->CastSpell(me, eSpells::RageRegenerationAura, true);
+
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
 
                         if (Spell* l_CurrentSpell = me->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL))
                         {
@@ -418,6 +428,12 @@ class boss_gruul_foundry : public CreatureScript
                         }
 
                         m_CosmeticEvents.Reset();
+                        break;
+                    }
+                    case eCosmeticEvents::CosmeticEventBerserker:
+                    {
+                        me->CastSpell(me, eFoundrySpells::Berserker, true);
+                        Talk(eTalks::Berserk);
                         break;
                     }
                     default:
@@ -449,9 +465,7 @@ class boss_gruul_foundry : public CreatureScript
                     }
                     case eEvents::EventCaveIn:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f))
-                            me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectRangedTarget())
                             me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
 
                         m_Events.ScheduleEvent(eEvents::EventCaveIn, 30 * TimeConstants::IN_MILLISECONDS);
@@ -482,11 +496,11 @@ class boss_gruul_foundry : public CreatureScript
 
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
-                            float l_O = me->GetAngle(l_Target);
+                            me->SetFacingTo(me->GetAngle(l_Target));
 
-                            me->SetFacingTo(l_O);
                             me->SetReactState(ReactStates::REACT_PASSIVE);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                            me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                             AddTimedDelayedOperation(50, [this]() -> void
                             {
@@ -504,11 +518,15 @@ class boss_gruul_foundry : public CreatureScript
                         Talk(eTalks::DestructiveRampage);
                         Talk(eTalks::DestructiveRampageStart, me->GetGUID());
 
+                        me->RemoveAura(eSpells::RageRegenerationAura);
+
                         me->CastSpell(me, eSpells::SpellDestructiveRampage, true);
 
                         AddTimedDelayedOperation(100, [this]() -> void
                         {
                             me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                            DoResetThreat();
 
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MovePoint(eSpells::SpellDestructiveRampage, g_CenterPos);
@@ -516,12 +534,6 @@ class boss_gruul_foundry : public CreatureScript
 
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventEndOfDestructiveRampage, 30 * TimeConstants::IN_MILLISECONDS);
                         m_Events.ScheduleEvent(eEvents::EventDestructiveRampage, 110 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    }
-                    case eEvents::EventBerserker:
-                    {
-                        me->CastSpell(me, eFoundrySpells::Berserker, true);
-                        Talk(eTalks::Berserk);
                         break;
                     }
                     default:
@@ -641,7 +653,7 @@ class spell_foundry_rage_regeneration : public SpellScriptLoader
                 ActionInfernoSlice
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -815,7 +827,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -901,7 +913,7 @@ class spell_foundry_petrifying_slam : public SpellScriptLoader
                 PetrifyStacks = 155330
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
                 {

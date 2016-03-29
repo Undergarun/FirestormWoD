@@ -1614,7 +1614,7 @@ public:
     {
         PrepareAuraScript(auchindon_auras);
 
-        void HandlePeriodic(constAuraEffectPtr p_AurEff)
+        void HandlePeriodic(AuraEffect const* p_AurEff)
         {
             if (Unit* l_Target = GetTarget())
             {
@@ -1705,7 +1705,7 @@ public:
             return true;
         }
 
-        void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             // Nothing yet.
         }
@@ -1761,7 +1761,7 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_TARGET_ANY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spells_auchindon::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_SRC_AREA_ALLY);
         }
     };
 
@@ -1781,7 +1781,7 @@ public:
     {
         PrepareAuraScript(spell_auchindons);
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1793,7 +1793,7 @@ public:
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -1806,8 +1806,15 @@ public:
 
         void Register()
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_auchindons::OnApply,    SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_auchindons::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+            switch (m_scriptSpellId)
+            {
+            case 157168:
+                AfterEffectApply += AuraEffectApplyFn(spell_auchindons::OnApply, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_auchindons::OnRemove, SpellEffIndex::EFFECT_0, AuraType::SPELL_AURA_MOD_POSSESS_PET, AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL);                
+                break;
+            default:
+                break;
+            }
         }
     };
 

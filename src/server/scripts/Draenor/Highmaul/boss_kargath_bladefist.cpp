@@ -370,7 +370,10 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite100);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InThePit);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::KargathBonusLoot, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::KargathBonusLoot, true);
 
                     ResetAllPlayersFavor(me);
                     ResetRavenousBloodmaws();
@@ -941,9 +944,9 @@ class npc_highmaul_vulgor : public CreatureScript
             EventEarthBreaker
         };
 
-        struct npc_highmaul_vulgorAI : public MS::AI::CosmeticAI
+        struct npc_highmaul_vulgorAI : public ScriptedAI
         {
-            npc_highmaul_vulgorAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature), m_Summons(p_Creature)
+            npc_highmaul_vulgorAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Summons(p_Creature)
             {
                 m_Instance          = p_Creature->GetInstanceScript();
                 m_HealthPct         = 30;
@@ -1028,7 +1031,7 @@ class npc_highmaul_vulgor : public CreatureScript
                         uint8 l_Count = 0;
                         for (Creature* l_Sorcerer : l_BladespireSorcerers)
                         {
-                            l_Sorcerer->SetWalk(true);
+                            l_Sorcerer->SetWalk(false);
                             l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererPos[l_Count]);
                             m_SorcererGuids[l_Count] = l_Sorcerer->GetGUID();
 
@@ -1036,7 +1039,7 @@ class npc_highmaul_vulgor : public CreatureScript
                         }
                     }
 
-                    me->SetWalk(true);
+                    me->SetWalk(false);
                     me->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_VulgorMovePos);
                 }
             }
@@ -1085,12 +1088,30 @@ class npc_highmaul_vulgor : public CreatureScript
                     if (Creature* l_Thoktar = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ThoktarIronskull)))
                         l_Thoktar->AI()->DoAction(eActions::ContinueIntro);
 
-                    /// Spawn new trash mobs
-                    for (uint8 l_I = 0; l_I < 2; ++l_I)
+                    if (m_Instance != nullptr)
                     {
-                        if (Creature* l_Sorcerer = me->SummonCreature(eHighmaulCreatures::BladespireSorcerer, g_TrashsSpawnPos))
-                            l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererSecondPos[l_I]);
+                        if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
+                            l_InnerGate->SetGoState(GOState::GO_STATE_ACTIVE);
                     }
+
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        /// Spawn new trash mobs
+                        for (uint8 l_I = 0; l_I < 2; ++l_I)
+                        {
+                            if (Creature* l_Sorcerer = me->SummonCreature(eHighmaulCreatures::BladespireSorcerer, g_TrashsSpawnPos))
+                                l_Sorcerer->GetMotionMaster()->MovePoint(eMove::MoveInArena, g_SorcererSecondPos[l_I]);
+                        }
+                    });
+
+                    AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        if (m_Instance != nullptr)
+                        {
+                            if (GameObject* l_InnerGate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::GateArenaInner)))
+                                l_InnerGate->SetGoState(GOState::GO_STATE_READY);
+                        }
+                    });
                 }
             }
 
@@ -1122,6 +1143,8 @@ class npc_highmaul_vulgor : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                UpdateOperations(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 
@@ -1427,7 +1450,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::FirePillarSteamTimer, true);
                         me->CastSpell(me, eSpells::FirePillarActivated, true);
-                        me->CastSpell(me, eSpells::FirePillarKnockback, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
+                        me->CastSpell(me, eSpells::FirePillarKnockback, true, nullptr, nullptr, p_Caster->GetGUID());
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                         me->PlayOneShotAnimKit(eData::AnimKit1);
@@ -1609,7 +1632,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                             me->SetWalk(false);
                             me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
 
-                            Movement::MoveSplineInit l_Init(*me);
+                            Movement::MoveSplineInit l_Init(me);
                             FillCirclePath(l_Pos, 7.0f, me->GetPositionZ(), l_Init.Path(), true);
                             l_Init.SetWalk(true);
                             l_Init.SetCyclic();
@@ -1744,7 +1767,7 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
                 if (p_SpellInfo->Id == eSpells::BladeDanceCharge)
                 {
                     me->SetDisplayId(eDatas::MorphWithWeapon);
-                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
+                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, nullptr, p_Caster->GetGUID());
                     me->CastSpell(p_Caster, eSpells::BladeDanceCharge, true);
 
                     uint32 const l_AnimKits[4] = { eDatas::AnimKit1, eDatas::AnimKit2, eDatas::AnimKit3, eDatas::AnimKit4 };
@@ -2720,7 +2743,7 @@ class spell_highmaul_impale : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_impale_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 Unit* l_Caster = GetCaster();
@@ -2776,7 +2799,7 @@ class spell_highmaul_fire_pillar_steam_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -2807,7 +2830,7 @@ class spell_highmaul_fire_pillar_activated : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -2852,7 +2875,7 @@ class spell_highmaul_berserker_rush : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_berserker_rush_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -2909,12 +2932,12 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript);
 
-            uint8 l_Count;
+            uint8 m_Count;
             uint64 m_Targets[eDatas::MaxAffectedTargets];
 
             bool Load() override
             {
-                l_Count = 0;
+                m_Count = 0;
 
                 for (uint8 l_I = 0; l_I < eDatas::MaxAffectedTargets; ++l_I)
                     m_Targets[l_I] = 0;
@@ -2925,7 +2948,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
             bool TargetsAlreadySelected() const
             {
                 bool l_Return = false;
-                for (uint8 l_I = 0; l_I < l_Count; ++l_I)
+                for (uint8 l_I = 0; l_I < m_Count; ++l_I)
                 {
                     if (!m_Targets[l_I])
                         return false;
@@ -2951,7 +2974,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     if (p_Player->HasAura(eDatas::SpellObscured))
                         return true;
 
-                    if (AuraPtr l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                    if (Aura* l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
                     {
                         if (l_OpenWounds->GetStackAmount() > l_OpenWoundsStacks)
                             l_OpenWoundsStacks = l_OpenWounds->GetStackAmount();
@@ -2960,31 +2983,29 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_TanksList.empty())
-                    return;
-
-                l_TanksList.remove_if([this, l_OpenWoundsStacks](Player* p_Player) -> bool
+                if (!l_TanksList.empty())
                 {
-                    if (p_Player->GetRoleForGroup() != Roles::ROLE_TANK)
-                        return true;
-
-                    if (p_Player->HasAura(eDatas::SpellObscured))
-                        return true;
-
-                    if (AuraPtr l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                    l_TanksList.remove_if([this, l_OpenWoundsStacks](Player* p_Player) -> bool
                     {
-                        if (l_OpenWounds->GetStackAmount() != l_OpenWoundsStacks)
+                        if (p_Player->GetRoleForGroup() != Roles::ROLE_TANK)
                             return true;
-                    }
 
-                    return false;
-                });
+                        if (p_Player->HasAura(eDatas::SpellObscured))
+                            return true;
 
-                if (l_TanksList.empty())
-                    return;
+                        if (Aura* l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
+                        {
+                            if (l_OpenWounds->GetStackAmount() != l_OpenWoundsStacks)
+                                return true;
+                        }
+
+                        return false;
+                    });
+                }
 
                 /// Just in case of all tanks have the same amount of Open Wounds
-                JadeCore::RandomResizeList(l_TanksList, eDatas::MaxLFRTank);
+                if (!l_TanksList.empty())
+                    JadeCore::RandomResizeList(l_TanksList, eDatas::MaxLFRTank);
 
                 l_HealersList.remove_if([this](Player* p_Player) -> bool
                 {
@@ -2997,10 +3018,8 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_HealersList.empty())
-                    return;
-
-                JadeCore::RandomResizeList(l_HealersList, eDatas::MaxLFRHealer);
+                if (!l_HealersList.empty())
+                    JadeCore::RandomResizeList(l_HealersList, eDatas::MaxLFRHealer);
 
                 l_DamagersList.remove_if([this](Player* p_Player) -> bool
                 {
@@ -3013,32 +3032,30 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (l_DamagersList.empty() || l_DamagersList.size() < eDatas::MaxLFRDamagers)
-                    return;
+                if (!l_DamagersList.empty() && l_DamagersList.size() < eDatas::MaxLFRDamagers)
+                    JadeCore::RandomResizeList(l_DamagersList, eDatas::MaxLFRDamagers);
 
-                JadeCore::RandomResizeList(l_DamagersList, eDatas::MaxLFRDamagers);
-
-                l_Count = 0;
+                m_Count = 0;
 
                 for (Player* l_Player : l_TanksList)
                 {
                     p_Targets.push_back(l_Player);
-                    m_Targets[l_Count] = l_Player->GetGUID();
-                    ++l_Count;
+                    m_Targets[m_Count] = l_Player->GetGUID();
+                    ++m_Count;
                 }
 
                 for (Player* l_Player : l_HealersList)
                 {
                     p_Targets.push_back(l_Player);
-                    m_Targets[l_Count] = l_Player->GetGUID();
-                    ++l_Count;
+                    m_Targets[m_Count] = l_Player->GetGUID();
+                    ++m_Count;
                 }
 
                 for (Player* l_Player : l_DamagersList)
                 {
                     p_Targets.push_back(l_Player);
-                    m_Targets[l_Count] = l_Player->GetGUID();
-                    ++l_Count;
+                    m_Targets[m_Count] = l_Player->GetGUID();
+                    ++m_Count;
                 }
             }
 
@@ -3052,7 +3069,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
                 if (TargetsAlreadySelected())
                 {
-                    for (uint8 l_I = 0; l_I < l_Count; ++l_I)
+                    for (uint8 l_I = 0; l_I < m_Count; ++l_I)
                     {
                         /// Spell has SPELL_ATTR3_ONLY_TARGET_PLAYERS
                         if (WorldObject* l_Object = Player::GetPlayer(*l_Caster, m_Targets[l_I]))
@@ -3082,15 +3099,15 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 {
                     l_PlayerList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
 
-                    l_Count = 0;
+                    m_Count = 0;
                     for (Player* l_Player : l_PlayerList)
                     {
-                        if (l_Count >= eDatas::MaxAffectedTargets)
+                        if (m_Count >= eDatas::MaxAffectedTargets)
                             break;
 
-                        m_Targets[l_Count] = l_Player->GetGUID();
+                        m_Targets[m_Count] = l_Player->GetGUID();
                         p_Targets.push_back(l_Player);
-                        ++l_Count;
+                        ++m_Count;
                     }
                 }
 
@@ -3183,7 +3200,7 @@ class spell_highmaul_obscured : public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 p_Diff, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
             {
                 if (m_UpdateTimer)
                 {
@@ -3270,7 +3287,7 @@ class spell_highmaul_roar_of_the_crowd : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3326,7 +3343,7 @@ class spell_highmaul_inflamed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_inflamed_AuraScript);
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -3389,7 +3406,7 @@ class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Creature* l_Caster = GetTarget()->ToCreature())
                 {
@@ -3511,9 +3528,14 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == eSpells::BerserkerRush && !p_Targets.empty())
                 {
-                    p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                    Unit* l_Caster = GetCaster();
+
+                    p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
                     {
                         if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
+                            return true;
+
+                        if (!p_Object->isInFront(l_Caster))
                             return true;
 
                         if (Player* l_Player = p_Object->ToPlayer())

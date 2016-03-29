@@ -38,13 +38,13 @@ class boss_flamebender_kagraz : public CreatureScript
             CharringBreathDamage        = 155074,
             Singe                       = 155049,
             FirestormMoltenBolt         = 163630,
+            FlamebenderKagrazBonusLoot  = 177534,
             /// Lava Slash
             LavaSlashSearcher           = 154914,
             LavaSlashMissile            = 155297,   ///< Triggers 155318 - AoE damage - Summons 76996
             LavaSlashMissileTriggered   = 155318,
             LavaSlashAreaTrigger        = 154915,
             /// Summon Enchanted Armaments
-            EnchantedArmamentsSearcher  = 163644,
             EnchantedArmamentsDummy     = 156725,
             /// Molten Torrent
             MoltenTorrentAura           = 154932,
@@ -136,9 +136,6 @@ class boss_flamebender_kagraz : public CreatureScript
             {
                 ClearDelayedOperations();
 
-                m_Events.Reset();
-                m_CosmeticEvents.Reset();
-
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
@@ -160,6 +157,9 @@ class boss_flamebender_kagraz : public CreatureScript
                 me->setPowerType(Powers::POWER_ENERGY);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
+
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
 
                 if (m_Instance)
                 {
@@ -267,6 +267,9 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 summons.DespawnAll();
 
+                me->DespawnCreaturesInArea(eFoundryCreatures::CinderWolf, 200.0f);
+                me->DespawnCreaturesInArea(eCreatures::OverheatedCinderWolf, 200.0f);
+
                 _JustDied();
 
                 if (m_Instance != nullptr)
@@ -278,6 +281,16 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CharringBreathDamage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
+
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
+
+                    if (Creature* l_Aknor = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::AknorSteelbringer)))
+                    {
+                        l_Aknor->setFaction(eFoundryDatas::FriendlyFaction);
+                        l_Aknor->CombatStop();
+                        l_Aknor->RemoveAllAuras();
+                        l_Aknor->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+                    }
                 }
             }
 
@@ -296,11 +309,6 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
-                    case eSpells::EnchantedArmamentsSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::EnchantedArmamentsDummy, true);
-                        break;
-                    }
                     case eSpells::EnchantedArmamentsDummy:
                     {
                         me->SummonCreature(eCreatures::EnchantedArmament, *p_Target);
@@ -356,28 +364,32 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eSpells::LavaSlashMissileTriggered:
                     {
-                        Position l_Dest = p_Dest->_position;
-                        Position l_Src  = *me;
+                        Position* l_Dest    = new Position(p_Dest->_position);
+                        Position* l_Src     = new Position(*me);
+                        Creature* l_Me      = me;
 
-                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
+                        AddTimedDelayedOperation(50, [l_Me, l_Dest, l_Src]() -> void
                         {
-                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
-                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            uint8 l_Dist = l_Src->GetExactDist2d(l_Dest);
+                            for (uint8 l_I = 0; l_I < l_Dist; ++l_I)
                             {
                                 Position l_Target;
 
-                                float l_O = l_Src.GetAngle(&l_Dest);
-                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
-                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
-                                float l_Z = l_Src.m_positionZ;
+                                float l_O = l_Src->GetAngle(l_Dest);
+                                float l_X = l_Src->m_positionX + (l_I * cos(l_O));
+                                float l_Y = l_Src->m_positionY + (l_I * sin(l_O));
+                                float l_Z = l_Src->m_positionZ;
 
                                 l_Target.m_positionX    = l_X;
                                 l_Target.m_positionY    = l_Y;
                                 l_Target.m_positionZ    = l_Z;
                                 l_Target.m_orientation  = l_O;
 
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                l_Me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
                             }
+                            
+                            delete l_Dest;
+                            delete l_Src;
                         });
 
                         break;
@@ -460,6 +472,12 @@ class boss_flamebender_kagraz : public CreatureScript
                         break;
                 }
 
+                if (me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 if (!UpdateVictim() || m_Firestorm)
                     return;
 
@@ -472,24 +490,21 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eEvents::EventLavaSlash:
                     {
-                        Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
-                            me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
-                                me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
-                            me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Player* l_Target = SelectRangedTarget())
+                        {
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
-                        m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
+                            m_LavaSlashTarget = l_Target != nullptr ? l_Target->GetGUID() : 0;
+                        }
 
                         m_Events.ScheduleEvent(eEvents::EventLavaSlash, eTimers::TimerLavaSlashAgain);
                         break;
                     }
                     case eEvents::EventSummonEnchantedArmament:
                     {
-                        me->CastSpell(me, eSpells::EnchantedArmamentsSearcher, true);
+                        if (Player* l_Target = SelectRangedTarget())
+                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
+
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
                         break;
                     }
@@ -498,14 +513,7 @@ class boss_flamebender_kagraz : public CreatureScript
                         if (me->GetPower(Powers::POWER_ENERGY) < 25)
                             break;
 
-                        Unit* l_Target = nullptr;
-                        if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -10.0f))
-                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, -5.0f))
-                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2))
-                            me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
-                        else if (l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Player* l_Target = SelectRangedTarget())
                             me->CastSpell(l_Target, eSpells::MoltenTorrentAura, false);
 
                         m_Events.ScheduleEvent(eEvents::EventMoltenTorrent, eTimers::TimerMoltenTorrentAgain);
@@ -550,9 +558,12 @@ class boss_flamebender_kagraz : public CreatureScript
 
                         me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
+                        me->StopMoving();
+
                         me->CastSpell(me, eSpells::FirestormSelfAura, true);
 
-                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        uint32 l_Timer = 2 * TimeConstants::IN_MILLISECONDS;
+                        AddTimedDelayedOperation(l_Timer, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::FirestormPeriodicTrigger, false);
 
@@ -563,7 +574,8 @@ class boss_flamebender_kagraz : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        l_Timer += 12 * TimeConstants::IN_MILLISECONDS;
+                        AddTimedDelayedOperation(l_Timer, [this]() -> void
                         {
                             m_Firestorm = false;
 
@@ -571,7 +583,12 @@ class boss_flamebender_kagraz : public CreatureScript
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                             me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                AttackStart(l_Target);
                         });
+
+                        m_Events.DelayEvent(eEvents::EventLavaSlash, l_Timer);
 
                         m_Events.CancelEvent(eEvents::EventMoltenTorrent);
                         m_Events.CancelEvent(eEvents::EventBlazingRadiance);
@@ -780,12 +797,8 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
         {
             npc_foundry_flamebender_kagraz_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                m_Initialized       = false;
-
-                m_LavaSlashTarget   = 0;
+                m_LavaSlashTarget = 0;
             }
-
-            bool m_Initialized;
 
             uint64 m_LavaSlashTarget;
 
@@ -793,40 +806,21 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
 
             void Reset() override
             {
-                if (m_Initialized)
-                {
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                    me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-                    me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
-                }
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
             {
-                m_Initialized = true;
-
                 m_LavaSlashTarget = p_Guid;
 
-                Reset();
+                me->CastSpell(me, eSpells::LavaSlashSearcherSecond, true);
             }
 
-            void JustSummoned(Creature* p_Summon) override
-            {
-                if (m_LavaSlashTargets.empty())
-                    return;
-
-                uint64 l_Guid = m_LavaSlashTargets.front();
-                if (p_Summon->GetEntry() == eCreature::FlamebenderKagrazTrigger && p_Summon->IsAIEnabled && l_Guid)
-                {
-                    p_Summon->AI()->SetGUID(l_Guid, 0);
-
-                    m_LavaSlashTargets.pop();
-                }
-            }
+            void JustSummoned(Creature* p_Summon) override { p_Summon->DespawnOrUnsummon(); }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
@@ -862,24 +856,27 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
                         Position l_Dest = p_Dest->_position;
                         Position l_Src  = *me;
 
-                        AddTimedDelayedOperation(200, [this, l_Dest, l_Src]() -> void
+                        AddTimedDelayedOperation(50, [this, l_Dest, l_Src]() -> void
                         {
-                            uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
-                            for (uint8 l_I = 0; l_I <= l_Dist; ++l_I)
+                            if (Creature* l_Kagraz = me->FindNearestCreature(eFoundryCreatures::BossFlamebenderKagraz, 100.0f))
                             {
-                                Position l_Target;
+                                uint8 l_Dist = l_Src.GetExactDist2d(&l_Dest);
+                                for (uint8 l_I = 0; l_I < l_Dist; ++l_I)
+                                {
+                                    Position l_Target;
 
-                                float l_O = l_Src.GetAngle(&l_Dest);
-                                float l_X = l_Src.m_positionX + (l_I * cos(l_O));
-                                float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
-                                float l_Z = l_Src.m_positionZ;
+                                    float l_O = l_Src.GetAngle(&l_Dest);
+                                    float l_X = l_Src.m_positionX + (l_I * cos(l_O));
+                                    float l_Y = l_Src.m_positionY + (l_I * sin(l_O));
+                                    float l_Z = l_Src.m_positionZ;
 
-                                l_Target.m_positionX    = l_X;
-                                l_Target.m_positionY    = l_Y;
-                                l_Target.m_positionZ    = l_Z;
-                                l_Target.m_orientation  = l_O;
+                                    l_Target.m_positionX    = l_X;
+                                    l_Target.m_positionY    = l_Y;
+                                    l_Target.m_positionZ    = l_Z;
+                                    l_Target.m_orientation  = l_O;
 
-                                me->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                    l_Kagraz->CastSpell(l_Target, eSpells::LavaSlashAreaTrigger, true);
+                                }
                             }
                         });
 
@@ -1009,7 +1006,7 @@ class npc_foundry_lava_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
                 me->RemoveAura(eSpells::FirestormV2Periodic);
 
@@ -1317,8 +1314,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
             CharringBreathDamage    = 155074,
             Fixate                  = 154952,
             Disabled                = 156538,
-            Firestorm               = 155704,
-            FirestormSelfAura       = 155564
+            Firestorm               = 155704
         };
 
         enum eEvent
@@ -1330,7 +1326,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
         {
             ActionOverheated,
             ActionFixated,
-            ActionFirestorm
+            ActionFirestorm,
+            ActionFixatedAgain
         };
 
         enum eEntry
@@ -1345,7 +1342,6 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 m_Instance      = p_Creature->GetInstanceScript();
                 m_Initialized   = false;
                 m_Rekindle      = false;
-                m_Firestorm     = false;
                 m_CurrAction    = eActions::ActionOverheated;
                 m_Target        = 0;
                 m_OtherWolf     = 0;
@@ -1355,7 +1351,6 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
             bool m_Initialized;
             bool m_Rekindle;
-            bool m_Firestorm;
 
             EventMap m_Events;
 
@@ -1366,6 +1361,21 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
             void Reset() override
             {
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_INTERRUPT_CAST, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SILENCE, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_STUN, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SLEEP, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_SAPPED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_HORROR, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_POLYMORPH, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FREEZE, true);
+
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
 
                 m_Events.Reset();
@@ -1399,9 +1409,15 @@ class npc_foundry_cinder_wolf : public CreatureScript
                         return;
 
                     if (Creature* l_Other = Creature::GetCreature(*me, m_OtherWolf))
+                    {
                         me->CastSpell(l_Other, eSpells::FieryLink, true);
 
-                    m_Initialized = true;
+                        m_Initialized = true;
+
+                        if (npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI* l_AI = CAST_AI(npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI, l_Other->GetAI()))
+                            l_AI->m_Initialized = true;
+                    }
+
                 });
             }
 
@@ -1464,7 +1480,14 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
-                me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            /// In case of unexpected reset
+            void JustDespawned() override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1489,6 +1512,11 @@ class npc_foundry_cinder_wolf : public CreatureScript
                     {
                         m_Target = p_Target->GetGUID();
 
+                        DoResetThreat();
+                        me->AddThreat(p_Target, 1000000.0f);
+
+                        AttackStart(p_Target);
+
                         me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
                         break;
                     }
@@ -1502,14 +1530,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
                     return;
 
-                if (p_ID == eSpells::CharringBreathJump)
-                    me->CastSpell(me, eSpells::CharringBreathDamage, true);
-            }
-
-            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask p_SchoolMask, SpellInfo const* p_SpellInfo) override
-            {
-                if (m_CurrAction == eActions::ActionFixated)
-                    p_Threat = 0.0f;
+                if (p_ID == eSpells::CharringBreathJump && m_CurrAction == eActions::ActionFixated)
+                    me->CastSpell(me, eSpells::Fixate, true);
             }
 
             void DoAction(int32 const p_Action) override
@@ -1521,54 +1543,63 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 {
                     case eActions::ActionOverheated:
                     {
+                        m_Target        = 0;
+                        m_CurrAction    = eActions::ActionOverheated;
+
+                        me->SetEntry(eEntry::OverheatedCinderWolf);
+
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_STATE, AuraType::SPELL_AURA_MOD_TAUNT, false);
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_ATTACK_ME, false);
+
                         AddTimedDelayedOperation(m_Initialized ? 50 : 400, [this]() -> void
                         {
-                            m_CurrAction = eActions::ActionOverheated;
-
                             me->CastSpell(me, eSpells::OverheatedAura, true);
 
-                            me->SetEntry(eEntry::OverheatedCinderWolf);
-
                             m_Events.ScheduleEvent(eEvent::EventCharringBreath, 7 * TimeConstants::IN_MILLISECONDS);
+
+                            if (Creature* l_Other = Creature::GetCreature(*me, m_OtherWolf))
+                            {
+                                me->ClearAllUnitState();
+                                l_Other->ClearAllUnitState();
+
+                                me->InterruptNonMeleeSpells(true);
+                                l_Other->InterruptNonMeleeSpells(true);
+
+                                Position l_Dest = *l_Other;
+                                Position l_Src  = *me;
+
+                                l_Other->CastSpell(l_Src, eSpells::CharringBreathJump, true);
+                                me->CastSpell(l_Dest, eSpells::CharringBreathJump, true);
+                            }
                         });
 
                         break;
                     }
                     case eActions::ActionFixated:
                     {
-                        AddTimedDelayedOperation(m_Initialized ? 50 : 400, [this]() -> void
-                        {
-                            m_Target = 0;
+                        m_Target        = 0;
+                        m_CurrAction    = eActions::ActionFixated;
 
-                            m_CurrAction = eActions::ActionFixated;
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_STATE, AuraType::SPELL_AURA_MOD_TAUNT, true);
+                        me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_ATTACK_ME, true);
 
-                            m_Events.CancelEvent(eEvent::EventCharringBreath);
-
-                            me->CastSpell(me, eSpells::Fixate, true);
-                        });
-
+                        m_Events.CancelEvent(eEvent::EventCharringBreath);
                         break;
                     }
                     case eActions::ActionFirestorm:
                     {
-                        ClearDelayedOperations();
-
-                        m_Firestorm = true;
-
-                        me->CastSpell(me, eSpells::FirestormSelfAura, true);
-
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::Firestorm, true);
                         });
 
-                        AddTimedDelayedOperation(14 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        {
-                            m_Firestorm = false;
+                        break;
+                    }
+                    case eActions::ActionFixatedAgain:
+                    {
+                        m_Target = 0;
 
-                            DoAction(m_CurrAction);
-                        });
-
+                        me->CastSpell(me, eSpells::Fixate, true);
                         break;
                     }
                     default:
@@ -1585,12 +1616,12 @@ class npc_foundry_cinder_wolf : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                if (!UpdateVictim() || m_Firestorm)
+                if (!UpdateVictim())
                     return;
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -1606,10 +1637,15 @@ class npc_foundry_cinder_wolf : public CreatureScript
                         me->GetMotionMaster()->MovePoint(0, *l_Target);
                 }
 
-                if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath)
+                if (m_Events.ExecuteEvent() == eEvent::EventCharringBreath && m_CurrAction == eActions::ActionOverheated)
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, eSpells::CharringBreathJump, true);
+                        me->SetFacingTo(me->GetAngle(l_Target));
+
+                    AddTimedDelayedOperation(50, [this]() -> void
+                    {
+                        me->CastSpell(me, eSpells::CharringBreathDamage, true);
+                    });
 
                     m_Events.ScheduleEvent(eEvent::EventCharringBreath, 7 * TimeConstants::IN_MILLISECONDS);
                 }
@@ -1644,7 +1680,7 @@ class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
                 DropTheHammer = 1
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
@@ -1684,14 +1720,17 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
                 MoltenTorrentAoE = 154938
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
                     return;
 
                 if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true);
+                {
+                    if (Unit* l_Caster = GetCaster())
+                        l_Target->CastSpell(l_Target, eSpell::MoltenTorrentAoE, true, nullptr, nullptr, l_Caster->GetGUID());
+                }
             }
 
             void Register() override
@@ -1716,7 +1755,7 @@ class spell_foundry_allow_molten_torrent_cast : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_allow_molten_torrent_cast_AuraScript);
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1764,7 +1803,7 @@ class spell_foundry_fiery_link : public SpellScriptLoader
                 Singe = 155049
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1814,7 +1853,7 @@ class spell_foundry_overheated : public SpellScriptLoader
                 ActionFixated
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1857,25 +1896,59 @@ class spell_foundry_fixate : public SpellScriptLoader
     public:
         spell_foundry_fixate() : SpellScriptLoader("spell_foundry_fixate") { }
 
+        class spell_foundry_fixate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_fixate_SpellScript);
+
+            enum eSpell
+            {
+                FirestormAreatrigger = 163630
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.clear();
+
+                if (Creature* l_Wolf = GetCaster()->ToCreature())
+                {
+                    if (npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI* l_AI = CAST_AI(npc_foundry_cinder_wolf::npc_foundry_cinder_wolfAI, l_Wolf->GetAI()))
+                    {
+                        if (Player* l_Target = l_AI->SelectRangedTarget())
+                            p_Targets.push_back(l_Target);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_fixate_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_fixate_SpellScript();
+        }
+
         class spell_foundry_fixate_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_foundry_fixate_AuraScript);
 
             enum eAction
             {
-                ActionFixated = 1
+                ActionFixatedAgain = 3
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
-                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
                     return;
 
-                if (Creature* l_Target = GetTarget()->ToCreature())
+                if (Creature* l_Caster = GetCaster()->ToCreature())
                 {
-                    if (l_Target->IsAIEnabled)
-                        l_Target->AI()->DoAction(eAction::ActionFixated);
+                    if (l_Caster->IsAIEnabled)
+                        l_Caster->AI()->DoAction(eAction::ActionFixatedAgain);
                 }
             }
 
@@ -1906,7 +1979,7 @@ class spell_foundry_firestorm_aura : public SpellScriptLoader
                 ActionMagmaMonsoon = 1
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1956,7 +2029,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
                 ActionFillStalkers = 2
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -1974,7 +2047,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2058,7 +2131,7 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
                 UnquenchableFlameAoE = 156713
             };
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpell::UnquenchableFlameAoE, false);
@@ -2073,6 +2146,46 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_foundry_unquenchable_flame_periodic_AuraScript();
+        }
+};
+
+/// Blazing Radiance - 155382
+class spell_foundry_blazing_radiance : public SpellScriptLoader
+{
+    public:
+        spell_foundry_blazing_radiance() : SpellScriptLoader("spell_foundry_blazing_radiance") { }
+
+        class spell_foundry_blazing_radiance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_foundry_blazing_radiance_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsPlayer())
+                        return true;
+
+                    Player* l_Player = p_Object->ToPlayer();
+                    if (l_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_blazing_radiance_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_foundry_blazing_radiance_SpellScript();
         }
 };
 
@@ -2198,6 +2311,7 @@ void AddSC_boss_flamebender_kagraz()
     new spell_foundry_firestorm_v2_periodic_lava_stalker();
     new spell_foundry_firestorm_v2_pick_stalker_to_fire();
     new spell_foundry_unquenchable_flame_periodic();
+    new spell_foundry_blazing_radiance();
 
     /// AreaTriggers
     new areatrigger_foundry_lava_slash_pool();

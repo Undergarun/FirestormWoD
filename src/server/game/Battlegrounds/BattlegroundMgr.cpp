@@ -200,7 +200,7 @@ namespace MS
             return l_LastId + 1;
         }
 
-        Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundType::Type p_BgType, Bracket const* p_BracketEntry, uint8 p_ArenaType, bool p_IsSkirmish, bool p_IsWargame, bool p_UseTournamentRules)
+        Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundType::Type p_BgType, Bracket const* p_BracketEntry, uint8 p_ArenaType, bool p_IsSkirmish, bool p_IsWargame, bool p_UseTournamentRules, bool p_RatedBg)
         {
             /// Get the template battleground.
             Battleground* l_BattlegroundTemplate = GetBattlegroundTemplate(p_BgType);
@@ -209,8 +209,6 @@ namespace MS
                 sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: CreateNewBattleground - bg template not found for %u", p_BgType);
                 return nullptr;
             }
-
-            bool l_IsRatedBG = BattlegroundType::IsRated(p_BgType) && p_ArenaType == 0;
 
             Battleground* l_Battleground = nullptr;
 
@@ -282,7 +280,7 @@ namespace MS
             /// Generate a new instance id.
             l_Battleground->SetInstanceID(sMapMgr->GenerateInstanceId());
             m_InstanceId2Brackets[l_Battleground->GetInstanceID()] = p_BracketEntry->m_Id;
-            l_Battleground->SetClientInstanceID(CreateClientVisibleInstanceId(l_IsRatedBG ? BattlegroundType::RatedBg10v10 : p_BgType, p_BracketEntry->m_Id));
+            l_Battleground->SetClientInstanceID(CreateClientVisibleInstanceId(p_RatedBg ? BattlegroundType::RatedBg10v10 : p_BgType, p_BracketEntry->m_Id));
 
             /// Reset the new battleground.
             l_Battleground->Reset();
@@ -290,11 +288,11 @@ namespace MS
             /// Start the joining of the battleground.
             l_Battleground->SetStatus(STATUS_WAIT_JOIN);
             l_Battleground->SetArenaType(p_ArenaType);
-            l_Battleground->SetRatedBG(l_IsRatedBG);
+            l_Battleground->SetRatedBG(p_RatedBg);
             l_Battleground->SetSkirmish(p_IsSkirmish);
             l_Battleground->SetRandom(true);
             l_Battleground->SetWargame(p_IsWargame);
-            l_Battleground->SetTypeID(GetIdFromType(l_IsRatedBG ? BattlegroundType::RatedBg10v10 : p_BgType));
+            l_Battleground->SetTypeID(GetIdFromType(p_RatedBg ? BattlegroundType::RatedBg10v10 : p_BgType));
             l_Battleground->SetRandomTypeID(GetIdFromType(p_BgType));
             l_Battleground->InitGUID();
 
@@ -302,7 +300,7 @@ namespace MS
                 l_Battleground->EnableTournamentRules();
 
             /// We store the battleground.
-            m_Battlegrounds[p_BracketEntry->m_Id][p_BgType].emplace_back(std::make_pair(l_Battleground->GetInstanceID(), l_Battleground));
+            m_Battlegrounds[p_BracketEntry->m_Id][p_RatedBg ? BattlegroundType::RatedBg10v10 : p_BgType].emplace_back(std::make_pair(l_Battleground->GetInstanceID(), l_Battleground));
 
             return l_Battleground;
         }
@@ -454,7 +452,7 @@ namespace MS
                 if (l_Data.MinPlayersPerTeam == 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Table `battleground_template` for id %u has bad values for MinPlayersPerTeam (%u)",
-                        l_Data.bgTypeId, l_Data.MinPlayersPerTeam, l_Data.MaxPlayersPerTeam);
+                        l_Data.bgTypeId, l_Data.MinPlayersPerTeam, l_Data.MaxPlayersPerTeam); ///< Data argument not used by format string
                     assert(false);
                 }
 
@@ -535,7 +533,7 @@ namespace MS
                     m_BGSelectionWeights[l_Data.bgTypeId] = l_SelectionWeight;
 
                 for (int i = 0; i < 16; ++i)
-                    if (l_RatedBl->MapID[i] == l_Bl->MapID[0] && l_Bl->MapID[1] == -1)
+                    if (l_RatedBl->MapID[i] == l_Bl->MapID[0] && l_Bl->MapID[1] == -1) ///< Comparison of integers of different signs: 'const uint32' (aka 'const unsigned int') and 'int'
                         m_RatedBGSelectionWeights[l_Data.bgTypeId] = l_SelectionWeight;
 
                 ++l_Count;

@@ -1718,6 +1718,14 @@ void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
 }
 
+/// Called when specialisation is modify (SetSpecializationId)
+/// @p_Player : Player instance
+/// @p_NewSpec  : New Specialisation
+void ScriptMgr::OnModifySpec(Player* p_Player, int32 p_NewSpec)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnModifySpec(p_Player, p_NewSpec);
+}
+
 /// Called when a player kills another player
 /// @p_Player : Player instance
 /// @p_Value  : New value
@@ -2060,6 +2068,32 @@ void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID,
 void ScriptMgr::OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(p_Player, p_SceneInstanceId);
+}
+
+
+/// Called when a player enter in bg
+/// @p_Player   : Player instance
+/// @p_MapID    : Map ID
+void ScriptMgr::OnEnterBG(Player* p_Player, uint32 p_MapID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEnterBG(p_Player, p_MapID);
+}
+
+/// Called when a leave a bg
+/// @p_Player   : Player instance
+/// @p_MapID    : Map ID
+void ScriptMgr::OnLeaveBG(Player* p_Player, uint32 p_MapID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLeaveBG(p_Player, p_MapID);
+}
+
+/// Called when a player finish a movement like a jump
+/// @p_Player   : Player instance
+/// @p_SpellID  : Spell ID
+/// @p_TargetGUID : Target GUID
+void ScriptMgr::OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFinishMovement(p_Player, p_SpellID, p_TargetGUID);
 }
 
 /// Called when a player regen a power

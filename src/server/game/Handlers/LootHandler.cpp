@@ -411,7 +411,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     {
         Corpse* corpse = ObjectAccessor::GetCorpse(*player, lguid);
         /// Check for Glyph of Fetch too
-        if (!corpse || !corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050))
+        if (!corpse || (!corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050)))
             return;
 
         loot = &corpse->loot;
@@ -456,7 +456,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
         /// Check for Glyph of Fetch too
-        if (!lootAllowed || !creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050))
+        if (!lootAllowed || (!creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050)))
             return;
 
         loot = &creature->loot;

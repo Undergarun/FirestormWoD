@@ -171,6 +171,9 @@ m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_pat
     ResetLootMode(); // restore default loot mode
     TriggerJustRespawned = false;
     m_isTempWorldObject = false;
+
+    m_StartEncounterTime = 0;
+    m_DumpGroupTimer     = 0;
 }
 
 Creature::~Creature()
@@ -482,6 +485,14 @@ void Creature::Update(uint32 diff)
     }
     else
         m_LOSCheckTimer -= diff;
+
+    if (m_DumpGroupTimer > GROUP_DUMP_TIMER)
+    {
+        DumpGroup();
+        m_DumpGroupTimer = 0;
+    }
+    else
+        m_DumpGroupTimer += diff;
 
     // Zone Skip Update
     if ((sObjectMgr->IsSkipZoneEnabled() && sObjectMgr->IsSkipZone(GetZoneId()) && (!isInCombat() && !GetMap()->Instanceable())) && (!isTotem() || GetOwner()))
@@ -898,6 +909,9 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     loot.Context = map->GetLootItemContext();
 
     SetUInt32Value(EUnitFields::UNIT_FIELD_SCALE_DURATION, 500);
+
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
+        AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
 
     return true;
 }
@@ -1800,6 +1814,9 @@ float Creature::GetAttackDistance(Unit const* player) const
     if (RetDistance < 5)
         RetDistance = 5;
 
+    if (IsAIEnabled)
+        AI()->OnCalculateAttackDistance(RetDistance);
+
     return (RetDistance*aggroRate);
 }
 
@@ -1819,6 +1836,9 @@ void Creature::setDeathState(DeathState s)
         SetTarget(0);                // remove target selection in any cases (can be set at aura remove in Unit::setDeathState)
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_NONE);
+
+        SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 0);
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
 
         setActive(false);
 
@@ -1875,19 +1895,20 @@ void Creature::setDeathState(DeathState s)
 
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, cinfo->NpcFlags1);
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, cinfo->NpcFlags2);
-        ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+        ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
-        LoadCreaturesAddon();
         Motion_Initialize();
         if (GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
             SetPhaseMask(GetCreatureData()->phaseMask, false);
         Unit::setDeathState(ALIVE);
+
+        LoadCreaturesAddon(); ///< Must be done after setDeathState(ALIVE)
     }
 }
 
 void Creature::Respawn(bool force)
 {
-    Movement::MoveSplineInit(*this).Stop(true);
+    Movement::MoveSplineInit(this).Stop(true);
     DestroyForNearbyPlayers();
 
     if (force)
@@ -2409,14 +2430,14 @@ bool Creature::_IsTargetAcceptable(const Unit* target) const
     }
 
     const Unit* myVictim = getAttackerForHelper();
-    const Unit* targetVictim = target->getAttackerForHelper();
+    const Unit* tarGetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-    if (myVictim == target || targetVictim == this || IsHostileTo(target))
+    if (myVictim == target || tarGetVictim == this || IsHostileTo(target))
         return true;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
-    if (targetVictim && IsFriendlyTo(targetVictim))
+    if (tarGetVictim && IsFriendlyTo(tarGetVictim))
         return true;
 
     // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
@@ -3065,4 +3086,40 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
     }
 
     return target;
+}
+
+void Creature::DumpGroup()
+{
+    Map* l_Map = GetMap();
+
+    /// Only work in dungeon / raid
+    if (!l_Map->IsDungeon() || (GetNativeTemplate()->flags_extra & CREATURE_FLAG_EXTRA_LOG_GROUP_DMG) == 0)
+        return;
+
+    std::ostringstream l_Dump;
+
+    l_Dump << "Timestamp : " << time(nullptr) << std::endl;
+
+    const Map::PlayerList& l_Players = l_Map->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Itr = l_Players.begin(); l_Itr != l_Players.end(); ++l_Itr)
+    {
+        Player* l_Player = l_Itr->getSource();
+        l_Dump << "[Player " << l_Player->GetName() << " " << l_Player->GetGUIDLow() << " aura list : ]" << std::endl;
+
+        for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+        {
+            Unit::AuraEffectList const& auraList = l_Player->GetAuraEffectsByType(AuraType(i));
+            if (auraList.empty())
+                continue;
+
+            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+                l_Dump << "----> " << (*itr)->GetAuraType() << " [" << (*itr)->GetSpellInfo()->SpellName << " (" << (*itr)->GetId() << ")] amount : " << (*itr)->GetAmount() << std::endl;
+        }
+    }
+
+    GroupDump l_GroupDump;
+    l_GroupDump.Time = time(nullptr);
+    l_GroupDump.Dump = l_Dump.str();
+
+    AddGroupDump(l_GroupDump);
 }

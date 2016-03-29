@@ -19,23 +19,23 @@
 #include "ObjectMgr.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
-#include "GridNotifiers.h"
 #include "SpellMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "GossipDef.h"
-#include "ScriptedCreature.h"
 #include "SmartScript.h"
 #include "SmartAI.h"
 #include "Group.h"
 #include "Vehicle.h"
-#include "ScriptedGossip.h"
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
 #include "GameEventMgr.h"
+#include "InstanceScript.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
+#include "../../../scripts/Draenor/Garrison/GarrisonNPC.hpp"
 
 class TrinityStringTextBuilder
 {
@@ -2140,6 +2140,55 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 return;
             }
             sGameEventMgr->StartEvent(eventId, true);
+            break;
+        }
+        case SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE:
+        {
+            WorldObject* l_Object = GetBaseObject();
+
+            if (l_Object == nullptr)
+                break;
+
+            uint32 l_CriteriaID    = e.action.sendScenarioProgressUpdate.CriteriaID;
+            uint32 l_CriteriaCount = e.action.sendScenarioProgressUpdate.CriteriaCount;
+
+            if (InstanceScript* l_InstanceScript = l_Object->GetInstanceScript())
+                l_InstanceScript->SendScenarioProgressUpdate(InstanceScript::CriteriaProgressData(l_CriteriaID, l_CriteriaCount, l_InstanceScript->m_InstanceGuid, time(nullptr), l_InstanceScript->m_BeginningTime, 0));
+
+            break;
+        }
+        case SMART_ACTION_SEND_SCENARIO_STATE:
+        {
+            WorldObject* l_Object = GetBaseObject();
+
+            if (l_Object == nullptr)
+                break;
+
+            uint32 l_ScenarioID = e.action.sendScenarioState.ScenarioID;
+            uint32 l_StepIndex  = e.action.sendScenarioState.StepIndex;
+
+            if (InstanceScript* l_InstanceScript = l_Object->GetInstanceScript())
+                l_InstanceScript->SendScenarioState(InstanceScript::ScenarioData(l_ScenarioID, l_StepIndex));
+
+            break;
+        }
+        case SMART_ACTION_UPDATE_PLOT_INSTANCE:
+        {
+            WorldObject* l_Object = GetBaseObject();
+
+            if (l_Object == nullptr)
+                break;
+
+            Creature* l_Creature = l_Object->ToCreature();
+
+            if (l_Creature == nullptr || l_Creature->AI())
+                return;
+
+            MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+
+            if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr && l_GarrisonAI->GetOwner()->GetGarrison() != nullptr)
+                l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
+
             break;
         }
         default:

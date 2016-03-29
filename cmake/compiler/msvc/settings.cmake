@@ -65,3 +65,15 @@ if(WIN32)
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm2000" CACHE STRING "" FORCE)
 endif()
+
+# Disable incremental linking in debug builds.
+# To prevent linking getting stuck (which might be fixed in a later VS version).
+macro(DisableIncrementalLinking variable)
+  string(REGEX REPLACE "/INCREMENTAL *" "" ${variable} "${${variable}}")
+  set(${variable} "${${variable}} /INCREMENTAL:NO")
+endmacro()
+
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_DEBUG)
+DisableIncrementalLinking(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO)

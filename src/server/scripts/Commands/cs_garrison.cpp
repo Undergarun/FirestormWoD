@@ -21,74 +21,74 @@ class garrison_commandscript: public CommandScript
         {
             static ChatCommand blueprintCommandTable[] =
             {
-                { "learn", SEC_GAMEMASTER, true, &HandleBlueprintLearnCommand, "", NULL },
-                { NULL,        0,               false,  NULL, "", NULL }
+                { "learn", SEC_ADMINISTRATOR, true,  &HandleBlueprintLearnCommand, "", NULL },
+                { NULL,        0,             false, NULL,                         "", NULL }
             };
 
             static ChatCommand plotCommandTable[] =
             {                                                                
-                { "info",    SEC_GAMEMASTER, true, &HandlePlotInfoCommand,   "", NULL },
-                { "add",     SEC_GAMEMASTER, true, &HandlePlotAddCommand,    "", NULL },
-                { "del",     SEC_GAMEMASTER, true, &HandlePlotDelCommand,    "", NULL },
-                { "import",  SEC_GAMEMASTER, true, &HandlePlotImportCommand, "", NULL },
-                { NULL,        0,               false,  NULL, "", NULL }
+                { "info",    SEC_ADMINISTRATOR, true,  &HandlePlotInfoCommand,   "", NULL },
+                { "add",     SEC_ADMINISTRATOR, true,  &HandlePlotAddCommand,    "", NULL },
+                { "del",     SEC_ADMINISTRATOR, true,  &HandlePlotDelCommand,    "", NULL },
+                { "import",  SEC_ADMINISTRATOR, true,  &HandlePlotImportCommand, "", NULL },
+                { NULL,        0,               false, NULL,                     "", NULL }
             };
 
             static ChatCommand followerCommandTable[] =
             {
-                { "add",        SEC_GAMEMASTER, true, &HandleFollowerAddCommand,    "", NULL },
-                { "remove",     SEC_GAMEMASTER, true, &HandleFollowerRemoveCommand, "", NULL },
-                { "reroll",     SEC_GAMEMASTER, true, &HandleFollowerRerollCommand, "", NULL },
-                { "list",       SEC_GAMEMASTER, true, &HandleFollowerListCommand,   "", NULL },
-                { "promote",    SEC_GAMEMASTER, true, &HandleFollowerPromoteCommand,"", NULL },
-                { NULL,        0,               false,  NULL, "", NULL }
+                { "add",        SEC_ADMINISTRATOR, true,  &HandleFollowerAddCommand,    "", NULL },
+                { "remove",     SEC_ADMINISTRATOR, true,  &HandleFollowerRemoveCommand, "", NULL },
+                { "reroll",     SEC_ADMINISTRATOR, true,  &HandleFollowerRerollCommand, "", NULL },
+                { "list",       SEC_ADMINISTRATOR, true,  &HandleFollowerListCommand,   "", NULL },
+                { "promote",    SEC_ADMINISTRATOR, true,  &HandleFollowerPromoteCommand,"", NULL },
+                { NULL,        0,                  false, NULL,                         "", NULL }
             };
 
             static ChatCommand missionCommandTable[] =
             {
-                { "add",            SEC_GAMEMASTER, true, &HandleMissionAddCommand, "", NULL },
-                { "completeall",    SEC_GAMEMASTER, true, &HandleMissionCompleteAllCommand, "", NULL },
-                { "reroll",         SEC_GAMEMASTER, true, &HandleMissionRerollCommand, "", NULL },
-                { NULL,        0,               false,  NULL, "", NULL }
+                { "add",            SEC_ADMINISTRATOR, true,  &HandleMissionAddCommand,         "", NULL },
+                { "completeall",    SEC_ADMINISTRATOR, true,  &HandleMissionCompleteAllCommand, "", NULL },
+                { "reroll",         SEC_ADMINISTRATOR, true,  &HandleMissionRerollCommand,      "", NULL },
+                { NULL,        0,                      false, NULL,                             "", NULL }
             };
 
             static ChatCommand buildingCommandTable[] =
             {
-                { "complete",         SEC_GAMEMASTER, true,  &HandleBuildingCompleteCommand,         "", NULL },
-                { NULL,               0,              false, NULL,                                   "", NULL }
+                { "complete",         SEC_ADMINISTRATOR, true,  &HandleBuildingCompleteCommand,         "", NULL },
+                { NULL,               0,                 false, NULL,                                   "", NULL }
             };
 
             static ChatCommand shipmentCommandTable[] =
             {
-                { "complete",         SEC_GAMEMASTER, true,  &HandleShipmentCompleteCommand,         "", NULL },
-                { NULL,               0,              false, NULL,                                   "", NULL }
+                { "complete",         SEC_ADMINISTRATOR, true,  &HandleShipmentCompleteCommand,         "", NULL },
+                { NULL,               0,                 false, NULL,                                   "", NULL }
             };
 
             static ChatCommand garrisonCommandTable[] =
             {
-                { "blueprint", SEC_GAMEMASTER,  true,   NULL, "",       blueprintCommandTable },
-                { "plot",      SEC_GAMEMASTER,  true,   NULL, "",       plotCommandTable      },
-                { "follower",  SEC_GAMEMASTER,  true,   NULL, "",       followerCommandTable  },
-                { "mission" ,  SEC_GAMEMASTER,  true,   NULL, "",       missionCommandTable   },
-                { "building",  SEC_GAMEMASTER,  true,   NULL, "",       buildingCommandTable  },
-                { "shipment",  SEC_GAMEMASTER,  true,   NULL, "",       shipmentCommandTable  },
-                { "info",      SEC_GAMEMASTER,  true,   &HandleGarrisonInfo,         "", NULL },
-                { "setlevel",  SEC_GAMEMASTER,  true,   &HandleGarrisonSetLevel,     "", NULL },
-                { "create",    SEC_GAMEMASTER,  true,   &HandleGarrisonCreate,       "", NULL },
-                { "delete",    SEC_GAMEMASTER,  true,   &HandleGarrisonDelete,       "", NULL },
-                { "resetdata", SEC_GAMEMASTER,  true,   &HandleGarrisonResetDatas,   "", NULL },
-                { NULL,        0,               false,  NULL, "", NULL }
+                { "blueprint", SEC_ADMINISTRATOR,  true,   NULL, "",       blueprintCommandTable },
+                { "plot",      SEC_ADMINISTRATOR,  true,   NULL, "",       plotCommandTable      },
+                { "follower",  SEC_ADMINISTRATOR,  true,   NULL, "",       followerCommandTable  },
+                { "mission" ,  SEC_ADMINISTRATOR,  true,   NULL, "",       missionCommandTable   },
+                { "building",  SEC_ADMINISTRATOR,  true,   NULL, "",       buildingCommandTable  },
+                { "shipment",  SEC_ADMINISTRATOR,  true,   NULL, "",       shipmentCommandTable  },
+                { "info",      SEC_ADMINISTRATOR,  true,   &HandleGarrisonInfo,         "", NULL },
+                { "setlevel",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,     "", NULL },
+                { "create",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,       "", NULL },
+                { "delete",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonDelete,       "", NULL },
+                { "resetdata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDatas,   "", NULL },
+                { NULL,        0,                  false,  NULL,                        "", NULL }
             };
 
             static ChatCommand shipyardCommandTable[] =
             {
-                { "open",       SEC_ADMINISTRATOR, false, &HandleShipyardOpen, NULL      },
+                { "open",       SEC_ADMINISTRATOR, false, &HandleShipyardOpen, NULL      }, ///< Missing field 'ChildCommands' initializer
                 { NULL,         0,                 false, NULL, "", NULL                 }
             };
 
             static ChatCommand commandTable[] =
             {
-                { "garrison",   SEC_GAMEMASTER,    false, NULL, "", garrisonCommandTable },
+                { "garrison",   SEC_ADMINISTRATOR, false, NULL, "", garrisonCommandTable },
                 { "shipyard",   SEC_ADMINISTRATOR, false, NULL, "", shipyardCommandTable },
                 { NULL,         0,                 false, NULL, "", NULL                 }
             };

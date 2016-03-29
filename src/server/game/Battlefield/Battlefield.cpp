@@ -24,9 +24,6 @@
 #include "Map.h"
 #include "MapManager.h"
 #include "Group.h"
-#include "WorldPacket.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
@@ -62,7 +59,7 @@ Battlefield::Battlefield()
 Battlefield::~Battlefield()
 {
     for (BfCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        delete itr->second;
+        delete itr->second; ///< Delete called on 'BfCapturePoint' that has virtual functions but non-virtual destructor
 
     for (GraveyardVect::const_iterator itr = m_GraveyardList.begin(); itr != m_GraveyardList.end(); ++itr)
         delete *itr;

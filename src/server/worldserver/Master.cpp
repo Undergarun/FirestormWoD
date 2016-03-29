@@ -46,8 +46,6 @@
 #include "TCSoap.h"
 #include "Timer.h"
 #include "Util.h"
-#include "AuthSocket.h"
-#include "RealmList.h"
 
 #include "BigNumber.h"
 #include "Reporter.hpp"
@@ -56,6 +54,19 @@
 #include "ServiceWin32.h"
 extern int m_ServiceStatus;
 #endif
+
+enum RealmFlags
+{
+    REALM_FLAG_NONE                              = 0x00,
+    REALM_FLAG_INVALID                           = 0x01,
+    REALM_FLAG_OFFLINE                           = 0x02,
+    REALM_FLAG_SPECIFYBUILD                      = 0x04,
+    REALM_FLAG_UNK1                              = 0x08,
+    REALM_FLAG_UNK2                              = 0x10,
+    REALM_FLAG_RECOMMENDED                       = 0x20,
+    REALM_FLAG_NEW                               = 0x40,
+    REALM_FLAG_FULL                              = 0x80
+};
 
 /// Handle worldservers's termination signals
 class WorldServerSignalHandler : public JadeCore::SignalHandler
@@ -115,7 +126,7 @@ public:
             ACE_Based::Thread::Sleep(1000);
             uint32 curtime = getMSTime();
             // normal work
-            uint32 worldLoopCounter = World::m_worldLoopCounter.value();
+            uint32 worldLoopCounter = World::m_worldLoopCounter;
             if (w_loops != worldLoopCounter)
             {
                 w_lastchange = curtime;
@@ -233,7 +244,7 @@ public:
                     last_ip = fields_ip[0].GetString();
                 }
 
-                if (command->accountID[1] == 0 && command->characterID == 0)
+                if (command->accountID[1] == 0 && command->characterID == 0) ///< Comparison of array 'command->characterID' equal to a null pointer is always false
                 {
                     command->accountID[1] = command->accountID[0];
                     command->characterID[1] = command->characterID[0];
@@ -915,7 +926,7 @@ void Master::ExecutePendingRequests()
         fclose(l_PendingRequestsFile);
 
         /// Clear file
-        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w"))
+        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w")) ///< Using the result of an assignment as a condition without parentheses
             fclose(l_PendingRequestsFile);
     }
     else

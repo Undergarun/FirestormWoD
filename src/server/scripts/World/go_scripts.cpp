@@ -1410,7 +1410,7 @@ void AddSC_go_scripts()
     new go_barov_journal;
     new go_field_repair_bot_74A;
     new go_gilded_brazier;
-    new go_orb_of_command;
+///    new go_orb_of_command;
     new go_shrine_of_the_birds;
     new go_southfury_moonstone;
     new go_tablet_of_madness;

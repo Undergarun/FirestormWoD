@@ -590,7 +590,7 @@ void WorldSession::SendPetBattleFinalizeLocation(PetBattleRequest* p_Request)
     SendPacket(&l_Packet);
 }
 
-void WorldSession::SendPetBattleFinished(PetBattle* battle)
+void WorldSession::SendPetBattleFinished(PetBattle* battle) ///< battle is unused
 {
     WorldPacket packet(SMSG_PETBATTLE_FINISHED, 0);
     SendPacket(&packet);

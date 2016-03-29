@@ -497,7 +497,7 @@ class spell_helix_chest_bomb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_helix_chest_bomb_AuraScript)
 
-            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = aurEff->GetBase()->GetUnitOwner())
                     target->CastSpell(target, SPELL_CHEST_BOMB_DMG, true);

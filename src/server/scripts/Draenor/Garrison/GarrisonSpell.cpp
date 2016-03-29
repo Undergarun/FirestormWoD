@@ -274,7 +274,7 @@ namespace MS { namespace Garrison
             {
                 PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
 
-                void OnTick(constAuraEffectPtr p_AurEff)
+                void OnTick(AuraEffect const* p_AurEff)
                 {
                     Unit* l_Caster = GetCaster();
                     WorldObject* l_Target = GetOwner();
@@ -289,7 +289,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
                 {
                     WorldObject* l_Target = GetOwner();
 
@@ -377,7 +377,7 @@ namespace MS { namespace Garrison
                     SpellStickyGrenadeTargetDmg = 168659
                 };
 
-                void OnRemove(constAuraEffectPtr /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
+                void OnRemove(AuraEffect const* /*m_AurEff*/, AuraEffectHandleModes /*m_Mode*/)
                 {
                     if (Unit* l_Caster = GetCaster())
                         l_Caster->CastSpell(l_Caster, eDatas::SpellStickyGrenadeTargetDmg, true);
@@ -428,6 +428,134 @@ namespace MS { namespace Garrison
             }
     };
 
+    class spell_GarrisonRouseTrader : public SpellScriptLoader
+    {
+        public:
+            spell_GarrisonRouseTrader() : SpellScriptLoader("spell_GarrisonRouseTrader") { }
+
+            class spell_GarrisonRouseTrader_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript);
+
+                SpellCastResult CheckCast()
+                {
+                    Unit* l_Target = GetExplTargetUnit();
+
+                    if (Creature* l_Creature = l_Target->ToCreature())
+                    {
+                        if (!l_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR))
+                            return SPELL_FAILED_BAD_TARGETS;
+                    }
+                    else
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    return SPELL_CAST_OK;
+                }
+
+                void OnSpellHit(SpellEffIndex /*p_EffIndex*/)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        l_Caster->ToPlayer()->KilledMonsterCredit(87254);
+                }
+
+                void Register()
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_GarrisonRouseTrader_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_GarrisonRouseTrader_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_GarrisonRouseTrader_SpellScript();
+            }
+    };
+
+    /// Garrison Stables training mounts - 174221, 174219, 174218, 174216, 174220, 174222
+    class spell_garrison_stables_training_mounts : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_stables_training_mounts() : SpellScriptLoader("spell_garrison_stables_training_mounts") { }
+
+            class spell_garrison_stables_training_mounts_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_garrison_stables_training_mounts_AuraScript);
+
+                Position m_MarkPos;
+
+                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    l_Owner->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+                }
+
+                void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    l_Owner->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+                }
+
+                void Register() override
+                {
+                    OnEffectApply += AuraEffectApplyFn(spell_garrison_stables_training_mounts_AuraScript::OnAuraApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                    AfterEffectRemove += AuraEffectRemoveFn(spell_garrison_stables_training_mounts_AuraScript::AfterAuraRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_garrison_stables_training_mounts_AuraScript();
+            }
+    };
+
+    /// Well-rested - 172425
+    class spell_garrison_well_rested : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_well_rested() : SpellScriptLoader("spell_garrison_well_rested") { }
+
+            class spell_garrison_well_rested_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_garrison_well_rested_AuraScript);
+
+                enum eSpells
+                {
+                    SpellWellRestedTrackingAura = 172424
+                };
+
+                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    if (l_Owner->HasAura(eSpells::SpellWellRestedTrackingAura))
+                        l_Owner->RemoveAura(eSpells::SpellWellRestedTrackingAura);
+                }
+
+                void Register() override
+                {
+                    OnEffectApply += AuraEffectApplyFn(spell_garrison_well_rested_AuraScript::OnAuraApply, EFFECT_0, SPELL_AURA_MOD_PERCENT_STAT, AURA_EFFECT_HANDLE_REAL);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_garrison_well_rested_AuraScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -439,4 +567,5 @@ void AddSC_Garrison()
     new MS::Garrison::spell_garrison_shipyard();
     new MS::Garrison::spell_aura_sticky_grenade();
     new MS::Garrison::spell_pneumatic_power_gauntlet();
+    new MS::Garrison::spell_GarrisonRouseTrader();
 }

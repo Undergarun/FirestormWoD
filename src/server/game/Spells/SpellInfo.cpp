@@ -270,7 +270,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,         TARGET_DIR_NONE         },  ///< 53 TARGET_DEST_TARGET_ENEMY
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,         TARGET_DIR_FRONT        },  ///< 54 TARGET_UNIT_CONE_ENEMY_54
     { TARGET_OBJECT_TYPE_DEST,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,       TARGET_DIR_NONE         },  ///< 55 TARGET_DEST_CASTER_FRONT_LEAP
-    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
+    { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 56 TARGET_UNIT_CASTER_AREA_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_TARGET,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 57 TARGET_UNIT_TARGET_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_RAID,          TARGET_DIR_NONE         },  ///< 58 TARGET_UNIT_NEARBY_RAID
     { TARGET_OBJECT_TYPE_UNIT,      TARGET_REFERENCE_TYPE_CASTER,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_RAID,          TARGET_DIR_FRONT        },  ///< 59 TARGET_UNIT_CONE_ALLY
@@ -1002,7 +1002,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 240 SPELL_EFFECT_240
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 241 SPELL_EFFECT_241
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 242 SPELL_EFFECT_242
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 243 SPELL_EFFECT_243
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM},          //< 243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 244 SPELL_EFFECT_244
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 245 SPELL_EFFECT_245
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 246 SPELL_EFFECT_246
@@ -1758,6 +1758,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificTarrenMillTitle:
         case SpellSpecificType::SpellSpecificDisposition:
         case SpellSpecificType::SpellSpecificTowerBuffs:
+        case SpellSpecificType::SpellSpecificWeeklyEventBuffs:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2075,13 +2076,13 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     Unit const* unitTarget = target->ToUnit();
 
-     // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
-     if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Piercing Howl, Multi-Shot, Psychic Terror, Earthgrab Totem - it doesn't break stealth.
+    if ((Id == 12323 || Id == 2643 || Id == 113792 || Id == 3600 || Id == 64695) && (unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) || HasAura(SPELL_AURA_MOD_INVISIBILITY)) && unitTarget)
+        return SPELL_FAILED_BAD_TARGETS;
 
-     // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
-         return SPELL_FAILED_BAD_TARGETS;
+    // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
+    if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
+        return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks
     if (unitTarget)
@@ -2526,6 +2527,12 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 173541:    ///< Tower Defense
                 case 173549:    ///< Stand Fast
                     return SpellSpecificType::SpellSpecificTowerBuffs;
+                case 186400:    ///< Sign of Apexis
+                case 186401:    ///< Sign of the Skirmisher
+                case 186403:    ///< Sign of Battle
+                case 186404:    ///< Sign of the Emissary
+                case 186406:    ///< Sign of the Critter
+                    return SpellSpecificType::SpellSpecificWeeklyEventBuffs;
                 default:
                     break;
             }
@@ -2802,6 +2809,10 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             l_CastTime /= 2;
     }
 
+    /// Glyph of Demon Training with Imp
+    if (p_Caster && p_Caster->GetEntry() == 416 && p_Caster->GetOwner() && p_Caster->GetOwner()->HasAura(56249) && Id == 3110)
+        l_CastTime /= 2;
+
     /// Flayer
     if (HasEffect(SPELL_EFFECT_SKINNING) && p_Caster->HasAura(68978))
         l_CastTime = CalculatePct(l_CastTime, 66);
@@ -2819,10 +2830,14 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
         }
     }
 
+    /// Loot bonus animation
+    if (HasEffect(SpellEffects::SPELL_EFFECT_LOOT_BONUS))
+        l_CastTime = 0;
+
     /// Elegon - Overloaded
     if (p_Caster && p_Caster->HasAura(117204))
     {
-        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+        if (Aura* overloaded = p_Caster->GetAura(117204))
             l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
     }
 
@@ -4618,4 +4633,39 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     }
 
     return true;
+}
+
+bool SpellInfo::IsAuraNeedDynamicCalculation() const
+{
+    switch (Id)
+    {
+        case 1079:   ///< Rip
+        case 1943:   ///< Rupture
+        case 73651:  ///< Recuperate
+        case 113344: ///< Bloodbath (DOT)
+        case 114916: ///< Stay of Execution (damage)
+        case 114917: ///< Stay of Execution (heal)
+        case 154953: ///< Internal Bleeding
+        case 155722: ///< Rake
+            return false;
+        default:
+            return true;
+    }
+
+    return true;
+}
+
+bool SpellInfo::IsAuraNeedPandemicEffect() const
+{
+    switch (Id)
+    {
+        case 5171:   ///< Slice and Dice
+        case 84617:  ///< Revealing Strike 
+        case 125359: ///< Tiger Power
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
 }

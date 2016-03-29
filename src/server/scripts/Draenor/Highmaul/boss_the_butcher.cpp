@@ -317,7 +317,10 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::ButcherBonusLoot, true);
                 }
             }
 
@@ -684,7 +687,7 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -801,7 +804,7 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript);
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (p_AurEff->GetTickNumber() != 8)
                     return;
@@ -847,7 +850,7 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
                 GushingWoundsKill = 156153
             };
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {

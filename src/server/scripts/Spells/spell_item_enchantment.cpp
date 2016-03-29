@@ -27,8 +27,8 @@ namespace eEnchantmentMarkProc
         Warsong         = 159675,
         BleedingHollow  = 173322,
         Frostwolf       = 159676,
-        //Blackrock       = 159679,
-        //Shadowmoon      = 159678
+        Blackrock       = 159679,
+        Shadowmoon      = 159678
     };
 }
 namespace eEnchantmentMarkAura
@@ -39,8 +39,8 @@ namespace eEnchantmentMarkAura
         Warsong         = 159682,
         BleedingHollow  = 173321,
         Frostwolf       = 159683,
-        //Blackrock       = 159685,
-        //Shadowmoon      = 159684
+        Blackrock       = 159685,
+        Shadowmoon      = 159684
     };
 }
 namespace eEnchantmentMarkIds
@@ -50,9 +50,9 @@ namespace eEnchantmentMarkIds
         Thunderlord     = 5330,
         Warsong         = 5337,
         BleedingHollow  = 5384,
-        Frostwolf       = 5334,
-        //Blackrock       = 5336,
-        //Shadowmoon      = 5335
+        Frostwolf       = 5356,
+        Blackrock       = 5336,
+        Shadowmoon      = 5335
     };
 }
 
@@ -65,12 +65,18 @@ class spell_enchantment_mark : public SpellScriptLoader
         {
             PrepareAuraScript(spell_enchantment_mark_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 if (!GetOwner())
                     return;
 
                 Player* l_Player = GetOwner()->ToPlayer();
+
+                if (GetSpellInfo()->Id == 159685 && l_Player->GetHealthPct() >= 60.0f)
+                {
+                    PreventDefaultAction();
+                    return;
+                }
 
                 uint32 l_ProcAuraId = 0;
                 uint32 l_EnchantId = 0;
@@ -84,6 +90,9 @@ class spell_enchantment_mark : public SpellScriptLoader
                     l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                 else
                     l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+
+                if (l_Item == nullptr)
+                    return;
 
                 switch (GetSpellInfo()->Id)
                 {
@@ -103,32 +112,45 @@ class spell_enchantment_mark : public SpellScriptLoader
                         l_ProcAuraId = eEnchantmentMarkProc::Frostwolf;
                         l_EnchantId = eEnchantmentMarkIds::Frostwolf;
                         break;
-                    /*
-                     case eEnchantmentMarkAura::Blackrock:
-                        l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
-                        l_EnchantId = eEnchantmentMarkIds::Blackrock;
-                        break;
                     case eEnchantmentMarkAura::Shadowmoon:
                         l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
                         l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
                         break;
-                     */
+                     case eEnchantmentMarkAura::Blackrock:
+                        l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
+                        l_EnchantId = eEnchantmentMarkIds::Blackrock;
+                        break;
                     default:
                         break;
                 }
+
+                if (!l_Item || l_Player->HasSpellCooldown(l_ProcAuraId))
+                    return;
 
                 /// Check if we have this enchant on that weapon
                 for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
                     if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)))
                         l_HasEnchant = true;
 
-                if (l_HasEnchant)
+                if (l_HasEnchant && l_Player && l_ProcAuraId && l_Item)
+                {
                     l_Player->CastSpell(l_Player, l_ProcAuraId, true, l_Item);
+                    l_Player->AddSpellCooldown(l_ProcAuraId, 0, 1 * IN_MILLISECONDS, true);
+                }
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                switch (m_scriptSpellId)
+                {
+                    case 159684:
+                    case 159685:
+                        OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                    break;
+                    default:
+                        OnEffectProc += AuraEffectProcFn(spell_enchantment_mark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                        break;
+                }
             }
         };
 

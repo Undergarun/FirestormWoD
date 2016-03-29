@@ -102,6 +102,8 @@ public:
             Phase3 = false;
 
             DespawnTimer = 5000;
+
+            me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
         }
 
         void KilledUnit(Unit* Victim)

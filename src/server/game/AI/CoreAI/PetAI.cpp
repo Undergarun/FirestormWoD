@@ -104,8 +104,13 @@ void PetAI::UpdateAI(const uint32 diff)
             return;
         }
 
-        if (owner && !owner->isInCombat())
-            owner->SetInCombatWith(me->getVictim());
+        if (owner != nullptr)
+        {
+            if (!owner->isInCombat())
+                owner->SetInCombatWith(me->getVictim());
+            else if (owner->ToPlayer() && owner->ToPlayer()->GetSelectedUnit() && owner->ToPlayer()->GetSelectedUnit()->GetGUID() != me->getVictim()->GetGUID() && me->IsValidAttackTarget(owner->ToPlayer()->GetSelectedUnit()) && CanAttack(owner->ToPlayer()->GetSelectedUnit()))
+                AttackStart(owner->ToPlayer()->GetSelectedUnit());
+        }
 
         if (CanAttack(me->getVictim()))
             DoMeleeAttackIfReady();
@@ -257,10 +262,9 @@ void PetAI::UpdateAI(const uint32 diff)
     }
 
     // Update speed as needed to prevent dropping too far behind and despawning
-    // This not need to call every update.
-    //me->UpdateSpeed(MOVE_RUN, true);
-    //me->UpdateSpeed(MOVE_WALK, true);
-    //me->UpdateSpeed(MOVE_FLIGHT, true);
+    me->UpdateSpeed(MOVE_RUN, true);
+    me->UpdateSpeed(MOVE_WALK, true);
+    me->UpdateSpeed(MOVE_FLIGHT, true);
 }
 
 void PetAI::UpdateAllies()

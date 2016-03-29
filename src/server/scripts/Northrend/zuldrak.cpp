@@ -866,10 +866,10 @@ public:
                     }
                 }
                 if (evadeMode)
-		{
+        {
                    EnterEvadeMode();
-	           return;
-		}
+               return;
+        }
             }
 
             if (uiCleaveTimer <= uiDiff)
@@ -993,9 +993,9 @@ public:
                                 me->AddThreat(unit, 5.0f);
                                 break;
                             }
-                            EnterEvadeMode();
                         }
                     }
+                    EnterEvadeMode();
                 }
             }
 

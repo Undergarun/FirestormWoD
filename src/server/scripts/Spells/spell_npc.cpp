@@ -50,9 +50,9 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
 
                 if (Player* l_Player = p_Summoner->ToPlayer())
                 {
-                    if (AuraPtr l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
+                    if (Aura* l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
                     {
-                        if (AuraEffectPtr l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
+                        if (AuraEffect* l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
                         {
                             if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_MAGE_FROST)
                                 l_DamageTaken->ChangeAmount(10);    ///< BasePoint = 30, but only for Arcane and Fire spec
@@ -154,7 +154,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
-                    if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                    if (AuraEffect* l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
                         events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
                 }
             }
@@ -170,7 +170,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                         l_Owner->CastSpell(l_Owner, Spells::FingersOfFrostVisual, true);
                         l_Owner->CastSpell(l_Owner, Spells::FingersOfFrost, true);
 
-                        if (AuraEffectPtr l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
+                        if (AuraEffect* l_AurEff = l_Owner->GetAuraEffect(Spells::T17Frost2P, EFFECT_0))
                             events.ScheduleEvent(eEvent::EventFingerOfFrost, l_AurEff->GetAmount());
                     }
                 }
@@ -333,6 +333,7 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                 uint32 ComboPoints;
             };
 
+            uint64 m_TargetGUID = 0;
             bool m_Queuing;
 
             /// Automatically stored in good time order
@@ -343,6 +344,22 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                 me->SetCanDualWield(true);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->CastSpell(me, eSpells::SpellShadowReflectionAura, true);
+
+                if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                    {
+                        if (l_Player->GetSelectedUnit())
+                            m_TargetGUID = l_Player->GetSelectedUnit()->GetGUID();
+                        else if (l_Owner->getVictim())
+                            m_TargetGUID = l_Owner->getVictim()->GetGUID();
+                    }
+                }
+
+                Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
+                if (l_Target != nullptr)
+                    me->GetMotionMaster()->MoveFollow(l_Target, 2.0f, 0.0f);
             }
 
             void AddHitQueue(uint32 *p_Data, int32 p_ID)
@@ -368,16 +385,11 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                         m_Queuing = false;
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                        if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
+                        if (m_TargetGUID)
                         {
-                            Unit* l_OwnerTarget = nullptr;
-                            if (Player* l_Player = l_Owner->ToPlayer())
-                                l_OwnerTarget = l_Player->GetSelectedUnit();
-                            else
-                                l_OwnerTarget = l_Owner->getVictim();
-
-                            if (l_OwnerTarget)
-                                AttackStart(l_OwnerTarget);
+                            Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
+                            if (l_Target != nullptr)
+                                AttackStart(l_Target);
                         }
                         break;
                     }
@@ -1042,7 +1054,7 @@ class spell_npc_warl_wild_imp : public CreatureScript
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
-                    if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
+                    if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
                         if (roll_chance_i(l_MoltenCore->GetAmount()))
                             l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
                 }
@@ -1219,6 +1231,7 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
                 me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, eGatewaySpells::GatewayInteract);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void OnSpellClick(Unit* p_Clicker)
@@ -1433,11 +1446,98 @@ class spell_npc_dru_force_of_nature_resto : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
+/// Totem of Harmony - 65387
+class spell_npc_totem_of_harmony : public CreatureScript
+{
+public:
+    spell_npc_totem_of_harmony() : CreatureScript("spell_npc_totem_of_harmony") { }
+
+    enum eSpells
+    {
+        TotemofHarmonyAura = 128182
+    };
+
+    struct spell_npc_totem_of_harmony_bannerAI : public ScriptedAI
+    {
+        spell_npc_totem_of_harmony_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+        void Reset()
+        {
+            me->CastSpell(me, eSpells::TotemofHarmonyAura, true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const
+    {
+        return new spell_npc_totem_of_harmony_bannerAI(p_Creature);
+    }
+};
+
+/// Black Ox Statue - 61146
+class spell_npc_black_ox_statue : public CreatureScript
+{
+    public:
+        spell_npc_black_ox_statue() : CreatureScript("spell_npc_black_ox_statue") { }
+
+        enum eSpells
+        {
+            ThreatEvent = 163178
+        };
+
+        struct spell_npc_black_ox_statueAI : public ScriptedAI
+        {
+            spell_npc_black_ox_statueAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eEvents
+            {
+                ThreatEvent = 1
+            };
+
+            EventMap m_Events;
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                me->setFaction(p_Summoner->getFaction());
+            }
+
+            void Reset()
+            {
+                m_Events.Reset();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                me->CastSpell(me, eSpells::ThreatEvent, true);
+                m_Events.ScheduleEvent(eEvents::ThreatEvent, 1000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                m_Events.Update(p_Diff);
+                switch (m_Events.ExecuteEvent())
+                {
+                case eEvents::ThreatEvent:
+                    me->CastSpell(me, eSpells::ThreatEvent, true);
+                    m_Events.ScheduleEvent(eEvents::ThreatEvent, 1000);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_black_ox_statueAI(p_Creature);
+        }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
     new spell_npc_mage_frozen_orb();
+
+    /// Monk NPC
+    new spell_npc_black_ox_statue();
 
     /// Rogue NPC
     new spell_npc_rogue_shadow_reflection();
@@ -1464,4 +1564,7 @@ void AddSC_npc_spell_scripts()
 
     /// Druid NPC
     new spell_npc_dru_force_of_nature_resto();
+
+    /// Generic NPC
+    new spell_npc_totem_of_harmony();
 }

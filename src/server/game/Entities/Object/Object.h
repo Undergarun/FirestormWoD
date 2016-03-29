@@ -647,6 +647,7 @@ static float dotProductXY(Position const& p_Pos1, Position const& p_Pos2)
     return p_Pos1.m_positionX * p_Pos2.m_positionX + p_Pos1.m_positionY * p_Pos2.m_positionY;
 }
 
+/// unused function 22/02/16
 static Position& normalizeXY(Position& p_Pos)
 {
     float l_Norme = std::sqrt(dotProductXY(p_Pos, p_Pos));
@@ -656,6 +657,7 @@ static Position& normalizeXY(Position& p_Pos)
     return p_Pos;
 }
 
+/// unused function 22/02/16
 static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
 {
     float l_x1 = p_PointLine1.GetPositionX();
@@ -845,7 +847,7 @@ class WorldObject : public Object, public WorldLocation
         }
 
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
-        void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const;
+        void GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float angle = 0) const
         {
             // angle calculated from current orientation
@@ -901,9 +903,9 @@ class WorldObject : public Object, public WorldLocation
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
 
-        uint32 GetZoneId() const;
-        uint32 GetAreaId() const;
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const;
+        virtual uint32 GetZoneId(bool forceRecalc = false) const;
+        virtual uint32 GetAreaId(bool forceRecalc = false) const;
+        virtual void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
 
         InstanceScript* GetInstanceScript();
 
@@ -956,6 +958,10 @@ class WorldObject : public Object, public WorldLocation
             { return IsInDist(x, y, z, dist + GetObjectSize()); }
         bool IsWithinDist3d(const Position* pos, float dist) const
             { return IsInDist(pos, dist + GetObjectSize()); }
+        bool IsWithinDist3d(Position const* p_Pos, float p_Dist, WorldObject const* p_Target = nullptr)
+        {
+            return IsInDist(p_Pos, p_Dist + (p_Target != nullptr ? (GetObjectSize() + p_Target->GetObjectSize()) : GetObjectSize()));
+        }
         bool IsWithinDist2d(float x, float y, float dist) const
             { return IsInDist2d(x, y, dist + GetObjectSize()); }
         bool IsWithinDist2d(const Position* pos, float dist) const
@@ -1100,6 +1106,7 @@ class WorldObject : public Object, public WorldLocation
         void SetTransport(Transport* t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
+        uint32 m_movementInfoLastTime;
 
         float GetTransOffsetX() const { return m_movementInfo.t_pos.GetPositionX(); }
         float GetTransOffsetY() const { return m_movementInfo.t_pos.GetPositionY(); }

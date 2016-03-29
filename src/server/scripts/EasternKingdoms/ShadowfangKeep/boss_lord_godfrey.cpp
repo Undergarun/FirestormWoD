@@ -16,22 +16,22 @@ enum ScriptTexts
 
 enum Spells
 {
-    SPELL_PISTOL_BARRAGE				= 93520,
-    SPELL_PISTOL_BARRAGE_DUMMY			= 96345,
-    SPELL_PISTOL_BARRAGE_AURA			= 93566,
-    SPELL_PISTOL_BARRAGE_DMG			= 93564,
-    SPELL_PISTOL_BARRAGE_DMG_H			= 93784,
-    SPELL_PISTOL_BARRAGE_MISSILE_SUM	= 96344,
-    SPELL_PISTOL_BARRAGE_SUM			= 96343,
-    SPELL_PISTOL_BARRAGE_DUMMY_1		= 93557,
-    SPELL_PISTOL_BARRAGE_DUMMY_2		= 93558,
+    SPELL_PISTOL_BARRAGE                = 93520,
+    SPELL_PISTOL_BARRAGE_DUMMY          = 96345,
+    SPELL_PISTOL_BARRAGE_AURA           = 93566,
+    SPELL_PISTOL_BARRAGE_DMG            = 93564,
+    SPELL_PISTOL_BARRAGE_DMG_H          = 93784,
+    SPELL_PISTOL_BARRAGE_MISSILE_SUM    = 96344,
+    SPELL_PISTOL_BARRAGE_SUM            = 96343,
+    SPELL_PISTOL_BARRAGE_DUMMY_1        = 93557,
+    SPELL_PISTOL_BARRAGE_DUMMY_2        = 93558,
     SPELL_PISTOLS_VISUAL_PASSIVE        = 93597,
-    SPELL_SUMMON_BLOODTHIRSTY_GHOULS	= 93707,
-    SPELL_SUMMON_BLOODTHIRSTY_GHOULS_M	= 93709,
-    SPELL_CURSED_BULLET					= 93629,
-    SPELL_CURSED_BULLET_H				= 93629,
-    SPELL_MORTAL_WOUND					= 93675,
-    SPELL_MORTAL_WOUND_H				= 93675,
+    SPELL_SUMMON_BLOODTHIRSTY_GHOULS    = 93707,
+    SPELL_SUMMON_BLOODTHIRSTY_GHOULS_M  = 93709,
+    SPELL_CURSED_BULLET                 = 93629,
+    SPELL_CURSED_BULLET_H               = 93629,
+    SPELL_MORTAL_WOUND                  = 93675,
+    SPELL_MORTAL_WOUND_H                = 93675
 };
 
 enum Events
@@ -39,13 +39,13 @@ enum Events
     EVENT_PISTOL_BARRAGE                = 1,
     EVENT_SUMMON_BLOODTHIRSTY_GHOULS    = 2,
     EVENT_CURSED_BULLET                 = 3,
-    EVENT_MORTAL_WOUND                  = 4,
+    EVENT_MORTAL_WOUND                  = 4
 };
 
 enum Adds
 {
-    NPC_BLOODTHRISTY_GHOUL	= 50561,
-    NPC_PISTOL_BARRAGE		= 52065,
+    NPC_BLOODTHRISTY_GHOUL  = 50561,
+    NPC_PISTOL_BARRAGE      = 52065
 };
 
 class boss_lord_godfrey : public CreatureScript
@@ -188,7 +188,7 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
         {
             PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript);
 
-            void HandleDummyTick(constAuraEffectPtr aurEff)
+            void HandleDummyTick(AuraEffect const* aurEff)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_BLOODTHIRSTY_GHOULS_M, true);
             }
@@ -211,6 +211,3 @@ void AddSC_boss_lord_godfrey()
     new npc_godfrey_pistol_barrage();
     new spell_godfrey_summon_bloodthirsty_ghouls();
 }
-
-
-

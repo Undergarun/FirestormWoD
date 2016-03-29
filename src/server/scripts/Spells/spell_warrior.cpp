@@ -81,7 +81,7 @@ class spell_warr_ravager : public SpellScriptLoader
                 RavagerDamage = 156287
             };
 
-            void CalculateParryPCT(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateParryPCT(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -93,7 +93,7 @@ class spell_warr_ravager : public SpellScriptLoader
                 }
             }
 
-            void OnTick(constAuraEffectPtr p_AurEff)
+            void OnTick(AuraEffect const* p_AurEff)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -228,7 +228,7 @@ class spell_warr_shield_block_aura : public SpellScriptLoader
                 ShieldMastery   = 169688
             };
 
-            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -238,7 +238,7 @@ class spell_warr_shield_block_aura : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpells::ShieldMastery);
@@ -414,7 +414,7 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_second_wind_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -425,7 +425,7 @@ class spell_warr_second_wind: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -541,7 +541,7 @@ class spell_warr_mocking_banner: public SpellScriptLoader
                 MockingBannerTaunt = 114198
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -599,7 +599,7 @@ class spell_warr_raging_blow: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (AuraPtr ragingBlow = l_Caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                    if (Aura* ragingBlow = l_Caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
                         ragingBlow->ModStackAmount(-1);
 
                     if (l_Caster->HasAura(eSpells::MeatCleaverTargetModifier))
@@ -666,7 +666,7 @@ class spell_warr_devaste: public SpellScriptLoader
                 if (l_Player->HasAura(eSpells::UnyieldingStrikesAura))
                 {
                     /// If we already have 5 charges, we don't need to update an aura
-                    if (AuraPtr l_UnyieldingStrikes = l_Player->GetAura(eSpells::UnyieldingStrikesProc))
+                    if (Aura* l_UnyieldingStrikes = l_Player->GetAura(eSpells::UnyieldingStrikesProc))
                     {
                         if (l_UnyieldingStrikes->GetStackAmount() < 6)
                         {
@@ -749,8 +749,14 @@ class spell_warr_glyph_of_die_by_the_sword : public SpellScriptLoader
                 DiebytheSword = 118038
             };
 
+            bool m_IsAlreadyProc = false;
+
             void HandleOnHit()
             {
+                if (m_IsAlreadyProc)
+                    return;
+
+                m_IsAlreadyProc = true;
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofDiebytheSword))
@@ -761,12 +767,13 @@ class spell_warr_glyph_of_die_by_the_sword : public SpellScriptLoader
                 if (l_SpellInfo == nullptr)
                     return;
 
-                if (AuraPtr l_DieByTheSword = l_Caster->GetAura(eSpells::DiebytheSword))
+                if (Aura* l_DieByTheSword = l_Caster->GetAura(eSpells::DiebytheSword))
                 {
                     switch (GetSpellInfo()->Id)
                     {
                     case eSpells::MortalStrike: ///< increases its duration by 2 sec
                         l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (l_SpellInfo->Effects[EFFECT_1].BasePoints * IN_MILLISECONDS));
+                        break;
                     case eSpells::WildStrike: ///< increases its duration by 0.25 sec
                         l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (((float)l_SpellInfo->Effects[EFFECT_0].BasePoints / 4) * IN_MILLISECONDS));
                         break;
@@ -866,8 +873,6 @@ class spell_warr_heroic_leap: public SpellScriptLoader
                 if (!l_Player || !l_SpellDest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (l_SpellDest->GetPositionZ() > l_Player->GetPositionZ() + 5.0f)
-                    return SPELL_FAILED_NOPATH;
                 else if (l_Player->HasAuraType(SPELL_AURA_MOD_ROOT) || l_Player->HasAuraType(SPELL_AURA_MOD_ROOT_2))
                     return SPELL_FAILED_ROOTED;
                 else if (l_Player->GetMap()->IsBattlegroundOrArena())
@@ -1021,7 +1026,7 @@ class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
                 RagingBlowOffHand = 85384
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcEventInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcEventInfo)
             {
                 PreventDefaultAction();
 
@@ -1030,18 +1035,36 @@ class spell_warr_glyph_of_raging_blow: public SpellScriptLoader
                     return;
 
                 SpellInfo const* l_TriggeredBySpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
-                if (!l_TriggeredBySpell)
+                SpellInfo const* l_RagingBlowEffectSpell = sSpellMgr->GetSpellInfo(p_AurEff->GetTriggerSpell());
+                if (!l_TriggeredBySpell || !l_RagingBlowEffectSpell)
                     return;
 
                 /// Should proc when Raging Blow (main hand and offhand)...
-                if (l_TriggeredBySpell->Id != eSpells::RagingBlow)
+                if (l_TriggeredBySpell->Id != eSpells::RagingBlow && l_TriggeredBySpell->Id != eSpells::RagingBlowOffHand)
                     return;
 
-                /// ...are both critical
+                /// Can't proc from multistrike
+                if (p_ProcEventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE)
+                    return;
+
+                /// Should be critical
                 if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
                     return;
 
-                l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
+                /// If both of your attacks from a single Raging Blow are critical strikes...
+                if (l_TriggeredBySpell->Id == eSpells::RagingBlow)
+                {
+                    l_Caster->CastSpell(l_Caster, p_AurEff->GetTriggerSpell(), true);
+                    /// Set aura effect basepoints to null, because it's just first crit, if offhand spell won't crit, this spell shouldn't increase heal
+                    if (AuraEffect* l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
+                        l_RagingBlowEffect->SetAmount(0);
+                }
+                else
+                {
+                    /// Restore aura effect basepoints, to increase heal of Bloodthirst
+                    if (AuraEffect* l_RagingBlowEffect = l_Caster->GetAuraEffect(p_AurEff->GetTriggerSpell(), EFFECT_0))
+                        l_RagingBlowEffect->SetAmount(l_RagingBlowEffect->GetBaseAmount());
+                }
             }
 
             void Register()
@@ -1090,7 +1113,7 @@ class spell_warr_bloodthirst: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Caster, eSpells::BloodthirstHeal, true);
 
-                    if (AuraEffectPtr l_Bloodsurge = l_Caster->GetAuraEffect(eSpells::Bloodsurge, EFFECT_0))
+                    if (AuraEffect* l_Bloodsurge = l_Caster->GetAuraEffect(eSpells::Bloodsurge, EFFECT_0))
                     {
                         if (roll_chance_i(l_Bloodsurge->GetAmount()))
                             l_Caster->CastSpell(l_Caster, eSpells::BloodsurgeProc, true);
@@ -1130,9 +1153,9 @@ class spell_warr_bloodthirst_heal: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
 
-                if (AuraEffectPtr l_GlyphOfRagingBlow = l_Caster->GetAuraEffect(eSpells::GlyphOfRagingBlowHealMod, EFFECT_0))
+                if (AuraEffect* l_GlyphOfRagingBlow = l_Caster->GetAuraEffect(eSpells::GlyphOfRagingBlowHealMod, EFFECT_0))
                 {
-                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetBaseAmount());
+                    AddPct(l_Heal, l_GlyphOfRagingBlow->GetAmount());
                     l_GlyphOfRagingBlow->GetBase()->Remove();
                 }
 
@@ -1222,7 +1245,7 @@ class spell_warr_victory_rush_heal: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Heal = GetHitHeal();
 
-                if (AuraEffectPtr l_GlyphOfVictoryRush = l_Caster->GetAuraEffect(eSpells::GlyphOfVictoryRush, EFFECT_0))
+                if (AuraEffect* l_GlyphOfVictoryRush = l_Caster->GetAuraEffect(eSpells::GlyphOfVictoryRush, EFFECT_0))
                     AddPct(l_Heal, l_GlyphOfVictoryRush->GetAmount());
 
                 SetHitHeal(l_Heal);
@@ -1398,7 +1421,7 @@ class spell_warr_shield_wall: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_shield_wall_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1417,7 +1440,7 @@ class spell_warr_shield_wall: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1456,7 +1479,7 @@ class spell_warr_spell_reflection: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_spell_reflection_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1472,7 +1495,7 @@ class spell_warr_spell_reflection: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -1644,7 +1667,7 @@ class spell_warr_shield_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_shield_barrier_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1708,7 +1731,7 @@ class spell_warr_anger_management: public PlayerScript
             if (!p_Player || p_Player->getClass() != CLASS_WARRIOR || p_Power != POWER_RAGE || p_Regen)
                 return;
 
-            AuraEffectPtr l_AngerManagementAura = p_Player->GetAuraEffect(eSpells::AngerManagement, EFFECT_0);
+            AuraEffect* l_AngerManagementAura = p_Player->GetAuraEffect(eSpells::AngerManagement, EFFECT_0);
             if (!l_AngerManagementAura)
                 return;
 
@@ -1783,7 +1806,7 @@ class spell_warr_glyph_of_executor : public SpellScriptLoader
 };
 
 /// Execute (Arms) - 163201
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 class spell_warr_execute: public SpellScriptLoader
 {
     public:
@@ -1795,7 +1818,8 @@ class spell_warr_execute: public SpellScriptLoader
 
             enum eSpells
             {
-                SuddenDeath = 52437
+                SuddenDeath = 52437,
+                ExecuteExtra = 168874
             };
 
             void HandleEnergize(SpellEffIndex p_EffIndex)
@@ -1826,11 +1850,12 @@ class spell_warr_execute: public SpellScriptLoader
                         l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
-                    /// Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
-                    l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+
+                    int32 l_Bp = l_RageConsumed * (405.0f / l_MaxConsumed);
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::ExecuteExtra, nullptr, &l_Bp, nullptr, true);
                 }
                 /// Sudden Death
-                if (AuraPtr l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
+                if (Aura* l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
                     l_Aura->Remove();
 
                 SetHitDamage(l_Damage);
@@ -1877,7 +1902,7 @@ class spell_warr_whirlwind: public SpellScriptLoader
                 if (l_Caster->HasAura(WARRIOR_ENHANCED_WHIRLWIND))
                 {
                     l_Caster->CastSpell(l_Caster, WARROR_MEAT_CLEAVER_TARGET_MODIFIER, true);
-                    if (AuraPtr l_MeatCleaverAura = l_Caster->GetAura(WARROR_MEAT_CLEAVER_TARGET_MODIFIER))
+                    if (Aura* l_MeatCleaverAura = l_Caster->GetAura(WARROR_MEAT_CLEAVER_TARGET_MODIFIER))
                     {
                         uint8 l_StackAmount = (l_MeatCleaverAura->GetStackAmount() + 1) > 4 ? 4 : l_MeatCleaverAura->GetStackAmount() + 1;
                         l_MeatCleaverAura->SetStackAmount(l_StackAmount);
@@ -1939,6 +1964,7 @@ enum ShieldChargeSpells
     SPELL_WARR_SHIELD_CHARGE_CHARGE = 178768
 };
 
+/// Last Update 6.2.3
 /// Shield Charge - 156321
 class spell_warr_shield_charge: public SpellScriptLoader
 {
@@ -1969,11 +1995,19 @@ class spell_warr_shield_charge: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
+                int32 l_RemainingDuration = 0;
                 if (!l_Target)
                     return;
 
                 l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+                if (Aura* l_OldChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                    l_RemainingDuration = l_OldChargeBuff->GetDuration();
                 l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+                if (Aura* l_ChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                {
+                    l_ChargeBuff->SetMaxDuration(l_ChargeBuff->GetDuration() + l_RemainingDuration);
+                    l_ChargeBuff->RefreshDuration();
+                }
             }
 
             void Register()
@@ -2044,7 +2078,7 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
                 Rend = 772
             };
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2086,7 +2120,7 @@ class spell_warr_rend : public SpellScriptLoader
                 RendFinalBurst = 94009
             };
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Owner = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -2131,7 +2165,7 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 BloodBathDamage = 113344
             };
 
-            void HandleOnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_ProcInfo)
+            void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2155,7 +2189,7 @@ class spell_warr_blood_bath : public SpellScriptLoader
 
                 int32 l_PreviousTotalDamage = 0;
 
-                if (AuraEffectPtr l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffect* l_PreviousBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                 {
                     int32 l_PeriodicDamage = l_PreviousBloodBath->GetAmount();
                     int32 l_Duration = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID())->GetDuration();
@@ -2175,13 +2209,13 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 l_Caster->CastSpell(l_Target, eSpells::BloodBathSnare, true);
                 if (l_Target->HasAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
                 {
-                    if (AuraPtr l_ActualBloodBath = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
+                    if (Aura* l_ActualBloodBath = l_Target->GetAura(eSpells::BloodBathDamage, l_Caster->GetGUID()))
                         l_ActualBloodBath->SetDuration(l_ActualBloodBath->GetMaxDuration());
                 }
                 else
                     l_Caster->CastSpell(l_Target, eSpells::BloodBathDamage, true);
 
-                if (AuraEffectPtr l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffect* l_NewBloodBath = l_Target->GetAuraEffect(eSpells::BloodBathDamage, EFFECT_0, l_Caster->GetGUID()))
                     l_NewBloodBath->SetAmount(l_Damage);
             }
 
@@ -2212,7 +2246,7 @@ class spell_warr_blood_craze : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_blood_craze_Aurascript);
 
-            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            void HandleOnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 
@@ -2257,7 +2291,7 @@ class spell_warr_blood_craze_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_blood_craze_aura_AuraScript);
 
-            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2268,7 +2302,7 @@ class spell_warr_blood_craze_aura : public SpellScriptLoader
                 l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), p_AurEff->GetAmount());
             }
 
-            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffect* p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2283,7 +2317,7 @@ class spell_warr_blood_craze_aura : public SpellScriptLoader
                 p_AurEff->SetAmount(l_Stack->GetTotalAmount());
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2323,7 +2357,7 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
                 Whirlwind = 1680
             };
 
-            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
+            void HandleOnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2403,11 +2437,11 @@ class spell_warr_shield_slam : public SpellScriptLoader
 
                 /// Heavy Repercussions
                 if (l_Caster->HasAura(WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED) || l_Caster->HasAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
-                    if (AuraPtr l_HeavyRepercussions = l_Caster->GetAura(WARRIOR_HEAVY_REPERCUSSIONS))
+                    if (Aura* l_HeavyRepercussions = l_Caster->GetAura(WARRIOR_HEAVY_REPERCUSSIONS))
                         l_Damage += CalculatePct(l_Damage, l_HeavyRepercussions->GetEffect(0)->GetAmount());
 
                 /// Shield Charge
-                if (AuraPtr l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
+                if (Aura* l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
                 {
                     if (l_ShieldCharge->GetEffect(EFFECT_0))
                         l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
@@ -2503,7 +2537,7 @@ class spell_warr_glyph_of_shattering_throw : public SpellScriptLoader
                 ShatteringThrow = 64382
             };
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -2514,7 +2548,7 @@ class spell_warr_glyph_of_shattering_throw : public SpellScriptLoader
                     l_Player->learnSpell(eSpells::ShatteringThrow, false);
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
 
@@ -2554,7 +2588,7 @@ class spell_warr_defensive_stance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_defensive_stance_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -2562,7 +2596,7 @@ class spell_warr_defensive_stance : public SpellScriptLoader
                     l_Target->CastSpell(l_Target, eSpells::UnwaveringSentinel, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -2583,67 +2617,157 @@ class spell_warr_defensive_stance : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Gladiator Stance - 156291
+class spell_warr_gladiator_stance : public SpellScriptLoader
+{
+    public:
+        spell_warr_gladiator_stance() : SpellScriptLoader("spell_warr_gladiator_stance") { }
+
+        enum eSpells
+        {
+            UnwaveringSentinel = 29144
+        };
+
+        class spell_warr_gladiator_stance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_gladiator_stance_AuraScript);
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->RemoveAura(eSpells::UnwaveringSentinel);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_gladiator_stance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_gladiator_stance_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
 /// Single-Minded Fury - 81099
 class spell_warr_single_minded_fury : public SpellScriptLoader
 {
-public:
-    spell_warr_single_minded_fury() : SpellScriptLoader("spell_warr_single_minded_fury") { }
+    public:
+        spell_warr_single_minded_fury() : SpellScriptLoader("spell_warr_single_minded_fury") { }
 
-    class spell_warr_single_minded_fury_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_single_minded_fury_AuraScript);
-
-        void CalculateFirstEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+        class spell_warr_single_minded_fury_AuraScript : public AuraScript
         {
-            if (GetCaster() == nullptr)
-                return;
+            PrepareAuraScript(spell_warr_single_minded_fury_AuraScript);
 
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            enum eSpells
             {
-                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                CrazedBerserker = 23588
+            };
 
-                if (mainItem && l_OffHandItem)
+            void CalculateFirstEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                    Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                    if (mainItem && l_OffHandItem)
+                    {
+                        if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                            p_Amount = 0;
+                    }
+                    else
                         p_Amount = 0;
                 }
-                else
-                    p_Amount = 0;
             }
-        }
 
-        void CalculateSecondEffect(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
-        {
-            if (GetCaster() == nullptr)
-                return;
-
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            void CalculateSecondEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
             {
-                Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                if (GetCaster() == nullptr)
+                    return;
 
-                if (mainItem && l_OffHandItem)
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                    Item* mainItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+                    const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::CrazedBerserker);
+
+                    if (mainItem && l_OffHandItem)
+                    {
+                        if (mainItem->GetTemplate()->IsTwoHandedWeapon() || l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                            p_Amount = 0;
+                        else if (l_Player->HasAura(23588) && l_SpellInfo != nullptr)
+                        {
+                            if (!l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                                p_Amount = (100 + l_SpellInfo->Effects[EFFECT_1].BasePoints) * (100 + p_Amount) / 100 - 100;
+                        }
+                    }
+                    else
                         p_Amount = 0;
                 }
-                else
-                    p_Amount = 0;
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateFirstEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateSecondEffect, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateFirstEffect, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_single_minded_fury_AuraScript::CalculateSecondEffect, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+            return new spell_warr_single_minded_fury_AuraScript();
         }
-    };
+};
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_single_minded_fury_AuraScript();
-    }
+/// Last Update 6.2.3
+/// Crazed Berserker - 23588
+class spell_warr_crazed_berserker : public SpellScriptLoader
+{
+    public:
+        spell_warr_crazed_berserker() : SpellScriptLoader("spell_warr_crazed_berserker") { }
+
+        class spell_warr_crazed_berserker_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_crazed_berserker_AuraScript);
+
+            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    Item* l_OffHandItem = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                    if (l_OffHandItem)
+                    {
+                        if (!l_OffHandItem->GetTemplate()->IsTwoHandedWeapon())
+                            p_Amount = 0;
+                    }
+                    else
+                        p_Amount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_crazed_berserker_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_crazed_berserker_AuraScript();
+        }
 };
 
 /// Called by Colossus Smash - 86346, Sweeping Strikes - 12328 and Recklessness - 1719
@@ -2716,7 +2840,7 @@ class spell_warr_unyielding_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_unyielding_strikes_Aurascript);
 
-            void HandleOnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_ProcInfos*/)
+            void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_ProcInfos*/)
             {
                 PreventDefaultAction();
             }
@@ -2804,7 +2928,7 @@ class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
                 GlyphOfCrowFeast = 115944
             };
 
-            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
             {
                 PreventDefaultAction();
 
@@ -2855,7 +2979,7 @@ class spell_warr_revenge : public SpellScriptLoader
                 Revenger = 6572
             };
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfos)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 
@@ -2913,7 +3037,7 @@ class spell_warr_shield_charge_damage : public SpellScriptLoader
                             int32 l_Damage = GetHitDamage();
 
                             /// Shield Charge
-                            if (AuraPtr l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
+                            if (Aura* l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
                             {
                                 if (l_ShieldCharge->GetEffect(EFFECT_0))
                                     l_Damage += CalculatePct(l_Damage, l_ShieldCharge->GetEffect(EFFECT_0)->GetAmount());
@@ -2953,7 +3077,7 @@ public:
             SingleMindedFury = 81099
         };
 
-        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetCaster())
                 return;
@@ -2968,7 +3092,7 @@ public:
             }
         }
 
-        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetCaster())
                 return;
@@ -3031,7 +3155,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
 
-            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfo)
             {
                 Unit* l_Target = GetTarget();
                 if (p_ProcInfo.GetDamageInfo() == nullptr)
@@ -3052,7 +3176,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 else if (l_Target->GetTypeId() == TYPEID_UNIT && (l_DamageTarget->IsPlayer() || l_DamageTarget->IsPetGuardianStuff()))
                     l_Damage /= l_Target->CalculateDamageTakenFactor(l_DamageTarget, l_Target->ToCreature());
 
-                Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_Target, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
+                Unit* l_NewTarget = l_Target->SelectNearbyTarget(l_DamageTarget, NOMINAL_MELEE_RANGE, 0U, true, true, false, true);
 
                 if (l_NewTarget == nullptr)
                     return;
@@ -3124,7 +3248,7 @@ class spell_warr_raging_blow_proc : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_raging_blow_proc_AuraScript);
 
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3132,7 +3256,7 @@ class spell_warr_raging_blow_proc : public SpellScriptLoader
                     l_Target->CastSpell(l_Target, 154326, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -3153,8 +3277,87 @@ class spell_warr_raging_blow_proc : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Battle Stance - 2457, Defensive Stance - 71
+class spell_warr_stances : public SpellScriptLoader
+{
+    public:
+        spell_warr_stances() : SpellScriptLoader("spell_warr_stances") { }
+
+        class spell_warr_stances_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_stances_SpellScript);
+
+            enum eSpells
+            {
+                GladiatorStance = 156291
+            };
+
+            SpellCastResult CheckStance()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GladiatorStance) && l_Caster->isInCombat())
+                    return SPELL_FAILED_AFFECTING_COMBAT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_stances_SpellScript::CheckStance);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_stances_SpellScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Taunt - 355
+class spell_warr_taunt : public SpellScriptLoader
+{
+    public:
+        spell_warr_taunt() : SpellScriptLoader("spell_warr_taunt") { }
+
+        class spell_warr_taunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_taunt_SpellScript);
+
+            enum eSpells
+            {
+                GladiatorStance = 156291
+            };
+
+            SpellCastResult CheckStance()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+                    return SPELL_FAILED_NOT_SHAPESHIFT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_warr_taunt_SpellScript::CheckStance);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_taunt_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_taunt();
+    new spell_warr_crazed_berserker();
+    new spell_warr_stances();
     new spell_warr_raging_blow_proc();
     new spell_warr_impending_victory();
     new spell_warr_sweeping_strikes();

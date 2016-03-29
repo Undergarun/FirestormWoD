@@ -35,10 +35,56 @@ EndScriptData */
 #include "DisableMgr.h"
 #include "Group.h"
 #include "LFGMgr.h"
+#include "World.h"
 
 #include <fstream>
 #include <vector>
 #include "BattlegroundPacketFactory.hpp"
+
+struct UnitStates
+{
+    uint32      Flag;
+    char const* Text;
+};
+
+std::vector<UnitStates> const g_Unitstates =
+{
+    { UNIT_STATE_DIED,              "UNIT_STATE_DIED"                },
+    { UNIT_STATE_MELEE_ATTACKING,   "UNIT_STATE_MELEE_ATTACKING"     },
+    { UNIT_STATE_STUNNED,           "UNIT_STATE_STUNNED"             },
+    { UNIT_STATE_ROAMING,           "UNIT_STATE_ROAMING"             },
+    { UNIT_STATE_CHASE,             "UNIT_STATE_CHASE"               },
+    { UNIT_STATE_FLEEING,           "UNIT_STATE_FLEEING"             },
+    { UNIT_STATE_IN_FLIGHT,         "UNIT_STATE_IN_FLIGHT"           },
+    { UNIT_STATE_FOLLOW,            "UNIT_STATE_FOLLOW"              },
+    { UNIT_STATE_ROOT,              "UNIT_STATE_ROOT"                },
+    { UNIT_STATE_CONFUSED,          "UNIT_STATE_CONFUSED"            },
+    { UNIT_STATE_DISTRACTED,        "UNIT_STATE_DISTRACTED"          },
+    { UNIT_STATE_ISOLATED,          "UNIT_STATE_ISOLATED"            },
+    { UNIT_STATE_ATTACK_PLAYER,     "UNIT_STATE_ATTACK_PLAYER"       },
+    { UNIT_STATE_CASTING,           "UNIT_STATE_CASTING"             },
+    { UNIT_STATE_POSSESSED,         "UNIT_STATE_POSSESSED"           },
+    { UNIT_STATE_CHARGING,          "UNIT_STATE_CHARGING"            },
+    { UNIT_STATE_JUMPING,           "UNIT_STATE_JUMPING"             },
+    { UNIT_STATE_ONVEHICLE,         "UNIT_STATE_ONVEHICLE"           },
+    { UNIT_STATE_MOVE,              "UNIT_STATE_MOVE"                },
+    { UNIT_STATE_ROTATING,          "UNIT_STATE_ROTATING"            },
+    { UNIT_STATE_EVADE,             "UNIT_STATE_EVADE"               },
+    { UNIT_STATE_ROAMING_MOVE,      "UNIT_STATE_ROAMING_MOVE"        },
+    { UNIT_STATE_CONFUSED_MOVE,     "UNIT_STATE_CONFUSED_MOVE"       },
+    { UNIT_STATE_FLEEING_MOVE,      "UNIT_STATE_FLEEING_MOVE"        },
+    { UNIT_STATE_CHASE_MOVE,        "UNIT_STATE_CHASE_MOVE"          },
+    { UNIT_STATE_FOLLOW_MOVE,       "UNIT_STATE_FOLLOW_MOVE"         },
+    { UNIT_STATE_UNATTACKABLE,      "UNIT_STATE_UNATTACKABLE"        },
+    { UNIT_STATE_MOVING,            "UNIT_STATE_MOVING"              },
+    { UNIT_STATE_CONTROLLED,        "UNIT_STATE_CONTROLLED"          },
+    { UNIT_STATE_LOST_CONTROL,      "UNIT_STATE_LOST_CONTROL"        },
+    { UNIT_STATE_SIGHTLESS,         "UNIT_STATE_SIGHTLESS"           },
+    { UNIT_STATE_CANNOT_AUTOATTACK, "UNIT_STATE_CANNOT_AUTOATTACK"   },
+    { UNIT_STATE_CANNOT_TURN,       "UNIT_STATE_CANNOT_TURN"         },
+    { UNIT_STATE_NOT_MOVE,          "UNIT_STATE_NOT_MOVE"            },
+    { UNIT_STATE_ALL_STATE,         "UNIT_STATE_ALL_STATE"           }
+};
 
 class debug_commandscript: public CommandScript
 {
@@ -124,7 +170,7 @@ class debug_commandscript: public CommandScript
                 { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
                 { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
                 { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
-                { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
+                { "crashtest",      SEC_ADMINISTRATOR,  true,  &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
@@ -140,6 +186,10 @@ class debug_commandscript: public CommandScript
                 { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
                 { "pvelogs",        SEC_ADMINISTRATOR,  false, &HandleDebugPvELogsCommand,         "", NULL },
                 { "questlog",       SEC_ADMINISTRATOR,  false, &HandleDebugQuestLogsCommand,       "", NULL },
+                { "addunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugAddUnitStateCommand,    "", NULL },
+                { "getunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,   "", NULL },
+                { "removeunitstate",SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand, "", NULL },
+                { "stresstest",     SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -149,6 +199,77 @@ class debug_commandscript: public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugStressTestCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            std::string l_StrVal = std::string(strtok((char*)p_Args, " "));
+
+            /// Disconnect all bots
+            if (l_StrVal == "off")
+            {
+                SessionMap const& l_Sessions = sWorld->GetAllSessions();
+                for (auto l_Session : l_Sessions)
+                {
+                    if (l_Session.second->IsStressTest())
+                        l_Session.second->SetStressTest(false);
+                }
+                return true;
+            }
+
+            /// Add new bots
+            if (l_StrVal == "on")
+            {
+                char* l_StrNumber = strtok(NULL, " ");
+                if (l_StrNumber == nullptr)
+                    return false;
+
+                uint32 l_Number = atoi(l_StrNumber);
+
+                if (l_Number > 1000)
+                    return false;
+
+                std::ostringstream l_Query;
+                l_Query << "SELECT account, guid FROM characters WHERE account NOT IN(0";
+
+                SessionMap const& l_Sessions = sWorld->GetAllSessions();
+                for (auto l_Session : l_Sessions)
+                    l_Query << "," << l_Session.first;
+
+                l_Query << ") GROUP BY account ORDER BY RAND() LIMIT " << l_Number;
+
+                QueryResult l_Result = CharacterDatabase.PQuery(l_Query.str().c_str());
+
+                if (l_Result)
+                {
+                    do
+                    {
+                        Field* l_Fields = l_Result->Fetch();
+
+                        uint32 l_AccountId = l_Fields[0].GetUInt32();
+                        uint32 l_Guid      = l_Fields[1].GetUInt32();
+
+                        WorldSession* l_NewSession = new WorldSession(l_AccountId, nullptr, SEC_ADMINISTRATOR, false, 0, 5, 0, LOCALE_frFR, 0, false, 0, 0, 0);
+
+                        l_NewSession->SetStressTest(true);
+                        l_NewSession->LoadGlobalAccountData();
+                        l_NewSession->LoadTutorialsData();
+                        sWorld->AddSession(l_NewSession);
+
+                        l_NewSession->LoginPlayer(l_Guid);
+                    }
+                    while (l_Result->NextRow());
+                }
+            }
+
+            return true;
         }
 
         static bool HandleDebugAdjustSplineCommand(ChatHandler* p_Handler, char const* p_Args)
@@ -274,7 +395,7 @@ class debug_commandscript: public CommandScript
             if (!l_String)
                 return false;
 
-            char const* l_Text = l_String;//"||TInterface\\Icons\\trade_archaeology_whitehydrafigurine:20||tMegaera begins to ||cFFF00000||Hspell:139458||h[Rampage]||h||rÿ!";
+            char const* l_Text = l_String;//"||TInterface\\Icons\\trade_archaeology_whitehydrafigurine:20||tMegaera begins to ||cFFF00000||Hspell:139458||h[Rampage]||h||rï¿½!";
             char const* l_Name = "Megaera";
             char const* l_Receiver = "Venomous head";
 
@@ -989,7 +1110,7 @@ class debug_commandscript: public CommandScript
                 case 0x20:
                 {
                     ///@todo update me ?
-                    // La migration de votre guilde est terminée. Rendez-vous sur [cette page Internet] pour de plus amples informations.
+                    // La migration de votre guilde est terminï¿½e. Rendez-vous sur [cette page Internet] pour de plus amples informations.
                     Player* player = handler->GetSession()->GetPlayer();
                     WorldPacket data(Opcodes(1346), 20);
                     ObjectGuid playerGuid = player->GetGUID();
@@ -2464,7 +2585,7 @@ class debug_commandscript: public CommandScript
             float y         = (float)atof(cy);
             float z         = (float)atof(cz);
 
-            target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
+           // target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
             return true;
         }
 
@@ -2595,7 +2716,7 @@ class debug_commandscript: public CommandScript
 
             if (!arg1 || !arg2)
                 return false;
-                
+
             int32 l_ID = atoi(arg1);
             int32 l_Flags = atoi(arg2);
 
@@ -2622,7 +2743,7 @@ class debug_commandscript: public CommandScript
             WorldPacket l_Data(SMSG_VIGNETTE_UPDATE);
             l_Data.WriteBit(true);                                 ///< ForceUpdate
             l_Data << uint32(0);                                   ///< RemovedCount
-            
+
             //for ()
             //    l_Data.appendPackGUID(IDs);
 
@@ -2645,7 +2766,7 @@ class debug_commandscript: public CommandScript
             {
             }
 
-            l_Data << uint32(0);                                   ///< UpdateDataCount 
+            l_Data << uint32(0);                                   ///< UpdateDataCount
 
             p_Handler->GetSession()->SendPacket(&l_Data);
             return true;
@@ -3191,7 +3312,7 @@ class debug_commandscript: public CommandScript
                 return false;
 
             uint32 l_ConditionID = atoi(l_ArgStr);
-  
+
             auto l_Result = p_Handler->GetSession()->GetPlayer()->EvalPlayerCondition(l_ConditionID);
 
             if (l_Result.first)
@@ -3267,7 +3388,7 @@ class debug_commandscript: public CommandScript
                     ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(i);
                     if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
                         continue;
-                    
+
                     l_SendHotfixPacket(&sItemEffectStore, i);
                 }
 
@@ -3342,7 +3463,7 @@ class debug_commandscript: public CommandScript
             /// Forge SMSG_UPDATE_OBJECT, client need to receive it before SMSG_MIRROR_IMAGE_COMPONENTED_DATA
             UpdateData  l_UpdateData(l_Target->GetMapId());
             WorldPacket l_Packet;
-            
+
             l_Target->BuildValuesUpdateBlockForPlayer(&l_UpdateData, l_Player);
 
             if (l_UpdateData.BuildPacket(&l_Packet))
@@ -3397,7 +3518,7 @@ class debug_commandscript: public CommandScript
                 else
                     data << uint32(0);
             }*/
-            
+
             l_Player->GetSession()->SendPacket(&data);
 
             return true;
@@ -3452,6 +3573,121 @@ class debug_commandscript: public CommandScript
                 p_Handler->PSendSysMessage(LANG_DEBUG_QUEST_LOGS_OFF);
                 l_Player->m_IsDebugQuestLogs = false;
             }
+            return true;
+        }
+
+        static bool HandleDebugAddUnitStateCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(TrinityStrings::LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            /// Returns and send error if no Unit is selected
+            Unit* l_Unit = p_Handler->getSelectedUnit();
+            if (!l_Unit)
+            {
+                p_Handler->SendSysMessage(TrinityStrings::LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 l_State = atoi((char*)p_Args);
+
+            /// When p_Args == 0, all unit states are cleared
+            if (!l_State)
+            {
+                l_Unit->ClearUnitState(UnitState::UNIT_STATE_ALL_STATE);
+                p_Handler->PSendSysMessage("Unit states cleared");
+                return true;
+            }
+
+            bool l_Found = false;
+
+            /// If selected Unit has not the p_Args state, it's added
+            /// If the state doesn't exist, it returns
+            if (!l_Unit->HasUnitState(g_Unitstates[l_State].Flag))
+            {
+                for (UnitStates l_UnitState : g_Unitstates)
+                {
+                    if (l_UnitState.Flag == l_State)
+                    {
+                        l_Found = true;
+                        break;
+                    }
+                }
+
+                if (!l_Found)
+                {
+                    p_Handler->PSendSysMessage("The unit_state you're looking for doesn't exist.");
+                    return true;
+                }
+
+                l_Unit->AddUnitState(g_Unitstates[l_State].Flag);
+                p_Handler->PSendSysMessage("Unit state %s has been added", g_Unitstates[l_State].Text);
+            }
+            else
+                p_Handler->PSendSysMessage("This unit has already the state %s", g_Unitstates[l_State].Text);
+
+            return true;
+        }
+
+        static bool HandleDebugGetUnitStatesCommand(ChatHandler* p_Handler, const char* p_Args)
+        {
+            Unit* l_Unit = p_Handler->getSelectedUnit();
+            if (!l_Unit)
+            {
+                p_Handler->SendSysMessage(TrinityStrings::LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return true;
+            }
+
+            /// Checks every unit_state for the Unit selected, and displays it in the handler's chatbox
+            for (UnitStates l_UnitState : g_Unitstates)
+            {
+                if (l_Unit->HasUnitState(l_UnitState.Flag))
+                    p_Handler->PSendSysMessage("Selected unit has %s", l_UnitState.Text);
+            }
+
+            return true;
+        }
+
+        static bool HandleDebugRemoveUnitStateCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(TrinityStrings::LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Unit* l_Unit = p_Handler->getSelectedUnit();
+            if (!l_Unit)
+            {
+                p_Handler->SendSysMessage(TrinityStrings::LANG_SELECT_CHAR_OR_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            /// Checks if the p_Arg has a correct value
+            int32 l_State = atoi((char*)p_Args);
+            if (!l_State)
+            {
+                p_Handler->PSendSysMessage("There is no unit_state with this value.");
+                return true;
+            }
+
+            /// Removes the state to the Unit if it has it
+            if (l_Unit->HasUnitState(g_Unitstates[l_State].Flag))
+            {
+                l_Unit->ClearUnitState(g_Unitstates[l_State].Flag);
+                p_Handler->PSendSysMessage("Unit_state %s has been removed", g_Unitstates[l_State].Text);
+            }
+            else
+                p_Handler->PSendSysMessage("This unit doesn't have the unit state %s", g_Unitstates[l_State].Text);
+
             return true;
         }
 };

@@ -1816,7 +1816,7 @@ class mob_rushing_winds : public CreatureScript
                 // spinning around the central point
                 if (Creature* l_InvisibleMan = GetClosestCreatureWithEntry(me, NPC_IRON_QON_INVISIBLE_MAN, 100.0f))
                 {
-                    Movement::MoveSplineInit l_Init(*me);
+                    Movement::MoveSplineInit l_Init(me);
                     FillCirclePath(g_WindstormPoint, me->GetExactDist2d(g_WindstormPoint.m_positionX, g_WindstormPoint.m_positionY), me->GetPositionZ(), l_Init.Path(), m_Index % 2);
                     l_Init.SetWalk(true);
                     l_Init.SetCyclic();
@@ -2076,7 +2076,7 @@ class spell_arcing_lightning_dmg : public SpellScriptLoader
         {
             PrepareAuraScript(spell_arcing_lightning_dmg_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (WorldObject* l_Owner = GetOwner())
                 {
@@ -2113,7 +2113,7 @@ class spell_arcing_lightning_main : public SpellScriptLoader
         {
             PrepareAuraScript(spell_arcing_lightning_main_AuraScript);
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (WorldObject* l_Owner = GetOwner())
                 {
@@ -2204,12 +2204,12 @@ class spell_frozen : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frozen_AuraScript);
 
-            void Duration(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void Duration(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 SetDuration(urand(1, 5) * 1000);
             }
 
-            void Shatter(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void Shatter(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     if (Creature* l_IronQon = l_Target->GetInstanceScript()->instance->GetCreature(l_Target->GetInstanceScript()->GetData64(NPC_IRON_QON)))

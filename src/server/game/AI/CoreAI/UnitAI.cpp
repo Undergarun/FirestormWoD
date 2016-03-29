@@ -44,14 +44,18 @@ void UnitAI::DoMeleeAttackIfReady()
         return;
 
     Unit* victim = me->getVictim();
+
+    if (!me->IsWithinMeleeRange(victim))
+        return;
+
     //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
+    if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim);
         me->resetAttackTimer();
     }
 
-    if (me->haveOffhandWeapon() && me->isAttackReady(WeaponAttackType::OffAttack) && me->IsWithinMeleeRange(victim))
+    if (me->haveOffhandWeapon() && me->isAttackReady(WeaponAttackType::OffAttack))
     {
         me->AttackerStateUpdate(victim, WeaponAttackType::OffAttack);
         me->resetAttackTimer(WeaponAttackType::OffAttack);
@@ -89,6 +93,70 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
 void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
+}
+
+Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/) const
+{
+    std::list<HostileReference*> const& l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    std::list<Player*> l_TargetList;
+    for (HostileReference* l_Iter : l_ThreatList)
+    {
+        if (l_Iter->getTarget()->IsPlayer())
+            l_TargetList.push_back(l_Iter->getTarget()->ToPlayer());
+    }
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    l_TargetList.remove_if([this, p_AllowHeal](Player* p_Player) -> bool
+    {
+        if (!p_Player->IsRangedDamageDealer(p_AllowHeal))
+            return true;
+
+        return false;
+    });
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    JadeCore::Containers::RandomResizeList(l_TargetList, 1);
+
+    return l_TargetList.front();
+}
+
+Player* UnitAI::SelectMeleeTarget(bool p_AllowTank /*= false*/) const
+{
+    std::list<HostileReference*> const& l_ThreatList = me->getThreatManager().getThreatList();
+    if (l_ThreatList.empty())
+        return nullptr;
+
+    std::list<Player*> l_TargetList;
+    for (HostileReference* l_Iter : l_ThreatList)
+    {
+        if (l_Iter->getTarget()->IsPlayer())
+            l_TargetList.push_back(l_Iter->getTarget()->ToPlayer());
+    }
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    l_TargetList.remove_if([this, p_AllowTank](Player* p_Player) -> bool
+    {
+        if (!p_Player->IsMeleeDamageDealer(p_AllowTank))
+            return true;
+
+        return false;
+    });
+
+    if (l_TargetList.empty())
+        return nullptr;
+
+    JadeCore::Containers::RandomResizeList(l_TargetList, 1);
+
+    return l_TargetList.front();
 }
 
 float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)

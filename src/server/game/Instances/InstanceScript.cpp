@@ -127,12 +127,10 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
-    UpdateCreatureGroupSizeStats();
 }
 
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
-    UpdateCreatureGroupSizeStats();
     p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
 }
 
@@ -744,7 +742,7 @@ void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
     }
 }
 
-bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
+bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
         instance->GetId(), criteria_id);
@@ -1292,6 +1290,9 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
 
                 PreparedQueryResult l_Result = CharacterDatabase.AsyncQuery(l_Statement, [l_Index, l_Flag, l_LowGuid](PreparedQueryResult const& p_Result) -> void
                 {
+                    if (!p_Result)
+                        return;
+
                     SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
                     Field* l_Fields = p_Result->Fetch();
@@ -1366,7 +1367,7 @@ bool InstanceScript::IsWipe()
 void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_CreditEntry, Unit* p_Source)
 {
     DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
-    if (!l_Encounters || l_Encounters->empty() || p_Source == nullptr)
+    if (!l_Encounters || l_Encounters->empty())
         return;
 
     int32 l_MaxIndex = -100000;
@@ -1378,7 +1379,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
+        if ((p_Source != nullptr && ((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetNativeDisplayId())) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
             m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
 
@@ -1400,13 +1401,20 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             }
 
             SendEncounterEnd((*l_Iter)->dbcEntry->ID, true);
-            SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source->ToUnit());
+
+            if (p_Source != nullptr && p_Source->GetTypeId() == TypeID::TYPEID_UNIT)
+                SaveEncounterLogs(p_Source->ToCreature(), (*l_Iter)->dbcEntry->ID);
+
+            if (p_Source != nullptr)
+                SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source);
 
             WorldPacket l_Data(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
             l_Data << int32((*l_Iter)->dbcEntry->ID);
             instance->SendToPlayers(&l_Data);
 
-            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+            if (!sObjectMgr->IsDisabledEncounter((*l_Iter)->dbcEntry->ID, instance->GetDifficultyID()))
+                DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+
             return;
         }
     }
@@ -1414,7 +1422,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
 void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 {
-    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
+    if (!p_EncounterID)
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_START);
@@ -1422,6 +1430,9 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
+
+    if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
 
     /// Reset datas before each attempt
     m_EncounterDatas = EncounterDatas();
@@ -1460,7 +1471,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
 {
-    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
+    if (!p_EncounterID)
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);
@@ -1470,6 +1481,9 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.WriteBit(p_Success);
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
+
+    if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
     m_EncounterDatas.EndTime        = time(nullptr);
@@ -1501,6 +1515,44 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
 
     /// Reset datas after each attempt
     m_EncounterDatas = EncounterDatas();
+}
+
+void InstanceScript::SaveEncounterLogs(Creature* p_Creature, uint32 p_EncounterID)
+{
+    if ((p_Creature->GetNativeTemplate()->flags_extra & CREATURE_FLAG_EXTRA_LOG_GROUP_DMG) == 0)
+        return;
+
+    CreatureDamageLogList const& l_DamageLogs  = p_Creature->GetDamageLogs();
+    GroupDumpList const& l_GroupDumps          = p_Creature->GetGroupDumps();
+
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+    for (auto l_Log : l_DamageLogs)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ENCOUNTER_DAMAGE_LOG);
+        l_Statement->setUInt32(0, p_EncounterID);
+        l_Statement->setUInt64(1, m_EncounterDatas.StartTime);
+        l_Statement->setUInt64(2, l_Log.Time);
+        l_Statement->setUInt32(3, l_Log.AttackerGuid);
+        l_Statement->setUInt32(4, l_Log.Damage);
+        l_Statement->setUInt32(5, l_Log.Spell);
+        l_Transaction->Append(l_Statement);
+    }
+
+    for (auto l_Dump : l_GroupDumps)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ENCOUNTER_GROUP_DUMP);
+        l_Statement->setUInt32(0, p_EncounterID);
+        l_Statement->setUInt64(1, m_EncounterDatas.StartTime);
+        l_Statement->setUInt64(2, l_Dump.Time);
+        l_Statement->setString(3, l_Dump.Dump);
+        l_Transaction->Append(l_Statement);
+    }
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    p_Creature->ClearDamageLog();
+    p_Creature->ClearGroupDumps();
 }
 
 uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const

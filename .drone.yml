@@ -1,0 +1,77 @@
+branches:
+  - wod
+  - wod_ptr
+
+clone:
+  depth: 20
+  recursive: true
+  submodule_update_remote: true
+
+build:
+  before_build:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - mkdir build
+      - mkdir dist/bin dist/etc dist/sql dist/sql/characters dist/sql/world dist/sql/hotfix
+  release_asan:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    pull: true
+    commands:
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j 32
+      - make install
+      - make clean
+      - cd -
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
+  release:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    pull: true
+    commands:
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - make -j 32
+      - make install
+      - make clean
+      - cd -
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
+    when:
+      branch: wod
+  after_build:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cp -p contrib/deploy/run-worldserver dist/bin
+      - cp contrib/deploy/commands.gdb dist/etc
+      - cp sql/updates/characters/*.sql dist/sql/characters
+      - cp sql/updates/world/*.sql dist/sql/world
+      - cp sql/updates/hotfix/*.sql dist/sql/hotfix
+
+publish:
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest-ptr
+    file: dist/Dockerfile
+    context: dist/
+    when:
+      branch: wod_ptr
+  docker:
+    username: $$DOCKER_USER
+    password: $$DOCKER_PASS
+    email: $$DOCKER_EMAIL
+    repo: milleniumstudio/docker-wod
+    tag: latest
+    file: dist/Dockerfile
+    context: dist/
+    when:
+      branch: wod
+
+notify:
+  slack:
+    webhook_url: https://hooks.slack.com/services/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
+    channel: wow-notification
+    username: Drone
+    template: >
+      Build <https://drone.firestorm-servers.com/MilleniumStudio/wod/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}

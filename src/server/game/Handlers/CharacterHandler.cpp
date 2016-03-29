@@ -916,7 +916,12 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), l_PlayerGuid);
+    LoginPlayer(l_PlayerGuid);
+}
+
+void WorldSession::LoginPlayer(uint64 p_Guid)
+{
+    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), p_Guid);
     LoginDBQueryHolder* l_LoginDBQueryHolder = new LoginDBQueryHolder(GetAccountId());
 
     if (!l_LoginQueryHolder->Initialize() || !l_LoginDBQueryHolder->Initialize())
@@ -1303,7 +1308,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     /// - Vote bonus
     if (HaveVoteRemainingTime())
     {
-        AuraPtr l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
+        Aura* l_VoteAura = pCurrChar->HasAura(VOTE_BUFF) ? pCurrChar->GetAura(VOTE_BUFF) : pCurrChar->AddAura(VOTE_BUFF, pCurrChar);
         if (l_VoteAura)
             l_VoteAura->SetDuration(GetVoteRemainingTime() + 60 * IN_MILLISECONDS);
     }
@@ -2103,7 +2108,7 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
     uint32 l_AtLoginFlag    = l_Fields[3].GetUInt16();
     auto   l_KnownTitlesStr = l_Fields[4].GetCString();
     uint32 l_PlayerBytes    = l_Fields[5].GetUInt32();
-    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///w L_playerbyte2 is never read 01/18/16
+    uint32 l_PlayerBytes2   = l_Fields[6].GetUInt32(); ///< L_playerbyte2 is never read 01/18/16
 
     /// - If client doesn't send value, get the old from database & use it
     {
@@ -2371,47 +2376,20 @@ void WorldSession::HandleCharRaceOrFactionChange(WorldPacket& p_Packet)
         {
             // Update Taxi path
             // this doesn't seem to be 100% blizzlike... but it can't really be helped.
-            std::ostringstream l_TaxiMaskStream;
-            uint32 l_NumFullTaxiMasks = l_Level / 7;
-            if (l_NumFullTaxiMasks > 11)
-                l_NumFullTaxiMasks = 11;
-            if (l_Team == BG_TEAM_ALLIANCE)
+            std::ostringstream taximaskstream;
+            TaxiMask const& factionMask = l_Team == TEAM_HORDE ? sHordeTaxiNodesMask : sAllianceTaxiNodesMask;
+            for (uint8 i = 0; i < TaxiMaskSize; ++i)
             {
-                if (l_PlayerClass != CLASS_DEATH_KNIGHT)
-                {
-                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
-                        l_TaxiMaskStream << uint32(sAllianceTaxiNodesMask[l_I]) << ' ';
-                }
-                else
-                {
-                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
-                        l_TaxiMaskStream << uint32(sAllianceTaxiNodesMask[l_I] | sDeathKnightTaxiNodesMask[l_I]) << ' ';
-                }
-            }
-            else
-            {
-                if (l_PlayerClass != CLASS_DEATH_KNIGHT)
-                {
-                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
-                        l_TaxiMaskStream << uint32(sHordeTaxiNodesMask[l_I]) << ' ';
-                }
-                else
-                {
-                    for (uint8 l_I = 0; l_I < l_NumFullTaxiMasks; ++l_I)
-                        l_TaxiMaskStream << uint32(sHordeTaxiNodesMask[l_I] | sDeathKnightTaxiNodesMask[l_I]) << ' ';
-                }
+                // i = (315 - 1) / 8 = 39
+                // m = 1 << ((315 - 1) % 8) = 4
+                uint8 deathKnightExtraNode = l_PlayerClass != CLASS_DEATH_KNIGHT || i != 39 ? 0 : 4;
+                taximaskstream << uint32(factionMask[i] | deathKnightExtraNode) << ' ';
             }
 
-            uint32 l_NumEmptyTaximasks = 11 - l_NumFullTaxiMasks;
-            for (uint8 l_I = 0; l_I < l_NumEmptyTaximasks; ++l_I)
-                l_TaxiMaskStream << "0 ";
-            l_TaxiMaskStream << '0';
-            std::string l_TaxiMask = l_TaxiMaskStream.str();
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
-            stmt->setString(0, l_TaxiMask);
-            stmt->setUInt32(1, l_LowGuid);
-            l_Transaction->Append(stmt);
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
+            l_Statement->setString(0, taximaskstream.str());
+            l_Statement->setUInt64(1, l_LowGuid);
+            l_Transaction->Append(l_Statement);
         }
 
         // Delete all current quests

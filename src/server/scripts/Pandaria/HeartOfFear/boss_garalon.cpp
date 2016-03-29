@@ -1143,7 +1143,7 @@ class spell_garalon_damaged : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_garalon_damaged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_REMOVE_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_garalon_damaged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1231,7 +1231,7 @@ public:
         {
             if (Unit* target = GetHitUnit())
             {
-                if (AuraPtr aur = target->GetAura(SPELL_PUNGENCY))
+                if (Aura* aur = target->GetAura(SPELL_PUNGENCY))
                     SetHitDamage(int32(GetHitDamage() * (1.0f + float(aur->GetStackAmount() / 10.0f))));       
             }
         }
@@ -1304,36 +1304,6 @@ public:
     }
 };
 
-// 128596, 128599, 128600, 128601 - Weak Points Cosmetic
-class spell_garalon_weak_points_cosmetic : public SpellScriptLoader
-{
-    public:
-        spell_garalon_weak_points_cosmetic() : SpellScriptLoader("spell_garalon_weak_points_cosmetic") { }
-
-        class spell_garalon_weak_points_cosmetic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_garalon_weak_points_cosmetic_AuraScript);
-
-            bool SelectTarget(Unit* target)
-            {
-                if (target->GetEntry() == NPC_GARALON || target->GetEntry() == NPC_GARALON_LEG)
-                    return true;
-
-                return false;
-            }
-
-            void Register()
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_garalon_weak_points_cosmetic_AuraScript::SelectTarget);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_garalon_weak_points_cosmetic_AuraScript();
-        }
-};
-
 // 123081 - Pungency
 class spell_garalon_pungency : public SpellScriptLoader
 {
@@ -1344,7 +1314,7 @@ class spell_garalon_pungency : public SpellScriptLoader
         {
             PrepareAuraScript(spell_garalon_pungencyAuraScript);
 
-            void Duration(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Duration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1380,6 +1350,5 @@ void AddSC_boss_garalon()
     new spell_garalon_pheromones_summon();      // 128573 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (128573, "spell_garalon_pheromones_summon");
     new spell_garalon_pheromones_trail_dmg();   // 123120 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123120, "spell_garalon_pheromones_trail_dmg");
     new spell_garalon_pheromones_switch();      // 123100 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123100, "spell_garalon_pheromones_switch");
-    new spell_garalon_weak_points_cosmetic();   // 128596, 128599, 128600, 128601
     new spell_garalon_pungency();               // 123081
 }

@@ -920,7 +920,7 @@ class boss_zorlok : public CreatureScript
                         else
                         {
                             // Inhale (Exhale is triggered when Zor'lok has 3-4 stacks of inhale)
-                            AuraPtr inhale = me->GetAura(SPELL_INHALE);
+                            Aura* inhale = me->GetAura(SPELL_INHALE);
                             if (!inhale || inhale->GetStackAmount() < 3 || !urand((inhale->GetStackAmount() < 4 ? 0 : 1), 1))
                             {
                                 Talk(TALK_INHALE);
@@ -1238,7 +1238,7 @@ class spell_inhale : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_inhale_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectLaunch += SpellEffectFn(spell_inhale_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1326,23 +1326,6 @@ class spell_sonic_ring : public SpellScriptLoader
     public:
         spell_sonic_ring() : SpellScriptLoader("spell_sonic_ring") { }
 
-        class spell_sonic_ring_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sonic_ring_AuraScript);
-
-            void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->AddAura(SPELL_SONIC_RING_AURA, caster);
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_sonic_ring_AuraScript::ApplyAura, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectApply += AuraEffectApplyFn(spell_sonic_ring_AuraScript::ApplyAura, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
         class spell_sonic_ring_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_sonic_ring_SpellScript);
@@ -1362,11 +1345,6 @@ class spell_sonic_ring : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sonic_ring_AuraScript();
-        }
-
         SpellScript* GetSpellScript() const
         {
             return new spell_sonic_ring_SpellScript();
@@ -1383,7 +1361,7 @@ class spell_sonic_pulse : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sonic_pulse_AuraScript);
 
-            void ApplyAura(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void ApplyAura(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->AddAura(SPELL_SONIC_RING_AURA, caster);
@@ -1402,6 +1380,9 @@ class spell_sonic_pulse : public SpellScriptLoader
 
             void Effect()
             {
+                if (Unit* caster = GetCaster())
+                    caster->AddAura(SPELL_SONIC_RING_AURA, caster);
+
                 if (Player* target = GetHitPlayer())
                 {
                     if (target->HasAura(SPELL_NOISE_CANCELLING))
@@ -1414,11 +1395,6 @@ class spell_sonic_pulse : public SpellScriptLoader
                 OnHit += SpellHitFn(spell_sonic_pulse_SpellScript::Effect);
             }
         };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sonic_pulse_AuraScript();
-        }
 
         SpellScript* GetSpellScript() const
         {

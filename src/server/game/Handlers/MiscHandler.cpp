@@ -59,6 +59,7 @@
 #include "TicketMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+#include "../Garrison/GarrisonMgr.hpp"
 
 #include "BattlegroundPacketFactory.hpp"
 
@@ -593,7 +594,7 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
 
     // use server size data
     uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
+    GetPlayer()->GetZoneAndAreaId(newzone, newarea, true);
     GetPlayer()->UpdateZone(newzone, newarea);
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
@@ -1179,7 +1180,7 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
 }
 
-void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet) ///< p_Packet is unused
 {
     if (!m_Player || m_Player->CurrentPlayedMovie == 0)
         return;
@@ -1601,7 +1602,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
+void WorldSession::HandleComplainOpcode(WorldPacket& recvData) ///< recvData is unused
 {
     // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
@@ -1901,6 +1902,12 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
+    if (MS::Garrison::Manager* l_GarrisonMgr = m_Player->GetGarrison())
+    {
+        if (l_GarrisonMgr->IsTrainingMount())
+            return;
+    }
+
     if (m_Player->isInFlight())                               // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_YOU_IN_FLIGHT);
@@ -1925,7 +1932,7 @@ void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
-    bool mode = recvData.ReadBit();
+    bool mode = recvData.ReadBit(); ///< mode is unused
 }
 
 void WorldSession::HandleQueryInspectAchievements(WorldPacket& p_RecvData)
@@ -1963,13 +1970,13 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-///< @todo refactor me with new data
+///< @todo refactor me with new data stillnot done 22/02/16
 void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
-    ObjectGuid guid = m_Player->GetGUID();
+    ObjectGuid guid = m_Player->GetGUID(); ///< guid is unused
     uint32 unkValue = 0;
 
-    uint32 inactiveSwapsCount = 0;
+    uint32 inactiveSwapsCount = 0; ///< inactiveSwapsCount is unused
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
     l_ShiftPacket.appendPackGUID(m_Player->GetGUID());      ///< CLientGUID
@@ -2191,7 +2198,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     m_Player->SendMovieStart(116);
 }
 
-void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket) ///< recvPacket is unused
 {
     Unit::AuraEffectList const& list = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
 
@@ -2199,7 +2206,7 @@ void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket)
     data.WriteBits<int>(list.size(), 21);
     for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
     {
-        AuraEffectPtr effect = *itr;
+        AuraEffect* effect = *itr;
         if (!effect)
             continue;
 
@@ -2315,7 +2322,7 @@ void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
     m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }
 
-void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData)
+void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData) ///< p_RecvData is unused 
 {
     SendTwitterStatus(true);
 }

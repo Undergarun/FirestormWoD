@@ -64,7 +64,7 @@ public:
         uint64 uiMassiveJormungar;
         uint64 uiPalehoofOrb;
         uint64 uiRitualTarget;
-		uint64 uiSacrificedPlayer;
+        uint64 uiSacrificedPlayer;
 
         uint64 uiSvala;
         uint64 uiFlameBrazier_1;
@@ -169,7 +169,7 @@ public:
             if (data == DONE)
                 SaveToDB();
         }
-		
+        
         void SetData64(uint32 type, uint64 data)
         {
             switch (type)
@@ -208,7 +208,7 @@ public:
                 case DATA_MOB_ORB:                     return uiPalehoofOrb;
                 case DATA_SVALA:                       return uiSvala;
                 case DATA_GORTOK_PALEHOOF_SPHERE:      return uiGortokPalehoofSphere;
-				case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
+                case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
                 case DATA_FLAME_BRAZIER_1:             return uiFlameBrazier_1;
                 case DATA_FLAME_BRAZIER_2:             return uiFlameBrazier_2;
                 case DATA_DOODAD_UTGARDE_MIRROR_FX01:  return uiDoodad_Utgarde_Mirror_FX01;

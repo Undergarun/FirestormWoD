@@ -1527,7 +1527,7 @@ struct BG_AV_NodeInfo
     bool         Tower;
 };
 
-inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); }
+inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); } ///< 'operator++' declared but not defined
 
 class BattlegroundAVScore : public BattlegroundScore
 {
@@ -1561,7 +1561,7 @@ class BattlegroundAV : public Battleground
 
         /*general stuff*/
         void UpdateScore(uint16 team, int16 points);
-       void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+       void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundAV::UpdatePlayerScore' hides overloaded virtual function
 
         /*handlestuff*/ //these are functions which get called from extern
         virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
