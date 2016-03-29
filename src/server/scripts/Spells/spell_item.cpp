@@ -4506,6 +4506,47 @@ public:
     }
 };
 
+/// Reflecting Prism - 163219
+class spell_item_reflecting_prism : public SpellScriptLoader
+{
+public:
+    spell_item_reflecting_prism() : SpellScriptLoader("spell_item_reflecting_prism") { }
+
+    class spell_item_reflecting_prism_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_reflecting_prism_SpellScript);
+
+        enum eSpells
+        {
+            PrismaticReflection = 163267
+        };
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                l_Target->CastSpell(l_Player, eSpells::PrismaticReflection, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_reflecting_prism_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_reflecting_prism_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4596,4 +4637,5 @@ void AddSC_item_spell_scripts()
     new spell_item_curious_bronze_timepiece_horde();
     new spell_item_ascend_to_bladespire();
     new spell_item_faded_wizard_hat();
+    new spell_item_reflecting_prism();
 }
