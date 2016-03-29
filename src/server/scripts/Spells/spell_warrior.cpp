@@ -1852,7 +1852,7 @@ class spell_warr_execute: public SpellScriptLoader
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
                     int32 l_Bp = l_RageConsumed * (405.0f / l_MaxConsumed);
-                    l_Caster->CastCustomSpell(l_Caster, eSpells::ExecuteExtra, nullptr, &l_Bp, nullptr, true);
+                    l_Caster->CastCustomSpell(l_Target, eSpells::ExecuteExtra, nullptr, &l_Bp, nullptr, true);
                 }
                 /// Sudden Death
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
