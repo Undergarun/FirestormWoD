@@ -4401,6 +4401,111 @@ public:
     }
 };
 
+/// Faded Wizard Hat - 53057, Called by: 74589
+class spell_item_faded_wizard_hat : public SpellScriptLoader
+{
+public:
+    spell_item_faded_wizard_hat() : SpellScriptLoader("spell_item_faded_wizard_hat") { }
+
+    class spell_item_faded_wizard_hat_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_faded_wizard_hat_AuraScript);
+
+        enum eSpells
+        {
+            GoblinMaleOne = 30089,
+            GoblinMaleTwo = 30096,
+            GoblinFemaleOne = 30084,
+            GoblinFemaleTwo = 29907,
+            BloodElfMaleOne = 19840,
+            BloodElfMaleTwo = 30085,
+            BloodElfMaleThree = 30086,
+            BloodElfFemale = 29909,
+            MaleUndead = 30094,
+            FemaleUndead = 30093,
+            MaleOrc = 29908,
+            FemaleTroll = 30088,
+            MaleHuman = 7614,
+            FemaleHuman = 30092,
+            MaleGnome = 30095,
+            FemaleNightElf = 11670,
+        };
+
+        void OnApply(AuraEffect const*, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            AuraEffect* l_AuraEffect = GetEffect(0);
+            if (l_AuraEffect == nullptr)
+                return;
+
+            uint32 l_BaseDisplayId = l_AuraEffect->GetAmount();
+            if (l_BaseDisplayId != 0)
+                l_Caster->SetDisplayId(l_BaseDisplayId);
+            else
+            {
+                uint32 l_DisplayId;
+                l_DisplayId = (urand(0, 15));
+                switch (l_DisplayId)
+                {
+                    case 0:  l_DisplayId = eSpells::GoblinMaleOne;
+                        break;
+                    case 1:  l_DisplayId = eSpells::GoblinMaleTwo;
+                        break;
+                    case 2:  l_DisplayId = eSpells::GoblinFemaleOne;
+                        break;
+                    case 3:  l_DisplayId = eSpells::GoblinFemaleTwo;
+                        break;
+                    case 4:  l_DisplayId = eSpells::BloodElfMaleOne;
+                        break;
+                    case 5:  l_DisplayId = eSpells::BloodElfMaleTwo;
+                        break;
+                    case 6:  l_DisplayId = eSpells::BloodElfMaleThree;
+                        break;
+                    case 7:  l_DisplayId = eSpells::BloodElfFemale;
+                        break;
+                    case 8:  l_DisplayId = eSpells::MaleUndead;
+                        break;
+                    case 9:  l_DisplayId = eSpells::FemaleUndead;
+                        break;
+                    case 10:  l_DisplayId = eSpells::MaleOrc;
+                        break;
+                    case 11:  l_DisplayId = eSpells::FemaleTroll;
+                        break;
+                    case 12:  l_DisplayId = eSpells::MaleHuman;
+                        break;
+                    case 13:  l_DisplayId = eSpells::FemaleHuman;
+                        break;
+                    case 14:  l_DisplayId = eSpells::MaleGnome;
+                        break;
+                    case 15:  l_DisplayId = eSpells::FemaleNightElf;
+                        break;
+                    default:
+                        return;
+                }
+
+                if (!l_DisplayId)
+                    return;
+
+                l_AuraEffect->SetAmount(l_DisplayId);
+                l_Caster->SetDisplayId(l_AuraEffect->GetAmount());
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_item_faded_wizard_hat_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_item_faded_wizard_hat_AuraScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4490,4 +4595,5 @@ void AddSC_item_spell_scripts()
     new spell_item_curious_bronze_timepiece_alliance();
     new spell_item_curious_bronze_timepiece_horde();
     new spell_item_ascend_to_bladespire();
+    new spell_item_faded_wizard_hat();
 }
