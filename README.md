@@ -34,6 +34,7 @@ git submodule init && git submodule update --remote
 
 - **NEW** Windows user you need the mysql server installed, download the last version (5.7+) here : [MySQL Community Server](http://dev.mysql.com/downloads/mysql/) if you need the x86 build just change the include path on cmake
 - **NEW** You must choose the libcurl .lib for your MSVC version in the `dep/libcurl` folder
+- **NEW** If you use MSVC 2013 you *MUST* have the update 3+
 
 ## Commit naming convention
 - When fixing bug, by all means include the issue number.
