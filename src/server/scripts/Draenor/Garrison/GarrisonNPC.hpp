@@ -48,11 +48,6 @@ namespace MS { namespace Garrison
             /// Set NPC recipes
             /// @p_Recipes          : Recipes
             /// @p_RecipesSkillID   : Skill line ID
-            void SetRecipes(std::vector<SkillNPC_RecipeEntry>* p_Recipes, uint32 p_RecipesSkillID);
-
-            /// Set NPC recipes
-            /// @p_Recipes          : Recipes
-            /// @p_RecipesSkillID   : Skill line ID
             void SetRecipes(std::vector<SkillNPC_RecipeEntry> p_Recipes, uint32 p_RecipesSkillID);
 
             /// Show shipment crafter UI
@@ -144,7 +139,7 @@ namespace MS { namespace Garrison
             uint8 m_SequencePosition;
 
         private:
-            std::vector<SkillNPC_RecipeEntry>* m_Recipes;
+            std::vector<SkillNPC_RecipeEntry> m_Recipes;
             uint32 m_RecipesSkillID;
 
     };
@@ -751,11 +746,34 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_follower_generic_script();
 
+            enum eSpells
+            {
+                SpellSongOfTheAnvil  = 176458,
+                SpellSolaceOfTheForge = 176644
+            };
+
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
+
+            /// Creature AI
+            struct npc_follower_generic_scriptAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_follower_generic_scriptAI(Creature* p_Creature);
+            };
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -830,6 +848,48 @@ namespace MS { namespace Garrison
                 EventMap m_Events;
 
                 virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Tent (86327, 86333, 86334, 86335, 86336, 86337, 86338, 86339, 86340, 86341, 86342, 86343, 86344, 86345, 86346, 86347, 86348, 86349, 86350, 86351, 86352, 86353, 86354
+    class npc_LeatherWorkingTent_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_LeatherWorkingTent_Garr();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_LeatherWorkingTent_GarrAI : public GarrisonNPCAI
+            {
+                /// Constructor
+                npc_LeatherWorkingTent_GarrAI(Creature* p_Creature);
+
+                enum eEvents
+                {
+                    EventCheckPlayers = 1
+                };
+
+                enum eSpells
+                {
+                    SpellAuraWellRestedTrackingAura = 172424
+                };
+
+                uint64 m_SummonerGuid;
+                EventMap m_Events;
+
+                virtual void Reset() override;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
             };

@@ -45,6 +45,10 @@ namespace MS { namespace Garrison
     {
         using namespace StablesData::Alliance::FannyQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
 
         if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() ||
             std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) != g_ElekkQuests.end() ||
@@ -54,16 +58,20 @@ namespace MS { namespace Garrison
         {
             p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_QuestID |= StablesData::g_PendingQuestFlag);
 
-            if (l_QuestID == g_BoarQuests.back() && p_Creature->AI() && p_Creature->GetScriptName() == CreatureScript::GetName())
+            if (l_QuestID == g_BoarQuests.back())
             {
                 using namespace StablesData::Alliance;
-                reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SummonRelativeCreature(g_KeeganQuestgiverEntry,
+
+                l_AI->SummonRelativeCreature(g_KeeganQuestgiverEntry,
                     g_AllianceCreaturesPos[4].X,
                     g_AllianceCreaturesPos[4].Y,
                     g_AllianceCreaturesPos[4].Z,
                     g_AllianceCreaturesPos[4].O,
                     TEMPSUMMON_MANUAL_DESPAWN);
             }
+
+            if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
         }
 
         return true;

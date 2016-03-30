@@ -347,6 +347,9 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
+                    if (l_Player->HasSpellCooldown(eSpells::LockAndLoad))
+                        return;
+
                     if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                         return;
 
@@ -354,6 +357,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                         l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
 
                     l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
+                    l_Player->AddSpellCooldown(eSpells::LockAndLoad, 0, 22 * IN_MILLISECONDS);
                 }
             }
 
@@ -1380,7 +1384,8 @@ class spell_hun_glyph_of_aspect_of_the_beast: public SpellScriptLoader
         }
 };
 
-// Glaive Toss (damage) - 120761 and 121414
+/// Last Update 6.2.3
+/// Glaive Toss (damage) - 120761 and 121414
 class spell_hun_glaive_toss_damage: public SpellScriptLoader
 {
     public:
@@ -1394,11 +1399,6 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& p_Targets)
             {
-                if (GetSpellInfo()->Id == 121414)
-                {
-                    p_Targets.clear();
-                    return;
-                }
                 Unit* l_Caster = GetCaster();
                 Unit* l_OriginalCaster = GetOriginalCaster();
                 Unit* l_MainTarget = nullptr;
@@ -2725,8 +2725,6 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
                 if (l_Target->GetTypeId() == TYPEID_UNIT)
                     l_Damage *= l_Caster->CalculateDamageDealtFactor(l_Caster, l_Target->ToCreature());
 
-                l_Damage = l_Caster->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
-
                 SetHitDamage(l_Damage);
             }
 
@@ -3365,8 +3363,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
 
                         if (l_Target->GetTypeId() == TYPEID_UNIT)
                             l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, l_Target->ToCreature());
-
-                        l_Damage = l_Pet->CalcArmorReducedDamage(l_Target, l_Damage, NULL, WeaponAttackType::BaseAttack);
 
                         SetHitDamage(l_Damage);
 

@@ -81,7 +81,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_WarraTheWeaver::GetAI(Creature* p_Creature) const
+    CreatureAI* npc_WarraTheWeaver::GetAI(Creature* p_Creature) const
     {
         return new npc_WarraTheWeaverAI(p_Creature);
     }
@@ -185,8 +185,12 @@ namespace MS { namespace Garrison
     /// @p_Action   : Action
     bool npc_Turga::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
+
+        l_AI->SendShipmentCrafterUI(p_Player);
 
         return true;
     }
@@ -236,7 +240,7 @@ namespace MS { namespace Garrison
                     {
                         case Buildings::TailoringEmporium_TailoringEmporium_Level2:
                         case Buildings::TailoringEmporium_TailoringEmporium_Level3:
-                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], 0.4044f, 5.2839f, 0.5047f, 4.7204f, TEMPSUMMON_MANUAL_DESPAWN))
+                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], 0.4044f, 5.2839f, 0.5047f, 4.7204f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);

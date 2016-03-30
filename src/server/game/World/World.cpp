@@ -20,6 +20,11 @@
     \ingroup world
 */
 
+// Ugly hack allowing to use a version of libcurl built by VS2013
+#if defined(_MSC_VER) && _MSC_VER >= 1900
+#pragma comment(lib, "legacy_stdio_definitions.lib")
+#endif
+
 #include "AnticheatMgr.h"
 #include "Common.h"
 #include "Memory.h"
@@ -633,11 +638,11 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError(LOG_FILTER_SERVER_LOADING, "TargetPosRecalculateRange (%f) must be >= %f. Using %f instead.", rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], CONTACT_DISTANCE, CONTACT_DISTANCE);
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = CONTACT_DISTANCE;
     }
-    else if (rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] > NOMINAL_MELEE_RANGE)
+    else if (rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] > 1.5f)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, "TargetPosRecalculateRange (%f) must be <= %f. Using %f instead.",
-            rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], NOMINAL_MELEE_RANGE, NOMINAL_MELEE_RANGE);
-        rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = NOMINAL_MELEE_RANGE;
+            rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], 1.5f, 1.5f);
+        rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = 1.5f;
     }
 
     rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = ConfigMgr::GetFloatDefault("DurabilityLoss.OnDeath", 10.0f);
@@ -1890,6 +1895,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
     sSpellMgr->LoadSpellLinked();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells upgrade item stage...");
+    sSpellMgr->LoadSpellUpgradeItemStage();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells invalid...");
     sObjectMgr->LoadSpellInvalid();

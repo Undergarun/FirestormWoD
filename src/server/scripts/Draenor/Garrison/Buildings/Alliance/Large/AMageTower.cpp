@@ -59,18 +59,16 @@ namespace MS { namespace Garrison
     {
         p_Player->PlayerTalkClass->ClearMenus();
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
             return true;
 
-        if (p_Player && p_Creature && p_Creature->GetScriptName() == CreatureScript::GetName())
-        {
-            if (p_Player->GetQuestStatus(Quests::Alliance_PortablePortals) == QUEST_STATUS_INCOMPLETE)
-                p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
+        if (p_Player->GetQuestStatus(Quests::Alliance_PortablePortals) == QUEST_STATUS_INCOMPLETE)
+            p_Player->QuestObjectiveSatisfy(ObjectIDs::FirstMageTowerSpiritLodgeObjectID, 1, 3);
 
-            reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player);
-        }
+        l_AI->SendShipmentCrafterUI(p_Player);
+
         return true;
     }
 

@@ -214,7 +214,7 @@ namespace MS { namespace Garrison
         if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
         {
             /// World Map Phases
-            switch (p_Player->GetZoneId())
+            switch (p_Player->GetZoneId(true))
             {
                 case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
                 {
@@ -375,6 +375,10 @@ namespace MS { namespace Garrison
             }
         }
 
+        /// Little fix for The Tannery
+        if (p_Player->HasAura(172424))
+            p_Player->RemoveAura(172424);
+
         switch (p_Player->GetMapId())
         {
             /// Garrison Phases
@@ -391,7 +395,7 @@ namespace MS { namespace Garrison
         }
 
         /// World Map Phases
-        switch (p_Player->GetZoneId())
+        switch (p_Player->GetZoneId(true))
         {
             case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
             case GarrisonPortals::DraenorZones::ZoneGorgrond:
@@ -424,7 +428,7 @@ namespace MS { namespace Garrison
         }
 
         /// World Map Phases
-        switch (p_Player->GetZoneId())
+        switch (p_Player->GetZoneId(true))
         {
             case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
             case GarrisonPortals::DraenorZones::ZoneGorgrond:
@@ -457,7 +461,7 @@ namespace MS { namespace Garrison
         }
 
         /// World Map Phases
-        switch (p_Player->GetZoneId())
+        switch (p_Player->GetZoneId(true))
         {
             case GarrisonPortals::DraenorZones::ZoneFrostfireRidge:
             case GarrisonPortals::DraenorZones::ZoneGorgrond:
@@ -473,32 +477,30 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Quests_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
-    {
-        if (!p_Player->IsInGarrison())
-            return;
-
-        if ((p_Player->GetTeamId() == TEAM_ALLIANCE && p_Player->HasQuest(Quests::Alliance_LostInTransition)) ||
-            (p_Player->GetTeamId() == TEAM_HORDE && p_Player->HasQuest(Quests::Horde_LostInTransition)))
-        {
-            uint32 l_PhaseMask = p_Player->GetPhaseMask();
-            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
-            p_Player->SetPhaseMask(l_PhaseMask, true);
-        }
-    }
-
     void playerScript_Garrison_Quests_Phases::OnQuestAccept(Player* p_Player, const Quest* p_Quest)
     {
         if (!p_Player->IsInGarrison())
             return;
 
-        if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition ||
-            p_Player->GetTeamId() == TEAM_HORDE && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+        uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+        switch (p_Quest->GetQuestId())
         {
-            uint32 l_PhaseMask = p_Player->GetPhaseMask();
-            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
-            p_Player->SetPhaseMask(l_PhaseMask, true);
+            case Quests::Alliance_LostInTransition:
+            case Quests::Horde_LostInTransition:
+                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            case Quests::Alliance_AshranAppearance:
+                p_Player->m_taxi.SetTaximaskNode(1547);
+                break;
+            case Quests::Horde_AshranAppearance:
+                p_Player->m_taxi.SetTaximaskNode(1549);
+                break;
+            default:
+                break;
         }
+
+        p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 
     void playerScript_Garrison_Quests_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
@@ -506,13 +508,39 @@ namespace MS { namespace Garrison
         if (!p_Player->IsInGarrison())
             return;
 
-        if (p_Player->GetTeamId() == TEAM_ALLIANCE && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition ||
-            p_Player->GetTeamId() == TEAM_HORDE && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+        uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+        switch (p_Quest->GetQuestId())
         {
-            uint32 l_PhaseMask = p_Player->GetPhaseMask();
-            l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
-            p_Player->SetPhaseMask(l_PhaseMask, true);
+            case Quests::Alliance_LostInTransition:
+            case Quests::Horde_LostInTransition:
+                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            default:
+                break;
         }
+
+        p_Player->SetPhaseMask(l_PhaseMask, true);
+    }
+
+    void playerScript_Garrison_Quests_Phases::OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+    {
+        if (!p_Player->IsInGarrison())
+            return;
+
+        uint32 l_PhaseMask = p_Player->GetPhaseMask();
+
+        switch (p_Quest->GetQuestId())
+        {
+            case Quests::Alliance_LostInTransition:
+            case Quests::Horde_LostInTransition:
+                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                break;
+            default:
+                break;
+        }
+
+        p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 }   ///< namespace Garrison
 }   ///< namespace MS

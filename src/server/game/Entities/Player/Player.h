@@ -664,19 +664,20 @@ enum PlayerExtraFlags
 // 2^n values
 enum AtLoginFlags
 {
-    AT_LOGIN_NONE                   = 0x000,
-    AT_LOGIN_RENAME                 = 0x001,
-    AT_LOGIN_RESET_SPELLS           = 0x002,
-    AT_LOGIN_RESET_TALENTS          = 0x004,
-    AT_LOGIN_CUSTOMIZE              = 0x008,
-    AT_LOGIN_RESET_PET_TALENTS      = 0x010,
-    AT_LOGIN_FIRST                  = 0x020,
-    AT_LOGIN_CHANGE_FACTION         = 0x040,
-    AT_LOGIN_CHANGE_RACE            = 0x080,
-    AT_LOGIN_UNLOCK                 = 0x100,
-    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200,
-    AT_LOGIN_RESET_SPECS            = 0x400,
-    AT_LOGIN_DELETE_INVALID_SPELL   = 0x800     ///< Used at expension switch
+    AT_LOGIN_NONE                   = 0x0000,
+    AT_LOGIN_RENAME                 = 0x0001,
+    AT_LOGIN_RESET_SPELLS           = 0x0002,
+    AT_LOGIN_RESET_TALENTS          = 0x0004,
+    AT_LOGIN_CUSTOMIZE              = 0x0008,
+    AT_LOGIN_RESET_PET_TALENTS      = 0x0010,
+    AT_LOGIN_FIRST                  = 0x0020,
+    AT_LOGIN_CHANGE_FACTION         = 0x0040,
+    AT_LOGIN_CHANGE_RACE            = 0x0080,
+    AT_LOGIN_UNLOCK                 = 0x0100,
+    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x0200,
+    AT_LOGIN_RESET_SPECS            = 0x0400,
+    AT_LOGIN_DELETE_INVALID_SPELL   = 0x0800,     ///< Used at expension switch
+    AT_LOGIN_CHANGE_ITEM_FACTION    = 0x1000,
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -3546,6 +3547,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
         bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
 
+        uint64 GetBeaconOfFaithTarget() const { return m_BeaconOfFaithTargetGUID; }
+        void SetBeaconOfFaithTarget(uint64 p_NewBeaconOfFaithTarget) { m_BeaconOfFaithTargetGUID = p_NewBeaconOfFaithTarget; }
+
         void AddCriticalOperation(std::function<bool()> const&& p_Function)
         {
             m_CriticalOperationLock.acquire();
@@ -3935,6 +3939,7 @@ class Player : public Unit, public GridObject<Player>
         std::queue<std::function<bool()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;
 
+        uint64 m_BeaconOfFaithTargetGUID;
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;

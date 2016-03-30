@@ -2820,8 +2820,10 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
         {
             Group* group = player->GetGroup();
 
+            bool l_IsGarrisonTransfet = i_mapEntry && (i_mapEntry->Flags & MapFlags::MAP_FLAG_GARRISON) != 0;
+
             // increase current instances (hourly limit)
-            if (!group || !group->isLFGGroup())
+            if (!group || !group->isLFGGroup() || l_IsGarrisonTransfet)
                 player->AddInstanceEnterTime(GetInstanceId(), time(NULL));
 
             // get or create an instance save for the map
@@ -2845,7 +2847,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
             }
             else
             {
-                if (group)
+                if (group && !l_IsGarrisonTransfet)
                 {
                     // solo saves should be reset when entering a group
                     InstanceGroupBind* groupBind = group->GetBoundInstance(this);
@@ -2921,7 +2923,10 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     Map::AddPlayerToMap(player, p_Switched);
 
     if (i_data)
+    {
         i_data->OnPlayerEnter(player);
+        i_data->UpdateCreatureGroupSizeStats();
+    }
 
     SendInstanceGroupSizeChanged();
 
@@ -2986,8 +2991,13 @@ void InstanceMap::RemovePlayerFromMap(Player* p_Player, bool p_Remove)
     /// For normal instances schedule the reset after all players have left
     SetResetSchedule(true);
 
-    if (i_data && !p_Remove)
-        i_data->OnPlayerExit(p_Player);
+    if (i_data)
+    {
+        i_data->UpdateCreatureGroupSizeStats();
+
+        if (!p_Remove)
+            i_data->OnPlayerExit(p_Player);
+    }
 
     SendInstanceGroupSizeChanged();
 }

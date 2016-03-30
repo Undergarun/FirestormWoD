@@ -52,7 +52,8 @@ enum BG_SA_Status
     BG_SA_ROUND_ONE,
     BG_SA_SECOND_WARMUP,
     BG_SA_ROUND_TWO,
-    BG_SA_BONUS_ROUND
+    BG_SA_BONUS_ROUND,
+    BG_SA_END
 };
 
 enum BG_SA_GateState

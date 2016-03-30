@@ -1002,7 +1002,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 240 SPELL_EFFECT_240
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 241 SPELL_EFFECT_241
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 242 SPELL_EFFECT_242
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 243 SPELL_EFFECT_243
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM},          //< 243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 244 SPELL_EFFECT_244
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 245 SPELL_EFFECT_245
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 246 SPELL_EFFECT_246
@@ -4413,12 +4413,12 @@ bool SpellInfo::IsNeedToCheckSchoolImmune() const
 
     switch (Id)
     {
-        case 879:   ///< Exorcism
+        /*case 879:   ///< Exorcism         ///< Need more research on this ones, should not bypassing Ice block, Divine shield etc...
         case 24275: ///< Hammer of Wrath
         case 158392: ///< Hammer of Wrath
-        case 25912: ///< Holy Shock damage
-        case 25914: ///< Holy Shock heal
         case 35395: ///< Crusader Strike
+        case 25912: ///< Holy Shock damage*/
+        case 25914: ///< Holy Shock heal
         case 42292: ///< Pvp Trinket
         case 59752: ///< Every Man for Himself (racical)
         case 82327: ///< Holy Radiance

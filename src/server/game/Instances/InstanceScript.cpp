@@ -127,12 +127,10 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
-    UpdateCreatureGroupSizeStats();
 }
 
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
-    UpdateCreatureGroupSizeStats();
     p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
 }
 
@@ -744,7 +742,7 @@ void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
     }
 }
 
-bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
+bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
         instance->GetId(), criteria_id);
@@ -1414,7 +1412,9 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             l_Data << int32((*l_Iter)->dbcEntry->ID);
             instance->SendToPlayers(&l_Data);
 
-            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+            if (!sObjectMgr->IsDisabledEncounter((*l_Iter)->dbcEntry->ID, instance->GetDifficultyID()))
+                DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+
             return;
         }
     }

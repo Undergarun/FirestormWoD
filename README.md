@@ -8,12 +8,12 @@ World of Warcraft Warlords of Draenor (6.X) emulator based on TrinityCore projec
 + Platform: Linux, Windows or Mac
 + Processor with SSE2 support
 + ACE ≥ 6.2.0
-+ MySQL ≥ 5.1.0
-+ CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
++ MySQL ≥ 5.5.0+
++ CMake ≥ 3.2+
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)
 + MS Visual Studio ≥ 12 (2013) (Windows only)
-+ Xcode 5 (Mac only)
++ Xcode 7 (Mac only)
 
 
 ## Install
@@ -32,9 +32,16 @@ git submodule init && git submodule update --remote
 
 - The MS framework that can be found on : https://github.com/MilleniumStudio/ms_framework, you need to generate the solution with cmake, compile it with visual studio or whatever favorite compiler. Then generate the INSTALL project in visual studio or make install with gcc for exemple.
 
+- **NEW** Windows user you need the mysql server installed, download the last version (5.7+) here : [MySQL Community Server](http://dev.mysql.com/downloads/mysql/) if you need the x86 build just change the include path on cmake
+- **NEW** You must choose the libcurl .lib for your MSVC version in the `dep/libcurl` folder
+- **NEW** If you use MSVC 2013 you *MUST* have the update 3+
+
 ## Commit naming convention
 - When fixing bug, by all means include the issue number.
 - When completing feature if you have some task identifier, include that.
 - If the identifier included goes with subject, it often makes sense to just reuse it. (**Use Core/XXX: "Commit name" format**)
 - If the project is large, mention which component is affected.
 - **Describe the change in functionality** , **never** the code (that can be seen from the diff).
+
+## Merge work flow
+![image](https://firestorm-servers.com/assets/img/slides/b6b203d79f9f23522e73f149da6bddab.png)

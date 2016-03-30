@@ -1,1 +1,0 @@
-ALTER TABLE `account` ADD COLUMN `bnet2_pass_hash` VARCHAR(256) DEFAULT '' NOT NULL AFTER `recruiter`, ADD COLUMN `bnet2_salt` VARCHAR(64) DEFAULT '' NOT NULL AFTER `bnet2_pass_hash`;

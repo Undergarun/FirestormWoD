@@ -744,7 +744,7 @@ enum eUnitFlags3
 {
     UNIT_FLAG3_UNK1                         = 0x00000001,
     UNIT_FLAG3_UNK2                         = 0x00000002,
-    UNIT_FLAG3_UNK3                         = 0x00000004,
+    UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT   = 0x00000004,
     UNIT_FLAG3_UNK4                         = 0x00000008,
     UNIT_FLAG3_UNK5                         = 0x00000010,
     UNIT_FLAG3_UNK6                         = 0x00000020,
@@ -1797,6 +1797,10 @@ class Unit : public WorldObject
         float GetUnitMissChanceSpell(Unit const* p_Attacker) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
+        uint32 GetDodgeChance(const Unit* p_Victim);
+        uint32 GetParryChance(const Unit* p_Victim);
+        uint32 GetBlockChance(const Unit* p_Victim);
+
         bool CanUseAttackType(uint8 attacktype) const
         {
             switch (attacktype)

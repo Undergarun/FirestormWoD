@@ -67,6 +67,8 @@
 #include "BattlegroundDG.h"
 #include "Guild.h"
 #include "DB2Stores.h"
+#include "../../Garrison/GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -711,6 +713,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (victim->CountPctFromMaxHealth(15) < damage) ///< last update 6.0.1 (Tue Oct 14 2014) Build 18379
                 victim->CastSpell(victim, 45242, true);
         }
+    }
+
+    /// Death Siphon
+    if (spellProto && spellProto->Id == 108196)
+    {
+        int32 bp = damage * 4;
+        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
     }
 
     /// @todo update me ?
@@ -2877,6 +2886,40 @@ int32 Unit::GetMechanicResistChance(const SpellInfo* spell)
     return resist_mech;
 }
 
+uint32 Unit::GetDodgeChance(const Unit* p_Victim)
+{
+    int32 dodgeChance = int32(p_Victim->GetUnitDodgeChance(this));
+
+    /// Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
+    dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE);
+    dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
+    /// Reduce dodge chance by attacker expertise rating
+    if (dodgeChance < 0)
+        dodgeChance = 0;
+
+    return dodgeChance;
+}
+
+uint32 Unit::GetParryChance(const Unit* p_Victim)
+{
+    int32 l_ParryChance = int32(p_Victim->GetUnitParryChance(this));
+
+    if (l_ParryChance < 0)
+        l_ParryChance = 0;
+
+    return l_ParryChance;
+}
+
+uint32 Unit::GetBlockChance(const Unit* p_Victim)
+{
+    int32 l_BlockChance = int32(p_Victim->GetUnitBlockChance(this));
+
+    if (l_BlockChance < 0)
+        l_BlockChance = 0;
+
+    return l_BlockChance;
+}
+
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 {
@@ -2904,8 +2947,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Roll resist
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    tmp += victim->GetMechanicResistChance(spell) * 100;
-    if (roll < tmp)
+    uint32 l_Resist = (victim->GetMechanicResistChance(spell) * 100);
+    tmp += l_Resist;
+    if (roll < l_Resist)
         return SPELL_MISS_RESIST;
 
     // Charge spells aren't suppose to takecare of dodge parry or block
@@ -2926,9 +2970,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         // only if in front
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
-            int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+            uint32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp+=deflect_chance;
-            if (roll < tmp)
+            if (roll < deflect_chance)
                 return SPELL_MISS_DEFLECT;
         }
 
@@ -2987,67 +3031,28 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        // Roll dodge
-        int32 dodgeChance = int32(victim->GetUnitDodgeChance(this) * 100.0f);
-        // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
-        dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
-        dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
-        // Reduce dodge chance by attacker expertise rating
-        if (IsPlayer())
-            dodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
-        else
-            dodgeChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        if (dodgeChance < 0)
-            dodgeChance = 0;
+        uint32 l_DodgeChance = GetDodgeChance(victim) * 100;
 
-        if (roll < (tmp += dodgeChance))
+        tmp += l_DodgeChance;
+        if (roll < l_DodgeChance)
             return SPELL_MISS_DODGE;
     }
 
     if (canParry)
     {
-        // Roll parry
-        int32 parryChance = int32(victim->GetUnitParryChance(this) * 100.0f);
-        float l_ExpertisePercentage = 0.0f;
+        uint32 l_ParryChance = GetParryChance(victim) * 100;
 
-        // Reduce parry chance by attacker expertise rating
-        if (IsPlayer())
-            l_ExpertisePercentage = ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
-        else
-        {
-            if (isPet() && GetOwner())
-            {
-                if (GetOwner()->ToPlayer())
-                    l_ExpertisePercentage = ((Player*)GetOwner())->GetExpertiseDodgeOrParryReduction(attType) * 100.0f;
-            }
-
-            parryChance -= GetTotalAuraModifier(SPELL_AURA_MOD_EXPERTISE) * 25;
-        }
-
-        if (victim->getLevel() >= getLevel())
-        {
-            uint8 l_LevelDiff = std::min(victim->getLevel() - getLevel(), 3);
-            l_ExpertisePercentage -= g_BaseEnemyParryChance[l_LevelDiff] * 100.0f;
-        }
-
-        parryChance -= int32(l_ExpertisePercentage);
-
-        if (parryChance < 0)
-            parryChance = 0;
-
-        tmp += parryChance;
-        if (roll < tmp)
+        tmp += l_ParryChance;
+        if (roll < l_ParryChance)
             return SPELL_MISS_PARRY;
     }
 
     if (canBlock)
     {
-        int32 blockChance = int32(victim->GetUnitBlockChance(this) * 100.0f);
-        if (blockChance < 0)
-            blockChance = 0;
-        tmp += blockChance;
+        uint32 l_BlockChance = GetBlockChance(victim) * 100;
 
-        if (roll < tmp)
+        tmp += l_BlockChance;
+        if (roll < l_BlockChance)
             return SPELL_MISS_BLOCK;
     }
 
@@ -4089,8 +4094,8 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
-        /// Hack fix for Sunfire
-        if (spellProto->Id == 164815)
+        /// Hack fix for Sunfire and Rising Sun Kick
+        if (spellProto->Id == 164815 || spellProto->Id == 130320)
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -9714,12 +9719,15 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
-        case 166012:///< Item  Hunter WoD PvP Survival 4P Bonus
+        case 166012:///< Item - Hunter WoD PvP Survival 4P Bonus
         {
             if (!procSpell)
                 return false;
 
             if (procSpell->Id != 3674)
+                return false;
+
+            if (procEx & PROC_EX_INTERNAL_MULTISTRIKE)
                 return false;
 
             break;
@@ -11612,6 +11620,13 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         }
     }
 
+    /// Frost Orb should remove Polymorph
+    if (IsPlayer() && spellProto && victim && spellProto->Id == 84721)
+    {
+        if (victim->HasAura(118))
+            victim->RemoveAura(118);
+    }
+
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
 
     // done scripted mod (take it from owner)
@@ -12276,6 +12291,10 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
                 DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                 DealSpellDamage(&damageInfo, true);
 
+                /// In case when we have SpellVisual for this spell loaded from DBC - multistrike should have spell animation too with increased speed
+                if (p_ProcSpell->SpellVisual[0])
+                    SendPlaySpellVisual(p_ProcSpell->SpellVisual[0], p_Target, (p_ProcSpell->Speed * 2.0f), 0.0f, Position());
+
                 if (p_OwnerAuraEffect)
                 {
                     int32 overkill = damageInfo.damage - p_Target->GetHealth() > 0 ? damageInfo.damage - p_Target->GetHealth() : 0;
@@ -12883,6 +12902,14 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return 1.0f;
 
+    /// No bonus for Ember Tap heal
+    if (spellProto->Id == 114635)
+        return 1.0f;
+
+    // No bonus for Eminence (statue) and Eminence
+    if (spellProto->Id == 117895 || spellProto->Id == 126890)
+        return 1.0f;
+
     float DoneTotalMod = 1.0f;
 
     // Healing done percent
@@ -12960,7 +12987,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 48503)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    // No bonus for Lifebloom : Final heal
     if (spellProto->Id == 33778)
         return healamount;
 
@@ -13701,6 +13728,12 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 
         if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
+
+        if (MS::Garrison::Manager* l_GarrisonMgr = player->GetGarrison())
+        {
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID && player->GetMapId() == 1116)
+                player->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, true);
+        }
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -13718,6 +13751,12 @@ void Unit::Dismount()
     {
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
         thisPlayer->RemoveAurasDueToSpell(143314);
+
+        if (MS::Garrison::Manager* l_GarrisonMgr = thisPlayer->GetGarrison())
+        {
+            if (l_GarrisonMgr->GetBuildingWithBuildingID(MS::Garrison::Buildings::Stables_Stables_Level1).BuildingID)
+                thisPlayer->ApplyModFlag(EPlayerFields::PLAYER_FIELD_LOCAL_FLAGS, PlayerLocalFlags::PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED, false);
+        }
     }
 
     uint64 l_Guid = GetGUID();
@@ -13799,7 +13838,16 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         }
 
         if (l_MountCapability->RequiredMap != -1 && int32(GetMapId()) != l_MountCapability->RequiredMap)
-            continue;
+        {
+            bool l_ByPass = false;
+
+            /// Blasted Lands, level 90
+            if (l_MountCapability->RequiredMap == 1 && GetMapId() == 1190)
+                l_ByPass = true;
+
+            if (!l_ByPass)
+                continue;
+        }
 
         if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaId))
             continue;
@@ -16912,7 +16960,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         /// Custom WoD Script
         /// Ruthlessness can proc just from finishing spells
-        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 14181 && procSpell->Id != 408 && procSpell->Id != 2098 && procSpell->Id != 73651 && procSpell->Id != 5171 && procSpell->Id != 26679 && procSpell->Id != 1943)))
+        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 2098 && procSpell->Id != 408 && procSpell->Id != 26679 && procSpell->Id != 1943 && procSpell->Id != 121411)))
             continue;
 
         /// Item - Druid T17 Restoration 4P Bonus - 167714
@@ -18367,8 +18415,11 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     return true;
 }
 
-void Unit::SendDurabilityLoss(Player * p_Receiver, uint32 p_Percent)
+void Unit::SendDurabilityLoss(Player* p_Receiver, uint32 p_Percent)
 {
+    if (p_Receiver->HasAuraType(AuraType::SPELL_AURA_DONT_LOOSE_DURABILITY))
+        return;
+
     WorldPacket l_Data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
     l_Data << uint32(p_Percent);
 
@@ -18507,11 +18558,14 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
             {
                 if (l_Map->IsRaid())
                 {
+                    uint32 l_PlayerCount = l_Map->GetPlayersCountExceptGMs();
+
                     /// Resize item count depending on player count
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_PlayerCount / 5));
+                        std::vector<LootItem> l_RealLoots;
 
                         if (l_Loot->Items.size() > l_Count)
                         {
@@ -18519,7 +18573,6 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                             std::mt19937 l_RandomGenerator(l_RandomDevice());
                             std::shuffle(l_Loot->Items.begin(), l_Loot->Items.end(), l_RandomGenerator);
 
-                            std::vector<LootItem> l_RealLoots;
                             for (LootItem l_LootItem : l_Loot->Items)
                             {
                                 if (!l_Count)
@@ -18529,8 +18582,28 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                                 l_RealLoots.push_back(l_LootItem);
                             }
 
+                            l_Loot->UnlootedCount = 0;
                             l_Loot->Items.clear();
-                            l_Loot->Items = l_RealLoots;
+                        }
+
+                        l_KilledCreature->SetLootMode(LootModes::LOOT_MODE_HARD_MODE_1);
+
+                        /// If at least 15 players, 25% chance to have a third set token
+                        if (l_PlayerCount >= 15 && roll_chance_i(25))
+                            l_KilledCreature->AddLootMode(LootModes::LOOT_MODE_HARD_MODE_2);
+
+                        /// If at least 20 players, 10% chance to have a fourth set token
+                        if (l_PlayerCount >= 20 && roll_chance_i(10))
+                            l_KilledCreature->AddLootMode(LootModes::LOOT_MODE_HARD_MODE_3);
+
+                        /// We must do that again to add set tokens
+                        if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
+                            l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
+
+                        for (LootItem l_Item : l_RealLoots)
+                        {
+                            ++l_Loot->UnlootedCount;
+                            l_Loot->Items.push_back(l_Item);
                         }
                     }
 
@@ -19126,7 +19199,7 @@ void Unit::SetRooted(bool apply)
 
 void Unit::SetFeared(bool apply)
 {
-    if (apply && !HasAuraType(SPELL_AURA_MOD_ROOT) && !HasAuraType(SPELL_AURA_MOD_ROOT_2))
+    if (apply)
     {
         SetTarget(0);
 
@@ -20004,7 +20077,12 @@ void Unit::OnRelocated()
 void Unit::UpdateObjectVisibility(bool forced)
 {
     if (forced)
-        VisibilityUpdateTask::UpdateVisibility(this);
+    {
+        if (isType(TYPEMASK_PLAYER))
+            ((Player*)this)->UpdateVisibilityForPlayer();
+
+        WorldObject::UpdateObjectVisibility(true);
+    }
     else
         m_Events.AddEvent(new VisibilityUpdateTask(this), m_Events.CalculateTime(1));
     AINotifyTask::ScheduleAINotify(this);
@@ -20893,7 +20971,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
     }
 
-    if (!modelid)
+    if (!modelid && form != FORM_STEALTH)
         modelid = GetNativeDisplayId();
     return modelid;
 }

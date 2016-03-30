@@ -1103,7 +1103,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* , Unit const* /* = NULL */, uint32 /* = 0 */)
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* , Unit const* /* = NULL */, uint64 /* = 0 */)
             {
                 switch (criteriaId)
                 {

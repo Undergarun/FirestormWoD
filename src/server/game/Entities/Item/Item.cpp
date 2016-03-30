@@ -678,7 +678,7 @@ uint32 Item::GetSkill() const
     return GetTemplate()->GetSkill();
 }
 
-void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus)
+void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus, bool p_OnlyDifficulty /*= false*/)
 {
     auto l_ItemTemplate = sObjectMgr->GetItemTemplate(p_ItemId);
     if (l_ItemTemplate == nullptr)
@@ -768,7 +768,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
             p_Context == ItemContext::RaidLfr)
             l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
-        if (roll_chance_f(ItemBonus::Chances::Stats))
+        if (roll_chance_f(ItemBonus::Chances::Stats) && !p_OnlyDifficulty)
         { 
             /// Could be a good thing to improve performance to declare one random generator somewhere and always use the same instead of declare it new one for each std::shuffle call
             /// Note for developers : std::random_shuffle is c based and will be removed soon (c++x14), so it's a good tips to always use std::shuffle instead 
@@ -783,11 +783,11 @@ void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector
     /// Step tree : Roll for Warforged & Prismatic Socket
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
-    if (p_Context == ItemContext::DungeonHeroic ||
+    if ((p_Context == ItemContext::DungeonHeroic ||
         p_Context == ItemContext::RaidNormal ||
         p_Context == ItemContext::RaidHeroic ||
         p_Context == ItemContext::RaidMythic ||
-        p_Context == ItemContext::RaidLfr)
+        p_Context == ItemContext::RaidLfr) && !p_OnlyDifficulty)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
@@ -2246,6 +2246,9 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
             if (SubClass == 0 || SubClass > 4)
                 return 0.0f;
 
+            if (armorQuality == nullptr || armorTotal == nullptr || armorLoc == nullptr)
+                return 0.0f;
+
             return (int)floor(armorQuality->Value[quality] * armorTotal->Value[SubClass - 1] * armorLoc->Value[SubClass - 1] + 0.5f);
         }
         return 0;
@@ -2253,6 +2256,9 @@ uint32 ItemTemplate::CalculateArmorScaling(uint32 ilvl) const
     else
     {
         ItemArmorShieldEntry const* shieldEntry = sItemArmorShieldStore.LookupEntry(ilvl);
+        if (shieldEntry == nullptr)
+            return 0;
+
         return shieldEntry->Value[quality];
     }
 }
@@ -2555,6 +2561,15 @@ uint32 Item::GetEnchantItemVisualId(EnchantmentSlot p_Slot) const
     SpellItemEnchantmentEntry const* l_Enchantement = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(p_Slot));
     if (l_Enchantement == nullptr)
         return 0;
+
+    /// Special handler for SPELL_EFFECT_APPLY_ENCHANT_ILLUSION that should change visual effect of item
+    SpellItemEnchantmentEntry const* l_EnchantementIllusion = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(BONUS_ENCHANTMENT_SLOT));
+    if (l_EnchantementIllusion != nullptr)
+    {
+        uint32 l_IllusionVisualID = l_EnchantementIllusion->itemVisualID;
+        if (l_IllusionVisualID != 0)
+            return l_IllusionVisualID;
+    }
 
     return l_Enchantement->itemVisualID;
 }

@@ -590,13 +590,7 @@ void WorldSession::HandleGarrisonAssignFollowerToBuilding(WorldPacket& p_RecvDat
 
     if (l_PlotInstanceID)
     {
-        MS::Garrison::GarrisonBuilding* l_Building = l_GarrisonMgr->GetBuildingObject(l_PlotInstanceID);
-
-        if (l_Building == nullptr)
-            return;
-
-        l_Building->FollowerAssigned = l_FollowerDBID;
-        l_GarrisonMgr->Save();
+        l_GarrisonMgr->AssignFollowerToBuilding(l_FollowerDBID, (uint32)l_PlotInstanceID);
 
         WorldPacket l_Response(SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT, 1024);
 
@@ -634,23 +628,7 @@ void WorldSession::HandleGarrisonRemoveFollowerFromBuilding(WorldPacket& p_RecvD
         return;
     }
 
-    std::vector<MS::Garrison::GarrisonBuilding> l_Buildings = l_GarrisonMgr->GetBuildings();
-    MS::Garrison::GarrisonBuilding* l_BuildingObject = nullptr;
-
-    for (auto l_Building : l_Buildings)
-    {
-        if (l_Building.FollowerAssigned == l_FollowerDBID)
-        {
-            l_BuildingObject = l_GarrisonMgr->GetBuildingObject(l_Building.PlotInstanceID);
-            break;
-        }
-    }
-
-    if (l_BuildingObject == nullptr)
-        return;
-
-    l_BuildingObject->FollowerAssigned = 0;
-    l_GarrisonMgr->Save();
+    l_GarrisonMgr->AssignFollowerToBuilding(l_FollowerDBID, 0);
 
     WorldPacket l_Response(SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT, 1024);
 

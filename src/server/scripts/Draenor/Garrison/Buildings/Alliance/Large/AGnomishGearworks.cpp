@@ -60,18 +60,14 @@ namespace MS {
         {
             if (p_Quest->GetQuestId() == Quests::Alliance_UnconventionalInventions)
             {
-                if (p_Player && p_Creature)
+                if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 {
-                    if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
-                    {
-                        CreatureAI* l_AI = p_Creature->AI();
+                    GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
-                        if (l_AI == nullptr)
-                            return true;
+                    if (l_AI == nullptr)
+                        return true;
 
-                        if (GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(l_AI))
-                            l_GarrisonMgr->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
-                    }
+                    l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
                 }
             }
 
@@ -82,27 +78,21 @@ namespace MS {
         {
             if (p_Quest->GetQuestId() == Quests::Alliance_UnconventionalInventions)
             {
-                if (p_Player && p_Creature)
+                if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
                 {
-                    if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
-                    {
-                        CreatureAI* l_AI = p_Creature->AI();
+                    GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
-                        if (l_AI == nullptr)
-                            return true;
+                    if (l_AI == nullptr)
+                        return true;
 
-                        if (GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(l_AI))
-                        {
-                            if (p_Player->HasItemCount(WorkshopGearworks::InventionItemIDs::ItemStickyGrenades))
-                                return true;
+                    if (p_Player->HasItemCount(WorkshopGearworks::InventionItemIDs::ItemStickyGrenades))
+                        return true;
 
-                            SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
+                    SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
 
-                            l_GarrisonAI->SummonRelativeGameObject(WorkshopGearworks::InventionsGobIDs::GobStickyGrenades, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
-                            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
-                            p_Player->SaveToDB();
-                        }
-                    }
+                    l_AI->SummonRelativeGameObject(WorkshopGearworks::InventionsGobIDs::GobStickyGrenades, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
+                    p_Player->SaveToDB();
                 }
             }
             return true;

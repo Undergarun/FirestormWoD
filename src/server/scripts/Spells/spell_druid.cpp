@@ -889,7 +889,8 @@ public:
             if (l_RejuvenationAura && m_RejuvenationAura > 0)
             {
                 l_RejuvenationAura->SetDuration(m_RejuvenationAura);
-                l_RejuvenationAura->GetEffect(EFFECT_0)->SetAmount(m_RejuvenationAuraAmount);
+                if (AuraEffect* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
+                    l_AuraEffect->SetAmount(m_RejuvenationAuraAmount);
             }
         }
 
@@ -3160,6 +3161,7 @@ enum SwiftmendSpells
     SPELL_DRUID_REGROWTH          = 8936
 };
 
+/// Last Update 6.2.3
 /// Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -3169,6 +3171,15 @@ class spell_dru_swiftmend: public SpellScriptLoader
         class spell_dru_swiftmend_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_swiftmend_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                /// Restoration soul of the forest - 114108
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
+            }
 
             void HandleOnHit()
             {
@@ -3195,15 +3206,12 @@ class spell_dru_swiftmend: public SpellScriptLoader
                                 l_Aura->Remove();
                         }
                     }
-
-                    //Restoration soul of the forest - 114108
-                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
-                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
                 }
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_dru_swiftmend_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleOnHit);
                 AfterHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleAfterHit);
             }

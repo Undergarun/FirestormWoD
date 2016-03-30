@@ -361,3 +361,22 @@
 	DELETE FROM creature WHERE id = 81441;
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('81441','1158','7078','7085','2','4','0','0','1934.74','323.733','89.0721','1.13634','120','0','0','1','0','0','1','0','32768','34816','0','0','0','0',NULL);
 	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('81441','1331','7078','7211','2','4294967295','0','0','1871.62','259.834','76.64','4.12075','300','0','0','52509','9916','0','0','0','0','2048','0','0','0','0',NULL);
+
+#88228/NPC - Sergent Grimjaw
+
+
+	-- remove some gossip option offered for unscripted feature
+	DELETE FROM gossip_menu_option WHERE menu_id = 17274;
+--	insert into `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) values('17274','1','0','Prepare to battle the Iron Horde.','1','1','0','0','0','0','Start the garrison invasion?');
+	insert into `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) values('17274','2','1','Let me browse your goods','3','128','0','0','0','0','');
+
+# /NPC - Garrisons leatherworking tents
+
+	-- 86327, 86333, 86334, 86335, 86336, 86337, 86338,  86339,
+    -- 86340, 86341, 86342, 86343, 86344, 86345, 86346, 86347,
+	-- 86348, 86349, 86350, 86351, 86352, 86353, 86354
+
+	UPDATE creature_template SET unit_flags = unit_flags | 0x2 | 0x4 | 0x100 |0x200 | 0x20000 | 0x2000000, scriptname = "npc_LeatherWorkingTent_Garr" WHERE entry IN
+	(86327, 86333, 86334, 86335, 86336, 86337, 86338, 86339,
+     86340, 86341, 86342, 86343, 86344, 86345, 86346, 86347,
+     86348, 86349, 86350, 86351, 86352, 86353, 86354);
