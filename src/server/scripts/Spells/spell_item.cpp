@@ -4618,6 +4618,47 @@ public:
     }
 };
 
+/// Swapblaster - 111820, Called by: 161399
+class spell_item_swapblaster : public SpellScriptLoader
+{
+public:
+    spell_item_swapblaster() : SpellScriptLoader("spell_item_swapblaster") { }
+
+    class spell_item_swapblaster_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_swapblaster_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            Player* l_Target = l_Player->GetSelectedPlayer();
+            if (l_Target == nullptr)
+                return;
+
+            l_Player->TeleportTo(l_Target->GetMapId(), l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation());
+            l_Target->TeleportTo(l_Player->GetMapId(), l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ(), l_Player->GetOrientation());
+
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_swapblaster_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_swapblaster_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4711,4 +4752,5 @@ void AddSC_item_spell_scripts()
     new spell_item_reflecting_prism();
     new spell_item_ascend_to_karabor();
     new spell_item_sargerei_disguise();
+    new spell_item_swapblaster();
 }
