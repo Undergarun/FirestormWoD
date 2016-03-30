@@ -41,10 +41,10 @@ build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
       - cp -p contrib/deploy/run-worldserver dist/bin
-      - cp contrib/deploy/commands.gdb dist/etc
-      - cp sql/updates/characters/*.sql dist/sql/characters
-      - cp sql/updates/world/*.sql dist/sql/world
-      - cp sql/updates/hotfix/*.sql dist/sql/hotfix
+      - cp -p contrib/deploy/commands.gdb dist/etc
+      - cp -p sql/updates/characters dist/sql
+      - cp -p sql/updates/world dist/sql
+      - cp -p sql/updates/hotfix dist/sql
 
 publish:
   docker:
