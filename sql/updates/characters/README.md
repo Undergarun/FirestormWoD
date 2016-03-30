@@ -1,3 +1,6 @@
+#### When applied
+When SQL files are applied, move them to `sql/updates/old` in the correct directory.
+
 #### Naming Convention
 In order to respect a correct SQL application by our scripts, please follow the following naming convention.
 
