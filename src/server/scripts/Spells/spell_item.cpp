@@ -4659,6 +4659,40 @@ public:
     }
 };
 
+/// Hypnosis Goggles - 113631, Called by: 167839
+class spell_item_hypnotize_critter : public SpellScriptLoader
+{
+    public:
+        spell_item_hypnotize_critter() : SpellScriptLoader("spell_item_hypnotize_critter") { }
+
+        class spell_item_hypnotize_critter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_hypnotize_critter_SpellScript);
+
+            void HandleDummy()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Critter = GetHitUnit();
+
+                if (l_Player == nullptr || l_Critter == nullptr)
+                    return;
+
+                if (l_Critter->GetMotionMaster())
+                    l_Critter->GetMotionMaster()->MoveFollow(l_Player, 0.0f, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_item_hypnotize_critter_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_hypnotize_critter_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4753,4 +4787,9 @@ void AddSC_item_spell_scripts()
     new spell_item_ascend_to_karabor();
     new spell_item_sargerei_disguise();
     new spell_item_swapblaster();
+<<<<<<< HEAD
+=======
+    new spell_item_transmorphic_tincture();
+    new spell_item_hypnotize_critter();
+>>>>>>> e1c72f5... Fix Hypnosis Goggles
 }
