@@ -42,9 +42,9 @@ build:
     commands:
       - cp -p contrib/deploy/run-worldserver dist/bin
       - cp -p contrib/deploy/commands.gdb dist/etc
-      - cp -p sql/updates/characters dist/sql
-      - cp -p sql/updates/world dist/sql
-      - cp -p sql/updates/hotfix dist/sql
+      - cp -rp sql/updates/characters dist/sql
+      - cp -rp sql/updates/world dist/sql
+      - cp -rp sql/updates/hotfix dist/sql
 
 publish:
   docker:
