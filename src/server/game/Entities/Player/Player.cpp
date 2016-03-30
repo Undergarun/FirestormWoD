@@ -33961,7 +33961,10 @@ void Player::UpdateCharges()
         std::deque<ChargeEntry>& l_ChargeRefreshTimes = l_CategoryCharge.second;
 
         while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
+        {
             l_ChargeRefreshTimes.pop_front();
+            SendSpellCharges();
+        }
     }
 }
 
@@ -34005,7 +34008,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        SendSetSpellCharges(p_ChargeCategoryEntry);
+        SendSpellCharges();
     }
 }
 
