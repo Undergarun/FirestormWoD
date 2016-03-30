@@ -14,7 +14,7 @@ function sendToSlack {
 }
 
 function updateSQL {
-    if [ -f /tmp/sql-updates-errors.log ]; then
+    if [ -a /tmp/sql-updates-errors.log ]; then
         rm /tmp/sql-updates-errors.log
     fi
 
