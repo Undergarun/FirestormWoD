@@ -30,8 +30,6 @@ In order to complete the installation of the core, you need some other dependenc
 git submodule init && git submodule update --remote
 ```
 
-- The MS framework that can be found on : https://github.com/MilleniumStudio/ms_framework, you need to generate the solution with cmake, compile it with visual studio or whatever favorite compiler. Then generate the INSTALL project in visual studio or make install with gcc for exemple.
-
 - **NEW** Windows user you need the mysql server installed, download the last version (5.7+) here : [MySQL Community Server](http://dev.mysql.com/downloads/mysql/) if you need the x86 build just change the include path on cmake
 - **NEW** You must choose the libcurl .lib for your MSVC version in the `dep/libcurl` folder
 - **NEW** If you use MSVC 2013 you *MUST* have the update 3+
