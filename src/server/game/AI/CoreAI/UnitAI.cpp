@@ -48,7 +48,7 @@ void UnitAI::DoMeleeAttackIfReady()
     if (!me->IsWithinMeleeRange(victim))
         return;
 
-    //Make sure our attack is ready and we aren't currently casting before checking distance
+    /// Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim);

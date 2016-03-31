@@ -66,7 +66,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
 
     p_Packet.readPackGUID(l_NpcGUID);
 
-    Creature* l_Unit = m_Player->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* l_Unit = m_Player->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_VAULTKEEPER | UNIT_NPC_FLAG_TRANSMOGRIFIER);
 
     if (!l_Unit)
     {
