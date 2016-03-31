@@ -847,7 +847,7 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    ///- Get the realm Id from the configuration file
+    /// Get the realm Id from the configuration file
     g_RealmID = ConfigMgr::GetIntDefault("RealmID", 0);
     if (!g_RealmID)
     {
@@ -858,11 +858,11 @@ bool Master::_StartDB()
 
     sLog->SetRealmID(g_RealmID);
 
-    ///- Clean the database before starting
+    /// Clean the database before starting
     ClearOnlineAccounts();
 
-    ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    /// Insert version info into DB
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());  ///< One-time query
 
     sWorld->LoadDBVersion();
 

@@ -2038,7 +2038,7 @@ void World::SetInitialWorldSettings()
     m_startTime = m_gameTime;
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
-                            g_RealmID, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
+                            g_RealmID, uint32(m_startTime), GitRevision::GetFullVersion()); ///< One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
