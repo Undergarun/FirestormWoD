@@ -1376,22 +1376,22 @@ enum Opcodes
     CMSG_MOVE_STOP_PITCH                        = 0x1519, ///< 6.2.3 20726
 
     /// ACK
-    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x1436, ///< 6.2.3 20726
-    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x1832, ///< 6.2.3 20726
-    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x15BE, ///< 6.2.3 20726
-    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x1931, ///< 6.2.3 20726
-    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x14B6, ///< 6.2.3 20726
-    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x1431, ///< 6.2.3 20726
-    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x103D, ///< 6.2.3 20726
-    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x1112, ///< 6.2.3 20726
-    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x10B2, ///< 6.2.3 20726
-    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x159E, ///< 6.2.3 20726
-    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x1411, ///< 6.2.3 20726
-    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x11BE, ///< 6.2.3 20726
-    CMSG_MOVE_WATER_WALK_ACK                    = 0x18B2, ///< 6.2.3 20726
-    CMSG_MOVE_HOVER_ACK                         = 0x111D, ///< 6.2.3 20726
-    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK          = 0x1195, ///< 6.2.3 20779
-    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK         = 0x141E, ///< 6.2.3 20779
+    CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK         = 0x1436, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK    = 0x1832, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK        = 0x15BE, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK        = 0x1931, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK   = 0x14B6, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK      = 0x1431, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK = 0x103D, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK         = 0x1112, ///< 6.2.3 20726
+    CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK        = 0x10B2, ///< 6.2.3 20726
+    CMSG_MOVE_KNOCK_BACK_ACK                     = 0x159E, ///< 6.2.3 20726
+    CMSG_MOVE_SET_CAN_FLY_ACK                    = 0x1411, ///< 6.2.3 20726
+    CMSG_MOVE_FEATHER_FALL_ACK                   = 0x11BE, ///< 6.2.3 20726
+    CMSG_MOVE_WATER_WALK_ACK                     = 0x18B2, ///< 6.2.3 20726
+    CMSG_MOVE_HOVER_ACK                          = 0x111D, ///< 6.2.3 20726
+    CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK           = 0x1195, ///< 6.2.3 20779
+    CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK          = 0x141E, ///< 6.2.3 20779
 
     //////////////////////////////////////////////////////////////////////////
     /// Group
