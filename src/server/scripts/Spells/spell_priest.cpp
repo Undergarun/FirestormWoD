@@ -1495,6 +1495,9 @@ class spell_pri_atonement: public SpellScriptLoader
 
                 l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
                 {
+                    if (p_Unit->isStatue() || p_Unit->isTotem())
+                        return true;
+
                     return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
                 });
 
