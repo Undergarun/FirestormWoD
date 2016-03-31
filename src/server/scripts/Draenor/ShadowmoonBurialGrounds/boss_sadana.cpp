@@ -651,7 +651,7 @@ public:
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
-            Movement::MoveSplineInit init(*me);
+            Movement::MoveSplineInit init(me);
             FillCirclePath(g_PositionSpiritHomePoint, me->GetDistance2d(g_PositionSpiritHomePoint.GetPositionX(), g_PositionSpiritHomePoint.GetPositionY()), g_PositionSpiritHomePoint.GetPositionZ(), init.Path(), true);
             init.SetWalk(true);
             init.SetCyclic();
