@@ -30,13 +30,13 @@ function updateSQL {
         -f \
         $MYSQL_WORLD_TABLE < /tmp/world.sql 2>> /tmp/sql-updates-errors.log
 
-    cat /usr/local/share/firestorm/sql/hotfix/*.sql > /tmp/hotfix.sql
-    mysql \
-        -h "$MYSQL_HOTFIX_ADDR" \
-        -u $MYSQL_HOTFIX_USER \
-        -p$MYSQL_HOTFIX_PASSWD \
-        -f \
-        $MYSQL_HOTFIX_TABLE < /tmp/hotfix.sql 2>> /tmp/sql-updates-errors.log
+    #cat /usr/local/share/firestorm/sql/hotfix/*.sql > /tmp/hotfix.sql
+    #mysql \
+    #    -h "$MYSQL_HOTFIX_ADDR" \
+    #    -u $MYSQL_HOTFIX_USER \
+    #    -p$MYSQL_HOTFIX_PASSWD \
+    #    -f \
+    #    $MYSQL_HOTFIX_TABLE < /tmp/hotfix.sql 2>> /tmp/sql-updates-errors.log
 
     if [ -f /tmp/sql-updates-errors.log -a -s /tmp/sql-updates-errors.log ]; then
         mv /tmp/sql-updates-errors.log /usr/local/var/log/firestorm
