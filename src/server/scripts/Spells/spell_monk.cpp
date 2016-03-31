@@ -2089,7 +2089,8 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphofRenewedTea = 159496
+                GlyphofRenewedTea = 159496,
+                GlyphofRenewingMist = 123334
             };
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -2128,11 +2129,15 @@ class spell_monk_renewing_mist: public SpellScriptLoader
                 if (aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() <= 1)
                     return;
 
+                float l_Radius = 20.0f;
+                if (l_Caster->HasAura(eSpells::GlyphofRenewingMist))
+                    l_Radius = 40.0f;
+
                 /// Get friendly unit on range
                 std::list<Unit*> l_FriendlyUnitList;
-                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 20.0f);
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
-                l_Target->VisitNearbyObject(20.0f, l_Searcher);
+                l_Target->VisitNearbyObject(l_Radius, l_Searcher);
 
                 /// Remove friendly unit with already renewing mist apply
                 l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
