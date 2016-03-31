@@ -2,9 +2,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
+///  Copyright 2015 Millenium-studio SARL 
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "the_everbloom.hpp"
@@ -15,7 +15,7 @@ enum eWitherbarkActions
     ActionBrittleEffect         = 1,
     ActionBrittleDeffect,
     ActionEnergyPower,
-    // Magic Waters
+    ///< Magic Waters
     ActionActivateWaterGlobules,
     ActionDeactiveWaterGlobules
 };
@@ -457,6 +457,10 @@ public:
 
         void EnterCombat(Unit* p_Attacker) override
         {
+            /// Cosmetic Aquous burst.
+            if (Creature* l_NearestAquousGlobule = me->FindNearestCreature(eWitherbarkCreatures::CreatureWaterGlobule, 3.0f, true))
+                me->Kill(l_NearestAquousGlobule);
+
             RandomSayings();
             me->RemoveAura(eEverbloomNaturalistSpells::SpellSolarChannel);
             DespawnCreaturesInArea(eEverbloomCreature::CreatureGlobuleWater, me);
@@ -630,9 +634,21 @@ public:
             me->SetDisplayId(InvisibleDisplay);
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.4f);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
             m_DiffCheckup = 1 * TimeConstants::IN_MILLISECONDS;
+            me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
             me->CastSpell(me, eAqueousGlobuleSpells::SpellGlobueCosmetic);
+
+            if (m_Instance != nullptr)
+            {
+                if (Creature* l_Witherbark = m_Instance->instance->GetCreature(m_Instance->GetData64(eEverbloomData::DataWitherbark)))
+                {
+                    me->SetFacingToObject(l_Witherbark);
+
+                    float l_X = me->m_positionX + 18 * cos(me->m_orientation);
+                    float l_Y = me->m_positionY + 18 * sin(me->m_orientation);
+                    me->GetMotionMaster()->MoveJump(0, l_X, l_Y, 86.871f);
+                }
+            }
         }
 
         void JustDied(Unit* /*p_Killer*/) override
@@ -650,11 +666,11 @@ public:
                     {
                         if (!me->isMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.
                         {
-                            if (me->HasAuraType(AuraType::SPELL_AURA_MOD_STUN) || me->HasAuraType(AuraType::SPELL_AURA_MOD_ROOT))
-                                return;
-
-                            me->GetMotionMaster()->MoveFollow(l_Witherbark, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
+                            printf("moving");
+                            me->GetMotionMaster()->MovePoint(0, *l_Witherbark);
                         }
+                        else
+                            printf("ain't moving");
 
                         if (m_DiffCheckup <= p_Diff && !m_Caught) // Checks radius between Witherbark and current globule and increases water power incase of contact.
                         {
@@ -667,7 +683,7 @@ public:
                                     m_Caught = true;
                                     l_Witherbark->AI()->DoAction(eWitherbarkActions::ActionEnergyPower);
                                     l_Witherbark->SetInt32Value(UNIT_FIELD_POWER, l_Val);
-                                    me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);                            
+                                    me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                                 }
                             }
 
@@ -676,8 +692,14 @@ public:
                         else
                             m_DiffCheckup -= p_Diff;
                     }
+                    else
+                        printf("boss not in combat or missing aura");
                 }
+                else
+                    printf("boss not found");
             }
+            else
+                printf("instance not found");
         }
     };
 
@@ -857,7 +879,7 @@ public:
     {
         PrepareAuraScript(the_everbloom_witherbark_aura_brittle_bark_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/) 
         { 
             if (Unit* l_Caster = GetCaster())
             {
@@ -866,7 +888,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const* /*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_aurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
