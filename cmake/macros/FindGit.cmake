@@ -1,12 +1,9 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
 #
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 include(${CMAKE_SOURCE_DIR}/cmake/macros/EnsureVersion.cmake)
 
 set(_REQUIRED_GIT_VERSION "1.7")
