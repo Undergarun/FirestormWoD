@@ -6,4 +6,4 @@
 #include "SQLOperation.h"
 #include "Errors.h"
 #include "TypeList.h"
-#include "Revision.h"
+#include "GitRevision.h"
