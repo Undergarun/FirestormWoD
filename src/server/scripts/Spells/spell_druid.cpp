@@ -887,11 +887,7 @@ public:
             Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
 
             if (l_RejuvenationAura && m_RejuvenationAura > 0)
-            {
                 l_RejuvenationAura->SetDuration(m_RejuvenationAura);
-                if (AuraEffect* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
-                    l_AuraEffect->SetAmount(m_RejuvenationAuraAmount);
-            }
         }
 
         void HandleBeforeHit()

@@ -17096,6 +17096,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_ROOT:
                     case SPELL_AURA_TRANSFORM:
                     case SPELL_AURA_MOD_FEAR_2:
+                    case SPELL_AURA_MOD_ROOT_2:
                         l_IsCrowControlAura = true;
                         break;
                     default:
