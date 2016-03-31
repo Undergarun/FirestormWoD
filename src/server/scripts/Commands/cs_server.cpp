@@ -114,6 +114,7 @@ public:
 
         p_Handler->PSendSysMessage("Firestorm");
         p_Handler->PSendSysMessage(GitRevision::GetFullVersion());
+        p_Handler->PSendSysMessage(GitRevision::GetDate());
         p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);
         p_Handler->PSendSysMessage(LANG_UPTIME, l_Uptime.c_str());
         p_Handler->PSendSysMessage("Server delay: %u ms", l_UpdateTime);
