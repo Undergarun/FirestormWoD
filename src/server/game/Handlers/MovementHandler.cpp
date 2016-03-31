@@ -497,7 +497,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket& p_Packet)
     // in other cases anti-cheat check can be fail in false case
     UnitMoveType l_MoveType       = MOVE_WALK;
 
-    Opcodes l_Opcode = p_Packet.GetOpcode();
+    uint16 l_Opcode = p_Packet.GetOpcode();
     switch (l_Opcode)
     {
         case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:        l_MoveType = MOVE_WALK;        break;
