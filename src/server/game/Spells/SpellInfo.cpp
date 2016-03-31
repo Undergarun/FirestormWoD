@@ -1002,7 +1002,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 240 SPELL_EFFECT_240
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 241 SPELL_EFFECT_241
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 242 SPELL_EFFECT_242
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 243 SPELL_EFFECT_243
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM},          //< 243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 244 SPELL_EFFECT_244
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 245 SPELL_EFFECT_245
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 246 SPELL_EFFECT_246
@@ -1758,6 +1758,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificTarrenMillTitle:
         case SpellSpecificType::SpellSpecificDisposition:
         case SpellSpecificType::SpellSpecificTowerBuffs:
+        case SpellSpecificType::SpellSpecificWeeklyEventBuffs:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2526,6 +2527,12 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 173541:    ///< Tower Defense
                 case 173549:    ///< Stand Fast
                     return SpellSpecificType::SpellSpecificTowerBuffs;
+                case 186400:    ///< Sign of Apexis
+                case 186401:    ///< Sign of the Skirmisher
+                case 186403:    ///< Sign of Battle
+                case 186404:    ///< Sign of the Emissary
+                case 186406:    ///< Sign of the Critter
+                    return SpellSpecificType::SpellSpecificWeeklyEventBuffs;
                 default:
                     break;
             }

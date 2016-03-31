@@ -919,12 +919,7 @@ class spell_dk_death_siphon: public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_Caster = GetCaster();
-
-                int32 bp = GetHitDamage() * (GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100);
-                l_Caster->CastCustomSpell(l_Caster, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
-
-                Player* l_Player = l_Caster->ToPlayer();
+                Player* l_Player = GetCaster()->ToPlayer();
                 if (!l_Player)
                     return;
 
@@ -1366,8 +1361,8 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            int32 m_AbsorbPct, m_HpPct, m_AmountAbsorb = 0;
-            uint32 m_Absorbed = 0;
+            int32 m_AbsorbPct, m_HpPct = 0;
+            uint32 m_Absorbed, m_AmountAbsorb = 0;
 
             enum eSpells
             {
@@ -1378,6 +1373,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             bool Load()
             {
+                m_Absorbed = 0;
                 m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
                 m_HpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
                 return true;
@@ -1401,7 +1397,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
 
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                m_Absorbed += absorbAmount;
+                m_Absorbed += dmgInfo.GetDamage();
             }
 
             void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
@@ -1474,6 +1470,10 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                         return;
 
                     float l_RemainingPct = 0.0f;
+
+                    if (m_Absorbed > m_AmountAbsorb)
+                        m_Absorbed = m_AmountAbsorb;
+
                     float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
@@ -1790,19 +1790,25 @@ class spell_dk_death_grip: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_grip_SpellScript);
 
+            enum ImprovedDeathGrip
+            {
+                Spell = 157367,
+                ChainsOfIce = 45524
+            };
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
 
-                int32 l_Damage = GetEffectValue();
+                int32 l_SpellTrigerID = GetEffectValue();
                 Position const* l_Pos = GetExplTargetDest();
 
                 if (l_Target == nullptr)
                     return;
 
                 if (!l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) ///< Deterrence
-                    l_Target->CastSpell(l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Damage, true);
-
+                    l_Target->CastSpell(l_Caster, l_SpellTrigerID, true);
             }
 
             void Register()
@@ -2828,46 +2834,6 @@ class spell_dk_glyph_of_the_skeleton : public SpellScriptLoader
         }
 };
 
-/// Improved Death Grip - 157367
-class spell_dk_improved_death_grip : public SpellScriptLoader
-{
-    public:
-        spell_dk_improved_death_grip() : SpellScriptLoader("spell_dk_improved_death_grip") { }
-
-        class spell_dk_improved_death_grip_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_improved_death_grip_SpellScript);
-
-            enum ImprovedDeathGrip
-            {
-                Spell       = 157367,
-                ChainsOfIce = 45524
-            };
-
-            void HandleAfterHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->HasSpell(ImprovedDeathGrip::Spell))
-                        return;
-
-                    if (Unit* l_Target = GetHitUnit())
-                        l_Caster->CastSpell(l_Target, ImprovedDeathGrip::ChainsOfIce, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_dk_improved_death_grip_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_improved_death_grip_SpellScript();
-        }
-};
-
 /// Army Transform - 127517
 class spell_dk_army_transform : public SpellScriptLoader
 {
@@ -3531,6 +3497,9 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                 if (l_Player == nullptr)
                     return;
 
+                if (l_Player->HasAura(eSpells::DarkTransformation))
+                    return;
+
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);
 
                 if (Pet* l_Pet = l_Player->GetPet())
@@ -3600,6 +3569,34 @@ class spell_dk_might_of_the_frozen_wastes : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_might_of_the_frozen_wastes_AuraScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Improved Death Grip - 157367
+class spell_dk_improved_death_grip : public PlayerScript
+{
+    public:
+        spell_dk_improved_death_grip() : PlayerScript("spell_dk_improved_death_grip") {}
+
+        enum ImprovedDeathGrip
+        {
+            Spell = 157367,
+            ChainsOfIce = 45524,
+            Jump = 49575
+        };
+
+        void OnFinishMovement(Player * p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+        {
+            if (!(p_SpellID == ImprovedDeathGrip::Jump))
+                return;
+
+            Unit* l_Target = ObjectAccessor::FindUnit(p_TargetGUID);
+            if (l_Target && l_Target->getClass() == CLASS_DEATH_KNIGHT)
+            {
+                if (l_Target->HasSpell(ImprovedDeathGrip::Spell))
+                    l_Target->CastSpell(p_Player, ImprovedDeathGrip::ChainsOfIce, true);
+            }
         }
 };
 

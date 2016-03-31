@@ -2070,6 +2070,32 @@ void ScriptMgr::OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
     FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(p_Player, p_SceneInstanceId);
 }
 
+
+/// Called when a player enter in bg
+/// @p_Player   : Player instance
+/// @p_MapID    : Map ID
+void ScriptMgr::OnEnterBG(Player* p_Player, uint32 p_MapID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEnterBG(p_Player, p_MapID);
+}
+
+/// Called when a leave a bg
+/// @p_Player   : Player instance
+/// @p_MapID    : Map ID
+void ScriptMgr::OnLeaveBG(Player* p_Player, uint32 p_MapID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLeaveBG(p_Player, p_MapID);
+}
+
+/// Called when a player finish a movement like a jump
+/// @p_Player   : Player instance
+/// @p_SpellID  : Spell ID
+/// @p_TargetGUID : Target GUID
+void ScriptMgr::OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFinishMovement(p_Player, p_SpellID, p_TargetGUID);
+}
+
 /// Called when a player regen a power
 /// @p_Player         : Player instance
 /// @p_Power          : Power to be regenerate

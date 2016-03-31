@@ -105,15 +105,13 @@ class boss_kromog : public CreatureScript
             ReverberationTrigger    = 77929
         };
 
-        enum eVisuals
-        {
-        };
-
         struct boss_kromogAI : public BossAI
         {
             boss_kromogAI(Creature* p_Creature) : BossAI(p_Creature, eFoundryDatas::DataKromog)
             {
                 m_Instance  = p_Creature->GetInstanceScript();
+
+                m_CheckZTimer = 1 * TimeConstants::IN_MILLISECONDS;
             }
 
             InstanceScript* m_Instance;
@@ -129,9 +127,16 @@ class boss_kromog : public CreatureScript
 
             bool m_CrushingEarthBoom;
 
+            uint32 m_CheckZTimer;
+
             bool CanRespawn() override
             {
                 return false;
+            }
+
+            void OnCalculateAttackDistance(float& p_AttackDistance) override
+            {
+                p_AttackDistance = 10.0f;
             }
 
             void Reset() override
@@ -260,7 +265,7 @@ class boss_kromog : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RuneOfGraspingEarthVehicle);
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me)))
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::KromogBonusLoot, true);
@@ -325,6 +330,7 @@ class boss_kromog : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override
             {
                 UpdateOperations(p_Diff);
+                CheckPositionZForPlayers(p_Diff);
 
                 if (!UpdateVictim())
                     return;
@@ -345,49 +351,10 @@ class boss_kromog : public CreatureScript
                             break;
                         }
 
-                        std::set<uint64> l_PossibleTargets;
-                        bool l_InMelee = false;
-                        for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            if (Player* l_Player = l_Iter->getSource())
-                            {
-                                if (l_Player->IsWithinMeleeRange(me))
-                                {
-                                    l_PossibleTargets.insert(l_Player->GetGUID());
-                                    l_InMelee = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        /// If there are no valid targets in melee range, Kromog will continue to breathe until he finds one.
-                        if (!l_InMelee)
-                            me->CastSpell(me, eSpells::StoneBreathChannel, false);
-                        else
-                        {
-                            if (Unit* l_Target = me->getVictim())
-                            {
-                                if (l_PossibleTargets.find(l_Target->GetGUID()) == l_PossibleTargets.end())
-                                {
-                                    l_Target = nullptr;
-
-                                    float l_Threat = 0.0f;
-                                    for (uint64 l_Guid : l_PossibleTargets)
-                                    {
-                                        if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
-                                        {
-                                            if (l_Threat < me->getThreatManager().getThreat(l_Player))
-                                            {
-                                                l_Threat = me->getThreatManager().getThreat(l_Player);
-                                                l_Target = l_Player->ToUnit();
-                                            }
-                                        }
-                                    }
-
-                                    if (l_Target != nullptr)
-                                        AttackStart(l_Target);
-                                }
-                            }
+                            if (!l_Target->IsWithinMeleeRange(me))
+                                me->CastSpell(me, eSpells::StoneBreathChannel, false);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
@@ -534,7 +501,7 @@ class boss_kromog : public CreatureScript
 
                         for (uint8 l_I = 0; l_I < eFoundryDatas::MaxReverberationSpawns; ++l_I)
                         {
-                            float l_Range       = frand(15.0f, 25.0f);
+                            float l_Range       = frand(25.0f, 35.0f);
                             float l_Orientation = l_BaseO + frand(-(M_PI / 2.0f), M_PI / 2.0f);
 
                             float l_X = l_BaseX + l_Range * cos(l_Orientation);
@@ -556,6 +523,29 @@ class boss_kromog : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void CheckPositionZForPlayers(uint32 const p_Diff)
+            {
+                if (!m_CheckZTimer)
+                    return;
+
+                if (m_CheckZTimer <= p_Diff)
+                {
+                    Map::PlayerList const& l_PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+                    {
+                        if (Player* l_Player = l_Iter->getSource())
+                        {
+                            if (l_Player->GetDistance(me) <= g_AllowedDist && l_Player->GetPositionZ() <= g_FloorZ)
+                                l_Player->Kill(l_Player);
+                        }
+                    }
+
+                    m_CheckZTimer = 1 * TimeConstants::IN_MILLISECONDS;
+                }
+                else
+                    m_CheckZTimer -= p_Diff;
             }
 
             Creature* GetRipplingSmashTrigger(Unit* p_Target) const
@@ -671,6 +661,12 @@ class npc_foundry_grasping_earth : public CreatureScript
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_UNK6 | eUnitFlags2::UNIT_FLAG2_UNK11);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
             }
 
             void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
@@ -724,7 +720,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                         me->CastSpell(me, eSpells::RuneOfGraspingEarthSelect, true);
                     });
 
-                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS + 50, [this]() -> void
+                    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         if (!m_PlayerGrasped)
                             me->Kill(me);
@@ -1035,11 +1031,21 @@ class spell_foundry_slam : public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        float l_Distance = std::max(1.0f, l_Target->GetDistance(*l_Boss) - 22.0f);
+                        /// Damages will be reduced by 12.000 for each yards separating the target from the boss position
+                        float l_ReducedDamage = 12000.0f;
 
-                        int32 l_Damage = float(GetSpell()->GetDamage()) / l_Distance;
+                        /// Melee players should take reduced damage for this spell, I don't know why or how much, but it seems it's a custom calculation for them
+                        if (Player* l_Player = l_Target->ToPlayer())
+                        {
+                            if (l_Player->IsMeleeDamageDealer())
+                                AddPct(l_ReducedDamage, 50);
+                        }
 
-                        GetSpell()->SetDamage(l_Damage);
+                        float l_Damage = GetSpell()->GetDamage();
+
+                        int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
+
+                        GetSpell()->SetDamage(l_NewDamage);
                     }
                 }
             }

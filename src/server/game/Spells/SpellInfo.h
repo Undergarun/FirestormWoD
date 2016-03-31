@@ -181,7 +181,8 @@ enum SpellSpecificType
     SpellSpecificCrowdFavorite,
     SpellSpecificTarrenMillTitle,
     SpellSpecificDisposition,
-    SpellSpecificTowerBuffs
+    SpellSpecificTowerBuffs,
+    SpellSpecificWeeklyEventBuffs
 };
 
 enum SpellCustomAttributes
@@ -210,6 +211,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_BINARY                        = 0x00400000, // Binary spells can be fully resisted
     SPELL_ATTR0_CU_ALWAYS_ACTIVE                 = 0x00800000, // Player doesn't have to lean the spell
     SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL           = 0x01000000,
+    SPELL_ATTR0_CU_CAN_BE_CASTED_ON_ALLIES       = 0x02000000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };

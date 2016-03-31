@@ -13,13 +13,20 @@
 #include "Spell.h"
 #include "../GarrisonScriptData.hpp"
 
-enum
-{
-    GARRISON_PHASE_BASE = 0x0001,
-};
-
 namespace MS { namespace Garrison { namespace Sites
 {
+    enum GarrisonPhases
+    {
+        GarrisonPhaseBase               = 0x00000001,
+        PhaseMagePortalFrostfireRidge   = 0x00000010,
+        PhaseMagePortalSpiresOfArak     = 0x00000020,
+        PhaseMagePortalTalador          = 0x00000040,
+        PhaseMagePortalNagrand          = 0x00000080,
+        PhaseMagePortalShadowmoon       = 0x00000100,
+        PhaseMagePortalGorgrond         = 0x00000200,
+        PhaseLostInTransitionQuest      = 0x00000400
+    };
+
     /// Constructor
     InstanceMapScript_GarrisonHordeLevel2::InstanceMapScript_GarrisonHordeLevel2()
         : InstanceMapScript("instance_Garrison_H2", MapIDs::MapGarrisonHordeLevel2)
@@ -85,7 +92,6 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonHordeLevel2::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
     {
-
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -107,9 +113,12 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Get phase mask
     /// @p_Owner : Garrison owner
-    uint32 InstanceScript_GarrisonHordeLevel2::GetPhaseMask(Player* p_Owner)
+    uint32 InstanceScript_GarrisonHordeLevel2::GetPhaseMask(Player* p_Player)
     {
-        uint32 l_PhaseMask = GARRISON_PHASE_BASE;
+        uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
+
+        if (p_Player->HasQuest(Quests::Alliance_LostInTransition) || p_Player->HasQuest(Quests::Horde_LostInTransition))
+            l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
 
         return l_PhaseMask;
     }
@@ -200,11 +209,11 @@ namespace MS { namespace Garrison { namespace Sites
                     case Buildings::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
-                    case Buildings::Barn__Barn_Level2:
+                    case Buildings::Barn_Barn_Level2:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::Barn__Barn_Level3:
+                    case Buildings::Barn_Barn_Level3:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
@@ -236,11 +245,11 @@ namespace MS { namespace Garrison { namespace Sites
                     case Buildings::LumberMill_LumberMill_Level3:
                         p_Owner->SetSkill(SkillType::SKILL_LOGGING, l_BuildingLevel, l_BuildingLevel, 75);
                         break;
-                    case Buildings::Barn__Barn_Level2:
+                    case Buildings::Barn_Barn_Level2:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
-                    case Buildings::Barn__Barn_Level3:
+                    case Buildings::Barn_Barn_Level3:
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))

@@ -459,7 +459,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg: public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript::FilterTargets, EFFECT_0,TARGET_UNIT_CASTER);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
         private:
@@ -497,9 +497,9 @@ class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
             PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
-			{
-				if(!GetCaster() || !GetHitUnit())
-					return;
+            {
+                if(!GetCaster() || !GetHitUnit())
+                    return;
 
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_DEATH_GRIP, true);
             }

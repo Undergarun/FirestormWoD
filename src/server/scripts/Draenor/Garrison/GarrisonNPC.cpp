@@ -60,8 +60,8 @@
 namespace MS { namespace Garrison 
 {
     /// Constructor
-    GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr), m_Owner(nullptr)
+    GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Owner(nullptr)
     {
 
     }
@@ -111,7 +111,7 @@ namespace MS { namespace Garrison
     /// Set NPC recipes
     /// @p_Recipes          : Recipes
     /// @p_RecipesSkillID   : Skill line ID
-    void GarrisonNPCAI::SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID)
+    void GarrisonNPCAI::SetRecipes(std::vector<SkillNPC_RecipeEntry> p_Recipes, uint32 p_RecipesSkillID)
     {
         m_Recipes           = p_Recipes;
         m_RecipesSkillID    = p_RecipesSkillID;
@@ -140,7 +140,7 @@ namespace MS { namespace Garrison
     /// @p_SequenceTable    : Sequence table
     /// @p_SequenceSize     : Size of sequence table,
     /// @p_FirstMovePointID : First move point ID
-    void GarrisonNPCAI::SetupActionSequence(SequencePosition * p_CoordTable, uint8 * p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID)
+    void GarrisonNPCAI::SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID)
     {
         m_CoordTable        = p_CoordTable;
         m_SequencePosition  = 0xFF;
@@ -204,6 +204,15 @@ namespace MS { namespace Garrison
             l_Angle += m_PlotInstanceLocation->O;
 
         return me->SummonCreature(p_Entry, l_Position.x, l_Position.y, l_Position.z, l_Angle, p_SummonType);
+    }
+
+    /// Spawn a creature with building relative coords
+    /// @p_Entry      : Creature entry
+    /// @p_Position   : Relative position of the creature
+    /// @p_SummonType : Summon type
+    Creature* GarrisonNPCAI::SummonRelativeCreature(uint32 p_Entry, SequencePosition p_Position, TempSummonType p_SummonType)
+    {
+        return SummonRelativeCreature(p_Entry, p_Position.X, p_Position.Y, p_Position.Z, p_Position.O, p_SummonType);
     }
 
     /// Spawn a gameobject with building relative coords
@@ -360,7 +369,7 @@ namespace MS { namespace Garrison
     void GarrisonNPCAI::SetGUID(uint64 p_Guid, int32 p_Id)
     {
         if (p_Id == CreatureAIDataIDs::OwnerGuid)
-            m_Owner = ObjectAccessor::GetPlayer(*me, p_Guid);
+            m_Owner = HashMapHolder<Player>::Find(p_Guid);
     }
 
     /// Get UInt32 value
@@ -369,17 +378,17 @@ namespace MS { namespace Garrison
     {
         if ((p_ID & CreatureAIDataIDs::HasRecipe) != 0)
         {
-            if (!m_Recipes)
+            if (m_Recipes.empty())
                 return (uint32)-1;
 
             uint32 l_RecipeID = p_ID & ~CreatureAIDataIDs::HasRecipe;
 
-            auto l_It = std::find_if(m_Recipes->begin(), m_Recipes->end(), [l_RecipeID](SkillNPC_RecipeEntry const& p_Entry) -> bool
+            auto l_It = std::find_if(m_Recipes.begin(), m_Recipes.end(), [l_RecipeID](SkillNPC_RecipeEntry const& p_Entry) -> bool
             {
                 return p_Entry.AbilitySpellID == l_RecipeID;
             });
 
-            if (l_It == m_Recipes->end())
+            if (l_It == m_Recipes.end())
                 return (uint32)-1;
 
             return l_It->AbilitySpellIDPlayerCondition;
@@ -410,11 +419,11 @@ namespace MS { namespace Garrison
     }
 
     /// Show trade skill crafter UI
-    void GarrisonNPCAI::SendTradeSkillUI(Player * p_Player)
+    void GarrisonNPCAI::SendTradeSkillUI(Player* p_Player)
     {
         if (p_Player->IsInGarrison())
         {
-            if (m_Recipes)
+            if (!m_Recipes.empty())
             {
                 WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC, 512);
                 l_Data.appendPackGUID(me->GetGUID());
@@ -422,17 +431,22 @@ namespace MS { namespace Garrison
                 l_Data << uint32(1);                    ///< Skill line ID count
                 l_Data << uint32(0);                    ///< Skill rank count
                 l_Data << uint32(0);                    ///< Skill max rank count
-                l_Data << uint32(m_Recipes->size());    ///< Skill known ability spell id count
+                l_Data << uint32(m_Recipes.size());    ///< Skill known ability spell id count
 
                 l_Data << uint32(m_RecipesSkillID);     ///< Skill line ID
 
-                for (uint32 l_I = 0; l_I < m_Recipes->size(); ++l_I)
-                    l_Data << m_Recipes->at(l_I).AbilitySpellID;
+                for (uint32 l_I = 0; l_I < m_Recipes.size(); ++l_I)
+                    l_Data << m_Recipes.at(l_I).AbilitySpellID;
 
-                l_Data << uint32(m_Recipes->size());    ///< Skill known ability spell id condition count
+                l_Data << uint32(m_Recipes.size());    ///< Skill known ability spell id condition count
 
-                for (uint32 l_I = 0; l_I < m_Recipes->size(); ++l_I)
-                    l_Data << m_Recipes->at(l_I).AbilitySpellIDPlayerCondition;
+                for (uint32 l_I = 0; l_I < m_Recipes.size(); ++l_I)
+                {
+                    if (m_Recipes.at(l_I).AbilitySpellIDPlayerCondition && !p_Player->EvalPlayerCondition(m_Recipes.at(l_I).AbilitySpellIDPlayerCondition).first)
+                        l_Data << m_Recipes.at(l_I).AbilitySpellIDPlayerCondition;
+                    else
+                        l_Data << uint32(0);
+                }
 
                 p_Player->SendDirectMessage(&l_Data);
             }
@@ -459,7 +473,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the creature.
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
-    bool npc_GarrisonFord::OnGossipHello(Player * p_Player, Creature * p_Creature)
+    bool npc_GarrisonFord::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         if (!p_Player->GetGarrison())
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
@@ -473,7 +487,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_GarrisonFord::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_GarrisonFord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         if (p_Player->getLevel() >= 88 && !p_Player->GetGarrison())
         {
@@ -506,7 +520,6 @@ namespace MS { namespace Garrison
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
             /// @Morgoporc Dont worry, this code will disappear
-            p_Player->GetGarrison()->AddFollower(34);
             p_Player->GetGarrison()->AddFollower(153);
             p_Player->GetGarrison()->AddFollower(92);
         }
@@ -531,7 +544,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_CallToArms::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_CallToArms::GetAI(Creature* p_Creature) const
     {
         return new npc_CallToArmsAI(p_Creature);
     }
@@ -540,7 +553,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Constructor
-    npc_CallToArms::npc_CallToArmsAI::npc_CallToArmsAI(Creature * p_Creature)
+    npc_CallToArms::npc_CallToArmsAI::npc_CallToArmsAI(Creature* p_Creature)
         : CreatureAI(p_Creature)
     {
         m_Owner = sObjectAccessor->FindPlayer(me->GetCreatorGUID());
@@ -741,6 +754,7 @@ namespace MS { namespace Garrison
     {
         m_OwnerGuid  = 0;
         m_CheckTimer = 1500;
+        me->AddAura(Spells::SpellAuraAmperialConstructVisual, me);
     }
 
     /// Called when a CreatureAI object is needed for the creature.
@@ -769,6 +783,8 @@ namespace MS { namespace Garrison
     {
         if (!p_Id)
             m_OwnerGuid = p_Guid;
+        else if (p_Id == 1)
+            m_CheckTimer = p_Guid;
     }
 
     void npc_garrison_amperial_construct::npc_garrison_amperial_constructAI::UpdateAI(const uint32 p_Diff)
@@ -808,13 +824,16 @@ namespace MS { namespace Garrison
                     {
                         if (Player* l_Player = l_PlayerList.front())
                         {
-                            if (l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                            if (l_Creature->AI() && l_Creature->IsInMap(me) && me->HasInArc(M_PI / 2, l_Player))
+                            {
+                                l_Creature->AI()->SetGUID(2000, 1);
                                 l_Player->NearTeleportTo(l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ, l_Creature->GetOrientation());
+                            }
                         }
                     }
                 }
 
-                m_CheckTimer = 1000;
+                m_CheckTimer = 2000;
             }
             else
                 m_CheckTimer -= p_Diff;
@@ -1060,6 +1079,424 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_AncientTradingMechanism_Garr::npc_AncientTradingMechanism_Garr()
+        : CreatureScript("npc_AncientTradingMechanism_Garr")
+    {
+    }
+
+    bool npc_AncientTradingMechanism_Garr::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    {
+        if (p_Player->GetGarrison() == nullptr)
+            return true;
+
+        std::vector<uint64> l_CreatureGuids = p_Player->GetGarrison()->GetBuildingCreaturesByBuildingType(BuildingType::TradingPost);
+
+        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+        {
+            if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
+            {
+                if (l_Creature->AI())
+                {
+                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+
+                    if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr)
+                        l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
+                }
+            }
+        }
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_follower_generic_script::npc_follower_generic_script()
+        : CreatureScript("npc_follower_generic_script")
+    {
+    }
+
+    bool npc_follower_generic_script::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_GarrisonMgr == nullptr || l_AI == nullptr)
+            return true;
+
+        uint32 l_BuildingPlotInstanceID = l_GarrisonMgr->GetCreaturePlotInstanceID(p_Creature->GetGUID());
+
+        /// @TODO : if (!l_BuildingPlotInstanceID), script the possibility to get the follower escorting the player
+        if (l_BuildingPlotInstanceID)
+        {
+            GarrisonBuilding l_Building = l_GarrisonMgr->GetBuilding(l_BuildingPlotInstanceID);
+
+            switch (l_Building.BuildingID)
+            {
+                /// Gem Boutique has custom handling
+                case Buildings::TailoringEmporium_TailoringEmporium_Level2:
+                case Buildings::TailoringEmporium_TailoringEmporium_Level3:
+                {
+                    std::vector<SkillNPC_RecipeEntry> l_Recipes;
+
+                    switch (p_Player->GetTeamId())
+                    {
+                        case TEAM_HORDE:
+                        {
+                            l_Recipes =
+                            {
+                                { 176315, 0 },
+                                { 176316, 0 }
+                            };
+                            break;
+                        }
+                        case TEAM_ALLIANCE:
+                        {
+                            l_Recipes =
+                            {
+                                { 176313, 0 },
+                                { 176314, 0 }
+                            };
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    l_GarrisonAI->SetRecipes(l_Recipes, SkillType::SKILL_TAILORING);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
+
+                    break;
+                }
+                case Buildings::TheTannery_TheTannery_Level2:
+                case Buildings::TheTannery_TheTannery_Level3:
+                {
+                    std::vector<SkillNPC_RecipeEntry> l_Recipes;
+
+                    switch (p_Player->GetTeamId())
+                    {
+                        case TEAM_HORDE:
+                        {
+                            l_Recipes =
+                            {
+                                { 176424, 0 },
+                                { 176413, 0 },
+                                { 176418, 0 }
+                            };
+                            break;
+                        }
+                        case TEAM_ALLIANCE:
+                        {
+                            l_Recipes =
+                            {
+                                { 176422, 0 },
+                                { 176414, 0 },
+                                { 176417, 0 }
+                            };
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    l_Recipes.push_back({ 176392, 0 }); ///< Fine Blue and Gold Tent
+                    l_Recipes.push_back({ 176397, 0 }); ///< Fine Blue and Purple Tent
+                    l_Recipes.push_back({ 176399, 0 }); ///< Fine Blue and Green Tent
+                    l_Recipes.push_back({ 176401, 0 }); ///< Ironskin Tent
+                    l_Recipes.push_back({ 176402, 0 }); ///< Outcast's Tent
+                    l_Recipes.push_back({ 176404, 0 }); ///< Enchanter's Tent
+                    l_Recipes.push_back({ 176405, 0 }); ///< Savage Leather Tent
+                    l_Recipes.push_back({ 176408, 0 }); ///< Archmage's Tent
+                    l_Recipes.push_back({ 176409, 0 }); ///< Brute's Tent
+                    l_Recipes.push_back({ 176411, 0 }); ///< Sturdy Tent
+                    l_Recipes.push_back({ 176412, 0 }); ///< Crusader's Tent
+                    l_Recipes.push_back({ 176416, 0 }); ///< Patchwork Hut
+                    l_Recipes.push_back({ 176415, 0 }); ///< Deathweaver's Hovel
+                    l_Recipes.push_back({ 176426, 0 }); ///< Nomad's Spiked Tent
+                    l_Recipes.push_back({ 176421, 0 }); ///< Distressingly Furry Tent
+                    l_Recipes.push_back({ 176425, 0 }); ///< Voodoo Doctor's Hovel
+                    l_Recipes.push_back({ 176420, 0 }); ///< Simple Tent
+
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    l_GarrisonAI->SetRecipes(l_Recipes, SkillType::SKILL_LEATHERWORKING);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
+
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        else
+            p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+        return true;
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_follower_generic_script::GetAI(Creature* p_Creature) const
+    {
+        return new npc_follower_generic_scriptAI(p_Creature);
+    }
+
+    /// Constructor
+    npc_follower_generic_script::npc_follower_generic_scriptAI::npc_follower_generic_scriptAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        SetAIObstacleManagerEnabled(true);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Fearsome Battle Standard (87594 / 86734)
+
+    /// Constructor
+    npc_FearsomeBattleStandard::npc_FearsomeBattleStandard()
+        : CreatureScript("npc_FearsomeBattleStandard")
+    {
+    }
+
+    /// Constructor
+    npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::npc_FearsomeBattleStandardAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_FearsomeBattleStandard::GetAI(Creature* p_Creature) const
+    {
+        return new npc_FearsomeBattleStandardAI(p_Creature);
+    }
+
+    void npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::Reset()
+    {
+        m_Events.Reset();
+
+        m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+        me->DespawnOrUnsummon(60 * TimeConstants::IN_MILLISECONDS);
+    }
+
+    void npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        m_Events.Update(p_Diff);
+
+        if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)
+        {
+            float l_AuraRadius = 8.0f;
+            float l_CheckRadius = l_AuraRadius + 5.0f;
+            std::list<Unit*> l_TargetList;
+
+            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, l_CheckRadius);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_TargetList, l_Check);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (me->GetDistance(l_Unit) <= l_AuraRadius && !l_Unit->HasAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg))
+                    me->AddAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg, l_Unit);
+                else if (me->GetDistance(l_Unit) > l_AuraRadius && l_Unit->HasAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg))
+                    l_Unit->RemoveAura(eSpells::SpellAuraFearsomeBattleStandardPeriodicDmg);
+            }
+
+            m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Inspiring Battle Standard (88277 / 88010)
+
+    /// Constructor
+    npc_InspiringBattleStandard::npc_InspiringBattleStandard()
+        : CreatureScript("npc_InspiringBattleStandard")
+    {
+    }
+
+    /// Constructor
+    npc_InspiringBattleStandard::npc_InspiringBattleStandardAI::npc_InspiringBattleStandardAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_InspiringBattleStandard::GetAI(Creature* p_Creature) const
+    {
+        return new npc_InspiringBattleStandardAI(p_Creature);
+    }
+
+    void npc_InspiringBattleStandard::npc_InspiringBattleStandardAI::Reset()
+    {
+        m_Events.Reset();
+
+        m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+        me->DespawnOrUnsummon(60 * TimeConstants::IN_MILLISECONDS);
+    }
+
+    void npc_InspiringBattleStandard::npc_InspiringBattleStandardAI::UpdateAI(uint32 const p_Diff)
+    {
+
+        m_Events.Update(p_Diff);
+
+        if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)
+        {
+            float l_AuraRadius = 8.0f;
+            float l_CheckRadius = l_AuraRadius + 5.0f;
+            std::list<Unit*> l_TargetList;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, l_CheckRadius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_TargetList, l_Check);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (me->GetDistance(l_Unit) <= l_AuraRadius && !l_Unit->HasAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg))
+                    me->AddAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg, l_Unit);
+                else if (me->GetDistance(l_Unit) > l_AuraRadius && l_Unit->HasAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg))
+                    l_Unit->RemoveAura(eSpells::SpellAuraInspiringBattleStandardPeriodicDmg);
+            }
+
+            m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Inspiring Battle Standard (88277 / 88010)
+
+    /// Constructor
+    npc_LeatherWorkingTent_Garr::npc_LeatherWorkingTent_Garr()
+        : CreatureScript("npc_LeatherWorkingTent_Garr")
+    {
+    }
+
+    /// Constructor
+    npc_LeatherWorkingTent_Garr::npc_LeatherWorkingTent_GarrAI::npc_LeatherWorkingTent_GarrAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+        m_SummonerGuid = 0;
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_LeatherWorkingTent_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_LeatherWorkingTent_GarrAI(p_Creature);
+    }
+
+    void npc_LeatherWorkingTent_Garr::npc_LeatherWorkingTent_GarrAI::Reset()
+    {
+        m_Events.Reset();
+
+        m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1000);
+
+        std::map<uint32, uint32> l_AssociatedEntryAndAura =
+        {
+            { 86327, 172446 },
+            { 86333, 172462 },
+            { 86334, 172463 },
+            { 86335, 172464 },
+            { 86336, 172465 },
+            { 86337, 172467 },
+            { 86338, 172468 },
+            { 86339, 172470 },
+            { 86340, 172471 },
+            { 86341, 172472 },
+            { 86342, 172473 },
+            { 86346, 172484 },
+            { 86345, 172480 },
+            { 86354, 172494 },
+            { 86350, 172490 },
+            { 86353, 172493 },
+            { 86349, 172489 },
+            { 86344, 172478 },
+            { 86351, 172491 },
+            { 86347, 172487 },
+            { 86343, 172476 },
+            { 86352, 172492 },
+            { 86348, 172488 },
+        };
+
+        for (auto l_Association : l_AssociatedEntryAndAura)
+        {
+            if (l_Association.first == me->GetEntry())
+                me->AddAura(l_Association.second, me);
+        }
+
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        me->DespawnOrUnsummon(300 * TimeConstants::IN_MILLISECONDS);
+    }
+
+    void npc_LeatherWorkingTent_Garr::npc_LeatherWorkingTent_GarrAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        m_SummonerGuid = p_Summoner->GetGUID();
+    }
+
+    void npc_LeatherWorkingTent_Garr::npc_LeatherWorkingTent_GarrAI::UpdateAI(uint32 const p_Diff)
+    {
+        m_Events.Update(p_Diff);
+
+        if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)
+        {
+            Player* l_Summoner = HashMapHolder<Player>::Find(m_SummonerGuid);
+            float l_AuraRadius = 5.0f;
+            float l_CheckRadius = l_AuraRadius + 20.0f;
+            std::list<Player*> l_PlayerList;
+
+            if (l_Summoner == nullptr)
+            {
+                m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 250);
+                return;
+            }
+
+            GetPlayerListInGrid(l_PlayerList, me, l_CheckRadius);
+
+            for (Player* l_Player : l_PlayerList)
+            {
+                if (l_Player->GetTeamId() != l_Summoner->GetTeamId())
+                    continue;
+
+                if (me->GetDistance(l_Player) <= l_AuraRadius && !l_Player->HasAura(eSpells::SpellAuraWellRestedTrackingAura))
+                    me->AddAura(eSpells::SpellAuraWellRestedTrackingAura, l_Player);
+                else if (me->GetDistance(l_Player) > l_AuraRadius && l_Player->HasAura(eSpells::SpellAuraWellRestedTrackingAura))
+                    l_Player->RemoveAura(eSpells::SpellAuraWellRestedTrackingAura);
+            }
+        }
+    }
 
 }   ///< namespace Garrison
 }   ///< namespace MS
@@ -1072,6 +1509,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_garrison_amperial_construct;
     new MS::Garrison::npc_garrison_atheeru_palestar;
     new MS::Garrison::npc_GarrisonStablesCreatures;
+    new MS::Garrison::npc_follower_generic_script;
 
     /// Alliance
     {
@@ -1081,6 +1519,8 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_BarosAlexsom;
         new MS::Garrison::npc_VindicatorMaraad;
         new MS::Garrison::npc_LunarfallLaborer;
+        new MS::Garrison::npc_AncientTradingMechanism_Garr;
+        new MS::Garrison::npc_LeatherWorkingTent_Garr;
 
         /// Barracks
         new MS::Garrison::npc_JonathanStephens;

@@ -92,8 +92,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SEL_REALMLIST_SECURITY_LEVEL, "SELECT allowedSecurityLevel from realmlist WHERE id = ?", CONNECTION_SYNCH);
     PREPARE_STATEMENT(LOGIN_DEL_ACCOUNT, "DELETE FROM account WHERE id = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_CHAR_SPELL, "INSERT INTO account_spell (accountId, spell, active, disabled, IsMountFavorite, groupRealmMask) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE groupRealmMask = groupRealmMask | ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_CHARACTER_SPELL, "SELECT spell, active, disabled, IsMountFavorite, groupRealmMask FROM account_spell WHERE accountId = ? AND spell < 197205", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL_BY_SPELL, "DELETE FROM account_spell WHERE spell = ? AND accountId = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_DEL_CHAR_SPELL, "DELETE FROM account_spell WHERE accountId = ?", CONNECTION_ASYNC);
 
@@ -108,7 +108,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     // Battle pets
 #define PETBATTLE_FIELDS "slot, name, nameTimeStamp, species, quality, breed, level, xp, display, health, flags, infoPower, infoMaxHealth, infoSpeed, infoGender, account, declinedGenitive, declinedNative, declinedAccusative, declinedInstrumental, declinedPrepositional"
 #define PETBATTLE_FULL_FIELDS "id, " PETBATTLE_FIELDS
-    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ? AND species < 1635", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_PETBATTLE_ACCOUNT, "SELECT " PETBATTLE_FULL_FIELDS " FROM account_battlepet WHERE account = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_REP_PETBATTLE, "REPLACE INTO account_battlepet(" PETBATTLE_FULL_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS
@@ -119,8 +119,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     
     //////////////////////////////////////////////////////////////////////////
     /// Heirloom Collection
-    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(LOGIN_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags, groupRealmMask FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags, groupRealmMask) VALUE (?, ?, ?, ?) ON DUPLICATE KEY UPDATE groupRealmMask = groupRealmMask | ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_HEILOOM_FLAGS, "UPDATE account_heirlooms SET upgrade_flags = ? WHERE account_id = ? AND heirloom_id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 

@@ -299,7 +299,7 @@ namespace MS { namespace Garrison
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_RonAshton::GetAI(Creature * p_Creature) const
+    CreatureAI* npc_RonAshton::GetAI(Creature* p_Creature) const
     {
         return new npc_RonAshtonAI(p_Creature);
     }
@@ -308,25 +308,21 @@ namespace MS { namespace Garrison
     {
         if (p_Quest->GetQuestId() == Quests::Alliance_AnglinInOurGarrison)
         {
-            if (p_Player && p_Creature)
+            if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
             {
-                if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+                if (l_AI == nullptr)
+                    return true;
+
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Quest_FishFight))
                 {
-                    CreatureAI* l_AI = p_Creature->AI();
-
-                    if (l_AI == nullptr)
-                        return true;
-
-                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(Quests::Quest_FishFight))
-                    {
-                        p_Player->AddQuest(l_Quest, p_Creature);
-                        p_Player->CompleteQuest(l_Quest->GetQuestId());
-                        p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
-                    }
-
-                    if (GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(l_AI))
-                        l_GarrisonMgr->ActivateBuilding(l_GarrisonAI->GetPlotInstanceID());
+                    p_Player->AddQuest(l_Quest, p_Creature);
+                    p_Player->CompleteQuest(l_Quest->GetQuestId());
+                    p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
                 }
+
+                l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
             }
         }
 

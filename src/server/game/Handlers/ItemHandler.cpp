@@ -29,6 +29,7 @@
 #include "SpellInfo.h"
 #include "GuildMgr.h"
 #include "Spell.h"
+#include "ScriptMgr.h"
 #include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
@@ -585,7 +586,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
                     m_Player->AddItemToBuyBackSlot(l_PlayerItem);
                 }
 
-                uint32 l_Money = l_PlayerItemTemplate->SellPrice * l_Amount;
+                int64 l_Money = l_PlayerItemTemplate->SellPrice * l_Amount;
                 m_Player->ModifyMoney(l_Money);
                 m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, l_Money);
             }
@@ -634,7 +635,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         InventoryResult msg = m_Player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg == EQUIP_ERR_OK)
         {
-            m_Player->ModifyMoney(-(int32)price);
+            m_Player->ModifyMoney(-(int64)price);
             m_Player->RemoveItemFromBuyBackSlot(slot, false);
             m_Player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
             m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
@@ -892,7 +893,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             if (l_PriceMod)
                 l_Price -= CalculatePct(l_Price, l_PriceMod);
 
-            bool l_BypassFilter = l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER;
+            bool l_BypassFilter = !(l_ItemTemplate->HasSpec() || l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER);
 
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type
@@ -1879,7 +1880,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 l_ItemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
                 l_ItemTransmogrifier->SetNotRefundable(m_Player);
                 l_ItemTransmogrifier->ClearSoulboundTradeable(m_Player);
+                l_ItemTransmogrifier->SetState(ITEM_CHANGED, m_Player);
             }
+
+            l_ItemTransmogrified->SetState(ITEM_CHANGED, m_Player);
 
             cost += l_ItemTransmogrified->GetSpecialPrice();
         }
@@ -2270,4 +2274,24 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData) ///<
 
         return true;
     });*/
+}
+
+void WorldSession::HandleUseCritterItemOpcode(WorldPacket& p_RecvData)
+{
+    uint64 l_ItemGuid = 0;
+
+    p_RecvData.readPackGUID(l_ItemGuid);
+
+    if (Item* l_Item = m_Player->GetItemByGuid(l_ItemGuid))
+    {
+        SpellCastTargets l_Targets;
+
+        l_Targets.Initialize(0, 0, 0, 0, WorldLocation(), 0, WorldLocation());
+        l_Targets.SetElevation(0.0f);
+        l_Targets.SetSpeed(0.0f);
+        l_Targets.Update(m_Player);
+
+        if (!sScriptMgr->OnItemUse(m_Player, l_Item, l_Targets))
+            m_Player->CastItemUseSpell(l_Item, l_Targets, 0, 0, 0);
+    }
 }

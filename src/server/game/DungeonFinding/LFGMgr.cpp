@@ -2557,6 +2557,14 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Ch
         l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
         if (l_Dungeon && l_Dungeon->map > 0)
         {
+            /// Mythic difficulty shouldn't be offered in LFG
+            if (!l_Dungeon->grouptype && l_Dungeon->difficulty == Difficulty::DifficultyMythic)
+            {
+                m_InvalidDungeons.insert(*l_Iter);
+                l_CachedDungeon.erase(l_Iter++);
+                continue;
+            }
+
             LfgEntrancePositionMap::const_iterator l_Itr = m_entrancePositions.find(l_Dungeon->ID);
             if (l_Itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(l_Dungeon->map))
             {

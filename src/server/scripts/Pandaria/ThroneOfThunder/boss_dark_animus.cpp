@@ -1859,7 +1859,7 @@ class spell_crimson_wake_medium : public SpellScriptLoader
         }
 };
 
-// Fixated - 138486
+/// Fixated - 138486
 class spell_fixated : public SpellScriptLoader
 {
     public:

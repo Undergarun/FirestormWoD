@@ -826,6 +826,22 @@ class ScriptMgr
         /// @p_SceneInstanceID : Standalone scene instance ID
         void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId);
 
+        /// Called when a player enter in bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        void OnEnterBG(Player* p_Player, uint32 p_MapID);
+
+        /// Called when a leave a bg
+        /// @p_Player   : Player instance
+        /// @p_MapID    : Map ID
+        void OnLeaveBG(Player* p_Player, uint32 p_MapID);
+
+        /// Called when a player finish a movement like a jump
+        /// @p_Player   : Player instance
+        /// @p_SpellID  : Spell ID
+        /// @p_TargetGUID : Target GUID
+        void OnFinishMovement(Player* p_Player, uint32 p_SpellID, uint64 const p_TargetGUID);
+
         /// Called when a player regen a power
         /// @p_Player         : Player instance
         /// @p_Power          : Power to be regenerate
@@ -957,7 +973,7 @@ class ScriptMgr
         /// Registered script count
         uint32 m_ScriptCount;
         /// Atomic op counter for active scripts amount
-        ACE_Atomic_Op<ACE_Thread_Mutex, long> m_ScheduledScripts;
+        std::atomic<long> m_ScheduledScripts;
         /// Player condition scripts
         MS::Utilities::MutextedMap<uint32, PlayerConditionScript*> m_PlayerConditionScripts;
         /// Battle Pay Product Script

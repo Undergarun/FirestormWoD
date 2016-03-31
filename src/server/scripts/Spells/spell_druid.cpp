@@ -860,7 +860,7 @@ enum LifebloomSpells
     SPELL_DRUID_CLEARCASTING = 16870
 };
 
-/// last update : 6.1.2
+/// last update : 6.2.3
 /// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
@@ -872,6 +872,7 @@ public:
         PrepareSpellScript(spell_dru_rejuvenation_SpellScript);
 
         int32 m_RejuvenationAura = 0;
+        int32 m_RejuvenationAuraAmount = 0;
 
         void HandleAfterHit()
         {
@@ -884,8 +885,13 @@ public:
                 return;
 
             Aura* l_RejuvenationAura = l_Target->GetAura(SPELL_DRUID_REJUVENATION);
+
             if (l_RejuvenationAura && m_RejuvenationAura > 0)
+            {
                 l_RejuvenationAura->SetDuration(m_RejuvenationAura);
+                if (AuraEffect* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
+                    l_AuraEffect->SetAmount(m_RejuvenationAuraAmount);
+            }
         }
 
         void HandleBeforeHit()
@@ -909,6 +915,8 @@ public:
                 {
                     l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
                     m_RejuvenationAura = l_RejuvenationAura->GetDuration();
+                    if (AuraEffect const* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
+                        m_RejuvenationAuraAmount = l_AuraEffect->GetAmount();
                 }
                 else
                 {
@@ -924,6 +932,8 @@ public:
                         {
                             l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
                             m_RejuvenationAura = l_RejuvenationDuration;
+                            if (AuraEffect const* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
+                                m_RejuvenationAuraAmount = l_AuraEffect->GetAmount();
                         }
                     }
                 }
@@ -947,7 +957,7 @@ public:
             GlyphofRejuvenationEffect   = 96206
         };
 
-        void HandleCalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        void HandleCalculateAmount(AuraEffect const* p_AurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -3151,6 +3161,7 @@ enum SwiftmendSpells
     SPELL_DRUID_REGROWTH          = 8936
 };
 
+/// Last Update 6.2.3
 /// Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -3160,6 +3171,15 @@ class spell_dru_swiftmend: public SpellScriptLoader
         class spell_dru_swiftmend_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_swiftmend_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                /// Restoration soul of the forest - 114108
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
+            }
 
             void HandleOnHit()
             {
@@ -3186,15 +3206,12 @@ class spell_dru_swiftmend: public SpellScriptLoader
                                 l_Aura->Remove();
                         }
                     }
-
-                    //Restoration soul of the forest - 114108
-                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
-                        l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
                 }
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_dru_swiftmend_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleOnHit);
                 AfterHit += SpellHitFn(spell_dru_swiftmend_SpellScript::HandleAfterHit);
             }
@@ -5765,7 +5782,7 @@ class spell_dru_living_seed : public SpellScriptLoader
 
                 l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
                 if (AuraEffect* l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
-                    l_HealAmount += l_LivingSeed->GetAmount();
+                    l_HealAmount = l_LivingSeed->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Target, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);
             }

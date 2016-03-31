@@ -57,15 +57,15 @@ namespace MS { namespace Garrison
     {
         switch (p_BuildingID)
         {
-            case Buildings::Barn__Barn_Level1:
+            case Buildings::Barn_Barn_Level1:
                 if (p_Player->GetQuestStatus(Quests::Horde_BreakingIntoTheTrapGame) == QUEST_STATUS_INCOMPLETE)
                     p_Player->KilledMonsterCredit(40670);
                 break;
-            case Buildings::Barn__Barn_Level2:
+            case Buildings::Barn_Barn_Level2:
                 if (p_Player->GetQuestStatus(Quests::Horde_FeedingAnArmy) == QUEST_STATUS_INCOMPLETE)
                     p_Player->QuestObjectiveSatisfy(40674, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
                 break;
-            case Buildings::Barn__Barn_Level3:
+            case Buildings::Barn_Barn_Level3:
                 if (p_Player->GetQuestStatus(Quests::Horde_BiggerTrapBetterRewards) == QUEST_STATUS_INCOMPLETE)
                     p_Player->QuestObjectiveSatisfy(40693, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
                 break;
@@ -97,12 +97,12 @@ namespace MS { namespace Garrison
     bool npc_FarmerLokLub::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
-        if (l_AI == nullptr || p_Creature == nullptr || l_GarrisonMgr == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
-            return false;
+        if (l_AI == nullptr)
+            return true;
 
-        uint32 l_PlotInstanceID = reinterpret_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID();
+        uint32 l_PlotInstanceID = l_AI->GetPlotInstanceID();
 
         if (!l_PlotInstanceID)
             return false;
@@ -111,11 +111,11 @@ namespace MS { namespace Garrison
 
         switch (l_Building.BuildingID)
         {
-            case Buildings::Barn__Barn_Level1:
+            case Buildings::Barn_Barn_Level1:
                 return HandleGossipActions(p_Player, p_Creature, Quests::Horde_BreakingIntoTheTrapGame, GOSSIP_ACTION_INFO_DEF + 1);
-            case Buildings::Barn__Barn_Level2:
+            case Buildings::Barn_Barn_Level2:
                 return HandleGossipActions(p_Player, p_Creature, Quests::Horde_FeedingAnArmy, GOSSIP_ACTION_INFO_DEF + 2);
-            case Buildings::Barn__Barn_Level3:
+            case Buildings::Barn_Barn_Level3:
                 return HandleGossipActions(p_Player, p_Creature, Quests::Horde_BiggerTrapBetterRewards, GOSSIP_ACTION_INFO_DEF + 3);
             default:
                 break;
@@ -127,9 +127,9 @@ namespace MS { namespace Garrison
     bool npc_FarmerLokLub::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
-        CreatureAI* l_AI = p_Creature->AI();
+        GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
-        if (l_AI == nullptr || p_Creature == nullptr || p_Creature->GetScriptName() != CreatureScript::GetName())
+        if (l_AI == nullptr)
             return true;
 
         switch (p_Action)
@@ -156,27 +156,27 @@ namespace MS { namespace Garrison
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4: ///< Send shipment for fur
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast); ///< Fur
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentFurredBeast); ///< Fur
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5: ///< Send shipment for leather
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast); ///< Leather
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentLeatheredBeast); ///< Leather
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6: ///< Send shipment for Meat
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast); ///< Meat
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentMeatyBeast); ///< Meat
                 break;
             case GOSSIP_ACTION_INFO_DEF + 7: ///< Send shipment for more fur + savage blood
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast); ///< ShipmentLeather2
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulFurredBeast); ///< ShipmentLeather2
                 break;
             case GOSSIP_ACTION_INFO_DEF + 8: ///< Send shipment for more leather + savage blood
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast); ///< ShipmentLeather3
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulLeatheredBeast); ///< ShipmentLeather3
                 break;
             case GOSSIP_ACTION_INFO_DEF + 9: ///< Send shipment for more meat + savage blood
                 l_AI->SetData(1, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast);
-                reinterpret_cast<GarrisonNPCAI*>(l_AI)->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast); ///< ShipmentLeather4
+                l_AI->SendShipmentCrafterUI(p_Player, MS::Garrison::Barn::ShipmentIDS::ShipmentPowerfulMeatyBeast); ///< ShipmentLeather4
                 break;
             default:
                 break;
@@ -312,12 +312,18 @@ namespace MS { namespace Garrison
             me->DespawnOrUnsummon(8 * IN_MILLISECONDS);
 
             Position const l_Pos = *l_Summoner;
+            uint64 l_GUID = l_Summoner->GetGUID();
 
-            AddTimedDelayedOperation(8 * IN_MILLISECONDS, [this, l_Summoner]() -> void
+            AddTimedDelayedOperation(8 * IN_MILLISECONDS, [this, l_GUID]() -> void
             {
-                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellIronTrap);
-                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellImprovedIronTrap);
-                l_Summoner->RemoveAura(MS::Garrison::Spells::SpellDeadlyIronTrap);
+                Player* l_Summoner = HashMapHolder<Player>::Find(l_GUID);
+
+                if (l_Summoner != nullptr)
+                {
+                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellIronTrap);
+                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellImprovedIronTrap);
+                    l_Summoner->RemoveAura(MS::Garrison::Spells::SpellDeadlyIronTrap);
+                }
             });
 
             if (l_Summoner->GetTeamId() == TEAM_HORDE)

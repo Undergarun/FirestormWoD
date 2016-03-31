@@ -1114,6 +1114,8 @@ class boss_franzok : public CreatureScript
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
                 m_ExitTankGuid = 0;
 
                 m_State = 0;
@@ -1532,9 +1534,7 @@ class boss_franzok : public CreatureScript
 
                         l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Count);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 5.0f))
-                            me->CastCustomSpell(eSpells::Skullcracker, l_Values, l_Target, false);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectRangedTarget())
                             me->CastCustomSpell(eSpells::Skullcracker, l_Values, l_Target, false);
 
                         m_Events.ScheduleEvent(eEvents::EventSkullcracker, 21 * TimeConstants::IN_MILLISECONDS);
@@ -2149,7 +2149,7 @@ class npc_foundry_stamping_presses : public CreatureScript
                         AddTimedDelayedOperation(m_StampTimer, [this]() -> void
                         {
                             float l_CheckX = 4.5f;
-                            float l_CheckY = 6.5f;
+                            float l_CheckY = 7.5f;
 
                             std::set<uint64> l_Targets;
 

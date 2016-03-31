@@ -586,6 +586,7 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Spirit of Redemption (Shapeshift) - 27827
 class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
 {
@@ -602,19 +603,17 @@ class spell_pri_spirit_of_redemption_form: public SpellScriptLoader
                 SpiritOfRedemptionForm          = 27795
             };
 
-            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
+                Unit* l_Target = GetTarget();
 
-                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionForm);
-                l_Caster->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
+                l_Target->RemoveAura(eSpells::SpiritOfRedemptionForm);
+                l_Target->RemoveAura(eSpells::SpiritOfRedemptionImmunity);
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_spirit_of_redemption_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1355,7 +1354,10 @@ public:
                 {
                     if (AuraEffect* l_ReflectiveShield = l_Owner->GetAuraEffect(PriestSpells::PRIEST_SPELL_GLYPH_OF_REFLECTIVE_SHIELD, SpellEffIndex::EFFECT_0))
                     {
-                        int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_ReflectiveShield->GetAmount());
+                        int32 l_Amount = l_ReflectiveShield->GetAmount();
+                        if (l_Attacker->IsPlayer()) ///< Glyph of Reflective Shield is reduce to 35% in pvp
+                            l_Amount /= 2;
+                        int32 l_Damage = CalculatePct(p_DmgInfo.GetAbsorb(), l_Amount);
                         l_Owner->CastCustomSpell(l_Attacker, PriestSpells::PRIEST_SPELL_REFLECTIVE_SHIELD_DAMAGE, &l_Damage, nullptr, nullptr, true);
                     }
                 }

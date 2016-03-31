@@ -432,7 +432,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModIncreaseSpeed,                      //373 SPELL_AURA_INCREASE_MIN_SWIM_SPEED
     &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_REDUCE_FALL_DAMAGE_PERCENT implemente in Player::EnvironmentalDamage
     &AuraEffect::HandleNULL,                                      //375 SPELL_AURA_375
-    &AuraEffect::HandleNoImmediateEffect,                         //376 SPELL_AURA_INCREASE_HONOR_GAIN_PERCENT implemented in Player::RewardHonor
+    &AuraEffect::HandleNoImmediateEffect,                         //376 SPELL_AURA_MOD_CURRENCY_GAIN_2  implemented in Player::ModifyCurrency
     &AuraEffect::HandleNoImmediateEffect,                         //377 SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING
     &AuraEffect::HandleNULL,                                      //378 SPELL_AURA_378
     &AuraEffect::HandleAuraModifyManaRegenFromManaPct,            //379 SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
@@ -1098,6 +1098,19 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
 
             break;
+        }
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOT_2:
+        {
+            /// Custom WoD Script - Glyph of Runic Power (159429)
+            if (Unit* target = GetBase()->GetUnitOwner())
+            {
+                if (target->getClass() == CLASS_DEATH_KNIGHT)
+                {
+                    if (target->HasAura(159429))
+                        target->CastSpell(target, 159430, true);
+                }
+            }
         }
         case SPELL_AURA_MOD_DECREASE_SPEED:
         {
@@ -2092,7 +2105,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             uint64 newStance = newAura ? (UI64LIT(1) << (newAura->GetMiscValue() - 1)) : 0;
 
             /// If the stances are not compatible with the spell, remove it, but not on periodic aura apply on you (aura should continue to tick)
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic())
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && !itr->second->GetBase()->GetSpellInfo()->IsPeriodic() && !itr->second->GetBase()->GetSpellInfo()->GetDuration())
                 target->RemoveAura(itr);
             else
                 ++itr;
@@ -3599,7 +3612,7 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
     /// Hackfix @ Glyph of the Falling Avenger
     /// Since preventing the aura effect in a spell script doesn't work
     /// A better way to fix this would be to remember which effects are prevented to prevent re-application
-    if ((m_spellInfo->Id == 31842 || m_spellInfo->Id == 31884) && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
+    if (target->IsPlayer() && target->getClass() == CLASS_PALADIN && (m_spellInfo->Id == 31842 || m_spellInfo->Id == 31884) && (!target->HasAura(115931) && apply)) ///< Check if applying to prevent players eternal slow falling by removing this glyph
         return;
 
     if (apply)
@@ -7448,7 +7461,14 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
 
-        /// Poisoned Ammo
+        /// Ignite should remove Polymorph
+        if (GetSpellInfo()->Id == 12654 && caster && target)
+        {
+            if (target->HasAura(118))
+                target->RemoveAura(118);
+        }
+
+        /// Poisoned Ammo and Devouring Plague
         if (GetSpellInfo()->Id == 162543 || GetSpellInfo()->Id == 158831)
             /// To prevent double multiplication
             damage = std::max(GetAmount(), 0);
@@ -7509,6 +7529,17 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     break;
                 default:
                     break;
+            }
+        }
+        if (GetTickNumber() <= 1 && GetTotalTicks() == GetSpellInfo()->GetDuration() / GetAmplitude()) ///< Some spells should not deal damage at first tick of first apply
+        {
+            switch (GetId())
+            {
+            case 118253: ///< Serpent Sting
+                damage = 0;
+                break;
+            default:
+                break;
             }
         }
     }

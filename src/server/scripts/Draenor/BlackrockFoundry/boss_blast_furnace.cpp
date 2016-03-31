@@ -189,7 +189,6 @@ class boss_heart_of_the_mountain : public CreatureScript
 
             bool m_Enabled;
             bool m_FightStarted;
-            bool m_FirstSlagElemental;
 
             uint8 m_ElementalistMoveIndex;
             uint8 m_ElementalistKilled;
@@ -219,7 +218,6 @@ class boss_heart_of_the_mountain : public CreatureScript
 
                 m_Enabled = false;
                 m_FightStarted = false;
-                m_FirstSlagElemental = true;
 
                 m_ElementalistMoveIndex = 0;
                 m_ElementalistKilled = 0;
@@ -554,11 +552,18 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Engineer = me->SummonCreature(eCreatures::FurnaceEngineerFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                             {
-                                float l_O = l_Engineer->GetAngle(me);
-                                float l_X = l_Engineer->GetPositionX() + 30.0f * cos(l_O);
-                                float l_Y = l_Engineer->GetPositionY() + 30.0f * sin(l_O);
+                                uint64 l_Guid = l_Engineer->GetGUID();
+                                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_Engineer = Creature::GetCreature(*me, l_Guid))
+                                    {
+                                        float l_O = l_Engineer->GetAngle(me);
+                                        float l_X = l_Engineer->GetPositionX() + 30.0f * cos(l_O);
+                                        float l_Y = l_Engineer->GetPositionY() + 30.0f * sin(l_O);
 
-                                l_Engineer->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                        l_Engineer->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                    }
+                                });
                             }
                         }
 
@@ -571,11 +576,18 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                             {
-                                float l_O = l_Guard->GetAngle(me);
-                                float l_X = l_Guard->GetPositionX() + 30.0f * cos(l_O);
-                                float l_Y = l_Guard->GetPositionY() + 30.0f * sin(l_O);
+                                uint64 l_Guid = l_Guard->GetGUID();
+                                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_Guard = Creature::GetCreature(*me, l_Guid))
+                                    {
+                                        float l_O = l_Guard->GetAngle(me);
+                                        float l_X = l_Guard->GetPositionX() + 30.0f * cos(l_O);
+                                        float l_Y = l_Guard->GetPositionY() + 30.0f * sin(l_O);
 
-                                l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                        l_Guard->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                    }
+                                });
                             }
                         }
 
@@ -597,11 +609,18 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Operator = me->SummonCreature(eCreatures::BellowsOperatorFight, g_BellowsOperatorSpawns[l_I]))
                             {
-                                float l_O = l_Operator->GetAngle(me);
-                                float l_X = l_Operator->GetPositionX() + 12.0f * cos(l_O);
-                                float l_Y = l_Operator->GetPositionY() + 12.0f * sin(l_O);
+                                uint64 l_Guid = l_Operator->GetGUID();
+                                AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                {
+                                    if (Creature* l_Operator = Creature::GetCreature(*me, l_Guid))
+                                    {
+                                        float l_O = l_Operator->GetAngle(me);
+                                        float l_X = l_Operator->GetPositionX() + 12.0f * cos(l_O);
+                                        float l_Y = l_Operator->GetPositionY() + 12.0f * sin(l_O);
 
-                                l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                        l_Operator->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ() + 9.0f, 10.0f, 30.0f);
+                                    }
+                                });
                             }
                         }
 
@@ -650,21 +669,24 @@ class boss_heart_of_the_mountain : public CreatureScript
                         {
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
-                                for (uint8 l_I = 0; l_I < (m_FirstSlagElemental ? 1 : 2); ++l_I)
+                                if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[urand(0, 1)][urand(0, 2)]))
                                 {
-                                    if (Creature* l_Elemental = me->SummonCreature(eCreatures::SlagElemental, g_EncounterAddSpawns[l_I][urand(0, 2)]))
+                                    uint64 l_Guid = l_Elemental->GetGUID();
+                                    AddTimedDelayedOperation(50, [this, l_Guid]() -> void
                                     {
-                                        float l_O = l_Elemental->GetAngle(l_Fury);
-                                        float l_X = l_Elemental->GetPositionX() + 30.0f * cos(l_O);
-                                        float l_Y = l_Elemental->GetPositionY() + 30.0f * sin(l_O);
-
-                                        l_Elemental->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
-                                    }
+                                        if (Creature* l_Elemental = Creature::GetCreature(*me, l_Guid))
+                                        {
+                                            float l_O = l_Elemental->GetAngle(me);
+                                            float l_X = l_Elemental->GetPositionX() + 30.0f * cos(l_O);
+                                            float l_Y = l_Elemental->GetPositionY() + 30.0f * sin(l_O);
+    
+                                            l_Elemental->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                        }
+                                    });
                                 }
                             }
                         }
 
-                        m_FirstSlagElemental = false;
                         m_Events.ScheduleEvent(eEvents::EventSlagElemental, 55 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
@@ -678,11 +700,18 @@ class boss_heart_of_the_mountain : public CreatureScript
                                 {
                                     if (Creature* l_Firecaller = me->SummonCreature(eCreatures::Firecaller, g_EncounterAddSpawns[l_I][urand(0, 2)]))
                                     {
-                                        float l_O = l_Firecaller->GetAngle(l_Fury);
-                                        float l_X = l_Firecaller->GetPositionX() + 30.0f * cos(l_O);
-                                        float l_Y = l_Firecaller->GetPositionY() + 30.0f * sin(l_O);
-
-                                        l_Firecaller->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                        uint64 l_Guid = l_Firecaller->GetGUID();
+                                        AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                        {
+                                            if (Creature* l_Firecaller = Creature::GetCreature(*me, l_Guid))
+                                            {
+                                                float l_O = l_Firecaller->GetAngle(me);
+                                                float l_X = l_Firecaller->GetPositionX() + 30.0f * cos(l_O);
+                                                float l_Y = l_Firecaller->GetPositionY() + 30.0f * sin(l_O);
+        
+                                                l_Firecaller->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 10.0f, 30.0f);
+                                            }
+                                        });
                                     }
                                 }
                             }
@@ -698,7 +727,14 @@ class boss_heart_of_the_mountain : public CreatureScript
                             if (Creature* l_Fury = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::HeartOfTheMountain)))
                             {
                                 if (Creature* l_Guard = me->SummonCreature(eCreatures::SecurityGuardFight, g_SecurityGuardSecondPhaseSpwan))
-                                    l_Guard->GetMotionMaster()->MoveJump(g_SecurityGuardSecondPhaseJump, 10.0f, 30.0f);
+                                {
+                                    uint64 l_Guid = l_Guard->GetGUID();
+                                    AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                    {
+                                        if (Creature* l_Guard = Creature::GetCreature(*me, l_Guid))
+                                            l_Guard->GetMotionMaster()->MoveJump(g_SecurityGuardSecondPhaseJump, 10.0f, 30.0f);
+                                    });
+                                }
                             }
                         }
 
@@ -2078,7 +2114,8 @@ class npc_foundry_slag_elemental : public CreatureScript
             SlagBomb        = 176133,
             DamageShield    = 155176,
             Reanimate       = 155213,
-            DropTarget      = 101438
+            DropTarget      = 101438,
+            ShieldsDown     = 158345
         };
 
         enum eCreature
@@ -2099,11 +2136,16 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             uint64 m_Target;
 
+            /// UnitState::UNIT_STATE_CASTING cannot be used because Fixate is a channeled spell
+            bool m_Burn;
+
             void Reset() override
             {
                 m_Events.Reset();
 
                 m_Target = 0;
+
+                m_Burn = false;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             }
@@ -2180,6 +2222,11 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         break;
                     }
+                    case eSpells::Burn:
+                    {
+                        m_Burn = false;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -2241,8 +2288,12 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         for (Creature* l_Creature : l_Elementalists)
                         {
+                            /// If shielded, breaks shield
                             if (l_Creature->HasAura(eSpells::DamageShield))
                                 l_Creature->RemoveAura(eSpells::DamageShield);
+                            /// If not, refresh the vulnerability
+                            else if (Aura* l_Aura = l_Creature->GetAura(eSpells::ShieldsDown))
+                                l_Aura->RefreshDuration();
                         }
                     });
                 }
@@ -2257,7 +2308,7 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE)
+                if (me->GetReactState() == ReactStates::REACT_PASSIVE || m_Burn)
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
@@ -2279,6 +2330,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                     {
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                             me->CastSpell(l_Target, eSpells::Burn, false);
+
+                        m_Burn = true;
 
                         m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -2479,6 +2532,7 @@ class spell_foundry_defense_aura : public SpellScriptLoader
 
 /// Bomb (overrider) - 155192
 /// Bomb (overrider - second) - 174716
+/// Bomb (overrider - when mind controlled) - 159558
 class spell_foundry_bomb_overrider : public SpellScriptLoader
 {
     public:

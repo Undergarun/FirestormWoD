@@ -44,6 +44,7 @@
 #include "VignetteMgr.hpp"
 #include "BitSet.hpp"
 #include "MutexedMap.hpp"
+#include "PlayerTaxi.h"
 
 // for template
 #include "SpellMgr.h"
@@ -149,6 +150,7 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
     bool IsMountFavorite   : 1;                             // Is flagged as favorite mount spell
+    bool FromShopItem      : 1;
 };
 
 struct PlayerTalent
@@ -193,9 +195,11 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest          = 1,
-    CharWorldStateGarrisonStablesSecondQuest         = 2,
-    CharWorldStateGarrisonWorkshopGearworksInvention = 3
+    CharWorldStateGarrisonStablesFirstQuest              = 1,
+    CharWorldStateGarrisonStablesSecondQuest             = 2,
+    CharWorldStateGarrisonWorkshopGearworksInvention     = 3,
+    CharWorldStateGarrisonTradingPostDailyRandomTrader   = 4,
+    CharWorldStateGarrisonTradingPostDailyRandomShipment = 5
 };
 
 // Spell modifier (used for modify other spells)
@@ -661,19 +665,20 @@ enum PlayerExtraFlags
 // 2^n values
 enum AtLoginFlags
 {
-    AT_LOGIN_NONE                   = 0x000,
-    AT_LOGIN_RENAME                 = 0x001,
-    AT_LOGIN_RESET_SPELLS           = 0x002,
-    AT_LOGIN_RESET_TALENTS          = 0x004,
-    AT_LOGIN_CUSTOMIZE              = 0x008,
-    AT_LOGIN_RESET_PET_TALENTS      = 0x010,
-    AT_LOGIN_FIRST                  = 0x020,
-    AT_LOGIN_CHANGE_FACTION         = 0x040,
-    AT_LOGIN_CHANGE_RACE            = 0x080,
-    AT_LOGIN_UNLOCK                 = 0x100,
-    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200,
-    AT_LOGIN_RESET_SPECS            = 0x400,
-    AT_LOGIN_DELETE_INVALID_SPELL   = 0x800     ///< Used at expension switch
+    AT_LOGIN_NONE                   = 0x0000,
+    AT_LOGIN_RENAME                 = 0x0001,
+    AT_LOGIN_RESET_SPELLS           = 0x0002,
+    AT_LOGIN_RESET_TALENTS          = 0x0004,
+    AT_LOGIN_CUSTOMIZE              = 0x0008,
+    AT_LOGIN_RESET_PET_TALENTS      = 0x0010,
+    AT_LOGIN_FIRST                  = 0x0020,
+    AT_LOGIN_CHANGE_FACTION         = 0x0040,
+    AT_LOGIN_CHANGE_RACE            = 0x0080,
+    AT_LOGIN_UNLOCK                 = 0x0100,
+    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x0200,
+    AT_LOGIN_RESET_SPECS            = 0x0400,
+    AT_LOGIN_DELETE_INVALID_SPELL   = 0x0800,     ///< Used at expension switch
+    AT_LOGIN_CHANGE_ITEM_FACTION    = 0x1000,
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1205,68 +1210,6 @@ struct auraEffectData
     uint32 _baseamount;
 };
 
-class PlayerTaxi
-{
-    public:
-        PlayerTaxi();
-        ~PlayerTaxi() {}
-        // Nodes
-        void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
-        void LoadTaxiMask(std::string const& data);
-
-        bool IsTaximaskNodeKnown(uint32 nodeidx) const
-        {
-            uint8  field   = uint8((nodeidx - 1) / 8);
-            uint32 submask = 1 << ((nodeidx-1) % 8);
-            return (m_taximask[field] & submask) == submask;
-        }
-        bool SetTaximaskNode(uint32 nodeidx)
-        {
-            uint8  field   = uint8((nodeidx - 1) / 8);
-            uint32 submask = 1 << ((nodeidx-1) % 8);
-            if ((m_taximask[field] & submask) != submask)
-            {
-                m_taximask[field] |= submask;
-                return true;
-            }
-            else
-                return false;
-        }
-        void AppendTaximaskTo(ByteBuffer& data, bool all);
-
-        // Destinations
-        bool LoadTaxiDestinationsFromString(const std::string& values, uint32 team);
-        std::string SaveTaxiDestinationsToString();
-
-        void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
-        void AddTaxiDestination(uint32 dest) { m_TaxiDestinations.push_back(dest); }
-        uint32 GetTaxiSource() const { return m_TaxiDestinations.empty() ? 0 : m_TaxiDestinations.front(); }
-        uint32 GetTaxiDestination() const { return m_TaxiDestinations.size() < 2 ? 0 : m_TaxiDestinations[1]; }
-        uint32 GetCurrentTaxiPath() const;
-        uint32 NextTaxiDestination()
-        {
-            m_TaxiDestinations.pop_front();
-            return GetTaxiDestination();
-        }
-        bool empty() const { return m_TaxiDestinations.empty(); }
-
-        std::deque<uint32> GetCurrentDestinationQueue()
-        {
-            return m_TaxiDestinations;
-        }
-        void SetDestinationQueue(std::deque<uint32> p_Destinations)
-        {
-            m_TaxiDestinations = p_Destinations;
-        }
-
-        friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
-    private:
-        TaxiMask m_taximask;
-        std::deque<uint32> m_TaxiDestinations;
-};
-
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
-
 class Player;
 
 /// Holder for Battleground data
@@ -1661,11 +1604,10 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0, bool p_Triggered = false);
-        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
+        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
-        void ContinueTaxiFlight();
-        void TaxiRequestEarlyLanding();
+        void ContinueTaxiFlight() const;
                                                             // mount_id can be used in scripting calls
         bool IsAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
@@ -1874,7 +1816,7 @@ class Player : public Unit, public GridObject<Player>
         * @param ignore gain multipliers
         */
 
-        void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
+        int32 ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
 
         void ApplyEquipCooldown(Item* pItem);
@@ -1958,7 +1900,7 @@ class Player : public Unit, public GridObject<Player>
         void LoadCorpse();
         void LoadPet(PreparedQueryResult result);
 
-        bool AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses = {});
+        Item* AddItem(uint32 p_ItemId, uint32 p_Count, std::list<uint32> p_Bonuses = {}, bool p_FromShop = false);
 
         uint32 m_stableSlots;
 
@@ -2241,8 +2183,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false, bool p_LearnBattlePet = true);
-        void learnSpell(uint32 spell_id, bool dependent);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool p_IsMountFavorite = false, bool p_LearnBattlePet = true, bool p_FromShopItem = false);
+        void learnSpell(uint32 spell_id, bool dependent, bool p_FromItemShop = false);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
         void learnDefaultSpells();
@@ -2282,7 +2224,11 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecializationId(uint8 spec, uint32 id, bool loading = false);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         uint32 GetSpecializationId() const { return _talentMgr->SpecInfo[_talentMgr->ActiveSpec].SpecializationId; }
-        uint32 GetRoleForGroup(uint32 specializationId = 0);
+        uint32 GetRoleForGroup(uint32 specializationId = 0) const;
+
+        bool IsRangedDamageDealer(bool p_AllowHeal = true) const;
+        bool IsMeleeDamageDealer(bool p_AllowTank = false) const;
+
         static uint32 GetRoleBySpecializationId(uint32 specializationId);
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;
@@ -2448,6 +2394,10 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePvP(bool state, bool override=false);
         void UpdateZone(uint32 newZone, uint32 newArea);
         void UpdateArea(uint32 newArea);
+
+        uint32 GetZoneId(bool forceRecalc = false) const;
+        uint32 GetAreaId(bool forceRecalc = false) const;
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
 
         void UpdateZoneDependentAuras(uint32 zone_id);    // zones
         void UpdateAreaDependentAuras(uint32 area_id);    // subzones
@@ -2798,7 +2748,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         // @TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
-        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
 
         //End of PvP System
@@ -3460,7 +3410,7 @@ class Player : public Unit, public GridObject<Player>
         /// Summon new pet
         void SummonBattlePet(uint64 p_JournalID);
         /// Get current summoned battle pet
-        Creature * GetSummonedBattlePet();
+        Creature* GetSummonedBattlePet();
         /// Summon last summoned battle pet
         void SummonLastSummonedBattlePet();
 
@@ -3604,16 +3554,19 @@ class Player : public Unit, public GridObject<Player>
         void _SetInShipyard();
         void _SetOutOfShipyard();
 
-        bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
+        bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0, bool p_UseShopGroupRealmMask = false);
         bool HasHeirloom(uint32 p_ItemID) const;
         bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
         uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
         bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
 
-        void AddCriticalOperation(std::function<void()> const&& p_Function)
+        uint64 GetBeaconOfFaithTarget() const { return m_BeaconOfFaithTargetGUID; }
+        void SetBeaconOfFaithTarget(uint64 p_NewBeaconOfFaithTarget) { m_BeaconOfFaithTargetGUID = p_NewBeaconOfFaithTarget; }
+
+        void AddCriticalOperation(std::function<bool()> const&& p_Function)
         {
             m_CriticalOperationLock.acquire();
-            m_CriticalOperation.push(std::function<void()>(p_Function));
+            m_CriticalOperation.push(std::function<bool()>(p_Function));
             m_CriticalOperationLock.release();
         }
 
@@ -3996,9 +3949,10 @@ class Player : public Unit, public GridObject<Player>
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
 
-        std::queue<std::function<void()>> m_CriticalOperation;
+        std::queue<std::function<bool()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;
 
+        uint64 m_BeaconOfFaithTargetGUID;
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
@@ -4245,6 +4199,12 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T&
                     continue;
                 else
                     l_PyroBlast = true;
+            }
+            /// Fix Guardian of Elune to deal with current dodge pct
+            else if (l_SpellMod->spellId == 155578 && l_SpellMod->op == SpellModOp::SPELLMOD_COST)
+            {
+                int32 l_DodgeChance = (int32)GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
+                l_SpellMod->value = l_DodgeChance * -1;
             }
 
              AddPct(l_TotalMul, l_SpellMod->value);

@@ -69,6 +69,7 @@
 #include "ArchaeologyMgr.hpp"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
+#include "PathGenerator.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -315,7 +316,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
@@ -1369,10 +1370,10 @@ void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
         case 49575: ///< Death Grip
         case 92832: ///< Leap of Faith
         case 118283: ///< Ursol's Vortex
-            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ);
+            m_caster->GetMotionMaster()->CustomJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, m_spellInfo->Id);
             break;
         case 49376: ///< Wild Charge
-            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation());
+            m_caster->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, l_SpeedXY, l_SpeedZ, destTarget->GetOrientation(), m_spellInfo->Id);
             break;
         case 156220: ///< Tactical Retreat
         case 156883: ///< Tactical Retreat (Other)
@@ -1868,8 +1869,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift
-            if (m_spellInfo && m_spellInfo->Id != 145109 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift and Frenzied Regeneration
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -2525,8 +2526,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     uint32 lockId = 0;
     uint64 guid = 0;
-    bool l_OverridePlayerCondition = false;
-
+    bool l_ResultOverridedByPlayerCondition = false;
+    bool l_PlayerConditionFailed = false;
     // Get lockId
     if (gameObjTarget)
     {
@@ -2575,8 +2576,17 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         guid = gameObjTarget->GetGUID();
 
         GameObjectTemplate const* l_Template = sObjectMgr->GetGameObjectTemplate(gameObjTarget->GetEntry());
-        if (l_Template && l_Template->chest.conditionID1 && m_caster->IsPlayer() && m_caster->ToPlayer()->EvalPlayerCondition(l_Template->chest.conditionID1).first)
-            l_OverridePlayerCondition = true;
+
+        if (l_Template && l_Template->type == GAMEOBJECT_TYPE_CHEST && m_caster->IsPlayer())
+        {
+            uint32 l_PlayerConditionID = l_Template->chest.conditionID1;
+            bool l_HasPlayerCondition = l_PlayerConditionID != 0 && (sPlayerConditionStore.LookupEntry(l_Template->chest.conditionID1) != nullptr || sScriptMgr->HasPlayerConditionScript(l_Template->chest.conditionID1));
+
+            if (l_HasPlayerCondition && m_caster->ToPlayer()->EvalPlayerCondition(l_PlayerConditionID).first)
+                l_ResultOverridedByPlayerCondition = true;
+            else if (l_HasPlayerCondition)
+                l_PlayerConditionFailed = true;
+        }
     }
     else if (itemTarget)
     {
@@ -2590,8 +2600,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     int32 reqSkillValue = 0;
     int32 skillValue;
 
+    if (l_PlayerConditionFailed)
+        return;
+
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
-    if (res != SPELL_CAST_OK && !l_OverridePlayerCondition)
+    if (res != SPELL_CAST_OK && !l_ResultOverridedByPlayerCondition)
     {
         SendCastResult(res);
         return;
@@ -3114,8 +3127,10 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     Player* player = unitTarget->ToPlayer();
 
+    bool l_FromItemShop = m_CastItem && m_CastItem->HasCustomFlags(ItemCustomFlags::FromStore);
+
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
-    player->learnSpell(spellToLearn, false);
+    player->learnSpell(spellToLearn, false, l_FromItemShop);
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;
@@ -3144,11 +3159,11 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
             if (Aura* l_Aura = l_It->first)
                 l_Aura->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
-
-        /// Glyph of Mass Dispel should dispel Cyclone
-        if (GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
-            unitTarget->RemoveAura(33786);
     }
+
+    /// Mass Dispel should dispel Cyclone, if priest has Glyph of Mass Dispell
+    if (m_spellInfo->Id == 32375 && GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
+        unitTarget->RemoveAura(33786);
 
     DispelChargesList l_DispelList;
     unitTarget->GetDispellableAuraList(m_caster, l_DispelMask, l_DispelList);
@@ -5878,17 +5893,16 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        Position pos;
-        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-
-        if (!m_caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
         {
-            float angle = unitTarget->GetRelativeAngle(m_caster);
-            float dist = m_caster->GetDistance(pos);
-            unitTarget->GetFirstCollisionPosition(pos, dist, angle);
+            Position pos;
+            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+            unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
+            unitTarget->GetMap()->getObjectHitPos(unitTarget->GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize(), pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.f);
+            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
         }
-
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, SPEED_CHARGE, m_spellInfo->Id);
+        else
+            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath);
 
         if (m_caster->IsPlayer())
             m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
@@ -5898,8 +5912,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (m_caster->IsPlayer())
         {
-            m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
-
             if (!m_spellInfo->IsPositive())
                 m_caster->Attack(unitTarget, true);
         }
@@ -7730,7 +7742,10 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
 
-    m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ);
+    if (Unit* l_Target = m_targets.GetUnitTarget())
+        m_caster->GetMotionMaster()->CustomJump(l_Target, speedXY, speedZ, m_spellInfo->Id);
+    else
+        m_caster->GetMotionMaster()->CustomJump(x, y, z, speedXY, speedZ, m_spellInfo->Id);
 }
 
 void Spell::EffectPlaySceneObject(SpellEffIndex effIndex)
@@ -7772,7 +7787,7 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
             uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
             uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
             {
                 if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
                 {
@@ -7781,6 +7796,8 @@ void Spell::EffectLearnBluePrint(SpellEffIndex p_EffIndex)
                     if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                         l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
                 }
+
+                return true;
             });
             m_CastItem = nullptr;
         }
@@ -7812,7 +7829,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
             uint64 l_PlayerGUID = m_CastItem->GetOwnerGUID();
             uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+            l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
             {
                 if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
                 {
@@ -7821,6 +7838,8 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
                     if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                         l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
                 }
+
+                return true;
             });
 
             m_CastItem = nullptr;
@@ -7892,7 +7911,7 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
     uint64 l_PlayerGUID = l_Player->GetGUID();
     uint64 l_ItemGUID   = m_CastItem->GetGUID();
 
-    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> bool
     {
         if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
         {
@@ -7901,6 +7920,8 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
             if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
                 l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
         }
+
+        return true;
     });
 
     m_CastItem = nullptr;
@@ -8181,6 +8202,48 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
+void Spell::EffectEnchantIllusion(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+    if (!itemTarget)
+        return;
+
+    Player* p_caster = (Player*)m_caster;
+
+    uint32 l_EnchantId = m_spellInfo->Effects[effIndex].MiscValue;
+    if (!l_EnchantId)
+        return;
+
+    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(l_EnchantId);
+    if (!pEnchant)
+        return;
+    /// If we don't have visual id for this enchant illusion - nothing to do
+    if (!pEnchant->itemVisualID)
+        return;
+
+    /// Item can be in trade slot and have owner diff. from caster
+    Player* l_ItemOwner = itemTarget->GetOwner();
+    if (!l_ItemOwner)
+        return;
+
+    auto l_Enchant = BONUS_ENCHANTMENT_SLOT;
+
+    /// remove old enchanting before applying new if equipped
+    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, false);
+
+    itemTarget->SetEnchantment(l_Enchant, l_EnchantId, 0, 0);
+
+    /// add new enchant illusion effect on item
+    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, true);
+
+    l_ItemOwner->RemoveTradeableItem(itemTarget);
+    itemTarget->ClearSoulboundTradeable(l_ItemOwner);
+}
+
 void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
@@ -8231,13 +8294,14 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     uint8 l_BagSlot = m_CastItem->GetBagSlot();
     uint8 l_Slot    = m_CastItem->GetSlot();
 
-    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> void
+    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> bool
     {
         Player* l_Player = HashMapHolder<Player>::Find(l_Guid);
         if (l_Player == nullptr)
-            return;
+            return true;
 
         l_Player->DestroyItem(l_BagSlot, l_Slot, true);
+        return true;
     });
 
     std::vector<uint32> const& l_Heirlooms = l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
@@ -8263,6 +8327,94 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValueB;
 
+    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+
+    /// Dynamic bonus change (item stage upgrade)
+    if (l_OldItemBonusTreeCategory == l_NewItemBonusTreeCategory)
+    {
+        uint32 l_MaxIlevel = 0;
+        bool   l_Found = false;
+
+        auto& l_ItemStageUpgradeRules = sSpellMgr->GetSpellUpgradeItemStage(l_OldItemBonusTreeCategory);
+        if (l_ItemStageUpgradeRules.empty())
+            return;
+
+        for (auto l_Itr : l_ItemStageUpgradeRules)
+        {
+            if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
+                continue;
+
+            if (l_Itr.ItemSubclassMask != 0)
+            {
+                if ((l_Itr.ItemSubclassMask & (1 << l_ItemTarget->GetTemplate()->SubClass)) == 0)
+                    continue;
+            }
+
+            if (l_Itr.InventoryTypeMask != 0)
+            {
+                if ((l_Itr.InventoryTypeMask & (1 << l_ItemTarget->GetTemplate()->InventoryType)) == 0)
+                    continue;
+            }
+
+            if ((int32)l_ItemTarget->GetItemLevelBonusFromItemBonuses() >= l_Itr.MaxIlevel)
+                continue;
+
+            l_Found     = true;
+            l_MaxIlevel = l_Itr.MaxIlevel;
+            break;
+        }
+
+        if (!l_Found)
+            return;
+
+        std::vector<uint32> l_UpgradeBonusStages;
+
+        switch (l_ItemTarget->GetTemplate()->ItemLevel)
+        {
+            case 630:
+                l_UpgradeBonusStages = { 525, 558, 559, 594, 619, 620 };
+                break;
+            case 640:
+                l_UpgradeBonusStages = { 525, 526, 527, 593, 617, 618 };
+            default:
+                break;
+        }
+
+        if (l_UpgradeBonusStages.empty())
+        {
+            sLog->outAshran("Spell::EffectChangeItemBonus: Item level isn't handle for spell %u", m_spellInfo->Id);
+            return;
+        }
+
+        int32 l_CurrentIdx = -1;
+
+        for (int l_Idx = 0; l_Idx < (int)l_UpgradeBonusStages.size(); l_Idx++)
+        {
+            for (auto l_BonusId : l_CurrentItemBonus)
+            {
+                if (l_BonusId == l_UpgradeBonusStages[l_Idx])
+                {
+                    l_CurrentIdx = l_Idx;
+                    break;
+                }
+            }
+        }
+
+        if (l_CurrentIdx == -1 || l_CurrentIdx == l_UpgradeBonusStages.size() - 1)
+            return;
+
+        /// All is fine, now we can update item bonus
+        l_ItemTarget->RemoveItemBonus(l_UpgradeBonusStages[l_CurrentIdx]);
+        l_ItemTarget->AddItemBonus(l_UpgradeBonusStages[l_CurrentIdx + 1]);
+        l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
+
+        /// Update item display ID if needed
+        if (l_ItemTarget->IsEquipped())
+            m_caster->ToPlayer()->SetVisibleItemSlot(l_ItemTarget->GetSlot(), l_ItemTarget);
+
+        return;
+    }
+
     ItemBonusTreeNodeEntry const* l_OldBonusTree = nullptr;
     ItemBonusTreeNodeEntry const* l_NewBonusTree = nullptr;
 
@@ -8287,8 +8439,6 @@ void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
     if (l_OldBonusTree == nullptr
         || l_NewBonusTree == nullptr)
         return;
-
-    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
 
     /// Check if the selected item have the old bonus, and with the right context
     bool l_BonusFound = false;

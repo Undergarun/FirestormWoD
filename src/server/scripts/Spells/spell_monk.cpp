@@ -1077,6 +1077,9 @@ class spell_monk_diffuse_magic: public SpellScriptLoader
                         if (!(aura->GetSpellInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC))
                             continue;
 
+                        if (aura->GetSpellInfo()->AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)
+                            continue;
+
                         _player->AddAura(aura->GetSpellInfo()->Id, caster);
 
                         if (Aura* targetAura = caster->GetAura(aura->GetSpellInfo()->Id, _player->GetGUID()))
@@ -1444,7 +1447,7 @@ class spell_monk_crackling_jade_lightning: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Touch of Karma - 122470
 class spell_monk_touch_of_karma: public SpellScriptLoader
 {
@@ -1484,7 +1487,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 p_Amount = l_Caster->CountPctFromMaxHealth(l_HealthPct);
             }
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
+            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Caster = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
@@ -1528,6 +1531,11 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                         l_Damage += l_PreviousAura->GetAmount() * (l_PreviousAura->GetBase()->GetDuration() / l_PreviousAura->GetAmplitude());
                     l_Damage /= 6;
                     l_Caster->CastCustomSpell(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, SPELLVALUE_BASE_POINT0, l_Damage, l_Target);
+                }
+                else
+                {
+                    p_AbsorbAmount = 0;
+                    l_Caster->RemoveAura(122470, l_Caster->GetGUID());
                 }
             }
 
@@ -2015,9 +2023,10 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             enum eSpells
             {
-                RenewingMist = 115151,
-                JadeMists    = 165397,
-                PoolOfMists  = 173841
+                RenewingMist    = 115151,
+                JadeMists       = 165397,
+                PoolOfMists     = 173841,
+                ThunderFocusTea = 116680
             };
 
             void HandleAfterCast()
@@ -2042,7 +2051,12 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);                    
+                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                if (Aura* l_ThunderFocusTea = l_Caster->GetAura(eSpells::ThunderFocusTea, l_Caster->GetGUID()))
+                {
+                    if (Aura* l_RenewingMistHot = l_Target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, l_Caster->GetGUID()))
+                        l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(l_RenewingMistHot->GetEffect(EFFECT_1)->GetAmount() + l_ThunderFocusTea->GetEffect(EFFECT_1)->GetAmount());
+                }
             }
 
             void Register()
@@ -3107,13 +3121,32 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 if (l_JadeStatue == nullptr)
                     return;
-                
-                Unit* l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
 
-                if (l_TargetOfJadeStatue == nullptr)
+                std::list<Unit*> l_PartyList;
+                std::list<Unit*> l_PartyListValid;
+                l_Caster->GetPartyMembers(l_PartyList);
+
+                for (Unit* l_Target : l_PartyList)
+                {
+                    if (!l_Target->IsValidAssistTarget(l_Target))
+                        continue;
+
+                    if (l_Target->GetDistance(l_JadeStatue) > 40.0f)
+                        continue;
+
+                    if (!l_Target->IsWithinLOSInMap(l_JadeStatue))
+                        continue;
+
+                    l_PartyListValid.push_back(l_Target);
+                }
+
+                if (l_PartyListValid.empty())
                     return;
 
-                l_JadeStatue->CastSpell(l_TargetOfJadeStatue, GetSpellInfo()->Id, true);
+                if (l_PartyListValid.size() > 1)
+                    l_PartyListValid.sort(JadeCore::HealthPctOrderPred());
+
+                l_JadeStatue->CastSpell(l_PartyListValid.front(), GetSpellInfo()->Id, true);
             }
 
             void OnTick(AuraEffect const* p_AurEff)
@@ -4233,8 +4266,6 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 // Add additionnal stuff depending on spec
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
                 {
-                    l_Damage += int32(frand(4.9645f * l_Low, 4.9645f * l_High));
-
                     if (l_Player->HasAura(SPELL_MONK_MUSCLE_MEMORY))
                         l_Player->CastSpell(l_Player, SPELL_MONK_CRANES_ZEAL, true);
                 }
@@ -4732,15 +4763,16 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
                     l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
 
-                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
-                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
-
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
                 l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
                 l_Bp = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Bp);
+
+                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
+
             }
 
             void Register()
@@ -5401,7 +5433,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
                 GlyphofFreedomRoll = 159534
             };
 
-            void HandleBeforeHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -5411,7 +5443,7 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleBeforeHit);
+                OnCast += SpellCastFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnCast);
             }
         };
 
@@ -5795,8 +5827,52 @@ class spell_monk_item_t17_mistweaver_4p_bonus : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Serenity - 152173
+class spell_monk_serenity : public SpellScriptLoader
+{
+    public:
+        spell_monk_serenity() : SpellScriptLoader("spell_monk_serenity") { }
+
+        class spell_monk_serenity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_serenity_AuraScript);
+
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_BREWMASTER)
+                {
+                    Aura* l_AuraPtr = l_Player->GetAura(GetSpellInfo()->Id);
+                    if (l_AuraPtr == nullptr)
+                        return;
+
+                    l_AuraPtr->SetMaxDuration(5 * IN_MILLISECONDS);
+                    l_AuraPtr->RefreshDuration();
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_monk_serenity_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_serenity_AuraScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_serenity();
     new spell_monk_breath_of_the_serpent_tick();
     new spell_monk_breath_of_the_serpent_heal();
     new spell_monk_breath_of_the_serpent();

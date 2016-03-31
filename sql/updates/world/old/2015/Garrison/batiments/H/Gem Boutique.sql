@@ -8,41 +8,34 @@
 
 	UPDATE creature_template SET ScriptName="npc_Dorogarr_Garr", npcFlag=131, npcFlag2=128, minlevel=90, maxlevel=90 WHERE entry=79832;
 	UPDATE creature_template SET ScriptName="npc_ElrondirSurrion_Garr", npcFlag=3, npcFlag2=32, minlevel=90, maxlevel=90 WHERE entry=79830;
+	UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79832;
 	DELETE FROM `npc_vendor` WHERE `entry` = 79832 AND `type` = 1;
 	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
-	(79832, 0, 115359, 0, 0, 0, 1), 
-	(79832, 0, 116078, 0, 0, 5319, 1), 
-	(79832, 0, 116079, 0, 0, 5321, 1), 
-	(79832, 0, 116080, 0, 0, 5321, 1), 
-	(79832, 0, 116081, 0, 0, 0, 1), 
-	(79832, 0, 116082, 0, 0, 0, 1), 
-	(79832, 0, 116083, 0, 0, 0, 1), 
-	(79832, 0, 116084, 0, 0, 0, 1), 
-	(79832, 0, 116085, 0, 0, 0, 1), 
-	(79832, 0, 116086, 0, 0, 0, 1), 
-	(79832, 0, 116087, 0, 0, 0, 1), 
-	(79832, 0, 116088, 0, 0, 0, 1), 
-	(79832, 0, 116089, 0, 0, 0, 1), 
-	(79832, 0, 116090, 0, 0, 5319, 1), 
-	(79832, 0, 116091, 0, 0, 5319, 1), 
-	(79832, 0, 116092, 0, 0, 5319, 1), 
-	(79832, 0, 116093, 0, 0, 5319, 1), 
-	(79832, 0, 116094, 0, 0, 5319, 1), 
-	(79832, 0, 116095, 0, 0, 5319, 1), 
-	(79832, 0, 116096, 0, 0, 5319, 1), 
-	(79832, 0, 116097, 0, 0, 5319, 1), 
-	(79832, 0, 116098, 0, 0, 5319, 1), 
-	(79832, 0, 116099, 0, 0, 5319, 1), 
-	(79832, 0, 116100, 0, 0, 5319, 1), 
-	(79832, 0, 116101, 0, 0, 5319, 1), 
-	(79832, 0, 116102, 0, 0, 5321, 1), 
-	(79832, 0, 116103, 0, 0, 5321, 1), 
-	(79832, 0, 116104, 0, 0, 5321, 1), 
-	(79832, 0, 116105, 0, 0, 5321, 1), 
-	(79832, 0, 116106, 0, 0, 5321, 1), 
-	(79832, 0, 116107, 0, 0, 5321, 1), 
-	(79832, 0, 116108, 0, 0, 5320, 1), 
-	(79832, 0, 116109, 0, 0, 5320, 1), 
+	(79832, 0, 52188, 0, 0, 0, 1),
+	(79832, 0, 115359, 0, 0, 0, 1),
+	(79832, 0, 116078, 0, 0, 5319, 1),
+	(79832, 0, 116079, 0, 0, 5321, 1),
+	(79832, 0, 116080, 0, 0, 5321, 1),
+	(79832, 0, 116090, 0, 0, 5319, 1),
+	(79832, 0, 116091, 0, 0, 5319, 1),
+	(79832, 0, 116092, 0, 0, 5319, 1),
+	(79832, 0, 116093, 0, 0, 5319, 1),
+	(79832, 0, 116094, 0, 0, 5319, 1),
+	(79832, 0, 116095, 0, 0, 5319, 1),
+	(79832, 0, 116096, 0, 0, 5319, 1),
+	(79832, 0, 116097, 0, 0, 5319, 1),
+	(79832, 0, 116098, 0, 0, 5319, 1),
+	(79832, 0, 116099, 0, 0, 5319, 1),
+	(79832, 0, 116100, 0, 0, 5319, 1),
+	(79832, 0, 116101, 0, 0, 5319, 1),
+	(79832, 0, 116102, 0, 0, 5321, 1),
+	(79832, 0, 116103, 0, 0, 5321, 1),
+	(79832, 0, 116104, 0, 0, 5321, 1),
+	(79832, 0, 116105, 0, 0, 5321, 1),
+	(79832, 0, 116106, 0, 0, 5321, 1),
+	(79832, 0, 116107, 0, 0, 5321, 1),
+	(79832, 0, 116108, 0, 0, 5320, 1),
+	(79832, 0, 116109, 0, 0, 5320, 1),
 	(79832, 0, 116111, 0, 0, 5319, 1);
 
 	DELETE FROM creature_queststarter WHERE id=79832 AND quest=37573;
@@ -55,10 +48,20 @@
 	UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_container" WHERE TYPE=45;
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-96 AND faction_index = 0;
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79830','2.55804','2.17175','1.39589','5.85254');
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79832','2.28618','-2.32004','1.45116','0.287999');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79830','2.55804','2.17175','1.39589','5.85254'); -- work orders
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','79832','2.28618','-2.32004','1.45116','0.287999'); -- jewelcrafting
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-96','0','-237067','9.75476','-3.63255','0.000183','1.39541');
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-131 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','0','79832','2.24944','3.464','1.39201','4.71012');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','0','79830','-0.060981','-4.02778','1.39009','0.861673');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-131','0','-237067','9.90751','-3.90032','0.000023','5.86465');
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-132 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','0','79832','0.514124','-4.4743','1.39035','2.02799');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','0','79830','2.88145','2.79548','1.39093','4.72583');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-132','0','-237067','9.91948','-3.37288','-0.000305','6.1474');

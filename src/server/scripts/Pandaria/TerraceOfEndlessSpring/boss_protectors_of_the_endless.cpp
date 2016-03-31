@@ -290,9 +290,9 @@ class boss_ancient_regail : public CreatureScript
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
             bool isInWipeState;
-			
-			void Reset()
-			{
+            
+            void Reset()
+            {
                 if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
                     return;
 
@@ -300,11 +300,11 @@ class boss_ancient_regail : public CreatureScript
                 me->CastSpell(me, SPELL_SHA_MASK, true);
                 me->SetReactState(REACT_DEFENSIVE);
 
-				_Reset();
-				
-				events.Reset();
-				
-				summons.DespawnAll();
+                _Reset();
+                
+                events.Reset();
+                
+                summons.DespawnAll();
 
                 firstSpecialEnabled = false;
                 secondSpecialEnabled = false;
@@ -312,8 +312,8 @@ class boss_ancient_regail : public CreatureScript
                 me->RemoveAura(SPELL_SHA_CORRUPTION);
                 me->RemoveAura(SPELL_OVERWHELMING_CORRUPTION);
                 me->RemoveAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE);
-				
-				if (pInstance)
+                
+                if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
@@ -330,9 +330,9 @@ class boss_ancient_regail : public CreatureScript
 
                     RespawnProtectors(pInstance, me);
                 }
-			}
-			
-			void JustReachedHome()
+            }
+            
+            void JustReachedHome()
             {
                 _JustReachedHome();
                 Reset();
@@ -345,7 +345,7 @@ class boss_ancient_regail : public CreatureScript
                         EnterCombat(attacker);
             }
 
-			void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
                     StartProtectors(pInstance, me, attacker);
@@ -359,7 +359,7 @@ class boss_ancient_regail : public CreatureScript
                 ProtectorsWipe(pInstance);
             }
 
-			void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -368,14 +368,14 @@ class boss_ancient_regail : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
-			void KilledUnit(Unit* who)
+            
+            void KilledUnit(Unit* who)
             {
                 if (who->IsPlayer())
                     Talk(TALK_REGAIL_SLAY);
             }
-			
-			void JustDied(Unit* killer)
+            
+            void JustDied(Unit* killer)
             {
                 Talk(TALK_REGAIL_DEATH);
 
@@ -537,7 +537,7 @@ class boss_ancient_regail : public CreatureScript
                 }
             }
 
-			void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
@@ -606,10 +606,10 @@ class boss_ancient_regail : public CreatureScript
                         break;
                     default:
                         break;
-				}
+                }
 
                 DoMeleeAttackIfReady();
-			}
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -637,9 +637,9 @@ class boss_ancient_asani : public CreatureScript
             bool firstSpecialEnabled;
             bool secondSpecialEnabled;
             bool isInWipeState;
-			
-			void Reset()
-			{
+            
+            void Reset()
+            {
                 if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
                     return;
 
@@ -647,11 +647,11 @@ class boss_ancient_asani : public CreatureScript
                 me->CastSpell(me, SPELL_SHA_MASK, true);
                 me->SetReactState(REACT_DEFENSIVE);
 
-				_Reset();
-				
-				events.Reset();
-				
-				summons.DespawnAll();
+                _Reset();
+                
+                events.Reset();
+                
+                summons.DespawnAll();
 
                 firstSpecialEnabled = false;
                 secondSpecialEnabled = false;
@@ -659,8 +659,8 @@ class boss_ancient_asani : public CreatureScript
                 me->RemoveAura(SPELL_SHA_CORRUPTION);
                 me->RemoveAura(SPELL_OVERWHELMING_CORRUPTION);
                 me->RemoveAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE);
-				
-				if (pInstance)
+                
+                if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
@@ -674,9 +674,9 @@ class boss_ancient_asani : public CreatureScript
 
                     RespawnProtectors(pInstance, me);
                 }
-			}
-			
-			void JustReachedHome()
+            }
+            
+            void JustReachedHome()
             {
                 _JustReachedHome();
                 Reset();
@@ -689,7 +689,7 @@ class boss_ancient_asani : public CreatureScript
                         EnterCombat(attacker);
             }
 
-			void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
                     StartProtectors(pInstance, me, attacker);
@@ -702,8 +702,8 @@ class boss_ancient_asani : public CreatureScript
 
                 ProtectorsWipe(pInstance);
             }
-			
-			void JustSummoned(Creature* summon)
+            
+            void JustSummoned(Creature* summon)
             {
                 summons.Summon(summon);
             }
@@ -712,14 +712,14 @@ class boss_ancient_asani : public CreatureScript
             {
                 summons.Despawn(summon);
             }
-			
-			void KilledUnit(Unit* who)
+            
+            void KilledUnit(Unit* who)
             {
                 if (who->IsPlayer())
                     Talk(TALK_ASANI_SLAY);
             }
-			
-			void JustDied(Unit* killer)
+            
+            void JustDied(Unit* killer)
             {
                 Talk(TALK_ASANI_DEATH);
 
@@ -870,7 +870,7 @@ class boss_ancient_asani : public CreatureScript
                         break;
                 }
             }
-			
+            
             void SetData(uint32 type, uint32 value)
             {
                 switch (type)
@@ -890,7 +890,7 @@ class boss_ancient_asani : public CreatureScript
                 }
             }
 
-			void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
                 if (pInstance)
                 {
@@ -951,10 +951,10 @@ class boss_ancient_asani : public CreatureScript
                         break;
                     default:
                         break;
-				}
+                }
 
                 DoMeleeAttackIfReady();
-			}
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1001,9 +1001,9 @@ class boss_protector_kaolan : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
 
                 _Reset();
-				
+                
                 events.Reset();
-				
+                
                 summons.DespawnAll();
 
                 firstSpecialEnabled = false;
@@ -1027,7 +1027,7 @@ class boss_protector_kaolan : public CreatureScript
                     RespawnProtectors(pInstance, me);
                 }
             }
-			
+            
             void JustReachedHome()
             {
                 _JustReachedHome();
@@ -1082,13 +1082,13 @@ class boss_protector_kaolan : public CreatureScript
                     introDone = true;
                 }
             }
-			
+            
             void KilledUnit(Unit* who)
             {
                 if (who->IsPlayer())
                     Talk(TALK_KAOLAN_SLAY);
             }
-			
+            
             void JustDied(Unit* killer)
             {
                 Talk(TALK_KAOLAN_DEATH);
@@ -1231,7 +1231,7 @@ class boss_protector_kaolan : public CreatureScript
                         break;
                 }
             }
-			
+            
             void SetData(uint32 type, uint32 value)
             {
                 switch (type)

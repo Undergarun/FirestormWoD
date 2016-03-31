@@ -33,13 +33,13 @@ namespace MS { namespace Garrison
 
     enum GarrisonPhases
     {
-        PhaseMagePortalFrostfireRidge = 0x00000008,
-        PhaseMagePortalSpiresOfArak   = 0x00000010,
-        PhaseMagePortalTalador        = 0x00000020,
-        PhaseMagePortalNagrand        = 0x00000040,
-        PhaseMagePortalShadowmoon     = 0x00000080,
-        PhaseMagePortalGorgrond       = 0x00000100,
-        PhaseLostInTransitionQuest    = 0x00000200
+        PhaseMagePortalFrostfireRidge = 0x00000010,
+        PhaseMagePortalSpiresOfArak   = 0x00000020,
+        PhaseMagePortalTalador        = 0x00000040,
+        PhaseMagePortalNagrand        = 0x00000080,
+        PhaseMagePortalShadowmoon     = 0x00000100,
+        PhaseMagePortalGorgrond       = 0x00000200,
+        PhaseLostInTransitionQuest    = 0x00000400
     };
 
     /// Instance data common IDs
@@ -70,7 +70,8 @@ namespace MS { namespace Garrison
         SpellJourneymanLogging                 = 167946, ///< Lumber Mill
         SpellSummonStump                       = 170079, ///< Lumber Mill
         SpellGarrisonPortal                    = 182464, ///< Mage Tower/Spirit Lodge
-        SpellAuraRunesOfPower                  = 178777  ///< Mage Tower/Spirit Lodge
+        SpellAuraRunesOfPower                  = 178777, ///< Mage Tower/Spirit Lodge
+        SpellAuraAmperialConstructVisual       = 166094  ///< Mage Tower/Spirit Lodge
     };
 
     enum DisplayIDs
@@ -89,8 +90,12 @@ namespace MS { namespace Garrison
             QUEST_KEEPING_IT_TOGETHER                   = 35176,
             QUEST_SHIP_SALVAGE                          = 35166,
             QUEST_PALE_MOONLIGHT                        = 35174,
+            Alliance_BuildYourBarracks                  = 34587,
             Alliance_LostInTransition                   = 37087,
             Alliance_BiggerIsBetter                     = 36592,
+            Alliance_AshranAppearance                   = 36624,
+            Alliance_QianaMoonshadow                    = 34646,
+
             /// Small profession building quests
             Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
             Alliance_YourFirstAlchemyWorkOrder          = 36641,
@@ -99,6 +104,7 @@ namespace MS { namespace Garrison
             Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
             Alliance_YourFirstEngineeringWorkOrder      = 36646,
             Alliance_YourFirstInscriptionWorkOrder      = 36647,
+            Alliance_YourFirstTailoringWorkOrder        = 36643,
             /// Herb garden
             Alliance_ClearingTheGarden                  = 36404,
             /// Barn
@@ -118,6 +124,7 @@ namespace MS { namespace Garrison
             Alliance_UnconventionalInventions           = 37091,
             /// Trading Post
             Alliance_TricksOfTheTrade                   = 37088,
+            Alliance_AuctionningForParts                = 36948,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -125,6 +132,8 @@ namespace MS { namespace Garrison
             QUEST_BUILD_YOUR_BARRACKS                   = 34461,
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
+            Horde_MissionProbable                       = 34775,
+            Horde_AshranAppearance                      = 36706,
             /// Small profession building quests
             Horde_YourFirstBlacksmithingWorkOrder       = 37569,
             Horde_YourFirstTailoringWorkOrder           = 37575,
@@ -145,7 +154,6 @@ namespace MS { namespace Garrison
             Horde_TurningTimberIntoProfit               = 36138,
             /// Frostwall Mines
             Horde_ThingsAreNotGorenOurWay               = 35154,
-            Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
             Horde_PortablePortals                       = 38351,
             /// Fishing Hut
@@ -154,6 +162,7 @@ namespace MS { namespace Garrison
             Horde_UnconventionalInventions              = 37044,
             /// Trading Post
             Horde_TricksOfTheTrade                      = 37062,
+            Horde_AuctionningForParts                   = 37014,
 
             /// Both factions
             Quest_FishFight                             = 34846
@@ -196,7 +205,13 @@ namespace MS { namespace Garrison
         NpcFrostwallGorenHatchling                      = 81398,
         NpcStonetooth                                   = 81396,
         NpcAllianceMiner                                = 77361,
-        NpcHordeMiner                                   = 79837
+        NpcHordeMiner                                   = 79837,
+        NpcAllianceAncientTradingMechanismQuestGiver    = 87206,
+        NpcAllianceAncientTradingMechanismAuctioneer    = 87205,
+        NpcHordeAncientTradingMechanismQuestGiver       = 86806,
+        NpcHordeAncientTradingMechanismAuctioneer       = 87109,
+        NpcHordeJewelCraftingFollower                   = 88546,
+        NpcAllianceJewelCraftingFollower                = 88545
     };
 
     namespace WorkshopGearworks

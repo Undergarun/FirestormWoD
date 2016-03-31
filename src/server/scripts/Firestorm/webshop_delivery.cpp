@@ -10,24 +10,25 @@ namespace WebShop
         GoldAdded           = 3002,
         DontHaveEnoughSpace = 3003
     };
-
+    
+    /// ...of Draenor Spell
     enum ProfessionBookSpells
     {
-        Alchemy = 156614,
-        Blacksmithing = 169923,
-        Enchanting = 161788,
-        Engineering = 161787,
-        Inscription = 161789,
-        JewelCrafting = 169926,
-        LeatherWorking = 169925,
-        Tailoring = 169924,
-        FirstAid = 160329,
-        Cooking = 160360,
-        Herbalism = 158745,
-        Mining = 158754,
-        Skinning = 158756,
-        Archaeology = 158762,
-        Fishing = 160326
+        Alchemy         = 156614,
+        Blacksmithing   = 169923,
+        Enchanting      = 161788,
+        Engineering     = 161787,
+        Inscription     = 161789,
+        JewelCrafting   = 169926,
+        LeatherWorking  = 169925,
+        Tailoring       = 169924,
+        FirstAid        = 160329,
+        Cooking         = 160360,
+        Herbalism       = 160319,
+        Mining          = 160315,
+        Skinning        = 160321,
+        Archaeology     = 158762,
+        Fishing         = 160326
     };
 
     enum ProfessionAdditionalSpells
@@ -98,8 +99,13 @@ namespace WebShop
                     for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
                         l_BonusesID.push_back(uint32(atol(*l_Iter)));
 
-                    p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
-                    CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    Item* l_Item = p_Player->AddItem(l_ItemID, l_ItemCount, l_BonusesID);
+                    if (l_Item != nullptr)
+                    {
+                        l_Item->SetCustomFlags(ItemCustomFlags::FromStore);
+                        l_Item->SetState(ItemUpdateState::ITEM_CHANGED, p_Player);
+                        CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
+                    }
                 } 
                 while (l_Result->NextRow());
 

@@ -1183,7 +1183,7 @@ class npc_ashran_stormshield_stormcrow : public CreatureScript
                         l_Pos.m_orientation = l_Creature->GetOrientation();
 
                         /// Creating the circle path from the center
-                        Movement::MoveSplineInit l_Init(*me);
+                        Movement::MoveSplineInit l_Init(me);
                         FillCirclePath(l_Pos, 10.0f, me->GetPositionZ(), l_Init.Path(), true);
                         l_Init.SetWalk(true);
                         l_Init.SetCyclic();

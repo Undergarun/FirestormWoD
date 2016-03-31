@@ -851,7 +851,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 OpcodeHandler* handler = g_OpcodeTable[WOW_CLIENT_TO_SERVER][opcode];
                 if (!handler || handler->status == STATUS_UNHANDLED)
                 {
-                    sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), m_Session->GetPlayerName(false).c_str());
+                    //sLog->outError(LOG_FILTER_OPCODES, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(new_pct->GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), m_Session->GetPlayerName(false).c_str());
                     return 0;
                 }
 
@@ -1152,7 +1152,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
 
     uint32 l_AccountExpansion   = l_Fields[6].GetUInt8();
     uint32 l_ServerExpansion    = sWorld->getIntConfig(CONFIG_EXPANSION);
-    uint32 l_JoinDateTimestamp  = l_Fields[12].GetUInt32();
+    uint64 l_JoinDateTimestamp  = l_Fields[12].GetUInt64();
     uint32 l_ServiceFlags       = l_Fields[13].GetUInt32();
     uint32 l_CustomFlags        = l_Fields[14].GetUInt32();
 
@@ -1162,7 +1162,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s", l_Fields[5].GetCString(), l_Fields[4].GetCString());
 
     /// Re-check ip locking (same check as in auth server).
-    if (l_Fields[3].GetUInt16() == 1) // if ip is locked
+    if (l_Fields[3].GetUInt8() == 1) // if ip is locked
     {
         if (strcmp(l_Fields[2].GetCString(), GetRemoteAddress().c_str()))
         {

@@ -150,7 +150,8 @@ namespace MS { namespace Garrison
             uint32 l_RewardID = l_ShipmentEntry->ResultItemID;
             std::map<uint32, uint32> l_RewardItems;
 
-            l_RewardItems.insert(std::make_pair(l_RewardID, 0));
+            /// Default reward
+            l_RewardItems.insert(std::make_pair(l_RewardID, 1));
 
             using namespace ShipmentContainer;
 
@@ -160,27 +161,9 @@ namespace MS { namespace Garrison
                 case ShipmentTest:
                 case ShipmentUnk1:
                 case ShipmentFishingHut:
-                case ShipmentAlchemyLab:
-                case ShipmentTailoring:
-                case ShipmentBlacksmitthing:
-                case ShipmentLeathorworking:
-                case ShipmentJewelCrafting:
-                case ShipmentEnchanting:
-                case ShipmentEngineering:
-                case ShipmentInscription:
-                case ShipmentAlchemyUnk:
-                case ShipmentBlacksmitthingUnk:
-                case ShipmentEnchantingUnk:
-                case ShipmentEngineeringUnk:
-                case ShipmentInscriptionUnk:
-                case ShipmentJewelCraftingUnk:
-                case ShipmentLeathorworkingUnk:
-                case ShipmentTailoringUnk:
                 case ShipmentConquerorsTribute:
                 case ShipmentOverchargedDemolisher:
                 case ShipmentOverchargedSiegeEngine:
-                case ShipmentArmory:
-                case ShipmentArmoryUnk:
                 case ShipmentShipDestroyer:
                 case ShipmentShipSubmarine:
                 case ShipmentShipBattleship:
@@ -195,7 +178,106 @@ namespace MS { namespace Garrison
                 case ShipmentShipDestroyerUnk4:
                 case ShipmentShipDestroyerUnk5:
                     break;
-                    /// Custom Handling
+                /// Custom Handling
+                case ShipmentTailoring:
+                case ShipmentTailoringUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstTailoringWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstTailoringWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(111556, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113264), 1));
+                    }
+                    break;
+                case ShipmentLeathorworking:
+                case ShipmentLeathorworkingUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstLeatherworkingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(110611, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                    }
+                    break;
+                case ShipmentInscription:
+                case ShipmentInscriptionUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstInscriptionWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstInscriptionWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(112377, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113262 : 113263), 1));
+                    }
+                    break;
+                case ShipmentBlacksmitthing:
+                case ShipmentBlacksmitthingUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstBlacksmithingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(108257, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113263), 1));
+                    }
+                    break;
+                case ShipmentArmory:
+                case ShipmentArmoryUnk:
+                    l_RewardItems.clear();
+                    l_RewardItems.insert(std::make_pair(l_Garrison->CalculateArmoryWorkOrder(), 1));
+
+                    if (roll_chance_i(50))
+                        l_RewardItems.insert(std::make_pair(113681, urand(3, 7))); ///< Iron Horde Scraps
+
+                    l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
+                    l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
+                    break;
+                case ShipmentAlchemyLab:
+                case ShipmentAlchemyUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstAlchemyWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstAlchemyWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(108996, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113262), 1));
+                    }
+                    break;
+                case ShipmentEngineering:
+                case ShipmentEngineeringUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstEngineeringWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstEngineeringWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(111366, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113264), 1));
+                    }
+                    break;
+                case ShipmentEnchanting:
+                case ShipmentEnchantingUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstEnchantingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstEnchantingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(115504, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113261 : 113264), 1));
+                    }
+                    break;
+                case ShipmentJewelCrafting:
+                case ShipmentJewelCraftingUnk:
+                    if (!p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) && !p_Player->HasQuest(Quests::Horde_YourFirstJewelcraftingWorkOrder))
+                    {
+                        l_RewardItems.clear();
+                        l_RewardItems.insert(std::make_pair(115524, 2));
+
+                        if (roll_chance_i(15))
+                            l_RewardItems.insert(std::make_pair((roll_chance_i(50) ? 113263 : 113264), 1));
+                    }
+                    break;
                 case ShipmentLumberMill:
                 case ShipmentTradingPost:
                 case ShipmentTradingPostUnk:
@@ -240,15 +322,17 @@ namespace MS { namespace Garrison
                 }
                 case ShipmentHerbGarden:
                 case ShipmentHerbGardenUnk:
+                    l_RewardItems.clear();
                     l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
                     l_ShipmentCurrency.CurrencyAmount = urand(0, 5);
                     l_RewardItems.insert(std::make_pair(g_HerbEntries[urand(0, 5)], 8));
                     break;
                 case ShipmentMageTower:
                 case ShipmentMageTowerUnk:
+                    l_RewardItems.clear();
                     l_ShipmentCurrency.CurrencyID = CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL;
                     l_ShipmentCurrency.CurrencyAmount = urand(100, 300);
-                    l_RewardItems.insert(std::make_pair(122514, 1));
+                    l_RewardItems.insert(std::make_pair(122514, roll_chance_i(15) ? 1 : 0));
                     break;
                 default:
                 break;
@@ -654,7 +738,7 @@ namespace MS { namespace Garrison
 
                         /// check space and find places
                         ItemPosCountVec l_Destination;
-                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimberSample, m_ChopCount, &l_NoSpaceForCount);
+                        InventoryResult l_Message = l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, Items::ItemTimberSample, 1, &l_NoSpaceForCount);
 
                         if (l_Message == EQUIP_ERR_OK)
                             l_Player->StoreNewItem(l_Destination, Items::ItemTimberSample, true, Item::GenerateItemRandomPropertyId(Items::ItemTimberSample));

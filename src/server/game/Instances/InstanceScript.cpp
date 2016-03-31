@@ -127,12 +127,10 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
-    UpdateCreatureGroupSizeStats();
 }
 
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
-    UpdateCreatureGroupSizeStats();
     p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
 }
 
@@ -744,7 +742,7 @@ void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
     }
 }
 
-bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
+bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
         instance->GetId(), criteria_id);
@@ -1414,7 +1412,9 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             l_Data << int32((*l_Iter)->dbcEntry->ID);
             instance->SendToPlayers(&l_Data);
 
-            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+            if (!sObjectMgr->IsDisabledEncounter((*l_Iter)->dbcEntry->ID, instance->GetDifficultyID()))
+                DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+
             return;
         }
     }
@@ -1422,7 +1422,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
 
 void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 {
-    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
+    if (!p_EncounterID)
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_START);
@@ -1430,6 +1430,9 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
     l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(instance->GetPlayers().getSize());
     instance->SendToPlayers(&l_Data);
+
+    if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
 
     /// Reset datas before each attempt
     m_EncounterDatas = EncounterDatas();
@@ -1468,7 +1471,7 @@ void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
 
 void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
 {
-    if (!p_EncounterID || sObjectMgr->IsDisabledEncounter(p_EncounterID))
+    if (!p_EncounterID)
         return;
 
     WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);
@@ -1478,6 +1481,9 @@ void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
     l_Data.WriteBit(p_Success);
     l_Data.FlushBits();
     instance->SendToPlayers(&l_Data);
+
+    if (sObjectMgr->IsDisabledEncounter(p_EncounterID, instance->GetDifficultyID()))
+        return;
 
     m_EncounterDatas.CombatDuration = time(nullptr) - m_EncounterDatas.StartTime;
     m_EncounterDatas.EndTime        = time(nullptr);

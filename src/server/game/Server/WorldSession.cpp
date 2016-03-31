@@ -93,21 +93,69 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags) :
-m_muteTime(mute_time), m_timeOutTime(0),
-m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
-_ispremium(ispremium), m_PremiumType(premiumType), m_VoteRemainingTime(p_VoteRemainingTime), m_VoteTimePassed(0), m_VoteSyncTimer(VOTE_SYNC_TIMER), _logoutTime(0), m_inQueue(false),
-m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_playerSave(false),
-m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(locale), m_latency(0),
-m_TutorialsChanged(false), recruiterId(recruiter), isRecruiter(isARecruiter), timeLastWhoCommand(0),
-timeCharEnumOpcode(0), m_TimeLastChannelInviteCommand(0), m_TimeLastChannelPassCommand(0),
-m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChannelUnbanCommand(0),
-m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0),
-m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
-m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
-timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
-m_clientTimeDelay(0), m_FirstPremadeMoney(false), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0), m_TimeLastTicketOnlineList(0), m_CustomFlags(p_CustomFlags)
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags, uint32 p_CustomFlags)
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    /// Members initialization
+    ///////////////////////////////////////////////////////////////////////////////
+    m_Player                = nullptr;
+    m_VoteSyncTimer         = VOTE_SYNC_TIMER;
+    m_muteTime              = mute_time;
+    m_Socket                = sock;
+    _security               = sec;
+    _accountId              = id;
+    m_expansion             = expansion;
+    _ispremium              = ispremium;
+    m_PremiumType           = premiumType;
+    m_VoteRemainingTime     = p_VoteRemainingTime;
+    m_sessionDbLocaleIndex  = locale;
+    recruiterId             = recruiter;
+    isRecruiter             = isARecruiter;
+    m_ServiceFlags          = p_ServiceFlags;
+    m_CustomFlags           = p_CustomFlags;
+    m_sessionDbcLocale      = sWorld->GetAvailableDbcLocale(locale);
+
+    m_timeOutTime                       = 0;
+    timeCharEnumOpcode                  = 0;
+    m_TimeLastChannelInviteCommand      = 0;
+    m_TimeLastChannelPassCommand        = 0;
+    m_TimeLastChannelMuteCommand        = 0;
+    m_TimeLastChannelBanCommand         = 0;
+    m_TimeLastChannelUnbanCommand       = 0;
+    m_TimeLastChannelAnnounceCommand    = 0;
+    m_TimeLastGroupInviteCommand        = 0;
+    m_TimeLastChannelModerCommand       = 0;
+    m_TimeLastChannelOwnerCommand       = 0;
+    m_TimeLastChannelUnmoderCommand     = 0;
+    timeLastArenaTeamCommand            = 0;
+    m_TimeLastChannelSetownerCommand    = 0;
+    m_TimeLastChannelUnmuteCommand      = 0;
+    m_TimeLastChannelKickCommand        = 0;
+    timeLastServerCommand               = 0;
+    timeLastChangeSubGroupCommand       = 0;
+    m_TimeLastSellItemOpcode            = 0;
+    m_uiAntispamMailSentCount           = 0;
+    m_PlayerLoginCounter                = 0;
+    m_clientTimeDelay                   = 0;
+    m_TimeLastUseItem                   = 0;
+    m_TimeLastTicketOnlineList          = 0;
+    m_AccountJoinDate                   = 0;
+    timeLastWhoCommand                  = 0;
+    _logoutTime                         = 0;
+    m_latency                           = 0;
+    m_VoteTimePassed                    = 0;
+
+    m_IsStressTestSession   = false;
+    m_playerRecentlyLogout  = false;
+    m_playerSave            = false;
+    m_TutorialsChanged      = false;
+    m_playerLoading         = false;
+    m_playerLogout          = false;
+    m_inQueue               = false;
+    m_FirstPremadeMoney     = false;
+
+    ///////////////////////////////////////////////////////////////////////////////
+
     _warden = NULL;
     _filterAddonMessages = false;
     m_LoginTime = time(nullptr);
@@ -367,7 +415,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
-    if (IsConnectionIdle())
+    if (IsConnectionIdle() && m_Socket)
         m_Socket->CloseSocket();
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
@@ -515,7 +563,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessLogout() && !m_IsStressTestSession)
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out

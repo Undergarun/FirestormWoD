@@ -241,6 +241,53 @@ class spell_rog_venom_rush : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Instant Poison - 157607
+class spell_rog_instant_poison : public SpellScriptLoader
+{
+    public:
+        spell_rog_instant_poison() : SpellScriptLoader("spell_rog_instant_poison") { }
+
+        class spell_rog_instant_poison_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_instant_poison_SpellScript);
+
+            enum eSpells
+            {
+                VenomRushAura = 152152,
+                VenomRushProc = 156719
+            };
+
+            void HandleOnHit(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::VenomRushAura))
+                {
+                    if (l_Caster->HasAura(eSpells::VenomRushProc))
+                        l_Caster->RemoveAura(eSpells::VenomRushProc);
+                }
+
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    bool l_MustCast = !l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()) && l_Caster->HasAura(eSpells::VenomRushAura);
+                    if (l_MustCast)
+                        l_Caster->CastSpell(l_Caster, eSpells::VenomRushProc, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_instant_poison_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_instant_poison_SpellScript();
+        }
+};
+
 /// Death from Above (Jump back to target) - 178236
 class spell_rog_death_from_above_return : public SpellScriptLoader
 {
@@ -298,6 +345,7 @@ class spell_rog_death_from_above_return : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Death from Above - 152150
 class spell_rog_death_from_above : public SpellScriptLoader
 {
@@ -314,15 +362,12 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 DeathFromAboveJump  = 178236
             };
 
-            void HandleOnHit(SpellEffIndex)
+            void HandleAfterCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
-                        l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
-                    }
+                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveJump, true);
+                    l_Caster->CastSpell(l_Caster, eSpells::DeathFromAboveBonus, true);
                 }
             }
 
@@ -343,7 +388,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                AfterCast += SpellCastFn(spell_rog_death_from_above_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_rog_death_from_above_SpellScript::HandleRegisterCombo, EFFECT_5, SPELL_EFFECT_APPLY_AURA);
             }
         };
@@ -363,6 +408,24 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 SpellRogueEnvenom    = 32645,
                 SpellRogueEviscerate = 2098
             };
+
+            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, true);
+            }
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -386,8 +449,29 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 }
             }
 
+
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                Unit* l_Target = GetTarget();
+
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SNARE, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_ROOT, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FEAR, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_STUN, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SLEEP, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_CHARM, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_SAPPED, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_HORROR, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_FREEZE, false);
+                l_Target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, MECHANIC_TURN, false);
+            }
+
             void Register()
             {
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_death_from_above_AuraScript::OnApply, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_rog_death_from_above_AuraScript::OnRemove, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_death_from_above_AuraScript::OnTick, EFFECT_5, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -578,10 +662,22 @@ class spell_rog_killing_spree: public SpellScriptLoader
                 KillingSpreeDeselect = 61851
             };
 
+            uint64 m_TargetGUID = 0;
+
             void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     l_Caster->CastSpell(l_Caster, eSpell::KillingSpreeDeselect, true);
+
+                    Unit* l_Target = l_Caster->getVictim();
+                    if (!l_Target && l_Caster->ToPlayer())
+                        l_Target = l_Caster->ToPlayer()->GetSelectedUnit();
+                    if (!l_Target)
+                        return;
+
+                    m_TargetGUID = l_Target->GetGUID();
+                }
             }
 
             void OnTick(AuraEffect const*)
@@ -594,14 +690,13 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
                     if (!l_Caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
                     {
-                        Unit* l_Target = l_Caster->getVictim();
-                        if (!l_Target && l_Caster->ToPlayer())
-                            l_Target = l_Caster->ToPlayer()->GetSelectedUnit();
-                        if (!l_Target)
-                            return;
+                        Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
 
-                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
-                        l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                        if (l_Target != nullptr)
+                        {
+                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
+                        }
                     }
                     else
                     {
@@ -643,6 +738,65 @@ class spell_rog_killing_spree: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_rog_killing_spree_AuraScript();
+        }
+};
+
+/// Killing Spree (teleport) - 57840
+class spell_rog_killing_spree_teleport : public SpellScriptLoader
+{
+    public:
+        spell_rog_killing_spree_teleport() : SpellScriptLoader("spell_rog_killing_spree_teleport") { }
+
+        class spell_rog_killing_spree_teleport_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_killing_spree_teleport_SpellScript);
+
+            enum eCreature
+            {
+                BossKromog = 77692
+            };
+
+            void HandleTeleport(SpellEffIndex p_EffIndex)
+            {
+                if (GetExplTargetUnit() == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                /// Players can't be teleported in Kromog's back
+                if (Creature* l_Target = GetExplTargetUnit()->ToCreature())
+                {
+                    if (l_Target->GetEntry() == eCreature::BossKromog)
+                    {
+                        PreventHitEffect(p_EffIndex);
+
+                        Position l_Dest;
+                        l_Target->GetContactPoint(l_Caster, l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ);
+
+                        if (!l_Caster->IsWithinLOS(l_Dest.GetPositionX(), l_Dest.GetPositionY(), l_Dest.GetPositionZ()))
+                        {
+                            float l_Angle = l_Target->GetRelativeAngle(l_Caster);
+                            float l_Dist = l_Caster->GetDistance(l_Dest);
+                            l_Target->GetFirstCollisionPosition(l_Dest, l_Dist, l_Angle);
+                        }
+
+                        /// Calculated as an EffectCharge
+                        l_Caster->NearTeleportTo(l_Dest, true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_rog_killing_spree_teleport_SpellScript::HandleTeleport, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_rog_killing_spree_teleport_SpellScript();
         }
 };
 
@@ -1795,101 +1949,6 @@ class spell_rog_preparation: public SpellScriptLoader
         }
 };
 
-class spell_rog_deadly_poison: public SpellScriptLoader
-{
-    public:
-        spell_rog_deadly_poison() : SpellScriptLoader("spell_rog_deadly_poison") { }
-
-        class spell_rog_deadly_poison_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
-
-            bool Load()
-            {
-                _stackAmount = 0;
-                // at this point CastItem must already be initialized
-                return GetCaster()->IsPlayer() && GetCastItem();
-            }
-
-            void HandleBeforeHit()
-            {
-                if (Unit* target = GetHitUnit())
-                    // Deadly Poison
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0x80000, 0, GetCaster()->GetGUID()))
-                        _stackAmount = aurEff->GetBase()->GetStackAmount();
-            }
-
-            void HandleAfterHit()
-            {
-                if (_stackAmount < 5)
-                    return;
-
-                Player* player = GetCaster()->ToPlayer();
-
-                if (Unit* target = GetHitUnit())
-                {
-                    Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-
-                    if (item == GetCastItem())
-                        item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-                    if (!item)
-                        return;
-
-                    // item combat enchantments
-                    for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
-                    {
-                        if (slot > PRISMATIC_ENCHANTMENT_SLOT || slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
-                            continue;
-
-                        SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
-                        if (!enchant)
-                            continue;
-
-                        for (uint8 s = 0; s < 3; ++s)
-                        {
-                            if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
-                                continue;
-
-                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
-                            if (!spellInfo)
-                            {
-                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUIDLow(), enchant->spellid[s]);
-                                continue;
-                            }
-
-                            // Proc only rogue poisons
-                            if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE || spellInfo->Dispel != DISPEL_POISON)
-                                continue;
-
-                            // Do not reproc deadly
-                            if (spellInfo->SpellFamilyFlags.IsEqual(0x10000, 0x80000, 0))
-                                continue;
-
-                            if (spellInfo->IsPositive())
-                                player->CastSpell(player, enchant->spellid[s], true, item);
-                            else
-                                player->CastSpell(target, enchant->spellid[s], true, item);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                BeforeHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
-            }
-
-            uint8 _stackAmount;
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_deadly_poison_SpellScript();
-        }
-};
-
 /// Shadowstep - 36554
 class spell_rog_shadowstep: public SpellScriptLoader
 {
@@ -2408,6 +2467,7 @@ public:
     }
 };
 
+/// Last Update 6.2.3
 /// Eviscerate - 2098
 class spell_rog_evicerate : public SpellScriptLoader
 {
@@ -2428,9 +2488,12 @@ class spell_rog_evicerate : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
 
                 Unit* l_Caster = GetCaster();
-
+                Unit* l_Target = GetHitUnit();
                 uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (l_ComboPoint)
                 {
@@ -2441,8 +2504,8 @@ class spell_rog_evicerate : public SpellScriptLoader
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
-                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
 
                 SetHitDamage(l_Damage);
             }
@@ -2833,6 +2896,7 @@ class spell_rog_find_weakness : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Call by Leech Vitality - 116921
 /// Glyph of Recovery - 146625
 class spell_rog_glyph_of_recovery : public SpellScriptLoader
@@ -2846,7 +2910,8 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
 
             enum eSpells
             {
-                GlyphofRecovery = 146625
+                GlyphofRecovery = 146625,
+                Conversion      = 73651
             };
 
             void HandleOnHit()
@@ -2854,6 +2919,9 @@ class spell_rog_glyph_of_recovery : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 if (!l_Caster->HasAura(eSpells::GlyphofRecovery))
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::Conversion))
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphofRecovery))
@@ -3295,6 +3363,7 @@ class spell_rog_distract : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_instant_poison();
     new spell_rog_distract();
     new spell_rog_main_gauche();
     new spell_rog_gyph_of_detection();
@@ -3318,6 +3387,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_internal_bleeding();
     new spell_rog_burst_of_speed();
     new spell_rog_killing_spree();
+    new spell_rog_killing_spree_teleport();
     new spell_rog_glyph_of_decoy();
     new spell_rog_shuriken_toss();
     new spell_rog_marked_for_death();
@@ -3338,7 +3408,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shiv();
     new spell_rog_recuperate();
     new spell_rog_preparation();
-    new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
     new spell_rog_stealth();
     new spell_rog_vanish();

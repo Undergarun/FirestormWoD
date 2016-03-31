@@ -19,7 +19,7 @@ enum WebDatabaseStatements
     name for a suiting suffix.
     */
 
-    WEB_SEL_ACCOUNT_POINTS,
+    WEB_SEL_ACCOUNT_POINTS = 1,
     WEB_INS_PURCHASE,
 
     MAX_WEBDATABASE_STATEMENTS

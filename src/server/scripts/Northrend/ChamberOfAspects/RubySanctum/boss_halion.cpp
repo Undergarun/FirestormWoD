@@ -1439,7 +1439,7 @@ class npc_shadow_orb : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                Movement::MoveSplineInit init(*me);
+                Movement::MoveSplineInit init(me);
                 FillCirclePath(HalionSpawnPos, me->GetDistance2d(HalionSpawnPos.GetPositionX(), HalionSpawnPos.GetPositionY()), me->GetPositionZ(), init.Path(), action);
                 init.SetWalk(true);
                 init.SetCyclic();
@@ -1929,8 +1929,15 @@ class spell_halion_summon_exit_portals: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_0, SPELL_EFFECT_SUMMON_OBJECT_WILD);
-                OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                switch (m_scriptSpellId)
+                {
+                    case 74805:
+                        break;
+                    default:
+                        OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_0, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                        OnEffectLaunch += SpellEffectFn(spell_halion_summon_exit_portals_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_WILD);
+                    break;
+                }
             }
         };
 

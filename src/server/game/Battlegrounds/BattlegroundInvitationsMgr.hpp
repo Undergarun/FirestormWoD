@@ -9,8 +9,6 @@
 #ifndef BATTLEGROUND_INVITATIONS_MGR_HPP
 # define BATTLEGROUND_INVITATIONS_MGR_HPP
 
-# include "BattlegroundScheduler.hpp"
-
 namespace MS
 {
     namespace Battlegrounds
