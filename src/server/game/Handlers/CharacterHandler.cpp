@@ -20,7 +20,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
-#include "SystemConfig.h"
+#include "Revision.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -1053,7 +1053,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
-            chH.PSendSysMessage(_FULLVERSION);
+            chH.PSendSysMessage(Revision::GetFullVersion().c_str());
 
         if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
             chH.PSendSysMessage("Last PTR update: %s", sWorld->GetLastBuildInfo().timeStr.data());

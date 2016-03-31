@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "SystemConfig.h"
+#include "Revision.h"
 #include "Config.h"
 #include "ObjectAccessor.h"
 #include "MapManager.h"
