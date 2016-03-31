@@ -33,7 +33,6 @@ In order to complete the installation of the core, you need some other dependenc
 git submodule init && git submodule update --remote
 ```
 
-- The MS framework that can be found on : https://github.com/MilleniumStudio/ms_framework, you need to generate the solution with cmake, compile it with visual studio or whatever favorite compiler. Then generate the INSTALL project in visual studio or make install with gcc for exemple.
 
 ## Commit naming convention
 - When fixing bug, by all means include the issue number.
