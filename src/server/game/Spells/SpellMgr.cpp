@@ -3558,7 +3558,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
             case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
-            case 162757: ///< Ice Trap (Iron Marksman)
+			case 162757: ///< Ice Trap (Iron Marksman)
+			case 156704: ///< Slam (Kromog)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
