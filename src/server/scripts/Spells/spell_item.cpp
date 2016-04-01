@@ -4787,9 +4787,5 @@ void AddSC_item_spell_scripts()
     new spell_item_ascend_to_karabor();
     new spell_item_sargerei_disguise();
     new spell_item_swapblaster();
-<<<<<<< HEAD
-=======
-    new spell_item_transmorphic_tincture();
     new spell_item_hypnotize_critter();
->>>>>>> e1c72f5... Fix Hypnosis Goggles
 }
