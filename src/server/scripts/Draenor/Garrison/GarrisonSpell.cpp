@@ -556,6 +556,38 @@ namespace MS { namespace Garrison
             }
     };
 
+    class spell_garrison_tent_spawn : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_tent_spawn() : SpellScriptLoader("spell_garrison_tent_spawn") { }
+
+            class spell_garrison_tent_spawn_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_tent_spawn_SpellScript);
+
+                SpellCastResult CheckCast()
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    /// Only in Draenor map or Garrison
+                    if (l_Caster->GetMapId() != 1116 || (l_Caster->GetTypeId() == TYPEID_PLAYER && !l_Caster->ToPlayer()->IsInGarrison()))
+                        return SPELL_FAILED_INCORRECT_AREA;
+
+                    return SPELL_CAST_OK;
+                }
+
+                void Register()
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_garrison_tent_spawn_SpellScript::CheckCast);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_tent_spawn_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -568,4 +600,6 @@ void AddSC_Garrison()
     new MS::Garrison::spell_aura_sticky_grenade();
     new MS::Garrison::spell_pneumatic_power_gauntlet();
     new MS::Garrison::spell_GarrisonRouseTrader();
+    new MS::Garrison::spell_garrison_well_rested();
+    new MS::Garrison::spell_garrison_tent_spawn();
 }

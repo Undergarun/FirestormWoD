@@ -6719,7 +6719,13 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
     /// Item - Mage WoD PvP Arcane 2P Bonus
     if (m_caster->HasAura(171349))
-        m_caster->CastSpell(m_caster, 79683, true);
+    {
+        if (Aura* arcaneMissiles = m_caster->GetAura(79683))
+        {
+            arcaneMissiles->ModCharges(1);
+            arcaneMissiles->RefreshDuration();
+        }
+    }
 }
 
 void Spell::EffectKillCreditPersonal(SpellEffIndex effIndex)
@@ -7737,7 +7743,8 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
 
     // Init dest coordinates
     float x, y, z;
-    destTarget->GetPosition(x, y, z);
+    if (WorldObject* l_WorldObject = m_targets.GetObjectTarget())
+        l_WorldObject->GetPosition(x, y, z);
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);

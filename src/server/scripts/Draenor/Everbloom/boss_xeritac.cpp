@@ -4,7 +4,7 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "the_everbloom.hpp"
@@ -165,9 +165,8 @@ public:
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 18.0f) && !m_Intro)
-            {
                 m_Intro = true;
-            }
+
             if (p_Who && p_Who->IsInWorld() && p_Who->GetEntry() == eEverbloomCreature::CreatureVenomCrazedPaleOne && p_Who->IsWithinDistInMap(me, 3.0f, true) && !m_Consuming && p_Who->isAlive())
             {
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -180,7 +179,6 @@ public:
         void JustReachedHome() override
         {
             _JustReachedHome();
-            OpenEncounterDoor();
             me->GetMotionMaster()->MovePoint(0, 935.628f, 1430.930f, 64.988f);    
             std::list<AreaTrigger*> l_GasAreatriggerList;
             me->GetAreaTriggerList(l_GasAreatriggerList, eXeritacSpells::SpellToxicGasAreaTrigger);
@@ -191,6 +189,8 @@ public:
             {
                 l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
             }
+            if (m_First)
+                OpenEncounterDoor();
         }
 
         void EnterCombat(Unit* /*p_Who*/) override
@@ -199,22 +199,22 @@ public:
             if (m_Instance != nullptr)
             {
                 if (me->GetMap() && me->GetMap()->IsHeroic())
-                {
                     events.ScheduleEvent(eXeritacEvents::EventGorgendBusters, 10 * TimeConstants::IN_MILLISECONDS);
-                }
+
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             }
-            m_Phase = 1;           
+
+            m_Phase = 1;      
+            OpenEncounterDoor();
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            OpenEncounterDoor();
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             events.ScheduleEvent(eXeritacEvents::EventDescend, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventToxicSpiderling, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventVenomSprayers, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventVenomCrazedPaleOne, 20 * TimeConstants::IN_MILLISECONDS);
             me->CastSpell(me->GetPositionX(), me->GetPositionY(), CielingAlttitude, eXeritacSpells::SpellDecsendBeam, false);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             me->GetMotionMaster()->MoveCharge(me->GetPositionX(), me->GetPositionY(), CielingAlttitude, 30.0f, eXeritacMovementInformed::MovementInformedXeritacReachedTopWaypoint);
         }
 
@@ -222,10 +222,6 @@ public:
         {
             switch (p_Id)
             {          
-                case eXeritacMovementInformed::MovementInformedXeritacReachedGround:
-                    //me->CastSpell(me->GetPositionX(), me->GetPositionY(), CielingAlttitude, eXeritacSpells::SpellDecsendBeam, false);
-                    //me->GetMotionMaster()->MoveCharge(me->GetPositionX(), me->GetPositionY(), CielingAlttitude, 30.0f, eXeritacMovementInformed::MovementInformedXeritacReachedTopWaypoint);
-                    break;
                 case eXeritacMovementInformed::MovementInformedXeritacReachedTopWaypoint:
                     DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
                     break;
@@ -243,9 +239,7 @@ public:
             OpenEncounterDoor();
             summons.DespawnAll();           
             if (m_Instance != nullptr)
-            {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-            }
 
             std::list<AreaTrigger*> l_GasAreatriggerList;
             me->GetAreaTriggerList(l_GasAreatriggerList, eXeritacSpells::SpellToxicGasAreaTrigger);
@@ -265,16 +259,18 @@ public:
                 case eEverbloomActions::ActionCounting:
                 {
                     m_Count++;
-                    printf("Counter is at %u", m_Count);
-                    if (m_Count >= 5 && m_Phase == 1)
+                    if (m_Count >= 4 && m_Phase == 1)
                     {
                         m_Phase = 2;
                         events.Reset();
                         m_Descend = true;
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                         if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                        {
+                            me->GetMotionMaster()->MoveChase(l_Victim);
                             me->Attack(l_Victim, true);
+                        }
                         events.ScheduleEvent(eXeritacEvents::EventToxicBolt, urand(7 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                         events.ScheduleEvent(eXeritacEvents::EventVenomousString, 16 * TimeConstants::IN_MILLISECONDS);
                         events.ScheduleEvent(eXeritacEvents::EventGasVolley, 30 * TimeConstants::IN_MILLISECONDS);
@@ -300,6 +296,7 @@ public:
                         std::list<Position> l_Position;
                         for (uint8 l_I = 0; l_I < 5; l_I++)
                             l_Position.push_back(g_PositionRandomMovements[l_I]);
+
                         if (l_Position.empty())
                             return;
 
@@ -373,6 +370,7 @@ public:
                     std::list<Position> l_Position;
                     for (uint8 l_I = 0; l_I < 5; l_I++)
                         l_Position.push_back(g_PositionRandomMovements[l_I]);
+
                     if (l_Position.empty())
                         return;
 
@@ -387,6 +385,7 @@ public:
                     std::list<Position> l_Position;
                     for (uint8 l_I = 0; l_I < 5; l_I++)
                         l_Position.push_back(g_PositionRandomMovements[l_I]);
+
                     if (l_Position.empty())
                         return;
 
@@ -402,6 +401,7 @@ public:
                     std::list<Position> l_Position;
                     for (uint8 l_I = 0; l_I < 5; l_I++)
                         l_Position.push_back(g_PositionRandomMovements[l_I]);
+
                     if (l_Position.empty())
                         return;
 
@@ -824,9 +824,9 @@ public:
                     me->RemoveAura(eGorgedBustersSpells::SpellDecsendBeam);
                     DoZoneInCombat();
                     BeginFixation();
-                        break;
-                    default:
-                        break;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -862,20 +862,23 @@ public:
 
             if (!m_Explosion)
             {
-                // Burst hardcoded
-                if (Player* l_Player = sObjectAccessor->GetPlayer(*me, m_Target))
+                if (m_Target)
                 {
-                    if (!l_Player->HasAura(eGorgedBustersSpells::SpellFixate)) /// Fixated aura
-                        me->AddAura(eGorgedBustersSpells::SpellFixate, l_Player);
-
-                    if (!me->isMoving())
-                        me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
-
-                    if (l_Player->IsWithinDistInMap(me, 1.0f))
+                    // Burst hardcoded
+                    if (Player* l_Player = sObjectAccessor->GetPlayer(*me, m_Target))
                     {
-                        m_Explosion = true;
-                        me->CastSpell(l_Player, eGorgedBustersSpells::SpellBurst);
-                        me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                        if (!l_Player->HasAura(eGorgedBustersSpells::SpellFixate)) /// Fixated aura
+                            me->AddAura(eGorgedBustersSpells::SpellFixate, l_Player);
+
+                        if (!me->isMoving())
+                            me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
+
+                        if (l_Player->IsWithinDistInMap(me, 1.0f))
+                        {
+                            m_Explosion = true;
+                            me->CastSpell(l_Player, eGorgedBustersSpells::SpellBurst);
+                            me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                        }
                     }
                 }
             }
@@ -912,6 +915,7 @@ public:
 
             std::list<Player*> l_GaseousVolleyList;
             GetCaster()->GetPlayerListInGrid(l_GaseousVolleyList, 200.0f);
+
             if (l_GaseousVolleyList.empty())
                 return;
 
@@ -959,6 +963,7 @@ public:
             JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 1.5f);
             JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_ListTargets, check);
             p_AreaTrigger->VisitNearbyObject(1.5f, searcher);
+
             if (l_ListTargets.empty())
                 return;
 
@@ -1067,6 +1072,20 @@ public:
     }
 };
 
+/// Xeritac eggs - 234113
+class the_everbloom_xertiac_gameobject_eggs : public GameObjectScript
+{
+public:
+    the_everbloom_xertiac_gameobject_eggs() : GameObjectScript("the_everbloom_xertiac_gameobject_eggs") {}
+
+    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    {
+        p_Gobject->SummonCreature(eEverbloomCreature::CreatureToxicSpiderling, *p_Gobject, TEMPSUMMON_DEAD_DESPAWN);
+        p_Gobject->Delete();
+        return true;
+    }
+};
+
 void AddSC_boss_xeritac()
 {
     new boss_xeritac();                                 ///< 84550
@@ -1077,4 +1096,5 @@ void AddSC_boss_xeritac()
     new the_everbloom_xeritac_spell_gaseous_volley();   ///< 169382
     new the_everbloom_xeritac_spell_descend();          ///< 169278
     new the_everbloom_xeritac_areatrigger_toxic_gas();  ///< 169224
+    new the_everbloom_xertiac_gameobject_eggs();        ///< 234113
 }
