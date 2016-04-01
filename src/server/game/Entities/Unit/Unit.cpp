@@ -17135,7 +17135,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         int32 damageLeft = triggeredByAura->GetCrowdControlDamage();
                         // No damage left
-                        if (damageLeft < int32(damage) && triggeredByAura->GetId() != 114052)
+                        if (damageLeft <= int32(damage) && triggeredByAura->GetId() != 114052)
                         {
                             i->aura->Remove();
                             l_DontContinue = false;
