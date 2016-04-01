@@ -7743,7 +7743,8 @@ void Spell::EffectDeathGrip(SpellEffIndex effIndex)
 
     // Init dest coordinates
     float x, y, z;
-    destTarget->GetPosition(x, y, z);
+    if (WorldObject* l_WorldObject = m_targets.GetObjectTarget())
+        l_WorldObject->GetPosition(x, y, z);
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);

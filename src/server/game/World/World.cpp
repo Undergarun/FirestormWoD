@@ -2556,6 +2556,9 @@ void World::Update(uint32 diff)
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
         HotfixDatabase.KeepAlive();
+
+        if (sWorld->getBoolConfig(CONFIG_WEB_DATABASE_ENABLE))
+            WebDatabase.KeepAlive();
     }
 
     if (m_timers[WUPDATE_GUILDSAVE].Passed())

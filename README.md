@@ -26,11 +26,10 @@ Detailed installation guides are available in the wiki for
 In order to complete the installation of the core, you need some other dependencies, they are:
 - LibCurl, under linux its the package libcurl4-openssl-dev, under windows you may have to compile it your self,
 - EasyJson headers, for that you only need to execute in your git repo :
+
 ```
 git submodule init && git submodule update --remote
 ```
-
-- The MS framework that can be found on : https://github.com/MilleniumStudio/ms_framework, you need to generate the solution with cmake, compile it with visual studio or whatever favorite compiler. Then generate the INSTALL project in visual studio or make install with gcc for exemple.
 
 - **NEW** Windows user you need the mysql server installed, download the last version (5.7+) here : [MySQL Community Server](http://dev.mysql.com/downloads/mysql/) if you need the x86 build just change the include path on cmake
 - **NEW** You must choose the libcurl .lib for your MSVC version in the `dep/libcurl` folder
