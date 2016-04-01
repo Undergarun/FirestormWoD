@@ -4,7 +4,7 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)

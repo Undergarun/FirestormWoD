@@ -746,10 +746,23 @@ namespace MS { namespace Garrison
             /// Constructor
             npc_follower_generic_script();
 
+            enum eSpells
+            {
+                SpellSongOfTheAnvil  = 176458,
+                SpellSolaceOfTheForge = 176644
+            };
+
             /// Called when a player opens a gossip dialog with the creature.
             /// @p_Player   : Source player instance
             /// @p_Creature : Target creature instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance

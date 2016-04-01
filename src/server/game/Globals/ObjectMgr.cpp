@@ -2642,7 +2642,8 @@ void ObjectMgr::LoadItemTemplates()
         auto l_Iter = g_PvPItemStoreLevels.find(itemId);
         if (l_Iter != g_PvPItemStoreLevels.end())
             itemTemplate.PvPScalingLevel = l_Iter->second;
-
+        else
+            itemTemplate.PvPScalingLevel = 0;
         ++sparseCount;
     }
 

@@ -1,6 +1,9 @@
 FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
+ARG COMMIT
+ENV COMMIT $COMMIT
+
 RUN apt-get install -y \
     gdb \
     curl
@@ -13,7 +16,4 @@ ADD sql /usr/local/share/firestorm/sql/
 # Declare volumes to share files between host and container (configuration file, logs, dbc, maps ....)
 VOLUME /usr/local/etc/firestorm /usr/local/opt/firestorm /usr/local/var/log/firestorm
 
-# Open the port use by the worldserver on the container
-EXPOSE 8085
-
-#ENTRYPOINT ["run-worldserver"]
+ENTRYPOINT ["run-worldserver"]

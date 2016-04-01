@@ -28,7 +28,8 @@ enum eNhalishCreatures
 
 enum eNhalishGameObjects
 {
-    GameObjectNhalishDoor     = 227851
+    GameObjectNhalishDoor     = 227851,
+    GameObjectNhalishEntrance = 227852
 };
 
 enum eNhallishTalks
@@ -114,12 +115,31 @@ public:
             m_PhaseCounter = 0;             
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            if (m_First)
-            {
-                m_First = false;
+			HandleDoorEntranceActivation();
+            if (!m_First)
+            {          
                 HandleDoorActivation();
-            }
+                m_First = true;
+            }	
         }
+
+        void JustReachedHome() override
+        {
+            _JustReachedHome();
+            summons.DespawnAll(); 
+            DespawnCreaturesInArea(eShadowmoonBurialGroundsCreatures::CreatureExhumeSpirit, me);
+            if (m_Instance != nullptr)
+                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossNhallish, EncounterState::FAIL);
+            /// Adding back to Visibility List
+            std::list<Player*> l_ListVisibility;
+            me->GetPlayerListInGrid(l_ListVisibility, 300.0f);
+            if (l_ListVisibility.empty())
+                return;
+
+            for (Player* l_Itr : l_ListVisibility)
+                l_Itr->SetPhaseMask(1, true);
+        }
+
 
         void HandleDoorActivation() /// Only upon boss Defeat
         {
@@ -138,14 +158,25 @@ public:
 
         void HandleDoorEntranceActivation() /// Upon wipe
         {
-            if (m_Instance != nullptr)
+			/*
+            std::list<GameObject*> l_ListDoors;
+            me->GetGameObjectListWithEntryInGrid(l_ListDoors, eNhalishGameObjects::GameObjectNhalishEntrance, 300.0f);
+            if (l_ListDoors.empty())
+                return;
+
+            for (GameObject* l_Itr : l_ListDoors)
             {
-                if (GameObject* l_Nhalish = m_Instance->instance->GetGameObject(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataNhalishDoorEntrance)))
-                {
-                    l_Nhalish->SetLootState(LootState::GO_READY);
-                    l_Nhalish->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, me);
-                }
+				if (!l_Itr)
+					continue;
+
+				l_Itr->Delete();
             }
+
+			if (!p_Status)
+			{
+				me->SummonGameObject();
+			}
+			*/
         }
 
         void JustSummoned(Creature* p_Summon) override
@@ -161,23 +192,6 @@ public:
                         break;
                 }
             }
-        }
-
-        void JustReachedHome() override
-        {
-            _JustReachedHome();
-            summons.DespawnAll();
-            HandleDoorEntranceActivation();
-            if (m_Instance != nullptr)
-                m_Instance->SetBossState(eShadowmoonBurialGroundsDatas::DataBossNhallish, EncounterState::FAIL);
-            // Adding back to Visibility List
-            std::list<Player*> l_ListVisibility;
-            me->GetPlayerListInGrid(l_ListVisibility, 300.0f);
-            if (l_ListVisibility.empty())
-                return;
-
-            for (Player* l_Itr : l_ListVisibility)
-                l_Itr->SetPhaseMask(1, true);
         }
 
         void DoAction(int32 const p_Action) override
@@ -201,13 +215,12 @@ public:
         void EnterCombat(Unit* p_Who) override
         {
             _EnterCombat();
-            HandleDoorActivation();
             Talk(eNhallishTalks::TalkAggro);
             HandleDoorEntranceActivation();     
-            events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 15 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 70 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 6 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 10 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 4 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 7 * TimeConstants::IN_MILLISECONDS);
             if (m_Instance != nullptr)
             {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
@@ -251,13 +264,13 @@ public:
                    l_Creature->GetMotionMaster()->MoveRandom(15.0f);
                    if (roll_chance_i(25))
                    {
-                       switch (urand(0, 1))
+                       switch (urand(0, 4))
                        {
                            case 0:
-                               me->MonsterSay("Thank you.", Language::LANG_UNIVERSAL, me->GetGUID());
+                               l_Creature->MonsterSay("Thank you.", Language::LANG_UNIVERSAL, me->GetGUID());
                                break;
                            case 1:
-                               me->MonsterSay("My torment is over!", Language::LANG_UNIVERSAL, me->GetGUID());
+                               l_Creature->MonsterSay("My torment is over!", Language::LANG_UNIVERSAL, me->GetGUID());
                                break;
                            default:
                                break;
@@ -293,7 +306,7 @@ public:
                     me->GetPosition(&l_Position);    
                     for (Player* l_Itr : l_ListPlayers)
                     {
-                        if (l_Itr->IsWithinDist(me, 25.0f, true))
+                        if (l_Itr->IsWithinDist(me, 20.0f, true))
                         {
                             if (l_Itr->isAlive() && !l_Itr->HasMovementForce(me->GetGUID()))
                                 l_Itr->SendApplyMovementForce(me->GetGUID(), true, l_Position, 3.0f, 1);
@@ -397,6 +410,16 @@ public:
         EventExhumeCrypt
     };
 
+    enum ePossessedSoulDisplays
+    {
+        DisplayBanshee = 9534
+    };
+
+    enum ePossessedSoulActions
+    {
+        ActionTimeout = 1
+    };
+
     bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
     {   
         if (p_Creature)
@@ -409,21 +432,15 @@ public:
                     {
                         if (l_LinkAI && l_LinkAI->m_HasDied)
                         {
-                            if (l_LinkAI->m_VictimGUID != NULL)
+                            p_Player->RemoveAura(ePossessedSoulSpells::SpellSoulless);
+                            /// Returned Soul
+                            if (p_Player->HasAura(ePossessedSoulSpells::SpellSoulShred))
                             {
-                                if (Unit* l_Victim = Unit::GetUnit(*p_Creature, l_LinkAI->m_VictimGUID))
-                                {
-                                    l_Victim->RemoveAura(ePossessedSoulSpells::SpellSoulless);
-                                    /// Returned Soul
-                                    if (l_Victim->HasAura(ePossessedSoulSpells::SpellSoulShred))
-                                    {
-                                        l_Victim->CastSpell(l_Victim, ePossessedSoulSpells::SpellRegainYourSoul, true);
-                                        l_Victim->RemoveAura(ePossessedSoulSpells::SpellSoulShred);
-                                    }
-                                    l_Victim->SetPhaseMask(1, true);
-                                    p_Creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
-                                }
+                                p_Player->CastSpell(p_Player, ePossessedSoulSpells::SpellRegainYourSoul, true);
+                                p_Player->RemoveAura(ePossessedSoulSpells::SpellSoulShred);
                             }
+                            p_Player->SetPhaseMask(1, true);
+                            p_Creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                         }
                     }
                 }
@@ -440,6 +457,7 @@ public:
         }
 
         uint64 m_VictimGUID;
+        bool m_HasDiedBeforeTimeout;
         bool m_HasDied;
 
         void Reset() override
@@ -456,6 +474,18 @@ public:
             }      
         }
 
+        void DoAction(int32 const p_Action) override
+        {
+            switch (p_Action)
+            {
+                case ePossessedSoulActions::ActionTimeout:
+                    m_HasDiedBeforeTimeout = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void SetGUID(uint64 p_Guid, int32 /*p_Param*/) override
         {
             m_VictimGUID = p_Guid;
@@ -466,6 +496,11 @@ public:
                 {
                     l_Victim->CastSpell(me, ePossessedSoulSpells::SpellCloneMe);
                     me->CastSpell(l_Victim, ePossessedSoulSpells::SpellSoulShred);
+
+                    AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        DoAction(ePossessedSoulActions::ActionTimeout);
+                    });
                 }
             }         
         }
@@ -473,17 +508,25 @@ public:
         void JustDied(Unit* /*p_Killer*/) override
         {        
             me->Respawn();
+            events.Reset();
             m_HasDied = true;
             me->RemoveAllAuras();
             me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetDisplayId(ePossessedSoulDisplays::DisplayBanshee);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->CastSpell(me, ePossessedSoulSpells::SpellLootSparkles);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
-            me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-            me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);   
+            me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);    
+            
+            if (!m_HasDiedBeforeTimeout)
+            {
+                if (m_VictimGUID)
+                {
+                    if (Unit* l_Victim = Unit::GetUnit(*me, m_VictimGUID))
+                        l_Victim->AddAura(ePossessedSoulSpells::SpellRegainYourSoul, l_Victim);
+                }
+            }
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -552,15 +595,15 @@ public:
 };
 
 /// Void Devestation - 543531 // Hacked, hardcoded
-class shadowmoon_burial_grounds_nhalish_spell_void_devestation_trigger : public CreatureScript
+class shadowmoon_burial_grounds_nhalish_creature_void_devestation : public CreatureScript
 {
 public:
 
-    shadowmoon_burial_grounds_nhalish_spell_void_devestation_trigger() : CreatureScript("shadowmoon_burial_grounds_nhalish_spell_void_devestation_trigger") { }
+    shadowmoon_burial_grounds_nhalish_creature_void_devestation() : CreatureScript("shadowmoon_burial_grounds_nhalish_creature_void_devestation") { }
 
-    struct shadowmoon_burial_grounds_nhalish_spell_void_devestation_triggerAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_nhalish_creature_void_devestationAI : public Scripted_NoMovementAI
     {
-        shadowmoon_burial_grounds_nhalish_spell_void_devestation_triggerAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) {}
+        shadowmoon_burial_grounds_nhalish_creature_void_devestationAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) {}
 
         enum eVoidDevestationSpells
         {
@@ -606,7 +649,7 @@ public:
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new shadowmoon_burial_grounds_nhalish_spell_void_devestation_triggerAI(p_Creature);
+        return new shadowmoon_burial_grounds_nhalish_creature_void_devestationAI(p_Creature);
     }
 };
 
@@ -632,12 +675,10 @@ public:
             if (!GetCaster())
                 return;
 
-            if (!GetExplTargetDest())
-                return;
-
-           const WorldLocation* l_WorldLocation = GetExplTargetDest();
-           if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eVoidDevestationSpells::SpellVoidDevstationAreaTrigger))
-           GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, l_SpellInfo->GetDuration());
+            GetCaster()->MonsterSay("hoomos", LANG_UNIVERSAL, GetCaster()->GetGUID());
+   
+            if (Position const* l_Pos = GetExplTargetDest())
+                GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Pos->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4 * TimeConstants::IN_MILLISECONDS);
         }
 
         void Register()
@@ -784,7 +825,7 @@ public:
             {
                 if (Creature* l_Nhalish = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossNhallish)))
                 {
-                    if (Creature* Soul = GetCaster()->SummonCreature(eNhalishCreatures::CreatureSoul, GetHitUnit()->GetPositionX(), GetHitUnit()->GetPositionY(), GetHitUnit()->GetPositionZ(), GetHitUnit()->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS, GetHitUnit()->GetGUID()))
+                    if (Creature* Soul = GetCaster()->SummonCreature(eNhalishCreatures::CreatureSoul, GetHitUnit()->GetPositionX(), GetHitUnit()->GetPositionY(), GetHitUnit()->GetPositionZ(), GetHitUnit()->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, 500 * TimeConstants::IN_MILLISECONDS, GetHitUnit()->GetGUID()))
                     {
                         if (boss_nhalish::boss_nhalishAI* l_LinkAI = CAST_AI(boss_nhalish::boss_nhalishAI, l_Nhalish->GetAI()))
                         {
@@ -819,7 +860,7 @@ public:
                             Soul->SetPhaseMask(m_PhaseId, true);
                             l_LinkAI->m_PhaseCounter++;
                             if (Soul->IsAIEnabled)
-                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);                     
+                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);    
                         }
                     }
                 }
@@ -878,77 +919,15 @@ public:
     }
 };
 
-/// Void Devestation - 153072 
-class shadowmoon_burial_grounds_nhalish_at_vd : public AreaTriggerEntityScript
-{
-public:
-
-    shadowmoon_burial_grounds_nhalish_at_vd() : AreaTriggerEntityScript("shadowmoon_burial_grounds_nhalish_at_vd")
-    {
-    }
-
-    enum eVoidDevestationSpells
-    {
-        SpellVoidDevestationDebuff = 153070
-    };
-
-    uint32 m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
-    std::list<uint64> m_Targets;
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (m_Diff <= p_Time)
-        {
-            std::list<Player*> l_PlayerList;
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 2.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, l_PlayerList, check);
-            p_AreaTrigger->VisitNearbyObject(2.0f, searcher);
-            if (!l_PlayerList.empty())
-            {
-                for (std::list<Player*>::const_iterator itr = l_PlayerList.begin(); itr != l_PlayerList.end(); ++itr)
-                {
-                    if (!(*itr)->HasAura(eVoidDevestationSpells::SpellVoidDevestationDebuff))
-                    {
-                        (*itr)->CastSpell((*itr), eVoidDevestationSpells::SpellVoidDevestationDebuff);
-                        m_Targets.push_back((*itr)->GetGUID());
-                    }
-                }
-            }
-
-            m_Diff = 1 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-            m_Diff -= p_Time;
-    }
-
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (!m_Targets.empty())
-        {
-            for (uint64 l_Itr : m_Targets)
-            {
-                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Itr);
-                if (l_Target && l_Target->HasAura(eVoidDevestationSpells::SpellVoidDevestationDebuff))
-                    l_Target->RemoveAura(eVoidDevestationSpells::SpellVoidDevestationDebuff);
-            }
-        }
-    }
-
-    shadowmoon_burial_grounds_nhalish_at_vd* GetAI() const override
-    {
-        return new shadowmoon_burial_grounds_nhalish_at_vd();
-    }
-};
-
 void AddSC_boss_nhalish()
 {
     new boss_nhalish();                                                     ///< 75829
-    new shadowmoon_burial_grounds_nhalish_creature_soul();
+    new shadowmoon_burial_grounds_nhalish_creature_soul();                  ///< 75899
     new shadowmoon_burial_grounds_nhalish_creature_nhalish_prop();          ///< 75442
+    new shadowmoon_burial_grounds_nhalish_creature_void_devestation();      ///< 543531
+    new shadowmoon_burial_grounds_nhalish_spell_void_devestation();         ///< 153068
     new shadowmoon_burial_grounds_nhalish_spell_planar_shift();             ///< 153623
     new shadowmoon_burial_grounds_nhalish_spell_soul_steal();               ///< 152962
     new shadowmoon_burial_grounds_nhalish_spell_void_blast();               ///< 152792
     new shadowmoon_burial_grounds_nhalish_spell_void_vortex();              ///< 152801
-    new shadowmoon_burial_grounds_nhalish_spell_void_devestation_trigger(); ///< 153068
-    new shadowmoon_burial_grounds_nhalish_at_vd();                          ///< 153072
 }

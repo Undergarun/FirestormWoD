@@ -43,7 +43,7 @@ EndScriptData */
 
 struct UnitStates
 {
-    uint32      Flag;
+	UnitState   Flag;
     char const* Text;
 };
 
@@ -2683,10 +2683,11 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player* l_CrashPlayer = nullptr;
-            uint64 l_Guid         = GUID_LOPART(l_CrashPlayer->GetPetGUID());
+            p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
 
-            p_Handler->PSendSysMessage("You've crash the server ! (%lu)", l_Guid);
+            Player* l_Pig = new Player(p_Handler->GetSession());
+            delete l_Pig;
+            l_Pig->isAFK();
 
             return true;
         }

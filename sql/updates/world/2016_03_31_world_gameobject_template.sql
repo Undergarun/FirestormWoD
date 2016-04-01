@@ -1,0 +1,1 @@
+UPDATE gameobject_template SET ScriptName = "the_everbloom_xertiac_gameobject_eggs" WHERE entry = 234113;

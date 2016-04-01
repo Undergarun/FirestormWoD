@@ -516,6 +516,8 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
 
             void Reset()
             {
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+
                 if (me->GetOwner() && me->GetOwner()->IsPlayer())
                 {
                     me->CastSpell(me, 98007, false);
