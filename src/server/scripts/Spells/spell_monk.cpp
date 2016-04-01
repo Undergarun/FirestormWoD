@@ -1525,7 +1525,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 {
                     int32 l_Damage = p_DmgInfo.GetDamage();
 
-                    if (l_Damage > p_AbsorbAmount)
+                    if (l_Damage > (int32)p_AbsorbAmount)
                         l_Damage = p_AbsorbAmount;
 
                     if (AuraEffect* l_PreviousAura = l_Target->GetAuraEffect(SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE, EFFECT_0, l_Caster->GetGUID()))

@@ -58,33 +58,6 @@ public:
                 }
             }
         }
-
-        void OnUnitDeath(Unit* p_Unit) override
-        {
-            if (p_Unit)
-            {
-                if (Creature* l_Creature = p_Unit->ToCreature())
-                {
-                    switch (l_Creature->GetEntry())
-                    {
-                        default:
-                            break;
-                    }
-                }
-            }
-        }
-
-        void OnGameObjectCreate(GameObject* p_Go) override
-        {
-            if (p_Go)
-            {
-                switch (p_Go->GetEntry())
-                {
-                    default:
-                        break;
-                }
-            }
-        }
    
         uint64 GetData64(uint32 p_Identifier) override
         {
@@ -107,16 +80,6 @@ public:
             }
             return 0;
         }
-
-        void SetData(uint32 p_Type, uint32 p_Data) override
-        {
-            switch (p_Type)
-            {
-            default:
-                break;
-            }
-        }
-
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
