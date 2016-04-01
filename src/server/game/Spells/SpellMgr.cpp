@@ -3665,6 +3665,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
+            case 155198: ///< Savage Howl (Cruelfang)
+                spellInfo->PreventionType = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
