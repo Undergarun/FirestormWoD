@@ -452,7 +452,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sItemLimitCategoryStore,      db2Path, "ItemLimitCategory.db2");                                            // 17399
     LoadDB2(bad_db2_files,  sItemRandomPropertiesStore,   db2Path, "ItemRandomProperties.db2");                                         // 17399
     LoadDB2(bad_db2_files,  sItemRandomSuffixStore,       db2Path, "ItemRandomSuffix.db2");                                             // 17399
-    LoadDB2(bad_db2_files,  sItemSpecOverrideStore,       db2Path, "ItemSpecOverride.db2");                                             // 17399
+    LoadDB2(bad_db2_files,  sItemSpecOverrideStore,       db2Path, "ItemSpecOverride.db2", "item_spec_override","ID");                  // 17399
     LoadDB2(bad_db2_files,  sItemSpecStore,               db2Path, "ItemSpec.db2");                                                     // 19116
     LoadDB2(bad_db2_files,  sItemDisenchantLootStore,     db2Path, "ItemDisenchantLoot.db2");                                           // 17399
     LoadDB2(bad_db2_files,  sNameGenStore,                db2Path, "NameGen.db2");                                                      // 17399
