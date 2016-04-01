@@ -1490,6 +1490,35 @@ class spell_sha_earthquake: public SpellScriptLoader
         {
             return new spell_sha_earthquake_AuraScript();
         }
+
+        class spell_sha_earthquake_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_earthquake_SpellScript);
+
+            enum eSpells
+            {
+                ImprovedChainLightningEarthquakeMod = 157766
+            };
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(eSpells::ImprovedChainLightningEarthquakeMod))
+                        l_Caster->RemoveAura(eSpells::ImprovedChainLightningEarthquakeMod);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_earthquake_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_earthquake_SpellScript();
+        }
 };
 
 /// Earthquake : Ticks - 77478

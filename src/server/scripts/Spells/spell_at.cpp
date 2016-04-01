@@ -225,7 +225,9 @@ class spell_at_druid_ursol_vortex : public AreaTriggerEntityScript
 
                 if (std::find(l_NewTargetList.begin(), l_NewTargetList.end(), l_Target) == l_NewTargetList.end())
                 {
-                    if (!l_Target->HasAura(eSpells::VortexJump, l_Target->GetGUID()))
+                    const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::VortexJump);
+
+                    if (!l_Target->HasAura(eSpells::VortexJump, l_Target->GetGUID()) && !l_Target->IsImmunedToSpellEffect(l_SpellInfo, EFFECT_0))
                         l_Target->CastSpell(p_AreaTrigger, eSpells::VortexJump, true);
                     else
                     {

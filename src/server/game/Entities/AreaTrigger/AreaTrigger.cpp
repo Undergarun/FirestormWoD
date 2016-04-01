@@ -231,6 +231,15 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
 
     sScriptMgr->OnCreateAreaTriggerEntity(this);
 
+    switch (GetSpellId())
+    {
+        case 153690: ///< Necrotic Pitch
+            this->SummonCreature(76191, *this, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS);
+            break;
+        default:
+            break;
+    }
+
     return true;
 }
 
