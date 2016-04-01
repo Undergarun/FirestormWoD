@@ -538,7 +538,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket& p_Packet)
         {
             sLog->outDebug(LOG_FILTER_GENERAL, "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
                 m_Player->GetName(), m_Player->GetSession()->GetAccountId(), m_Player->GetSpeed(l_MoveType), l_Speed);
-            /*m_Player->GetSession()->KickPlayer();*/
+            m_Player->GetSession()->KickPlayer();
         }
     }
 }
