@@ -136,12 +136,6 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
-            {
-                default:
-                    break;
-            }
-
             DoMeleeAttackIfReady();
         }
 
