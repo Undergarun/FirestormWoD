@@ -1262,6 +1262,51 @@ namespace MS { namespace Garrison
                             p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
                     }
                     break;
+                case Buildings::EnchanterStudy_EnchanterStudy_Level2:
+                case Buildings::EnchanterStudy_EnchanterStudy_Level3:
+                {
+                    std::vector<SkillNPC_RecipeEntry> l_Recipes = 
+                    {
+                        { 173718, 0 },
+                        { 174979, 0 },
+                        { 173729, 0 },
+                        { 173721, 0 },
+                        { 173716, 0 },
+                        { 173732, 0 },
+                        { 173727, 0 },
+                        { 175085, 0 },
+                        { 175076, 0 },
+                        { 175070, 0 },
+                        { 173731, 0 },
+                        { 173730, 0 },
+                        { 175086, 0 },
+                        { 175071, 0 },
+///                        { 62948, 0 }, ///< not sure about this one
+                        { 173728, 0 },
+                        { 173724, 0 },
+                        { 181870, 0 },
+                        { 173725, 0 },
+                        { 175078, 0 },
+                        { 173723, 0 },
+                        { 173721, 0 },
+                        { 175072, 0 },
+                        { 173722, 0 },
+                        { 173720, 0 },
+                        { 173717, 0 },
+                        { 175074, 0 }
+                    };
+
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    /// There's also a SkillType SKILL_GARRENCHANTING, dunno what it's used for
+                    l_GarrisonAI->SetRecipes(l_Recipes, SkillType::SKILL_ENCHANTING);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
+
+                    break;
+                }
                 default:
                     break;
             }
@@ -1360,7 +1405,6 @@ namespace MS { namespace Garrison
 
     void npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::UpdateAI(uint32 const p_Diff)
     {
-
         m_Events.Update(p_Diff);
 
         if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)

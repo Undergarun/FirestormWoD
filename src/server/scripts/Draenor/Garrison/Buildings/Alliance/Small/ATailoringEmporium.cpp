@@ -194,6 +194,24 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_KaylieMacdonald::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstTailoringWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstTailoringWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstTailoringWorkOrder, 4);
+
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstTailoringWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstTailoringWorkOrder))
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_KaylieMacdonald::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
         GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
         if (l_AI == nullptr)
