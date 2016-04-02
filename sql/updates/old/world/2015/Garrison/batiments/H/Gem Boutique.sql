@@ -40,6 +40,10 @@
 
 	DELETE FROM creature_queststarter WHERE id=79832 AND quest=37573;
 	INSERT INTO creature_queststarter(`id`, `quest`) values('79832','37573');
+	
+	REPLACE INTO item_template_addon VALUES
+	(119195, 0, 0, 1020500, 1960800, 0),
+	(119191, 0, 0, 2000000, 3000000, 0);
 
 	DELETE FROM creature_questender WHERE id=79830 AND quest=37573;
 	INSERT INTO creature_questender(`id`, `quest`) values('79830','37573');

@@ -98,7 +98,7 @@ namespace MS { namespace Garrison { namespace Sites
 
         if (p_Owner->GetQuestObjectiveCounter(275373) == 1 && !m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].empty())
         {
-            Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
+            Creature* l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
             if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) > 2)
             {
@@ -106,6 +106,23 @@ namespace MS { namespace Garrison { namespace Sites
                 l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II);
                 l_Creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
                 l_Creature->GetMotionMaster()->Initialize();
+            }
+        }
+
+        /// Build your Barracks quest
+        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        {
+            Manager* l_GarrisonMgr = p_Owner->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            if (p_Owner->GetGarrison()->GetBuildingWithType(BuildingType::Barracks).BuildingID)
+            {
+                p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Start Construction
+                p_Owner->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Find Blueprint
+                p_Owner->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Learn Blueprint
+                p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
             }
         }
     }

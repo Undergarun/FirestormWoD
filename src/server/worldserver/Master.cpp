@@ -25,7 +25,7 @@
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
@@ -413,14 +413,6 @@ const char* dumpTables[32] =
     "pet_spell_cooldown"
 };
 
-const char* ipTransfert[4] =
-{
-    "37.187.68.78",     // Rassharom
-    "37.187.68.57",     // Taran'Zhu
-    "37.187.68.57",     // Elegon
-    "37.187.68.78"      // Hellscream
-};
-
 Master::Master() { }
 
 Master::~Master() { }
@@ -432,7 +424,7 @@ int Master::Run()
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", GitRevision::GetFullVersion());
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "               _                      _____                      ");
@@ -597,7 +589,7 @@ int Master::Run()
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, g_RealmID);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
@@ -855,7 +847,7 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    ///- Get the realm Id from the configuration file
+    /// Get the realm Id from the configuration file
     g_RealmID = ConfigMgr::GetIntDefault("RealmID", 0);
     if (!g_RealmID)
     {
@@ -866,11 +858,11 @@ bool Master::_StartDB()
 
     sLog->SetRealmID(g_RealmID);
 
-    ///- Clean the database before starting
+    /// Clean the database before starting
     ClearOnlineAccounts();
 
-    ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);        // One-time query
+    /// Insert version info into DB
+    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());  ///< One-time query
 
     sWorld->LoadDBVersion();
 
