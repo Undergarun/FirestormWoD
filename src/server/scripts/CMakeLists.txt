@@ -191,7 +191,7 @@ add_library(scripts STATIC
 add_definitions("-DGAME_SERVER_PROJECTS")
 set_property(TARGET scripts PROPERTY FOLDER "server")
 
-add_dependencies(scripts revision.h)
+add_dependencies(scripts revision_data.h)
 
 # Generate precompiled header
 if (USE_SCRIPTPCH)

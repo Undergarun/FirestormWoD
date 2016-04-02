@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "SystemConfig.h"
+#include "GitRevision.h"
 #include "Config.h"
 #include "ObjectAccessor.h"
 #include "MapManager.h"
@@ -112,8 +112,9 @@ public:
         std::string l_Uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 l_UpdateTime           = sWorld->GetUpdateTime();
 
-        p_Handler->PSendSysMessage("Firestorm WoD 6.2.3");
-        p_Handler->PSendSysMessage("Firestorm WoD Core: Last Update: %s", sWorld->GetLastBuildInfo().timeStr.data());
+        p_Handler->PSendSysMessage("Firestorm");
+        p_Handler->PSendSysMessage(GitRevision::GetFullVersion());
+        p_Handler->PSendSysMessage(GitRevision::GetDate());
         p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);
         p_Handler->PSendSysMessage(LANG_UPTIME, l_Uptime.c_str());
         p_Handler->PSendSysMessage("Server delay: %u ms", l_UpdateTime);

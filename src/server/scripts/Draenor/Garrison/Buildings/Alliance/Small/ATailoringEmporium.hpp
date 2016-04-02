@@ -49,6 +49,8 @@ namespace MS { namespace Garrison
             /// @p_Creature   : Target GameObject instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
 
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
             virtual CreatureAI* GetAI(Creature* p_Creature) const override;
