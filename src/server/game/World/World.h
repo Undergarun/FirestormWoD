@@ -647,17 +647,6 @@ struct CharacterInfo
     uint8 Level;
 };
 
-struct BuildInfo
-{
-    bool valid;
-    uint16 year;
-    uint8 month;
-    uint8 day;
-    uint8 hour;
-    uint8 minute;
-    std::string timeStr;
-};
-
 enum RecordDiffType
 {
     RECORD_DIFF_MAP,
@@ -965,8 +954,6 @@ class World
 
         bool ModerateMessage(std::string l_Text);
 
-        const BuildInfo& GetLastBuildInfo() const { return m_LastBuild; }
-
         //////////////////////////////////////////////////////////////////////////
         /// New callback system
         //////////////////////////////////////////////////////////////////////////
@@ -1059,7 +1046,6 @@ class World
         void DetectDBCLang();
         bool m_allowMovement;
         std::string m_dataPath;
-        BuildInfo m_LastBuild;
         MotdText m_Motd;
 
         // for max speed access

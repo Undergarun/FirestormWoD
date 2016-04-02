@@ -49,6 +49,14 @@ char serviceDescription[] = "JadeCore World of Warcraft emulator world service";
 int m_ServiceStatus = -1;
 #endif
 
+/// libcurl need to be rebuild for VS2015 when we abandon multi support.
+
+#if defined (_MSC_VER) && _MSC_VER >= 1900
+#pragma comment (lib, "legacy_stdio_definitions.lib")
+
+extern "C" { FILE __iob_func[3]{ *stdin, *stdout,  *stderr };  }
+#endif
+
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database

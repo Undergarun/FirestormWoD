@@ -153,6 +153,7 @@ class boss_beastlord_darmac : public CreatureScript
             uint8 m_State;
 
             bool m_RendAndTear;
+            bool m_Tantrum;
 
             bool CanRespawn() override
             {
@@ -192,7 +193,8 @@ class boss_beastlord_darmac : public CreatureScript
                 m_SwitchStatePct = 85.0f;
                 m_State = eStates::StateNone;
 
-                m_RendAndTear = false;
+                m_RendAndTear   = false;
+                m_Tantrum       = false;
 
                 uint32 l_Time = 100;
                 AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -613,7 +615,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_Tantrum)
                     return;
 
                 switch (m_Events.ExecuteEvent())
@@ -645,6 +647,13 @@ class boss_beastlord_darmac : public CreatureScript
                         Talk(eTalks::TalkTantrum);
 
                         me->CastSpell(me, eSpells::TantrumPeriodic, false);
+
+                        m_Tantrum = true;
+
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            m_Tantrum = false;
+                        });
 
                         m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
                         break;
@@ -1245,6 +1254,7 @@ class npc_foundry_ironcrusher : public CreatureScript
 
             bool m_IsEvadeMode;
             bool m_Stampede;
+            bool m_Tantrum;
 
             void Reset() override
             {
@@ -1256,8 +1266,9 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                 m_Events.Reset();
 
-                m_IsEvadeMode = false;
-                m_Stampede = false;
+                m_IsEvadeMode   = false;
+                m_Stampede      = false;
+                m_Tantrum       = false;
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1368,7 +1379,7 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_Tantrum)
                     return;
 
                 switch (m_Events.ExecuteEvent())
@@ -1389,6 +1400,13 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                         /// Inflicts 23452 to 25922 Nature damage every 1 sec. for 5 sec.
                         me->CastSpell(me, eSpells::TantrumPeriodic, false);
+
+                        m_Tantrum = true;
+
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            m_Tantrum = false;
+                        });
 
                         m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
                         break;

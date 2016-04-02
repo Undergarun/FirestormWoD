@@ -190,7 +190,7 @@ if( NOT WIN32 )
   )
 endif()
 
-add_dependencies(worldserver revision.h)
+add_dependencies(worldserver revision_data.h)
 
 if( UNIX AND NOT NOJEM AND NOT APPLE )
   set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")

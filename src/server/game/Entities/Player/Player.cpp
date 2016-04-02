@@ -21718,10 +21718,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     if ((getMSTime() - l_StartTime) > 50)
     {
-        sLog->outAshran("Player::LoadFromDB profiling =======");
+        sLog->outInfo(LOG_FILTER_PROFILING, "Player::LoadFromDB profiling =======");
         for (int32 l_I = 0; l_I < (int32)l_Times.size(); l_I++)
-            sLog->outAshran("Index [%u] : %u ms", l_I, l_Times[l_I]);
-        sLog->outAshran("====================================");
+            sLog->outInfo(LOG_FILTER_PROFILING, "Index [%u] : %u ms", l_I, l_Times[l_I]);
+        sLog->outInfo(LOG_FILTER_PROFILING, "====================================");
+
     }
 
     return true;
@@ -24913,6 +24914,12 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 
     for (Player* l_Target : l_PlayerList)
     {
+        if (PlayerSocial* l_Social = l_Target->GetSocial())
+        {
+            if (l_Social->HasIgnore(GUID_LOPART(GetGUID())))
+                continue;
+        }
+
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
@@ -33954,7 +33961,10 @@ void Player::UpdateCharges()
         std::deque<ChargeEntry>& l_ChargeRefreshTimes = l_CategoryCharge.second;
 
         while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
+        {
             l_ChargeRefreshTimes.pop_front();
+            SendSpellCharges();
+        }
     }
 }
 
@@ -33998,7 +34008,7 @@ void Player::ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntr
         else
             l_Itr->second.pop_back();
 
-        SendSetSpellCharges(p_ChargeCategoryEntry);
+        SendSpellCharges();
     }
 }
 

@@ -24,7 +24,7 @@ namespace MS
             /// @p_BracketId : The bracket id of the battleground.
             static bool IsEligibleForBattleground(GroupQueueInfo const* p_Group, BattlegroundType::Type p_Type, Bracket::Id p_BracketId, Battleground const* p_Template)
             {
-                uint64 l_BattlegroundMask = 1 << p_Type;
+                uint64 l_BattlegroundMask = 1LL << p_Type;
 
                 if (p_Group->m_BracketId != p_BracketId)
                     return false;

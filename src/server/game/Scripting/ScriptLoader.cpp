@@ -1098,6 +1098,14 @@ void AddSC_boss_xeritac();
 void AddSC_boss_archmage_sol();
 void AddSC_boss_yalnu();
 
+/// Shadowmoon Burial Grounds
+void AddSC_shadowmoon_burial_grounds();
+void AddSC_instance_shadowmoon_burial_grounds();
+void AddSC_boss_sadana();
+void AddSC_boss_nhalish();
+void AddSC_boss_nerzul();
+void AddSC_boss_bonemaw();
+
 /// Battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -2064,6 +2072,14 @@ void AddDraenorScripts()
     AddSC_boss_xeritac();
     AddSC_boss_archmage_sol();
     AddSC_boss_yalnu();
+
+    /// Shadowmoon Burial Grounds
+    AddSC_shadowmoon_burial_grounds();
+    AddSC_instance_shadowmoon_burial_grounds();
+    AddSC_boss_sadana();
+    AddSC_boss_nhalish();
+    AddSC_boss_nerzul();
+    AddSC_boss_bonemaw();
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();

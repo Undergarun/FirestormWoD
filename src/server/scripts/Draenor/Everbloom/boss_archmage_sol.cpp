@@ -3,7 +3,7 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "the_everbloom.hpp"
@@ -552,7 +552,7 @@ public:
             me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->CastSpell(me, eNoxiousExplosionSpells::SpellNoxiusEruption, false);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);        
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
         }
     };
 

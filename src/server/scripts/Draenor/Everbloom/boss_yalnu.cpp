@@ -3,7 +3,7 @@
 ///  MILLENIUM-STUDIO
 ///  Copyright 2015 Millenium-studio SARL
 ///  All Rights Reserved.
-///
+///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "the_everbloom.hpp"

@@ -5468,6 +5468,11 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
         target->ToPlayer()->UpdateRating(CR_HASTE_SPELL);
     }
 
+    /// if aura removes and this aura has increased casting time
+    /// return UNIT_FIELD_MOD_CASTING_SPEED to 1, to restore normal casting time
+    if (!apply)
+        value = 0;
+
     target->ApplyCastTimePercentMod(value, apply);
 }
 

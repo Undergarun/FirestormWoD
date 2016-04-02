@@ -11960,6 +11960,10 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
     TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
 
+    /// Apply Versatility damage bonus taken
+    if (damagetype == DOT && GetSpellModOwner())
+        pdamage -= CalculatePct(pdamage, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+
     // From caster spells
     AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
@@ -17096,6 +17100,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_ROOT:
                     case SPELL_AURA_TRANSFORM:
                     case SPELL_AURA_MOD_FEAR_2:
+                    case SPELL_AURA_MOD_ROOT_2:
                         l_IsCrowControlAura = true;
                         break;
                     default:
@@ -17134,7 +17139,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         int32 damageLeft = triggeredByAura->GetCrowdControlDamage();
                         // No damage left
-                        if (damageLeft < int32(damage) && triggeredByAura->GetId() != 114052)
+                        if (damageLeft <= int32(damage) && triggeredByAura->GetId() != 114052)
                         {
                             i->aura->Remove();
                             l_DontContinue = false;

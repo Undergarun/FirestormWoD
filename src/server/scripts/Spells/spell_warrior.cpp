@@ -1852,7 +1852,7 @@ class spell_warr_execute: public SpellScriptLoader
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
                     int32 l_Bp = l_RageConsumed * (405.0f / l_MaxConsumed);
-                    l_Caster->CastCustomSpell(l_Caster, eSpells::ExecuteExtra, nullptr, &l_Bp, nullptr, true);
+                    l_Caster->CastCustomSpell(l_Target, eSpells::ExecuteExtra, nullptr, &l_Bp, nullptr, true);
                 }
                 /// Sudden Death
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::SuddenDeath))
@@ -2770,6 +2770,7 @@ class spell_warr_crazed_berserker : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Called by Colossus Smash - 86346, Sweeping Strikes - 12328 and Recklessness - 1719
 /// When theses abilities are casted while in Defensive Stance - 71, it should activate Battle Stance - 2457
 class spell_warr_activate_battle_stance : public SpellScriptLoader
@@ -2789,6 +2790,7 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
                 RampageDriver           = 165350,
                 T17Arms4P               = 165345,
                 ColossusSmash           = 86346,
+                ColossusSmash2          = 167105,
                 DeadlyCalm              = 166587,
                 T17Arms2P               = 165336,
                 ColossusSmashEnergize   = 169587
@@ -2805,7 +2807,7 @@ class spell_warr_activate_battle_stance : public SpellScriptLoader
                 if (GetSpellInfo()->Id == eSpells::Recklessness && l_Caster->HasAura(eSpells::T17Fury4P))
                     l_Caster->CastSpell(l_Caster, eSpells::RampageDriver, true);
 
-                if (GetSpellInfo()->Id == eSpells::ColossusSmash)
+                if (GetSpellInfo()->Id == eSpells::ColossusSmash || GetSpellInfo()->Id == eSpells::ColossusSmash2)
                 {
                     /// Colossus Smash has a 40 % chance to reduce the cooldown of Mortal Strike by 50 % for 10 sec.
                     if (l_Caster->HasAura(eSpells::T17Arms4P) && roll_chance_i(40))
