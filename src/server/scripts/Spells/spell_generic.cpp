@@ -5737,7 +5737,6 @@ class spell_gen_transmorphose : public SpellScriptLoader
 
 void AddSC_generic_spell_scripts()
 {
-    new spell_gen_transmorphose();
     new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();

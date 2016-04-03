@@ -487,7 +487,6 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 chilblainsAura = 50435
             };
 
-            uint64 m_TargetGUID = 0;
             bool m_HasAuraFrog = false;
 
             void HandleBeforeCast()
@@ -498,8 +497,6 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                m_TargetGUID = l_Target->GetGUID();
-
                 if (l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
                     m_HasAuraFrog = true;
             }
@@ -509,11 +506,8 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
 
-                if (!l_Target || !m_TargetGUID)
+                if (!l_Target)
                     return;
-
-                if (l_Target->GetGUID() != m_TargetGUID)
-                    SetHitDamage(GetHitDamage()/2);
 
                 l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
 
