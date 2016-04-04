@@ -4418,12 +4418,12 @@ bool SpellInfo::IsNeedToCheckSchoolImmune() const
 
     switch (Id)
     {
-        case 879:   ///< Exorcism
+        /*case 879:   ///< Exorcism         ///< Need more research on this ones, should not bypassing Ice block, Divine shield etc...
         case 24275: ///< Hammer of Wrath
         case 158392: ///< Hammer of Wrath
-        case 25912: ///< Holy Shock damage
-        case 25914: ///< Holy Shock heal
         case 35395: ///< Crusader Strike
+        case 25912: ///< Holy Shock damage*/
+        case 25914: ///< Holy Shock heal
         case 42292: ///< Pvp Trinket
         case 59752: ///< Every Man for Himself (racical)
         case 82327: ///< Holy Radiance

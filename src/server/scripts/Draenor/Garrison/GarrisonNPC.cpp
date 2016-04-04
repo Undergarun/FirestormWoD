@@ -13,6 +13,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
+#include "GossipDef.h"
 
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Large/AGnomishGearworks.hpp"
@@ -1241,12 +1242,112 @@ namespace MS { namespace Garrison
 
                     break;
                 }
+                case Buildings::TheForge_TheForge_Level2:
+                case Buildings::TheForge_TheForge_Level3:
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "Grant me the blessings of the anvil and the forge.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
+                    break;
+                case Buildings::AlchemyLab_AlchemyLab_Level2:
+                case Buildings::AlchemyLab_AlchemyLab_Level3:
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(37270))
+                    {
+                        sObjectMgr->AddCreatureQuestRelationBounds(p_Creature->GetEntry(), 37270);
+                        sObjectMgr->AddCreatureQuestInvolvedRelationBounds(p_Creature->GetEntry(), 37270);
+
+                        if (p_Player->GetQuestStatus(37270) == QUEST_STATUS_NONE)
+                            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                        else if (p_Player->GetQuestStatus(37270) == QUEST_STATUS_REWARDED)
+                            break;
+                        else
+                            p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
+                    }
+                    break;
+                case Buildings::EnchanterStudy_EnchanterStudy_Level2:
+                case Buildings::EnchanterStudy_EnchanterStudy_Level3:
+                {
+                    std::vector<SkillNPC_RecipeEntry> l_Recipes = 
+                    {
+                        { 173718, 0 },
+                        { 174979, 0 },
+                        { 173729, 0 },
+                        { 173721, 0 },
+                        { 173716, 0 },
+                        { 173732, 0 },
+                        { 173727, 0 },
+                        { 175085, 0 },
+                        { 175076, 0 },
+                        { 175070, 0 },
+                        { 173731, 0 },
+                        { 173730, 0 },
+                        { 175086, 0 },
+                        { 175071, 0 },
+///                        { 62948, 0 }, ///< not sure about this one
+                        { 173728, 0 },
+                        { 173724, 0 },
+                        { 181870, 0 },
+                        { 173725, 0 },
+                        { 175078, 0 },
+                        { 173723, 0 },
+                        { 173721, 0 },
+                        { 175072, 0 },
+                        { 173722, 0 },
+                        { 173720, 0 },
+                        { 173717, 0 },
+                        { 175074, 0 }
+                    };
+
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    /// There's also a SkillType SKILL_GARRENCHANTING, dunno what it's used for
+                    l_GarrisonAI->SetRecipes(l_Recipes, SkillType::SKILL_ENCHANTING);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
+
+                    break;
+                }
                 default:
                     break;
             }
         }
         else
             p_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+        return true;
+    }
+
+    bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_GarrisonMgr == nullptr || l_AI == nullptr)
+            return true;
+
+        uint32 l_BuildingPlotInstanceID = l_GarrisonMgr->GetCreaturePlotInstanceID(p_Creature->GetGUID());
+
+        if (l_BuildingPlotInstanceID)
+        {
+            GarrisonBuilding l_Building = l_GarrisonMgr->GetBuilding(l_BuildingPlotInstanceID);
+
+            switch (l_Building.BuildingID)
+            {
+                case Buildings::TheForge_TheForge_Level2:
+                case Buildings::TheForge_TheForge_Level3:
+                {
+                    if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
+                    {
+                        p_Player->AddAura(eSpells::SpellSongOfTheAnvil, p_Player);
+                        p_Player->AddAura(eSpells::SpellSolaceOfTheForge, p_Player);
+                    }
+
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
 
         return true;
     }
@@ -1304,7 +1405,6 @@ namespace MS { namespace Garrison
 
     void npc_FearsomeBattleStandard::npc_FearsomeBattleStandardAI::UpdateAI(uint32 const p_Diff)
     {
-
         m_Events.Update(p_Diff);
 
         if (m_Events.ExecuteEvent() == eEvents::EventCheckPlayers)

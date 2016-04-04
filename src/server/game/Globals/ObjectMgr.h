@@ -1119,9 +1119,21 @@ class ObjectMgr
             return _creatureQuestRelations.equal_range(creature_entry);
         }
 
+        void AddCreatureQuestRelationBounds(uint32 p_Creature_entry, uint32 p_QuestID)
+        {
+            if (_creatureQuestRelations.find(p_Creature_entry) == _creatureQuestRelations.end())
+                _creatureQuestRelations.insert(std::make_pair(p_Creature_entry, p_QuestID));
+        }
+
         QuestRelationBounds GetCreatureQuestInvolvedRelationBounds(uint32 creature_entry)
         {
             return _creatureQuestInvolvedRelations.equal_range(creature_entry);
+        }
+
+        void AddCreatureQuestInvolvedRelationBounds(uint32 p_Creature_entry, uint32 p_QuestID)
+        {
+            if (_creatureQuestInvolvedRelations.find(p_Creature_entry) == _creatureQuestInvolvedRelations.end())
+                _creatureQuestInvolvedRelations.insert(std::make_pair(p_Creature_entry, p_QuestID));
         }
 
         void LoadGameObjectScripts();

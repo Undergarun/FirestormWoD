@@ -4366,6 +4366,333 @@ class spell_item_curious_bronze_timepiece_horde : public SpellScriptLoader
         }
 };
 
+/// Bladespire Relic - 118662, Called by: 175604
+class spell_item_ascend_to_bladespire : public SpellScriptLoader
+{
+public:
+    spell_item_ascend_to_bladespire() : SpellScriptLoader("spell_item_ascend_to_bladespire") { }
+
+    class spell_item_ascend_to_bladespire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_ascend_to_bladespire_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(1116, 6802.729004f, 5861.151855f, 258.688385f, 5.067857f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_ascend_to_bladespire_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_ascend_to_bladespire_SpellScript();
+    }
+};
+
+/// Faded Wizard Hat - 53057, Called by: 74589
+class spell_item_faded_wizard_hat : public SpellScriptLoader
+{
+public:
+    spell_item_faded_wizard_hat() : SpellScriptLoader("spell_item_faded_wizard_hat") { }
+
+    class spell_item_faded_wizard_hat_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_faded_wizard_hat_AuraScript);
+
+        enum eSpells
+        {
+            GoblinMaleOne = 30089,
+            GoblinMaleTwo = 30096,
+            GoblinFemaleOne = 30084,
+            GoblinFemaleTwo = 29907,
+            BloodElfMaleOne = 19840,
+            BloodElfMaleTwo = 30085,
+            BloodElfMaleThree = 30086,
+            BloodElfFemale = 29909,
+            MaleUndead = 30094,
+            FemaleUndead = 30093,
+            MaleOrc = 29908,
+            FemaleTroll = 30088,
+            MaleHuman = 7614,
+            FemaleHuman = 30092,
+            MaleGnome = 30095,
+            FemaleNightElf = 11670,
+        };
+
+        void OnApply(AuraEffect const*, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            AuraEffect* l_AuraEffect = GetEffect(0);
+            if (l_AuraEffect == nullptr)
+                return;
+
+            uint32 l_BaseDisplayId = l_AuraEffect->GetAmount();
+            if (l_BaseDisplayId != 0)
+                l_Caster->SetDisplayId(l_BaseDisplayId);
+            else
+            {
+                uint32 l_DisplayId;
+                l_DisplayId = (urand(0, 15));
+                switch (l_DisplayId)
+                {
+                    case 0:  l_DisplayId = eSpells::GoblinMaleOne;
+                        break;
+                    case 1:  l_DisplayId = eSpells::GoblinMaleTwo;
+                        break;
+                    case 2:  l_DisplayId = eSpells::GoblinFemaleOne;
+                        break;
+                    case 3:  l_DisplayId = eSpells::GoblinFemaleTwo;
+                        break;
+                    case 4:  l_DisplayId = eSpells::BloodElfMaleOne;
+                        break;
+                    case 5:  l_DisplayId = eSpells::BloodElfMaleTwo;
+                        break;
+                    case 6:  l_DisplayId = eSpells::BloodElfMaleThree;
+                        break;
+                    case 7:  l_DisplayId = eSpells::BloodElfFemale;
+                        break;
+                    case 8:  l_DisplayId = eSpells::MaleUndead;
+                        break;
+                    case 9:  l_DisplayId = eSpells::FemaleUndead;
+                        break;
+                    case 10:  l_DisplayId = eSpells::MaleOrc;
+                        break;
+                    case 11:  l_DisplayId = eSpells::FemaleTroll;
+                        break;
+                    case 12:  l_DisplayId = eSpells::MaleHuman;
+                        break;
+                    case 13:  l_DisplayId = eSpells::FemaleHuman;
+                        break;
+                    case 14:  l_DisplayId = eSpells::MaleGnome;
+                        break;
+                    case 15:  l_DisplayId = eSpells::FemaleNightElf;
+                        break;
+                    default:
+                        return;
+                }
+
+                if (!l_DisplayId)
+                    return;
+
+                l_AuraEffect->SetAmount(l_DisplayId);
+                l_Caster->SetDisplayId(l_AuraEffect->GetAmount());
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_item_faded_wizard_hat_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_item_faded_wizard_hat_AuraScript();
+    }
+};
+
+/// Reflecting Prism - 163219
+class spell_item_reflecting_prism : public SpellScriptLoader
+{
+public:
+    spell_item_reflecting_prism() : SpellScriptLoader("spell_item_reflecting_prism") { }
+
+    class spell_item_reflecting_prism_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_reflecting_prism_SpellScript);
+
+        enum eSpells
+        {
+            PrismaticReflection = 163267
+        };
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            if (Unit* l_Target = l_Player->GetSelectedPlayer())
+                l_Target->CastSpell(l_Player, eSpells::PrismaticReflection, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_reflecting_prism_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_reflecting_prism_SpellScript();
+    }
+};
+
+/// Relic of Karabor - 118663, Called by: 175608
+class spell_item_ascend_to_karabor : public SpellScriptLoader
+{
+public:
+    spell_item_ascend_to_karabor() : SpellScriptLoader("spell_item_ascend_to_karabor") { }
+
+    class spell_item_ascend_to_karabor_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_ascend_to_karabor_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->TeleportTo(1191, 578.738037f, -2476.123779f, 96.248749f, 4.711049f);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_ascend_to_karabor_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_ascend_to_karabor_SpellScript();
+    }
+};
+
+/// Sargerei Disguise - 119134, Called by: 176567
+class spell_item_sargerei_disguise : public SpellScriptLoader
+{
+public:
+    spell_item_sargerei_disguise() : SpellScriptLoader("spell_item_sargerei_disguise") { }
+
+    class spell_item_sargerei_disguise_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_sargerei_disguise_SpellScript);
+
+        enum eSpells
+        {
+            SargereiDisguise = 176568
+        };
+
+        void AfterCast()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(l_Caster, eSpells::SargereiDisguise, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_sargerei_disguise_SpellScript::AfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_sargerei_disguise_SpellScript();
+    }
+};
+
+/// Swapblaster - 111820, Called by: 161399
+class spell_item_swapblaster : public SpellScriptLoader
+{
+public:
+    spell_item_swapblaster() : SpellScriptLoader("spell_item_swapblaster") { }
+
+    class spell_item_swapblaster_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_swapblaster_SpellScript);
+
+        void HandleDummy()
+        {
+            Unit* l_Caster = GetCaster();
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            Player* l_Target = l_Player->GetSelectedPlayer();
+            if (l_Target == nullptr)
+                return;
+
+            l_Player->TeleportTo(l_Target->GetMapId(), l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), l_Target->GetOrientation());
+            l_Target->TeleportTo(l_Player->GetMapId(), l_Player->GetPositionX(), l_Player->GetPositionY(), l_Player->GetPositionZ(), l_Player->GetOrientation());
+
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_swapblaster_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_swapblaster_SpellScript();
+    }
+};
+
+/// Hypnosis Goggles - 113631, Called by: 167839
+class spell_item_hypnotize_critter : public SpellScriptLoader
+{
+    public:
+        spell_item_hypnotize_critter() : SpellScriptLoader("spell_item_hypnotize_critter") { }
+
+        class spell_item_hypnotize_critter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_hypnotize_critter_SpellScript);
+
+            void HandleDummy()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Critter = GetHitUnit();
+
+                if (l_Player == nullptr || l_Critter == nullptr)
+                    return;
+
+                if (l_Critter->GetMotionMaster())
+                    l_Critter->GetMotionMaster()->MoveFollow(l_Player, 0.0f, PET_FOLLOW_ANGLE, MOTION_SLOT_IDLE);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_item_hypnotize_critter_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_hypnotize_critter_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4454,4 +4781,11 @@ void AddSC_item_spell_scripts()
     new spell_item_celestial_defender();
     new spell_item_curious_bronze_timepiece_alliance();
     new spell_item_curious_bronze_timepiece_horde();
+    new spell_item_ascend_to_bladespire();
+    new spell_item_faded_wizard_hat();
+    new spell_item_reflecting_prism();
+    new spell_item_ascend_to_karabor();
+    new spell_item_sargerei_disguise();
+    new spell_item_swapblaster();
+    new spell_item_hypnotize_critter();
 }

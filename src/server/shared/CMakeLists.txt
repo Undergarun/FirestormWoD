@@ -114,6 +114,8 @@ target_link_libraries(shared
   ${CURL_LIBRARY}
 )
 
+add_dependencies(shared revision_data.h)
+
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(shared ${shared_STAT_PCH_HDR} ${shared_STAT_PCH_SRC})
