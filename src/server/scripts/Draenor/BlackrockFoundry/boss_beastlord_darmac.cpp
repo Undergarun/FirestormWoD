@@ -513,62 +513,94 @@ class boss_beastlord_darmac : public CreatureScript
 
             void DoAction(int32 const p_Action) override
             {
-                switch (p_Action)
+                m_Events.DelayEvents(7 * TimeConstants::IN_MILLISECONDS);
+
+                uint32 l_Time = 2 * TimeConstants::IN_MILLISECONDS;
+                AddTimedDelayedOperation(l_Time, [this]() -> void
                 {
-                    case eActions::ActionIroncrusherKilled:
-                    {
-                        Talk(eTalks::TalkIroncrushersRage);
+                    if (m_Instance == nullptr)
+                        return;
 
-                        me->CastSpell(me, eSpells::FuryOfTheElekk, true);
+                    if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                        me->SetFacingTo(me->GetAngle(l_Target));
 
-                        if (me->HasAura(eSpells::CunningOfTheWolf))
-                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                });
 
-                        if (me->HasAura(eSpells::SpiritOfTheRylak))
-                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
-
-                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
-                        break;
-                    }
-                    case eActions::ActionCruelfangKilled:
-                    {
-                        Talk(eTalks::TalkCruelfangsSwiftness);
-
-                        me->CastSpell(me, eSpells::CunningOfTheWolf, true);
-
-                        if (me->HasAura(eSpells::FuryOfTheElekk))
-                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
-
-                        if (me->HasAura(eSpells::SpiritOfTheRylak))
-                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
-
-                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
-                        break;
-                    }
-                    case eActions::ActionDreadwingKilled:
-                    {
-                        Talk(eTalks::TalkDreadwingsFlame);
-
-                        me->CastSpell(me, eSpells::SpiritOfTheRylak, true);
-
-                        if (me->HasAura(eSpells::CunningOfTheWolf))
-                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
-
-                        if (me->HasAura(eSpells::FuryOfTheElekk))
-                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
-
-                        m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                if (Unit* l_Target = me->getVictim())
+                l_Time += 50;
+                AddTimedDelayedOperation(l_Time, [this]() -> void
                 {
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveChase(l_Target);
-                }
+                    me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_KNEEL);
+                });
+
+                l_Time += 2 * TimeConstants::IN_MILLISECONDS;
+                AddTimedDelayedOperation(l_Time, [this, p_Action]() -> void
+                {
+                    switch (p_Action)
+                    {
+                        case eActions::ActionIroncrusherKilled:
+                        {
+                            Talk(eTalks::TalkIroncrushersRage);
+
+                            me->CastSpell(me, eSpells::FuryOfTheElekk, true);
+
+                            if (me->HasAura(eSpells::CunningOfTheWolf))
+                                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+
+                            if (me->HasAura(eSpells::SpiritOfTheRylak))
+                                m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+
+                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                            break;
+                        }
+                        case eActions::ActionCruelfangKilled:
+                        {
+                            Talk(eTalks::TalkCruelfangsSwiftness);
+
+                            me->CastSpell(me, eSpells::CunningOfTheWolf, true);
+
+                            if (me->HasAura(eSpells::FuryOfTheElekk))
+                                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+
+                            if (me->HasAura(eSpells::SpiritOfTheRylak))
+                                m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+
+                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                            break;
+                        }
+                        case eActions::ActionDreadwingKilled:
+                        {
+                            Talk(eTalks::TalkDreadwingsFlame);
+
+                            me->CastSpell(me, eSpells::SpiritOfTheRylak, true);
+
+                            if (me->HasAura(eSpells::CunningOfTheWolf))
+                                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+
+                            if (me->HasAura(eSpells::FuryOfTheElekk))
+                                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+
+                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                });
+
+                l_Time += 2 * TimeConstants::IN_MILLISECONDS;
+                AddTimedDelayedOperation(l_Time, [this]() -> void
+                {
+                    me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
+
+                    me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_ROAR);
+
+                    if (Unit* l_Target = me->getVictim())
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(l_Target);
+                    }
+                });
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -591,12 +623,13 @@ class boss_beastlord_darmac : public CreatureScript
                         m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
 
                         float l_Orientation = me->GetAngle(p_Target);
-                        float l_Radius      = me->GetDistance(p_Target) - 2.5f;
+                        float l_Radius      = me->GetDistance(p_Target) - 1.5f;
 
                         float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
                         float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
 
                         me->StopMoving();
+
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(m_MountID, { l_X, l_Y, me->m_positionZ, l_Orientation });
                         break;
@@ -655,6 +688,14 @@ class boss_beastlord_darmac : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void OnExitVehicle(Unit* p_Vehicle, Position& p_ExitPos) override
+            {
+                float l_X = me->m_positionX - 2.5f * cos(me->m_orientation);
+                float l_Y = me->m_positionY - 2.5f * cos(me->m_orientation);
+
+                p_ExitPos = { l_X, l_Y, me->m_positionZ, me->m_orientation };
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override

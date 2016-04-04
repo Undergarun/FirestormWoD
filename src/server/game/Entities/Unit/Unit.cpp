@@ -21358,12 +21358,21 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
-    Position pos;
-    if (!exitPosition)                          // Exit position not specified
-        vehicle->GetBase()->GetPosition(&pos);  // This should use passenger's current position, leaving it as it is now
-                                                // because we calculate positions incorrect (sometimes under map)
+    Position l_ExitPos;
+
+    /// Exit position not specified
+    /// This should use passenger's current position, leaving it as it is now
+    /// Because we calculate positions incorrect (sometimes under map)
+    if (!exitPosition)
+        vehicle->GetBase()->GetPosition(&l_ExitPos);
     else
-        pos = *exitPosition;
+        l_ExitPos = *exitPosition;
+
+    if (Creature* l_Me = ToCreature())
+    {
+        if (l_Me->IsAIEnabled)
+            l_Me->AI()->OnExitVehicle(vehicle->GetBase(), l_ExitPos);
+    }
 
     AddUnitState(UNIT_STATE_MOVE);
 
@@ -21378,7 +21387,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 
     Movement::MoveSplineInit init(this);
-    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+    init.MoveTo(l_ExitPos.GetPositionX(), l_ExitPos.GetPositionY(), l_ExitPos.GetPositionZ(), false);
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();
