@@ -177,16 +177,11 @@ public:
             {
                 if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
                 {
-                    printf("fuck me i don't work niggggggggggggggggggga");
                     m_EncounterBegin = true;
                     me->RemoveAllAuras();
                     me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
                 }
-                else
-                    printf("sol alive!!!!!");
             }
-            else
-                printf("no one is here!!!!!");
         }
 
         void MovementInform(uint32 p_Type, uint32 p_Id) override
