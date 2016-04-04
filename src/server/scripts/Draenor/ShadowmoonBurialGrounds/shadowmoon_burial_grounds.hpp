@@ -7,7 +7,25 @@
 ///
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "InstanceScript.h"
+#include "ScriptedCosmeticAI.hpp"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "ScriptUtils.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Vehicle.h"
+#include "GameObjectAI.h"
+#include "Group.h"
+#include "MoveSplineInit.h"
+#include "CreatureTextMgr.h"
+
+#define InvisibleDisplay 11686
+#define FriendlyFaction 35
+#define HostileFaction 16
+#define AttackableYetNotHostileFaction 7
 
 static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
 {
@@ -20,15 +38,10 @@ static void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
         (*l_Iter)->DespawnOrUnsummon();
 }
 
-
-#define InvisibleDisplay 11686
-#define FriendlyFaction 35
-#define HostileFaction 16
-#define AttackableYetNotHostileFaction 7
-
 enum eShadowmoonBurialGroundsDatas
 {
     DataBossSadana = 1,
+    DataSadanaEclipseTrigger,
     DataBossNhallish,
     DataBossBonemaw,
     DataBossNerzul,
@@ -41,8 +54,10 @@ enum eShadowmoonBurialGroundsDatas
     DataSadanaFightDoor,
     DataNerzulDoor,
     DataNhalishDoorEntrance,
+    DataNhalishDoorsExit,
     DataBonemawDoorEntrance,
-    DataNerzulProp
+    DataNerzulProp,
+	DataPortalToTheShadowlandReturn
 };
 
 enum eShadowmoonBurialGroundsBosses
@@ -50,7 +65,7 @@ enum eShadowmoonBurialGroundsBosses
     BossBoneMaw  = 75452,
     BossNerzul   = 76407,
     BossNhallish = 75829,
-    BossSadana   = 75509,
+    BossSadana   = 75509
 };
 
 enum eShadowmoonBurialGroundsCreatures
@@ -80,7 +95,10 @@ enum eShadowmoonBurialGroundsCreatures
     CreatureWorldTriggerAltar       = 83816, 
     CreatureWorldTriggerSadanaRp    = 838166,
     CreatureWeepingSpirit           = 89003,
-    CreatureBonemawMouth            = 81881
+    CreatureBonemawMouth            = 81881,
+    CreaturePortalToTheShadowland   = 85441,
+    CreatureEclipseTrigger          = 76052,
+    CreatureNewDarkEclipse          = 760522
 };
 
 enum eShadowmoonBurialGroundsGameObjects
@@ -88,8 +106,10 @@ enum eShadowmoonBurialGroundsGameObjects
     GameObjectSadanaDoor           = 233919,
     GameObjectSadanaFightDoor      = 233921,
     GameObjectNerzulDoor           = 233920,
+    GameObjectNhalishDoorsExit     = 227851,
     GameObjectNhalishDoorEntrance  = 227852,
-    GameObjectBonemawDoorEntrance  = 233990
+    GameObjectBonemawDoorEntrance  = 233990,
+	GameObjectPortalToShadowland   = 85541
 };
 
 enum eShadowmoonBurialGroundsSpells

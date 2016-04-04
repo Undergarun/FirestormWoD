@@ -529,7 +529,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
     &AuraEffect::HandleAuraVersatility,                           //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
-    &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_473
+    &AuraEffect::HandleNoImmediateEffect,                         //473 SPELL_AURA_DONT_LOOSE_DURABILITY
     &AuraEffect::HandleNULL,                                      //474 SPELL_AURA_474
     &AuraEffect::HandleNULL,                                      //475 SPELL_AURA_475
     &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_GAIN_PCT
@@ -5467,6 +5467,11 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
         value /= m_spellInfo->GetCastTimeReduction();
         target->ToPlayer()->UpdateRating(CR_HASTE_SPELL);
     }
+
+    /// if aura removes and this aura has increased casting time
+    /// return UNIT_FIELD_MOD_CASTING_SPEED to 1, to restore normal casting time
+    if (!apply)
+        value = 0;
 
     target->ApplyCastTimePercentMod(value, apply);
 }
