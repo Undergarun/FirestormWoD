@@ -155,6 +155,8 @@ class boss_beastlord_darmac : public CreatureScript
             bool m_RendAndTear;
             bool m_Tantrum;
 
+            uint32 m_MountID;
+
             bool CanRespawn() override
             {
                 if (m_Instance == nullptr)
@@ -190,11 +192,13 @@ class boss_beastlord_darmac : public CreatureScript
 
                 m_CosmeticMove = eMoves::MoveIronCrusher;
 
-                m_SwitchStatePct = 85.0f;
-                m_State = eStates::StateNone;
+                m_SwitchStatePct    = 85.0f;
+                m_State             = eStates::StateNone;
 
-                m_RendAndTear   = false;
-                m_Tantrum       = false;
+                m_RendAndTear       = false;
+                m_Tantrum           = false;
+
+                m_MountID           = 0;
 
                 uint32 l_Time = 100;
                 AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -378,6 +382,105 @@ class boss_beastlord_darmac : public CreatureScript
 
                         return;
                     }
+                    case eFoundryCreatures::BossIroncrusher:
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->SetFacingTo(me->GetAngle(l_Target));
+
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::TalkMountIroncrusher);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->CastSpell(l_Target, eSpells::RideVehicle, true);
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        return;
+                    }
+                    case eFoundryCreatures::BossDreadwing:
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->SetFacingTo(me->GetAngle(l_Target));
+
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::TalkMountDreadwing);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->CastSpell(l_Target, eSpells::RideVehicle, true);
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        return;
+                    }
+                    case eFoundryCreatures::BossCruelfang:
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->SetFacingTo(me->GetAngle(l_Target));
+
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::TalkMountCruelfang);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->CastSpell(l_Target, eSpells::RideVehicle, true);
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        return;
+                    }
+                    /* Mythic only
+                    case eFoundryCreatures::BossFaultline:
+                    {
+                        return;
+                    }
+                    */
                     default:
                         return;
                 }
@@ -460,6 +563,12 @@ class boss_beastlord_darmac : public CreatureScript
                     default:
                         break;
                 }
+
+                if (Unit* l_Target = me->getVictim())
+                {
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveChase(l_Target);
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -476,35 +585,20 @@ class boss_beastlord_darmac : public CreatureScript
                     }
                     case eSpells::TargetVehicle:
                     {
-                        switch (p_Target->GetEntry())
-                        {
-                            case eFoundryCreatures::BossIroncrusher:
-                            {
-                                Talk(eTalks::TalkMountIroncrusher);
-                                break;
-                            }
-                            case eFoundryCreatures::BossDreadwing:
-                            {
-                                Talk(eTalks::TalkMountDreadwing);
-                                break;
-                            }
-                            case eFoundryCreatures::BossCruelfang:
-                            {
-                                Talk(eTalks::TalkMountCruelfang);
-                                break;
-                            }
-                            /* Mythic only
-                            case eFoundryCreatures::BossFaultline:
-                            {
-                                Talk(eTalks::TalkMountingFaultline);
-                                break;
-                            }
-                            */
-                            default:
-                                break;
-                        }
+                        m_MountID = p_Target->GetEntry();
 
-                        me->CastSpell(p_Target, eSpells::RideVehicle, true);
+                        /// Delay events for cosmetic moves
+                        m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
+
+                        float l_Orientation = me->GetAngle(p_Target);
+                        float l_Radius      = me->GetDistance(p_Target) - 2.5f;
+
+                        float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
+                        float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
+
+                        me->StopMoving();
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(m_MountID, { l_X, l_Y, me->m_positionZ, l_Orientation });
                         break;
                     }
                     case eSpells::RendAndTearSearcher:
@@ -591,9 +685,6 @@ class boss_beastlord_darmac : public CreatureScript
                         default:
                             break;
                     }
-
-                    me->StopMoving();
-                    me->GetMotionMaster()->Clear();
 
                     /// Choose nearest beast
                     me->CastSpell(me, eSpells::TargetVehicle, true);
