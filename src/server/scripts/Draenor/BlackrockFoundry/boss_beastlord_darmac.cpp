@@ -592,6 +592,9 @@ class boss_beastlord_darmac : public CreatureScript
                             break;
                     }
 
+                    me->StopMoving();
+                    me->GetMotionMaster()->Clear();
+
                     /// Choose nearest beast
                     me->CastSpell(me, eSpells::TargetVehicle, true);
 
