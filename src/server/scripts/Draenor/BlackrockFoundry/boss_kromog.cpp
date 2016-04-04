@@ -392,7 +392,9 @@ class boss_kromog : public CreatureScript
                             m_AbilityTalkTime = time(nullptr) + eTimers::TimerAbilityTalk;
                         }
 
-                        me->CastSpell(me, eSpells::Slam, false);
+                        /// Kromog strikes the ground beneath his primary target
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(*l_Target, eSpells::Slam, false);
 
                         /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
                         m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
@@ -425,7 +427,7 @@ class boss_kromog : public CreatureScript
                         m_Events.DelayEvent(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlowsDelay);
                         m_Events.DelayEvent(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlowsDelay);
 
-                        me->SetFacingTo(2.92434f);
+                        me->SetFacingTo(g_KromogsO);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         for (Position const l_SpawnPos : g_GraspingEarthSpawnPos)
@@ -497,7 +499,7 @@ class boss_kromog : public CreatureScript
                     {
                         float l_BaseX = me->m_positionX;
                         float l_BaseY = me->m_positionY;
-                        float l_BaseO = me->m_orientation;
+                        float l_BaseO = g_KromogsO;
 
                         for (uint8 l_I = 0; l_I < eFoundryDatas::MaxReverberationSpawns; ++l_I)
                         {
@@ -1026,24 +1028,18 @@ class spell_foundry_slam : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex p_EffIndex)
             {
-                if (Unit* l_Boss = GetCaster())
+                if (WorldLocation const* l_Dest = GetExplTargetDest())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        /// Kromog strikes the ground beneath his primary target, dealing up to 780000 Physical damage to all players, reduced based on their distance from the impact point.
-                        /// Damages will be reduced by 12.000 for each yards separating the target from the boss position
-                        float l_ReducedDamage = 12000.0f;
+                        Position l_Pos = { l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, l_Dest->m_orientation };
 
-                        /// Melee players should take reduced damage for this spell, I don't know why or how much, but it seems it's a custom calculation for them
-                        if (Player* l_Player = l_Target->ToPlayer())
-                        {
-                            if (l_Player->IsMeleeDamageDealer())
-                                AddPct(l_ReducedDamage, 50);
-                        }
-
-                        float l_Damage = GetSpell()->GetDamage();
-
-                        int32 l_NewDamage = std::max(1.0f, l_Damage - (l_ReducedDamage * l_Target->GetDistance(*l_Boss)));
+                        /// Kromog strikes the ground beneath his primary target, dealing up to X Physical damage to all players, reduced based on their distance from the impact point.
+                        /// Damages will be reduced by 1,6% per yards between hit target and dest target.
+                        float l_ReducedDamagePct    = 1.6f;
+                        float l_Damage              = GetSpell()->GetDamage();
+                        float l_Distance            = std::max(1.0f, std::min(60.0f, l_Target->GetDistance(l_Pos)));
+                        uint32 l_NewDamage          = std::max(1.0f, l_Damage - l_Damage * l_Distance * l_ReducedDamagePct / 100.0f);
 
                         GetSpell()->SetDamage(l_NewDamage);
                     }

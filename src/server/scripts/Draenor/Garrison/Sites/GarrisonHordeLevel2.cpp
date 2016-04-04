@@ -82,6 +82,23 @@ namespace MS { namespace Garrison { namespace Sites
         /// Achievement "More Plots" horde side
         if (p_Owner->GetTeamId() == TEAM_HORDE && !p_Owner->GetAchievementMgr().HasAchieved(9545))
             p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9545), nullptr);
+
+        /// Build your Barracks quest
+        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        {
+            Manager* l_GarrisonMgr = p_Owner->GetGarrison();
+
+            if (l_GarrisonMgr == nullptr)
+                return;
+
+            if (p_Owner->GetGarrison()->GetBuildingWithType(BuildingType::Barracks).BuildingID)
+            {
+                p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Start Construction
+                p_Owner->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Find Blueprint
+                p_Owner->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Learn Blueprint
+                p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID()); ///< Plot Finalize
+            }
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////

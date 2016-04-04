@@ -71,6 +71,10 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                 if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == MoltenEarthSpells::MoltenEarthDamage)
                     return;
 
+                /// If spell doesn't deal damage it can't trigger Molten Earth
+                if (p_EventInfo.GetDamageInfo()->GetDamage() == 0 && p_EventInfo.GetDamageInfo()->GetAbsorb() == 0)
+                    return;
+
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
                 if (l_Caster == nullptr || l_Target == nullptr)
