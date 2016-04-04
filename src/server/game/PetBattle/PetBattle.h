@@ -298,6 +298,12 @@ class BattlePet
     public:
         typedef std::shared_ptr<BattlePet> Ptr;
 
+        /// Destructor
+        virtual ~BattlePet()
+        {
+
+        }
+
     public:
         /// Load
         void Load(Field* p_Fields);
@@ -346,6 +352,11 @@ class BattlePetInstance : public BattlePet
     public:
         /// Constructor
         BattlePetInstance();
+        /// Destructor
+        virtual ~BattlePetInstance()
+        {
+
+        }
 
         static Ptr CloneForBattle(Ptr const& p_BattlePet)
         {
