@@ -463,11 +463,10 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = GetUnitOwner();
-                Unit* l_Target = GetTarget();
 
-                Unit* l_TabUnit[3] = { l_Caster, l_Owner, l_Target };
+                Unit* l_TabUnit[2] = { l_Caster, l_Owner };
 
-                for (uint8 l_Idx = 0; l_Idx < 3; ++l_Idx)
+                for (uint8 l_Idx = 0; l_Idx < 2; ++l_Idx)
                 {
                     if (l_TabUnit[l_Idx])
                     {
