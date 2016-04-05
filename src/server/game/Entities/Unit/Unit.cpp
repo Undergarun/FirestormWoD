@@ -20993,7 +20993,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
     }
 
-    if (!modelid && form != FORM_STEALTH)
+    if (!modelid && form != FORM_STEALTH && form != FORM_SHADOW)
         modelid = GetNativeDisplayId();
     return modelid;
 }
