@@ -64,6 +64,25 @@
 
 	UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_container" WHERE TYPE=45;
 
+-- follower position :
+
+	-- lvl 2 : -4.5335f, 0.7829f, 0.7999f, 0.1801f
+
+	-- lvl 3 : -4.2551f, 2.5098f, 0.7546f, 5.9912f
+
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -125 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','0','-237132','-0.341059','-1.63535','1.08619','3.70734');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','0','-237133','9.35406','-2.58914','0.300789','5.83886');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','0','79821','0.55257','2.89173','1.29919','4.96706');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','0','79820','-0.75155','-6.12079','1.29919','1.49168');
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -126 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','0','-237132','-0.157801','-1.68102','1.05013','2.70513');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','0','-237133','9.71145','-3.12441','0.001259','5.68571');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','0','79821','-0.021589','3.45185','1.25526','4.8846');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','0','79820','-0.110055','-6.28531','1.25434','1.79014');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','0','-228610','-7.118','-0.154428','0.754478','3.02321');

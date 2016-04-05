@@ -66,6 +66,25 @@
 
 	UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_container" WHERE TYPE = 45;
 
+-- follower position : 
+	-- UNIT_NPC_FLAG_TRANSMOGRIFIER
+	-- lvl 2 : 1.7011f, 5.9887f, 0.7726f, 4.5753f
+
+	-- lvl 3 : 1.7011f, 5.9887f, 0.7726f, 4.5753f (same)
+
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -125 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','1','-228610','-2.6188','-1.15366','0.771912','3.20475');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','1','-237335','1.55709','-1.11928','0.860367','4.4339');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','1','77781','0.721462','2.53851','1.27279','4.81482');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','1','77354','2.03288','-4.93143','1.27398','1.4376');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-125','1','-236642','7.07783','-2.42879','0.000214','6.08717');
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -126 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','1','-237335','1.17861','-1.01532','0.860413','3.72704');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','1','-236642','7.16642','-3.2207','0.000221','6.27566');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','1','77781','1.59361','3.0011','1.27315','4.67737');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-126','1','77354','2.66839','-4.23184','1.27316','1.42975');

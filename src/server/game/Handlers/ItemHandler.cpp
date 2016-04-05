@@ -1212,7 +1212,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
         }
 
         m_Player->RemoveItem(l_PackSlot, l_Slot, true);
-        m_Player->StoreItem(l_Dest, l_Item, true);
+        l_Item = m_Player->StoreItem(l_Dest, l_Item, true);
         m_Player->ItemAddedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
     }
     // moving from inventory to bank
