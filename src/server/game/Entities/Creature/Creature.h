@@ -861,6 +861,11 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void DumpGroup();
 
+        void AddMovementInform(uint32 p_Type, uint32 p_ID)
+        {
+            m_MovementInform.push_back(std::make_pair(p_Type, p_ID));
+        }
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = nullptr);
         bool InitEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
@@ -928,6 +933,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         //Formation var
         CreatureGroup* m_formation;
         bool TriggerJustRespawned;
+
+        std::list<std::pair<uint32, uint32>> m_MovementInform;
 };
 
 class AssistDelayEvent : public BasicEvent
