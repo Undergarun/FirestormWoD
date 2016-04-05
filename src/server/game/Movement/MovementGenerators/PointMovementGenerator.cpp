@@ -152,7 +152,7 @@ enum specialSpells
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
     if (unit->AI())
-        unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
+        unit->AddMovementInform(POINT_MOTION_TYPE, id);
 
     switch (id)
     {
@@ -235,7 +235,7 @@ void EffectMovementGenerator::MovementInform(Unit* unit)
         Creature* creature = unit->ToCreature();
 
         if (creature->AI())
-            creature->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
+            creature->AddMovementInform(EFFECT_MOTION_TYPE, _id);
     }
 
     switch (_id)
