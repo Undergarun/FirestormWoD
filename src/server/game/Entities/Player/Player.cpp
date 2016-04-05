@@ -33795,6 +33795,8 @@ uint32 Player::GetBattlePetCombatSize()
 /// Load pet battle async callback
 bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
+    sLog->outAshran("Player::_LoadPetBattles %u", GetGUIDLow());
+
     m_BattlePets.clear();
 
     if (!p_Result)
