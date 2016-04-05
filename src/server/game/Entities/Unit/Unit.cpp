@@ -20184,6 +20184,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     l_ClawOfShirvallahModel =  59268; // Panther
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    hairColor = urand(0, 10);
+
                 switch (hairColor)
                 {
                     case 7: // Violet
@@ -20237,6 +20240,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     l_ClawOfShirvallahModel = 59270; // Tiger
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059))
+                    hairColor = urand(0, 12); ///< Glyph of the Chameleon
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -20293,6 +20298,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 9);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20399,6 +20406,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     l_ClawOfShirvallahModel = 59267; // Lion
 
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 20);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20529,6 +20538,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             if (getRace() == RACE_NIGHTELF)
             {
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    hairColor = urand(0, 8);
                 switch (hairColor)
                 {
                     case 0: // Green
@@ -20573,6 +20584,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TROLL)
             {
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    hairColor = urand(0, 14);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -20622,6 +20635,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             {
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 8);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20716,6 +20731,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TAUREN)
             {
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 20);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
