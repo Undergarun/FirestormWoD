@@ -103,7 +103,8 @@ enum eEvents
     EVENT_POUND_YOU              = 48,
     EVENT_KICK_YOU               = 49,
     EVENT_PUNCH_YOU              = 50,
-    EVENT_DESPAWN                = 51
+    EVENT_DESPAWN                = 51,
+    EVENT_CHECK_TARGET           = 52
 };
 
 enum eQuests
@@ -121,7 +122,8 @@ enum eActions
 
 enum eCreatures
 {
-    MOB_TORNADO = 64267
+    MOB_TORNADO         = 64267,
+    NPC_ANDUIN_WRYNN    = 66975
 };
 
 #endif

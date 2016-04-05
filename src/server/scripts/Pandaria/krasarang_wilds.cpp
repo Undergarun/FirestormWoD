@@ -513,7 +513,7 @@ class mob_anduin_wrynn : public CreatureScript
         bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest)
         {
             if (p_Quest->GetQuestId() == QuestInTheHouseOfTheRedCrane)
-                p_Player->SummonCreature(NpcAnduinWrynn, p_Player->GetPositionX(), p_Player->GetPositionY(), p_Player->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0, p_Player->GetGUID());
+                p_Player->SummonCreature(NPC_ANDUIN_WRYNN, p_Player->GetPositionX(), p_Player->GetPositionY(), p_Player->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0, p_Player->GetGUID());
 
             return true;
         }
@@ -547,7 +547,7 @@ class mob_anduin_wrynn_escort : public CreatureScript
                     {
                         me->GetMotionMaster()->MoveFollow(l_Plr, 2.0f, 2.0f, MOTION_SLOT_ACTIVE);
                         m_PlayerGuid = l_Plr->GetGUID();
-                        m_Events.ScheduleEvent(EventCheckTarget, 1000);
+                        m_Events.ScheduleEvent(EVENT_CHECK_TARGET, 1000);
                     }
                 }
             }
@@ -556,7 +556,7 @@ class mob_anduin_wrynn_escort : public CreatureScript
             {
                 m_Events.Update(p_Diff);
 
-                if (m_Events.ExecuteEvent() == EventCheckTarget)
+                if (m_Events.ExecuteEvent() == EVENT_CHECK_TARGET)
                 {
                     if (Player* l_Summoner = sObjectAccessor->FindPlayer(m_PlayerGuid))
                     {
@@ -568,7 +568,7 @@ class mob_anduin_wrynn_escort : public CreatureScript
                                 DoMeleeAttackIfReady();
                             }
                         }
-                        m_Events.ScheduleEvent(EventCheckTarget, 1000);
+                        m_Events.ScheduleEvent(EVENT_CHECK_TARGET, 1000);
                     }
                     else
                         me->DespawnOrUnsummon();
