@@ -1028,21 +1028,21 @@ class spell_foundry_slam : public SpellScriptLoader
             {
                 if (Unit* l_Boss = GetCaster())
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    if (GetHitUnit() == nullptr)
+                        return;
+
+                    if (Player* l_Player = GetHitUnit()->ToPlayer())
                     {
                         /// Kromog strikes the ground beneath his primary target, dealing up to X Physical damage to all players, reduced based on their distance from the impact point.
                         /// Damages will be reduced by 1.6% per yard between player and boss, with a cap at 60 yards.
                         float l_ReducedDamage = 1.6f;
 
                         /// Melee players should take reduced damage for this spell, I don't know why or how much, but it seems it's a custom calculation for them
-                        if (Player* l_Player = l_Target->ToPlayer())
-                        {
-                            if (l_Player->IsMeleeDamageDealer())
-                                AddPct(l_ReducedDamage, 50);
-                        }
+                        if (l_Player->IsMeleeDamageDealer())
+                            AddPct(l_ReducedDamage, 50.0f);
 
                         float l_Damage      = GetSpell()->GetDamage();
-                        float l_Distance    = std::min(60.0f, l_Target->GetDistance(*l_Boss));
+                        float l_Distance    = std::min(l_Player->IsMeleeDamageDealer() ? 40.0f : 60.0f, l_Player->GetDistance(*l_Boss));
                         float l_NewDamages  = std::max(1.0f, l_Damage - (l_Damage * l_Distance * l_ReducedDamage / 100.0f));
 
                         GetSpell()->SetDamage((uint32)l_NewDamages);
