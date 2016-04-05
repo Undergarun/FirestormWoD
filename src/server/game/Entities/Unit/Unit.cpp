@@ -14841,11 +14841,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
             default:
                 return;
         }
-
-        if (IsPlayer())
-            ToPlayer()->GetSession()->SendPacket(&l_SelfPacket);
-        else
-            SendMessageToSet(&l_SelfPacket, true);
+        SendMessageToSet(&l_SelfPacket, true);
     }
 }
 
