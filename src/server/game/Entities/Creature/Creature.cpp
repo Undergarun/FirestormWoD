@@ -666,6 +666,14 @@ void Creature::Update(uint32 diff)
             break;
     }
 
+    for (auto l_MovementInformInfo : m_MovementInform)
+    {
+        if (CreatureAI* l_AI = AI())
+            l_AI->MovementInform(l_MovementInformInfo.first, l_MovementInformInfo.second);
+    }
+
+    m_MovementInform.clear();
+
     sScriptMgr->OnCreatureUpdate(this, diff);
 }
 
