@@ -185,6 +185,3 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
-
-# Lib curl
-/dep/curl/lib/libcurl*
