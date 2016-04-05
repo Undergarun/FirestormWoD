@@ -712,6 +712,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_felblood_kaelthas()
 {
     new boss_felblood_kaelthas();
@@ -720,3 +721,4 @@ void AddSC_boss_felblood_kaelthas()
     new mob_felkael_phoenix_egg();
     new mob_felkael_flamestrike();
 }
+#endif

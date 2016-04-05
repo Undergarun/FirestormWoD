@@ -274,9 +274,10 @@ class mob_nether_wraith : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_pathaleon_the_calculator()
 {
     new boss_pathaleon_the_calculator();
     new mob_nether_wraith();
 }
-
+#endif

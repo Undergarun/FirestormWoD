@@ -703,6 +703,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_azzakel()
 {
     new auchindon_boss_azzakel();
@@ -712,3 +713,4 @@ void AddSC_azzakel()
     new auchindon_azzakel_fel_spark_area_trigger();
     new auchindon_azzakel_fel_pool_trigger();
 }
+#endif

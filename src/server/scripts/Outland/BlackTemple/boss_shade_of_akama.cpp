@@ -892,6 +892,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shade_of_akama()
 {
     new boss_shade_of_akama();
@@ -899,3 +900,4 @@ void AddSC_boss_shade_of_akama()
     new mob_ashtongue_sorcerer();
     new npc_akama_shade();
 }
+#endif

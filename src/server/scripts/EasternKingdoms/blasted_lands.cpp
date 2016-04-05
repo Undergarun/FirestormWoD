@@ -299,6 +299,7 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blasted_lands()
 {
     new npc_deathly_usher();
@@ -309,3 +310,4 @@ void AddSC_blasted_lands()
     /// Player script
     new PlayerScript_DarkPortal_Phasing();
 }
+#endif

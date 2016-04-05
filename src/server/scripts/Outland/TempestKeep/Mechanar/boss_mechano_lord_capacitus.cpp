@@ -135,8 +135,10 @@ class spell_capacitus_polarity_shift: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mechano_lord_capacitus()
 {
     new spell_capacitus_polarity_charge();
     new spell_capacitus_polarity_shift();
 }
+#endif

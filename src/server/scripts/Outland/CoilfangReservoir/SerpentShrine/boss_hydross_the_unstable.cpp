@@ -408,7 +408,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hydross_the_unstable()
 {
     new boss_hydross_the_unstable();
 }
+#endif

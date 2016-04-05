@@ -278,9 +278,11 @@ class spell_high_priestess_azil_gravity_well_script: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_priestess_azil()
 {
     new boss_high_priestess_azil();
     new npc_gravity_well();
     new spell_high_priestess_azil_gravity_well_script();
 }
+#endif   

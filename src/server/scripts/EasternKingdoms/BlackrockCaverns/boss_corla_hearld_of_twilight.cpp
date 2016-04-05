@@ -165,8 +165,10 @@ class boss_corla_herald_of_twilight : public CreatureScript
             }
         };
 };
- 
+
+#ifndef __clang_analyzer__
 void AddSC_boss_corla_herald_of_twilight()
 {
     new boss_corla_herald_of_twilight();
 }
+#endif

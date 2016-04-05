@@ -589,6 +589,7 @@ class achievement_ring_out : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_daakara()
 {
     new boss_daakara();
@@ -599,4 +600,4 @@ void AddSC_boss_daakara()
     new spell_daakara_sweeping_winds();
     new achievement_ring_out();
 }
-
+#endif

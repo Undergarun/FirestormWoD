@@ -117,7 +117,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anubshiah()
 {
     new boss_anubshiah();
 }
+#endif

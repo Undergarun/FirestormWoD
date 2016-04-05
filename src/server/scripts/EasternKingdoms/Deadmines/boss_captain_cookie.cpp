@@ -437,6 +437,7 @@ class spell_captain_cookie_throw_food_targeting: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_captain_cookie()
 {
     new boss_captain_cookie();
@@ -447,3 +448,4 @@ void AddSC_boss_captain_cookie()
     new spell_captain_cookie_nauseated();
     new spell_captain_cookie_throw_food_targeting();
 }
+#endif

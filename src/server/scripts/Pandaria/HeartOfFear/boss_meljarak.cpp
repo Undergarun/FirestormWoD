@@ -1674,6 +1674,7 @@ class go_krithik_weapon_rack : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_meljarak()
 {
     new boss_wind_lord_meljarak();          // 62397
@@ -1690,3 +1691,4 @@ void AddSC_boss_meljarak()
     new spell_whirling_blade_damages();     // 121898
     new go_krithik_weapon_rack();           // 211675
 }
+#endif

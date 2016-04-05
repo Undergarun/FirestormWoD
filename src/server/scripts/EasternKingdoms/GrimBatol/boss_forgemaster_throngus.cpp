@@ -290,9 +290,11 @@ class spell_throngus_pick_weapon: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_forgemaster_throngus()
 {
     new boss_forgemaster_throngus();
     new npc_throngus_fire_patch();
     new spell_throngus_pick_weapon();
 }
+#endif

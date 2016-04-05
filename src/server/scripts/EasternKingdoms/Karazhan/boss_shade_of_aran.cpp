@@ -549,8 +549,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shade_of_aran()
 {
     new boss_shade_of_aran();
     new mob_aran_elemental();
 }
+#endif

@@ -215,9 +215,11 @@ class spell_valden_toxic_coagulant: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lord_valden()
 {
     new boss_lord_valden();
     new npc_valden_mystery_toxin();
     new spell_valden_toxic_coagulant();
 }
+#endif

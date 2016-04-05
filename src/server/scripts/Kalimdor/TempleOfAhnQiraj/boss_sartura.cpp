@@ -296,8 +296,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sartura()
 {
     new boss_sartura();
     new mob_sartura_royal_guard();
 }
+#endif

@@ -205,9 +205,11 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lord_godfrey()
 {
     new boss_lord_godfrey();
     new npc_godfrey_pistol_barrage();
     new spell_godfrey_summon_bloodthirsty_ghouls();
 }
+#endif

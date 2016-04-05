@@ -832,6 +832,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_bonemaw()
 {
     new boss_bonemaw();                                                 ///< 75452
@@ -843,3 +844,4 @@ void AddSC_boss_bonemaw()
     new shadowmoon_burial_grounds_bonemaw_spell_body_slam();            ///< 153686
     new shadowmoon_burial_grounds_bonemaw_spell_corpse_breath();        ///< 165578
 }
+#endif

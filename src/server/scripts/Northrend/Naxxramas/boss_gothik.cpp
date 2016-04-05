@@ -618,9 +618,11 @@ class spell_gothik_shadow_bolt_volley: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gothik()
 {
     new boss_gothik();
     new mob_gothik_minion();
     new spell_gothik_shadow_bolt_volley();
 }
+#endif

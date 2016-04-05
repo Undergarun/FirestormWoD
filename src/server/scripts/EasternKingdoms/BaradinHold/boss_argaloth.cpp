@@ -129,7 +129,9 @@ class boss_argaloth : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_argaloth()
 {
     new boss_argaloth();
 }
+#endif

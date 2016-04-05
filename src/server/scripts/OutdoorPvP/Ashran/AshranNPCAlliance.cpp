@@ -3382,7 +3382,7 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
             return new npc_ashran_ex_alliance_racerAI(p_Creature);
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -3418,3 +3418,4 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_mathias_zunn();
     new npc_ashran_ex_alliance_racer();
 }
+#endif

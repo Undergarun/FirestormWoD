@@ -538,6 +538,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 }
 } } ///< namespace MS::Instances
 
+#ifndef __clang_analyzer__
 void AddSC_boss_roltall()
 {
     new MS::Instances::Bloodmaul::boss_roltall();
@@ -546,3 +547,4 @@ void AddSC_boss_roltall()
     new MS::Instances::Bloodmaul::areatrigger_roltall_heat_wave();
     new MS::Instances::Bloodmaul::areatrigger_roltall_burning_slag();
 }
+#endif

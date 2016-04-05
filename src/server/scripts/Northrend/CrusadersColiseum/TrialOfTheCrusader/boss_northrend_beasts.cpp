@@ -1141,6 +1141,7 @@ class boss_icehowl : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_northrend_beasts()
 {
     new boss_gormok();
@@ -1154,3 +1155,4 @@ void AddSC_boss_northrend_beasts()
 
     new boss_icehowl();
 }
+#endif

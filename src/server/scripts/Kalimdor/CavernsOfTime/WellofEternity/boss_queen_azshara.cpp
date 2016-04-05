@@ -517,6 +517,7 @@ class spell_queen_azshara_arcane_bomb: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_queen_azshara()
 {
     new boss_queen_azshara();
@@ -525,3 +526,4 @@ void AddSC_boss_queen_azshara()
     new spell_queen_azshara_coldflame();
     //new spell_queen_azshara_arcane_bomb();
 }
+#endif

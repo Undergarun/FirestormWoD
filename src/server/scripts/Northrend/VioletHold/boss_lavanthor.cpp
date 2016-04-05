@@ -157,7 +157,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lavanthor()
 {
     new boss_lavanthor();
 }
+#endif

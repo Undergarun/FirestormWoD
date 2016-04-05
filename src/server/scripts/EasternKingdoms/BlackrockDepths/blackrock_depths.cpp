@@ -1335,6 +1335,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blackrock_depths()
 {
     new go_shadowforge_brazier();
@@ -1351,3 +1352,4 @@ void AddSC_blackrock_depths()
       new npc_marshal_reginald_windsor();
     */
 }
+#endif

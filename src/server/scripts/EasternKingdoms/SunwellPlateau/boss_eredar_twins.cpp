@@ -796,9 +796,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_eredar_twins()
 {
     new boss_sacrolash();
     new boss_alythess();
     new mob_shadow_image();
 }
+#endif

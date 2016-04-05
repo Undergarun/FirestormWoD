@@ -1216,6 +1216,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sadana()
 {   
     new boss_sadana_bloodfury();                                      ///< 75509
@@ -1228,3 +1229,4 @@ void AddSC_boss_sadana()
     new shadowmoon_burial_grounds_sadana_spell_dark_communion();      ///< 153153
     new shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage(); ///< 16468
 }
+#endif

@@ -140,7 +140,9 @@ class boss_nalorakk : public CreatureScript
         };     
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nalorakk()
 {
     new boss_nalorakk();
 }
+#endif

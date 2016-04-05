@@ -107,7 +107,9 @@ class boss_niuzao : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_niuzao()
 {
     new boss_niuzao();
 }
+#endif

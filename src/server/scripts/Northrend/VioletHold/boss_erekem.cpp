@@ -333,8 +333,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_erekem()
 {
     new boss_erekem();
     new mob_erekem_guard();
 }
+#endif

@@ -183,8 +183,10 @@ class mob_core_rager : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_golemagg()
 {
     new boss_golemagg();
     new mob_core_rager();
 }
+#endif

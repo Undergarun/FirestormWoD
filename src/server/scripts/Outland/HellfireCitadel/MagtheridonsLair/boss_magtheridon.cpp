@@ -623,6 +623,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_magtheridon()
 {
     new boss_magtheridon();
@@ -630,4 +631,4 @@ void AddSC_boss_magtheridon()
     new mob_abyssal();
     new go_manticron_cube();
 }
-
+#endif

@@ -287,12 +287,14 @@ class mob_sha_puddle : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_immerseus()
 {
     new boss_immerseus();
     new mob_contaminated_puddle();
     new mob_sha_puddle();
 }
+#endif
 
 /*
 Intro:

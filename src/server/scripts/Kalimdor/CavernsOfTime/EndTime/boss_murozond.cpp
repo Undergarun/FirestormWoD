@@ -550,6 +550,7 @@ class go_murozond_hourglass_of_time : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_murozond()
 {
     new boss_murozond();
@@ -557,3 +558,4 @@ void AddSC_boss_murozond()
     new npc_murozond_mirror_image();
     new go_murozond_hourglass_of_time();
 }
+#endif

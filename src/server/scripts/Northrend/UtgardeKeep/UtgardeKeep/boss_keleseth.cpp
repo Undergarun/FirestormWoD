@@ -379,6 +379,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_keleseth()
 {
     new boss_keleseth();
@@ -387,3 +388,4 @@ void AddSC_boss_keleseth()
     new spell_frost_tomb();
     new achievement_on_the_rocks();
 }
+#endif

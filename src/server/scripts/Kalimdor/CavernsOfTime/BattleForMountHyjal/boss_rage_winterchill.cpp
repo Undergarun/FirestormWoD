@@ -161,7 +161,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rage_winterchill()
 {
     new boss_rage_winterchill();
 }
+#endif

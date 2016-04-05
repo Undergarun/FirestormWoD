@@ -402,9 +402,11 @@ class spell_admiral_ripsnarl_coalesce : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_admiral_ripsnarl()
 {
     new boss_admiral_ripsnarl();
     new npc_admiral_ripsnarl_vapor();
     new spell_admiral_ripsnarl_coalesce();
 }
+#endif

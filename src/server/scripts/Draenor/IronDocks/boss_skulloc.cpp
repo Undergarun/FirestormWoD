@@ -1050,6 +1050,7 @@ class iron_docks_skulloc_spell_berserker_jump : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_skulloc()
 {
     /// Bosses
@@ -1063,3 +1064,4 @@ void AddSC_boss_skulloc()
     new iron_docks_skulloc_spell_cannon_barrage(); /// 168537
     new iron_docks_skulloc_spell_berserker_jump(); /// 168965
 }
+#endif

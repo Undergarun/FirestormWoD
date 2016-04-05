@@ -145,8 +145,10 @@ public:
     };
  
 };
- 
+
+#ifndef __clang_analyzer__
 void AddSC_boss_beauty()
 {
     new boss_beauty();
 }
+#endif

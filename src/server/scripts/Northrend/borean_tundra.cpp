@@ -2594,6 +2594,7 @@ class go_frozen_phylactery : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
@@ -2625,3 +2626,4 @@ void AddSC_borean_tundra()
     new npc_hidden_cultist();
     new go_frozen_phylactery();
 }
+#endif

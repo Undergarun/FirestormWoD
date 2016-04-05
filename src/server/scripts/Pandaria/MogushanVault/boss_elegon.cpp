@@ -2060,6 +2060,7 @@ class at_draw_power : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_elegon()
 {
     new boss_elegon();                      ///< 60410
@@ -2082,3 +2083,4 @@ void AddSC_boss_elegon()
     new spell_unstable_energy();            ///< 116994
     new at_draw_power();                    ///< 116546
 }
+#endif

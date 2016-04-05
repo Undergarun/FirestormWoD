@@ -1181,6 +1181,7 @@ class go_apexis_relic : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blades_edge_mountains()
 {
     new mobs_bladespire_ogre();
@@ -1197,3 +1198,4 @@ void AddSC_blades_edge_mountains()
     new go_simon_cluster();
     new go_apexis_relic();
 }
+#endif

@@ -545,7 +545,7 @@ public:
         return true;
     }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_bastion_of_twilight()
 {
     new npc_twilight_portal_shaper();
@@ -560,3 +560,4 @@ void AddSC_bastion_of_twilight()
     new at_bt_council_3();
     new at_bt_chogall();
 }
+#endif

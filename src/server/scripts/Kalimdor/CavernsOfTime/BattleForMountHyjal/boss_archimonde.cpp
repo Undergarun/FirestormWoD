@@ -670,6 +670,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_archimonde()
 {
     new boss_archimonde();
@@ -677,3 +678,4 @@ void AddSC_boss_archimonde()
     new mob_doomfire_targetting();
     new mob_ancient_wisp();
 }
+#endif

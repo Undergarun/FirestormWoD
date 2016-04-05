@@ -479,7 +479,7 @@ class go_naga_brazier : public GameObjectScript
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_ashenvale()
 {
     new npc_torek();
@@ -487,3 +487,4 @@ void AddSC_ashenvale()
     new npc_muglash();
     new go_naga_brazier();
 }
+#endif

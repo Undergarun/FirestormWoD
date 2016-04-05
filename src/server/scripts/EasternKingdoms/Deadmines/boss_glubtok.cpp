@@ -193,7 +193,9 @@ class boss_glubtok : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_glubtok()
 {
     new boss_glubtok();
 }
+#endif

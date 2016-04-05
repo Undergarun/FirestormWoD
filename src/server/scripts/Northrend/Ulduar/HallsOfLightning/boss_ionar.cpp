@@ -376,8 +376,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ionar()
 {
     new boss_ionar();
     new mob_spark_of_ionar();
 }
+#endif

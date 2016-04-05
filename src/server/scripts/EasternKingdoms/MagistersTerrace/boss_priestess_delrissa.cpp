@@ -1314,6 +1314,7 @@ public:
 };
 */
 
+#ifndef __clang_analyzer__
 void AddSC_boss_priestess_delrissa()
 {
     new boss_priestess_delrissa();
@@ -1327,3 +1328,4 @@ void AddSC_boss_priestess_delrissa()
     new boss_zelfan();
     // new mob_high_explosive_sheep();
 }
+#endif

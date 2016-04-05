@@ -337,7 +337,7 @@ public:
         return false;
     }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -358,3 +358,4 @@ void AddSC_achievement_scripts()
     new achievement_not_even_a_scratch();
     new achievement_flirt_with_disaster_perf_check();
 }
+#endif

@@ -339,6 +339,7 @@ class achievement_abuse_the_ooze : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sjonnir()
 {
     new boss_sjonnir();
@@ -346,3 +347,4 @@ void AddSC_boss_sjonnir()
     new mob_iron_sludge();
     new achievement_abuse_the_ooze();
 }
+#endif

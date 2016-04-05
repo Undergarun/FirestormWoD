@@ -1809,6 +1809,7 @@ class areatrigger_at_highmaul_infested_waters : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_brackenspore()
 {
     /// Boss
@@ -1842,3 +1843,4 @@ void AddSC_boss_brackenspore()
     /// AreaTriggers (Area)
     new areatrigger_at_highmaul_infested_waters();
 }
+#endif

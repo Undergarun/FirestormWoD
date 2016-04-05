@@ -166,6 +166,7 @@ class mob_dragonmaw_bonecrusher : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_galakras()
 {
     new boss_galakras();
@@ -175,3 +176,4 @@ void AddSC_galakras()
     new mob_korgra_the_snake();
     new mob_dragonmaw_bonecrusher();
 }
+#endif

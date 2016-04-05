@@ -965,6 +965,7 @@ class achievement_disarmed : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
@@ -988,3 +989,4 @@ void AddSC_boss_kologarn()
     new achievement_disarmed("achievement_disarmed");
     new achievement_disarmed("achievement_disarmed_25");
 }
+#endif

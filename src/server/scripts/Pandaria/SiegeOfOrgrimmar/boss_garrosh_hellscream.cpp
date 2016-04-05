@@ -184,6 +184,7 @@ class mob_wolf_rider_farseer : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_Garrosh_Hellscream()
 {
     new boss_garrosh_hellscream();
@@ -191,3 +192,4 @@ void AddSC_Garrosh_Hellscream()
     new mob_korkron_warbringer();
     new mob_wolf_rider_farseer();
 }
+#endif

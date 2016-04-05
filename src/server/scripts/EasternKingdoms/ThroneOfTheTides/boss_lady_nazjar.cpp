@@ -539,6 +539,7 @@ class npc_lady_nazjar_geyser : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lady_nazjar()
 {
     new boss_lady_nazjar();
@@ -547,3 +548,4 @@ void AddSC_boss_lady_nazjar()
     new npc_lady_nazjar_waterspout();
     new npc_lady_nazjar_geyser();
 }
+#endif

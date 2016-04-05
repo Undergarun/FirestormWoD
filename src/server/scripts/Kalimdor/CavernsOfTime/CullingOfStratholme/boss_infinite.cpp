@@ -121,7 +121,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_infinite_corruptor()
 {
     new boss_infinite_corruptor();
 }
+#endif

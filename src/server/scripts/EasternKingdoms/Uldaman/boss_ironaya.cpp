@@ -107,9 +107,9 @@ class boss_ironaya : public CreatureScript
         }
 };
 
-//This is the actual function called only once durring InitScripts()
-//It must define all handled functions that are to be run in this script
+#ifndef __clang_analyzer__
 void AddSC_boss_ironaya()
 {
     new boss_ironaya();
 }
+#endif

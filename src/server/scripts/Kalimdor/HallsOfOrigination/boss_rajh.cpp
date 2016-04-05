@@ -254,9 +254,11 @@ class achievement_sun_of_a : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rajh()
 {
     new boss_rajh();
     new npc_rajh_solar_wind();
     new achievement_sun_of_a();
 }
+#endif

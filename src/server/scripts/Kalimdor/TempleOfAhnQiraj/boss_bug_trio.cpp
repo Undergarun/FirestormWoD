@@ -367,9 +367,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_bug_trio()
 {
     new boss_kri();
     new boss_vem();
     new boss_yauj();
 }
+#endif

@@ -256,6 +256,7 @@ class npc_ashran_mare_wildrunner : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_AshranQuest()
 {
     new npc_ashran_commander_anne_dunworthy();
@@ -267,3 +268,4 @@ void AddSC_AshranQuest()
     new npc_ashran_angry_zurge();
     new npc_ashran_mare_wildrunner();
 }
+#endif

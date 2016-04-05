@@ -809,6 +809,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ancient_protectors()
 {
     new boss_dulhu();                                              ///< 83894
@@ -818,3 +819,4 @@ void AddSC_boss_ancient_protectors()
     new the_everbloom_ancient_protectors_spell_rending_charge();   ///< 164641
     new the_everbloom_ancient_protectors_spell_rapid_tides();      ///< 168105
 }
+#endif

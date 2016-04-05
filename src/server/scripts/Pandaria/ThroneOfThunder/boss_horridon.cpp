@@ -2352,6 +2352,7 @@ class go_horridon_intro_door : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_horridon()
 {
     new boss_horridon();
@@ -2380,3 +2381,4 @@ void AddSC_boss_horridon()
     new spell_double_swipe();
     new go_horridon_intro_door();
 }
+#endif

@@ -1301,6 +1301,7 @@ class achievement_quick_shave : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_razorscale()
 {
     new boss_razorscale_controller();
@@ -1320,6 +1321,7 @@ void AddSC_boss_razorscale()
     new achievement_quick_shave();
 }
 
+#endif
 #undef SPELL_FIREBALL
 #undef SPELL_FLAMEBREATH
 #undef SPELL_BATTLE_SHOUT

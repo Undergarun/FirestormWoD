@@ -202,8 +202,9 @@ class boss_high_botanist_freywinn : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_botanist_freywinn()
 {
     new boss_high_botanist_freywinn();
 }
-
+#endif

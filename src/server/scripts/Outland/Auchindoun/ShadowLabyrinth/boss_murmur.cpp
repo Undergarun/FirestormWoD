@@ -218,7 +218,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_murmur()
 {
     new boss_murmur();
 }
+#endif

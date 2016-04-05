@@ -120,7 +120,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_interrogator_vishas()
 {
     new boss_interrogator_vishas();
 }
+#endif

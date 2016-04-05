@@ -202,6 +202,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_bloodmyst_isle()
 {
     new mob_webbed_creature();
@@ -209,3 +210,4 @@ void AddSC_bloodmyst_isle()
     new npc_princess_stillpine();
     new go_princess_stillpines_cage();
 }
+#endif

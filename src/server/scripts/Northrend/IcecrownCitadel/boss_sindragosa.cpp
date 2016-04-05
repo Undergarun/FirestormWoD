@@ -1650,6 +1650,7 @@ class achievement_all_you_can_eat : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sindragosa()
 {
     new boss_sindragosa();
@@ -1672,3 +1673,4 @@ void AddSC_boss_sindragosa()
     new at_sindragosa_lair();
     new achievement_all_you_can_eat();
 }
+#endif

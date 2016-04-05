@@ -402,9 +402,11 @@ namespace MS { namespace Instances { namespace Bloodmaul
 }
 } } ///< namespace MS::Instances
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gugrokk()
 {
     new MS::Instances::Bloodmaul::boss_gugrokk();
     new MS::Instances::Bloodmaul::npc_gugrokk_magma_eruption();
     new MS::Instances::Bloodmaul::npc_gugrokk_unstable_slag();
 }
+#endif

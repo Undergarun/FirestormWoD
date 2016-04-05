@@ -273,9 +273,11 @@ class achievement_chaos_theory : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anomalus()
 {
     new boss_anomalus();
     new mob_chaotic_rift();
     new achievement_chaos_theory();
 }
+#endif

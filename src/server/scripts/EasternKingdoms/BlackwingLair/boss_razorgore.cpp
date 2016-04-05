@@ -129,7 +129,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_razorgore()
 {
     new boss_razorgore();
 }
+#endif

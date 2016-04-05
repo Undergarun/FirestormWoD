@@ -237,8 +237,10 @@ class spell_mark_of_kazrogal: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kazrogal()
 {
     new boss_kazrogal();
     new spell_mark_of_kazrogal();
 }
+#endif

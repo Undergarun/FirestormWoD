@@ -111,7 +111,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ebonroc()
 {
     new boss_ebonroc();
 }
+#endif

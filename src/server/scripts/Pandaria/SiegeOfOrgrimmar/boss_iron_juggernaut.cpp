@@ -99,8 +99,10 @@ class mob_crawler_mine : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_iron_juggernaut()
 {
     new boss_iron_juggernaut();
     new mob_crawler_mine();
 }
+#endif

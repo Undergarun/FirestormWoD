@@ -108,7 +108,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_maleki_the_pallid()
 {
     new boss_maleki_the_pallid();
 }
+#endif

@@ -606,6 +606,7 @@ class spell_mistress_kiss_area: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -618,3 +619,4 @@ void AddSC_boss_jaraxxus()
     new spell_mistress_kiss();
     new spell_mistress_kiss_area();
 }
+#endif

@@ -478,6 +478,7 @@ class spell_erudax_shadow_gale: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_erudax()
 {
     new boss_erudax();
@@ -487,3 +488,4 @@ void AddSC_boss_erudax()
     new npc_erudax_twilight_hatchling();
     new spell_erudax_shadow_gale();
 }
+#endif

@@ -103,7 +103,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kelris()
 {
     new boss_kelris();
 }
+#endif

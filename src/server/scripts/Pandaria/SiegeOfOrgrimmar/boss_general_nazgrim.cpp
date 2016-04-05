@@ -299,6 +299,7 @@ class mob_korkron_warshaman : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_general_nazgrim()
 {
     new boss_general_nazgrim();
@@ -308,3 +309,4 @@ void AddSC_general_nazgrim()
     new mob_korkron_assassin();
     new mob_korkron_warshaman();
 };
+#endif

@@ -658,6 +658,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_archmage_sol()
 {
     new boss_archmage_sol();                                    ///< 82682
@@ -667,3 +668,4 @@ void AddSC_boss_archmage_sol()
     new the_everbloom_archmage_sol_mob_spore_image();           ///< 84386
     new the_everbloom_archmage_sol_spell_parasite_change();     ///< 168885
 }
+#endif

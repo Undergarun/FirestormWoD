@@ -199,8 +199,10 @@ class spell_alpha_male_threat: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_oondasta()
 {
     new boss_oondasta();
     new spell_alpha_male_threat();
 }
+#endif

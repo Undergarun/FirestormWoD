@@ -52,6 +52,7 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlePay_Golds()
 {
     new BattlePay_Gold<BattlePay::Gold10k>("battlepay_gold_10k");
@@ -59,3 +60,4 @@ void AddSC_BattlePay_Golds()
     new BattlePay_Gold<BattlePay::Gold100k>("battlepay_gold_100k");
     new BattlePay_Gold<BattlePay::Gold300k>("battlepay_gold_300k");
 }
+#endif

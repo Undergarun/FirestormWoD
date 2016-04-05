@@ -190,8 +190,10 @@ class mob_flame_warder : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_koralon()
 {
     new boss_koralon();
     new mob_flame_warder();
 }
+#endif

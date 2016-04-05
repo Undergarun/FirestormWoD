@@ -1079,6 +1079,7 @@ class at_get_away : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lei_shi()
 {
     new boss_lei_shi();             ///< 62983
@@ -1092,3 +1093,4 @@ void AddSC_boss_lei_shi()
     new spell_scary_fog_stacks();   ///< 123712
     new at_get_away();              ///< 123461
 }
+#endif

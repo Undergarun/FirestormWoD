@@ -100,7 +100,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_landslide()
 {
     new boss_landslide();
 }
+#endif

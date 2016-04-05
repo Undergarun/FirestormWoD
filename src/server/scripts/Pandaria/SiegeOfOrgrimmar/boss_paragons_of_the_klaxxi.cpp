@@ -825,6 +825,7 @@ class boss_hisek_the_swarmkeeper : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_paragons_of_the_klaxxi()
 {
     new boss_kilruk_the_wind_reaver();
@@ -837,3 +838,4 @@ void AddSC_paragons_of_the_klaxxi()
     new boss_rikkal_the_dissector();
     new boss_hisek_the_swarmkeeper();
 };
+#endif

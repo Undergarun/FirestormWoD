@@ -1008,6 +1008,7 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gruul_foundry()
 {
     /// Boss
@@ -1025,3 +1026,4 @@ void AddSC_boss_gruul_foundry()
     new spell_foundry_petrifying_slam();
     new spell_foundry_overhead_smash();
 }
+#endif

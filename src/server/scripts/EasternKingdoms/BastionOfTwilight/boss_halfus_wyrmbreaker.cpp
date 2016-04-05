@@ -787,6 +787,7 @@ class spell_halfus_fireball_barrage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_halfus_wyrmbreaker()
 {
     new boss_halfus_wyrmbreaker();
@@ -797,3 +798,4 @@ void AddSC_boss_halfus_wyrmbreaker()
     new spell_halfus_stone_grip();
     new spell_halfus_fireball_barrage();
 }
+#endif

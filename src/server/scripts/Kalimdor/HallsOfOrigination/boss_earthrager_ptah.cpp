@@ -249,8 +249,10 @@ class npc_ptah_dustbone_horror : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_earthrager_ptah()
 {
     new boss_earthrager_ptah();
     new npc_ptah_dustbone_horror();
 }
+#endif

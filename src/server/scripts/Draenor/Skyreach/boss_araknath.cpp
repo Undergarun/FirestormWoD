@@ -270,8 +270,10 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_Araknath()
 {
     new MS::InstanceSkyreach::mob_SkyreachArcanologist();
     new MS::InstanceSkyreach::boss_Araknath();
 }
+#endif

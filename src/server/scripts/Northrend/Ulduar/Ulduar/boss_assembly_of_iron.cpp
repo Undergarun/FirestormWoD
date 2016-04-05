@@ -1400,6 +1400,7 @@ class achievement_cant_do_that_while_stunned : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_assembly_of_iron()
 {
     new boss_steelbreaker();
@@ -1420,6 +1421,7 @@ void AddSC_boss_assembly_of_iron()
     new achievement_cant_do_that_while_stunned("achievement_cant_do_that_while_stunned");
     new achievement_cant_do_that_while_stunned("achievement_cant_do_that_while_stunned_25");
 }
+#endif
 
 // Steelbreaker
 #undef SPELL_HIGH_VOLTAGE

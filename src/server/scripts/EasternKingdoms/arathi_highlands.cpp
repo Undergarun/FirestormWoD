@@ -157,8 +157,9 @@ class npc_professor_phizzlethorpe : public CreatureScript
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_arathi_highlands()
 {
     new npc_professor_phizzlethorpe();
 }
+#endif

@@ -175,7 +175,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_salramm()
 {
     new boss_salramm();
 }
+#endif

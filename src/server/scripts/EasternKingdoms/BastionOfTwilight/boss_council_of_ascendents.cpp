@@ -2102,6 +2102,7 @@ class spell_elemental_statis: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ascendant_council()
 {
     new boss_feludius();
@@ -2131,3 +2132,4 @@ void AddSC_boss_ascendant_council()
     new spell_monstrosity_cryogenic_aura();
     new spell_elemental_statis();
 }
+#endif

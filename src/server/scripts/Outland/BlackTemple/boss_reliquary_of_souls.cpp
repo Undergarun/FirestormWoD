@@ -716,6 +716,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_reliquary_of_souls()
 {
     new boss_reliquary_of_souls();
@@ -724,3 +725,4 @@ void AddSC_boss_reliquary_of_souls()
     new boss_essence_of_anger();
     new npc_enslaved_soul();
 }
+#endif

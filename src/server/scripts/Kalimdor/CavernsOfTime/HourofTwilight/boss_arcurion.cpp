@@ -294,9 +294,11 @@ class spell_arcurion_icy_boulder: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_arcurion()
 {
     new boss_arcurion();
     new npc_arcurion_frozen_servitor();
     new spell_arcurion_icy_boulder();
 }
+#endif

@@ -364,9 +364,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nexusprince_shaffar()
 {
     new boss_nexusprince_shaffar();
     new mob_ethereal_beacon();
     new mob_ethereal_apprentice();
 }
+#endif

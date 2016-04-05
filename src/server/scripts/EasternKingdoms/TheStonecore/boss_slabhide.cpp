@@ -202,8 +202,10 @@ class npc_lava_fissure : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_slabhide()
 {
     new boss_slabhide();
     new npc_lava_fissure();
 }
+#endif

@@ -828,6 +828,7 @@ class spell_primordius_evolution: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_primordius()
 {
     new boss_primordius();
@@ -836,3 +837,4 @@ void AddSC_boss_primordius()
     new spell_congeal_blood();
     new spell_primordius_evolution();
 }
+#endif

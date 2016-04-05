@@ -249,9 +249,11 @@ class npc_air_current : public CreatureScript
      };
 };*/
 
+#ifndef __clang_analyzer__
 void AddSC_boss_altairus()
 {
     new boss_altairus();
     new npc_air_current();
     //new npc_altairus_twister();
 }
+#endif

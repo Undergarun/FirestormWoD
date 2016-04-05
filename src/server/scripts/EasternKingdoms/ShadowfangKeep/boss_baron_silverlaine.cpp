@@ -248,7 +248,7 @@ class spell_silverlaine_summon_worgen_spirit: public SpellScriptLoader
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_baron_silverlaine()
 {
     new boss_baron_silverlaine();
@@ -256,3 +256,4 @@ void AddSC_boss_baron_silverlaine()
     new npc_silverlaine_worgen_spirit();
     new spell_silverlaine_summon_worgen_spirit();
 }
+#endif

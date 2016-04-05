@@ -177,7 +177,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_maiden_of_grief()
 {
     new boss_maiden_of_grief();
 }
+#endif

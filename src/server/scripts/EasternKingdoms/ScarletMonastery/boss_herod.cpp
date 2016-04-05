@@ -177,8 +177,10 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_herod()
 {
     new boss_herod();
     new mob_scarlet_trainee();
 }
+#endif

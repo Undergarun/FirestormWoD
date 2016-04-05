@@ -878,6 +878,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_nyami()
 {
     new auchindon_boss_nyami();
@@ -892,3 +893,4 @@ void AddSC_nyami()
     new auchindon_nyami_torn_spirits();
     new auchindon_nyami_spell_soul_vessel_dummy();
 }
+#endif

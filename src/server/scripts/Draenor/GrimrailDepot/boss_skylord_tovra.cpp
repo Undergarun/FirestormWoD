@@ -147,7 +147,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_skylord_tovra()
 {
     new boss_skylord_torva();
 }
+#endif

@@ -2020,6 +2020,7 @@ class spell_cleansing_waters_regen : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_protectors_of_the_endless()
 {
     new boss_ancient_regail();              // 60585
@@ -2040,3 +2041,4 @@ void AddSC_boss_protectors_of_the_endless()
     new spell_superior_corrupted_essence(); // 117905
     new spell_cleansing_waters_regen();     // 117283
 }
+#endif

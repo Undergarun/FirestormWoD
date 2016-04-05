@@ -393,6 +393,7 @@ class npc_ghursha_mind_fog : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_erunak_stonespeaker()
 {
     new boss_erunak_stonespeaker();
@@ -400,3 +401,4 @@ void AddSC_boss_erunak_stonespeaker()
     new npc_erunak_earth_shards();
     new npc_ghursha_mind_fog();
 }
+#endif

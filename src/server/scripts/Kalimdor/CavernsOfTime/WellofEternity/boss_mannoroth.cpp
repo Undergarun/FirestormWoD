@@ -692,6 +692,7 @@ class achievement_thats_not_cannon : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mannoroth()
 {
     new boss_mannoroth();
@@ -700,3 +701,4 @@ void AddSC_boss_mannoroth()
     new spell_mannoroth_gift_of_sargeras();
     new achievement_thats_not_cannon();
 }
+#endif

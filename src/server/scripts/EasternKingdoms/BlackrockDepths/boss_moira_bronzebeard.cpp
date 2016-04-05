@@ -88,7 +88,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_moira_bronzebeard()
 {
     new boss_moira_bronzebeard();
 }
+#endif

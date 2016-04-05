@@ -107,7 +107,9 @@ class boss_ordos : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ordos()
 {
     new boss_ordos();
 }
+#endif

@@ -125,7 +125,9 @@ class boss_rajaxx : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rajaxx()
 {
     new boss_rajaxx();
 }
+#endif

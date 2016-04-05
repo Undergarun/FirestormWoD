@@ -358,8 +358,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_morogrim_tidewalker()
 {
     new boss_morogrim_tidewalker();
     new mob_water_globule();
 }
+#endif

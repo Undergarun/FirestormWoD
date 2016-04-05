@@ -444,8 +444,7 @@ class go_altar_of_the_keepers : public GameObjectScript
         }
 };
 
-//This is the actual function called only once durring InitScripts()
-//It must define all handled functions that are to be run in this script
+#ifndef __clang_analyzer__t
 void AddSC_boss_archaedas()
 {
     new boss_archaedas();
@@ -454,3 +453,4 @@ void AddSC_boss_archaedas()
     new go_altar_of_archaedas();
     new go_altar_of_the_keepers();
 }
+#endif

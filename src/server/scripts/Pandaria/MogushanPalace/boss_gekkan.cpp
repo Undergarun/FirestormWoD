@@ -370,6 +370,7 @@ class mob_glintrok_hexxer : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gekkan()
 {
     new boss_gekkan();
@@ -378,3 +379,4 @@ void AddSC_boss_gekkan()
     new mob_glintrok_oracle();
     new mob_glintrok_ironhide();
 }
+#endif

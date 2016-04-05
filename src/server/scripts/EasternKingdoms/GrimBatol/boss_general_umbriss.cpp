@@ -326,9 +326,11 @@ class npc_umbriss_trogg_dweller : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_umbriss()
 {
     new boss_general_umbriss();
     new npc_malignant_trogg();
     new npc_umbriss_trogg_dweller();
 }
+#endif

@@ -181,7 +181,9 @@ class boss_moam : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_moam()
 {
     new boss_moam();
 }
+#endif

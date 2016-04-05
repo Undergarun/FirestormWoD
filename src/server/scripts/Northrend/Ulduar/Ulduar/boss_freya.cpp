@@ -2282,6 +2282,7 @@ class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_freya()
 {
     new boss_freya();
@@ -2318,3 +2319,4 @@ void AddSC_boss_freya()
     new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood");
     new achievement_knock_knock_knock_on_wood("achievement_knock_knock_knock_on_wood_25");
 }
+#endif

@@ -318,7 +318,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_volazj()
 {
     new boss_volazj;
 }
+#endif

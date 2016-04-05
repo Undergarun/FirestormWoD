@@ -1079,6 +1079,7 @@ class areatrigger_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_commander_tharbek()
 {
     new boss_commander_tharbek();
@@ -1087,3 +1088,4 @@ void AddSC_boss_commander_tharbek()
     new mob_awbee();
     new areatrigger_noxious_spit();
 }
+#endif

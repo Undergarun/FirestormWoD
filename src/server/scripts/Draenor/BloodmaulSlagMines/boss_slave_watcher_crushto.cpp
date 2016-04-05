@@ -249,7 +249,9 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_SlaveWatcherCrushto()
 {
     new MS::Instances::Bloodmaul::boss_SlaveWatcherCrushto();
 }
+enum

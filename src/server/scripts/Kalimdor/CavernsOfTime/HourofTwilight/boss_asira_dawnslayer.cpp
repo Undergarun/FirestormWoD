@@ -314,6 +314,7 @@ class spell_asira_dawnslayer_mark_of_silence: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_asira_dawnslayer()
 {
     new boss_asira_dawnslayer();
@@ -321,3 +322,4 @@ void AddSC_boss_asira_dawnslayer()
     new spell_asira_dawnslayer_throw_knife();
     new spell_asira_dawnslayer_mark_of_silence();
 }
+#endif

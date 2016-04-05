@@ -116,7 +116,9 @@ class boss_baron_geddon : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_baron_geddon()
 {
     new boss_baron_geddon();
 }
+#endif

@@ -1142,6 +1142,7 @@ class spell_repentance_player_summon_mirror: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_prophet_barim()
 {
     new boss_high_prophet_barim();
@@ -1156,3 +1157,4 @@ void AddSC_boss_high_prophet_barim()
     new spell_repentance_player_kneel();
     new spell_repentance_player_summon_mirror();
 }
+#endif

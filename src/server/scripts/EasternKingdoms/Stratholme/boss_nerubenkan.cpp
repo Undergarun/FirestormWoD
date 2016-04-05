@@ -121,7 +121,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nerubenkan()
 {
     new boss_nerubenkan();
 }
+#endif

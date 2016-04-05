@@ -794,6 +794,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kalecgos()
 {
     new boss_kalecgos();
@@ -801,3 +802,4 @@ void AddSC_boss_kalecgos()
     new boss_kalec();
     new kalecgos_teleporter();
 }
+#endif

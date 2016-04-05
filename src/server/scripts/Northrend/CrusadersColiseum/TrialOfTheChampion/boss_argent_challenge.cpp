@@ -875,6 +875,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_argent_challenge()
 {
     new boss_eadric();
@@ -887,3 +888,4 @@ void AddSC_boss_argent_challenge()
     new npc_argent_lightwielder();
     new npc_argent_priest();
 }
+#endif

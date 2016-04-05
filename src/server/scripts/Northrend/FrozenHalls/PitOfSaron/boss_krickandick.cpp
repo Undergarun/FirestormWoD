@@ -718,6 +718,7 @@ class spell_krick_pursuit_confusion: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ick()
 {
     new boss_ick();
@@ -728,3 +729,4 @@ void AddSC_boss_ick()
     new spell_krick_pursuit();
     new spell_krick_pursuit_confusion();
 }
+#endif

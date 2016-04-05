@@ -1098,7 +1098,9 @@ class go_sa_boat : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlegroundSAScripts()
 {
     new go_sa_boat();
 }
+#endif

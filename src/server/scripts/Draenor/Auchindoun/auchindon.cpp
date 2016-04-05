@@ -1985,7 +1985,7 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_auchindoun()
 {
     new auchindon_creature_tuulani();
@@ -2016,3 +2016,4 @@ void AddSC_auchindoun()
     new auchindon_spell_beam_cosmetic();
     new gob_talador_portal();
 }
+#endif

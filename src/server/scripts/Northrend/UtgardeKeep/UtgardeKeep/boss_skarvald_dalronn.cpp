@@ -424,8 +424,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_skarvald_dalronn()
 {
     new boss_skarvald_the_constructor();
     new boss_dalronn_the_controller();
 }
+#endif

@@ -182,8 +182,10 @@ class achievement_defenseless : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_cyanigosa()
 {
     new boss_cyanigosa();
     new achievement_defenseless();
 }
+#endif

@@ -1368,8 +1368,7 @@ public:
 
 };
 
-//GetAIs
-
+#ifndef __clang_analyzer__
 void AddSC_boss_cthun()
 {
     new boss_eye_of_cthun();
@@ -1380,3 +1379,4 @@ void AddSC_boss_cthun()
     new mob_giant_eye_tentacle();
     new mob_giant_flesh_tentacle();
 }
+#endif

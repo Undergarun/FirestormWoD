@@ -295,9 +295,11 @@ class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_baine()
 {
     new boss_echo_of_baine();
     new npc_echo_of_baine_baines_totem();
     new spell_echo_of_baine_pulverize_aoe();
 }
+#endif

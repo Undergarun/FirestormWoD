@@ -176,6 +176,7 @@ class mob_foul_slime : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_korkron_dark_shamans()
 {
     new boss_earthbreaker_haromm();
@@ -183,3 +184,4 @@ void AddSC_korkron_dark_shamans()
     new mob_darkfang();
     new mob_foul_slime();
 }
+#endif

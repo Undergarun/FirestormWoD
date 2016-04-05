@@ -390,8 +390,10 @@ class achievement_three_faced : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_devourer_of_souls()
 {
     new boss_devourer_of_souls();
     new achievement_three_faced();
 }
+#endif

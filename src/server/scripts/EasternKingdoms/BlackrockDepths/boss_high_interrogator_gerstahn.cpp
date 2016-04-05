@@ -97,7 +97,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_interrogator_gerstahn()
 {
     new boss_high_interrogator_gerstahn();
 }
+#endif

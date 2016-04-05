@@ -474,8 +474,10 @@ class spell_four_horsemen_mark: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_four_horsemen()
 {
     new boss_four_horsemen();
     new spell_four_horsemen_mark();
 }
+#endif

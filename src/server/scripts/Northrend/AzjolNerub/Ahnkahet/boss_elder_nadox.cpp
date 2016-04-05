@@ -333,6 +333,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_elder_nadox()
 {
     new boss_elder_nadox();
@@ -341,3 +342,4 @@ void AddSC_boss_elder_nadox()
     new spell_elder_nadox_guardian();
     new achievement_respect_your_elders();
 }
+#endif

@@ -177,8 +177,10 @@ class mob_automated_shredder : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_siegecrafter_blackfuse()
 {
     new boss_siegecrafter_blackfuse();
     new mob_automated_shredder();
 };
+#endif

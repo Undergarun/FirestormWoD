@@ -255,6 +255,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blackfathom_deeps()
 {
     new go_blackfathom_altar();
@@ -262,3 +263,4 @@ void AddSC_blackfathom_deeps()
     new npc_blackfathom_deeps_event();
     new npc_morridune();
 }
+#endif

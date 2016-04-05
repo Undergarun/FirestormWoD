@@ -458,9 +458,11 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ingvar_the_plunderer()
 {
     new boss_ingvar_the_plunderer();
     new mob_annhylde_the_caller();
     new mob_ingvar_throw_dummy();
 }
+#endif

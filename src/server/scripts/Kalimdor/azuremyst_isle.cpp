@@ -602,7 +602,7 @@ class go_bristlelimb_cage : public GameObjectScript
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_azuremyst_isle()
 {
     new npc_draenei_survivor();
@@ -614,3 +614,4 @@ void AddSC_azuremyst_isle()
     new npc_stillpine_capitive();
     new go_bristlelimb_cage();
 }
+#endif

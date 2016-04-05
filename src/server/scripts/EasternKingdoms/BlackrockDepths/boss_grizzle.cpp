@@ -80,7 +80,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_grizzle()
 {
     new boss_grizzle();
 }
+#endif

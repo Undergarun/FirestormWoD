@@ -336,7 +336,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_netherspite()
 {
     new boss_netherspite();
 }
+#endif

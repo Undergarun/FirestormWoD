@@ -144,7 +144,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_postmaster_malown()
 {
     new boss_postmaster_malown();
 }
+#endif

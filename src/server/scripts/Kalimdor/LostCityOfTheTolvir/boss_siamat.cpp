@@ -602,6 +602,7 @@ class achievement_headed_south : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_siamat()
 {
     new boss_siamat();
@@ -614,3 +615,4 @@ void AddSC_boss_siamat()
 
     new achievement_headed_south();
 }
+#endif

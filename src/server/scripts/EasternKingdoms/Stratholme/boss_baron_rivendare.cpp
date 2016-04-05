@@ -199,7 +199,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_baron_rivendare()
 {
     new boss_baron_rivendare();
 }
+#endif

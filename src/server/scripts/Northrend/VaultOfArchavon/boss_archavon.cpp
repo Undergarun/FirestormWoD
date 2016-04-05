@@ -197,8 +197,10 @@ class mob_archavon_warder : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_archavon()
 {
     new boss_archavon();
     new mob_archavon_warder();
 }
+#endif

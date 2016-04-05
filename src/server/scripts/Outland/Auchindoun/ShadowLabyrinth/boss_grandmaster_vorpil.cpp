@@ -328,8 +328,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_grandmaster_vorpil()
 {
     new boss_grandmaster_vorpil();
     new mob_voidtraveler();
 }
+#endif

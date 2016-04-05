@@ -895,6 +895,7 @@ class spell_voodoo_doll : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garajal()
 {
     new boss_garajal();
@@ -907,3 +908,4 @@ void AddSC_boss_garajal()
     new spell_final_destination();
     new spell_voodoo_doll();
 }
+#endif

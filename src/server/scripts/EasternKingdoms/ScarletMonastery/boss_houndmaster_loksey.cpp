@@ -76,7 +76,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_houndmaster_loksey()
 {
     new boss_houndmaster_loksey();
 }
+#endif

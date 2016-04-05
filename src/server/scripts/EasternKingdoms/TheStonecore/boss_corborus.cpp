@@ -307,9 +307,11 @@ class npc_crystal_shard : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_corborus()
 {
     new boss_corborus();
     new npc_rock_borer();
     new npc_crystal_shard();
 }
+#endif

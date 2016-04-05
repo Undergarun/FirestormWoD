@@ -157,8 +157,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hungarfen()
 {
     new boss_hungarfen();
     new mob_underbog_mushroom();
 }
+#endif

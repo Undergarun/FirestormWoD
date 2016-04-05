@@ -222,8 +222,10 @@ class spell_mark_of_kazzak: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_doomlordkazzak()
 {
     new boss_doomlord_kazzak();
     new spell_mark_of_kazzak();
 }
+#endif

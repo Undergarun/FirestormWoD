@@ -2338,6 +2338,7 @@ class spell_implacable_strike : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sha_of_fear()
 {
     new boss_sha_of_fear();             // 60999
@@ -2363,3 +2364,4 @@ void AddSC_boss_sha_of_fear()
     new spell_transfer_light();         // 120285
     new spell_implacable_strike();      // 120672
 }
+#endif

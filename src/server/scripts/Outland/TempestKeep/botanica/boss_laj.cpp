@@ -219,8 +219,9 @@ class boss_laj : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_laj()
 {
     new boss_laj();
 }
-
+#endif

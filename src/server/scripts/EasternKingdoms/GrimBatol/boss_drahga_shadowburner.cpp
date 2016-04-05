@@ -493,6 +493,7 @@ class spell_drahga_supernova: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_drahga_shadowburner()
 {
     new boss_drahga_shadowburner();
@@ -502,3 +503,4 @@ void AddSC_boss_drahga_shadowburner()
     new npc_seeping_twilight();
     new spell_drahga_supernova();
 }
+#endif

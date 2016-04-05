@@ -57,7 +57,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_death_knight_darkreaver()
 {
     new boss_death_knight_darkreaver();
 }
+#endif

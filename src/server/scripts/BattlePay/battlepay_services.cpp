@@ -97,6 +97,7 @@ template <uint32 t_AccountServiceFlag> class BattlePay_AccountService : BattlePa
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlePay_Services()
 {
     new BattlePay_Level<90>("battlepay_service_level90");
@@ -107,3 +108,4 @@ void AddSC_BattlePay_Services()
     new BattlePay_CharacterService<AtLoginFlags::AT_LOGIN_CUSTOMIZE>("battlepay_service_customize");
     //new BattlePay_AccountService<ServiceFlags::PremadePve>("battlepay_service_premade");
 }
+#endif

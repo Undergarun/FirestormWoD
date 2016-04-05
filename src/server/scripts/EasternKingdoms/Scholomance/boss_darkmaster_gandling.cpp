@@ -232,7 +232,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_darkmaster_gandling()
 {
     new boss_darkmaster_gandling();
 }
+#endif

@@ -143,8 +143,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_grobbulus()
 {
     new boss_grobbulus();
     new npc_grobbulus_poison_cloud();
 }
+#endif

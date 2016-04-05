@@ -114,7 +114,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_theolenkrastinov()
 {
     new boss_doctor_theolen_krastinov();
 }
+#endif

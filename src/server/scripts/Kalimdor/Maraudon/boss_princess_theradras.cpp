@@ -112,7 +112,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ptheradras()
 {
     new boss_princess_theradras();
 }
+#endif

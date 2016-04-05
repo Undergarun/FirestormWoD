@@ -1680,6 +1680,7 @@ class at_nullification_barrier : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_feng()
 {
     new boss_feng();                        ///< 60009
@@ -1702,3 +1703,4 @@ void AddSC_boss_feng()
     new go_cancel;                          ///< 211626
     new at_nullification_barrier();         ///< 115817
 }
+#endif

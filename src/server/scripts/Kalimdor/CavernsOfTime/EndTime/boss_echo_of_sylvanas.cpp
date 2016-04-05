@@ -568,6 +568,7 @@ class achievement_several_ties : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_sylvanas()
 {
     new boss_echo_of_sylvanas();
@@ -578,3 +579,4 @@ void AddSC_boss_echo_of_sylvanas()
     new spell_echo_of_sylvanas_seeping_shadows();
     new achievement_several_ties();
 }
+#endif

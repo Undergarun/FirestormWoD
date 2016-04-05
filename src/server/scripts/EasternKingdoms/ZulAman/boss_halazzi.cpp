@@ -406,6 +406,7 @@ class npc_halazzi_lightning_totem : public CreatureScript
       };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_halazzi()
 {
     new boss_halazzi();
@@ -413,4 +414,4 @@ void AddSC_boss_halazzi()
     new npc_halazzi_water_totem();
     new npc_halazzi_lightning_totem();
 }
-
+#endif

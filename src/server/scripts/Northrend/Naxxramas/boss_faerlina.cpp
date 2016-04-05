@@ -231,9 +231,11 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_faerlina()
 {
     new boss_faerlina();
     new mob_faerlina_add();
     new achievement_momma_said_knock_you_out();
 }
+#endif

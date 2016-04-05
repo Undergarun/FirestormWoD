@@ -1329,6 +1329,7 @@ class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_deathbringer_saurfang()
 {
     new boss_deathbringer_saurfang();
@@ -1345,3 +1346,4 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_remove_marks();
     new achievement_ive_gone_and_made_a_mess();
 }
+#endif

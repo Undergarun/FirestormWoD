@@ -1667,6 +1667,7 @@ class spell_putricide_choking_gas_explosion_damage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_professor_putricide()
 {
     new boss_professor_putricide();
@@ -1692,3 +1693,4 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_choking_gas_damage();
     new spell_putricide_choking_gas_explosion_damage();
 }
+#endif

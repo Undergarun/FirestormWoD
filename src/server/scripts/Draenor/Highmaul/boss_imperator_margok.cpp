@@ -3517,6 +3517,7 @@ class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_imperator_margok()
 {
     /// Boss
@@ -3551,3 +3552,4 @@ void AddSC_boss_imperator_margok()
     /// AreaTrigger
     new areatrigger_highmaul_orb_of_chaos();
 }
+#endif

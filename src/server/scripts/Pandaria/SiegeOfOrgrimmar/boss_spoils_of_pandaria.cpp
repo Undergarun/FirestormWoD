@@ -552,6 +552,7 @@ class mob_namelesse_windwallker_spirit : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spoils_of_pandaria()
 {
     new boss_spoils_of_pandaria();
@@ -569,3 +570,4 @@ void AddSC_spoils_of_pandaria()
     new mob_wise_misteweaver_spirit();
     new mob_namelesse_windwallker_spirit();
 };
+#endif

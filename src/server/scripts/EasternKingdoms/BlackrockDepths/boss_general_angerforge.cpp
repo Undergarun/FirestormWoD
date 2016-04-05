@@ -123,7 +123,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_angerforge()
 {
     new boss_general_angerforge();
 }
+#endif

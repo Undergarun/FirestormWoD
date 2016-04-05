@@ -2376,6 +2376,7 @@ class at_rushing_winds : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_iron_qon()
 {
     new boss_iron_qon();                ///< 68078
@@ -2400,3 +2401,4 @@ void AddSC_boss_iron_qon()
     new at_quilen_spear();              ///< 134758 - 136421 - 136451 
     new at_rushing_winds();             ///< 136574
 }
+#endif

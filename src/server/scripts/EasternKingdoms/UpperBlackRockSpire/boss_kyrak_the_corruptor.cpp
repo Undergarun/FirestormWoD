@@ -339,9 +339,11 @@ class areatrigger_vileblood_serum : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kyrak_the_corruptor()
 {
     new boss_kyrak_the_corruptor();
     new spell_vilebloom_serum();
     new areatrigger_vileblood_serum();
 }
+#endif

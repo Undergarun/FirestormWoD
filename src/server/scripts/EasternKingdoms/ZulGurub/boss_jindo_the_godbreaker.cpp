@@ -586,7 +586,7 @@ class spell_jindo_spirit_warrior_gaze_target: public SpellScriptLoader
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_jindo_the_godbreaker()
 {
     new boss_jindo_the_godbreaker();
@@ -598,3 +598,4 @@ void AddSC_boss_jindo_the_godbreaker()
     new spell_jindo_summon_spirit_target();
     new spell_jindo_spirit_warrior_gaze_target();
 }
+#endif

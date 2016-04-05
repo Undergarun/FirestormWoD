@@ -225,8 +225,10 @@ class npc_shadow_of_obsidius : public CreatureScript
         };           
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ascendant_lord_obsidius()
 {
     new boss_ascendant_lord_obsidius();
     new npc_shadow_of_obsidius();
 }
+#endif

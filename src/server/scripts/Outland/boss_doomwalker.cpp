@@ -164,7 +164,9 @@ class boss_doomwalker : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_doomwalker()
 {
     new boss_doomwalker();
 }
+#endif

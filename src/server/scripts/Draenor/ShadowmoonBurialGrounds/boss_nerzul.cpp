@@ -1053,7 +1053,7 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_nerzul()
 {
     new boss_nerzul();                                                          ///< 76407
@@ -1068,3 +1068,4 @@ void AddSC_boss_nerzul()
     new shadowmoon_burial_grounds_nerzul_spell_purple_beam();                   ///< 179655 
     new shadowmoon_burial_grounds_gameobject_nerzul_door();                     ///< 233920
 }
+#endif

@@ -1350,6 +1350,7 @@ class achievement_he_feeds_on_your_tears : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_algalon_the_observer()
 {
     new boss_algalon_the_observer();
@@ -1368,3 +1369,4 @@ void AddSC_boss_algalon_the_observer()
     new spell_algalon_supermassive_fail();
     new achievement_he_feeds_on_your_tears();
 }
+#endif

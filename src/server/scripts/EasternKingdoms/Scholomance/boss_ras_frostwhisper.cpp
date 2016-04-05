@@ -123,7 +123,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rasfrost()
 {
     new boss_boss_ras_frostwhisper();
 }
+#endif

@@ -557,6 +557,7 @@ class achievement_lazy_eye : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_perotharn()
 {
     new boss_perotharn();
@@ -566,3 +567,4 @@ void AddSC_boss_perotharn()
     new spell_perotharn_punishing_flames_dmg();
     new achievement_lazy_eye();
 }
+#endif

@@ -132,8 +132,10 @@ class npc_sap_puddle : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_jinbak()
 {
     new boss_jinbak();
     new npc_sap_puddle();
 }
+#endif

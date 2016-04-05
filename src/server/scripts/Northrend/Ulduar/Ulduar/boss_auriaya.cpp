@@ -649,6 +649,7 @@ class achievement_crazy_cat_lady : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_auriaya()
 {
     new boss_auriaya();
@@ -660,6 +661,7 @@ void AddSC_boss_auriaya()
     new achievement_nine_lives();
     new achievement_crazy_cat_lady();
 }
+#endif
 
 #undef SPELL_SENTINEL_BLAST
 #undef SPELL_SONIC_SCREECH

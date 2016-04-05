@@ -358,7 +358,7 @@ class spell_akilzon_electrical_storm_dmg: public SpellScriptLoader
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_akilzon()
 {
     new boss_akilzon();
@@ -367,4 +367,4 @@ void AddSC_boss_akilzon()
     new spell_akilzon_electrical_storm();
     new spell_akilzon_electrical_storm_dmg();
 }
-
+#endif

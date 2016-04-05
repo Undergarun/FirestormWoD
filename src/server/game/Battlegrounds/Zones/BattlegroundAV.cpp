@@ -1599,8 +1599,9 @@ public:
         return true;
     }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_BattlegroundAVcripts()
 {
     new npc_regzar();
 }
+#endif

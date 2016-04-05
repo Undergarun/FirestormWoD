@@ -266,8 +266,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anetheron()
 {
     new boss_anetheron();
     new mob_towering_infernal();
 }
+#endif

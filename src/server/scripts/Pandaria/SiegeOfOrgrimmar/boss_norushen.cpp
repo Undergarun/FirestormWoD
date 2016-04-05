@@ -126,6 +126,7 @@ class mob_manifestation_of_corruption : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_norushen()
 {
     new boss_norushen();
@@ -134,6 +135,7 @@ void AddSC_norushen()
     new mob_manifestation_of_corruption();
 }
 
+#endif
 /*
 Upon entering:
 Lorewalker Cho says: Astounding! Another chamber that looks to originate from these "Titans."

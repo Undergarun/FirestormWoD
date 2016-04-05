@@ -55,7 +55,9 @@ class bc_teleport : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_bc_teleport()
 {
     new bc_teleport();
 }
+#endif

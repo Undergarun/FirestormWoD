@@ -415,6 +415,7 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_HighSaveViryx()
 {
     new MS::InstanceSkyreach::boss_HighSageViryx();
@@ -422,3 +423,4 @@ void AddSC_boss_HighSaveViryx()
     new MS::InstanceSkyreach::mob_ArakkoaMagnifyingGlassFocus();
     new MS::InstanceSkyreach::mob_SkyreachShieldConstruct();
 }
+#endif

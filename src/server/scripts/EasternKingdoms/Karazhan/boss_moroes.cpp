@@ -783,6 +783,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_moroes()
 {
     new boss_moroes();
@@ -793,3 +794,4 @@ void AddSC_boss_moroes()
     new boss_lord_robin_daris();
     new boss_lord_crispin_ference();
 }
+#endif

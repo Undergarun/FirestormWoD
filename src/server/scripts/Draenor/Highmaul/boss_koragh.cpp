@@ -2098,6 +2098,7 @@ class achievement_highmaul_pair_annihilation : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_koragh()
 {
     /// Boss
@@ -2135,3 +2136,4 @@ void AddSC_boss_koragh()
     /// Achievement
     new achievement_highmaul_pair_annihilation();
 }
+#endif

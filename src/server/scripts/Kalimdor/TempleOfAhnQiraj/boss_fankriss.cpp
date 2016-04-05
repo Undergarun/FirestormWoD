@@ -205,7 +205,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_fankriss()
 {
     new boss_fankriss();
 }
+#endif

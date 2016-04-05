@@ -913,6 +913,7 @@ void mob_head::mob_headAI::Disappear()
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_headless_horseman()
 {
     new boss_headless_horseman();
@@ -921,3 +922,4 @@ void AddSC_boss_headless_horseman()
     new mob_wisp_invis();
     new go_loosely_turned_soil();
 }
+#endif

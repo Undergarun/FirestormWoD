@@ -363,9 +363,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_exarch_maladaar()
 {
     new boss_exarch_maladaar();
     new mob_avatar_of_martyred();
     new mob_stolen_soul();
 }
+#endif

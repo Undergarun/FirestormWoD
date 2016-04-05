@@ -1335,6 +1335,7 @@ class spell_garalon_pungency : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garalon()
 {
     new boss_garalon();                         // 62164
@@ -1352,3 +1353,4 @@ void AddSC_boss_garalon()
     new spell_garalon_pheromones_switch();      // 123100 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (123100, "spell_garalon_pheromones_switch");
     new spell_garalon_pungency();               // 123081
 }
+#endif

@@ -3854,6 +3854,7 @@ class areatrigger_highmaul_mauling_brew : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kargath_bladefist()
 {
     /// Boss
@@ -3899,3 +3900,4 @@ void AddSC_boss_kargath_bladefist()
     new areatrigger_highmaul_flame_jet();
     new areatrigger_highmaul_mauling_brew();
 }
+#endif

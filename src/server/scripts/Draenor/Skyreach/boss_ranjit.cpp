@@ -208,7 +208,9 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ranjit()
 {
     new MS::InstanceSkyreach::boss_Ranjit();
 }
+#endif

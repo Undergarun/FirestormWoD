@@ -294,6 +294,7 @@ class achievement_king_dred : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_dred()
 {
     new boss_dred;
@@ -301,3 +302,4 @@ void AddSC_boss_dred()
     new npc_drakkari_scytheclaw;
     new achievement_king_dred();
 }
+#endif

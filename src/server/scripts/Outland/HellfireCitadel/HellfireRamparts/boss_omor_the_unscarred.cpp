@@ -226,8 +226,9 @@ class boss_omor_the_unscarred : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_omor_the_unscarred()
 {
     new boss_omor_the_unscarred();
 }
-
+#endif

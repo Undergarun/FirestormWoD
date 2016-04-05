@@ -150,7 +150,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_epoch()
 {
     new boss_epoch();
 }
+#endif

@@ -144,8 +144,9 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gatewatcher_iron_hand()
 {
     new boss_gatewatcher_iron_hand();
 }
-
+#endif

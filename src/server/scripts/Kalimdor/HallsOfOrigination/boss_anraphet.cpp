@@ -196,8 +196,10 @@ class npc_alpha_beam : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anraphet()
 {
     new boss_anraphet();
     new npc_alpha_beam();
 }
+#endif

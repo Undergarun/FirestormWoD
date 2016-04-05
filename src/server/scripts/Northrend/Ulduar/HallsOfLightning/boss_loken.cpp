@@ -215,8 +215,10 @@ class spell_loken_pulsing_shockwave: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_loken()
 {
     new boss_loken();
     new spell_loken_pulsing_shockwave();
 }
+#endif

@@ -1687,6 +1687,7 @@ class spell_blood_council_shadow_prison_damage: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_blood_prince_council()
 {
     new boss_blood_council_controller();
@@ -1707,3 +1708,4 @@ void AddSC_boss_blood_prince_council()
     new spell_blood_council_shadow_prison();
     new spell_blood_council_shadow_prison_damage();
 }
+#endif

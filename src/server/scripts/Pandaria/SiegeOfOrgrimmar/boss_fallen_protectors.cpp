@@ -981,6 +981,7 @@ class spell_calamity_aoe: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_fallen_protectors()
 {
     new boss_sun_tenderheart();
@@ -993,6 +994,7 @@ void AddSC_fallen_protectors()
     new mob_embodied_desperation();
     new spell_calamity_aoe();
 }
+#endif
 
 /*
 Intro:

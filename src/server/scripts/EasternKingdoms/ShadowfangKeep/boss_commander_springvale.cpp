@@ -345,6 +345,7 @@ class npc_springvale_desecration_bunny : public CreatureScript
          };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_commander_springvale()
 {
     new boss_commander_springvale();
@@ -352,3 +353,4 @@ void AddSC_boss_commander_springvale()
     new npc_springvale_tormented_officer();
     new npc_springvale_desecration_bunny();
 }
+#endif

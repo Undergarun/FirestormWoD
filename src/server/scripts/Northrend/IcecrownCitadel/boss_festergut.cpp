@@ -472,6 +472,7 @@ class achievement_flu_shot_shortage : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_festergut()
 {
     new boss_festergut();
@@ -481,3 +482,4 @@ void AddSC_boss_festergut()
     new spell_festergut_blighted_spores();
     new achievement_flu_shot_shortage();
 }
+#endif

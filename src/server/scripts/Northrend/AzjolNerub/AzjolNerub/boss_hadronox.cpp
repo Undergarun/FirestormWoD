@@ -515,6 +515,7 @@ class achievement_hadronox_denied : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hadronox()
 {
     new boss_hadronox();
@@ -523,3 +524,4 @@ void AddSC_boss_hadronox()
     new spell_hadronox_leech_poison();
     new achievement_hadronox_denied();
 }
+#endif

@@ -4266,6 +4266,7 @@ class areatrigger_at_foundry_hansgar_and_franzok_exit : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_blackrock_foundry()
 {
     /// NPCs
@@ -4331,3 +4332,4 @@ void AddSC_blackrock_foundry()
     new areatrigger_at_foundry_hansgar_and_franzok_entrance();
     new areatrigger_at_foundry_hansgar_and_franzok_exit();
 }
+#endif

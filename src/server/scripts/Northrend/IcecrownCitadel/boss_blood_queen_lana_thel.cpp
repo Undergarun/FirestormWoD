@@ -895,6 +895,7 @@ class achievement_once_bitten_twice_shy_v25 : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_blood_queen_lana_thel()
 {
     new boss_blood_queen_lana_thel();
@@ -909,3 +910,4 @@ void AddSC_boss_blood_queen_lana_thel()
     new achievement_once_bitten_twice_shy_n25();
     new achievement_once_bitten_twice_shy_v25();
 }
+#endif

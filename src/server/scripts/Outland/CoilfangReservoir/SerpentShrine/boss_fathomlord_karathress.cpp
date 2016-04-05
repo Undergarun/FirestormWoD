@@ -755,6 +755,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_fathomlord_karathress()
 {
     new boss_fathomlord_karathress();
@@ -762,3 +763,4 @@ void AddSC_boss_fathomlord_karathress()
     new boss_fathomguard_tidalvess();
     new boss_fathomguard_caribdis();
 }
+#endif

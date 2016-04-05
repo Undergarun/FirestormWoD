@@ -835,6 +835,7 @@ class achievement_just_cant_get_enough : public AchievementCriteriaScript
        }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
@@ -843,3 +844,4 @@ void AddSC_boss_kelthuzad()
     new spell_kelthuzad_detonate_mana();
     new achievement_just_cant_get_enough();
 }
+#endif

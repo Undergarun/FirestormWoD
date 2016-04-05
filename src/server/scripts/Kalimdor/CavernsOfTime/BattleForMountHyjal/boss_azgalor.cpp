@@ -289,8 +289,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_azgalor()
 {
     new boss_azgalor();
     new mob_lesser_doomguard();
 }
+#endif

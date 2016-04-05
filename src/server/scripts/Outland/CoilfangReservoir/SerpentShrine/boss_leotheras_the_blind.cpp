@@ -815,6 +815,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_leotheras_the_blind()
 {
     new boss_leotheras_the_blind();
@@ -822,3 +823,4 @@ void AddSC_boss_leotheras_the_blind()
     new mob_greyheart_spellbinder();
     new mob_inner_demon();
 }
+#endif

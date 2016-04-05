@@ -945,7 +945,7 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_grimrail()
 {
     /// Bosses
@@ -962,3 +962,4 @@ void AddSC_boss_grimrail()
     /// Areatrigger
     new iron_docks_grimrail_at_event(); /// 10314
 }
+#endif

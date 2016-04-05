@@ -248,9 +248,11 @@ class spell_krystallus_shatter_effect: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_krystallus()
 {
     new boss_krystallus();
     new spell_krystallus_shatter();
     new spell_krystallus_shatter_effect();
 }
+#endif

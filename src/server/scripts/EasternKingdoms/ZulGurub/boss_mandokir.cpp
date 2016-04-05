@@ -380,6 +380,7 @@ class achievement_ohganot_so_fast : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mandokir()
 {
     new boss_mandokir();
@@ -388,3 +389,4 @@ void AddSC_boss_mandokir()
     new spell_mandokir_bloodletting();
     new achievement_ohganot_so_fast();
 }
+#endif

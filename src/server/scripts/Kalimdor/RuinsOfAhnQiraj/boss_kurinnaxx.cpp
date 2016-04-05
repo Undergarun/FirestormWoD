@@ -118,7 +118,9 @@ class boss_kurinnaxx : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kurinnaxx()
 {
     new boss_kurinnaxx();
 }
+#endif

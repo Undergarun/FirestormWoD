@@ -657,8 +657,7 @@ class vehicle_artillery : public VehicleScript
         }
 };
 
-
-
+#ifndef __clang_analyzer__
 void AddSC_boss_raigonn()
 {
     new boss_raigonn();
@@ -668,3 +667,4 @@ void AddSC_boss_raigonn()
     new npc_krikthik_swarm_bringer();
     new vehicle_artillery();
 }
+#endif

@@ -927,6 +927,7 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -947,3 +948,4 @@ void AddSC_AshranSpells()
     new spell_ashran_ancient_artifact();
     new spell_ashran_horde_and_alliance_racer();
 }
+#endif

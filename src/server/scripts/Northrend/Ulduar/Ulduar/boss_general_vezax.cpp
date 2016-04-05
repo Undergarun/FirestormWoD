@@ -654,6 +654,7 @@ class achievement_i_love_the_smell_of_saronite_in_the_morning : public Achieveme
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_vezax()
 {
     new boss_general_vezax();
@@ -670,3 +671,4 @@ void AddSC_boss_general_vezax()
     new achievement_i_love_the_smell_of_saronite_in_the_morning("achievement_i_love_the_smell_of_saronite_in_the_morning");     // 10m 10451 (3181)
     new achievement_i_love_the_smell_of_saronite_in_the_morning("achievement_i_love_the_smell_of_saronite_in_the_morning_25");  // 25m 10462 (3188)
 }
+#endif

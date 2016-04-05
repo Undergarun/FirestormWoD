@@ -1155,8 +1155,10 @@ class npc_dg_cart : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_BattlegroundDGScripts()
 {
     new spell_mine_cart();
     new npc_dg_cart();
 }
+#endif

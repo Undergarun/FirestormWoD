@@ -199,9 +199,11 @@ class spell_loatheb_necrotic_aura_warning: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_loatheb()
 {
     new boss_loatheb();
     new achievement_spore_loser();
     new spell_loatheb_necrotic_aura_warning();
 }
+#endif

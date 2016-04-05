@@ -136,7 +136,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_razuvious()
 {
     new boss_razuvious();
 }
+#endif

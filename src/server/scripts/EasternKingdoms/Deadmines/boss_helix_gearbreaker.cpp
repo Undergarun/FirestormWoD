@@ -547,6 +547,7 @@ class spell_helix_force_player_to_ride_oaf: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_helix_gearbreaker()
 {
     new boss_helix_gearbreaker();
@@ -556,3 +557,4 @@ void AddSC_boss_helix_gearbreaker()
     new spell_helix_force_player_to_ride_oaf();
     new spell_helix_chest_bomb();
 }
+#endif

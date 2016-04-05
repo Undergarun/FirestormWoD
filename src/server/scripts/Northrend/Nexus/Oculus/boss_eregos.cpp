@@ -291,6 +291,7 @@ class achievement_gen_eregos_void : public AchievementCriteriaScript
         uint32 _data;
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_eregos()
 {
    new boss_eregos();
@@ -299,3 +300,4 @@ void AddSC_boss_eregos()
    new achievement_gen_eregos_void("achievement_emerald_void", DATA_EMERALD_VOID);
    new achievement_gen_eregos_void("achievement_amber_void", DATA_AMBER_VOID);
 }
+#endif

@@ -297,7 +297,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_skeram()
 {
     new boss_skeram();
 }
+#endif

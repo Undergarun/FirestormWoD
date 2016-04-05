@@ -277,6 +277,7 @@ class boss_romogg_bonecrusher : public CreatureScript
         }
 };*/
 
+#ifndef __clang_analyzer__
 void AddSC_boss_romogg_bonecrusher()
 {
     new boss_romogg_bonecrusher();
@@ -284,3 +285,4 @@ void AddSC_boss_romogg_bonecrusher()
     //new spell_romoogg_chains_of_woe();
     //new spell_romoogg_chains_of_woe_tele();
 }
+#endif

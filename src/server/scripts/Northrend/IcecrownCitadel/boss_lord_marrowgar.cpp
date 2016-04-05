@@ -658,6 +658,7 @@ class spell_marrowgar_bone_storm: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lord_marrowgar()
 {
     new boss_lord_marrowgar();
@@ -669,3 +670,4 @@ void AddSC_boss_lord_marrowgar()
     new spell_marrowgar_bone_spike_graveyard();
     new spell_marrowgar_bone_storm();
 }
+#endif

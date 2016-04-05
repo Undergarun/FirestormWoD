@@ -366,6 +366,7 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_jaina()
 {
     new boss_echo_of_jaina();
@@ -373,3 +374,4 @@ void AddSC_boss_echo_of_jaina()
     new npc_echo_of_jaina_blink_target();
     new go_echo_of_jaina_jaina_staff_fragment();
 }
+#endif

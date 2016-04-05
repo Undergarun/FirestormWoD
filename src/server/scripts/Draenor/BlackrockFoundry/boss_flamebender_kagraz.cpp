@@ -2287,6 +2287,7 @@ class areatrigger_foundry_molten_torrent_ball : public AreaTriggerEntityScript
         }
 };
 
+            #ifndef __clang_analyzer__
 void AddSC_boss_flamebender_kagraz()
 {
     /// Boss
@@ -2317,3 +2318,4 @@ void AddSC_boss_flamebender_kagraz()
     new areatrigger_foundry_lava_slash_pool();
     new areatrigger_foundry_molten_torrent_ball();
 }
+#endif

@@ -2607,8 +2607,9 @@ class OutdoorPvP_Ashran : public OutdoorPvPScript
             return new OutdoorPvPAshran();
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_AshranMgr()
 {
     new OutdoorPvP_Ashran();
 }
+#endif

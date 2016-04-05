@@ -2342,6 +2342,7 @@ class spell_toc_heroism: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_faction_champions()
 {
     new boss_toc_champion_controller();
@@ -2366,3 +2367,4 @@ void AddSC_boss_faction_champions()
     new spell_toc_bloodlust();
     new spell_toc_heroism();
 }
+#endif

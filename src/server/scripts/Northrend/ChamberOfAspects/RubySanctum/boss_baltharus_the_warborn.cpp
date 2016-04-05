@@ -349,9 +349,11 @@ class spell_baltharus_enervating_brand_trigger: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
     new npc_baltharus_the_warborn_clone();
     new spell_baltharus_enervating_brand_trigger();
 }
+#endif

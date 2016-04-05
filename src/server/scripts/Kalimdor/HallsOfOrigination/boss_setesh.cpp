@@ -424,6 +424,7 @@ class npc_setesh_void_seeker : public CreatureScript
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_setesh()
 {
     new boss_setesh();
@@ -431,3 +432,4 @@ void AddSC_boss_setesh()
     new npc_setesh_void_sentinel();
     new npc_setesh_void_seeker();
 }
+#endif

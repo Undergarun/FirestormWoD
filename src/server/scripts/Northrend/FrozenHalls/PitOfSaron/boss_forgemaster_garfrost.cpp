@@ -345,9 +345,11 @@ class achievement_doesnt_go_to_eleven : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garfrost()
 {
     new boss_garfrost();
     new spell_garfrost_permafrost();
     new achievement_doesnt_go_to_eleven();
 }
+#endif

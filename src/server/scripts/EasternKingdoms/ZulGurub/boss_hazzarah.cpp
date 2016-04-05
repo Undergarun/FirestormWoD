@@ -85,7 +85,9 @@ class boss_hazzarah : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hazzarah()
 {
     new boss_hazzarah();
 }
+#endif

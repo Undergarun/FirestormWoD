@@ -3470,6 +3470,7 @@ class areatrigger_foundry_defense : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_blast_furnace()
 {
     /// Bosses
@@ -3509,3 +3510,4 @@ void AddSC_boss_blast_furnace()
     new areatrigger_foundry_melt();
     new areatrigger_foundry_defense();
 }
+#endif

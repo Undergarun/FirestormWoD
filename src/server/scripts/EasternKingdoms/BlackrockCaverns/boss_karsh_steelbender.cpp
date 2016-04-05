@@ -138,8 +138,10 @@ class boss_karsh_steelbender : public CreatureScript
             }
         };
 };
- 
+
+#ifndef __clang_analyzer__
 void AddSC_boss_karsh_steelbender()
 {
     new boss_karsh_steelbender();
 }
+#endif

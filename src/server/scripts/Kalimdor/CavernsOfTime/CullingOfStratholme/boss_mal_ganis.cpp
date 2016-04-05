@@ -258,7 +258,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mal_ganis()
 {
     new boss_mal_ganis();
 }
+#endif

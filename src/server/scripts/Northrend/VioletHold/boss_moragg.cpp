@@ -135,7 +135,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_moragg()
 {
     new boss_moragg();
 }
+#endif

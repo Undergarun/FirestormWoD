@@ -104,7 +104,9 @@ class boss_gehennas : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gehennas()
 {
     new boss_gehennas();
 }
+#endif

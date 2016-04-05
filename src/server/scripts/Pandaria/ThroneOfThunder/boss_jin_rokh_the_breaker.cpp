@@ -1424,6 +1424,7 @@ class spell_ionization_conduction: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_jin_rokh_the_breaker()
 {
     new boss_jin_rokh_the_breaker();
@@ -1445,3 +1446,4 @@ void AddSC_boss_jin_rokh_the_breaker()
     new spell_ionization();
     new spell_ionization_conduction();
 }
+#endif

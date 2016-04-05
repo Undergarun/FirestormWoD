@@ -446,9 +446,11 @@ class spell_impaling_pull: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_galion()
 {
     new boss_galion();
     new npc_salyin_warmonger();
     new spell_impaling_pull();
 }
+#endif

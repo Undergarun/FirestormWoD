@@ -1852,6 +1852,7 @@ class spell_shield_of_darkness : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_spirit_kings()
 {
     new boss_spirit_kings_controler();
@@ -1868,3 +1869,4 @@ void AddSC_boss_spirit_kings()
     new spell_sleight_of_hand();
     new spell_shield_of_darkness();
 }
+#endif

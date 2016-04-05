@@ -622,8 +622,10 @@ void netherspite_infernal::netherspite_infernalAI::Cleanup()
         CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_malchezaar()
 {
     new boss_malchezaar();
     new netherspite_infernal();
 }
+#endif

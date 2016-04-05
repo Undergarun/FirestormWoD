@@ -743,6 +743,7 @@ class iron_docks_nokgar_spell_intimidated : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nokgar()
 {
     /// Creatures
@@ -752,3 +753,4 @@ void AddSC_boss_nokgar()
     /// Spells 
     new iron_docks_nokgar_spell_intimidated(); /// 164504
 }
+#endif

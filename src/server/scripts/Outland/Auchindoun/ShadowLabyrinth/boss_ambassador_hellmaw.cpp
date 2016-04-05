@@ -212,7 +212,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ambassador_hellmaw()
 {
     new boss_ambassador_hellmaw();
 }
+#endif

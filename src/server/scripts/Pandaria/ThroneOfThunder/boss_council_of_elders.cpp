@@ -3219,6 +3219,7 @@ class spell_twisted_fate_damage : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_council_of_elders()
 {
     new npc_gara_jal_s_soul();                  ///< 69182
@@ -3248,3 +3249,4 @@ void AddSC_boss_council_of_elders()
     new spell_second_twisted_fate();            ///< 137964
     new spell_twisted_fate_damage();            ///< 137972
 }
+#endif

@@ -492,9 +492,11 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_drakkari_colossus()
 {
     new boss_drakkari_colossus();
     new boss_drakkari_elemental();
     new npc_living_mojo();
 }
+#endif

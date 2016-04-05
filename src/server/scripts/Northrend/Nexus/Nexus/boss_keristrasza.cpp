@@ -277,6 +277,7 @@ class achievement_intense_cold : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_keristrasza()
 {
     new boss_keristrasza();
@@ -284,3 +285,4 @@ void AddSC_boss_keristrasza()
     new achievement_intense_cold();
     new spell_intense_cold();
 }
+#endif

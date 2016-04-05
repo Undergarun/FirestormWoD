@@ -753,6 +753,7 @@ class spell_fire_storm_missile: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ragewing_the_untamed()
 {
     new boss_ragewing_the_untamed();
@@ -763,3 +764,4 @@ void AddSC_boss_ragewing_the_untamed()
     new areatrigger_magma_spit();
     new spell_fire_storm_missile();
 }
+#endif

@@ -140,7 +140,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_inquisitor_fairbanks()
 {
     new boss_high_inquisitor_fairbanks();
 }
+#endif

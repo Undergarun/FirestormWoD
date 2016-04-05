@@ -1128,7 +1128,7 @@ class spell_colorblind_phase_link_visual: public SpellScriptLoader
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_durumu()
 {
     new boss_durumu();
@@ -1140,3 +1140,4 @@ void AddSC_boss_durumu()
     new spell_life_drain_dummy();
     new spell_colorblind_phase_link_visual();
 }
+#endif

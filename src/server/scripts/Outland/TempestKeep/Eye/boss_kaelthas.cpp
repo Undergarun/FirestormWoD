@@ -1571,6 +1571,7 @@ class mob_phoenix_egg_tk : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kaelthas()
 {
     new boss_kaelthas();
@@ -1582,3 +1583,4 @@ void AddSC_boss_kaelthas()
     new mob_phoenix_tk();
     new mob_phoenix_egg_tk();
 }
+#endif

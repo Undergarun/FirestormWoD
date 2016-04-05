@@ -589,6 +589,7 @@ class at_et_tyrande : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_echo_of_tyrande()
 {
     new boss_echo_of_tyrande();
@@ -597,3 +598,4 @@ void AddSC_boss_echo_of_tyrande()
     new spell_echo_of_tyrande_tears_of_elune_script();
     new at_et_tyrande();
 }
+#endif

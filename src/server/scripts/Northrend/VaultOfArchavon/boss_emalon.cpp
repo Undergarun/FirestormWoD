@@ -270,8 +270,10 @@ class mob_tempest_minion : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_emalon()
 {
     new boss_emalon();
     new mob_tempest_minion();
 }
+#endif

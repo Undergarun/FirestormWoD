@@ -558,6 +558,7 @@ class achievement_watch_him_die : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_krik_thir()
 {
     new boss_krik_thir();
@@ -570,3 +571,4 @@ void AddSC_boss_krik_thir()
     new npc_watcher_narjil();
     new achievement_watch_him_die();
 }
+#endif

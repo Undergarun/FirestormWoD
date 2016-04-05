@@ -493,9 +493,11 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_Rukhran()
 {
     new MS::InstanceSkyreach::boss_Rukhran();
     new MS::InstanceSkyreach::mob_SkyreachRavenWhisperer();
     new MS::InstanceSkyreach::mob_SolarFlare();
 }
+#endif

@@ -445,6 +445,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_darkweaver_syth()
 {
     new boss_darkweaver_syth();
@@ -453,3 +454,4 @@ void AddSC_boss_darkweaver_syth()
     new mob_syth_frost();
     new mob_syth_shadow();
 }
+#endif

@@ -308,9 +308,11 @@ class npc_ammunae_spore : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ammunae()
 {
     new boss_ammunae();
     new npc_ammunae_seedling_pod();
     new npc_ammunae_spore();
 }
+#endif

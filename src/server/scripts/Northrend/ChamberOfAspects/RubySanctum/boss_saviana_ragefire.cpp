@@ -279,9 +279,11 @@ class spell_saviana_conflagration_throwback: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_saviana_ragefire()
 {
     new boss_saviana_ragefire();
     new spell_saviana_conflagration_init();
     new spell_saviana_conflagration_throwback();
 }
+#endif

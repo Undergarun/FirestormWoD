@@ -318,8 +318,10 @@ class npc_onyx_flamecaller : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_zarithrian()
 {
     new boss_general_zarithrian();
     new npc_onyx_flamecaller();
 }
+#endif

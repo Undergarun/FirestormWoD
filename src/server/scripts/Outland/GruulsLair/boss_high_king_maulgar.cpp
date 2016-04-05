@@ -788,6 +788,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_high_king_maulgar()
 {
     new boss_high_king_maulgar();
@@ -796,3 +797,4 @@ void AddSC_boss_high_king_maulgar()
     new boss_olm_the_summoner();
     new boss_krosh_firehand();
 }
+#endif

@@ -121,7 +121,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_draganthaurissan()
 {
     new boss_emperor_dagran_thaurissan();
 }
+#endif

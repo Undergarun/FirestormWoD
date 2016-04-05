@@ -503,9 +503,11 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_black_knight()
 {
     new boss_black_knight();
     new npc_risen_ghoul();
     new npc_black_knight_skeletal_gryphon();
 }
+#endif

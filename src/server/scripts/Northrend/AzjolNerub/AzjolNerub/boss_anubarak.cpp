@@ -346,7 +346,9 @@ class boss_anub_arak : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anub_arak()
 {
     new boss_anub_arak();
 }
+#endif

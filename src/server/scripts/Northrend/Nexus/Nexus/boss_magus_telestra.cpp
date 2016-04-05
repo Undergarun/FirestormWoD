@@ -358,8 +358,10 @@ class achievement_split_personality : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_magus_telestra()
 {
     new boss_magus_telestra();
     new achievement_split_personality();
 }
+#endif

@@ -228,7 +228,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_cannon_master_willey()
 {
     new boss_cannon_master_willey();
 }
+#endif

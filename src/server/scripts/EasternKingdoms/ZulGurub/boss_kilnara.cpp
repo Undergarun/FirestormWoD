@@ -508,6 +508,7 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kilnara()
 {
     new boss_kilnara();
@@ -518,3 +519,4 @@ void AddSC_boss_kilnara()
     new spell_kilnara_wave_of_agony_start();
     new spell_kilnara_rat_lure();
 }
+#endif

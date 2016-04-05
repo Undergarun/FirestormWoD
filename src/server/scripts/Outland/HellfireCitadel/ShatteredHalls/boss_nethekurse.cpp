@@ -418,10 +418,11 @@ class mob_lesser_shadow_fissure : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_grand_warlock_nethekurse()
 {
     new boss_grand_warlock_nethekurse();
     new mob_fel_orc_convert();
     new mob_lesser_shadow_fissure();
 }
-
+#endif

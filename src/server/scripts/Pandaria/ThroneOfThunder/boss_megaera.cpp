@@ -1678,6 +1678,7 @@ class spell_rampage_periodic: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_megaera()
 {
     new boss_megaera();
@@ -1694,3 +1695,4 @@ void AddSC_boss_megaera()
     new spell_nether_tear();
     new spell_rampage_periodic();
 }
+#endif

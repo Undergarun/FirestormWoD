@@ -557,10 +557,11 @@ class mob_zerekethvoidzone : public CreatureScript
             return new mob_zerekethvoidzoneAI(creature);
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_arcatraz()
 {
     new npc_millhouse_manastorm();
     new npc_warden_mellichar();
     new mob_zerekethvoidzone();
 }
+#endif

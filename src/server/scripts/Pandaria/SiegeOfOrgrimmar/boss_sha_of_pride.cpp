@@ -81,8 +81,10 @@ class mob_reflection : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_sha_of_pride()
 {
     new boss_sha_of_pride();
     new mob_reflection();
 }
+#endif

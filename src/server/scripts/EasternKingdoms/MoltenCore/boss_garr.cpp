@@ -163,8 +163,10 @@ class mob_firesworn : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_garr()
 {
     new boss_garr();
     new mob_firesworn();
 }
+#endif

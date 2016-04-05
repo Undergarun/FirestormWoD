@@ -550,6 +550,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_janalai()
 {
     new boss_janalai();
@@ -559,4 +560,4 @@ void AddSC_boss_janalai()
     new npc_janalai_egg();
     new spell_janalai_flame_breath();
 }
-
+#endif

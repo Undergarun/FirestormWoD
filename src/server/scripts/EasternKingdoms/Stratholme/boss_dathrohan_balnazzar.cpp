@@ -234,7 +234,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_dathrohan_balnazzar()
 {
     new boss_dathrohan_balnazzar();
 }
+#endif

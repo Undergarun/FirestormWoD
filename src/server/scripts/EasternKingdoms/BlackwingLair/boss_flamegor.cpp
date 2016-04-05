@@ -103,7 +103,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_flamegor()
 {
     new boss_flamegor();
 }
+#endif

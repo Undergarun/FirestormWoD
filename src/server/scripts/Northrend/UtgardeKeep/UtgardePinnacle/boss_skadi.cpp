@@ -523,8 +523,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_skadi()
 {
     new boss_skadi();
     new go_harpoon_launcher();
 }
+#endif

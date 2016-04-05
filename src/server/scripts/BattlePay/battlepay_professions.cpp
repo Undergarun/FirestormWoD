@@ -129,7 +129,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_BattlePay_Professions()
 {
     new BattlePay_Profession<SkillType::SKILL_ALCHEMY,        700>("battlepay_profession_alchemy");
@@ -148,3 +148,4 @@ void AddSC_BattlePay_Professions()
     new BattlePay_Profession<SkillType::SKILL_ARCHAEOLOGY,    700>("battlepay_profession_archaeology");
     new BattlePay_Profession<SkillType::SKILL_FISHING,        700>("battlepay_profession_fishing");
 }
+#endif

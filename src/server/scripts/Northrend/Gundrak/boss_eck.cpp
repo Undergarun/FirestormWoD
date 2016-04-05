@@ -166,8 +166,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_eck()
 {
     new boss_eck();
     new npc_ruins_dweller();
 }
+#endif

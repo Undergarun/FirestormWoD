@@ -1552,6 +1552,7 @@ class spell_chogall_festering_blood : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_chogall()
 {
     new boss_chogall();
@@ -1578,3 +1579,4 @@ void AddSC_boss_chogall()
     new spell_chogall_worshipping();
     new spell_chogall_festering_blood();
 }
+#endif

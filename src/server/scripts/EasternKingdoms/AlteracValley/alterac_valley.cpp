@@ -193,7 +193,9 @@ class mob_av_marshal_or_warmaster : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_alterac_valley()
 {
     new mob_av_marshal_or_warmaster();
 }
+#endif

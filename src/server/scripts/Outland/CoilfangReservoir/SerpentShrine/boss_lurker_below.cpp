@@ -438,9 +438,11 @@ class go_strange_pool : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_lurker_below()
 {
     new boss_the_lurker_below();
     new mob_coilfang_ambusher();
     new go_strange_pool();
 }
+#endif

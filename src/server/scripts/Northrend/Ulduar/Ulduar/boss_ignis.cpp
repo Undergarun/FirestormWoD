@@ -557,6 +557,7 @@ class achievement_ignis_hot_pocket : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ignis()
 {
     new boss_ignis();
@@ -569,5 +570,5 @@ void AddSC_boss_ignis()
     if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3206)))
         vehSeat->m_flags |= 0x400;
 }
-
+#endif
 #undef SPELL_BRITTLE

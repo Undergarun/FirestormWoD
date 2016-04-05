@@ -85,7 +85,9 @@ class boss_renataki : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_renataki()
 {
     new boss_renataki();
 }
+#endif

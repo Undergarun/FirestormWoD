@@ -861,6 +861,7 @@ class spell_rotface_slime_spray: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_rotface()
 {
     new boss_rotface();
@@ -877,3 +878,4 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion_suicide();
     new spell_rotface_slime_spray();
 }
+#endif

@@ -305,8 +305,10 @@ class achievement_share_the_love : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gal_darah()
 {
     new boss_gal_darah();
     new achievement_share_the_love();
 }
+#endif

@@ -302,9 +302,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ormorok()
 {
     new boss_ormorok();
     new mob_crystal_spike();
     new mob_crystalline_tangler();
 }
+#endif

@@ -415,9 +415,11 @@ class achievement_dehydration : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ichoron()
 {
     new boss_ichoron();
     new mob_ichor_globule();
     new achievement_dehydration();
 }
+#endif

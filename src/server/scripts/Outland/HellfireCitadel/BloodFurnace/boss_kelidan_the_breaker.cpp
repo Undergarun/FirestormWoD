@@ -382,9 +382,10 @@ class mob_shadowmoon_channeler : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kelidan_the_breaker()
 {
     new boss_kelidan_the_breaker();
     new mob_shadowmoon_channeler();
 }
-
+#endif

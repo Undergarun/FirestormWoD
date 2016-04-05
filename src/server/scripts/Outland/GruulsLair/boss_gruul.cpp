@@ -329,9 +329,11 @@ class spell_gruul_shatter_effect: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gruul()
 {
     new boss_gruul();
     new spell_gruul_shatter();
     new spell_gruul_shatter_effect();
 }
+#endif

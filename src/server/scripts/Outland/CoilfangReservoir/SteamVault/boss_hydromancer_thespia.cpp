@@ -189,8 +189,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hydromancer_thespia()
 {
     new boss_hydromancer_thespia();
     new mob_coilfang_waterelemental();
 }
+#endif

@@ -192,8 +192,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lieutenant_drake()
 {
     new go_barrel_old_hillsbrad();
     new boss_lieutenant_drake();
 }
+#endif

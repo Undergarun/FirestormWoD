@@ -145,7 +145,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gluth()
 {
     new boss_gluth();
 }
+#endif

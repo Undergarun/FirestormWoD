@@ -967,6 +967,7 @@ class mob_talking_fish : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lorewalker_stonestep()
 {
     new boss_lorewalker_stonestep();
@@ -982,3 +983,4 @@ void AddSC_boss_lorewalker_stonestep()
     new mob_songbird_queen();
     new mob_talking_fish();
 }
+#endif

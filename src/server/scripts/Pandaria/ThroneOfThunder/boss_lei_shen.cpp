@@ -2588,6 +2588,7 @@ class at_lightning_whip : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lei_shen()
 {
     new boss_lei_shen();                        ///< 68397
@@ -2615,3 +2616,4 @@ void AddSC_boss_lei_shen()
     new at_crashing_thunder();                  ///< 135150
     new at_lightning_whip();                    ///< 137499
 }
+#endif

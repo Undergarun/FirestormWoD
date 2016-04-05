@@ -1641,6 +1641,7 @@ class npc_ashran_fen_tao : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_AshranNPCNeutral()
 {
     new npc_ashran_herald();
@@ -1662,3 +1663,4 @@ void AddSC_AshranNPCNeutral()
     new npc_ashran_ashmaul_destroyer();
     new npc_ashran_fen_tao();
 }
+#endif

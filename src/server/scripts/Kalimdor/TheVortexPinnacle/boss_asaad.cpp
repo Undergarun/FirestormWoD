@@ -312,9 +312,11 @@ class spell_asaad_supremacy_of_the_storm: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_asaad()
 {
     new boss_asaad();
     new npc_unstable_grounding_field();
     new spell_asaad_supremacy_of_the_storm();
 }
+#endif

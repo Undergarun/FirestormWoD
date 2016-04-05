@@ -576,9 +576,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_felmyst()
 {
     new boss_felmyst();
     new mob_felmyst_vapor();
     new mob_felmyst_trail();
 }
+#endif

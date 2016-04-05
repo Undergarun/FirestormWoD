@@ -422,9 +422,11 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_taldaram()
 {
     new boss_taldaram;
     new mob_taldaram_flamesphere;
     new prince_taldaram_sphere;
 }
+#endif

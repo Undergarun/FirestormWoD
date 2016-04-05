@@ -517,6 +517,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tyrannus()
 {
     new boss_tyrannus();
@@ -525,3 +526,4 @@ void AddSC_boss_tyrannus()
     new spell_tyrannus_mark_of_rimefang();
     new at_tyrannus_event_starter();
 }
+#endif

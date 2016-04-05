@@ -1361,6 +1361,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kromog()
 {
     /// Boss
@@ -1384,3 +1385,4 @@ void AddSC_boss_kromog()
     new areatrigger_foundry_rippling_smash();
     new areatrigger_foundry_reverberations();
 }
+#endif

@@ -2286,6 +2286,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_illidan()
 {
     new boss_illidan_stormrage();
@@ -2298,3 +2299,4 @@ void AddSC_boss_illidan()
     new mob_shadow_demon();
     new mob_parasitic_shadowfiend();
 }
+#endif

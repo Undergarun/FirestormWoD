@@ -77,7 +77,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gorosh_the_dervish()
 {
     new boss_gorosh_the_dervish();
 }
+#endif

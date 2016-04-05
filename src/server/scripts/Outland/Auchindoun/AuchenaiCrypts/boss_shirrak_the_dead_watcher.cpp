@@ -211,8 +211,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shirrak_the_dead_watcher()
 {
     new boss_shirrak_the_dead_watcher();
     new mob_focus_fire();
 }
+#endif

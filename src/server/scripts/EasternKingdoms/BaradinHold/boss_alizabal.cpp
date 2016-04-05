@@ -304,6 +304,7 @@ class spell_alizabal_blade_dance_dmg: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_alizabal()
 {
     new boss_alizabal();
@@ -311,3 +312,4 @@ void AddSC_boss_alizabal()
     new spell_alizabal_blade_dance();
     new spell_alizabal_blade_dance_dmg();
 }
+#endif

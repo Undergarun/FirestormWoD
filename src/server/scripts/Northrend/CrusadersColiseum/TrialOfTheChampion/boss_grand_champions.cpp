@@ -1272,6 +1272,7 @@ class spell_toc5_hex_mending: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_grand_champions()
 {
     new generic_vehicleAI_toc5();
@@ -1283,3 +1284,4 @@ void AddSC_boss_grand_champions()
     new spell_toc5_ride_mount();
     new spell_toc5_hex_mending();
 }
+#endif

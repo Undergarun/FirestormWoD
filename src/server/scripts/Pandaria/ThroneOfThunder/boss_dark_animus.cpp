@@ -2471,6 +2471,7 @@ class at_anima_ring : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_dark_animus()
 {
     new boss_dark_animus();             ///< 69427
@@ -2499,3 +2500,4 @@ void AddSC_boss_dark_animus()
     new spell_empower_golem();          ///< 138780
     new at_anima_ring();                ///< from 136955 to 136960 and from 138671 to 138675
 }
+#endif

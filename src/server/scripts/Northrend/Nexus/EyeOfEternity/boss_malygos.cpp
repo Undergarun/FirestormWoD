@@ -2538,6 +2538,7 @@ class achievement_denyin_the_scion : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_malygos()
 {
     new boss_malygos();
@@ -2569,3 +2570,4 @@ void AddSC_boss_malygos()
     new spell_alexstrasza_gift_beam_visual();
     new achievement_denyin_the_scion();
 }
+#endif

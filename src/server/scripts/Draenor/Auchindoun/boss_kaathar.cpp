@@ -1111,6 +1111,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_kaathar()
 {
     new auchindon_boss_kaathar();
@@ -1124,3 +1125,4 @@ void AddSC_kaathar()
     new auchindon_spell_conscreated_damage();
     new auchindon_mob_nyami();
 }
+#endif

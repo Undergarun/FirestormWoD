@@ -2333,6 +2333,7 @@ class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hansgar_and_franzok()
 {
     /// Bosses
@@ -2349,3 +2350,4 @@ void AddSC_boss_hansgar_and_franzok()
     new spell_foundry_crippling_suplex();
     new spell_foundry_body_slam_red_arrow();
 }
+#endif

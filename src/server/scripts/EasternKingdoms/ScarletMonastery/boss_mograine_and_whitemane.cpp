@@ -370,8 +370,10 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mograine_and_whitemane()
 {
     new boss_scarlet_commander_mograine();
     new boss_high_inquisitor_whitemane();
 }
+#endif

@@ -2424,6 +2424,7 @@ class achievement_set_up_us_the_bomb__boombot_explosion : public AchievementCrit
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mimiron()
 {
     new boss_mimiron();
@@ -2459,3 +2460,4 @@ void AddSC_boss_mimiron()
     new achievement_set_up_us_the_bomb__rocket_strikes("achievement_set_up_us_the_bomb__rockets");
     new achievement_set_up_us_the_bomb__rocket_strikes("achievement_set_up_us_the_bomb__rockets_25");
 }
+#endif

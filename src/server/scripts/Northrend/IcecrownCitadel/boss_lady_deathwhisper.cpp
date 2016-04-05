@@ -1038,6 +1038,7 @@ class spell_cultist_dark_martyrdom: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lady_deathwhisper()
 {
     new boss_lady_deathwhisper();
@@ -1048,3 +1049,4 @@ void AddSC_boss_lady_deathwhisper()
     new spell_deathwhisper_mana_barrier();
     new spell_cultist_dark_martyrdom();
 }
+#endif

@@ -318,6 +318,7 @@ class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaS
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_slad_ran()
 {
     new boss_slad_ran();
@@ -325,3 +326,4 @@ void AddSC_boss_slad_ran()
     new mob_slad_ran_viper();
     new achievement_snakes_whyd_it_have_to_be_snakes();
 }
+#endif

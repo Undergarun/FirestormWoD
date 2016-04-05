@@ -253,6 +253,7 @@ class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_occuthar()
 {
     new boss_occuthar();
@@ -260,3 +261,4 @@ void AddSC_boss_occuthar()
     new npc_occuthar_eye_of_occuthar();
     new spell_occuthar_eye_of_occuthar();
 }
+#endif

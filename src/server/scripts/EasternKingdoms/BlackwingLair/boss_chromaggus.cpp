@@ -306,7 +306,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_chromaggus()
 {
     new boss_chromaggus();
 }
+#endif

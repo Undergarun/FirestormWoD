@@ -125,7 +125,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_galvangar()
 {
     new boss_galvangar;
 }
+#endif

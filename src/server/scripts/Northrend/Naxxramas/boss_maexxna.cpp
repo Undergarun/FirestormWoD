@@ -183,8 +183,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_maexxna()
 {
     new boss_maexxna();
     new mob_webwrap();
 }
+#endif

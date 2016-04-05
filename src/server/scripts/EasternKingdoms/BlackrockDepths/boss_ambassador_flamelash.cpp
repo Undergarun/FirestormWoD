@@ -88,7 +88,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ambassador_flamelash()
 {
     new boss_ambassador_flamelash();
 }
+#endif

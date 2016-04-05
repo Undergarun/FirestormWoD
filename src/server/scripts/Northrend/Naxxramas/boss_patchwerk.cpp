@@ -160,7 +160,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_patchwerk()
 {
     new boss_patchwerk();
 }
+#endif

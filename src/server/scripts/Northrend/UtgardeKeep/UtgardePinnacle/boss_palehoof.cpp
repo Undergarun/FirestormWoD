@@ -869,6 +869,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_palehoof()
 {
     new boss_palehoof();
@@ -879,3 +880,4 @@ void AddSC_boss_palehoof()
     new mob_palehoof_orb();
     new go_palehoof_sphere();
 }
+#endif

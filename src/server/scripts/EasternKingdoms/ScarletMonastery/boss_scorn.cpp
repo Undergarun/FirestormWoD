@@ -105,7 +105,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_scorn()
 {
     new boss_scorn();
 }
+#endif

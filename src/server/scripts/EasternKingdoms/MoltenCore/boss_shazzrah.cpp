@@ -123,7 +123,9 @@ class boss_shazzrah : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shazzrah()
 {
     new boss_shazzrah();
 }
+#endif

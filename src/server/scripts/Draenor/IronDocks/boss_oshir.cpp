@@ -1326,6 +1326,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_oshir()
 {
     /// Boss
@@ -1343,3 +1344,4 @@ void AddSC_boss_oshir()
     new iron_docks_oshir_spell_acid_spit(); /// 178154
     new iron_docks_oshir_spell_acid_spit_trigger_missile(); /// 178155
 }
+#endif

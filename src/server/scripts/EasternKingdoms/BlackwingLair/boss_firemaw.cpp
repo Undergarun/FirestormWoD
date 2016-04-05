@@ -94,7 +94,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_firemaw()
 {
     new boss_firemaw();
 }
+#endif

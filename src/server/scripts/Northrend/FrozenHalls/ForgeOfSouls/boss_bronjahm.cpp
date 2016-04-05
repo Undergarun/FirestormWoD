@@ -460,6 +460,7 @@ class achievement_soul_power : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -471,3 +472,4 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_soulstorm_targeting();
     new achievement_soul_power();
 }
+#endif

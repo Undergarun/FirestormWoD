@@ -2264,6 +2264,7 @@ class areatrigger_foundry_flame_infusion : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_beastlord_darmac()
 {
     /// Boss
@@ -2289,3 +2290,4 @@ void AddSC_boss_beastlord_darmac()
     new areatrigger_foundry_superheated_shrapnel();
     new areatrigger_foundry_flame_infusion();
 }
+#endif

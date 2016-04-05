@@ -73,9 +73,10 @@ class areatrigger_ashran_volcano : public AreaTriggerEntityScript
             return new areatrigger_ashran_volcano();
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_AshranAreaTrigger()
 {
     new areatrigger_ashran_splitting_breath();
     new areatrigger_ashran_volcano();
 }
+#endif

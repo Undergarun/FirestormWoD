@@ -945,6 +945,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lady_vashj()
 {
     new boss_lady_vashj();
@@ -954,3 +955,4 @@ void AddSC_boss_lady_vashj()
     new mob_shield_generator_channel();
     new item_tainted_core();
 }
+#endif

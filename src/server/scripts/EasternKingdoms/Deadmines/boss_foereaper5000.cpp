@@ -230,8 +230,10 @@ class npc_foereaper_targeting_bunny : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_foereaper5000()
 {
     new boss_foereaper5000();
     new npc_foereaper_targeting_bunny();
 }
+#endif

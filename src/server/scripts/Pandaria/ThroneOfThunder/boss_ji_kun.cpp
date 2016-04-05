@@ -2236,6 +2236,7 @@ class at_down_draft : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ji_kun()
 {
     new boss_ji_kun();                  ///< 69712
@@ -2260,3 +2261,4 @@ void AddSC_boss_ji_kun()
     new go_feather_of_jikun();          ///< 218543
     new at_down_draft();                ///< 134370
 }
+#endif

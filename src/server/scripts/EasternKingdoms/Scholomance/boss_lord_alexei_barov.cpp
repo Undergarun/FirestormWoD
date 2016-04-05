@@ -99,7 +99,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lordalexeibarov()
 {
     new boss_lord_alexei_barov();
 }
+#endif

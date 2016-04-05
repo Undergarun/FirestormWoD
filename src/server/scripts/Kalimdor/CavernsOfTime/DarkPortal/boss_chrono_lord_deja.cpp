@@ -161,7 +161,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_chrono_lord_deja()
 {
     new boss_chrono_lord_deja();
 }
+#endif

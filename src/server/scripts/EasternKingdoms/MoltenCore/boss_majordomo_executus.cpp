@@ -213,7 +213,9 @@ class boss_majordomo : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_majordomo()
 {
     new boss_majordomo();
 }
+#endif

@@ -608,7 +608,7 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
             return true;
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -627,3 +627,4 @@ void AddSC_areatrigger_scripts()
     new areatrigger_at_serpent_nests();
     new AreaTrigger_at_mason_s_folly();
 }
+#endif

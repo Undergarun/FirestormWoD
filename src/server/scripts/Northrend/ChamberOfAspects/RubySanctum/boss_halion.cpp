@@ -2015,6 +2015,7 @@ class spell_halion_mark_damage_aura_heroic: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_halion()
 {
     new boss_halion();
@@ -2045,3 +2046,4 @@ void AddSC_boss_halion()
     new spell_halion_mark_damage_aura();
     new spell_halion_mark_damage_aura_heroic();
 }
+#endif

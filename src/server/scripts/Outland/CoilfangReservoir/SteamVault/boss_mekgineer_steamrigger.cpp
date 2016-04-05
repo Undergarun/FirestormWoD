@@ -266,8 +266,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_mekgineer_steamrigger()
 {
     new boss_mekgineer_steamrigger();
     new mob_steamrigger_mechanic();
 }
+#endif

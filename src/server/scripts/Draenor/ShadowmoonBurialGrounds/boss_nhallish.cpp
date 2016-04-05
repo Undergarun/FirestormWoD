@@ -919,6 +919,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nhalish()
 {
     new boss_nhalish();                                                     ///< 75829
@@ -931,3 +932,4 @@ void AddSC_boss_nhalish()
     new shadowmoon_burial_grounds_nhalish_spell_void_blast();               ///< 152792
     new shadowmoon_burial_grounds_nhalish_spell_void_vortex();              ///< 152801
 }
+#endif

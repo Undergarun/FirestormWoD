@@ -3342,6 +3342,7 @@ class spell_rocket_pack: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_gunship_battle()
 {
     new npc_muradin_gunship();
@@ -3371,3 +3372,4 @@ void AddSC_boss_gunship_battle()
     new spell_gb_burning_pitch();
     new spell_rocket_pack();
 }
+#endif

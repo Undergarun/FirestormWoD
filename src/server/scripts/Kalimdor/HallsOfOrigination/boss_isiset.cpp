@@ -611,6 +611,7 @@ class spell_isiset_supernova_dmg: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_isiset()
 {
     new boss_isiset();
@@ -621,3 +622,4 @@ void AddSC_boss_isiset()
     new spell_isiset_supernova_dis();
     new spell_isiset_supernova_dmg();
 }
+#endif

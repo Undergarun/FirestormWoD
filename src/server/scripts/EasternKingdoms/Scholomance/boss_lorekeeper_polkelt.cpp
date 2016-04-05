@@ -114,7 +114,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lorekeeperpolkelt()
 {
     new boss_lorekeeper_polkelt();
 }
+#endif

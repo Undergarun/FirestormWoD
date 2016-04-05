@@ -1473,6 +1473,7 @@ class achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am : public Ac
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sinestra()
 {
     new boss_sinestra();
@@ -1495,3 +1496,4 @@ void AddSC_boss_sinestra()
     new spell_sinestra_twilight_essence();
     new achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am();
 }
+#endif

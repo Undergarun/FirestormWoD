@@ -129,7 +129,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nitrogg_thundertower()
 {
     new boss_nitrogg_thundertower();
 }
+#endif

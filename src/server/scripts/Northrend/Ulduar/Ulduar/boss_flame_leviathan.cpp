@@ -1865,6 +1865,7 @@ class spell_vehicle_throw_passenger: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1902,3 +1903,4 @@ void AddSC_boss_flame_leviathan()
     new spell_pursue();
     new spell_vehicle_throw_passenger();
 }
+#endif

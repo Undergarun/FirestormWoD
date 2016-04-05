@@ -68,7 +68,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_black_temple()
 {
     new npc_spirit_of_olum();
 }
+#endif

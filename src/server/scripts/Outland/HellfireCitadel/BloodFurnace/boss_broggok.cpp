@@ -157,8 +157,10 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_broggok()
 {
     new boss_broggok();
     new go_broggok_lever();
 }
+#endif

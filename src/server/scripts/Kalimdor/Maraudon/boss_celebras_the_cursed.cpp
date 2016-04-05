@@ -101,7 +101,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_celebras_the_cursed()
 {
     new celebras_the_cursed();
 }
+#endif

@@ -649,6 +649,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_muru()
 {
     new boss_muru();
@@ -658,3 +659,4 @@ void AddSC_boss_muru()
     new npc_void_sentinel();
     new npc_blackhole();
 }
+#endif

@@ -1654,6 +1654,7 @@ class go_founrdy_ore_grinder : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_oregorger()
 {
     /// Boss
@@ -1678,3 +1679,4 @@ void AddSC_boss_oregorger()
     new go_foundry_volatile_blackrock_ore();
     new go_founrdy_ore_grinder();
 }
+#endif

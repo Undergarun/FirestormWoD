@@ -364,6 +364,7 @@ class achievement_oh_novos : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_novos()
 {
     new boss_novos();
@@ -371,3 +372,4 @@ void AddSC_boss_novos()
     new mob_novos_minion();
     new achievement_oh_novos();
 }
+#endif

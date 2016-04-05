@@ -178,7 +178,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_blackheart_the_inciter()
 {
     new boss_blackheart_the_inciter();
 }
+#endif

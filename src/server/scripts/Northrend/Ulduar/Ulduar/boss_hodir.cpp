@@ -1224,6 +1224,7 @@ class achievement_i_have_the_coolest_friends : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hodir()
 {
     new boss_hodir();
@@ -1251,6 +1252,7 @@ void AddSC_boss_hodir()
     new achievement_i_have_the_coolest_friends("achievement_i_have_the_coolest_friends_25");
 }
 
+#endif
 #undef SPELL_FROZEN_BLOWS
 #undef SPELL_STORM_CLOUD
 #undef SPELL_STORM_POWER

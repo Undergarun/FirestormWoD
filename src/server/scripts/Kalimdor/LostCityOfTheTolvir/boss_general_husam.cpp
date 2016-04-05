@@ -572,6 +572,7 @@ class spell_hurl: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_general_husam()
 {
     new boss_general_husam();
@@ -582,3 +583,4 @@ void AddSC_boss_general_husam()
     new spell_bad_intentions();
     new spell_hurl();
 }
+#endif

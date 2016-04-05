@@ -397,6 +397,7 @@ class spell_archbishop_benedictus_righteous_snear_aoe: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_archbishop_benedictus()
 {
     new boss_archbishop_benedictus();
@@ -404,3 +405,4 @@ void AddSC_boss_archbishop_benedictus()
     new spell_archbishop_benedictus_purifying_light_targeting();
     new spell_archbishop_benedictus_righteous_snear_aoe();
 }
+#endif

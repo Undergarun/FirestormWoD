@@ -346,8 +346,10 @@ class mob_son_of_flame : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ragnaros()
 {
     new boss_ragnaros();
     new mob_son_of_flame();
 }
+#endif

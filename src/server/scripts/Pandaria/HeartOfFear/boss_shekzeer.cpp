@@ -1910,6 +1910,7 @@ class spell_visions_of_demise : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_shekzeer()
 {
     new boss_shekzeer();                // 62837 - Shek'zeer
@@ -1927,3 +1928,4 @@ void AddSC_boss_shekzeer()
     new spell_calamity();               // 124845 - Calamity
     new spell_visions_of_demise();      // 124862 - Visions of Demise
 }
+#endif

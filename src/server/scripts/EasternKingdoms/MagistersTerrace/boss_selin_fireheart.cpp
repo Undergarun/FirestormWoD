@@ -369,8 +369,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_selin_fireheart()
 {
     new boss_selin_fireheart();
     new mob_fel_crystal();
 }
+#endif

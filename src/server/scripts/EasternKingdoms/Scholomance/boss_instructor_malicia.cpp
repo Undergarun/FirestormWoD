@@ -153,7 +153,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_instructormalicia()
 {
     new boss_instructor_malicia();
 }
+#endif

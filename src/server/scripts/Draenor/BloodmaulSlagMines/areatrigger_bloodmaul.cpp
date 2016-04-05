@@ -86,8 +86,9 @@ namespace MS
         }
     }
 }
-
+#ifndef __clang_analyzer__
 void AddSC_areatrigger_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::AreaTrigger_SuppresionField();
 }
+#endif

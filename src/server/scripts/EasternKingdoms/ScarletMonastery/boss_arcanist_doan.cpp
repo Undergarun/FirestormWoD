@@ -130,7 +130,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_arcanist_doan()
 {
     new boss_arcanist_doan();
 }
+#endif

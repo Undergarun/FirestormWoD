@@ -100,7 +100,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_azshir_the_sleepless()
 {
     new boss_azshir_the_sleepless();
 }
+#endif

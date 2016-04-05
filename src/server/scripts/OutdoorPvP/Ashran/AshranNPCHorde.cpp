@@ -3565,7 +3565,7 @@ class npc_ashran_speedy_horde_racer : public CreatureScript
             return new npc_ashran_speedy_horde_racerAI(p_Creature);
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -3603,3 +3603,4 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_kimilyn();
     new npc_ashran_speedy_horde_racer();
 }
+#endif

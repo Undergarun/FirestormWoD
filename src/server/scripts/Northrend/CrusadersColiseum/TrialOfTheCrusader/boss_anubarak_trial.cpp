@@ -863,6 +863,7 @@ class spell_impale: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_anubarak_trial()
 {
     new boss_anubarak_trial();
@@ -873,3 +874,4 @@ void AddSC_boss_anubarak_trial()
 
     new spell_impale();
 }
+#endif

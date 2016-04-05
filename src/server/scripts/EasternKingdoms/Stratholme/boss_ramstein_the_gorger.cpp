@@ -102,7 +102,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ramstein_the_gorger()
 {
     new boss_ramstein_the_gorger();
 }
+#endif

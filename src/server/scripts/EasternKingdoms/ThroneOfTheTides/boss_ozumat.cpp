@@ -591,6 +591,7 @@ class at_tott_ozumat : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ozumat()
 {
     new npc_neptulon();
@@ -600,3 +601,4 @@ void AddSC_boss_ozumat()
     new npc_blight_of_ozumat();
     new at_tott_ozumat();
 }
+#endif

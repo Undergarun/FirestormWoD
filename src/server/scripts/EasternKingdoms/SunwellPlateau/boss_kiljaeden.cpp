@@ -1420,6 +1420,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_kiljaeden()
 {
     new go_orb_of_the_blue_flight();
@@ -1433,3 +1434,4 @@ void AddSC_boss_kiljaeden()
     new mob_shield_orb();
     new mob_sinster_reflection();
 }
+#endif

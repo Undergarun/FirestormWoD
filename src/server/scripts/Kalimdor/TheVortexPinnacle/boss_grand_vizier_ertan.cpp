@@ -200,8 +200,10 @@ class npc_ertan_vortex : public CreatureScript
      };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_grand_vizier_ertan()
 {
     new boss_grand_vizier_ertan();
     new npc_ertan_vortex();
 }
+#endif

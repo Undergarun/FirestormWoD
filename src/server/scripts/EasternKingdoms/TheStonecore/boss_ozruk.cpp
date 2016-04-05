@@ -154,7 +154,9 @@ class boss_ozruk : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ozruk()
 {
     new boss_ozruk();
 }
+#endif

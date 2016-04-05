@@ -197,8 +197,10 @@ class achievement_pardon_denied : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_baron_ashbury()
 {
     new boss_baron_ashbury();
     new achievement_pardon_denied();
 }
+#endif

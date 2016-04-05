@@ -317,8 +317,10 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
     DoMeleeAttackIfReady();
 }
 
+#ifndef __clang_analyzer__
 void AddSC_boss_attumen()
 {
     new boss_attumen();
     new boss_midnight();
 }
+#endif

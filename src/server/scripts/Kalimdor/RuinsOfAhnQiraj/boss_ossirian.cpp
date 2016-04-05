@@ -58,7 +58,9 @@ class boss_ossirian : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ossirian()
 {
     new boss_ossirian();
 }
+#endif

@@ -612,6 +612,7 @@ class achievement_volunteer_work : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_jedoga_shadowseeker()
 {
     new boss_jedoga_shadowseeker();
@@ -619,3 +620,4 @@ void AddSC_boss_jedoga_shadowseeker()
     new npc_jedogas_aufseher_trigger();
     new achievement_volunteer_work();
 }
+#endif

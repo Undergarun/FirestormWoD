@@ -447,8 +447,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_bjarngrim()
 {
     new boss_bjarngrim();
     new mob_stormforged_lieutenant();
 }
+#endif

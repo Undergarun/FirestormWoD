@@ -126,7 +126,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_pandemonius()
 {
     new boss_pandemonius();
 }
+#endif

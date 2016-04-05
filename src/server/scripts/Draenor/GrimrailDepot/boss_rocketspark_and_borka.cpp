@@ -721,6 +721,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_RocketsparkandBorka()
 {
     new boss_rocketspark();
@@ -730,3 +731,4 @@ void AddSC_RocketsparkandBorka()
     new grimrail_depot_rocketspark_spell_new_plan();
     new grimrail_depot_rocketspark_spell_mad_dash();
 };
+#endif

@@ -1769,6 +1769,7 @@ class achievement_twilight_zone : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sartharion()
 {
     new boss_sartharion();
@@ -1785,3 +1786,4 @@ void AddSC_boss_sartharion()
     new achievement_twilight_duo();
     new achievement_twilight_zone();
 }
+#endif

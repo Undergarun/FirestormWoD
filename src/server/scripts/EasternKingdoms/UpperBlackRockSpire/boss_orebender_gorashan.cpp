@@ -772,6 +772,7 @@ class go_runic_conduit : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_orebender_gorashan()
 {
     new boss_orebender_gorashan();
@@ -784,3 +785,4 @@ void AddSC_boss_orebender_gorashan()
     new spell_electric_pulse();
     new go_runic_conduit();
 }
+#endif

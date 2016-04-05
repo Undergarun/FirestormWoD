@@ -138,12 +138,12 @@ class boss_malkorok : public CreatureScript
             return new boss_malkorokAI(pCreature);
         }
 };
-
+#ifndef __clang_analyzer__
 void AddSC_malkorok()
 {
     new boss_malkorok();
 };
-
+#endif
 /*
 INSERT INTO creature_text VALUES
 (71454, 0, 0, "Nazgrim has failed us. Kor'kron, destroy these intruders!", 14, 0, 100, 0, 0, 'MALKOROK_INTRO'),

@@ -566,6 +566,7 @@ class spell_hexlord_unstable_affliction: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_hex_lord_malacrass()
 {
     new boss_hex_lord_malacrass();              ///< 24239
@@ -575,4 +576,4 @@ void AddSC_boss_hex_lord_malacrass()
     new npc_alyson_antille();                   ///< 24240
     new spell_hexlord_unstable_affliction();    ///< 43522
 }
-
+#endif

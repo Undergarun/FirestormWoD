@@ -561,10 +561,11 @@ class mob_flame_patch_alar : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_alar()
 {
     new boss_alar();
     new mob_ember_of_alar();
     new mob_flame_patch_alar();
 }
-
+#endif

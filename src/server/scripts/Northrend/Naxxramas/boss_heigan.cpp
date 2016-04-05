@@ -223,9 +223,11 @@ class achievement_safety_dance : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_heigan()
 {
     new boss_heigan();
     new spell_heigan_eruption();
     new achievement_safety_dance();
 }
+#endif

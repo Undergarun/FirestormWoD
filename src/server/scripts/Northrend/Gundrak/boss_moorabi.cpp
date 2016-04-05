@@ -191,8 +191,10 @@ class achievement_less_rabi : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_moorabi()
 {
     new boss_moorabi();
     new achievement_less_rabi();
 }
+#endif

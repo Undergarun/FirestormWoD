@@ -824,6 +824,7 @@ class spell_dust_flail: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lockmaw_augh()
 {
     new boss_lockmaw();
@@ -836,3 +837,4 @@ void AddSC_boss_lockmaw_augh()
     
     new spell_dust_flail();
 }
+#endif

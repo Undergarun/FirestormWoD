@@ -387,8 +387,10 @@ class go_blackened_urn : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_nightbane()
 {
     new boss_nightbane();
     new go_blackened_urn();
 }
+#endif
