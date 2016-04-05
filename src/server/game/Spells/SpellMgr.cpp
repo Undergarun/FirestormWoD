@@ -3398,7 +3398,6 @@ void SpellMgr::LoadSpellCustomAttr()
         switch (spellInfo->Id)
         {
             case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
-            case 101603:    ///< Hack for Throw Totem, Echo of Baine
             case 161710:    ///< Garrison enchanter study
             case 160201:    ///< Garrison enchanter study
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
@@ -3558,8 +3557,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
             case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
-			case 162757: ///< Ice Trap (Iron Marksman)
-			case 156704: ///< Slam (Kromog)
+            case 162757: ///< Ice Trap (Iron Marksman)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
@@ -3667,6 +3665,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155198: ///< Savage Howl (Cruelfang)
                 spellInfo->PreventionType = 0;
+                break;
+            case 155221: ///< Tantrum (Ironcrusher)
+            case 155520: ///< Tantrum (Beastlord Darmac)
+                spellInfo->AuraInterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                spellInfo->InterruptFlags = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////

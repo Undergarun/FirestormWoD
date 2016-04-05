@@ -155,7 +155,7 @@ namespace MS
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
-                        *p_Data << uint32(p_BG->GetRemainingTime());                              ///< Time to Close
+                        *p_Data << uint32(0);                                                     ///< Time to Close
                         *p_Data << uint32(p_BG->GetElapsedTime());                                ///< Elapsed Time
                         p_Data->WriteBit(p_Player->GetBGTeam() == HORDE ? 0 : 1);                 ///< Battlefield Faction ( 0 horde, 1 alliance )
                         p_Data->WriteBit(false);                                                  ///< @TODO Left early
