@@ -322,7 +322,7 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
     // Pass back the GUIDLow of the target. If it is pet's owner then PetAI will handle
     if (unit->AI())
-        unit->AI()->MovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
+        unit->AddMovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
 }
 
 //-----------------------------------------------//
