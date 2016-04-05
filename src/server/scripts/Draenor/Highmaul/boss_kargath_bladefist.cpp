@@ -1551,14 +1551,9 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
             CheckPlayer = 1
         };
 
-        struct npc_highmaul_ravenous_bloodmawAI : public MS::AI::CosmeticAI
+        struct npc_highmaul_ravenous_bloodmawAI : public ScriptedAI
         {
-            npc_highmaul_ravenous_bloodmawAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
-            {
-                m_ChaseTarget = 0;
-            }
-
-            uint64 m_ChaseTarget;
+            npc_highmaul_ravenous_bloodmawAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
 
@@ -1570,9 +1565,9 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                 m_Events.Reset();
                 m_Events.ScheduleEvent(eEvent::CheckPlayer, 500);
 
-                m_ChaseTarget = 0;
-
                 me->RemoveAura(eSpells::SpellInflamed);
+
+                me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_CHARM, true);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1583,9 +1578,24 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::OnTheHunt:
-                        m_ChaseTarget = p_Target->GetGUID();
-                        me->SetWalk(true);
+                    {
+                        me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
+
+                        me->SetInCombatWithZone();
+
+                        me->getThreatManager().clearReferences();
+                        me->getThreatManager().addThreat(p_Target, std::numeric_limits<float>::max());
+
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                        me->TauntApply(p_Target);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+
+                        me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
+
+                        me->GetMotionMaster()->Clear(true);
+                        me->GetMotionMaster()->MoveChase(p_Target);
                         break;
+                    }
                     default:
                         break;
                 }
@@ -1597,14 +1607,15 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                 {
                     case eActions::FreeRavenous:
                     {
-                        if (!me->GetMap()->IsMythic())
+                        if (!IsMythic())
                             break;
 
                         m_Events.CancelEvent(eEvent::CheckPlayer);
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
-                        float l_X = me->GetPositionX() + (8.0f * cos(me->GetOrientation()));
-                        float l_Y = me->GetPositionY() + (8.0f * sin(me->GetOrientation()));
+                        float l_X = me->GetPositionX() + (9.0f * cos(me->GetOrientation()));
+                        float l_Y = me->GetPositionY() + (9.0f * sin(me->GetOrientation()));
+
                         me->GetMotionMaster()->MoveJump(l_X, l_Y, g_ArenaFloor, 15.0f, 25.0f, me->GetOrientation());
 
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::OnTheHunt, false); });
@@ -1615,7 +1626,8 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                         if (me->HasAura(eSpells::SpellInflamed))
                             break;
 
-                        m_ChaseTarget = 0;
+                        me->GetMotionMaster()->Clear();
+
                         me->CastSpell(me, eSpells::SpellInflamed, true);
 
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -1647,41 +1659,49 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* p_Killed) override
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
-                if (p_Killed == nullptr)
+                if (p_Type != MovementGeneratorType::CHASE_MOTION_TYPE)
                     return;
 
-                /// Switch target if killed the hunted one
-                if (p_Killed->GetGUID() == m_ChaseTarget)
-                    me->CastSpell(me, eSpells::OnTheHunt, false);
+                if (Unit* l_Target = me->getVictim())
+                {
+                    me->AddAura(eSpells::InThePitAura, l_Target);
+                    me->CastSpell(l_Target, eSpells::SpellMaul, true);
+                    l_Target->RemoveAura(eSpells::InThePitAura);
+                }
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (!IsMythic())
+                    return;
+
+                me->SetInCombatWithZone();
+
+                /// Hunt another player only if the first one's dead, or at the end of the channel
+                me->CastSpell(me, eSpells::OnTheHunt, false);
+            }
+
+            void EnterEvadeMode() override
+            {
+                ClearDelayedOperations();
+
+                me->InterruptNonMeleeSpells(true);
+
+                CreatureAI::EnterEvadeMode();
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+                UpdateOperations(p_Diff);
 
-                /// Update Berserker Rush move
-                if (!me->HasAura(eSpells::SpellInflamed))
-                {
-                    if (Player* l_Target = Player::GetPlayer(*me, m_ChaseTarget))
-                    {
-                        if (l_Target->IsWithinMeleeRange(me, 2.0f) && l_Target->isAlive())
-                        {
-                            me->AddAura(eSpells::InThePitAura, l_Target);
-                            me->CastSpell(l_Target, eSpells::SpellMaul, true);
-                            l_Target->RemoveAura(eSpells::InThePitAura);
-                        }
-
-                        Position l_Pos;
-                        l_Target->GetPosition(&l_Pos);
-                        me->GetMotionMaster()->MovePoint(0, l_Pos);
-                    }
-                }
+                if (!UpdateVictim())
+                    return;
 
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->HasUnitState(UnitState::UNIT_STATE_CHASE))
                     return;
 
                 if (m_Events.ExecuteEvent() == eEvent::CheckPlayer)

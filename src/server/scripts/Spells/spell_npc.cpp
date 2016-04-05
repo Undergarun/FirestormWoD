@@ -64,6 +64,11 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_FACTION_TEMPLATE);
             }
 
+            void EnterEvadeMode() override
+            {
+                ///< No evade mode for Prismatic Crystal
+            }
+
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (p_Attacker->GetGUID() != m_Owner)

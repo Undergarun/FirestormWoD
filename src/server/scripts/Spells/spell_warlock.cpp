@@ -2676,9 +2676,13 @@ class spell_warl_drain_life: public SpellScriptLoader
                     return;
 
                 int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints) / p_AurEff->GetTotalTicks();
+                int32 l_BaseBonus = 0;
 
                 if (Aura* l_EmpoweredDrainLife = l_Caster->GetAura(eSpells::EmpoweredDrainLife))
-                    l_Bp0 += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    l_BaseBonus += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+
+                l_BaseBonus *= p_AurEff->GetTickNumber();
+                l_Bp0 += l_BaseBonus;
 
                 l_Caster->CastCustomSpell(l_Caster, eSpells::DrainLifeHeal, &l_Bp0, NULL, NULL, true);
 

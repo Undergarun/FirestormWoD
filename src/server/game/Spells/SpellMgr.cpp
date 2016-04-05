@@ -3666,6 +3666,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155198: ///< Savage Howl (Cruelfang)
                 spellInfo->PreventionType = 0;
                 break;
+            case 155221: ///< Tantrum (Ironcrusher)
+            case 155520: ///< Tantrum (Beastlord Darmac)
+                spellInfo->AuraInterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                spellInfo->InterruptFlags = 0;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
