@@ -31,12 +31,28 @@ FIND_PATH(CURL_INCLUDE_DIR curl/curl.h
   ${CURL_ROOT_DIR}/include
 )
 
+# dynamic change for cURL 
+set(MSVC_EXPECTED_VERSION 19.0.23026.0) # MSVC 2015
+
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
+
 FIND_LIBRARY(CURL_LIBRARIES
   NAMES
     libcurl curl curl_a libcurl_a
   PATHS
-    ${CURL_ROOT_DIR}/lib
+    ${CURL_ROOT_DIR}/lib/MSVC_2015/
 )
+
+else
+
+FIND_LIBRARY(CURL_LIBRARIES
+  NAMES
+    libcurl curl curl_a libcurl_a
+  PATHS
+    ${CURL_ROOT_DIR}/lib/MSVC_2013/
+)
+
+endif()
 
 MARK_AS_ADVANCED(CURL_LIBRARIES)
 
