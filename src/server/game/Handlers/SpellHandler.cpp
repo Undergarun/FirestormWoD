@@ -688,8 +688,22 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
             // cheater? kick? ban?
             else if(!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
             {
-                p_RecvPacket.rfinish(); // prevent spam at ignore packet
-                return;
+                bool l_ModNextSpell = false;
+                Unit::AuraEffectList const& l_AurasModNextSpell = caster->GetAuraEffectsByType(SPELL_AURA_MOD_NEXT_SPELL);
+                for (auto l_Aura : l_AurasModNextSpell)
+                {
+                    if (l_Aura->GetSpellEffectInfo()->TriggerSpell == l_SpellID)
+                    {
+                        l_ModNextSpell = true;
+                        break;
+                    }
+                }
+
+                if (!l_ModNextSpell)
+                {
+                    p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                    return;
+                }
             }
         }
     }
