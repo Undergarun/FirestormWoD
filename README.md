@@ -9,7 +9,7 @@ Never commit into interrealm only crash fix, wod branch is the prod branch !
 ## Requirements
 
 + Platform: Linux, Windows or Mac
-+ Processor with SSE2 support
++ Git ≥ 1.7+
 + ACE ≥ 6.2.0
 + MySQL ≥ 5.5.0+
 + CMake ≥ 3.2+
@@ -34,8 +34,9 @@ In order to complete the installation of the core, you need some other dependenc
 git submodule init && git submodule update --remote
 ```
 
+- If you have the message `Git was NOT FOUND on your system` please uninstall and update your git version (you can also change the path for the binary on yout PATH)
 - **NEW** Windows user you need the mysql server installed, download the last version (5.7+) here : [MySQL Community Server](http://dev.mysql.com/downloads/mysql/) if you need the x86 build just change the include path on cmake
-- **NEW** You must choose the libcurl .lib for your MSVC version in the `dep/libcurl` folder
+- **NEW** You must choose the libcurl.lib for your MSVC version in the `dep/libcurl` folder
 - **NEW** If you use MSVC 2013 you *MUST* have the update 3+
 
 ## Commit naming convention
