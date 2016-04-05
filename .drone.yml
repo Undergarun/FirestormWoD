@@ -42,7 +42,7 @@ build:
     commands:
       - cp -p contrib/deploy/run-worldserver dist/bin
       - cp -p contrib/deploy/commands.gdb dist/etc
-      - sed -i "s/%REPO%/$DRONE_REPO/g; s/%COMMIT%/$DRONE_COMMIT/g" dist/bin/run-worldserver;
+      - sed -i "s~@REPO@~$DRONE_REPO~g; s~@COMMIT@~$DRONE_COMMIT~g" dist/bin/run-worldserver;
       - cp -rp sql/updates/characters dist/sql
       - cp -rp sql/updates/world dist/sql
       - cp -rp sql/updates/hotfix dist/sql

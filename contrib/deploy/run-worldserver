@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # These variables are replaced at drone build
-repo=%REPO%
-commit=%COMMIT%
+repo=@REPO@
+commit=@COMMIT@
 
 function sendToSlack {
     msg=$1
