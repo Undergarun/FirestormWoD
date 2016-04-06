@@ -70,10 +70,15 @@ namespace MS { namespace Garrison
 
     /// Constructor
     /// @p_Creature : AI Owner
-    npc_TarnonAI::npc_TarnonAI(Creature * p_Creature)
+    npc_TarnonAI::npc_TarnonAI(Creature* p_Creature)
         : GatheringBuildingMaster(p_Creature)
     {
 
+    }
+
+    void npc_TarnonAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(NPCs::NpcFrostwallNibbler, 200.0f);
     }
 
     /// When the PlotInstance ID is set

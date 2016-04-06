@@ -73,6 +73,11 @@ namespace MS { namespace Garrison
     {
     }
 
+    void npc_NaronBloomthistleAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(NPCs::LunarfallRaccoon, 200.0f);
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 

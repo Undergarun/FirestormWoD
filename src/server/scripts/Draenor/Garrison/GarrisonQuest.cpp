@@ -325,17 +325,6 @@ namespace MS { namespace Garrison
             default:
                 break;
         }
-
-        if (!p_Player->IsInGarrison())
-            return;
-
-        Manager* l_GarrisonMgr = p_Player->GetGarrison();
-
-        if (l_GarrisonMgr == nullptr)
-            return;
-
-        if (p_Player->IsInGarrison())
-            UpdateGarrisonPhaseMask(p_Player);
     }
 
     void playerScript_Garrison_Portals_Phases::OnLogin(Player* p_Player)
