@@ -3096,8 +3096,12 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
     if (p_Spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
         return SPELL_MISS_NONE;
 
+    /// Same spells cannot be parry/dodge
+    if (p_Spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
+        return SPELL_MISS_NONE;
+
     // cast by caster in front of victim
-    if (p_Victim->HasInArc(M_PI, this) || p_Victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if ((p_Victim->HasInArc(M_PI, this) || p_Victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
         int32 l_DeflectChance = p_Victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         l_Tmp += l_DeflectChance;
