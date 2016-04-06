@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Common.h"
 #include "DBCStores.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -25,9 +26,9 @@
 #include "ItemPrototype.h"
 #include "TransportMgr.h"
 #include "Battleground.h"
+
 #include <iostream>
 #include <fstream>
-#include <map>
 #include "WowTime.hpp"
 #include <ace/OS_NS_time.h>
 

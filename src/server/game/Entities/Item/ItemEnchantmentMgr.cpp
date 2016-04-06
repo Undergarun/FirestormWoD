@@ -22,8 +22,7 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include <list>
-#include <vector>
+#include "Common.h"
 #include "Util.h"
 
 struct EnchStoreItem
@@ -39,7 +38,7 @@ struct EnchStoreItem
 };
 
 typedef std::vector<EnchStoreItem> EnchStoreList;
-typedef UNORDERED_MAP<uint32, EnchStoreList> EnchantmentStore;
+typedef std::unordered_map<uint32, EnchStoreList> EnchantmentStore;
 
 static EnchantmentStore RandomPropertyItemEnch;
 static EnchantmentStore RandomSuffixItemEnch;

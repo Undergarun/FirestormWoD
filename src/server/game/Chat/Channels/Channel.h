@@ -19,10 +19,6 @@
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
 
-#include <list>
-#include <map>
-#include <string>
-
 #include "Common.h"
 
 #include "Opcodes.h"

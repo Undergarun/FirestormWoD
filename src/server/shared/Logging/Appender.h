@@ -19,9 +19,7 @@
 #define APPENDER_H
 
 #include "Define.h"
-#include <time.h>
-#include <string>
-#include <map>
+#include "Common.h"
 
 enum LogFilterType
 {

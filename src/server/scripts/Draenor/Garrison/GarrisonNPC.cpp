@@ -6,6 +6,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common.h"
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -55,8 +56,6 @@
 #include "Buildings/Horde/HFishingHut.hpp"
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
-
-#include <random>
 
 namespace MS { namespace Garrison 
 {

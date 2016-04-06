@@ -19,15 +19,11 @@
 #ifndef __TRINITY_ACHIEVEMENTMGR_H
 #define __TRINITY_ACHIEVEMENTMGR_H
 
-#include <map>
-#include <string>
-
 #include "Common.h"
 #include <ace/Singleton.h>
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
-#include <LockedMap.h>
 #include "MapUpdater.h"
 
 typedef std::vector<CriteriaEntry const*>            AchievementCriteriaEntryList;
@@ -35,7 +31,7 @@ typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 typedef std::vector<CriteriaTreeEntry const*>        AchievementCriteriaTreeList;
 typedef std::vector<ModifierTreeEntry const*>        ModifierTreeEntryList;
 
-typedef UNORDERED_MAP<uint32, AchievementEntryList>  AchievementListByReferencedId;
+typedef std::unordered_map<uint32, AchievementEntryList>  AchievementListByReferencedId;
 typedef std::vector<AchievementCriteriaTreeList>     AchievementCriteriaTreeByCriteriaId;
 typedef std::vector<AchievementEntry const*>         AchievementEntryByCriteriaTree;
 typedef std::vector<ModifierTreeEntryList>           ModifierTreeEntryByTreeId;

@@ -5,10 +5,10 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "Player.h"
 #include "ObjectMgr.h"
-#include <limits>
-#include <math.h>
+#include "Common.h"
 #include <stdlib.h>
 
 /// String to unsigned long

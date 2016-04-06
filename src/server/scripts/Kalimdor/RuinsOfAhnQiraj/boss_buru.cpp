@@ -21,7 +21,7 @@ SDName: Boss_Buru
 SD%Complete: 0
 SDComment: Place Holder
 SDCategory: Ruins of Ahn'Qiraj
-EndScriptData
+EndScriptData*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -55,4 +55,4 @@ void AddSC_boss_buru()
 {
     new boss_buru();
 }
-#endif*/
+#endif

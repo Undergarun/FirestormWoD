@@ -19,6 +19,7 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include "Common.h"
 #include "Define.h"
 #include "Appender.h"
 #include "LogWorker.h"
@@ -26,9 +27,6 @@
 
 #include <ace/Singleton.h>
 
-#include <string>
-#include <sstream>
-#include <set>
 #include <cstdarg>
 #include <cstdio>
 

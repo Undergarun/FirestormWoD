@@ -17,7 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "ulduar.h"
-#include <limits>
+#include "Common.h"
 
 enum Spells
 {

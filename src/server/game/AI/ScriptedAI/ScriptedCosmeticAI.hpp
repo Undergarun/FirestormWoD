@@ -10,8 +10,8 @@
 
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "Common.h"
 
-#include <map>
 #include <vector>
 
 namespace MS { namespace AI 

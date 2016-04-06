@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "GarrisonNPC.hpp"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -12,8 +13,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
-
-#include <random>
+#include "Common.h"
 
 namespace MS { namespace Garrison 
 {

@@ -22,9 +22,6 @@
 #include "Channel.h"
 #include <ace/Singleton.h>
 
-#include <map>
-#include <string>
-
 #include "World.h"
 
 class ChannelMgr

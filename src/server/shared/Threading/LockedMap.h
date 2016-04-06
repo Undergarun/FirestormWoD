@@ -23,6 +23,7 @@
 #include "Common.h"
 #include <map>
 #include <assert.h>
+#include <ace/Guard_T.h>
 
 namespace ACE_Based
 {

@@ -21,8 +21,7 @@
 
 #include "QueryResult.h"
 #include <ace/Singleton.h>
-#include <list>
-#include <map>
+#include "Common.h"
 
 class WorldSession;
 class WorldPacket;

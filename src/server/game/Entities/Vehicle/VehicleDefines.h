@@ -20,8 +20,7 @@
 #define __TRINITY_VEHICLEDEFINES_H
 
 #include "Define.h"
-#include <vector>
-#include <map>
+#include "Common.h"
 
 struct VehicleSeatEntry;
 

@@ -24,8 +24,7 @@
  * types of object at the same time.
  */
 
-#include <map>
-#include <vector>
+#include "Common.h"
 #include "Define.h"
 #include "Dynamic/TypeList.h"
 #include "GridRefManager.h"

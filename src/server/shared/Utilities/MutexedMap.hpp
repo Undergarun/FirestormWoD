@@ -5,12 +5,13 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #ifndef MUTEXEDMAP_HPP_INCLUDED
-#define MUTEXEDMAP_HPP_INCLUDED
+# define MUTEXEDMAP_HPP_INCLUDED
 
 #include <ace/Thread_Mutex.h>
-#include <map>
+#include "Common.h"
 
 namespace MS { namespace Utilities
 {

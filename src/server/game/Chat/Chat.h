@@ -21,8 +21,7 @@
 
 #include "SharedDefines.h"
 #include "Player.h"
-
-#include <vector>
+#include "Common.h"
 
 class ChatHandler;
 class WorldSession;

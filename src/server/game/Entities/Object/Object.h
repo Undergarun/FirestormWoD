@@ -28,11 +28,6 @@
 #include "Map.h"
 #include "UpdateMask.h"
 
-#include <set>
-#include <string>
-#include <sstream>
-#include <unordered_set>
-#include <unordered_map>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f

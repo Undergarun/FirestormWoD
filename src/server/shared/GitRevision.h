@@ -7,9 +7,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __GITREVISION_H__
-#define __GITREVISION_H__
+# define __GITREVISION_H__
 
-#include <string>
+#include "Common.h"
 
 namespace GitRevision
 {

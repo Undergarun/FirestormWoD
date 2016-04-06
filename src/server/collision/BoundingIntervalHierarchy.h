@@ -24,12 +24,7 @@
 #include "G3D/AABox.h"
 
 #include "Define.h"
-
-#include <stdexcept>
-#include <vector>
-#include <algorithm>
-#include <limits>
-#include <cmath>
+#include "Common.h"
 
 #define MAX_STACK_SIZE 64
 

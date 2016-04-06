@@ -5,11 +5,13 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "PetBattle.h"
-#include <map>
+#include "Common.h"
+
 #include <mutex>
 
 class PlayerScriptPetBattle : public PlayerScript

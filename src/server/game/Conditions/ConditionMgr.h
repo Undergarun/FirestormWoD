@@ -21,8 +21,7 @@
 
 #include "LootMgr.h"
 #include <ace/Singleton.h>
-#include <array>
-#include <vector>
+#include "Common.h"
 
 class Creature;
 class Player;

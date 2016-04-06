@@ -18,8 +18,7 @@
 #include "AppenderConsole.h"
 #include "Config.h"
 #include "Util.h"
-
-#include <sstream>
+#include "Common.h"
 
 AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags):
 Appender(id, name, APPENDER_CONSOLE, level, flags), _colored(false)

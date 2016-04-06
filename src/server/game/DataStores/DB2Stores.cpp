@@ -22,8 +22,7 @@
 #include "SpellMgr.h"
 #include "DB2fmt.h"
 #include "Item.h"
-
-#include <map>
+#include "Common.h"
 
 std::map<uint32, DB2StorageBase*> sDB2PerHash;
 

@@ -61,10 +61,13 @@
 
 #include "Define.h"
 
-#include "Dynamic/UnorderedMap.h"
+#include <LockedMap.h>
+#include <unordered_map>
+#include <unordered_set>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdexcept>
 #include <time.h>
 #include <cmath>
 #include <math.h>
@@ -72,6 +75,7 @@
 #include <signal.h>
 #include <assert.h>
 #include <random>
+#include <limits>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
@@ -89,6 +93,9 @@
 #include <forward_list>
 
 #include <mutex>
+#include <thread>
+#include <array>
+#include <vector>
 #include "Threading/LockedQueue.h"
 #include "Threading/Threading.h"
 

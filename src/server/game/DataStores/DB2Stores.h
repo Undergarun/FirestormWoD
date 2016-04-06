@@ -23,8 +23,6 @@
 #include "DB2Store.h"
 #include "DB2Structure.h"
 
-#include <list>
-
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 extern std::map<uint32 /*itemID*/, uint32 /*filedataID*/> g_ItemFileDataId;
 extern std::map<uint32, uint32> g_ItemDisplayIDs;

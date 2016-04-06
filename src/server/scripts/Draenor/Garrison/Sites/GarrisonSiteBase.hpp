@@ -5,15 +5,14 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_SITE_BASE_HPP_GARRISON
-#define GARRISON_SITE_BASE_HPP_GARRISON
+# define GARRISON_SITE_BASE_HPP_GARRISON
 
 #include "../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "ScriptMgr.h"
-
-#include <map>
-#include <vector>
+#include "Common.h"
 
 namespace MS { namespace Garrison { namespace Sites
 {

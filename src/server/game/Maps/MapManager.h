@@ -167,7 +167,7 @@ class MapManager
         };
 
     private:
-        typedef UNORDERED_MAP<uint32, Map*> MapMapType;
+        typedef std::unordered_map<uint32, Map*> MapMapType;
         typedef std::set<uint32> InstanceIDs;
 
         // debugging code, should be deleted some day

@@ -24,7 +24,7 @@
  */
 
 #include "Define.h"
-#include <algorithm>
+#include "Common.h"
 
 namespace ByteConverter
 {

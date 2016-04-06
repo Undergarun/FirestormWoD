@@ -23,9 +23,8 @@
 #include "Unit.h"
 #include "Vehicle.h"
 #include "GridNotifiers.h"
+#include "Common.h"
 
-#include <limits>
-#include <map>
 #include "ace/Mutex.h"
 
 enum Yells

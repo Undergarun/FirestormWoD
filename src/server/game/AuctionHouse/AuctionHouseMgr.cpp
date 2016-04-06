@@ -28,7 +28,7 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include <vector>
+#include "Common.h"
 
 enum eAuctionHouse
 {

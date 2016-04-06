@@ -8,7 +8,7 @@
 
 #include "DB2Structure.h"
 #pragma once
-#include <unordered_map>
+#include "Common.h"
 
 #define LFG_LIST_APPLY_FOR_GROUP_TIMEOUT 300
 #define LFG_LIST_INVITE_TO_GROUP_TIMEOUT 60

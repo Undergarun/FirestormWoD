@@ -21,7 +21,7 @@
 #include "Cryptography/BigNumber.h"
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
-#include <algorithm>
+#include "Common.h"
 
 BigNumber::BigNumber()
     : _bn(BN_new())

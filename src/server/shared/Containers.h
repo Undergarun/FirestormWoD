@@ -18,7 +18,7 @@
 #ifndef CONTAINERS_H
 #define CONTAINERS_H
 
-#include <list>
+#include "Common.h"
 
 //! Because circular includes are bad
 extern uint32 urand(uint32 min, uint32 max);

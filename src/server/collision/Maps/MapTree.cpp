@@ -22,11 +22,10 @@
 #include "VMapDefinitions.h"
 #include "Log.h"
 #include "Errors.h"
+#include "Common.h"
 
-#include <string>
 #include <sstream>
 #include <iomanip>
-#include <limits>
 
 using G3D::Vector3;
 

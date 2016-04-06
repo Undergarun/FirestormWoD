@@ -30,7 +30,6 @@
 #include "GuildMgr.h"
 #include "Spell.h"
 #include "ScriptMgr.h"
-#include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
 {

@@ -1,9 +1,18 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include <fstream>
+#include <stdint.h>
+
+#include "Common.h"
 #include "CinematicPathMgr.h"
 #include "DBCStores.h"
 #include "World.h"
-#include <fstream>
-#include <algorithm>
-#include <stdint.h>
 #include "G3D/platform.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/Quat.h"

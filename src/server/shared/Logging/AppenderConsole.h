@@ -19,7 +19,7 @@
 #define APPENDERCONSOLE_H
 
 #include "Appender.h"
-#include <string>
+#include "Common.h"
 
 enum ColorTypes
 {

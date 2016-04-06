@@ -26,10 +26,6 @@
 #include "Util.h"
 #include "SharedDefines.h"
 
-#include <map>
-#include <set>
-#include <vector>
-
 class Player;
 
 // Structures using to access raw DBC data and required packing to portability

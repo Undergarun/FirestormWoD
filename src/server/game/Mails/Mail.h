@@ -20,7 +20,6 @@
 #define TRINITY_MAIL_H
 
 #include "Common.h"
-#include <map>
 
 struct BMAuctionEntry;
 struct AuctionEntry;

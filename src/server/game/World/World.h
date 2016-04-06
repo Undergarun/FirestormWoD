@@ -33,10 +33,6 @@
 #include "TimeDiffMgr.h"
 #include "DatabaseWorkerPool.h"
 
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <list>
 #include <atomic>
 
 class Object;
@@ -635,7 +631,7 @@ struct CliCommandHolder
     ~CliCommandHolder() { delete[] m_command; }
 };
 
-typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
+typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
 struct CharacterInfo
 {
@@ -1023,7 +1019,7 @@ class World
         uint32 m_serverUpdateCount;
 
         SessionMap m_sessions;
-        typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
+        typedef std::unordered_map<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;

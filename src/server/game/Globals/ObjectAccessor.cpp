@@ -36,8 +36,7 @@
 #include "ObjectDefines.h"
 #include "MapInstanced.h"
 #include "World.h"
-
-#include <cmath>
+#include "Common.h"
 
 uint32 ObjectAccessor::k_PlayerCacheMaxGuid;
 Player** ObjectAccessor::m_PlayersCache;
@@ -434,7 +433,7 @@ void ObjectAccessor::UnloadAll()
 
 /// Define the static members of HashMapHolder
 
-template <class T> UNORDERED_MAP< uint64, T* > HashMapHolder<T>::m_objectMap;
+template <class T> std::unordered_map< uint64, T* > HashMapHolder<T>::m_objectMap;
 template <class T> typename HashMapHolder<T>::LockType HashMapHolder<T>::i_lock;
 
 /// Global definitions for the hashmap storage

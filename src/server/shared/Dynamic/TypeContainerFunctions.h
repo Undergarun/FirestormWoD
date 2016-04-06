@@ -27,7 +27,7 @@
 
 #include "Define.h"
 #include "Dynamic/TypeList.h"
-#include <map>
+#include "Common.h"
 
 namespace JadeCore
 {

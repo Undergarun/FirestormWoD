@@ -24,9 +24,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include <list>
-#include <vector>
-#include <utility>
 
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError p_Result)
 {

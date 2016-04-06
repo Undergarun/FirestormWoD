@@ -20,7 +20,7 @@
 #define _ADDONMGR_H
 
 #include "Define.h"
-#include <string>
+#include "Common.h"
 
 struct AddonInfo
 {

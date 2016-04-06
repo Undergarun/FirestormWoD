@@ -5,15 +5,14 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "Common.h"
 #include "GarrisonMgr.hpp"
 #include "GarrisonShipmentManager.hpp"
 #include "Player.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
-
-#include <set>
-#include <vector>
 
 namespace MS { namespace Garrison 
 {

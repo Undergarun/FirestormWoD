@@ -19,7 +19,7 @@
 #ifndef _WARDENCHECKMGR_H
 #define _WARDENCHECKMGR_H
 
-#include <map>
+#include "Common.h"
 #include "Cryptography/BigNumber.h"
 
 enum WardenActions

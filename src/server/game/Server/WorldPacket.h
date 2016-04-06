@@ -22,8 +22,6 @@
 #include "Common.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-#include <mutex>
-#include <map>
 
 struct z_stream_s;
 

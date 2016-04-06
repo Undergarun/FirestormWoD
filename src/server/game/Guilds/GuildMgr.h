@@ -28,7 +28,7 @@ private:
     ~GuildMgr();
 
 public:
-    typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
+    typedef std::unordered_map<uint32, Guild*> GuildContainer;
 
     Guild* GetGuildByLeader(uint64 guid) const;
     Guild* GetGuildById(uint32 guildId) const;

@@ -22,13 +22,8 @@
 #include "Define.h"
 #include "Common.h"
 
-#include <algorithm>
-#include <string>
-#include <vector>
-#include <list>
 #include <cctype>
 #include <iomanip>
-#include <sstream>
 
  void init_sfmt();
 

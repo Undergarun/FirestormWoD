@@ -20,7 +20,7 @@
 #define _ACCMGR_H
 
 #include "Define.h"
-#include <string>
+#include "Common.h"
 
 enum AccountOpResult
 {

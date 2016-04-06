@@ -25,8 +25,7 @@
 #include "DatabaseWorkerPool.h"
 #include "Implementation/HotfixDatabase.h"
 #include "DatabaseEnv.h"
-
-#include <vector>
+#include "Common.h"
 
 struct SqlDb2
 {

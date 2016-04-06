@@ -5,13 +5,14 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_NPC_HPP_GARRISON
-#define GARRISON_NPC_HPP_GARRISON
+# define GARRISON_NPC_HPP_GARRISON
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 #include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
-#include <map>
+#include "Common.h"
 #include "ScriptedCosmeticAI.hpp"
 
 namespace MS { namespace Garrison 

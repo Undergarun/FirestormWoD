@@ -5,11 +5,12 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
-#define GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
 
+#ifndef GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
+# define GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
+
+#include "Common.h"
 #include <ace/Singleton.h>
-#include <map>
 
 namespace MS { namespace Garrison 
 {

@@ -22,6 +22,7 @@ Comment: All debug related commands
 Category: commandscripts
 EndScriptData */
 
+#include "Common.h"
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "BattlegroundMgr.hpp"
@@ -38,7 +39,6 @@ EndScriptData */
 #include "World.h"
 
 #include <fstream>
-#include <vector>
 #include "BattlegroundPacketFactory.hpp"
 
 struct UnitStates

@@ -20,8 +20,7 @@
 #define _MAP_UPDATER_H_INCLUDED
 
 #include "Define.h"
-#include <mutex>
-#include <thread>
+#include "Common.h"
 #include <condition_variable>
 #include "ProducerConsumerQueue.h"
 

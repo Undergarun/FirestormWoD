@@ -20,7 +20,6 @@
 #define TRINITY_MOTIONMASTER_H
 
 #include "Common.h"
-#include <vector>
 #include "SharedDefines.h"
 #include "Object.h"
 

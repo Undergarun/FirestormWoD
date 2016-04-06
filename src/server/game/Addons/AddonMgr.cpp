@@ -20,8 +20,7 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Timer.h"
-
-#include <list>
+#include "Common.h"
 
 namespace AddonMgr
 {

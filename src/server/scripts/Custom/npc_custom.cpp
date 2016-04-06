@@ -14,7 +14,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "PetAI.h"
