@@ -1033,6 +1033,13 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->SetReactState(REACT_HELPER);
             }
 
+            void DropCharge()
+            {
+                m_Charges--;
+                if (m_Charges <= 0)
+                    me->DespawnOrUnsummon();
+            }
+
             void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* l_Owner = me->GetOwner())
@@ -1053,17 +1060,10 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (m_Charges == 0)
-                {
-                    me->DespawnOrUnsummon();
-                    return;
-                }
-
                 if (!me->IsValidAttackTarget(me->getVictim()))
                     return;
 
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
-                m_Charges--;
 
                 if (Unit* l_Owner = me->GetOwner())
                 {

@@ -2136,16 +2136,11 @@ class npc_foundry_slag_elemental : public CreatureScript
 
             uint64 m_Target;
 
-            /// UnitState::UNIT_STATE_CASTING cannot be used because Fixate is a channeled spell
-            bool m_Burn;
-
             void Reset() override
             {
                 m_Events.Reset();
 
                 m_Target = 0;
-
-                m_Burn = false;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             }
@@ -2160,15 +2155,6 @@ class npc_foundry_slag_elemental : public CreatureScript
                     me->SetMaxPower(Powers::POWER_ENERGY, 100);
 
                     m_Events.ScheduleEvent(eEvent::EventBurn, 5 * TimeConstants::IN_MILLISECONDS);
-                });
-
-                AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                {
-                    if (!m_Target)
-                    {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            AttackStart(l_Target);
-                    }
                 });
             }
 
@@ -2222,14 +2208,15 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                         break;
                     }
-                    case eSpells::Burn:
-                    {
-                        m_Burn = false;
-                        break;
-                    }
                     default:
                         break;
                 }
+            }
+
+            void OnSpellFinished(SpellInfo const* p_SpellInfo) override
+            {
+                /// This prevent some movements issues
+                me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2242,6 +2229,18 @@ class npc_foundry_slag_elemental : public CreatureScript
                     case eSpells::Fixate:
                     {
                         m_Target = p_Target->GetGUID();
+
+                        me->SetInCombatWithZone();
+
+                        me->getThreatManager().clearReferences();
+                        me->getThreatManager().addThreat(p_Target, std::numeric_limits<float>::max());
+
+                        me->TauntApply(p_Target);
+
+                        me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
+
+                        me->GetMotionMaster()->Clear(true);
+                        me->GetMotionMaster()->MoveChase(p_Target);
                         break;
                     }
                     default:
@@ -2308,20 +2307,17 @@ class npc_foundry_slag_elemental : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                if (me->GetReactState() == ReactStates::REACT_PASSIVE || m_Burn)
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || me->GetReactState() == ReactStates::REACT_PASSIVE)
                     return;
 
                 if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                 {
-                    if (!l_Target->isAlive())
+                    if (!l_Target->isAlive() || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL) == nullptr)
                     {
                         m_Target = 0;
                         me->CastSpell(me, eSpells::Fixate, true);
                         return;
                     }
-
-                    if (!me->IsWithinMeleeRange(l_Target))
-                        me->GetMotionMaster()->MovePoint(0, *l_Target);
                 }
 
                 switch (m_Events.ExecuteEvent())
@@ -2329,9 +2325,7 @@ class npc_foundry_slag_elemental : public CreatureScript
                     case eEvent::EventBurn:
                     {
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
-                            me->CastSpell(l_Target, eSpells::Burn, false);
-
-                        m_Burn = true;
+                            me->CastSpell(l_Target, eSpells::Burn, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
                         m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
                         break;

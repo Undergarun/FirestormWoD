@@ -186,6 +186,8 @@ class UnitAI
             UNUSED(id);
         }
 
+        virtual void DropCharge() {}
+
         virtual uint64 GetGUID(int32 id = 0) { return 0; } ///< id is unused
 
         virtual void SetDestTarget(WorldLocation const* dest) 

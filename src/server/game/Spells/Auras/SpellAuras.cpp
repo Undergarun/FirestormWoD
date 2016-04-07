@@ -1146,7 +1146,7 @@ void Aura::RefreshTimers()
     }
 
     /// In WoD blizzards have made "Pandemic" system for all auras, check if we need to use it
-    if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
+    if (GetCaster()->IsPlayer() && GetSpellInfo()->IsAffectedByWodAuraSystem())
     {
         for (uint8 i = 0; i < m_EffectCount; ++i)
         {
