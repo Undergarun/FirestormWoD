@@ -9,8 +9,8 @@ class npc_prince_anduin : public CreatureScript
 {
     public:
         npc_prince_anduin() : CreatureScript("npc_prince_anduin") 
-		{ 
-		}
+        {
+        }
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -60,8 +60,8 @@ class npc_kairoz : public CreatureScript
 {
     public:
         npc_kairoz() : CreatureScript("npc_kairoz") 
-		{
-		}
+        {
+        }
 
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
         {

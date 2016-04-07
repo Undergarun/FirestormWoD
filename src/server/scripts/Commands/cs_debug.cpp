@@ -34,7 +34,7 @@ EndScriptData */
 
 struct UnitStates
 {
-	UnitState   Flag;
+    UnitState   Flag;
     char const* Text;
 };
 
@@ -181,7 +181,7 @@ class debug_commandscript: public CommandScript
                 { "getunitstate",                SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,        "", NULL },
                 { "removeunitstate",             SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand,      "", NULL },
                 { "stresstest",                  SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,           "", NULL },
-				{ "showequiperror",              SEC_ADMINISTRATOR,  false, &HandleDebugShowEquipErrorCommand,       "", NULL },
+                { "showequiperror",              SEC_ADMINISTRATOR,  false, &HandleDebugShowEquipErrorCommand,       "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -193,23 +193,23 @@ class debug_commandscript: public CommandScript
             return commandTable;
         }
 
-		static bool HandleDebugShowEquipErrorCommand(ChatHandler* p_Handler, char const* p_Args)
-		{
-			if (!*p_Args)
-				return false;
+        static bool HandleDebugShowEquipErrorCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+                return false;
 
-			uint32 l_ErrorID = (uint32)atoi((char*)p_Args);
+            uint32 l_ErrorID = (uint32)atoi((char*)p_Args);
 
-			Player* l_Target = p_Handler->getSelectedPlayer();
-			if (!l_Target)
-			{
-				p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
-				p_Handler->SetSentErrorMessage(true);
-				return false;
-			}
+            Player* l_Target = p_Handler->getSelectedPlayer();
+            if (!l_Target)
+            {
+                p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
 
-			l_Target->SendEquipError((InventoryResult)l_ErrorID, nullptr, nullptr);
-		}
+            l_Target->SendEquipError((InventoryResult)l_ErrorID, nullptr, nullptr);
+        }
 
         static bool HandleDebugStressTestCommand(ChatHandler* p_Handler, char const* p_Args)
         {

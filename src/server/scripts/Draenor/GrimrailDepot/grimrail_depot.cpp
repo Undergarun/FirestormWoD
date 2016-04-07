@@ -460,21 +460,21 @@ class grimrail_depot_mob_gromkar_boomer : public CreatureScript
 {
 public:
 
-	grimrail_depot_mob_gromkar_boomer() : CreatureScript("grimrail_depot_mob_gromkar_boomer") { }
+    grimrail_depot_mob_gromkar_boomer() : CreatureScript("grimrail_depot_mob_gromkar_boomer") { }
 
     struct grimrail_depot_mob_gromkar_boomerAI : public ScriptedAI
     {
-		grimrail_depot_mob_gromkar_boomerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        grimrail_depot_mob_gromkar_boomerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
         enum eGromkarboomerEvents
         {
-			EventBlackrockMortar = 1,
+            EventBlackrockMortar = 1,
         };
 
         enum eGromkarboomerSpells
         {
-			SpellBlackrockMortarTriggerMissile = 161258,
-			SpellBlackrockMortarDamage         = 160963
+            SpellBlackrockMortarTriggerMissile = 161258,
+            SpellBlackrockMortarDamage         = 160963
         };
 
         void Reset() override
@@ -497,16 +497,16 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-			switch (events.ExecuteEvent())
-			{
-			    case eGromkarboomerEvents::EventBlackrockMortar:
-				    events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 0 * TimeConstants::IN_MILLISECONDS);
-				    break;
-			    default:
-				    break;
-			}
-		}
-	};
+            switch (events.ExecuteEvent())
+            {
+                case eGromkarboomerEvents::EventBlackrockMortar:
+                    events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 0 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
@@ -523,7 +523,7 @@ public:
 
     struct grimrail_depot_mob_gromkar_capitanAI : public ScriptedAI
     {
-		grimrail_depot_mob_gromkar_capitanAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        grimrail_depot_mob_gromkar_capitanAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
         enum eGromkarCapitanEvents
         {
@@ -545,27 +545,27 @@ public:
             events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
         }
 
-		void UpdateAI(const uint32 p_Diff) override
-		{
-			if (!UpdateVictim())
-				return;
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            if (!UpdateVictim())
+                return;
 
-			events.Update(p_Diff);
+            events.Update(p_Diff);
 
-			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-				return;
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
-			switch (events.ExecuteEvent())
-			{
-			    case eGromkarCapitanEvents::EventRecklessSlash:
-				    events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
-				    break;
-			    default:
-				    break;
-			}
+            switch (events.ExecuteEvent())
+            {
+                case eGromkarCapitanEvents::EventRecklessSlash:
+                    events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
+            }
 
-		}
-	};
+        }
+    };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
@@ -573,16 +573,16 @@ public:
     }
 };
 
-/// Grom'kar Cinderseer - 88163		
+/// Grom'kar Cinderseer - 88163
 class grimrail_depot_mob_gromkar_cinderseer : public CreatureScript
 {
 public:
 
-	grimrail_depot_mob_gromkar_cinderseer() : CreatureScript("grimrail_depot_mob_gromkar_cinderseer") { }
+    grimrail_depot_mob_gromkar_cinderseer() : CreatureScript("grimrail_depot_mob_gromkar_cinderseer") { }
 
     struct grimrail_depot_mob_gromkar_cinderseerAI : public ScriptedAI
     {
-		grimrail_depot_mob_gromkar_cinderseerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        grimrail_depot_mob_gromkar_cinderseerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
         enum eGromkarCinderseerEvents
         {
@@ -593,11 +593,11 @@ public:
         enum eGromkarCinderseerSpells
         {
             SpellFlametongueDummy          = 176031,
-			SpellFlametongueTriggerMissile = 176032,
-			SpellFlametongueAura           = 176033,
-			SpellFlametongue               = 176039,
+            SpellFlametongueTriggerMissile = 176032,
+            SpellFlametongueAura           = 176033,
+            SpellFlametongue               = 176039,
             SpellLavaWreath                = 176027,
-			SpellLavaWreathDummy           = 176025
+            SpellLavaWreathDummy           = 176025
         };
 
         void Reset() override
@@ -608,7 +608,7 @@ public:
         void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue,0 * TimeConstants::IN_MILLISECONDS);
-			events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 0 * TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 0 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -620,13 +620,13 @@ public:
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
-			
+            
             switch (events.ExecuteEvent())
             {
-			case eGromkarCinderseerEvents::EventFlametongue:
+            case eGromkarCinderseerEvents::EventFlametongue:
                     events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue, 0* TimeConstants::IN_MILLISECONDS);
                     break;
-			case eGromkarCinderseerEvents::EventLavaWreath:
+            case eGromkarCinderseerEvents::EventLavaWreath:
                     events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 0* TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
@@ -656,19 +656,19 @@ public:
         {
             EventFarSight    = 1,
             EventHealingRain = 2,
-			EventStormShiled = 3,
-			EventThunderZone = 4
+            EventStormShiled = 3,
+            EventThunderZone = 4
         };
 
         enum eGromkarFarSeerSpells
         {
             SpellFarSight           = 166364,
-			SpellHealingRain        = 166387,
-			SpellHealingRainDummy   = 166388,
+            SpellHealingRain        = 166387,
+            SpellHealingRainDummy   = 166388,
             SpellStormShieldAura    = 166335,
-			SpellStormShieldDamage  = 166336,
+            SpellStormShieldDamage  = 166336,
             SpellThunderZoneAura    = 166340,
-			SpellThunderZoneDummy   = 166346
+            SpellThunderZoneDummy   = 166346
         };
 
         void Reset() override
@@ -679,8 +679,8 @@ public:
         void EnterCombat(Unit* p_Attacker) override
         {
             events.ScheduleEvent(eGromkarFarSeerEvents::EventStormShiled, 0*TimeConstants::IN_MILLISECONDS);
-			events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 0*TimeConstants::IN_MILLISECONDS);
-			events.ScheduleEvent(eGromkarFarSeerEvents::EventHealingRain, 0*TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 0*TimeConstants::IN_MILLISECONDS);
+            events.ScheduleEvent(eGromkarFarSeerEvents::EventHealingRain, 0*TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -763,9 +763,9 @@ public:
 
             switch (events.ExecuteEvent())
             {
-			    case eGromkarGrenadierEvents::EventBlackrockGrenade:
-				    events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade, 0*TimeConstants::IN_MILLISECONDS);
-				    break;
+                case eGromkarGrenadierEvents::EventBlackrockGrenade:
+                    events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade, 0*TimeConstants::IN_MILLISECONDS);
+                    break;
                 default:
                     break;
             }
@@ -821,9 +821,9 @@ public:
 
             switch (events.ExecuteEvent())
             {
-			    case eGromkarGunnerEvents::EventShrapnelBlast:
-				    events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 0*TimeConstants::IN_MILLISECONDS);
-				    break;
+                case eGromkarGunnerEvents::EventShrapnelBlast:
+                    events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 0*TimeConstants::IN_MILLISECONDS);
+                    break;
                 default:
                     break;
             }
@@ -841,57 +841,57 @@ class grimrail_depot_mob_gromkar_hulk : public CreatureScript
 {
 public:
 
-	grimrail_depot_mob_gromkar_hulk() : CreatureScript("grimrail_depot_mob_gromkar_hulk") { }
+    grimrail_depot_mob_gromkar_hulk() : CreatureScript("grimrail_depot_mob_gromkar_hulk") { }
 
-	struct grimrail_depot_mob_gromkar_hulkAI : public ScriptedAI
-	{
-		grimrail_depot_mob_gromkar_hulkAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+    struct grimrail_depot_mob_gromkar_hulkAI : public ScriptedAI
+    {
+        grimrail_depot_mob_gromkar_hulkAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		enum eGromkarHulkEvents
-		{
-			EventGettingAngry = 1
- 		};
+        enum eGromkarHulkEvents
+        {
+            EventGettingAngry = 1
+        };
 
-		enum eGromkarHulkSpells
-		{
-			SpellGettingAngry = 176023
-		};
+        enum eGromkarHulkSpells
+        {
+            SpellGettingAngry = 176023
+        };
 
-		void Reset() override
-		{
-			events.Reset();
-		}
+        void Reset() override
+        {
+            events.Reset();
+        }
 
-		void EnterCombat(Unit* p_Attacker) override
-		{
-			events.ScheduleEvent(eGromkarHulkEvents::EventGettingAngry, 0*TimeConstants::IN_MILLISECONDS);
-		}
+        void EnterCombat(Unit* p_Attacker) override
+        {
+            events.ScheduleEvent(eGromkarHulkEvents::EventGettingAngry, 0*TimeConstants::IN_MILLISECONDS);
+        }
 
-		void UpdateAI(uint32 const p_Diff) override
-		{
-			if (!UpdateVictim())
-				return;
+        void UpdateAI(uint32 const p_Diff) override
+        {
+            if (!UpdateVictim())
+                return;
 
-			events.Update(p_Diff);
+            events.Update(p_Diff);
 
-			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-				return;
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
 
-			switch (events.ExecuteEvent())
-			{
-			    case eGromkarHulkEvents::EventGettingAngry:
-				    events.ScheduleEvent(eGromkarHulkEvents::EventGettingAngry, 0*TimeConstants::IN_MILLISECONDS);
-				    break;
-			    default:
-				    break;
-			}
-		}
-	};
+            switch (events.ExecuteEvent())
+            {
+                case eGromkarHulkEvents::EventGettingAngry:
+                    events.ScheduleEvent(eGromkarHulkEvents::EventGettingAngry, 0*TimeConstants::IN_MILLISECONDS);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
-	CreatureAI* GetAI(Creature* p_Creature) const override
-	{
-		return new grimrail_depot_mob_gromkar_hulkAI(p_Creature);
-	}
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new grimrail_depot_mob_gromkar_hulkAI(p_Creature);
+    }
 };
 
 /// Iron Infantry - 79888
@@ -899,47 +899,47 @@ class grimrail_depot_mob_iron_infantry : public CreatureScript
 {
 public:
 
-	grimrail_depot_mob_iron_infantry() : CreatureScript("grimrail_depot_mob_iron_infantry") { }
+    grimrail_depot_mob_iron_infantry() : CreatureScript("grimrail_depot_mob_iron_infantry") { }
 
-	struct grimrail_depot_mob_iron_infantryAI : public ScriptedAI
-	{
-		grimrail_depot_mob_iron_infantryAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+    struct grimrail_depot_mob_iron_infantryAI : public ScriptedAI
+    {
+        grimrail_depot_mob_iron_infantryAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-		enum eIronInfantrySpells
-		{
+        enum eIronInfantrySpells
+        {
 
-		};
+        };
 
-		enum eIronInfantryEvents
-		{
+        enum eIronInfantryEvents
+        {
 
-		};
+        };
 
-		void Reset() override
-		{
-			events.Reset();
-		}
+        void Reset() override
+        {
+            events.Reset();
+        }
 
-		void EnterCombat(Unit* p_Attacker) override
-		{
-		}
+        void EnterCombat(Unit* p_Attacker) override
+        {
+        }
 
-		void UpdateAI(uint32 const p_Diff) override
-		{
-			if (!UpdateVictim())
-				return;
+        void UpdateAI(uint32 const p_Diff) override
+        {
+            if (!UpdateVictim())
+                return;
 
-			events.Update(p_Diff);
+            events.Update(p_Diff);
 
-			if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-				return;
-		}
-	};
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+        }
+    };
 
-	CreatureAI* GetAI(Creature* p_Creature) const override
-	{
-		return new grimrail_depot_mob_iron_infantryAI(p_Creature);
-	}
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new grimrail_depot_mob_iron_infantryAI(p_Creature);
+    }
 };
 
 

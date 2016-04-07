@@ -49,7 +49,7 @@ class go_well_of_eternity_teleport : public GameObjectScript
         }
 
         bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) 
-		{
+        {
             //player->PlayerTalkClass->ClearMenus();
             if (player->isInCombat())
                 return true;
@@ -59,7 +59,7 @@ class go_well_of_eternity_teleport : public GameObjectScript
                 return true;
             
             switch (action) 
-		    {
+            {
                 case START_TELEPORT:
                     player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
                     player->CLOSE_GOSSIP_MENU();

@@ -468,7 +468,7 @@ class mob_bamboo_python : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_SWAMP_FEVER,	7000);
+                events.ScheduleEvent(EVENT_SWAMP_FEVER, 7000);
             }
 
             void EnterCombat(Unit* attacker)
@@ -526,7 +526,7 @@ class mob_rakira : public CreatureScript
             {
                 events.Reset();
 
-                events.ScheduleEvent(EVENT_BLOODY_PREY,	8000);
+                events.ScheduleEvent(EVENT_BLOODY_PREY, 8000);
                 events.ScheduleEvent(EVENT_CLAW_RIP, 15000);
                 events.ScheduleEvent(EVENT_GROWL, 22000);
                 events.ScheduleEvent(EVENT_HOWL_OF_THE_DENMOTHER, 30000);

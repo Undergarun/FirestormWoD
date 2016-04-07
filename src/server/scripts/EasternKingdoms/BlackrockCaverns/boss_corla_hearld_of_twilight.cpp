@@ -26,15 +26,15 @@ enum Spells
 
 enum Adds
 {
-    NPC_CORLA_TWILIGHT_ZEALOT	= 50284,
+    NPC_CORLA_TWILIGHT_ZEALOT   = 50284,
 };
 
 enum Events
 {
-    EVENT_DARK_COMMAND	= 1,
+    EVENT_DARK_COMMAND  = 1,
 };
 
-const Position twilightzealotPos[3] = 
+const Position twilightzealotPos[3] =
 {
     {574.16f, 974.27f, 155.35f, 4.74f},
     {563.06f, 982.78f, 155.35f, 4.63f},

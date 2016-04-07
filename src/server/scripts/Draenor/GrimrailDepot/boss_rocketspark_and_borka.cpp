@@ -10,7 +10,7 @@
 
 enum eRocketsparkTalks
 {
-	TalkRocketsparkDeath,   ///< This was not the plan [43731]
+    TalkRocketsparkDeath,   ///< This was not the plan [43731]
     TalkRocketsparkEvent03, ///< [43732]
     TalkRocketsparkEvent04, ///< That was my entire collection of heartstone cards [43733]
     TalkRocketsparkEvent05, ///< [43734]
@@ -24,14 +24,14 @@ enum eRocketsparkTalks
 
 enum eBorkaTalks
 {
-	TalkBorkaAggro = 1,     ///< I got this boss [45775]
-	TalkBorkaDeath,         ///<   [45776] משהו שלא הצלחתי להבין
-	TalkBorkaSpell01,       ///< Don't get in my way [45782]
-	TalkBorkaSpell02,       ///< I'm unstoppable! [45783]
-	TalkBorkaIntro01,       ///< [45778]
-	TalkBorkaIntro02,       ///< [45779]
-	TalkBorkaKill01,        ///<  Hahaha is to much fun [45780]
-	TalkBorkaKill02         ///< [45781]
+    TalkBorkaAggro = 1,     ///< I got this boss [45775]
+    TalkBorkaDeath,         ///<   [45776]
+    TalkBorkaSpell01,       ///< Don't get in my way [45782]
+    TalkBorkaSpell02,       ///< I'm unstoppable! [45783]
+    TalkBorkaIntro01,       ///< [45778]
+    TalkBorkaIntro02,       ///< [45779]
+    TalkBorkaKill01,        ///<  Hahaha is to much fun [45780]
+    TalkBorkaKill02         ///< [45781]
 };
 
 enum eRocksparkAndBorkaActions
@@ -130,38 +130,38 @@ public:
             m_First = false;
         }
 
-		enum eRocketsparkSpells
-		{
-			SpellAcquiringTargetsDummy               = 162489,
-			SpellAcquiringTargetsAura                = 162507,
-			SpellBetterPositionDummy                 = 162571,
-			SpellBetterPositionJump                  = 162171,
-			SpellLockingOn                           = 166561,
-			SpellLockingOnAura                       = 166559,
-			SpellMissileSmoke                        = 162752,
-			SpellNewPlanDummy                        = 163927,
-			SpellNewPlanAura                         = 161091,
-			SpellNewPlanDamage                       = 163929,
-			SpellX2101aMissileBarrage                = 162407,
-			SpellX2101aMissileBarrageDamage          = 162422,
-			SpellVx18BTargetEliminatorDummy          = 162500,
-			SpellVx18BTargetEliminatorTriggerMissile = 162509,
-			SpellVx18BTargetEliminatorDamage         = 162513,
+        enum eRocketsparkSpells
+        {
+            SpellAcquiringTargetsDummy               = 162489,
+            SpellAcquiringTargetsAura                = 162507,
+            SpellBetterPositionDummy                 = 162571,
+            SpellBetterPositionJump                  = 162171,
+            SpellLockingOn                           = 166561,
+            SpellLockingOnAura                       = 166559,
+            SpellMissileSmoke                        = 162752,
+            SpellNewPlanDummy                        = 163927,
+            SpellNewPlanAura                         = 161091,
+            SpellNewPlanDamage                       = 163929,
+            SpellX2101aMissileBarrage                = 162407,
+            SpellX2101aMissileBarrageDamage          = 162422,
+            SpellVx18BTargetEliminatorDummy          = 162500,
+            SpellVx18BTargetEliminatorTriggerMissile = 162509,
+            SpellVx18BTargetEliminatorDamage         = 162513,
             SpellMadDashAura                         = 169225,
             SpellRecovering                          = 163947
-		};
+        };
 
-		enum eRocketsparkEvents
-		{
-			EventBetterPosition = 1,
-			EventNewPlan,
-			EventVx18BTargetEliminator,
-			EventX2101a,
+        enum eRocketsparkEvents
+        {
+            EventBetterPosition = 1,
+            EventNewPlan,
+            EventVx18BTargetEliminator,
+            EventX2101a,
             Eventx2101aCancelation,
             EventRandomMovement
-		};
+        };
 
-		InstanceScript* m_Instance;
+        InstanceScript* m_Instance;
         bool m_First;
         bool m_x210IsActivated;
         bool m_NewPlan;
@@ -184,30 +184,30 @@ public:
                 WipingConditionRocketSparkAndBorka(m_Instance, me);
         }
 
-		void EnterCombat(Unit* p_Who) override
-		{
+        void EnterCombat(Unit* p_Who) override
+        {
             if (m_Instance != nullptr)
             {
                 StartRocketSparkAndBorka(m_Instance, me, p_Who);
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-			_EnterCombat();
+            _EnterCombat();
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             events.ScheduleEvent(eRocketsparkEvents::EventVx18BTargetEliminator, 0 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 0 * TimeConstants::IN_MILLISECONDS);
-		} 
+        } 
 
-      	void KilledUnit(Unit* p_Who) override
-		{
-			if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
-			{
-				if (roll_chance_i(50))
+        void KilledUnit(Unit* p_Who) override
+        {
+            if (p_Who && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
+            {
+                if (roll_chance_i(50))
                     Talk(eRocketsparkTalks::TalkRocketsparkKill01);
-				else
+                else
                     Talk(eRocketsparkTalks::TalkRocketsparkKill02);
-			}
-		}
+            }
+        }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {

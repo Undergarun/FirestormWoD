@@ -119,12 +119,12 @@ enum eNpcs
     // Horde Champions
     NPC_MOKRA   = 35572,
     NPC_ERESSEA = 35569,
-    NPC_RUNOK	= 35571,
+    NPC_RUNOK   = 35571,
     NPC_ZULTORE = 35570,
     NPC_VISCERI = 35617,
 
     // Alliance Champions
-    NPC_JACOB	= 34705,
+    NPC_JACOB   = 34705,
     NPC_AMBROSE = 34702,
     NPC_COLOSOS = 34701,
     NPC_JAELYNE = 34657,

@@ -98,7 +98,7 @@ class boss_lord_godfrey : public CreatureScript
             {
                 if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-                        if ((me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_CURSED_BULLET	) || 
+                        if ((me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_CURSED_BULLET ) ||
                             (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_CURSED_BULLET_H))
                                 me->InterruptSpell(CURRENT_GENERIC_SPELL, false);
             }

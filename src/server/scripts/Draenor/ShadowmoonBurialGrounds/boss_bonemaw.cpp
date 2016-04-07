@@ -118,7 +118,7 @@ public:
         InstanceScript* m_Instance;
         uint32 m_PoolDiff;
         uint32 m_InhaleDiff;
-		uint32 m_DrowningDiff;
+        uint32 m_DrowningDiff;
         bool m_HasVictimOut;
         bool m_InhaleActivated;
 
@@ -131,22 +131,22 @@ public:
             m_HasVictimOut = false;
             m_InhaleActivated = false;
             me->SetDisableGravity(true);
-			m_DrowningDiff = 4 * TimeConstants::IN_MILLISECONDS;
+            m_DrowningDiff = 4 * TimeConstants::IN_MILLISECONDS;
             m_PoolDiff   = 3 * TimeConstants::IN_MILLISECONDS;;
             m_InhaleDiff = 4 * TimeConstants::IN_MILLISECONDS;       
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);   
 
-			if (m_Instance != nullptr)
-			{
-				if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
-				{			
-					l_BonemawMouth->SetReactState(ReactStates::REACT_PASSIVE);
-					l_BonemawMouth->NearTeleportTo(1712.96f, -819.96f, 73.736f, 3.056507f);
-					l_BonemawMouth->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-				}
-			}
+            if (m_Instance != nullptr)
+            {
+                if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+                {
+                    l_BonemawMouth->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_BonemawMouth->NearTeleportTo(1712.96f, -819.96f, 73.736f, 3.056507f);
+                    l_BonemawMouth->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                }
+            }
         }
 
         void JustReachedHome() override
@@ -213,8 +213,8 @@ public:
             HandleEntranceDoorActivation();
             if (m_Instance != nullptr)
             {
-				if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
-					l_BonemawMouth->SetObjectScale(2.0f);
+                if (Creature* l_BonemawMouth = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBonemawMouth)))
+                    l_BonemawMouth->SetObjectScale(2.0f);
 
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
                 if (m_Instance->instance->IsHeroic())
@@ -323,7 +323,7 @@ public:
                     break;
                 case eBoneMawEvents::EventSubmerge:
                     events.Reset();
-					me->MonsterTextEmote("Bonemaw hisses, sinking back into the depths", me->GetGUID(), false);
+                    me->MonsterTextEmote("Bonemaw hisses, sinking back into the depths", me->GetGUID(), false);
                     me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);             
                     events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -335,7 +335,7 @@ public:
                     break;
                 case eBoneMawEvents::EventCarrionWorm:
                 {
-					me->MonsterTextEmote("Bonemaw's piercing screech attract nerby Carrion Worms!", me->GetGUID(), false);
+                    me->MonsterTextEmote("Bonemaw's piercing screech attract nerby Carrion Worms!", me->GetGUID(), false);
                     me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);
                     for (uint8 l_I = 0; l_I < 2; l_I++)
                         me->SummonCreature(eBoneMawCreatures::CreatureCarrionWorm, l_PositionAdds[l_I], TEMPSUMMON_MANUAL_DESPAWN);
@@ -384,7 +384,7 @@ public:
                     m_InhaleActivated = true;
                     m_InhaleDiff = 2 * TimeConstants::IN_MILLISECONDS;
                     me->CastSpell(me, eBoneMawSpells::SpellInhalePeriodicChannel);
-					me->MonsterTextEmote("Bonemaw begins to |cffff0000[Inhale]|cfffaeb00! his enemies", me->GetGUID(), true);
+                    me->MonsterTextEmote("Bonemaw begins to |cffff0000[Inhale]|cfffaeb00! his enemies", me->GetGUID(), true);
                     events.ScheduleEvent(eBoneMawEvents::EventInhale, 55 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
@@ -521,32 +521,32 @@ public:
 class shadowmoon_burial_grounds_bonemaw_creature_water_burst : public CreatureScript
 {
 public:
-	shadowmoon_burial_grounds_bonemaw_creature_water_burst() : CreatureScript("shadowmoon_burial_grounds_bonemaw_creature_water_burst") { }
+    shadowmoon_burial_grounds_bonemaw_creature_water_burst() : CreatureScript("shadowmoon_burial_grounds_bonemaw_creature_water_burst") { }
 
-	struct shadowmoon_burial_grounds_bonemaw_creature_water_burstAI : public ScriptedAI
-	{
-		shadowmoon_burial_grounds_bonemaw_creature_water_burstAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-		{
-			m_Instance = me->GetInstanceScript();
-		}
+    struct shadowmoon_burial_grounds_bonemaw_creature_water_burstAI : public ScriptedAI
+    {
+        shadowmoon_burial_grounds_bonemaw_creature_water_burstAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        {
+            m_Instance = me->GetInstanceScript();
+        }
 
-		enum eWaterBurstSpells
-		{
-			SpellVisual = 158073
-		};
+        enum eWaterBurstSpells
+        {
+            SpellVisual = 158073
+        };
 
-		InstanceScript* m_Instance;
+        InstanceScript* m_Instance;
         uint32 m_Timer;
-		bool m_HasVictimOut;
+        bool m_HasVictimOut;
 
-		void Reset() override
-		{
+        void Reset() override
+        {
             m_Timer = 3 * TimeConstants::IN_MILLISECONDS;
-			me->CastSpell(me, eWaterBurstSpells::SpellVisual);
-			me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-			me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-			me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-		}
+            me->CastSpell(me, eWaterBurstSpells::SpellVisual);
+            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+        }
 
         void UpdateAI(uint32 const p_Diff) override
         {
@@ -570,12 +570,12 @@ public:
             else
                 m_Timer -= p_Diff;
         }
-	};
+    };
 
-	CreatureAI* GetAI(Creature* p_Creature) const override
-	{
-		return new shadowmoon_burial_grounds_bonemaw_creature_water_burstAI(p_Creature);
-	}
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new shadowmoon_burial_grounds_bonemaw_creature_water_burstAI(p_Creature);
+    }
 };
 
 /// Necrotic Pitch - 76191
@@ -838,7 +838,7 @@ void AddSC_boss_bonemaw()
     new boss_bonemaw();                                                 ///< 75452
     new shadowmoon_burial_grounds_bonemaw_creature_carrion_worm();      ///< 76057
     new shadowmoon_burial_grounds_bonemaw_creature_necrotic_pitch();    ///< 76191
-	new shadowmoon_burial_grounds_bonemaw_creature_water_burst();		///< 77676
+    new shadowmoon_burial_grounds_bonemaw_creature_water_burst();       ///< 77676
     new shadowmoon_burial_grounds_bonemaw_spell_inhale();               ///< 153804
     new shadowmoon_burial_grounds_bonemaw_spell_drowned();              ///< 154010
     new shadowmoon_burial_grounds_bonemaw_spell_body_slam();            ///< 153686

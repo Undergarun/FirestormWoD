@@ -57,7 +57,7 @@ enum eShadowmoonBurialGroundsDatas
     DataNhalishDoorsExit,
     DataBonemawDoorEntrance,
     DataNerzulProp,
-	DataPortalToTheShadowlandReturn
+    DataPortalToTheShadowlandReturn
 };
 
 enum eShadowmoonBurialGroundsBosses
@@ -109,7 +109,7 @@ enum eShadowmoonBurialGroundsGameObjects
     GameObjectNhalishDoorsExit     = 227851,
     GameObjectNhalishDoorEntrance  = 227852,
     GameObjectBonemawDoorEntrance  = 233990,
-	GameObjectPortalToShadowland   = 85541
+    GameObjectPortalToShadowland   = 85541
 };
 
 enum eShadowmoonBurialGroundsSpells

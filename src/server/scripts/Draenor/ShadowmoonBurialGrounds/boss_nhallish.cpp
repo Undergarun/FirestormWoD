@@ -115,12 +115,12 @@ public:
             m_PhaseCounter = 0;             
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-			HandleDoorEntranceActivation();
+            HandleDoorEntranceActivation();
             if (!m_First)
             {          
                 HandleDoorActivation();
                 m_First = true;
-            }	
+            }
         }
 
         void JustReachedHome() override
@@ -158,7 +158,7 @@ public:
 
         void HandleDoorEntranceActivation() /// Upon wipe
         {
-			/*
+            /*
             std::list<GameObject*> l_ListDoors;
             me->GetGameObjectListWithEntryInGrid(l_ListDoors, eNhalishGameObjects::GameObjectNhalishEntrance, 300.0f);
             if (l_ListDoors.empty())
@@ -166,17 +166,17 @@ public:
 
             for (GameObject* l_Itr : l_ListDoors)
             {
-				if (!l_Itr)
-					continue;
+                if (!l_Itr)
+                    continue;
 
-				l_Itr->Delete();
+                l_Itr->Delete();
             }
 
-			if (!p_Status)
-			{
-				me->SummonGameObject();
-			}
-			*/
+            if (!p_Status)
+            {
+                me->SummonGameObject();
+            }
+            */
         }
 
         void JustSummoned(Creature* p_Summon) override
