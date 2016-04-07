@@ -3757,6 +3757,18 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fel_firebolt_SpellScript);
 
+            enum eSpells
+            {
+                Firebolt = 104318
+            };
+
+            enum eDatas
+            {
+                WildImp = 55659
+            };
+
+            int8 m_Charges = 10;
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -3772,6 +3784,17 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
+
+                if (m_scriptSpellId == eSpells::Firebolt)
+                {
+                    Creature* l_Creature = l_Caster->ToCreature();
+
+                    if (l_Creature == nullptr)
+                        return;
+
+                    if (l_Creature->GetEntry() == eDatas::WildImp)
+                        l_Creature->AI()->DropCharge();
+                }
             }
 
             void Register()
