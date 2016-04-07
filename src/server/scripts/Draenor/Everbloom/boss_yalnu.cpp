@@ -152,7 +152,7 @@ public:
             me->setFaction(AttackableYetNotHostileFaction);
             m_Achievement = true;
             m_BaihuGuid = 0;
-            uint32 l_Entries[5] =
+            uint32 l_Entries[6] =
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
             for (uint8 l_I = 0; l_I < 5; l_I++)
