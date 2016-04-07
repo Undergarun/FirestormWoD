@@ -854,7 +854,21 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (p_AurEff->GetBase()->GetStackAmount() >= 5)
+                    Map* l_Map = l_Target->GetMap();
+                    Aura* l_Aura = p_AurEff->GetBase();
+
+                    if (l_Map->IsLFR())
+                    {
+                        l_Aura->SetDuration(10 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(10 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else
+                    {
+                        l_Aura->SetDuration(15 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(15 * TimeConstants::IN_MILLISECONDS);
+                    }
+
+                    if (l_Aura->GetStackAmount() >= 5)
                         l_Target->CastSpell(l_Target, eSpell::GushingWoundsKill, true);
                 }
             }
