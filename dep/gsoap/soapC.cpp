@@ -243,7 +243,9 @@ SOAP_FMAC3 void * SOAP_FMAC4 soap_getelement(struct soap *soap, int *type)
 			s = soap_in_string(soap, NULL, NULL, NULL);
 			return s ? *s : NULL;
 		}
+#ifndef __clang_analyzer__
 		t = soap->tag;
+#endif
 #ifndef WITH_NOIDREF
 	}
 #endif
