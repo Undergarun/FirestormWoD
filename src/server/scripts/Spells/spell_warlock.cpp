@@ -2345,6 +2345,7 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura: public SpellScriptLoader
 {
@@ -2357,17 +2358,22 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Player* l_Player = l_Caster->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(WARLOCK_IMMOLATE) && !l_Player->HasGlyph(WARLOCK_GLYPH_OF_CONFLAGRATE))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (!target->HasAura(WARLOCK_IMMOLATE) && !caster->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
-                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
-                                target->RemoveAura(WARLOCK_CONFLAGRATE);
-                            if (!target->HasAura(WARLOCK_IMMOLATE))
-                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
-                                target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
-                    }
+                    if (Aura* conflagrate = l_Target->GetAura(WARLOCK_CONFLAGRATE))
+                        l_Target->RemoveAura(WARLOCK_CONFLAGRATE);
+                }
+                if (!l_Target->HasAura(WARLOCK_IMMOLATE))
+                {
+                    if (Aura* conflagrate = l_Target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
+                        l_Target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
                 }
             }
 
