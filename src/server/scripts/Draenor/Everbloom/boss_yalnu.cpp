@@ -152,10 +152,10 @@ public:
             me->setFaction(AttackableYetNotHostileFaction);
             m_Achievement = true;
             m_BaihuGuid = 0;
-            uint32 l_Entries[6] =
+            uint32 l_Entries[5] =
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
-            for (uint8 l_I = 0; l_I < 7; l_I++)
+            for (uint8 l_I = 0; l_I < 5; l_I++)
                 DespawnCreaturesInArea(l_Entries[l_I], me);        
             if (!m_First)
             {
