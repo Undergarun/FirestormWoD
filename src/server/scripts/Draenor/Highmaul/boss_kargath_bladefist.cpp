@@ -257,7 +257,10 @@ class boss_kargath_bladefist : public CreatureScript
             bool m_InEvadeMode;
             bool m_InArena;
 
+            /// Some guids related to fight adds
             std::vector<uint64> m_BeginningAdds;
+            std::vector<uint64> m_ArenaSweepers;
+            std::vector<uint64> m_IronGruntsInArena;
 
             void Reset() override
             {
@@ -271,6 +274,10 @@ class boss_kargath_bladefist : public CreatureScript
                 me->RemoveAura(eHighmaulSpells::Berserker);
 
                 me->SetDisplayId(eDatas::MorphWithWeapon);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                 if (m_InArena)
                 {
@@ -304,6 +311,30 @@ class boss_kargath_bladefist : public CreatureScript
 
                         for (Creature* l_Iter : l_AddList)
                             m_BeginningAdds.push_back(l_Iter->GetGUID());
+                    });
+                }
+
+                if (m_ArenaSweepers.empty())
+                {
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        std::list<Creature*> l_SweeperList;
+                        me->GetCreatureListWithEntryInGrid(l_SweeperList, eHighmaulCreatures::HighmaulSweeper, 150.0f);
+
+                        for (Creature* l_Iter : l_SweeperList)
+                            m_ArenaSweepers.push_back(l_Iter->GetGUID());
+                    });
+                }
+
+                if (m_IronGruntsInArena.empty())
+                {
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        std::list<Creature*> l_IronGrunts;
+                        me->GetCreatureListWithEntryInGrid(l_IronGrunts, eCreatures::IronGrunt1, 150.0f);
+
+                        for (Creature* l_Iter : l_IronGrunts)
+                            m_IronGruntsInArena.push_back(l_Iter->GetGUID());
                     });
                 }
             }
@@ -452,6 +483,10 @@ class boss_kargath_bladefist : public CreatureScript
                         if (Player* l_Target = Player::GetPlayer(*me, m_BerserkerRushTarget))
                             EndBerserkerRush(l_Target, false);
 
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
+
                         AddTimedDelayedOperation(100, [this]() -> void
                         {
                             if (Creature* l_Pillar = me->FindNearestCreature(eCreatures::FirePillar, 10.0f))
@@ -494,6 +529,10 @@ class boss_kargath_bladefist : public CreatureScript
                     {
                         if (me->HasUnitState(UnitState::UNIT_STATE_ROOT))
                             me->SetControlled(false, UnitState::UNIT_STATE_ROOT);
+
+                        if (Unit* l_NewTarget = me->getThreatManager().getHostilTarget())
+                            AttackStart(l_NewTarget);
+
                         m_ChainHurl = false;
                         break;
                     }
@@ -678,11 +717,15 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eCosmeticEvents::EventEndOfArenasStands:
                     {
-                        std::list<Creature*> l_SweeperList;
-                        me->GetCreatureListWithEntryInGrid(l_SweeperList, eHighmaulCreatures::HighmaulSweeper, 150.0f);
+                        for (uint64 l_Guid : m_ArenaSweepers)
+                        {
+                            if (Creature* l_Sweeper = Creature::GetCreature(*me, l_Guid))
+                            {
+                                if (l_Sweeper->IsAIEnabled)
+                                    l_Sweeper->AI()->DoAction(0);
+                            }
+                        }
 
-                        for (Creature* l_Sweeper : l_SweeperList)
-                            l_Sweeper->AI()->DoAction(0);
                         break;
                     }
                     case eCosmeticEvents::EventEndOfChainHurl:
@@ -757,9 +800,33 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eEvents::EventChainHurl:
                     {
+                        /// Respawn Iron Grunts for Arenas Stands fighting
+                        for (uint64 l_Guid : m_IronGruntsInArena)
+                        {
+                            if (Creature* l_IronGrunt = Creature::GetCreature(*me, l_Guid))
+                            {
+                                if (l_IronGrunt->isDead())
+                                {
+                                    l_IronGrunt->DespawnOrUnsummon();
+                                    l_IronGrunt->Respawn();
+
+                                    uint64 l_Guid = l_IronGrunt->GetGUID();
+                                    AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                                    {
+                                        if (Creature* l_Creature = Creature::GetCreature(*me, l_Guid))
+                                            l_Creature->GetMotionMaster()->MoveTargetedHome();
+                                    });
+                                }
+                            }
+                        }
+
                         m_ChainHurl = true;
                         Talk(eTalks::ChainHurl);
+
+                        me->StopMoving();
+                        me->GetMotionMaster()->Clear();
                         me->CastSpell(eHighmaulLocs::ArenaCenter, eSpells::ChainHurlJumpAndKnock, true);
+
                         m_Events.ScheduleEvent(eEvents::EventChainHurl, 106000);
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfArenasStands, 45000);
 
@@ -1571,7 +1638,13 @@ class npc_highmaul_fire_pillar : public CreatureScript
                             DeactivatePillar();
 
                             if (Creature* l_Kargath = me->FindNearestCreature(eHighmaulCreatures::KargathBladefist, 15.0f))
+                            {
                                 l_Kargath->SetControlled(false, UnitState::UNIT_STATE_ROOT);
+
+                                l_Kargath->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                                l_Kargath->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                                l_Kargath->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
+                            }
                         });
 
                         break;
@@ -2127,39 +2200,21 @@ class npc_highmaul_iron_bomber : public CreatureScript
         }
 };
 
-/// Iron Grunt - 84946
+/// Iron Grunt (Cosmetic only) - 84946
 class npc_highmaul_iron_grunt : public CreatureScript
 {
     public:
         npc_highmaul_iron_grunt() : CreatureScript("npc_highmaul_iron_grunt") { }
 
-        enum eSpell
+        struct npc_highmaul_iron_gruntAI : public ScriptedAI
         {
-            CrowdMinionKilled = 163392
-        };
-
-        struct npc_highmaul_iron_gruntAI : public MS::AI::CosmeticAI
-        {
-            npc_highmaul_iron_gruntAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_highmaul_iron_gruntAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->HandleEmoteCommand(g_CrowdEmotes[urand(0, 7)]); });
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
-            {
-                if (me->HasReactState(ReactStates::REACT_PASSIVE))
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-            }
-
-            void JustDied(Unit* p_Killer) override
-            {
-                /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
-                if (me->GetMap()->IsMythic())
-                    CastSpellToPlayers(me->GetMap(), nullptr, eSpell::CrowdMinionKilled, true);
             }
 
             void LastOperationCalled() override
@@ -2169,16 +2224,7 @@ class npc_highmaul_iron_grunt : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                MS::AI::CosmeticAI::UpdateAI(p_Diff);
-
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-
-                /// Arena's trash mobs shouldn't enter into the arena
-                if (me->GetPositionZ() <= g_InArenaZ)
-                    EnterEvadeMode();
+                UpdateOperations(p_Diff);
             }
         };
 
@@ -3100,7 +3146,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 }
 
                 /// Just in case of all tanks have the same amount of Open Wounds
-                if (!l_TanksList.empty())
+                if (!l_TanksList.empty() && l_TanksList.size() > eDatas::MaxLFRTank)
                     JadeCore::RandomResizeList(l_TanksList, eDatas::MaxLFRTank);
 
                 l_HealersList.remove_if([this](Player* p_Player) -> bool
@@ -3114,7 +3160,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (!l_HealersList.empty())
+                if (!l_HealersList.empty() && l_HealersList.size() > eDatas::MaxLFRHealer)
                     JadeCore::RandomResizeList(l_HealersList, eDatas::MaxLFRHealer);
 
                 l_DamagersList.remove_if([this](Player* p_Player) -> bool
@@ -3128,7 +3174,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     return false;
                 });
 
-                if (!l_DamagersList.empty() && l_DamagersList.size() < eDatas::MaxLFRDamagers)
+                if (!l_DamagersList.empty() && l_DamagersList.size() > eDatas::MaxLFRDamagers)
                     JadeCore::RandomResizeList(l_DamagersList, eDatas::MaxLFRDamagers);
 
                 m_Count = 0;
@@ -3506,6 +3552,9 @@ class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
             {
                 if (Creature* l_Caster = GetTarget()->ToCreature())
                 {
+                    if (!l_Caster->GetMap()->IsMythic())
+                        return;
+
                     /// Grants one point of Favor every second
                     if (p_AurEff->GetTickNumber() % 2)
                         GrantFavorToAllPlayers(l_Caster, 1, GetSpellInfo()->Id);
@@ -3763,7 +3812,10 @@ class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
 class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_highmaul_flame_jet() : AreaTriggerEntityScript("areatrigger_highmaul_flame_jet") { }
+        areatrigger_highmaul_flame_jet() : AreaTriggerEntityScript("areatrigger_highmaul_flame_jet")
+        {
+            m_GoingToBeDestroyed = false;
+        }
 
         enum eSpells
         {
@@ -3777,12 +3829,15 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
             RavenousBloodmaw = 79296
         };
 
-        enum eAction
+        enum eActions
         {
-            InterruptRavenous = 1
+            InterruptRavenous = 1,
+            InterruptedByPillar = 4
         };
 
         std::set<uint64> m_AffectedPlayers;
+
+        bool m_GoingToBeDestroyed;
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
@@ -3795,12 +3850,21 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
                 {
                     if (l_Kargath->HasAura(eSpells::BerserkerRushAura))
                         l_Kargath->RemoveAura(eSpells::BerserkerRushAura, l_Kargath->GetGUID(), 0, AuraRemoveMode::AURA_REMOVE_BY_ENEMY_SPELL);
+                    /// Kargath should be able to break a pillar even out of Berserker Rush mode, only on Mythic
+                    else if (l_Kargath->GetMap()->IsMythic())
+                    {
+                        if (l_Kargath->IsAIEnabled && !m_GoingToBeDestroyed)
+                        {
+                            m_GoingToBeDestroyed = true;
+                            l_Kargath->AI()->DoAction(eActions::InterruptedByPillar);
+                        }
+                    }
                 }
 
                 if (Creature* l_Ravenous = l_Caster->FindNearestCreature(eCreature::RavenousBloodmaw, 6.0f))
                 {
                     if (l_Ravenous->IsAIEnabled)
-                        l_Ravenous->AI()->DoAction(eAction::InterruptRavenous);
+                        l_Ravenous->AI()->DoAction(eActions::InterruptRavenous);
                 }
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
