@@ -40,7 +40,7 @@ enum Omen
 
     EVENT_CAST_CLEAVE           = 1,
     EVENT_CAST_STARFALL         = 2,
-    EVENT_DESPAWN               = 3,
+    EVENT_DESPAWN               = 3
 };
 
 class npc_omen : public CreatureScript

@@ -14,7 +14,7 @@
 enum Spells
 {
     SPELL_SMELT_DARK_IRON                         = 14891,
-    SPELL_LEARN_SMELT                             = 14894,
+    SPELL_LEARN_SMELT                             = 14894
 };
 
 enum Quests

@@ -14,7 +14,7 @@ enum ScriptTexts
 enum Events
 {
     EVENT_VEIL_OF_SHADOW    = 1,
-    EVENT_CURSED_VEIL_H     = 3,
+    EVENT_CURSED_VEIL_H     = 3
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_NANDOS_T              = 93899,
     SPELL_ODO_T                 = 93864,
     SPELL_RETHILGORE_T          = 93927,
-    SPELL_RAZORCLAW_T           = 93924,
+    SPELL_RAZORCLAW_T           = 93924
 };
 
 enum Adds
@@ -38,7 +38,7 @@ enum Adds
     NPC_ODO              = 50857,
     NPC_RAZORCLAW        = 50869,
     NPC_RETHILGORE       = 50834,
-    NPC_NANDOS           = 50851,
+    NPC_NANDOS           = 50851
 };
 
 class boss_baron_silverlaine : public CreatureScript

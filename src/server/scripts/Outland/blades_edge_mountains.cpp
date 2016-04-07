@@ -468,7 +468,7 @@ enum eBloodmaul
     NPC_QUEST_CREDIT                            = 21241,
     GO_KEG                                      = 184315,
     QUEST_GETTING_THE_BLADESPIRE_TANKED         = 10512,
-    QUEST_BLADESPIRE_KEGGER                     = 10545,
+    QUEST_BLADESPIRE_KEGGER                     = 10545
 };
 
 class npc_bloodmaul_brutebane : public CreatureScript
@@ -575,7 +575,7 @@ public:
 enum TheThunderspike
 {
     NPC_GOR_GRIMGUT     = 21319,
-    QUEST_THUNDERSPIKE  = 10526,
+    QUEST_THUNDERSPIKE  = 10526
 };
 
 class go_thunderspike : public GameObjectScript
@@ -637,7 +637,7 @@ enum SimonGame
     SPELL_BAD_PRESS_DAMAGE          = 40065,
     SPELL_REWARD_BUFF_1             = 40310,
     SPELL_REWARD_BUFF_2             = 40311,
-    SPELL_REWARD_BUFF_3             = 40312,
+    SPELL_REWARD_BUFF_3             = 40312
 };
 
 enum SimonEvents
@@ -652,7 +652,7 @@ enum SimonEvents
 
     ACTION_SIMON_CORRECT_FULL_SEQUENCE = 8,
     ACTION_SIMON_WRONG_SEQUENCE        = 9,
-    ACTION_SIMON_ROUND_FINISHED        = 10,
+    ACTION_SIMON_ROUND_FINISHED        = 10
 };
 
 enum SimonColors
@@ -661,7 +661,7 @@ enum SimonColors
     SIMON_RED           = 1,
     SIMON_GREEN         = 2,
     SIMON_YELLOW        = 3,
-    SIMON_MAX_COLORS    = 4,
+    SIMON_MAX_COLORS    = 4
 };
 
 class npc_simon_bunny : public CreatureScript
@@ -1139,7 +1139,7 @@ enum ApexisRelic
 
     ITEM_APEXIS_SHARD         = 32569,
     SPELL_TAKE_REAGENTS_SOLO  = 41145,
-    SPELL_TAKE_REAGENTS_GROUP = 41146,
+    SPELL_TAKE_REAGENTS_GROUP = 41146
 };
 
 class go_apexis_relic : public GameObjectScript

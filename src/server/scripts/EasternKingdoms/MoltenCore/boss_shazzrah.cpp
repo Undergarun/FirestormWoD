@@ -23,7 +23,7 @@ enum Spells
     SPELL_ARCANE_EXPLOSION  = 19712,
     SPELL_SHAZZRAH_CURSE    = 19713,
     SPELL_MAGIC_GROUNDING   = 19714,
-    SPELL_COUNTERSPELL      = 19715,
+    SPELL_COUNTERSPELL      = 19715
 };
 
 enum Events
@@ -32,7 +32,7 @@ enum Events
     EVENT_SHAZZRAH_CURSE    = 2,
     EVENT_MAGIC_GROUNDING   = 3,
     EVENT_COUNTERSPELL      = 4,
-    EVENT_BLINK             = 5,
+    EVENT_BLINK             = 5
 };
 
 class boss_shazzrah : public CreatureScript

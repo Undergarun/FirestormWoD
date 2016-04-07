@@ -91,7 +91,7 @@ enum eSpells
     SPELL_RESHAPE_LIFE          = 122370,
 
     // Generic enrage spell
-    SPELL_BERSERK               = 26662,
+    SPELL_BERSERK               = 26662
 };
 
 enum eActions
@@ -107,7 +107,7 @@ enum eActions
 
     // Trash
     ACTION_AMBER_VOLLEY         = 10,
-    ACTION_REACH_HOME           = 11,
+    ACTION_REACH_HOME           = 11
 };
 
 enum eCreatures
@@ -143,7 +143,7 @@ enum eCreatures
     NPC_SRATHIK_POOLTENDER          = 63570,
     NPC_ZARTHIK_AUGURER             = 64454,
     NPC_SETTHIK_WINDBLADE_TRASH     = 64453,
-    NPC_KORTHIK_WARSINGER           = 64458,
+    NPC_KORTHIK_WARSINGER           = 64458
 };
 
 enum eGameObjects
@@ -173,7 +173,7 @@ enum eGameObjects
 
     // Shek'zeer Gameobjects
     GOB_EMPRESS_CHAMBER             = 213277,
-    GOB_MANTID_QUEEN_CEIL           = 213276,
+    GOB_MANTID_QUEEN_CEIL           = 213276
 };
 
 enum eWeapons
@@ -192,7 +192,7 @@ enum eWeapons
     EQUIP_TRASH_6                   = 85399,
     EQUIP_TRASH_7                   = 82849,
     EQUIP_TRASH_8                   = 84676,
-    EQUIP_TRASH_9                   = 84769,
+    EQUIP_TRASH_9                   = 84769
 };
 
 enum eEvents

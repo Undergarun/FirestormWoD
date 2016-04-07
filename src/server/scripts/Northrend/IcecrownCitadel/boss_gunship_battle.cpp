@@ -127,7 +127,7 @@ enum Spells
     SPELL_REMOVE_ROCKET_PACK          = 70713,
 
     // Achievements
-    SPELL_ACHIEVEMENT_CHECK           = 72959,
+    SPELL_ACHIEVEMENT_CHECK           = 72959
 };
 
 enum Events
@@ -227,7 +227,7 @@ enum Events
     EVENT_RESPAWN_AXES_RIFLEMEN,
     EVENT_RESPAWN_ROCKETEER,
 
-    EVENT_SEND_UPDATE,
+    EVENT_SEND_UPDATE
 };
 
 enum Texts
@@ -296,7 +296,7 @@ enum Texts
     SAY_HIGH_OVERLORD_SAURFANG_NOT_VISUAL = 0,
     SAY_BOARDING_SKYBREAKER_SAURFANG      = 1,
     SAY_MURADIN_BRONZEBEARD_NOT_VISUAL    = 0,
-    SAY_BOARDING_SKYBREAKER_MURADIN       = 1,
+    SAY_BOARDING_SKYBREAKER_MURADIN       = 1
 };
 
 Position const FrostWyrmPosH   = {-435.429f, 2077.556f, 219.1148f, 4.767166f};

@@ -14,7 +14,7 @@ enum eBosses
 {
     BOSS_MING_THE_CUNNING,
     BOSS_KUAI_THE_BRUTE,
-    BOSS_HAIYAN_THE_UNSTOPPABLE,
+    BOSS_HAIYAN_THE_UNSTOPPABLE
 };
 
 class mob_xian_the_weaponmaster_trigger : public CreatureScript

@@ -36,7 +36,7 @@ enum ScriptTexts
     EMOTE_CHOKING_GAS_BOMB          = 10,
     SAY_KILL                        = 11,
     SAY_BERSERK                     = 12,
-    SAY_DEATH                       = 13,
+    SAY_DEATH                       = 13
 };
 
 enum Spells
@@ -98,7 +98,7 @@ enum Spells
     SPELL_ABOMINATION_VEHICLE_POWER_DRAIN = 70385,
     SPELL_MUTATED_TRANSFORMATION          = 70311,
     SPELL_MUTATED_TRANSFORMATION_DAMAGE   = 70405,
-    SPELL_MUTATED_TRANSFORMATION_NAME     = 72401,
+    SPELL_MUTATED_TRANSFORMATION_NAME     = 72401
 };
 
 #define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
@@ -125,7 +125,7 @@ enum Events
     EVENT_CHOKING_GAS_BOMB      = 12,
     EVENT_UNBOUND_PLAGUE        = 13,
     EVENT_MUTATED_PLAGUE        = 14,
-    EVENT_PHASE_TRANSITION      = 15,
+    EVENT_PHASE_TRANSITION      = 15
 };
 
 enum Phases
@@ -142,7 +142,7 @@ enum Points
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
-    POINT_TABLE     = 366780,
+    POINT_TABLE     = 366780
 };
 
 Position const festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
@@ -156,7 +156,7 @@ enum PutricideData
 {
     DATA_EXPERIMENT_STAGE   = 1,
     DATA_PHASE              = 2,
-    DATA_ABOMINATION        = 3,
+    DATA_ABOMINATION        = 3
 };
 
 #define EXPERIMENT_STATE_OOZE   false

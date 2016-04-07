@@ -33,7 +33,7 @@ enum Spells
     SPELL_MANA_BURN         = 31729,
     SPELL_FROST_BREATH      = 31688,
     SPELL_GARGOYLE_STRIKE   = 31664,
-    SPELL_EXPLODING_SHOT    = 7896,
+    SPELL_EXPLODING_SHOT    = 7896
 };
 
 float HordeWPs[8][3]=//basic waypoints from spawn to leader

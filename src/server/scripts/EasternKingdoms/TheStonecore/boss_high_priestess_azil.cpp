@@ -6,7 +6,7 @@ enum ScriptTexts
 {
     SAY_AGGRO    = 3,
     SAY_DEATH    = 2,
-    SAY_SKILL    = 1,
+    SAY_SKILL    = 1
 };
 enum Spells
 {
@@ -19,7 +19,7 @@ enum Spells
     SPELL_GRAVITY_WELL_AURA_1       = 79244,
     SPELL_GRAVITY_WELL_AURA_1_T     = 79251,
     SPELL_GRAVITY_WELL_AURA_MOD     = 92475,
-    SPELL_GRAVITY_WELL_AURA_DMG     = 79249,
+    SPELL_GRAVITY_WELL_AURA_DMG     = 79249
 };
 
 enum Events
@@ -30,13 +30,13 @@ enum Events
     EVENT_GRAVITY_WELL_1    = 4,
     EVENT_SUMMON_ADDS       = 5,
     EVENT_MOVE              = 6,
-    EVENT_MOVE_2            = 7,
+    EVENT_MOVE_2            = 7
 };
 
 enum Adds
 {
     NPC_ADVOUT_FOLLOWER     = 42428,
-    NPC_GRAVITY_WELL        = 42499,
+    NPC_GRAVITY_WELL        = 42499
 };
 
 Position highpriestessazilAddsPos[2] = 

@@ -6,7 +6,7 @@ enum ScriptTexts
     SAY_DEATH                = 0,
     SAY_AGGRO                = 1,
     SAY_GROWTH               = 2,
-    SAY_KILL                 = 3,
+    SAY_KILL                 = 3
 };
 
 enum Spells
@@ -38,7 +38,7 @@ enum Spells
     // Spore
     SPELL_SPORE_CLOUD                       = 75701,
     SPELL_NOXIOUS_SPORE                     = 75702,
-    SPELL_NOXIOUS_SPORE_H                   = 89889,
+    SPELL_NOXIOUS_SPORE_H                   = 89889
 };
 
 enum Events
@@ -48,7 +48,7 @@ enum Events
     EVENT_RAMPANT_GROWTH        = 3,
     EVENT_SUMMON_POD            = 4,
     EVENT_SUMMON_SPORE          = 5,
-    EVENT_ENERGIZE              = 6,
+    EVENT_ENERGIZE              = 6
 };
 
 enum Adds

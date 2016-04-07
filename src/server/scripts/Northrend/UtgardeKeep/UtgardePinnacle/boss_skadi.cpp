@@ -136,7 +136,7 @@ enum CreatureIds
     CREATURE_YMIRJAR_HARPOONER     = 26692,
     CREATURE_GRAUF                 = 26893,
     CREATURE_TRIGGER               = 28351,
-    DATA_MOUNT                     = 27043,
+    DATA_MOUNT                     = 27043
 };
 
 enum Achievments

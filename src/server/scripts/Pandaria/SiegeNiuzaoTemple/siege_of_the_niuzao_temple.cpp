@@ -16,7 +16,7 @@ enum spells
     RESIN_WEAVING = 121114,
     ENCASED_IN_RESIN = 121116,
     RESIN_SHELL = 120946,
-    RESIDUE = 120938,
+    RESIDUE = 120938
 };
 
 class mob_sikthik_guardian : public CreatureScript

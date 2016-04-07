@@ -16,7 +16,7 @@
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 77368 - Madison Clark                                             ////

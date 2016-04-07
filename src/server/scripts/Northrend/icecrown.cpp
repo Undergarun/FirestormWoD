@@ -245,7 +245,7 @@ enum eGuardianPavilion
     AREA_SUNREAVER_PAVILION                       = 4676,
 
     AREA_SILVER_COVENANT_PAVILION                 = 4677,
-    SPELL_TRESPASSER_A                            = 63986,
+    SPELL_TRESPASSER_A                            = 63986
 };
 
 class npc_guardian_pavilion : public CreatureScript
@@ -290,7 +290,7 @@ enum eVerethTheCunning
 {
     NPC_GEIST_RETURN_BUNNY_KC   = 31049,
     NPC_LITHE_STALKER           = 30894,
-    SPELL_SUBDUED_LITHE_STALKER = 58151,
+    SPELL_SUBDUED_LITHE_STALKER = 58151
 };
 
 class npc_vereth_the_cunning : public CreatureScript
@@ -351,7 +351,7 @@ enum TournamentDummy
     SPELL_COUNTERATTACK       = 62709,
 
     EVENT_DUMMY_RECAST_DEFEND = 1,
-    EVENT_DUMMY_RESET         = 2,
+    EVENT_DUMMY_RESET         = 2
 };
 
 class npc_tournament_training_dummy : public CreatureScript

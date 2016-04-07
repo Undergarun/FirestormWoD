@@ -466,7 +466,7 @@ enum utils
     NPC_HADRIUS = 28047,
     NPC_TAMARA  = 28568,
     SPELL_OFFER = 51962,
-    QUEST_ENTRY = 12645,
+    QUEST_ENTRY = 12645
 };
 
 class npc_jungle_punch_target : public CreatureScript
@@ -656,7 +656,7 @@ enum MiscLifewarden
     SPELL_LIFEFORCE = 51395,
     SPELL_FREYA_DUMMY_TRIGGER = 51335,
     SPELL_LASHER_EMERGE = 48195,
-    SPELL_WILD_GROWTH = 52948,
+    SPELL_WILD_GROWTH = 52948
 };
 
 class spell_q12620_the_lifewarden_wrath: public SpellScriptLoader
@@ -744,7 +744,7 @@ enum KickWhatKick
 
     SAY_WILHELM_MISS = 0,
     SAY_WILHELM_HIT = 1,
-    SAY_DROSTAN_REPLY_MISS = 0,
+    SAY_DROSTAN_REPLY_MISS = 0
 };
 
 class spell_q12589_shoot_rjr: public SpellScriptLoader

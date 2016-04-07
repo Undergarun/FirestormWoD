@@ -37,7 +37,7 @@ enum Yells
     SAY_FACE_DESIRE_WAILING_SOUL                  = -1632028,
 
     SAY_JAINA_OUTRO                               = -1632029,
-    SAY_SYLVANAS_OUTRO                            = -1632030,
+    SAY_SYLVANAS_OUTRO                            = -1632030
 };
 
 enum Spells
@@ -63,14 +63,14 @@ enum Events
     EVENT_UNLEASHED_SOULS       = 4,
     EVENT_WAILING_SOULS         = 5,
     EVENT_WAILING_SOULS_TICK    = 6,
-    EVENT_FACE_ANGER            = 7,
+    EVENT_FACE_ANGER            = 7
 };
 
 enum eEnum
 {
     DISPLAY_ANGER               = 30148,
     DISPLAY_SORROW              = 30149,
-    DISPLAY_DESIRE              = 30150,
+    DISPLAY_DESIRE              = 30150
 };
 
 struct outroPosition

@@ -29,7 +29,7 @@ enum Spells
     SPELL_TOXIC_COAGULANT_DMG           = 93617,
 
     SPELL_TOXIC_CATALYST_AURA           = 93573,
-    SPELL_TOXIC_CATALYST_DMG            = 93689,
+    SPELL_TOXIC_CATALYST_DMG            = 93689
 };
 
 enum Events
@@ -37,13 +37,13 @@ enum Events
     EVENT_ICE_SHARDS                = 1,
     EVENT_CONJURE_MYSTERY_TOXIN     = 2,
     EVENT_CONJURE_POISONOUS_MIXTURE = 3,
-    EVENT_CONJURE_FROST_MIXTURE     = 4,
+    EVENT_CONJURE_FROST_MIXTURE     = 4
 };
 
 enum Adds
 {
     NPC_MYSTERY_TOXIN_1 = 50522,
-    NPC_MYSTERY_TOXIN_2 = 50439,
+    NPC_MYSTERY_TOXIN_2 = 50439
 };
 
 class boss_lord_valden : public CreatureScript

@@ -30,7 +30,7 @@ enum Says
 
     // Razorscale
     EMOTE_BREATH                = 0,
-    EMOTE_PERMA                 = 1,
+    EMOTE_PERMA                 = 1
 };
 
 enum Spells
@@ -83,7 +83,7 @@ enum DarkRuneSpells
     SPELL_BATTLE_SHOUT_10                        = 46763,
     SPELL_BATTLE_SHOUT_25                        = 64062,
     SPELL_HEROIC_STRIKE                          = 45026,
-    SPELL_WHIRLWIND                              = 63808,
+    SPELL_WHIRLWIND                              = 63808
 };
 
 enum Actions
@@ -97,14 +97,14 @@ enum Actions
     ACTION_DESPAWN_ADDS                          = 8,
     ACTION_SUMMON_MOLE_MACHINES                  = 9,
     ACTION_FIRE_OUT                              = 10,
-    ACTION_CANCEL_BUILD_HARPOON                  = 11,
+    ACTION_CANCEL_BUILD_HARPOON                  = 11
 };
 
 enum Phases
 {
     PHASE_PERMAGROUND                            = 1,
     PHASE_GROUND                                 = 2,
-    PHASE_FLIGHT                                 = 3,
+    PHASE_FLIGHT                                 = 3
 };
 
 enum Events
@@ -156,7 +156,7 @@ const Position PosEngRepair[4] =
     { 590.442f, -130.550f, GROUND_Z, 4.789f },
     { 574.850f, -133.687f, GROUND_Z, 4.252f },
     { 606.567f, -143.369f, GROUND_Z, 4.434f },
-    { 560.609f, -142.967f, GROUND_Z, 5.074f },
+    { 560.609f, -142.967f, GROUND_Z, 5.074f }
 };
 
 const Position PosDefSpawn[4] =
@@ -164,7 +164,7 @@ const Position PosDefSpawn[4] =
     { 600.75f, -104.850f, GROUND_Z, 0 },
     { 596.38f, -110.262f, GROUND_Z, 0 },
     { 566.47f, -103.633f, GROUND_Z, 0 },
-    { 570.41f, -108.791f, GROUND_Z, 0 },
+    { 570.41f, -108.791f, GROUND_Z, 0 }
 };
 
 const Position PosDefCombat[4] =
@@ -172,7 +172,7 @@ const Position PosDefCombat[4] =
     { 614.975f, -155.138f, GROUND_Z, 4.154f },
     { 609.814f, -204.968f, GROUND_Z, 5.385f },
     { 563.531f, -201.557f, GROUND_Z, 4.108f },
-    { 560.231f, -153.677f, GROUND_Z, 5.403f },
+    { 560.231f, -153.677f, GROUND_Z, 5.403f }
 };
 
 const Position PosHarpoon[4] =
@@ -180,7 +180,7 @@ const Position PosHarpoon[4] =
     { 571.901f, -136.554f, GROUND_Z, 0 },
     { 589.450f, -134.888f, GROUND_Z, 0 },
     { 559.119f, -140.505f, GROUND_Z, 0 },
-    { 606.229f, -136.721f, GROUND_Z, 0 },
+    { 606.229f, -136.721f, GROUND_Z, 0 }
 };
 
 const Position RazorFlight      = { 588.050f, -251.191f, 470.536f,      1.498f };

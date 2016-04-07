@@ -165,7 +165,7 @@ class spell_gen_burn_brutallus: public SpellScriptLoader
 
 enum CannibalizeSpells
 {
-    SPELL_CANNIBALIZE_TRIGGERED = 20578,
+    SPELL_CANNIBALIZE_TRIGGERED = 20578
 };
 
 class spell_gen_cannibalize: public SpellScriptLoader
@@ -221,7 +221,7 @@ class spell_gen_cannibalize: public SpellScriptLoader
 enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
-    SPELL_PARACHUTE_BUFF    = 44795,
+    SPELL_PARACHUTE_BUFF    = 44795
 };
 
 class spell_gen_parachute: public SpellScriptLoader
@@ -266,7 +266,7 @@ enum NPCEntries
 {
     NPC_DOOMGUARD   = 11859,
     NPC_INFERNAL    = 89,
-    NPC_IMP         = 416,
+    NPC_IMP         = 416
 };
 
 class spell_gen_pet_summoned: public SpellScriptLoader
@@ -396,7 +396,7 @@ class spell_gen_remove_flight_auras: public SpellScriptLoader
 enum LeechingSwarmSpells
 {
     SPELL_LEECHING_SWARM_DMG    = 66240,
-    SPELL_LEECHING_SWARM_HEAL   = 66125,
+    SPELL_LEECHING_SWARM_HEAL   = 66125
 };
 
 class spell_gen_leeching_swarm: public SpellScriptLoader
@@ -520,7 +520,7 @@ enum EluneCandle
     SPELL_ELUNE_CANDLE_OMEN_CHEST  = 26624,
     SPELL_ELUNE_CANDLE_OMEN_HAND_R = 26625,
     SPELL_ELUNE_CANDLE_OMEN_HAND_L = 26649,
-    SPELL_ELUNE_CANDLE_NORMAL      = 26636,
+    SPELL_ELUNE_CANDLE_NORMAL      = 26636
 };
 
 class spell_gen_elune_candle: public SpellScriptLoader
@@ -612,7 +612,7 @@ class spell_creature_permanent_feign_death: public SpellScriptLoader
 enum PvPTrinketTriggeredSpells
 {
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
-    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757,
+    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757
 };
 
 class spell_pvp_trinket_wotf_shared_cd: public SpellScriptLoader
@@ -658,7 +658,7 @@ class spell_pvp_trinket_wotf_shared_cd: public SpellScriptLoader
 enum AnimalBloodPoolSpell
 {
     SPELL_ANIMAL_BLOOD      = 46221,
-    SPELL_SPAWN_BLOOD_POOL  = 63471,
+    SPELL_SPAWN_BLOOD_POOL  = 63471
 };
 
 class spell_gen_animal_blood: public SpellScriptLoader
@@ -706,7 +706,7 @@ class spell_gen_animal_blood: public SpellScriptLoader
 
 enum DivineStormSpell
 {
-    SPELL_DIVINE_STORM  = 53385,
+    SPELL_DIVINE_STORM  = 53385
 };
 
 // 70769 Divine Storm!
@@ -786,7 +786,7 @@ class spell_gen_gunship_portal: public SpellScriptLoader
 
 enum parachuteIC
 {
-    SPELL_PARACHUTE_IC = 66657,
+    SPELL_PARACHUTE_IC = 66657
 };
 
 class spell_gen_parachute_ic: public SpellScriptLoader
@@ -1103,7 +1103,7 @@ class spell_gen_clone_weapon_aura: public SpellScriptLoader
 
 enum FriendOrFowl
 {
-    SPELL_TURKEY_VENGEANCE  = 25285,
+    SPELL_TURKEY_VENGEANCE  = 25285
 };
 
 class spell_gen_turkey_marker: public SpellScriptLoader
@@ -1155,7 +1155,7 @@ enum MagicRoosterSpells
 {
     SPELL_MAGIC_ROOSTER_NORMAL          = 66122,
     SPELL_MAGIC_ROOSTER_DRAENEI_MALE    = 66123,
-    SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124,
+    SPELL_MAGIC_ROOSTER_TAUREN_MALE     = 66124
 };
 
 class spell_gen_magic_rooster: public SpellScriptLoader
@@ -1288,7 +1288,7 @@ class spell_gen_launch: public SpellScriptLoader
 
 enum VehicleScaling
 {
-    SPELL_GEAR_SCALING      = 66668,
+    SPELL_GEAR_SCALING      = 66668
 };
 
 class spell_gen_vehicle_scaling: public SpellScriptLoader
@@ -1479,7 +1479,7 @@ class spell_gen_luck_of_the_draw: public SpellScriptLoader
 enum DummyTrigger
 {
     SPELL_PERSISTANT_SHIELD_TRIGGERED       = 26470,
-    SPELL_PERSISTANT_SHIELD                 = 26467,
+    SPELL_PERSISTANT_SHIELD                 = 26467
 };
 
 class spell_gen_dummy_trigger: public SpellScriptLoader
@@ -1564,7 +1564,7 @@ enum TransporterBackfires
 {
     SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH     = 23444,
     SPELL_TRANSPORTER_EVIL_TWIN                 = 23445,
-    SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902,
+    SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902
 };
 
 class spell_gen_gadgetzan_transporter_backfire: public SpellScriptLoader
@@ -1611,7 +1611,7 @@ class spell_gen_gadgetzan_transporter_backfire: public SpellScriptLoader
 enum GnomishTransporter
 {
     SPELL_TRANSPORTER_SUCCESS                   = 23441,
-    SPELL_TRANSPORTER_FAILURE                   = 23446,
+    SPELL_TRANSPORTER_FAILURE                   = 23446
 };
 
 class spell_gen_gnomish_transporter: public SpellScriptLoader
@@ -1656,7 +1656,7 @@ enum DalaranDisguiseSpells
 
     SPELL_SILVER_COVENANT_DISGUISE_TRIGGER = 69673,
     SPELL_SILVER_COVENANT_DISGUISE_FEMALE  = 70971,
-    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
+    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972
 };
 
 class spell_gen_dalaran_disguise: public SpellScriptLoader
@@ -1748,7 +1748,7 @@ enum BreakShieldSpells
 
     SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS    = 62575, // Also on ToC5 mounts
     SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE = 64595,
-    SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480,
+    SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480
 };
 
 class spell_gen_break_shield: public SpellScriptLoader
@@ -1874,7 +1874,7 @@ enum ChargeSpells
     SPELL_CHARGE_TRIGGER_FACTION_MOUNTS = 62960,
     SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION = 68282,
 
-    SPELL_CHARGE_MISS_EFFECT            = 62977,
+    SPELL_CHARGE_MISS_EFFECT            = 62977
 };
 
 class spell_gen_mounted_charge: public SpellScriptLoader
@@ -1994,7 +1994,7 @@ enum DefendVisuals
 {
     SPELL_VISUAL_SHIELD_1 = 63130,
     SPELL_VISUAL_SHIELD_2 = 63131,
-    SPELL_VISUAL_SHIELD_3 = 63132,
+    SPELL_VISUAL_SHIELD_3 = 63132
 };
 
 class spell_gen_defend: public SpellScriptLoader
@@ -2079,7 +2079,7 @@ class spell_gen_defend: public SpellScriptLoader
 enum MountedDuelSpells
 {
     SPELL_ON_TOURNAMENT_MOUNT = 63034,
-    SPELL_MOUNTED_DUEL        = 62875,
+    SPELL_MOUNTED_DUEL        = 62875
 };
 
 class spell_gen_tournament_duel: public SpellScriptLoader
@@ -2131,7 +2131,7 @@ class spell_gen_tournament_duel: public SpellScriptLoader
 
 enum TournamentMountsSpells
 {
-    SPELL_LANCE_EQUIPPED = 62853,
+    SPELL_LANCE_EQUIPPED = 62853
 };
 
 class spell_gen_summon_tournament_mount: public SpellScriptLoader
@@ -2213,7 +2213,7 @@ enum TournamentPennantSpells
     SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION = 63501,
     SPELL_PENNANT_EBON_BLADE_ASPIRANT     = 63607,
     SPELL_PENNANT_EBON_BLADE_VALIANT      = 63608,
-    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63609,
+    SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63609
 };
 
 enum TournamentMounts
@@ -2230,7 +2230,7 @@ enum TournamentMounts
     NPC_FORSAKEN_WARHORSE           = 33324,
     NPC_ARGENT_WARHORSE             = 33782,
     NPC_ARGENT_STEED_ASPIRANT       = 33845,
-    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33844,
+    NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33844
 };
 
 enum TournamentQuestsAchievements
@@ -2268,7 +2268,7 @@ enum TournamentQuestsAchievements
     QUEST_VALIANT_OF_UNDERCITY         = 13710,
     QUEST_A_VALIANT_OF_UNDERCITY       = 13695,
     QUEST_VALIANT_OF_SILVERMOON        = 13711,
-    QUEST_A_VALIANT_OF_SILVERMOON      = 13696,
+    QUEST_A_VALIANT_OF_SILVERMOON      = 13696
 };
 
 class spell_gen_on_tournament_mount: public SpellScriptLoader
@@ -2464,7 +2464,7 @@ class spell_gen_tournament_pennant: public SpellScriptLoader
 
 enum ChaosBlast
 {
-    SPELL_CHAOS_BLAST   = 37675,
+    SPELL_CHAOS_BLAST   = 37675
 };
 
 class spell_gen_chaos_blast: public SpellScriptLoader
@@ -2660,7 +2660,7 @@ public:
 
 enum GenericBandage
 {
-    SPELL_RECENTLY_BANDAGED = 11196,
+    SPELL_RECENTLY_BANDAGED = 11196
 };
 
 class spell_gen_bandage: public SpellScriptLoader
@@ -2714,7 +2714,7 @@ enum GenericLifebloom
     SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL              = 52552,
     SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL           = 53692,
     SPELL_TWISTED_VISAGE_LIFEBLOOM_FINAL_HEAL           = 57763,
-    SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094,
+    SPELL_FACTION_CHAMPIONS_DRU_LIFEBLOOM_FINAL_HEAL    = 66094
 };
 
 class spell_gen_lifebloom: public SpellScriptLoader
@@ -2915,7 +2915,7 @@ enum FoamSword
 
     SPELL_BONKED = 62991,
     SPELL_FOAM_SWORD_DEFEAT = 62994,
-    SPELL_ON_GUARD = 62972,
+    SPELL_ON_GUARD = 62972
 };
 
 class spell_gen_upper_deck_create_foam_sword: public SpellScriptLoader
@@ -3029,7 +3029,7 @@ enum RunningWildMountIds
 {
     RUNNING_WILD_MODEL_MALE     = 29422,
     RUNNING_WILD_MODEL_FEMALE   = 29423,
-    SPELL_ALTERED_FORM          = 97709,
+    SPELL_ALTERED_FORM          = 97709
 };
 
 class spell_gen_running_wild: public SpellScriptLoader
@@ -3259,7 +3259,7 @@ class spell_gen_gobelin_gumbo: public SpellScriptLoader
 
 enum SilvermoonPolymorph
 {
-    NPC_AUROSALIA   = 18744,
+    NPC_AUROSALIA   = 18744
 };
 
 enum magePolymorphForms
@@ -3269,7 +3269,7 @@ enum magePolymorphForms
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
-    SPELL_MAGE_SHEEP_FORM                        = 32820,
+    SPELL_MAGE_SHEEP_FORM                        = 32820
 };
 
 // TODO: move out of here and rename - not a mage spell

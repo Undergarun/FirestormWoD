@@ -26,7 +26,7 @@ enum eEvents
 {
     // Ymirjar Flamebearer
     EVENT_FIREBALL              = 1,
-    EVENT_TACTICAL_BLINK        = 2,
+    EVENT_TACTICAL_BLINK        = 2
 };
 
 class mob_ymirjar_flamebearer : public CreatureScript

@@ -165,7 +165,7 @@ enum AIs
     AI_MELEE    = 0,
     AI_RANGED   = 1,
     AI_HEALER   = 2,
-    AI_PET      = 3,
+    AI_PET      = 3
 };
 
 enum Spells

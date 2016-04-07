@@ -23,7 +23,7 @@ enum eSpells
     SPELL_ENRAGE                = 130196,
 
     SPELL_ICE_TRAP              = 110610,
-    SPELL_EXPLOSION             = 106966,
+    SPELL_EXPLOSION             = 106966
 };
 
 enum eEvents
@@ -31,7 +31,7 @@ enum eEvents
     // Gu
     EVENT_SMOKE_BLADES          = 1,
     EVENT_SHA_SPIKE             = 2,
-    EVENT_DISORIENTING_SMASH    = 3,
+    EVENT_DISORIENTING_SMASH    = 3
 };
 
 class boss_sha_of_violence : public CreatureScript

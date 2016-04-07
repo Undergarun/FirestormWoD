@@ -19,7 +19,7 @@ EndScriptData */
 enum eSpells
 {
     SPELL_ARCHAEDAS_AWAKEN      = 10347,
-    SPELL_AWAKEN_VAULT_WALKER   = 10258,
+    SPELL_AWAKEN_VAULT_WALKER   = 10258
 };
 
 class instance_uldaman : public InstanceMapScript

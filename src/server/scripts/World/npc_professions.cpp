@@ -162,7 +162,7 @@ enum ProfessionSpells
 
     S_UNLEARN_TRANSMUTE     = 41565,
     S_UNLEARN_ELIXIR        = 41564,
-    S_UNLEARN_POTION        = 41563,
+    S_UNLEARN_POTION        = 41563
 };
 
 /*###
@@ -769,7 +769,7 @@ enum eEngineeringTrinkets
     SPELL_TO_EVERLOOK           = 23486,
     SPELL_TO_GADGET             = 23489,
     SPELL_TO_AREA52             = 36954,
-    SPELL_TO_TOSHLEY            = 36955,
+    SPELL_TO_TOSHLEY            = 36955
 };
 
 #define GOSSIP_ITEM_ZAP         "[PH] Unknown"

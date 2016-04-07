@@ -11,7 +11,7 @@
 #include "GarrisonMgr.hpp"
 #include "../../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
 
     std::vector<uint32> g_AllyHerbsGobsEntry

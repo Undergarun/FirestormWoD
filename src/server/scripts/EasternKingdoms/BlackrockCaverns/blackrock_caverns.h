@@ -42,7 +42,7 @@ enum NPCs
 
     NPC_RAZ_THE_CRAZED           = 39670,
     NPC_FINKLE_EINHORN           = 49476,
-    NPC_TWILIGHT_PORTAL          = 51340,
+    NPC_TWILIGHT_PORTAL          = 51340
 };
 
 enum GameObjectIds

@@ -30,7 +30,7 @@ enum Says
     SAY_ENRAGE          = 2,
     SAY_KILL            = 3,
     SAY_DEATH           = 4,
-    SAY_SHIELD          = 5,
+    SAY_SHIELD          = 5
 };
 
 enum Spells

@@ -85,7 +85,7 @@ enum eSpells
 
     // Soul Fragment
     SPELL_SOUL_DISPLAY                  = 32395,
-    SPELL_ICE_TRAP                      = 135382,
+    SPELL_ICE_TRAP                      = 135382
 };
 
 enum eEvents
@@ -113,7 +113,7 @@ enum eEvents
     EVENT_SHIELD_DESTROY        = 16,
     EVENT_SOUL_WALK             = 17,
     EVENT_SOUL_GROW             = 18,
-    EVENT_SHIELD_BARRIER        = 19,
+    EVENT_SHIELD_BARRIER        = 19
 };
 
 enum eFengPhases
@@ -133,7 +133,7 @@ enum eTalk
     TALK_PHASE_3    = 3,
     TALK_PHASE_4    = 4,
     TALK_DEATH      = 5,
-    TALK_SLAY       = 6,
+    TALK_SLAY       = 6
 };
 
 enum EquipId
@@ -158,7 +158,7 @@ enum eSoulActions
 {
     ACTION_SOUL_HOME    = 20,
     ACTION_SOUL_KILLED  = 21,
-    ACTION_SOUL_REMOVE  = 22,
+    ACTION_SOUL_REMOVE  = 22
 };
 
 #define SHIELD_ON_FENG 5
@@ -189,7 +189,7 @@ uint32 inversionMatching[MAX_INVERSION_SPELLS][2] =
     {SPELL_SHADOWBURN,       SPELL_SHADOWBURN_INVERSION},
     {SPELL_LIGHTNING_LASH,   SPELL_LIGHTNING_LASH_INVERSION},
     {SPELL_ARCANE_SHOCK,     SPELL_ARCANE_SHOCK_INVERSION},
-    {SPELL_SIPHONING_SHIELD, SPELL_SIPHONING_SHIELD_INVERSION},
+    {SPELL_SIPHONING_SHIELD, SPELL_SIPHONING_SHIELD_INVERSION}
 };
 
 #define MAX_DIST    60.0f
@@ -200,7 +200,7 @@ Position shieldPositions[3] =
 {
     {4067.59f, 1326.71f, 466.30f, 2.579275f},
     {4020.77f, 1363.22f, 466.30f, 5.500957f},
-    {4036.06f, 1362.29f, 466.30f, 4.253744f},
+    {4036.06f, 1362.29f, 466.30f, 4.253744f}
 };
 
 #define SHIELD_POSITIONS_COUNT 3;

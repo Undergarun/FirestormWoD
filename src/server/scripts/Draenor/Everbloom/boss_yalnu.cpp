@@ -34,7 +34,7 @@ enum eYalnuEvents
     EventFontOfLife,
     EventFeralLasherActivate,
     EventNoxiousBreath,
-    EventLumberingSwipe,
+    EventLumberingSwipe
 };
 
 enum eYalnuMovementInformed

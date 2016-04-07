@@ -22,7 +22,7 @@ enum Misc
 {
     MAX_ENCOUNTER       = 5,
 
-    GO_ANCIENT_GEM      = 185557,
+    GO_ANCIENT_GEM      = 185557
 };
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event

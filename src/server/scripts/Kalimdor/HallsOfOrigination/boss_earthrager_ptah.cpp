@@ -5,7 +5,7 @@ enum ScriptTexts
 {
     SAY_DEATH   = 0,
     SAY_AGGRO   = 1,
-    SAY_KILL    = 2,
+    SAY_KILL    = 2
 };
 
 enum Spells
@@ -33,7 +33,7 @@ enum Spells
     SPELL_SUMMON_DUSTBONE_HORROR    = 75521,
     SPELL_SUMMON_JEWELED_SCARAB     = 75462,
 
-    SPELL_SMASH                     = 75453,
+    SPELL_SMASH                     = 75453
 };
  
 enum Events
@@ -46,7 +46,7 @@ enum Events
     EVENT_STORM_MOVE    = 6,
     EVENT_VORTEX_DUST   = 7,
     EVENT_SMASH         = 8,
-    EVENT_MERGE         = 9,
+    EVENT_MERGE         = 9
 };
  
 enum Adds
@@ -55,7 +55,7 @@ enum Adds
     NPC_DUSTBONE_HORROR         = 40450,
     NPC_JEWELED_SCARAB          = 40458,
     NPC_TUMULTUOUS_EARTHSTORM   = 40406,
-    NPC_BEETLE_STALKER          = 40459,
+    NPC_BEETLE_STALKER          = 40459
 };
  
 class boss_earthrager_ptah : public CreatureScript

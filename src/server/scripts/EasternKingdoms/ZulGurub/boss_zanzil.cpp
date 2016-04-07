@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_GAS     = 2,
     SAY_KILL    = 3,
     SAY_BERSERK = 4,
-    SAY_TROLLS  = 5,
+    SAY_TROLLS  = 5
 };
 
 enum Spells
@@ -22,7 +22,7 @@ enum Spells
 
     SPELL_PURSUIT       = 96342,
     SPELL_THUNDERCLAP   = 96340,
-    SPELL_KNOCK_AWAY    = 96341,
+    SPELL_KNOCK_AWAY    = 96341
 };
 
 enum Events
@@ -32,14 +32,14 @@ enum Events
     EVENT_CAST_ZOMBIE   = 3,
     EVENT_CAST_BERSERK  = 4,
     EVENT_RES_ZOMBIE    = 5,
-    EVENT_RES_BERSERK   = 6,
+    EVENT_RES_BERSERK   = 6
 };
 
 enum Adds
 {
     NPC_ZANZIL_ZOMBIE       = 52055,
     NPC_ZANZIL_BERSERKER    = 52054,
-    NPC_ZANZIL_TOXIC_GAS    = 52062,
+    NPC_ZANZIL_TOXIC_GAS    = 52062
 };
 
 const Position berserkerPos[3] = 

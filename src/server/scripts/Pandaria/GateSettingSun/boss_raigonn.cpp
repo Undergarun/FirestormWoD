@@ -39,7 +39,7 @@ enum eSpells
 enum ePhases
 {
     PHASE_WEAK_SPOT     = 1,
-    PHASE_VULNERABILITY = 2,
+    PHASE_VULNERABILITY = 2
 };
 
 enum eActions

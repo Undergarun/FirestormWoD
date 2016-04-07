@@ -23,13 +23,13 @@ enum Events
     EVENT_CHILLING_BREATH        = 2,
     EVENT_LIGHTNING_BLAST        = 3,
     EVENT_CHECK_FACING            = 4,
-    EVENT_RESET_WIND            = 5,
+    EVENT_RESET_WIND            = 5
 };
 
 enum Adds
 {
     NPC_TWISTER        = 47342,
-    NPC_AIR_CURRENT    = 47305,
+    NPC_AIR_CURRENT    = 47305
 };
 
 const float orientations[4] = {5.70f, 2.54f, 0.84f, 4.44f};
@@ -38,7 +38,7 @@ const Position twisterPos[8] =
 {
     {-1213.09f, 37.58f, 734.17f, 0.0f},
     {-1208.80f, 54.49f, 734.17f, 0.0f},
-    {-1219.45f, 68.33f, 734.17f, 0.0f},
+    {-1219.45f, 68.33f, 734.17f, 0.0f}
 };
 
 class boss_altairus : public CreatureScript

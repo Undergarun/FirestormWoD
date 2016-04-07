@@ -89,7 +89,7 @@ enum Texts
     SAY_CAPTAIN_SURVIVE_TALK        = 4,
     SAY_CROK_WEAKENING_GAUNTLET     = 6,
     SAY_CROK_WEAKENING_SVALNA       = 7,
-    SAY_CROK_DEATH                  = 8,
+    SAY_CROK_DEATH                  = 8
 };
 
 enum Spells
@@ -256,7 +256,7 @@ enum Spells
     SPELL_SUMMON_WARHAWK            = 71705,
 
     //Ymirjar Warlord
-    SPELL_WHIRLWIND                 = 41056,
+    SPELL_WHIRLWIND                 = 41056
 };
 
 // Helper defines
@@ -435,12 +435,12 @@ enum EventTypes
     EVENT_WHIRLWIND                     = 99,
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
-    EVENT_SOUL_MISSILE                  = 100,
+    EVENT_SOUL_MISSILE                  = 100
 };
 
 enum DataTypesICC
 {
-    DATA_DAMNED_KILLS       = 1,
+    DATA_DAMNED_KILLS       = 1
 };
 
 enum Actions
@@ -450,7 +450,7 @@ enum Actions
     ACTION_START_GAUNTLET       = 2,
     ACTION_RESURRECT_CAPTAINS   = 3,
     ACTION_CAPTAIN_DIES         = 4,
-    ACTION_RESET_EVENT          = 5,
+    ACTION_RESET_EVENT          = 5
 };
 
 enum EventIds
@@ -458,12 +458,12 @@ enum EventIds
     EVENT_AWAKEN_WARD_1 = 22900,
     EVENT_AWAKEN_WARD_2 = 22907,
     EVENT_AWAKEN_WARD_3 = 22908,
-    EVENT_AWAKEN_WARD_4 = 22909,
+    EVENT_AWAKEN_WARD_4 = 22909
 };
 
 enum MovementPoints
 {
-    POINT_LAND  = 1,
+    POINT_LAND  = 1
 };
 
 const Position SindragosaGauntletSpawn[12] =
@@ -479,7 +479,7 @@ const Position SindragosaGauntletSpawn[12] =
     { 4201.55f, 2441.03f, 211.033f, 0 },
     { 4181.29f, 2433.38f, 211.033f, 0 },
     { 4161.86f, 2441.94f, 211.033f, 0 },
-    { 4138.78f, 2463.95f, 211.033f, 0 },
+    { 4138.78f, 2463.95f, 211.033f, 0 }
 };
 
 class FrostwingVrykulSearcher
@@ -576,7 +576,7 @@ enum AshenRingRecover
 {
     FACTION_ASHEN_VEREDICT  = 1156,
     NPC_TEXT_ID             = 537006,
-    MAX_RINGS_NUMBER        = 20,
+    MAX_RINGS_NUMBER        = 20
 };
 
 class npc_icc_ring_recover : public CreatureScript
@@ -3127,7 +3127,7 @@ class npc_darkfallen_blood_knight : public CreatureScript
 
 enum Noblemisc
 {
-    NPC_VAMPIRIC_FIEND = 37901,
+    NPC_VAMPIRIC_FIEND = 37901
 };
 
 class npc_darkfallen_noble : public CreatureScript

@@ -14,7 +14,7 @@
 #include "SharedDefines.h"
 #include "../Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace GatheringSpawnState
     {

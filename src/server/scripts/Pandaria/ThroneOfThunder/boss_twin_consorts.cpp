@@ -110,7 +110,7 @@ enum eTwinSpells
     SPELL_SUNNY_SKY             = 137183,
     SPELL_LIGHT_OF_DAY_CTRL     = 137738,
     SPELL_INACTIVE_PLATFORM     = 139767,
-    SPELL_TWIN_BERSERK          =  26662,
+    SPELL_TWIN_BERSERK          =  26662
 };
 
 enum eTwinEvents
@@ -150,7 +150,7 @@ enum eTwinEvents
     EVENT_SUMMON_RED_CRANE,
     EVENT_CRANE_MOVE,
     // Misc
-    EVENT_TALK_LAST_PHASE,
+    EVENT_TALK_LAST_PHASE
 };
 
 enum eSuenTalks
@@ -162,7 +162,7 @@ enum eSuenTalks
     TALK_SUEN_WIPE,
     TALK_SUEN_DEATH,
     TALK_SUEN_FINAL_PHASE,
-    TALK_SUEN_BREAK_OF_DUSK,
+    TALK_SUEN_BREAK_OF_DUSK
 };
 
 enum eLulinTalks
@@ -173,12 +173,12 @@ enum eLulinTalks
     TALK_LULIN_SLAY,
     TALK_LULIN_WIPE,
     TALK_LULIN_FINAL_PHASE,
-    TALK_LULIN_DEATH,
+    TALK_LULIN_DEATH
 };
 
 enum eCelestialTalk
 {
-    TALK_CELESTIAL,
+    TALK_CELESTIAL
 };
 
 enum eTwinPhases
@@ -204,7 +204,7 @@ enum eTwinAdds
     NPC_DEEP_SUBMERGE           = 69629,
     NPC_STAR                    = 69365,
     NPC_ASTRAL_STAR             = 64677,
-    NPC_IMAGE_OF_CHI_JI         = 71441,
+    NPC_IMAGE_OF_CHI_JI         = 71441
 };
 
 enum eTwinEquip
@@ -212,7 +212,7 @@ enum eTwinEquip
     EQUIP_SUEN_MAIN             = 93774,
     EQUIP_LULIN_MAIN            = 93776,
     EQUIP_SUEN_OFF              = 93778,
-    EQUIP_LULIN_OFF             = 93780,
+    EQUIP_LULIN_OFF             = 93780
 };
 
 enum eTwinTypes
@@ -224,13 +224,13 @@ enum eTwinTypes
     TYPE_GET_STAR_ID,
     TYPE_SET_DRAW,
     TYPE_ADD_STAR,
-    TYPE_TOGGLE_CELESTIALS,
+    TYPE_TOGGLE_CELESTIALS
 };
 
 enum eTwinValues
 {
     VALUE_ENABLED   = 1,
-    VALUE_DISABLED,
+    VALUE_DISABLED
 };
 
 enum eTwinActions
@@ -247,7 +247,7 @@ enum eTwinActions
     ACTION_ACTIVATE_COMET,
     ACTION_COMET_IN_PLACE,
     ACTION_ACTIVATE_NEXT_STAR,
-    ACTION_CELESTIAL_BUFF,
+    ACTION_CELESTIAL_BUFF
 };
 
 enum eTwinDisplays
@@ -257,7 +257,7 @@ enum eTwinDisplays
     DISPLAY_XUEN                    = 47672,
     DISPLAY_CHI_JI                  = 47674,
     DISPLAY_NIUZAO                  = 47675,
-    DISPLAY_YULON                   = 47676,
+    DISPLAY_YULON                   = 47676
 };
 
 uint32 const g_ConsortsBossEntries[2] = { NPC_SUEN, NPC_LU_LIN };

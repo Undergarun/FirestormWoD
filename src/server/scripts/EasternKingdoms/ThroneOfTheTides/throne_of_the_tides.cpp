@@ -4,27 +4,27 @@
 enum ScriptTexts
 {
     SAY_START_EVENT = 0,
-    SAY_EVADE       = 1,
+    SAY_EVADE       = 1
 };
 
 enum Events
 {
-    EVENT_SUMMON_DRUDGE = 1,
+    EVENT_SUMMON_DRUDGE = 1
 };
 
 enum Actions
 {
-    ACTION_LADY_NAZJAR_START_EVENT      = 1,
+    ACTION_LADY_NAZJAR_START_EVENT      = 1
 };
 
 enum Points
 {
-    POINT_EVADE = 1,
+    POINT_EVADE = 1
 };
 
 enum DataOther
 {
-    DATA_ATTACKER_GUID  = 1,
+    DATA_ATTACKER_GUID  = 1
 };
 
 enum Creatures
@@ -34,7 +34,7 @@ enum Creatures
     NPC_NAZJAR_INVADER                      = 39616,
     NPC_NAZJAR_SPIRITMENDER                 = 41139,
     NPC_DEEP_MURLOC_DRUDGE                  = 39960,
-    NPC_TEMPEST_WITCH                       = 40634,
+    NPC_TEMPEST_WITCH                       = 40634
 };
 
 const Position eventPos[7] = 
@@ -45,7 +45,7 @@ const Position eventPos[7] =
     {-98.13f, 806.96f, 797.04f, 3.13f},
     {-65.19f, 808.50f, 796.96f, 3.13f},
     {-66.57f, 798.02f, 796.87f, 3.13f},
-    {13.67f, 802.34f, 806.43f, 0.12f},
+    {13.67f, 802.34f, 806.43f, 0.12f}
 };
 
 /*

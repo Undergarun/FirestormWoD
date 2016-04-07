@@ -68,7 +68,7 @@ enum SuperSpell
 {
     SUPER_FLAME = 0,
     SUPER_BLIZZARD,
-    SUPER_AE,
+    SUPER_AE
 };
 
 class boss_shade_of_aran : public CreatureScript

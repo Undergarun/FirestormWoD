@@ -13,7 +13,7 @@ enum ScriptedTexts
     SAY_INTRO_2 = 9,
     SAY_INTRO_3 = 10,
     SAY_INTRO_4 = 11,
-    SAY_INTRO_5 = 12,
+    SAY_INTRO_5 = 12
 };
 
 enum Spells
@@ -72,7 +72,7 @@ enum Adds
     NPC_ERIK_HARRINGTON             = 49535, // 2
     NPC_EMME_HARRINGTON             = 49534, // 1
     NPC_CALISSA_HARRINGTON          = 49536, // 3 92608
-    NPC_JAMES_HARRINGTON            = 49539,
+    NPC_JAMES_HARRINGTON            = 49539
 };
 
 enum Events
@@ -89,7 +89,7 @@ enum Events
     EVENT_ADDS_3        = 10,
     EVENT_BACKSLASH     = 11,
     EVENT_DEFLECTION    = 12,
-    EVENT_CONTINUE      = 13,
+    EVENT_CONTINUE      = 13
 };
 
 #define ACHIEVEMENT_EVENT 27527

@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_KILL    = 2,
     SAY_LEVEL   = 3,
     SAY_OHGAN   = 4,
-    SAY_RES     = 5,
+    SAY_RES     = 5
 };
 
 enum Spells
@@ -41,23 +41,23 @@ enum Events
     EVENT_OHGAN_ORDERS      = 5,
     EVENT_DEVASTATING_SLAM  = 6,
     EVENT_OHGAN_RES         = 7,
-    EVENT_LEVEL_UP          = 8,
+    EVENT_LEVEL_UP          = 8
 };
 
 enum Adds
 {
     NPC_OHGAN               = 52157,
     NPC_DEVASTATING_SLAM    = 52324,
-    NPC_CHAINED_SPIRIT      = 52156,
+    NPC_CHAINED_SPIRIT      = 52156
 };
 
 enum Points
 {
-    POINT_RES,
+    POINT_RES
 };
 enum Other
 {
-    DATA_RES    = 1,
+    DATA_RES    = 1
 };
 
 const Position chainedspiritPos[8] = 

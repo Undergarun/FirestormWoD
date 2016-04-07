@@ -10,7 +10,7 @@ enum FeludiusScriptText
     SAY_FELUDIUS_AGGRO        = 0,
     SAY_FELUDIUS_KILL        = 1,
     SAY_FELUDIUS_SPELL        = 2,
-    SAY_FELUDIUS_SPECIAL    = 3,
+    SAY_FELUDIUS_SPECIAL    = 3
 };
 
 enum IgcaciousScriptText
@@ -18,7 +18,7 @@ enum IgcaciousScriptText
     SAY_IGNACIOUS_AGGRO        = 0,
     SAY_IGNACIOUS_KILL        = 1,
     SAY_IGNACIOUS_SPELL        = 2,
-    SAY_IGNACIOUS_SPECIAL    = 3,
+    SAY_IGNACIOUS_SPECIAL    = 3
 };
 
 enum ArionScriptText
@@ -26,7 +26,7 @@ enum ArionScriptText
     SAY_ARION_AGGRO        = 0,
     SAY_ARION_KILL        = 1,
     SAY_ARION_SPELL        = 2,
-    SAY_ARION_SPECIAL    = 3,
+    SAY_ARION_SPECIAL    = 3
 };
 
 enum TerrastraScriptText
@@ -34,7 +34,7 @@ enum TerrastraScriptText
     SAY_TERRASTRA_AGGRO        = 1,
     SAY_TERRASTRA_KILL        = 0,
     SAY_TERRASTRA_SPELL        = 2,
-    SAY_TERRASTRA_SPECIAL    = 3,
+    SAY_TERRASTRA_SPECIAL    = 3
 };
 
 enum MonstrosityScriptText
@@ -42,7 +42,7 @@ enum MonstrosityScriptText
     SAY_MONSTROSITY_AGGRO        = 0,
     SAY_MONSTROSITY_KILL        = 1,
     SAY_MONSTROSITY_DEATH        = 3,
-    SAY_MONSTROSITY_SPELL        = 4,
+    SAY_MONSTROSITY_SPELL        = 4
 };
 
 enum Spells
@@ -158,7 +158,7 @@ enum Spells
     SPELL_LIQUID_ICE_DMG_10H            = 92498,
     SPELL_LIQUID_ICE_DMG_25H            = 92499,
     SPELL_LIQUID_ICE_SIZE                = 84917,
-    SPELL_CRYOGENIC_AURA                = 84918,
+    SPELL_CRYOGENIC_AURA                = 84918
 };
 
 enum Events
@@ -202,7 +202,7 @@ enum Events
     EVENT_FLAME_STRIKE              = 36,
     EVENT_FROST_ORB                 = 37,
     EVENT_GRAVITY_CORE              = 38,
-    EVENT_STATIC_OVERLOAD           = 39,
+    EVENT_STATIC_OVERLOAD           = 39
 };
 
 enum Adds
@@ -221,7 +221,7 @@ enum Adds
     NPC_GRAVITY_CRUSH                        = 45476,
     NPC_FLAME_STRIKE                        = 49432,
     NPC_FROZEN_ORB                          = 49518,
-    NPC_FROZEN_ORB_SPAWNER                  = 49517,
+    NPC_FROZEN_ORB_SPAWNER                  = 49517
 };
 
 enum Actions
@@ -230,7 +230,7 @@ enum Actions
     ACTION_THUNDERSHOCK    = 2,
     ACTION_QUAKE        = 3,
     ACTION_PHASE_3        = 4,
-    ACTION_FLAME_STRIKE = 5,
+    ACTION_FLAME_STRIKE = 5
 };
 
 const Position councilPos[4] = 

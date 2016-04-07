@@ -40,7 +40,7 @@ const float SummonPos[MAX_SUMMON_POS][4] =
     {2729.05f, -3544.47f, 261.91f, 5.58f},
     {2728.24f, -3465.08f, 264.20f, 3.56f},
     {2704.11f, -3456.81f, 265.53f, 4.51f},
-    {2663.56f, -3464.43f, 262.66f, 5.20f},
+    {2663.56f, -3464.43f, 262.66f, 5.20f}
 };
 
 enum Events
@@ -52,7 +52,7 @@ enum Events
     EVENT_WARRIOR,
     EVENT_BALCONY,
     EVENT_WAVE,
-    EVENT_GROUND,
+    EVENT_GROUND
 };
 
 class boss_noth : public CreatureScript

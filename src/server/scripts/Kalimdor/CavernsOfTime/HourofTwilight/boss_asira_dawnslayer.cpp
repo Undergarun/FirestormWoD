@@ -9,7 +9,7 @@ enum ScriptTexts
     SAY_EVENT_2 = 3,
     SAY_EVENT_3 = 4,
     SAY_KILL    = 5,
-    SAY_SPELL   = 6,
+    SAY_SPELL   = 6
 };
 
 enum Spells
@@ -20,13 +20,13 @@ enum Spells
     SPELL_CHOKING_SMOKE_BOMB        = 103558,
     SPELL_CHOKING_SMOKE_BOMB_DMG    = 103790,
     SPELL_BLADE_BARRIER             = 103419,
-    SPELL_LESSER_BLADE_BARRIER      = 103562,
+    SPELL_LESSER_BLADE_BARRIER      = 103562
 };
 
 enum Events
 {
     EVENT_MARK_OF_SILENCE       = 1,
-    EVENT_CHOKING_SMOKE_BOMB    = 2,
+    EVENT_CHOKING_SMOKE_BOMB    = 2
 };
 
 enum Adds

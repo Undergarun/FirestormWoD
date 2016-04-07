@@ -44,7 +44,7 @@ EndScriptData */
 enum InstanceEvents
 {
     EVENT_BARON_RUN         = 1,
-    EVENT_SLAUGHTER_SQUARE  = 2,
+    EVENT_SLAUGHTER_SQUARE  = 2
 };
 
 class instance_stratholme : public InstanceMapScript

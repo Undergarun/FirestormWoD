@@ -26,7 +26,7 @@ enum Data
     DATA_IMAGE_OF_NOZDORMU  = 16,
     DATA_FRAGMENTS          = 17,
     DATA_HOURGLASS          = 18,
-    DATA_NOZDORMU           = 19,
+    DATA_NOZDORMU           = 19
 };
 
 enum GameObjectIds
@@ -38,7 +38,7 @@ enum GameObjectIds
     GO_PLATFORM_1       = 209670,
     GO_PLATFORM_2       = 209693,
     GO_PLATFORM_3       = 209694,
-    GO_PLATFORM_4       = 209695,
+    GO_PLATFORM_4       = 209695
 };
 
 enum CreatureIds
@@ -49,18 +49,18 @@ enum CreatureIds
     NPC_ECHO_OF_TYRANDE     = 54544,
     NPC_MUROZOND            = 54432,
     NPC_NOZDORMU            = 54751,
-    NPC_IMAGE_OF_NOZDORMU   = 54867,
+    NPC_IMAGE_OF_NOZDORMU   = 54867
 };
 
 enum WorldStatesET
 {
     WORLDSTATE_SHOW_FRAGMENTS       = 6046,
-    WORLDSTATE_FRAGMENTS_COLLECTED  = 6025,
+    WORLDSTATE_FRAGMENTS_COLLECTED  = 6025
 };
 
 enum QuestIds
 {
-    QUEST_MUROZOND  = 30096,
+    QUEST_MUROZOND  = 30096
 };
 
 enum QuestSpells
@@ -68,7 +68,7 @@ enum QuestSpells
     SPELL_ARCHIVED_JAINA    = 109284,
     SPELL_ARCHIVED_SYLVANAS = 109278,
     SPELL_ARCHIVED_BAINE    = 109288,
-    SPELL_ARCHIVED_TYRANDE  = 109292,
+    SPELL_ARCHIVED_TYRANDE  = 109292
 };
 
 enum CustomAreas
@@ -76,7 +76,7 @@ enum CustomAreas
     AREA_RUBY       = 5790,
     AREA_BLUE       = 5793,
     AREA_EMERALD    = 5794,
-    AREA_OBSIDIAN   = 5792,
+    AREA_OBSIDIAN   = 5792
 };
 
 enum CustomActions
@@ -84,7 +84,7 @@ enum CustomActions
     ACTION_TALK_BAINE       = 1,
     ACTION_TALK_JAINA       = 2,
     ACTION_TALK_SYLVANAS    = 3,
-    ACTION_TALK_TYRANDE     = 4,
+    ACTION_TALK_TYRANDE     = 4
 };
 
 #endif

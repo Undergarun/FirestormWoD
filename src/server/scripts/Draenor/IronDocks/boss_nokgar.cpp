@@ -42,7 +42,7 @@ enum eMovementInformed
 
 enum eActions
 {
-    ActionDismountHeroic    = 1,
+    ActionDismountHeroic    = 1
 };
 
 enum eCreatures

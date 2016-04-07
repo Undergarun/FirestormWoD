@@ -76,7 +76,7 @@ enum Says
     SAY_KILL                = 2,
     SAY_SKELETON            = 3,
     SAY_GHOST               = 4,
-    SAY_DEATH               = 5,
+    SAY_DEATH               = 5
 };
 
 class boss_black_knight : public CreatureScript

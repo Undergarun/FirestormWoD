@@ -50,7 +50,7 @@ enum eEnums
     SPELL_SUMMON_WATER_GLOBULE_4 = 37861,
     // Creatures
     NPC_WATER_GLOBULE = 21913,
-    NPC_TIDEWALKER_LURKER = 21920,
+    NPC_TIDEWALKER_LURKER = 21920
 };
 
 float MurlocCords[10][4] =

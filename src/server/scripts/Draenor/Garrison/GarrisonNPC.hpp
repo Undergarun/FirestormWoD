@@ -15,7 +15,7 @@
 #include "Common.h"
 #include "ScriptedCosmeticAI.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Sequence position structure
     struct SequencePosition

@@ -629,7 +629,7 @@ enum Karynaku
 
     NPC_ZUHULED_THE_WACKED  = 11980,
 
-    TAXI_PATH_ID            = 649,
+    TAXI_PATH_ID            = 649
 };
 
 class npc_karynaku : public CreatureScript
@@ -682,7 +682,7 @@ enum eOverlordData
     LORD_ILLIDAN_SAY_6              = -1000619,
     LORD_ILLIDAN_SAY_7              = -1000620,
 
-    YARZILL_THE_MERC_SAY            = -1000621,
+    YARZILL_THE_MERC_SAY            = -1000621
 };
 
 class npc_overlord_morghor : public CreatureScript
@@ -1862,7 +1862,7 @@ public:
 enum ZuluhedChains
 {
     QUEST_ZULUHED   = 10866,
-    NPC_KARYNAKU    = 22112,
+    NPC_KARYNAKU    = 22112
 };
 
 class spell_unlocking_zuluheds_chains: public SpellScriptLoader

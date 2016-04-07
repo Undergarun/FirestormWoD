@@ -24,7 +24,7 @@ enum Yells
     SAY_LIGHT_4     = 18,
     SAY_LIGHT_5     = 19,
     SAY_LIGHT_6     = 20,
-    SAY_LIGHT_LEFT  = 21,
+    SAY_LIGHT_LEFT  = 21
 };
 
 enum Spells
@@ -55,7 +55,7 @@ enum Spells
 
     SPELL_ACHIEVEMENT_CHECK             = 102491,
     SPELL_ACHIEVEMENT_FAIL              = 102539,
-    SPELL_ACHIEVEMENT                   = 102542,
+    SPELL_ACHIEVEMENT                   = 102542
 };
 
 enum Events
@@ -70,7 +70,7 @@ enum Events
     EVENT_SUMMON_ADDS       = 7,
     EVENT_SUMMON_POOL       = 8,
     EVENT_STOP_EVENT        = 9,
-    EVENT_STOP_EVENT_1      = 10,
+    EVENT_STOP_EVENT_1      = 10
 };
 
 enum Adds
@@ -93,13 +93,13 @@ enum Adds
     NPC_TIME_TWISTED_HUNTRESS       = 54701,
     NPC_TIME_TWISTED_NIGHTSABER_1   = 54688,
     NPC_TIME_TWISTED_NIGHTSABER_2   = 54699,
-    NPC_TIME_TWISTED_NIGHTSABER_3   = 54700,
+    NPC_TIME_TWISTED_NIGHTSABER_3   = 54700
 };
 
 enum Other
 {
     POINT_MOONLANCE     = 1,
-    ACTION_START_EVENT  = 2,
+    ACTION_START_EVENT  = 2
 };
 
 const Position poolPos[5] = 

@@ -17,7 +17,7 @@ enum ScriptTexts
     SAY_PHASE_3_1   = 8,
     SAY_PHASE_3_2   = 9,
     SAY_DEATH       = 10,
-    SAY_KILL        = 11,
+    SAY_KILL        = 11
 };
 
 enum Spells
@@ -48,7 +48,7 @@ enum Spells
     // Faceless Sapper
     SPELL_ENTANGLING_GRASP              = 83463,
 
-    SPELL_ENCOUNTER_COMPLETE            = 95673,
+    SPELL_ENCOUNTER_COMPLETE            = 95673
 }; 
 
 enum Events
@@ -66,7 +66,7 @@ enum Events
     EVENT_BRAIN_SPIKE           = 11,
     EVENT_VEIL_OF_SHADOW        = 12,
     EVENT_BLIGHT_SPRAY          = 13,
-    EVENT_PHASE_2_2             = 14,
+    EVENT_PHASE_2_2             = 14
 };
 
 enum Adds
@@ -77,18 +77,18 @@ enum Adds
     NPC_FACELESS_SAPPER         = 44752,
     NPC_BLIGHT_BEAST            = 44841,
     NPC_BLIGHT_OF_OZUMAT_1      = 44801,
-    NPC_BLIGHT_OF_OZUMAT_2      = 44834,
+    NPC_BLIGHT_OF_OZUMAT_2      = 44834
 };
 
 enum Actions
 {
     ACTION_NEPTULON_START_EVENT = 1,
-    ACTION_NEPTULON_START       = 2,
+    ACTION_NEPTULON_START       = 2
 };
 
 enum Achievement
 {
-    SPELL_KILL_OZUMAT   = 95673,
+    SPELL_KILL_OZUMAT   = 95673
 };
 
 const Position spawnPos[5] = 
@@ -97,7 +97,7 @@ const Position spawnPos[5] =
     {-126.62f, 1015.55f, 230.37f, 4.48f},
     {-171.65f, 1006.13f, 230.67f, 5.90f},
     {-162.53f, 966.55f, 229.43f, 0.65f},
-    {-110.35f, 981.47f, 229.90f, 2.83f},
+    {-110.35f, 981.47f, 229.90f, 2.83f}
 };
 
 class npc_neptulon : public CreatureScript

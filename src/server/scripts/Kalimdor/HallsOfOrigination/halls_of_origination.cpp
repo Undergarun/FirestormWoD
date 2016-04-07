@@ -14,7 +14,7 @@ enum ScriptTexts
     SAY_7   = 7,
     SAY_8   = 8,
     SAY_9   = 9,
-    SAY_10  = 10,
+    SAY_10  = 10
 };
 
 enum Spells
@@ -35,7 +35,7 @@ enum Spells
 
     // Earth Warden
     SPELL_IMPALE                = 77235,
-    SPELL_ROCKWAVE              = 77234,
+    SPELL_ROCKWAVE              = 77234
 };
 
 enum Events
@@ -66,7 +66,7 @@ enum Events
     EVENT_TALK_8            = 15,
     EVENT_TALK_9            = 16,
     EVENT_TALK_10           = 17,
-    EVENT_TALK_11           = 18,
+    EVENT_TALK_11           = 18
 };
 
 enum Adds
@@ -80,7 +80,7 @@ enum Actions
     ACTION_TALK_2       = 2,
     ACTION_TALK_3       = 3,
     ACTION_TALK_4       = 4,
-    ACTION_START_EVENT  = 5,
+    ACTION_START_EVENT  = 5
 };
 
 #define GOSSIP_BRANN_START_EVENT "Let's go"

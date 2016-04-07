@@ -52,7 +52,7 @@ EndContentData */
 
 enum CatFigurine
 {
-    SPELL_SUMMON_GHOST_SABER    = 5968,
+    SPELL_SUMMON_GHOST_SABER    = 5968
 };
 
 class go_cat_figurine : public GameObjectScript
@@ -172,7 +172,7 @@ public:
 
 enum GildedBrazier
 {
-    NPC_STILLBLADE  = 17716,
+    NPC_STILLBLADE  = 17716
 };
 
 class go_gilded_brazier : public GameObjectScript
@@ -531,7 +531,7 @@ public:
 enum FelCrystalforge
 {
     SPELL_CREATE_1_FLASK_OF_BEAST   = 40964,
-    SPELL_CREATE_5_FLASK_OF_BEAST   = 40965,
+    SPELL_CREATE_5_FLASK_OF_BEAST   = 40965
 };
 
 class go_fel_crystalforge : public GameObjectScript
@@ -590,7 +590,7 @@ public:
 enum BashirCrystalforge
 {
     SPELL_CREATE_1_FLASK_OF_SORCERER   = 40968,
-    SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970,
+    SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970
 };
 
 class go_bashir_crystalforge : public GameObjectScript
@@ -654,7 +654,7 @@ enum MatrixPunchograph
     MATRIX_PUNCHOGRAPH_3005_A = 142345,
     MATRIX_PUNCHOGRAPH_3005_B = 142475,
     MATRIX_PUNCHOGRAPH_3005_C = 142476,
-    MATRIX_PUNCHOGRAPH_3005_D = 142696,
+    MATRIX_PUNCHOGRAPH_3005_D = 142696
 };
 
 class go_matrix_punchograph : public GameObjectScript
@@ -864,7 +864,7 @@ public:
 enum InconspicuousLandmark
 {
     SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB    = 11462,
-    ITEM_CUERGOS_KEY                                 = 9275,
+    ITEM_CUERGOS_KEY                                 = 9275
 };
 
 class go_inconspicuous_landmark : public GameObjectScript
@@ -890,7 +890,7 @@ public:
 enum EtherealTeleportPad
 {
     NPC_IMAGE_WIND_TRADER               = 20518,
-    ITEM_TELEPORTER_POWER_PACK          = 28969,
+    ITEM_TELEPORTER_POWER_PACK          = 28969
 };
 
 class go_ethereal_teleport_pad : public GameObjectScript
@@ -1170,7 +1170,7 @@ enum OfKeysAndCages
     QUEST_ALLIANCE_OF_KEYS_AND_CAGES    = 11231,
     QUEST_HORDE_OF_KEYS_AND_CAGES       = 11265,
     NPC_GJALERBRON_PRISONER             = 24035,
-    SAY_FREE                            = 0,
+    SAY_FREE                            = 0
 };
 
 class go_gjalerbron_cage : public GameObjectScript
@@ -1234,7 +1234,7 @@ enum MissingFriends
 {
    QUEST_MISSING_FRIENDS    = 10852,
    NPC_CAPTIVE_CHILD        = 22314,
-   SAY_FREE_0               = 0,
+   SAY_FREE_0               = 0
 };
 
 class go_veil_skith_cage : public GameObjectScript
@@ -1271,7 +1271,7 @@ enum TheCleansing
    QUEST_THE_CLEANSING_HORDE      = 11317,
    QUEST_THE_CLEANSING_ALLIANCE   = 11322,
    SPELL_CLEANSING_SOUL           = 43351,
-   SPELL_RECENT_MEDITATION        = 61720,
+   SPELL_RECENT_MEDITATION        = 61720
 };
 
 class go_frostblade_shrine : public GameObjectScript
@@ -1298,7 +1298,7 @@ public:
 
 enum MidsummerBonfire
 {
-    STAMP_OUT_BONFIRE_QUEST_COMPLETE    = 45458,
+    STAMP_OUT_BONFIRE_QUEST_COMPLETE    = 45458
 };
 
 class go_midsummer_bonfire : public GameObjectScript

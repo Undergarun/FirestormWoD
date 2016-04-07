@@ -45,12 +45,12 @@ enum YoggSaron_Yells
     SAY_SLAY_2                                  = -1603338,
     WHISP_INSANITY_1                            = -1603339,
     WHISP_INSANITY_2                            = -1603340,
-    SAY_DEATH                                   = -1603341,
+    SAY_DEATH                                   = -1603341
 };
 
 enum
 {
-    ACHIEV_TIMED_START_EVENT                      = 21001,
+    ACHIEV_TIMED_START_EVENT                      = 21001
 };
 //not in scriptloader yet just to remove warning boss_yoggsaron.obj : warning LNK4221: no public symbols found; archive member will be inaccessible
 void AddSC_boss_yoggsaron()

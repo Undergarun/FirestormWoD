@@ -443,7 +443,7 @@ enum eIslaStarmaneData
     QUEST_EFTW_H    = 10052,
     QUEST_EFTW_A    = 10051,
     GO_CAGE         = 182794,
-    SPELL_CAT       = 32447,
+    SPELL_CAT       = 32447
 };
 
 class npc_isla_starmane : public CreatureScript

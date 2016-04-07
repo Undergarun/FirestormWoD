@@ -13,7 +13,7 @@ enum MurozondScriptTexts
     SAY_GLASS_5 = 6,
     SAY_INTRO_1 = 7,
     SAY_INTRO_2 = 8,
-    SAY_KILL    = 9,
+    SAY_KILL    = 9
 };
 
 enum NozdormuScriptTexts
@@ -23,7 +23,7 @@ enum NozdormuScriptTexts
     SAY_NOZDORMU_OUTRO_2    = 2,
     SAY_NOZDORMU_OUTRO_3    = 3,
     SAY_NOZDORMU_OUTRO_4    = 4,
-    SAY_NOZDORMU_OUTRO_5    = 5,
+    SAY_NOZDORMU_OUTRO_5    = 5
 };
 
 enum Spells
@@ -38,7 +38,7 @@ enum Spells
     SPELL_TEMPORAL_SNAPSHOT             = 101592,
     SPELL_REWIND_TIME                   = 101590,
     SPELL_BLESSING_OF_BRONZE_DRAGONS    = 102364,
-    SPELL_KILL_MUROZOND                 = 110158,
+    SPELL_KILL_MUROZOND                 = 110158
 };
 
 enum Events
@@ -58,12 +58,12 @@ enum Events
     EVENT_NOZDORMU_OUTRO_2  = 13,
     EVENT_NOZDORMU_OUTRO_3  = 14,
     EVENT_NOZDORMU_OUTRO_4  = 15,
-    EVENT_NOZDORMU_OUTRO_5  = 16,
+    EVENT_NOZDORMU_OUTRO_5  = 16
 };
 
 enum Adds
 {
-    NPC_MIRROR  = 54435,
+    NPC_MIRROR  = 54435
 };
 
 enum Other
@@ -71,7 +71,7 @@ enum Other
     POINT_LAND          = 1,
     ACTION_HOURGLASS    = 2,
     TYPE_HOURGLASS      = 3,
-    ACTION_NOZDORMU     = 4,
+    ACTION_NOZDORMU     = 4
 };
 
 const Position landPos = {4169.71f, -433.40f, 120.0f, 2.59f};

@@ -38,7 +38,7 @@ enum Yells
     SAY_DEATH                                     = -1576002,
     SAY_MERGE                                     = -1576003,
     SAY_SPLIT_1                                   = -1576004,
-    SAY_SPLIT_2                                   = -1576005,
+    SAY_SPLIT_2                                   = -1576005
 };
 
 #define ACTION_MAGUS_DEAD                         1

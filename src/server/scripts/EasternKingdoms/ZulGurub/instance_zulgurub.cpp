@@ -11,7 +11,7 @@ static const DoorData doordata[] =
     {GO_MANDOKIR_EXIT5,         DATA_MANDOKIR,           DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_ZANZIL_EXIT,            DATA_ZANZIL,             DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_KILNARA_EXIT,           DATA_KILNARA,            DOOR_TYPE_ROOM,     BOUNDARY_NONE},
-    {0,                         0,                       DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {0,                         0,                       DOOR_TYPE_ROOM,     BOUNDARY_NONE}
 };
 
 class instance_zulgurub : public InstanceMapScript

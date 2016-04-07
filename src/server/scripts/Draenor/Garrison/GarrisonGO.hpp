@@ -12,7 +12,7 @@
 #include "GarrisonMgr.hpp"
 #include "GameObjectAI.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     std::vector<uint32> g_HerbEntries
     {

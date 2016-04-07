@@ -57,7 +57,7 @@ enum Spells
     
     // Stonecore Warbringer 
     SPELL_CLEAVE             = 15496,
-    SPELL_RAGE               = 80158,
+    SPELL_RAGE               = 80158
 };
 
 enum eEvents
@@ -87,7 +87,7 @@ enum eEvents
     EVENT_DEMON_PORTAL,
     EVENT_SHADOWBOLT,
     EVENT_CLEAVE,
-    EVENT_RAGE,
+    EVENT_RAGE
 };
 
 class mob_crystalspawn_giant : public CreatureScript
@@ -207,7 +207,7 @@ enum ScriptTexts
     SAY_EVENT_2    = 1,
     SAY_EVENT_3 = 2,
     SAY_DOOM    = 3,
-    SAY_DEATH    = 4,
+    SAY_DEATH    = 4
 };
 
 const Position millhousemanastormscPos[3] = 

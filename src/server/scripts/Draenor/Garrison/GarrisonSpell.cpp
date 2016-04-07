@@ -14,7 +14,7 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     spell_garrison_hearthstone::spell_garrison_hearthstone()

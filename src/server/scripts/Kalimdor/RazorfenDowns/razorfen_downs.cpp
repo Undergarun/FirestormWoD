@@ -33,7 +33,7 @@ enum eEnums
     SPELL_MIGHT_TROLLS_BLOOD_POTION             = 3451,
     SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION   = 13030,
     GOSSIP_TEXT_TEA_ANSWER                      = 2114,
-    GOSSIP_TEXT_POTION_ANSWER                   = 2115,
+    GOSSIP_TEXT_POTION_ANSWER                   = 2115
 };
 
 #define GOSSIP_ITEM_TEA     "Teach me the cooking recipe"

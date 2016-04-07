@@ -38,7 +38,7 @@ enum eKaatharSpells
     SpellSanctifiedStrikeAreaTrigger2  = 163559,
     SpellSancitfiedStrikeAreaTrigger3  = 165055,
     SpellSanctifiedStrikeAreaTrigger4  = 165065,
-    SpellFate                          = 157465,
+    SpellFate                          = 157465
 };
 
 enum eKaatharEvents
@@ -50,13 +50,13 @@ enum eKaatharEvents
     EventHolyShieldReturn,
     EventFate,
     EventCheckPlayer,
-    EventDecreaseSize,
+    EventDecreaseSize
 };
 
 enum eKaatharActions
 {
     ActionActivateBoss = 1,
-    ActionFateHallowedGround,
+    ActionFateHallowedGround
 };
 
 enum eKaatharTalks
@@ -73,7 +73,7 @@ enum eKaatharTriggers
 {
     TriggerHallowedGround  = 537324,
     TriggerHolyShield      = 76071,
-    TriggerFissureSummoner = 543536,
+    TriggerFissureSummoner = 543536
 };
 
 class EventNyamiEscape : public BasicEvent

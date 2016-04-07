@@ -33,14 +33,14 @@ static Say PeonAttacked[]=
     {-1540001},
     {-1540002},
     {-1540003},
-    {-1540004},
+    {-1540004}
 };
 static Say PeonDies[]=
 {
     {-1540005},
     {-1540006},
     {-1540007},
-    {-1540008},
+    {-1540008}
 };
 
 enum eSays
@@ -54,7 +54,7 @@ enum eSays
     SAY_AGGRO_3        = -1540014,
     SAY_SLAY_1         = -1540015,
     SAY_SLAY_2         = -1540016,
-    SAY_DIE            = -1540017,
+    SAY_DIE            = -1540017
 };
 
 enum eSpells

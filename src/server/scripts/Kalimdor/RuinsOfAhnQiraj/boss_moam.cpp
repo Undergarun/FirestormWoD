@@ -33,13 +33,13 @@ enum Events
     EVENT_DRAIN_MANA        = 2,
     EVENT_STONE_PHASE       = 3,
     EVENT_STONE_PHASE_END   = 4,
-    EVENT_WIDE_SLASH        = 5,
+    EVENT_WIDE_SLASH        = 5
 };
 
 enum Actions
 {
     ACTION_STONE_PHASE_START = 1,
-    ACTION_STONE_PHASE_END   = 2,
+    ACTION_STONE_PHASE_END   = 2
 };
 
 class boss_moam : public CreatureScript

@@ -33,7 +33,7 @@ enum Spells
     SPELL_CHILLING_WAVE     = 68778,
     SPELL_DEEP_FREEZE       = 70381,
     SPELL_FORGE_MACE        = 68785,
-    SPELL_FORGE_BLADE       = 68774,
+    SPELL_FORGE_BLADE       = 68774
 };
 
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(68786, 70336)
@@ -46,7 +46,7 @@ enum Events
     EVENT_DEEP_FREEZE       = 3,
     EVENT_JUMP_TO           = 4,
     EVENT_FORGING           = 5,
-    EVENT_RESUME_ATTACK     = 6,
+    EVENT_RESUME_ATTACK     = 6
 };
 
 enum Phases
@@ -57,7 +57,7 @@ enum Phases
 
     PHASE_ONE_MASK      = 1 << PHASE_ONE,
     PHASE_TWO_MASK      = 1 << PHASE_TWO,
-    PHASE_THREE_MASK    = 1 << PHASE_THREE,
+    PHASE_THREE_MASK    = 1 << PHASE_THREE
 };
 
 enum MiscData
@@ -65,7 +65,7 @@ enum MiscData
     EQUIP_ID_SWORD              = 49345,
     EQUIP_ID_MACE               = 49344,
     ACHIEV_DOESNT_GO_TO_ELEVEN  = 0,
-    POINT_FORGE                 = 0,
+    POINT_FORGE                 = 0
 };
 
 Position const northForgePos = {722.5643f, -234.1615f, 527.182f, 2.16421f};

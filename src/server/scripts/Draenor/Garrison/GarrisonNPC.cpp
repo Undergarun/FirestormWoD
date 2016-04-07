@@ -57,7 +57,7 @@
 #include "Buildings/Horde/HFrostwallMines.hpp"
 #include "Buildings/Horde/HHerbGarden.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)

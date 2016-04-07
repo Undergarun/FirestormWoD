@@ -71,7 +71,7 @@ const float HeiganEruptionSlope[3] =
 {
     (-3685 - HeiganPos[1]) /(2724 - HeiganPos[0]),
     (-3647 - HeiganPos[1]) /(2749 - HeiganPos[0]),
-    (-3637 - HeiganPos[1]) /(2771 - HeiganPos[0]),
+    (-3637 - HeiganPos[1]) /(2771 - HeiganPos[0])
 };
 
 // 0  H      x

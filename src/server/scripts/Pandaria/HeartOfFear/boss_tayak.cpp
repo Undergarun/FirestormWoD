@@ -94,27 +94,27 @@ enum eTayakAdds
 {
     NPC_US_TORNADO          = 63278,
     NPC_GALE_WINDS_STALKER  = 63292,
-    NPC_SETTHIK_TEMPEST     = 64358,
+    NPC_SETTHIK_TEMPEST     = 64358
 };
 
 enum eTayakActions
 {
     ACTION_WIND             = 1,
     ACTION_STOP_WIND        = 2,
-    ACTION_TAYAK_BT_PULL    = 7,
+    ACTION_TAYAK_BT_PULL    = 7
 };
 
 enum eTayakPhases
 {
     PHASE_TAYAK1                    = 2,
-    PHASE_TAYAK2                    = 3,
+    PHASE_TAYAK2                    = 3
 };
 
 enum eTayakTypes
 {
     TYPE_STORM_POINT    = 3,
     TYPE_PHASE_TAYAK    = 4,
-    TYPE_STORM_PHASE    = 5,
+    TYPE_STORM_PHASE    = 5
 };
 
 Position TayakStormPoints[2] =

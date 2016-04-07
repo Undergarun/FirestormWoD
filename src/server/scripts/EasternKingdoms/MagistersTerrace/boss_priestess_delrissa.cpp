@@ -27,7 +27,7 @@ static Speech LackeyDeath[]=
     {-1585013},
     {-1585014},
     {-1585015},
-    {-1585016},
+    {-1585016}
 };
 
 static Speech PlayerDeath[]=
@@ -36,7 +36,7 @@ static Speech PlayerDeath[]=
     {-1585018},
     {-1585019},
     {-1585020},
-    {-1585021},
+    {-1585021}
 };
 
 enum eEnums
@@ -63,7 +63,7 @@ float LackeyLocations[4][2]=
     {123.77f, 17.6007f},
     {131.731f, 15.0827f},
     {121.563f, 15.6213f},
-    {129.988f, 17.2355f},
+    {129.988f, 17.2355f}
 };
 
 const uint32 m_auiAddEntries[] =

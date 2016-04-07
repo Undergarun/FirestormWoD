@@ -67,7 +67,7 @@ enum CreaturesIds
 
     NPC_RESIDUAL_OF_HATRED      = 58803,
     NPC_VESTIGE_OF_HATRED       = 58807,
-    NPC_FRAGMENT_OF_HATRED      = 58810,
+    NPC_FRAGMENT_OF_HATRED      = 58810
 };
 
 enum ObjectsIds
@@ -90,14 +90,14 @@ enum ObjectsIds
 enum SharedActions
 {
     ACTION_NOVICE_DONE          = 1,
-    ACTION_MINIBOSS_DONE        = 2,
+    ACTION_MINIBOSS_DONE        = 2
 };
 
 enum SharedSpells
 {
     SPELL_HATE                  = 107085,
     SPELL_HAZE_OF_HATE          = 107087,
-    SPELL_HAZE_OF_HATE_VISUAL   = 107217,
+    SPELL_HAZE_OF_HATE_VISUAL   = 107217
 };
 
 #endif // SHADOPAN_MONASTERY_H_

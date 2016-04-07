@@ -15,7 +15,7 @@
 #include "GarrisonMgr.hpp"
 #include "Common.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     npc_GarrisonCartRope::npc_GarrisonCartRope()

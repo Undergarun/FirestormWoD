@@ -12,7 +12,7 @@
 #include "../../../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     static const std::vector<SequencePosition> g_QuestGiverHordePositions
     {

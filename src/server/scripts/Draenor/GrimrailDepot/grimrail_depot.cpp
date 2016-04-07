@@ -25,7 +25,7 @@ enum eEmotes
 
 enum eAction
 {
-    ActionActivateDashEffect = 1,
+    ActionActivateDashEffect = 1
 };
 
 /// Assault Cannon - 79548

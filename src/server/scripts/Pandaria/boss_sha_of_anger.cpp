@@ -12,7 +12,7 @@
 
 enum eBosses
 {
-    BOSS_SHA_OF_ANGER,
+    BOSS_SHA_OF_ANGER
 };
 
 enum eSpells
@@ -37,12 +37,12 @@ enum eEvents
     EVENT_DESPAWN               = 5,
     EVENT_SPAWN                 = 6,
     EVENT_UPDATE_RAGE           = 7,
-    EVENT_RANGE_ATTACK          = 8,
+    EVENT_RANGE_ATTACK          = 8
 };
 
 enum eCreatures
 {
-    CREATURE_SHA_OF_ANGER           = 56439,
+    CREATURE_SHA_OF_ANGER           = 56439
 };
 
 enum eTalk
@@ -52,7 +52,7 @@ enum eTalk
     TALK_SPAWN = 2,
     TALK_RESET = 3,
     TALK_SLAY  = 4,
-    TALK_AGGRO = 5,
+    TALK_AGGRO = 5
 };
 
 class boss_sha_of_anger : public CreatureScript

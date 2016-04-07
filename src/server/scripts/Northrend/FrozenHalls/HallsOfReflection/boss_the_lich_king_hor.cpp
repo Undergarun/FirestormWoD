@@ -36,7 +36,7 @@ enum Spells
     //Lumbering Abomination
     SPELL_ABON_STRIKE                  = 40505,
     SPELL_VOMIT_SPRAY                  = 70176,
-    H_SPELL_VOMIT_SPRAY                = 70181,
+    H_SPELL_VOMIT_SPRAY                = 70181
 };
 
 enum Yells
@@ -49,7 +49,7 @@ enum Yells
     SAY_LICH_KING_ABON                 = 7,
     SAY_LICH_KING_WINTER               = 8,
     SAY_LICH_KING_END_DUN              = 9,
-    SAY_LICH_KING_WIN                  = 10,
+    SAY_LICH_KING_WIN                  = 10
 };
 
 class boss_lich_king_hor : public CreatureScript

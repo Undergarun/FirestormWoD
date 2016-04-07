@@ -90,7 +90,7 @@ enum NPCs
     NPC_INVIS_TARGET                           = 20562,
 
     NPC_KNIGHT_ESCORT                          = 27745,
-    NPC_PRIEST_ESCORT                          = 27747,
+    NPC_PRIEST_ESCORT                          = 27747
 };
 
 enum Spells
@@ -100,7 +100,7 @@ enum Spells
     SPELL_EXORCISM_N                           = 52445,
     SPELL_EXORCISM_H                           = 58822,
     SPELL_HOLY_LIGHT                           = 52444,
-    SPELL_ARCANE_DISRUPTION                    = 49590,
+    SPELL_ARCANE_DISRUPTION                    = 49590
 };
 
 enum GossipMenuArthas

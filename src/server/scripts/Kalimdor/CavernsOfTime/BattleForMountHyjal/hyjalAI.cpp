@@ -27,7 +27,7 @@ enum Spawns
 {
     SPAWN_GARG_GATE     = 0,
     SPAWN_WYRM_GATE     = 1,
-    SPAWN_NEAR_TOWER    = 2,
+    SPAWN_NEAR_TOWER    = 2
 };
 
 #define YELL_HURRY  "Hurry, we don't have much time"

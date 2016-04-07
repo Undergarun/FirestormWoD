@@ -75,7 +75,7 @@ enum eEnums
     QUEST_ESCAPE_FROM_THE_CATACOMBS     = 9212,
     GO_CAGE             = 181152,
     NPC_CAPTAIN_HELIOS  = 16220,
-    FACTION_SMOON_E     = 1603,
+    FACTION_SMOON_E     = 1603
 };
 
 class npc_ranger_lilatha : public CreatureScript

@@ -9,7 +9,7 @@ enum ScriptTexts
     SAY_WIPE            = 3,
     SAY_KILL            = 4,
     SAY_SEETHING_HATE   = 5,
-    SAY_SKEWER          = 6,
+    SAY_SKEWER          = 6
 };
 
 enum Spells
@@ -24,7 +24,7 @@ enum Spells
     SPELL_BLADE_DANCE_SELF      = 105828,
     SPELL_BLADE_DANCE_AURA_1    = 105784,
     SPELL_BLADE_DANCE_AURA_2    = 104995,
-    SPELL_BERSERK               = 47008,
+    SPELL_BERSERK               = 47008
 };
 
 enum Events
@@ -34,7 +34,7 @@ enum Events
     EVENT_BLADE_DANCE           = 3,
     EVENT_BERSERK               = 4,
     EVENT_BLADE_DANCE_CHARGE    = 5,
-    EVENT_BLADE_DANCE_AURA      = 6,
+    EVENT_BLADE_DANCE_AURA      = 6
 };
 
 class boss_alizabal : public CreatureScript

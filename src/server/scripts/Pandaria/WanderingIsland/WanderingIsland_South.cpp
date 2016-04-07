@@ -668,7 +668,7 @@ enum eEnums
 
     SPELL_SHEN_HEALING      = 117783,
     SPELL_HEALER_A          = 117784,
-    SPELL_HEALER_H          = 117932,
+    SPELL_HEALER_H          = 117932
 };
 
 class npc_ji_end_event : public CreatureScript

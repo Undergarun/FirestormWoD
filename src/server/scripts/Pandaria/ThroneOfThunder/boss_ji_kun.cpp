@@ -80,7 +80,7 @@ enum eSpells
     /// Heroic mode
     SPELL_TALON_STRIKE                      = 139100,
     SPELL_SCREECH                           = 140640,
-    SPELL_SCREECH_REDUCE_CASTING_SPEED      = 134372,
+    SPELL_SCREECH_REDUCE_CASTING_SPEED      = 134372
 };
 
 enum eEvents
@@ -113,7 +113,7 @@ enum eActions
     ACTION_FEED_EATEN,
     ACTION_FEEDPOOL_DESPAWN,
     ACTION_TAKE_FEED,
-    ACTION_INCUBATER_WIPE,
+    ACTION_INCUBATER_WIPE
 };
 
 enum eTypes
@@ -205,7 +205,7 @@ int const g_ActivationOrder10[11][2] =
     { 1, 0 },
     { 1, 2 }, ///< Activation 8 activates both a lower and an upper nest
     { 0, 1 }, // Activation 9-10 activate a upper nest each
-    { 0, 2 },
+    { 0, 2 }
 };
 
 int const g_ActivationOrder25[12][2] =
@@ -227,7 +227,7 @@ int const g_ActivationOrder25[12][2] =
 enum eActivationLengths
 {
     ACTIVATION_LENGTH_10 = 11,
-    ACTIVATION_LENGTH_25 = 12,
+    ACTIVATION_LENGTH_25 = 12
 };
 
 Position const g_LowerNestPos[5] =
@@ -236,7 +236,7 @@ Position const g_LowerNestPos[5] =
     { 6070.82f, 4284.69f, -101.62f, 0.0f },
     { 6096.32f, 4338.76f,  -93.88f, 0.0f },
     { 6159.26f, 4371.19f,  -70.80f, 0.0f },
-    { 6219.60f, 4333.81f,  -59.09f, 0.0f },
+    { 6219.60f, 4333.81f,  -59.09f, 0.0f }
 };
 
 Position const g_UpperNestPos[5] =
@@ -245,7 +245,7 @@ Position const g_UpperNestPos[5] =
     { 6077.58f, 4270.47f, 37.64f, 0.0f },
     { 6081.75f, 4372.00f, 43.45f, 0.0f },
     { 6152.44f, 4330.51f, 69.82f, 0.0f },
-    { 6217.60f, 4353.01f, 66.18f, 0.0f },
+    { 6217.60f, 4353.01f, 66.18f, 0.0f }
 };
 
 Position const g_FeatherPos[5] =

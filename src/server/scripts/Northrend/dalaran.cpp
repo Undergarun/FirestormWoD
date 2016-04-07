@@ -30,13 +30,13 @@ enum Spells
     SPELL_SUNREAVER_DISGUISE_FEMALE        = 70973,
     SPELL_SUNREAVER_DISGUISE_MALE          = 70974,
     SPELL_SILVER_COVENANT_DISGUISE_FEMALE  = 70971,
-    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
+    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972
 };
 
 enum NPCs // All outdoor guards are within 35.0f of these NPCs
 {
     NPC_APPLEBOUGH_A = 29547,
-    NPC_SWEETBERRY_H = 29715,
+    NPC_SWEETBERRY_H = 29715
 };
 
 class npc_mageguard_dalaran : public CreatureScript

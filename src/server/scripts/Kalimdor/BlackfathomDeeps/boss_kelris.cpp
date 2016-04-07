@@ -13,7 +13,7 @@
 enum Spells
 {
     SPELL_MIND_BLAST                                       = 15587,
-    SPELL_SLEEP                                            = 8399,
+    SPELL_SLEEP                                            = 8399
 };
 
 //Id's from ACID

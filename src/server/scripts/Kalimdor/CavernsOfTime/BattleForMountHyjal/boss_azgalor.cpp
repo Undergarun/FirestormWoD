@@ -21,7 +21,7 @@ enum Spells
 
     SPELL_THRASH                = 12787,
     SPELL_CRIPPLE               = 31406,
-    SPELL_WARSTOMP              = 31408,
+    SPELL_WARSTOMP              = 31408
 };
 
 enum Texts
@@ -29,7 +29,7 @@ enum Texts
     SAY_ONDEATH             = 0,
     SAY_ONSLAY              = 1,
     SAY_DOOM                = 2, // Not used?
-    SAY_ONAGGRO             = 3,
+    SAY_ONAGGRO             = 3
 };
 
 class boss_azgalor : public CreatureScript

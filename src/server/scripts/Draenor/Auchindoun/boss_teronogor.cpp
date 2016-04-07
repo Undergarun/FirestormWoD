@@ -49,7 +49,7 @@ enum eTerongorSpells
     SpellDemonicCircleVisual                = 149133,
     SpellTeronogorShield                    = 157017,
     SpellBrokenSouls                        = 72398,
-    SpellSoulBarrage                        = 72305,
+    SpellSoulBarrage                        = 72305
 };
 
 enum eTerongorEvents
@@ -110,7 +110,7 @@ enum eTeronogorActions
 
 enum eTreonogorTriggers
 {
-    TriggerSummonAbyssal = 213593,
+    TriggerSummonAbyssal = 213593
 };
 
 enum eTeronogorTransformations

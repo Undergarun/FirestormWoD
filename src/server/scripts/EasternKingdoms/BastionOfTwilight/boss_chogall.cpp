@@ -17,7 +17,7 @@ enum ScriptTexts
     SAY_CREATIONS    = 8,
     SAY_DEATH_1        = 11,
     SAY_DEATH_2        = 12,
-    SAY_WIPE        = 13,
+    SAY_WIPE        = 13
 };
 
 enum Spells
@@ -135,7 +135,7 @@ enum Spells
     SPELL_SHADOW_BOLT_10H                        = 93194,
     SPELL_SHADOW_BOLT_25H                        = 93195,
     SPELL_CORRUPTION_ABSOLUTE                    = 82170,
-    SPELL_CORRUPTION_ABSOLUTE_VISUAL            = 82193,
+    SPELL_CORRUPTION_ABSOLUTE_VISUAL            = 82193
 };
 
 enum Adds
@@ -158,7 +158,7 @@ enum Adds
     NPC_FACELESS_GUARDIAN        = 45676, //
     NPC_TWILIGHT_PORTAL            = 45885, //
     NPC_MALFORMATION            = 43888,
-    NPC_CORRUPTION                = 43999,
+    NPC_CORRUPTION                = 43999
 };
 
 enum Events
@@ -180,18 +180,18 @@ enum Events
     EVENT_BERSERK                = 17,
     EVENT_SHADOW_BOLT            = 18,
     EVENT_ORDER_SUM                = 19,
-    EVENT_SPILLED_BLOOD         = 20,
+    EVENT_SPILLED_BLOOD         = 20
 };
 
 enum Equipment
 {
-    EQUIPMENT_ID_WEAPON    = 63680,
+    EQUIPMENT_ID_WEAPON    = 63680
 };
 
 enum DoCorruptionTypes
 {
     CORRUPTION_INIT        = 1,
-    CORRUPTION_CLEAR    = 2,
+    CORRUPTION_CLEAR    = 2
 };
 
 const Position corruptionPos = {-1162.15f, -799.06f, 836.0f, 0.0f}; 

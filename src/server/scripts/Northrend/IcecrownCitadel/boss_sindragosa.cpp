@@ -71,7 +71,7 @@ enum Spells
     // Frostwarden Handler
     SPELL_FOCUS_FIRE            = 71350,
     SPELL_ORDER_WHELP           = 71357,
-    SPELL_CONCUSSIVE_SHOCK      = 71337,
+    SPELL_CONCUSSIVE_SHOCK      = 71337
 };
 
 enum Events
@@ -109,7 +109,7 @@ enum Events
     EVENT_CONCUSSIVE_SHOCK          = 20,
 
     // event groups
-    EVENT_GROUP_LAND_PHASE          = 1,
+    EVENT_GROUP_LAND_PHASE          = 1
 };
 
 enum FrostwingData
@@ -119,7 +119,7 @@ enum FrostwingData
     DATA_WHELP_MARKER           = 2,
     DATA_LINKED_GAMEOBJECT      = 3,
     DATA_TRAPPED_PLAYER         = 4,
-    DATA_ENABLE_ASPHYXIATION    = 5,
+    DATA_ENABLE_ASPHYXIATION    = 5
 };
 
 enum MovementPoints
@@ -130,7 +130,7 @@ enum MovementPoints
     POINT_TAKEOFF           = 4,
     POINT_LAND              = 5,
     POINT_AIR_PHASE_FAR     = 6,
-    POINT_LAND_GROUND       = 7,
+    POINT_LAND_GROUND       = 7
 };
 
 enum Shadowmourne
@@ -139,7 +139,7 @@ enum Shadowmourne
     ITEM_SHADOW_S_EDGE          = 49888,
 
     SPELL_FROST_INFUSION        = 72292,
-    SPELL_FROST_IMBUED_BLADE    = 72290,
+    SPELL_FROST_IMBUED_BLADE    = 72290
 };
 
 Position const RimefangFlyPos      = {4413.309f, 2456.421f, 233.3795f, 2.890186f};

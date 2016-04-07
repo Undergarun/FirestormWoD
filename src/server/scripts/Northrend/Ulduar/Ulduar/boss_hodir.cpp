@@ -78,7 +78,7 @@ enum HodirSpells
     // Priests
     SPELL_SMITE                                  = 61923,
     SPELL_GREATER_HEAL                           = 62809,
-    SPELL_DISPEL_MAGIC                           = 63499,
+    SPELL_DISPEL_MAGIC                           = 63499
 };
 
 #define SPELL_FROZEN_BLOWS  RAID_MODE(SPELL_FROZEN_BLOWS_10, SPELL_FROZEN_BLOWS_25)
@@ -109,13 +109,13 @@ enum HodirEvents
 
     // Mage
     EVENT_CONJURE_FIRE          = 12,
-    EVENT_MELT_ICE              = 13,
+    EVENT_MELT_ICE              = 13
 };
 
 enum HodirActions
 {
     ACTION_I_HAVE_THE_COOLEST_FRIENDS   = 1,
-    ACTION_CHEESE_THE_FREEZE            = 2,
+    ACTION_CHEESE_THE_FREEZE            = 2
 };
 
 enum HodirData
@@ -123,7 +123,7 @@ enum HodirData
     DATA_I_COULD_SAY_THAT_THIS_CACHE_WAS_RARE   = 1,
     DATA_GETTING_COLD_IN_HERE                   = 2,
     DATA_CHEESE_THE_FREEZE                      = 3,
-    DATA_I_HAVE_THE_COOLEST_FRIENDS             = 4,
+    DATA_I_HAVE_THE_COOLEST_FRIENDS             = 4
 };
 
 enum ModelIds
@@ -155,7 +155,7 @@ uint32 const Entry[8] =
     NPC_FIELD_MEDIC_JESSI,
     NPC_ELLIE_NIGHTFEATHER,
     NPC_ELEMENTALIST_AVUUN,
-    NPC_SISSY_FLAMECUFFS,
+    NPC_SISSY_FLAMECUFFS
 };
 
 class FreezeTrapSearcher

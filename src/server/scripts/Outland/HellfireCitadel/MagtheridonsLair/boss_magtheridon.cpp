@@ -29,7 +29,7 @@ static Yell RandomTaunt[]=
     {-1544002},
     {-1544003},
     {-1544004},
-    {-1544005},
+    {-1544005}
 };
 
 enum eSays
@@ -39,14 +39,14 @@ enum eSays
     SAY_BANISH                 = -1544008,
     SAY_CHAMBER_DESTROY        = -1544009,
     SAY_PLAYER_KILLED          = -1544010,
-    SAY_DEATH                  = -1544011,
+    SAY_DEATH                  = -1544011
 };
 
 enum eEmotes
 {
     EMOTE_BERSERK              = -1544012,
     EMOTE_BLASTNOVA            = -1544013,
-    EMOTE_BEGIN                = -1544014,
+    EMOTE_BEGIN                = -1544014
 };
 
 enum eCreatures
@@ -54,7 +54,7 @@ enum eCreatures
     MOB_MAGTHERIDON    = 17257,
     MOB_ROOM           = 17516,
     MOB_CHANNELLER     = 17256,
-    MOB_ABYSSAL        = 17454,
+    MOB_ABYSSAL        = 17454
 };
 
 enum eSpells
@@ -81,7 +81,7 @@ enum eSpells
     SPELL_FEAR                 = 30530, //39176
     SPELL_BURNING_ABYSSAL      = 30511,
     SPELL_SOUL_TRANSFER        = 30531, //core bug, does not support target 7
-    SPELL_FIRE_BLAST           = 37110,
+    SPELL_FIRE_BLAST           = 37110
 };
 
 //count of clickers needed to interrupt blast nova

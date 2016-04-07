@@ -35,7 +35,7 @@ enum Events
     EVENT_CELESTIAL_CALL    = 3,
     EVENT_VEIL_OF_SKY       = 4,
     EVENT_ENTER_COMBAT      = 5, // for images
-    EVENT_ARCANE_BARRAGE    = 7,
+    EVENT_ARCANE_BARRAGE    = 7
 };
 
 enum Adds
@@ -45,7 +45,7 @@ enum Adds
     NPC_VEIL_OF_SKY             = 39722,
     NPC_ASTRAL_FAMILIAR         = 39795,
     NPC_SPATIAL_FLUX            = 48707, // spawnmask=0
-    NPC_ISISET_ADD_CONTROLLER   = 42382,
+    NPC_ISISET_ADD_CONTROLLER   = 42382
 };
 
 class boss_isiset : public CreatureScript

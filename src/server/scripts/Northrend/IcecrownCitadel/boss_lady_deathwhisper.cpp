@@ -38,7 +38,7 @@ enum ScriptTexts
 
     // Darnavan
     SAY_DARNAVAN_AGGRO          = 0,
-    SAY_DARNAVAN_RESCUED        = 1,
+    SAY_DARNAVAN_RESCUED        = 1
 };
 
 enum Spells
@@ -94,7 +94,7 @@ enum Spells
     SPELL_INTIMIDATING_SHOUT        = 65930,
     SPELL_MORTAL_STRIKE             = 65926,
     SPELL_SHATTERING_THROW          = 65940,
-    SPELL_SUNDER_ARMOR              = 65936,
+    SPELL_SUNDER_ARMOR              = 65936
 };
 
 enum EventTypes
@@ -143,7 +143,7 @@ enum EventTypes
     EVENT_DARNAVAN_INTIMIDATING_SHOUT   = 29,
     EVENT_DARNAVAN_MORTAL_STRIKE        = 30,
     EVENT_DARNAVAN_SHATTERING_THROW     = 31,
-    EVENT_DARNAVAN_SUNDER_ARMOR         = 32,
+    EVENT_DARNAVAN_SUNDER_ARMOR         = 32
 };
 
 enum Phases
@@ -162,12 +162,12 @@ enum DeprogrammingData
     NPC_DARNAVAN_CREDIT_25  = 39092,
 
     ACTION_COMPLETE_QUEST   = -384720,
-    POINT_DESPAWN           = 384721,
+    POINT_DESPAWN           = 384721
 };
 
 enum Data
 {
-    DATA_CANCEL_MARTYRDOM_P2          = 1,
+    DATA_CANCEL_MARTYRDOM_P2          = 1
 };
 
 #define NPC_DARNAVAN        RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)

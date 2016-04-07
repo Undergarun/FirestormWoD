@@ -64,7 +64,7 @@ enum Text
     SAY_FALRIC_INTRO_1                  = 5,
     SAY_FALRIC_INTRO_2                  = 6,
 
-    SAY_MARWYN_INTRO_1                  = 4,
+    SAY_MARWYN_INTRO_1                  = 4
 };
 
 enum Events
@@ -126,7 +126,7 @@ enum Events
 
     EVENT_OPEN_FROSTWORN_DOOR,
     EVENT_CLOSE_FROSTWORN_DOOR,
-    EVENT_GUARD_FINISH,
+    EVENT_GUARD_FINISH
 };
 
 enum eEnum
@@ -137,7 +137,7 @@ enum eEnum
     QUEST_DELIVRANCE_FROM_THE_PIT_A2              = 24710,
     QUEST_DELIVRANCE_FROM_THE_PIT_H2              = 24712,
     QUEST_WRATH_OF_THE_LICH_KING_A2               = 24500,
-    QUEST_WRATH_OF_THE_LICH_KING_H2               = 24802,
+    QUEST_WRATH_OF_THE_LICH_KING_H2               = 24802
 };
 
 enum Spells
@@ -158,7 +158,7 @@ enum Spells
     SPELL_SYLVANAS_DESTROY_ICE_WALL    = 70225,
     SPELL_SYLVANAS_JUMP                = 68339,
     SPELL_SYLVANAS_SHADOWSTEP          = 69087,
-    SPELL_FIRE_CANNON                  = 67461,
+    SPELL_FIRE_CANNON                  = 67461
 };
 
 const Position HallsofReflectionLocs[]=
@@ -641,7 +641,7 @@ enum TrashSpells
     SPELL_SHOOT                                   = 72208,
     SPELL_CURSED_ARROW                            = 72222,
     SPELL_FROST_TRAP                              = 72215,
-    SPELL_ICE_SHOT                                = 72268,
+    SPELL_ICE_SHOT                                = 72268
 };
 
 enum TrashEvents
@@ -676,7 +676,7 @@ enum TrashEvents
     EVENT_SHOOT,
     EVENT_CURSED_ARROW,
     EVENT_FROST_TRAP,
-    EVENT_ICE_SHOT,
+    EVENT_ICE_SHOT
 };
 
 struct npc_gauntlet_trash : public ScriptedAI
@@ -1377,7 +1377,7 @@ enum YellsPhase2
     
     SAY_BARTLETT_FIRE                  = 0,
 
-    SAY_KORM_FIRE                      = 0,
+    SAY_KORM_FIRE                      = 0
 };
 
 const Position CannonSpawns[4] =
@@ -1385,7 +1385,7 @@ const Position CannonSpawns[4] =
     {5230.00f, 1658.75f, 802.22f, 0.00f},
     {5245.74f, 1644.44f, 802.35f, 0.00f},
     {5260.64f, 1636.07f, 802.16f, 0.00f},
-    {5275.90f, 1633.22f, 802.25f, 0.00f},
+    {5275.90f, 1633.22f, 802.25f, 0.00f}
 };
 
 class npc_jaina_and_sylvana_hor_part2 : public CreatureScript

@@ -13,7 +13,7 @@
 #include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 79821 - Yukla Greenshadow                                         ////

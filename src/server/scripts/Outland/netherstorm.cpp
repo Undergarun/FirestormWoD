@@ -363,7 +363,7 @@ enum eCommanderDawnforgeData
     SAY_COMMANDER_DAWNFORGE_5       = -1000137,
 
     QUEST_INFO_GATHERING            = 10198,
-    SPELL_SUNFURY_DISGUISE          = 34603,
+    SPELL_SUNFURY_DISGUISE          = 34603
 };
 
 // Entries of Arcanist Ardonis, Commander Dawnforge, Pathaleon the Curators Image
@@ -659,7 +659,7 @@ enum eProfessorDabiriData
     WHISPER_DABIRI          = -1000522,
 
     QUEST_DIMENSIUS         = 10439,
-    QUEST_ON_NETHERY_WINGS  = 10438,
+    QUEST_ON_NETHERY_WINGS  = 10438
 };
 
 #define GOSSIP_ITEM "I need a new phase distruptor, Professor"
@@ -721,7 +721,7 @@ enum ePhaseHunterData
     SPELL_PHASE_SLIP                = 36574,
     SPELL_MANA_BURN                 = 13321,
     SPELL_MATERIALIZE               = 34804,
-    SPELL_DE_MATERIALIZE            = 34814,
+    SPELL_DE_MATERIALIZE            = 34814
 };
 
 class mob_phase_hunter : public CreatureScript
@@ -847,7 +847,7 @@ enum eBessyData
     SPAWN_FIRST     = 20512,
     SPAWN_SECOND    = 19881,
     SAY_THADELL_1   = -1000524,
-    SAY_THADELL_2   = -1000525,
+    SAY_THADELL_2   = -1000525
 };
 
 class npc_bessy : public CreatureScript
@@ -1032,7 +1032,7 @@ public:
 enum CaptainTyralius
 {
     NPC_CAPTAIN_TYRALIUS    = 20787,
-    SAY_FREE                = 0,
+    SAY_FREE                = 0
 };
 
 class go_captain_tyralius_prison : public GameObjectScript

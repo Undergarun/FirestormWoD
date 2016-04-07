@@ -22,14 +22,14 @@ enum Spells
 {
     SPELL_IMPENDING_DOOM    = 19702,
     SPELL_LUCIFRON_CURSE    = 19703,
-    SPELL_SHADOW_SHOCK      = 20603,
+    SPELL_SHADOW_SHOCK      = 20603
 };
 
 enum Events
 {
     EVENT_IMPENDING_DOOM    = 1,
     EVENT_LUCIFRON_CURSE    = 2,
-    EVENT_SHADOW_SHOCK      = 3,
+    EVENT_SHADOW_SHOCK      = 3
 };
 
 class boss_lucifron : public CreatureScript

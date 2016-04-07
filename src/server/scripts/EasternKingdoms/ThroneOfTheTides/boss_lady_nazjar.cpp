@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_KILL    = 1,
     SAY_DEATH   = 2,
     SAY_66      = 3,
-    SAY_33      = 4,
+    SAY_33      = 4
 };
 
 enum Spells
@@ -40,7 +40,7 @@ enum Spells
     SPELL_CHAIN_LIGHTNING_H     = 91450,
     SPELL_LIGHTNING_SURGE       = 75992,
     SPELL_LIGHTNING_SURGE_DMG   = 75993,
-    SPELL_LIGHTNING_SURGE_DMG_H = 91451,
+    SPELL_LIGHTNING_SURGE_DMG_H = 91451
 };
 
 enum Events
@@ -53,14 +53,14 @@ enum Events
     EVENT_START_ATTACK      = 6,
     EVENT_ARC_SLASH         = 7,
     EVENT_LIGHTNING_SURGE   = 8,
-    EVENT_CHAIN_LIGHTNING   = 9,
+    EVENT_CHAIN_LIGHTNING   = 9
 };
 
 enum Points
 {
     POINT_CENTER_1      = 1,
     POINT_CENTER_2      = 2,
-    POINT_WATERSPOUT    = 3,
+    POINT_WATERSPOUT    = 3
 };
 
 enum Adds
@@ -69,7 +69,7 @@ enum Adds
     NPC_HONNOR_GUARD        = 40633,
     NPC_WATERSPOUT          = 48571,
     NPC_WATERSPOUT_H        = 49108,
-    NPC_GEYSER              = 40597,
+    NPC_GEYSER              = 40597
 };
 
 const Position summonPos[3] =

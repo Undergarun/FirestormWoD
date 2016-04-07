@@ -39,7 +39,7 @@ enum Yells
     SAY_SATH_SPELL2                              = -1580013,
     SAY_SATH_SLAY1                               = -1580014,
     SAY_SATH_SLAY2                               = -1580015,
-    SAY_SATH_ENRAGE                              = -1580016,
+    SAY_SATH_ENRAGE                              = -1580016
 };
 
 enum Spells
@@ -71,7 +71,7 @@ enum Spells
 enum SWPActions
 {
     DO_ENRAGE                                    =  1,
-    DO_BANISH                                    =  2,
+    DO_BANISH                                    =  2
 };
 
 #define GO_FAILED   "You are unable to use this currently."

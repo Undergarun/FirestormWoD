@@ -58,7 +58,7 @@ enum eSpells
     SPELL_LIVING_AMETHYST               = 116322,
     SPELL_LIVING_COBALT                 = 116199,
     SPELL_LIVING_JADE                   = 116301,
-    SPELL_LIVING_JASPER                 = 116304,
+    SPELL_LIVING_JASPER                 = 116304
 };
 
 enum eEvents
@@ -78,7 +78,7 @@ enum eEvents
     EVENT_TILING                        = 8,
 
     // Check petrification
-    EVENT_CHECK_PETRIFICATION           = 9,
+    EVENT_CHECK_PETRIFICATION           = 9
 };
 
 uint32 guardiansEntry[4] =

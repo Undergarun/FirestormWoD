@@ -49,7 +49,7 @@ enum SharedSpells
     SPELL_ARTHAS_TELEPORTER_CEREMONY    = 72915,
     SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
 
-    SPELL_UNSATED_CRAVING               = 71168,
+    SPELL_UNSATED_CRAVING               = 71168
 };
 
 enum TeleporterSpells
@@ -60,7 +60,7 @@ enum TeleporterSpells
     DEATHBRINGER_S_RISE_TELEPORT    = 70858,
     UPPER_SPIRE_TELEPORT            = 70859,
     FROZEN_THRONE_TELEPORT          = 70860,
-    SINDRAGOSA_S_LAIR_TELEPORT      = 70861,
+    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
 };
 
 enum DataTypes
@@ -129,7 +129,7 @@ enum DataTypes
     DATA_MURADIN_BRONZEBEARD_NOT_VISUAL     = 109,
     DATA_MURADIN_BRONZEBEARD                = 110,
     DATA_GUNSHIP_BATTLE                     = 111,
-    GUID_PLAYER_LOCATION                    = 112,
+    GUID_PLAYER_LOCATION                    = 112
 };
 
 enum CreaturesIds
@@ -340,7 +340,7 @@ enum CreaturesIds
     // Gunship: Ids missing from trash
     NPC_KORKRON_INVOKER                         = 37033,
     NPC_SPIRE_FROSTWYRM                         = 37230,
-    NPC_SKYBREAKER_SORCERER                     = 37026,
+    NPC_SKYBREAKER_SORCERER                     = 37026
 };
 
 enum GameObjectsIds
@@ -437,7 +437,7 @@ enum GameObjectsIds
     GO_CAPITAN_CHEST_H_10N                  = 202177,
     GO_CAPITAN_CHEST_H_25N                  = 202178,
     GO_CAPITAN_CHEST_H_10H                  = 202179,
-    GO_CAPITAN_CHEST_H_25H                  = 202180,
+    GO_CAPITAN_CHEST_H_25H                  = 202180
 };
 
 enum AchievementCriteriaIds
@@ -472,7 +472,7 @@ enum AchievementCriteriaIds
     CRITERIA_ONCE_BITTEN_TWICE_SHY_10N  = 12780,
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25N  = 13012,
     CRITERIA_ONCE_BITTEN_TWICE_SHY_10V  = 13011,
-    CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013,
+    CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013
 };
 
 enum SharedActions
@@ -500,7 +500,7 @@ enum SharedActions
 
     // The Lich King
     ACTION_RESTORE_LIGHT        = -72262,
-    ACTION_FROSTMOURNE_INTRO    = -36823,
+    ACTION_FROSTMOURNE_INTRO    = -36823
 };
 
 enum WeekliesICC
@@ -514,7 +514,7 @@ enum WeekliesICC
     QUEST_BLOOD_QUICKENING_10               = 24874,
     QUEST_BLOOD_QUICKENING_25               = 24879,
     QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
-    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880
 };
 
 enum WorldStatesICC
@@ -523,12 +523,12 @@ enum WorldStatesICC
     WORLDSTATE_EXECUTION_TIME       = 4904,
     WORLDSTATE_SHOW_ATTEMPTS        = 4940,
     WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
-    WORLDSTATE_ATTEMPTS_MAX         = 4942,
+    WORLDSTATE_ATTEMPTS_MAX         = 4942
 };
 
 enum AreaIds
 {
-    AREA_THE_FROZEN_THRONE  = 4859,
+    AREA_THE_FROZEN_THRONE  = 4859
 };
 
 class spell_trigger_spell_from_caster: public SpellScriptLoader

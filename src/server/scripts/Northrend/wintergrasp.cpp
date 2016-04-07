@@ -31,7 +31,7 @@ enum WGqueuenpctext
     WG_NPCQUEUE_TEXT_A_NOWAR            = 14782,
     WG_NPCQUEUE_TEXT_A_QUEUE            = 14791,
     WG_NPCQUEUE_TEXT_A_WAR              = 14781,
-    WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507,
+    WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507
 };
 
 enum Spells
@@ -47,7 +47,7 @@ enum Spells
     SPELL_VEHICLE_TELEPORT                    = 49759,
 
     // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
+    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011
 };
 
 enum CreatureIds
@@ -57,7 +57,7 @@ enum CreatureIds
 
     NPC_WINTERGRASP_CONTROL_ARMS                    = 27852,
 
-    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC   = 23472,
+    NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC   = 23472
 };
 
 enum QuestIds
@@ -88,7 +88,7 @@ enum QuestIds
     QUEST_NO_MERCY_FOR_THE_MERCILESS_ALLIANCE_DEF = 13177,
     QUEST_SHOUTHERN_SABOTAGE_ALLIANCE_DEF         = 13538,
     QUEST_STOP_THE_SIEGE_ALLIANCE_DEF             = 13186,
-    QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156,
+    QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156
 };
 
 uint8 const MAX_WINTERGRASP_VEHICLES = 4;

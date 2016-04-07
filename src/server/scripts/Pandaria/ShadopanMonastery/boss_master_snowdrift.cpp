@@ -38,7 +38,7 @@ enum eSpells
     SPELL_WHIRLING_STEEL_DAMAGE = 106646,
 
     // Both
-    SPELL_FLARE                 = 132951,
+    SPELL_FLARE                 = 132951
 };
 
 enum eEvents

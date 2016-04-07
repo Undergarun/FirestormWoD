@@ -19,7 +19,7 @@ enum ScriptTexts
 
     //valiona
     SAY_ENTER    = 0,
-    SAY_LEAVE    = 1,
+    SAY_LEAVE    = 1
 };
 
 enum Spells
@@ -53,7 +53,7 @@ enum Adds
     NPC_INVOKED_FLAMING_SPIRIT        = 40357,
     NPC_VALIONA                        = 40320,
     NPC_SEEPING_TWILIGHT            = 40365,
-    NPC_DEVOURING_FLAMES            = 48798,
+    NPC_DEVOURING_FLAMES            = 48798
 };
 
 enum Events
@@ -62,7 +62,7 @@ enum Events
     EVENT_INVOCATION_OF_FLAME    = 2,
     EVENT_SELECT_TARGET            = 3,
     EVENT_VALIONAS_FLAME        = 4,
-    EVENT_SHREDDING_SWIPE        = 5,
+    EVENT_SHREDDING_SWIPE        = 5
 };
 
 const Position drahgavalionaPos[2] =

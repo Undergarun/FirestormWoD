@@ -115,7 +115,7 @@ enum eTypes
 
 enum eTimers
 {
-    TIMER_TSULONG_SPAWN = 10000,
+    TIMER_TSULONG_SPAWN = 10000
 };
 
 #endif // TERRACE_OF_ENDLESS_SPRING_H_

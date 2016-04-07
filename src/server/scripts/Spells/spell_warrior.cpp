@@ -300,7 +300,7 @@ class spell_warr_storm_bolt: public SpellScriptLoader
 
 enum ColossusSpells
 {
-    SPELL_WARRIOR_WEAPONS_MASTER = 76838,
+    SPELL_WARRIOR_WEAPONS_MASTER = 76838
 };
 
 /// Colossus Smash - 167105

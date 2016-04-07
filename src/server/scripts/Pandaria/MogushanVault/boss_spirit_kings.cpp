@@ -93,7 +93,7 @@ enum eEvents
     EVENT_SLEIGHT_OF_HAND       = 18,
     EVENT_SHIELD_OF_DARKNESS    = 19,
 
-    EVENT_CHECK_SPIRITKINGS     = 20,
+    EVENT_CHECK_SPIRITKINGS     = 20
 };
 
 enum equipId
@@ -103,7 +103,7 @@ enum equipId
     EQUIP_SUBETAI_BOW           = 60790,
     EQUIP_ZIAN_STAFF            = 76369,
     EQUIP_FLANKING_MOGU_SWORD   = 68838,
-    EQUIP_FLANKING_MOGU_SHIELD  = 32375,
+    EQUIP_FLANKING_MOGU_SHIELD  = 32375
 };
 
 enum qiangTalk
@@ -112,7 +112,7 @@ enum qiangTalk
     QIANG_DEATH     = 1,
     QIANG_INTRO     = 2,
     QIANG_SLAY      = 3,
-    QIANG_SPELL     = 4,
+    QIANG_SPELL     = 4
 };
 
 enum subetaiTalk
@@ -121,7 +121,7 @@ enum subetaiTalk
     SUBETAI_DEATH   = 1,
     SUBETAI_INTRO   = 2,
     SUBETAI_SLAY    = 3,
-    SUBETAI_SPELL   = 4,
+    SUBETAI_SPELL   = 4
 };
 
 enum zianTalk
@@ -130,7 +130,7 @@ enum zianTalk
     ZIAN_DEATH  = 1,
     ZIAN_INTRO  = 2,
     ZIAN_SLAY   = 3,
-    ZIAN_SPELL  = 4,
+    ZIAN_SPELL  = 4
 };
 
 enum mengTalk
@@ -140,7 +140,7 @@ enum mengTalk
     MENG_DEATH_COWARDICE    = 2,
     MENG_INTRO              = 3,
     MENG_SLAY               = 4,
-    MENG_SPELL              = 5,
+    MENG_SPELL              = 5
 };
 
 #define MAX_FLANKING_MOGU   48

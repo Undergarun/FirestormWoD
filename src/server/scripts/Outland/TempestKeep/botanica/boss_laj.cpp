@@ -28,7 +28,7 @@ enum eSpells
     SPELL_SUMMON_LASHER_3      = 34686,
     SPELL_SUMMON_FLAYER_4      = 34687,
     SPELL_SUMMON_LASHER_4      = 34688,
-    SPELL_SUMMON_FLAYER_3      = 34690,
+    SPELL_SUMMON_FLAYER_3      = 34690
 };
 enum eOthers
 {
@@ -37,7 +37,7 @@ enum eOthers
     MODEL_ARCANE               = 14213,
     MODEL_FIRE                 = 13110,
     MODEL_FROST                = 14112,
-    MODEL_NATURE               = 14214,
+    MODEL_NATURE               = 14214
 };
 
 // 17980

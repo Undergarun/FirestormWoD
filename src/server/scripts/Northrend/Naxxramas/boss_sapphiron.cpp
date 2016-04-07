@@ -38,7 +38,7 @@ enum Phases
     PHASE_NULL = 0,
     PHASE_BIRTH,
     PHASE_GROUND,
-    PHASE_FLIGHT,
+    PHASE_FLIGHT
 };
 
 enum Events
@@ -56,7 +56,7 @@ enum Events
     EVENT_EXPLOSION,
     EVENT_LAND,
     EVENT_GROUND,
-    EVENT_BIRTH,
+    EVENT_BIRTH
 };
 
 typedef std::map<uint64, uint64> IceBlockMap;

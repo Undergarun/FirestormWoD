@@ -7,7 +7,7 @@ enum Yells
     SAY_DEATH   = 1,
     SAY_INTRO   = 2,
     SAY_KILL    = 3,
-    SAY_SPELL   = 4,
+    SAY_SPELL   = 4
 };
 
 enum Spells
@@ -21,20 +21,20 @@ enum Spells
     SPELL_MOLTEN_AXE        = 101836,
     SPELL_MOLTEN_FIST       = 101866,
     SPELL_THROW_TOTEM_BACK  = 101602,
-    SPELL_THROW_TOTEM_AURA  = 107837,
+    SPELL_THROW_TOTEM_AURA  = 107837
 };
 
 enum Events
 {
     EVENT_PULVERIZE     = 1,
     EVENT_THROW_TOTEM   = 2,
-    EVENT_CHECK_SELF    = 3,
+    EVENT_CHECK_SELF    = 3
 };
 
 enum Adds
 {
     NPC_ROCK_ISLAND     = 54496,
-    NPC_BAINES_TOTEM    = 54434,
+    NPC_BAINES_TOTEM    = 54434
 };
 
 class boss_echo_of_baine : public CreatureScript

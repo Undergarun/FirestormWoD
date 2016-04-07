@@ -88,7 +88,7 @@ enum BrannCreatures
     CREATURE_SEARING_GAZE_TARGET        = 28265,
     CREATURE_DARK_RUNE_PROTECTOR        = 27983,
     CREATURE_DARK_RUNE_STORMCALLER      = 27984,
-    CREATURE_IRON_GOLEM_CUSTODIAN       = 27985,
+    CREATURE_IRON_GOLEM_CUSTODIAN       = 27985
 };
 
 enum Spells
@@ -106,7 +106,7 @@ enum Spells
     SPELL_SEARING_GAZE_DUMMY            = 51136,
     SPELL_SEARING_GAZE                  = 51125,
     H_SPELL_SEARING_GAZE                = 59866,
-    SPELL_REWARD_ACHIEVEMENT            = 59046,
+    SPELL_REWARD_ACHIEVEMENT            = 59046
 };
 
 enum Quests
@@ -121,7 +121,7 @@ enum Quests
 static Position SpawnLocations[]=
 {
     {946.992f, 397.016f, 208.374f, 0.0f},
-    {960.748f, 382.944f, 208.374f, 0.0f},
+    {960.748f, 382.944f, 208.374f, 0.0f}
 };
 
 class mob_tribuna_controller : public CreatureScript

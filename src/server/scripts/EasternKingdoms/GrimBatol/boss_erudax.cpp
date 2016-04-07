@@ -10,7 +10,7 @@ enum ScriptTexts
     SAY_KILL    = 1,
     SAY_DEATH    = 2,
     SAY_GALE    = 3,
-    SAY_ADDS    = 4,
+    SAY_ADDS    = 4
 };
 
 enum Spells
@@ -41,7 +41,7 @@ enum Spells
     SPELL_TWILIGHT_BLAST_TRIGGER    = 76192,
     SPELL_TWILIGHT_BLAST_DMG        = 76194,
     SPELL_TWILIGHT_BLAST_DMG_H        = 91042,
-    SPELL_SHIELD_OF_NIGHTMARES        = 75809,
+    SPELL_SHIELD_OF_NIGHTMARES        = 75809
 };
 
 enum Adds
@@ -51,7 +51,7 @@ enum Adds
     NPC_FACELESS_PORTAL_STALKER = 44314,
     NPC_ALEXSTRASZA_EGG            = 40486,
     NPC_TWILIGHT_HATCHLING        = 39388,
-    NPC_SHADOW_GALE_STALKER        = 40567,
+    NPC_SHADOW_GALE_STALKER        = 40567
 };
 
 enum Events
@@ -65,13 +65,13 @@ enum Events
     EVENT_SHADOW_GALE                = 7,
     EVENT_TWILIGHT_CORRUPTION        = 8,
     EVENT_CORRUPTOR_MOVE            = 9,
-    EVENT_SHIELD_OF_NIGHTMARES        = 10,
+    EVENT_SHIELD_OF_NIGHTMARES        = 10
 };
 
 enum Points
 {
     POINT_SHADOWGALE    = 1001,
-    POINT_EGG            = 1002,
+    POINT_EGG            = 1002
 };
 
 const Position erudaxportalPos = {-641.515f, -827.8f, 235.5f, 3.069f};
@@ -79,13 +79,13 @@ const Position neareggPos[2] =
 {
     {-719.67f, -839.64f, 232.43f, 0.0f},
     //{-731.72f, -787.40f, 232.47f, 2.25f},
-    {-730.63f, -864.46f, 232.44f, 4.71f},
+    {-730.63f, -864.46f, 232.44f, 4.71f}
 };
 const Position shadowgalePos[3] = 
 {
     {-745.07f, -845.16f, 232.41f, 0.0f},
     {-724.05f, -823.47f, 232.41f, 0.0f},
-    {-741.81f, -819.44f, 232.41f, 0.0f},
+    {-741.81f, -819.44f, 232.41f, 0.0f}
 };
 const Position eggPos[23]    =
 {
@@ -111,7 +111,7 @@ const Position eggPos[23]    =
     {-731.53f, -770.02f, 236.14f, 0.10f},
     {-730.15f, -885.09f, 235.96f, 5.93f},
     {-717.82f, -887.81f, 233.95f, 6.05f},
-    {-751.01f, -886.38f, 234.87f, 3.27f},
+    {-751.01f, -886.38f, 234.87f, 3.27f}
 };
 
 class boss_erudax : public CreatureScript

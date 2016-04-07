@@ -16,7 +16,7 @@
 
 enum
 {
-    GARRISON_PHASE_BASE = 0x0001,
+    GARRISON_PHASE_BASE = 0x0001
 };
 
 namespace MS { namespace Garrison { namespace Sites

@@ -28,7 +28,7 @@ enum eSpells
     SPELL_REVENGE                 = 19130,
     SPELL_REVENGE_H               = 40392,
     SPELL_KIDNEY_SHOT             = 30621,
-    SPELL_FIRE_NOVA_VISUAL        = 19823,
+    SPELL_FIRE_NOVA_VISUAL        = 19823
 };
 
 enum eUnits
@@ -39,7 +39,7 @@ enum eUnits
     ENTRY_NAZAN                       = 17536,
     ENTRY_LIQUID_FIRE                 = 22515,
     ENTRY_REINFORCED_FEL_IRON_CHEST   = 185168,
-    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169,
+    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169
 };
 
 enum eSays
@@ -52,7 +52,7 @@ enum eSays
     SAY_KILL_1                    = -1543022,
     SAY_KILL_2                    = -1543023,
     SAY_DIE                       = -1543024,
-    EMOTE                         = -1543025,
+    EMOTE                         = -1543025
 };
 
 const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};

@@ -32,7 +32,7 @@ enum Spells
     SPELL_STRANGULATING                         = 69413, //krick's selfcast in intro
     SPELL_SUICIDE                               = 7,
     SPELL_KRICK_KILL_CREDIT                     = 71308,
-    SPELL_NECROMANTIC_POWER                     = 69753,
+    SPELL_NECROMANTIC_POWER                     = 69753
 };
 
 enum Yells
@@ -64,7 +64,7 @@ enum Yells
     SAY_KRICK_OUTRO_8                           = -1658038,
     SAY_TYRANNUS_OUTRO_9                        = -1658039,
     SAY_JAYNA_OUTRO_10                          = -1658040,
-    SAY_SYLVANAS_OUTRO_10                       = -1658041,
+    SAY_SYLVANAS_OUTRO_10                       = -1658041
 };
 
 enum Events
@@ -91,24 +91,24 @@ enum Events
     EVENT_OUTRO_11              = 18,
     EVENT_OUTRO_12              = 19,
     EVENT_OUTRO_13              = 20,
-    EVENT_OUTRO_END             = 21,
+    EVENT_OUTRO_END             = 21
 };
 
 enum KrickPhase
 {
     PHASE_COMBAT    = 1,
-    PHASE_OUTRO     = 2,
+    PHASE_OUTRO     = 2
 };
 
 enum Actions
 {
-    ACTION_OUTRO    = 1,
+    ACTION_OUTRO    = 1
 };
 
 enum Points
 {
     POINT_KRICK_INTRO       = 364770,
-    POINT_KRICK_DEATH       = 364771,
+    POINT_KRICK_DEATH       = 364771
 };
 
 static const Position outroPos[8] =

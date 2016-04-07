@@ -357,7 +357,7 @@ uint32 const g_WindFX[4] =
 uint32 const g_DespawnEntries[2] =
 {
     NPC_OVERWHELMING_POWER,
-    NPC_UNHARNESSED_POWER,
+    NPC_UNHARNESSED_POWER
 };
 
 #define MIN_DIST_TO_CONDUIT 30.0f

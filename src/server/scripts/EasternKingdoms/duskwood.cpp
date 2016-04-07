@@ -20,7 +20,7 @@ enum Yells
 {
     YELL_TWILIGHTCORRUPTOR_RESPAWN                                  = 0,
     YELL_TWILIGHTCORRUPTOR_AGGRO                                    = 1,
-    YELL_TWILIGHTCORRUPTOR_KILL                                     = 2,
+    YELL_TWILIGHTCORRUPTOR_KILL                                     = 2
 };
 
 

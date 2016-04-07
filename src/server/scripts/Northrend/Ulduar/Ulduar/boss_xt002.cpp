@@ -92,7 +92,7 @@ enum Creatures
     NPC_XT002_HEART                             = 33329,
     NPC_XS013_SCRAPBOT                          = 33343,
     NPC_XM024_PUMMELLER                         = 33344,
-    NPC_XE321_BOOMBOT                           = 33346,
+    NPC_XE321_BOOMBOT                           = 33346
 };
 
 enum Actions
@@ -106,7 +106,7 @@ enum XT002Data
     DATA_TRANSFERED_HEALTH,
     DATA_HARD_MODE,
     DATA_HEALTH_RECOVERED,
-    DATA_GRAVITY_BOMB_CASUALTY,
+    DATA_GRAVITY_BOMB_CASUALTY
 };
 
 enum Yells
@@ -145,7 +145,7 @@ enum Events
     EVENT_SPAWN_ADDS,
     EVENT_ARCING_SMASH, 
     EVENT_TRAMPLE, 
-    EVENT_UPPERCUT,
+    EVENT_UPPERCUT
 };
 
 enum Timers
@@ -163,7 +163,7 @@ enum Timers
     TIMER_SHOCK                = 3000,
     TIMER_ARCING_SMASH         = 7000,
     TIMER_TRAMPLE              = 2000,
-    TIMER_UPPERCUT             = 7000,
+    TIMER_UPPERCUT             = 7000
 };
 
 enum XT002Phase 

@@ -9,7 +9,7 @@ enum ScriptTexts
     SAY_BLOODVENOM  = 3, // ?
     SAY_X           = 2, // ?
     SAY_KILL        = 4,
-    SAY_AGGRO       = 5,
+    SAY_AGGRO       = 5
 };
 
 enum Spells
@@ -36,7 +36,7 @@ enum Spells
     SPELL_VENOMOUS_EFFUSION_DUMMY   = 96534,
     SPELL_VENOM_TOTEM_BEAM_RIGHT    = 96937,
     SPELL_VENOM_TOTEM_BEAM_LEFT     = 96936,
-    SPELL_VENOM_TOTEM_BEAM_CENTER   = 97098,
+    SPELL_VENOM_TOTEM_BEAM_CENTER   = 97098
 };
 
 enum Events
@@ -50,7 +50,7 @@ enum Events
     EVENT_TRANSFORM             = 7,
     EVENT_WHISPER_OF_HETHISS    = 8,
     EVENT_MOVE_UP               = 9,
-    EVENT_BLOODVENOM            = 10,
+    EVENT_BLOODVENOM            = 10
 };
 
 enum Adds
@@ -65,7 +65,7 @@ enum Points
 {
     POINT_DOWN          = 1,
     POINT_UP            = 2,
-    POINT_WITHDRAWAL    = 3,
+    POINT_WITHDRAWAL    = 3
 };
 
 const Position downPos = {-12000.54f, -1685.88f, 32.28f, 0.68f};

@@ -20,7 +20,7 @@ enum Spells
     SPELL_SHIELD_OF_LIGHT       = 74938,
     SPELL_BEAM_LEFT             = 83697, 
     SPELL_BEAM_RIGHT            = 83698, 
-    SPELL_POISON_TIPPED_FANGS   = 74538,
+    SPELL_POISON_TIPPED_FANGS   = 74538
 };
 
 enum Events
@@ -30,17 +30,17 @@ enum Events
     EVENT_POISON_TIPPED_FANGS   = 3,
     EVENT_ACHIEVEMENT           = 4,
     EVENT_SHIELD_OF_LIGHT       = 5,
-    EVENT_REVERBERATING_HYMN    = 6,
+    EVENT_REVERBERATING_HYMN    = 6
 };
 
 enum Actions
 {
-    ACTION_ACTIVATE = 1,
+    ACTION_ACTIVATE = 1
 };
 
 enum Points
 {
-    POINT_CENTER = 1,
+    POINT_CENTER = 1
 };
 
 enum Adds
@@ -50,7 +50,7 @@ enum Adds
     NPC_SEARING_FLAME   = 40283,
 
     GO_BEACON_LEFT      = 203133,
-    GO_BEACON_RIGHT     = 203136,
+    GO_BEACON_RIGHT     = 203136
 };
 
 const Position SpawnPosition[] =

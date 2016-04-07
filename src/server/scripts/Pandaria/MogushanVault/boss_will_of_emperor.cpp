@@ -104,7 +104,7 @@ enum eEvents
 
     // Titan Spark
     EVENT_LEVITATING            = 34,
-    EVENT_CHECK_DISTANCE        = 35,
+    EVENT_CHECK_DISTANCE        = 35
 };
 
 enum eAddActions
@@ -119,7 +119,7 @@ enum eAddActions
     ACTION_MOGU_ACTIVATE        = 4,
     ACTION_MOGU_STOP            = 5,
     ACTION_BUNNY_RESET          = 6,
-    ACTION_CONSOLE_RESET        = 7,
+    ACTION_CONSOLE_RESET        = 7
 };
 
 enum eDisplayID

@@ -29,7 +29,7 @@ enum Texts
     SAY_ARRIVAL1_RAG    = -1409009,
     SAY_ARRIVAL2_MAJ    = -1409010,
     SAY_ARRIVAL3_RAG    = -1409011,
-    SAY_ARRIVAL5_RAG    = -1409012,
+    SAY_ARRIVAL5_RAG    = -1409012
 };
 
 enum Spells
@@ -43,7 +43,7 @@ enum Spells
     SPELL_RAGEMERGE             = 20568,
     SPELL_MELT_WEAPON           = 21388,
     SPELL_ELEMENTAL_FIRE        = 20564,
-    SPELL_ERRUPTION             = 17731,
+    SPELL_ERRUPTION             = 17731
 };
 
 enum Events
@@ -60,7 +60,7 @@ enum Events
     EVENT_INTRO_2           = 9,
     EVENT_INTRO_3           = 10,
     EVENT_INTRO_4           = 11,
-    EVENT_INTRO_5           = 12,
+    EVENT_INTRO_5           = 12
 };
 
 class boss_ragnaros : public CreatureScript

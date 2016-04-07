@@ -87,7 +87,7 @@ enum SvalaPhase
 
 /*enum SvalaPoint
 {
-    POINT_FALL_GROUND = 1,
+    POINT_FALL_GROUND = 1
 };*/
 
 #define DATA_INCREDIBLE_HULK 2043

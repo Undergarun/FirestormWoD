@@ -47,7 +47,7 @@ enum Yells
     SAY_15HEALTH                                = -1595022,
     SAY_ESCAPE_SPEECH_1                         = -1595023,
     SAY_ESCAPE_SPEECH_2                         = -1595024,
-    SAY_OUTRO                                   = -1595025,
+    SAY_OUTRO                                   = -1595025
 };
 
 enum CombatPhases

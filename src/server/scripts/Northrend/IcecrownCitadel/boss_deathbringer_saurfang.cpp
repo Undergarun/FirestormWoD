@@ -72,7 +72,7 @@ enum ScriptTexts
     SAY_OUTRO_ALLIANCE_11           = 0,
     SAY_OUTRO_ALLIANCE_16           = 1,
     SAY_OUTRO_ALLIANCE_18           = 2,
-    SAY_OUTRO_ALLIANCE_20           = 3,
+    SAY_OUTRO_ALLIANCE_20           = 3
 };
 
 enum Spells
@@ -105,7 +105,7 @@ enum Spells
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
     SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257,
-    SPELL_PERMANENT_FEIGN_DEATH         = 70628,
+    SPELL_PERMANENT_FEIGN_DEATH         = 70628
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -169,7 +169,7 @@ enum EventTypes
     EVENT_OUTRO_HORDE_5         = 48,
     EVENT_OUTRO_HORDE_6         = 49,
     EVENT_OUTRO_HORDE_7         = 50,
-    EVENT_OUTRO_HORDE_8         = 51,
+    EVENT_OUTRO_HORDE_8         = 51
 };
 
 enum Phases
@@ -187,7 +187,7 @@ enum Actions
     ACTION_START_OUTRO                  = -3781303,
     ACTION_DESPAWN                      = -3781304,
     ACTION_INTERRUPT_INTRO              = -3781305,
-    ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293,
+    ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293
 };
 
 #define DATA_MADE_A_MESS 45374613 // 4537, 4613 are achievement IDs

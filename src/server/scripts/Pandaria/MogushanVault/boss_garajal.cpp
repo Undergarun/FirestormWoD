@@ -84,14 +84,14 @@ enum eEvents
     // Enrage
     EVENT_FINAL_DESTINATION     = 12,
     EVENT_SOUL_EXPLOSION        = 13,
-    EVENT_CHECK_POSITION        = 14,
+    EVENT_CHECK_POSITION        = 14
 };
 
 enum GarajalTalk
 {
     TALK_AGGRO  = 0,
     TALK_SLAY   = 1,
-    TALK_FRENZY = 2,
+    TALK_FRENZY = 2
 };
 
 enum GarajalGhostTalk

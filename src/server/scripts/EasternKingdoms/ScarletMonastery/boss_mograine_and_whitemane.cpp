@@ -27,7 +27,7 @@ enum Says
     //Whitemane says
     SAY_WH_INTRO                 = -1189008,
     SAY_WH_KILL                  = -1189009,
-    SAY_WH_RESSURECT             = -1189010,
+    SAY_WH_RESSURECT             = -1189010
 };
 
 enum Spells

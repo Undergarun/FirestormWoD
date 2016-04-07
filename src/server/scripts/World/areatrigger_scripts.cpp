@@ -166,7 +166,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
 enum eAtLastRites
 {
     QUEST_LAST_RITES                          = 12019,
-    QUEST_BREAKING_THROUGH                    = 11898,
+    QUEST_BREAKING_THROUGH                    = 11898
 };
 
 class AreaTrigger_at_last_rites : public AreaTriggerScript
@@ -223,7 +223,7 @@ enum eWaygate
     AT_UNGORO                                   = 5047,
 
     QUEST_THE_MAKERS_OVERLOOK                   = 12613,
-    QUEST_THE_MAKERS_PERCH                      = 12559,
+    QUEST_THE_MAKERS_PERCH                      = 12559
 };
 
 class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
@@ -314,7 +314,7 @@ enum BringYourOrphanTo
     AT_STONEWROUGHT_DAM             = 3548,
     AT_DARK_PORTAL                  = 4356,
 
-    AURA_ORPHAN_OUT                 = 58818,
+    AURA_ORPHAN_OUT                 = 58818
 };
 
 class AreaTrigger_at_bring_your_orphan_to : public AreaTriggerScript
@@ -429,7 +429,7 @@ enum Area52Entrance
     AT_AREA_52_SOUTH      = 4472,
     AT_AREA_52_NORTH      = 4466,
     AT_AREA_52_WEST       = 4471,
-    AT_AREA_52_EAST       = 4422,
+    AT_AREA_52_EAST       = 4422
 };
 
 class AreaTrigger_at_area_52_entrance : public AreaTriggerScript

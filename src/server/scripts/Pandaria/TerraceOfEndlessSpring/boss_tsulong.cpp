@@ -84,7 +84,7 @@ enum eTsulongTimers
     TIMER_TERRORIZE       = 13500,
     TIMER_FRIGHT          =  6000,
     TIMER_UNSTABLE_SHA    = 18000,
-    TIMER_BOLT            =  2000,
+    TIMER_BOLT            =  2000
 };
 
 enum eTsulongPhase
@@ -99,7 +99,7 @@ enum eTsulongWaypoints
 {
     WAYPOINT_FIRST         = 10001,
     WAYPOINT_SECOND        = 10002,
-    WAYPOINT_TO_DAY_PHASE  = 10003,
+    WAYPOINT_TO_DAY_PHASE  = 10003
 };
 
 enum eTsulongDisplay
@@ -110,7 +110,7 @@ enum eTsulongDisplay
 
 enum eTsulongActions
 {
-    ACTION_SPAWN_SUNBEAM = 3,
+    ACTION_SPAWN_SUNBEAM = 3
 };
 
 enum eTsulongCreatures
@@ -119,7 +119,7 @@ enum eTsulongCreatures
     EMBODIED_TERROR         = 62969,
     UNSTABLE_SHA_DUMMY      = 62962,
     TINY_TERROR             = 62977,
-    NPC_DARK_OF_NIGHT       = 63346,
+    NPC_DARK_OF_NIGHT       = 63346
 };
 
 enum eTsulongTexts

@@ -20,7 +20,7 @@ EndScriptData */
 
 enum Texts
 {
-    EMOTE_LOWHP             = -1409002,
+    EMOTE_LOWHP             = -1409002
 };
 
 enum Spells
@@ -39,7 +39,7 @@ enum Spells
 enum Events
 {
     EVENT_PYROBLAST     = 1,
-    EVENT_EARTHQUAKE    = 2,
+    EVENT_EARTHQUAKE    = 2
 };
 
 class boss_golemagg : public CreatureScript

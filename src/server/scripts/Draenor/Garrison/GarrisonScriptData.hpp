@@ -15,9 +15,8 @@
 #include "Spell.h"
 #include "GarrisonNPC.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
-
     /// Garrison map ids
     enum MapIDs
     {

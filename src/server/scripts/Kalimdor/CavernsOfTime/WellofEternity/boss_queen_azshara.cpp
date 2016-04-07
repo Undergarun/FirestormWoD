@@ -14,7 +14,7 @@ enum ScriptedTexts
     SAY_ALL         = 8,
     SAY_ADDS_1      = 9,
     SAY_ADDS_2      = 10,
-    SAY_ADDS_3      = 11,
+    SAY_ADDS_3      = 11
 };
 
 enum Spells
@@ -45,7 +45,7 @@ enum Spells
     SPELL_PUPPET_STRING_DUMMY_2     = 102318,
     SPELL_PUPPET_STRING_DUMMY_3     = 102319,
     SPELL_PUPPET_STRING_SCRIPT_1    = 102333,
-    SPELL_PUPPET_STRING_SCRIPT_2    = 102345,
+    SPELL_PUPPET_STRING_SCRIPT_2    = 102345
 };
 
 enum Adds
@@ -55,7 +55,7 @@ enum Adds
     NPC_ENCHANTED_MAGUS_FIRE    = 54882,
     NPC_ENCHANTED_MAGUS_FROST   = 54883,
     NPC_HAMMER_OF_DIVINITY_1    = 54864,
-    NPC_HAMMER_OF_DIVINITY_2    = 54865,
+    NPC_HAMMER_OF_DIVINITY_2    = 54865
 };
 
 enum Events
@@ -73,12 +73,12 @@ enum Events
     EVENT_BLASTWAVE             = 11,
     EVENT_BLADES_OF_ICE         = 12,
     EVENT_COLDFLAME             = 13,
-    EVENT_ICE_FLING             = 14,
+    EVENT_ICE_FLING             = 14
 };
 
 enum Actions
 {
-    ACTION_ATTACK   = 1,
+    ACTION_ATTACK   = 1
 };
 
 const Position addsPos[6] = 

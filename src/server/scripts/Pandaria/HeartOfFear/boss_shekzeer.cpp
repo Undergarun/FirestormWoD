@@ -43,7 +43,7 @@ enum eShekzeedAdds
     NPC_SHA_OF_FEAR_MOB             = 63942,
     NPC_STICKY_RESIN                = 63730,
     NPC_AMBER_TRAP                  = 64351,
-    NPC_HEART_OF_FEAR               = 63445,
+    NPC_HEART_OF_FEAR               = 63445
 };
 
 enum eShekzeerSpells
@@ -156,7 +156,7 @@ enum eShekzeerEvents
 
     // Heart of fear
     EVENT_HOF_ATTACK,
-    EVENT_HOF_DESTROY,
+    EVENT_HOF_DESTROY
 };
 
 enum eShekzeerActions
@@ -171,13 +171,13 @@ enum eShekzeerActions
     ACTION_FIGHTBACK,
     ACTION_LAST_PHASE,
     ACTION_WITHDRAW,
-    ACTION_LEAVING,
+    ACTION_LEAVING
 };
 
 enum eShekzeerTypes
 {
     TYPE_RETREAT,
-    TYPE_END_FIGHT,
+    TYPE_END_FIGHT
 };
 
 #define TIME_PHASE_DELAY 150000
@@ -192,7 +192,7 @@ Position addSpawnLeft[4] =
     {-2360.0f, 1014.0f, 575.90f, 3.141593f},
     {-2352.0f, 1014.0f, 575.90f, 3.141593f},
     {-2352.0f, 1006.0f, 575.90f, 3.141593f},
-    {-2352.0f, 1022.0f, 575.90f, 3.141593f},
+    {-2352.0f, 1022.0f, 575.90f, 3.141593f}
 };
 
 Position addSpawnRight[4] =
@@ -200,7 +200,7 @@ Position addSpawnRight[4] =
     {-2600.0f, 1014.0f, 575.90f, 0.0f},
     {-2608.0f, 1014.0f, 575.90f, 0.0f},
     {-2608.0f, 1006.0f, 575.90f, 0.0f},
-    {-2608.0f, 1022.0f, 575.90f, 0.0f},
+    {-2608.0f, 1022.0f, 575.90f, 0.0f}
 };
 
 // Zorlok - 62837

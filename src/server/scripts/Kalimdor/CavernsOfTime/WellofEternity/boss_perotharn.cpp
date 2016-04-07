@@ -15,7 +15,7 @@ enum ScriptTexts
     SAY_INTRO   = 9,
     SAY_KILL    = 10,
     SAY_SPELL_1 = 11,
-    SAY_SPELL_2 = 12,
+    SAY_SPELL_2 = 12
 };
 
 enum Spells
@@ -50,7 +50,7 @@ enum Spells
     SPELL_ABSORB_FEL_ENERGY         = 105543,
     SPELL_RETURN_TO_THE_SHADOWS     = 105635,
     SPELL_CONSUME_ESSENCE           = 104738,
-    SPELL_REGENERATION              = 105547,
+    SPELL_REGENERATION              = 105547
 };
 
 enum Adds
@@ -61,7 +61,7 @@ enum Adds
     NPC_HUNTING_STALKERS        = 56189,
     NPC_EYE_OF_PEROTHARN_1      = 55868,
     NPC_EYE_OF_PEROTHARN_2      = 55879,
-    NPC_EASY_PREY_STALKER       = 56308,
+    NPC_EASY_PREY_STALKER       = 56308
 };
 
 enum Events
@@ -85,12 +85,12 @@ enum Events
 enum Actions
 {
     ACTION_START        = 1, 
-    ACTION_EASY_PREY    = 2,
+    ACTION_EASY_PREY    = 2
 };
 
 enum Points
 {
-    POINT_EYE       = 1,
+    POINT_EYE       = 1
 };
 
 const Position centerPos = {3335.07f, -4891.54f, 181.16f, 0.0f};

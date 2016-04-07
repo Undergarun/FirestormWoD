@@ -42,7 +42,7 @@ enum Creatures
     
     NPC_FARSEER_THOORANU        = 50385,
     NPC_VELASTRASZA                = 50390,
-    NPC_BALEFLAME                = 50387,
+    NPC_BALEFLAME                = 50387
 };
 
 // 94350 summon red drake

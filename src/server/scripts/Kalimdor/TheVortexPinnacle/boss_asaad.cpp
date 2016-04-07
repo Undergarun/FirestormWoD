@@ -6,7 +6,7 @@ enum ScriptTexts
     SAY_AGGRO    = 0,
     SAY_KILL    = 1,
     SAY_SPELL    = 2,
-    SAY_DEATH    = 3,
+    SAY_DEATH    = 3
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_SUPREMACY_OF_THE_STORM_SUM        = 87518,
     SPELL_SUPREMACY_OF_THE_STORM_TELE        = 87328,
 
-    SPELL_STATIC_CLING                        = 87618,
+    SPELL_STATIC_CLING                        = 87618
 };
 
 enum Events
@@ -40,7 +40,7 @@ enum Events
     EVENT_FIELD_6            = 7,
     EVENT_CHAIN_LIGHTNING    = 8,
     EVENT_STATIC_CLING        = 9,
-    EVENT_SUMMON_STAR        = 10,
+    EVENT_SUMMON_STAR        = 10
 };
 
 enum Adds
@@ -48,7 +48,7 @@ enum Adds
     NPC_UNSTABLE_GROUNDING_FIELD    = 46492,
     NPC_SKYFALL_STAR                = 52019,
     NPC_STORM_TARGET                = 46387,
-    NPC_GROUNDING_FIELD                = 47000,
+    NPC_GROUNDING_FIELD                = 47000
 };
 
 const Position fieldPos[4]    =
@@ -56,7 +56,7 @@ const Position fieldPos[4]    =
     {-644.20f, 489.00f, 646.63f, 0.0f},
     {-638.38f, 480.68f, 646.63f, 0.0f},
     {-635.43f, 492.11f, 646.63f, 0.0f},
-    {-639.23f, 488.13f, 656.63f, 0.0f},
+    {-639.23f, 488.13f, 656.63f, 0.0f}
 };
 
 const Position starPos[6] = 
@@ -66,7 +66,7 @@ const Position starPos[6] =
     {-617.69f, 544.79f, 650.12f, 0.11f},
     {-652.62f, 532.48f, 649.03f, 1.53f},
     {-618.65f, 463.05f, 650.63f, 0.0f},
-    {-649.24f, 474.11f, 649.63f, 0.0f},
+    {-649.24f, 474.11f, 649.63f, 0.0f}
 };
 
 class boss_asaad : public CreatureScript

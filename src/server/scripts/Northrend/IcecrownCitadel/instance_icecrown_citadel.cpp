@@ -21,14 +21,14 @@ enum EventIds
 {
     EVENT_QUAKE                     = 23437,
     EVENT_SECOND_REMORSELESS_WINTER = 23507,
-    EVENT_TELEPORT_TO_FROSMOURNE    = 23617,
+    EVENT_TELEPORT_TO_FROSMOURNE    = 23617
 };
 
 enum TimedEvents
 {
     EVENT_UPDATE_EXECUTION_TIME = 1,
     EVENT_QUAKE_SHATTER         = 2,
-    EVENT_REBUILD_PLATFORM      = 3,
+    EVENT_REBUILD_PLATFORM      = 3
 };
 
 DoorData const doorData[] =

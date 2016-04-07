@@ -2361,7 +2361,7 @@ enum WormholeSpells
 
     TEXT_WORMHOLE               = 907,
 
-    DATA_SHOW_UNDERGROUND       = 1,
+    DATA_SHOW_UNDERGROUND       = 1
 };
 
 class npc_wormhole : public CreatureScript
@@ -2547,7 +2547,7 @@ enum eLockSmith
     SPELL_SHATTERED_HALLS_KEY             = 54884,
     SPELL_THE_MASTERS_KEY                 = 54885,
     SPELL_VIOLET_HOLD_KEY                 = 67253,
-    SPELL_ESSENCE_INFUSED_MOONSTONE       = 40173,
+    SPELL_ESSENCE_INFUSED_MOONSTONE       = 40173
 };
 
 #define GOSSIP_LOST_ARCATRAZ_KEY                "I've lost my key to the Arcatraz."
@@ -2773,7 +2773,7 @@ enum Fireworks
     SPELL_LUNAR_FORTUNE     = 26522,
 
     ANIM_GO_LAUNCH_FIREWORK = 3,
-    ZONE_MOONGLADE          = 493,
+    ZONE_MOONGLADE          = 493
 };
 
 Position omenSummonPos = {7558.993f, -2839.999f, 450.0214f, 4.46f};
@@ -3233,7 +3233,7 @@ enum GuardianSpellsAndEntries
     NPC_HOLY_GUARDIAN               = 46499,
     NPC_RETRI_GUARDIAN              = 46506,
     SPELL_ANCIENT_GUARDIAN_VISUAL   = 86657,
-    SPELL_ANCIENT_HEALER            = 86674,
+    SPELL_ANCIENT_HEALER            = 86674
 };
 
 class npc_guardian_of_ancient_kings : public CreatureScript
@@ -3907,7 +3907,7 @@ enum spectralGuiseSpells
 {
     SPELL_SPECTRAL_GUISE_CLONE      = 119012,
     SPELL_SPECTRAL_GUISE_CHARGES    = 119030,
-    SPELL_SPECTRAL_GUISE_STEALTH    = 119032,
+    SPELL_SPECTRAL_GUISE_STEALTH    = 119032
 };
 
 class npc_spectral_guise : public CreatureScript
@@ -3977,7 +3977,7 @@ enum eForceOfNatureSpells
     SPELL_TREANT_ROOT           = 113770,
     SPELL_TREANT_SWIFTMEND      = 142421,
     SPELL_TREANT_HEAL           = 113828,
-    SPELL_TREANT_WRATH          = 113769,
+    SPELL_TREANT_WRATH          = 113769
 };
 
 class npc_force_of_nature : public CreatureScript

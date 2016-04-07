@@ -7,7 +7,7 @@
 static const DoorData doordata[] = 
 {
     {GO_INVISIBLE_FIREWALL_DOOR, DATA_PEROTHARN, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {0,                          0,              DOOR_TYPE_ROOM,    BOUNDARY_NONE},
+    {0,                          0,              DOOR_TYPE_ROOM,    BOUNDARY_NONE}
 };
 
 class instance_well_of_eternity : public InstanceMapScript

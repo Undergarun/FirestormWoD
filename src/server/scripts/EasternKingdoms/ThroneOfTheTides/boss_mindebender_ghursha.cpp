@@ -5,7 +5,7 @@
 enum ScriptTextsErunak
 {
     SAY_FREED   = 0,
-    SAY_VICTORY = 1,
+    SAY_VICTORY = 1
 };
 
 enum ScriptTextsGhursha
@@ -14,7 +14,7 @@ enum ScriptTextsGhursha
     SAY_KILL    = 1,
     SAY_DEATH   = 2,
     SAY_ENCLAVE = 3,
-    SAY_FOG     = 4,
+    SAY_FOG     = 4
 };
 
 enum Spells
@@ -38,7 +38,7 @@ enum Spells
     SPELL_MIND_FOG_VISUAL           = 76231,
     SPELL_UNRELENTING_AGONY         = 76339,
     SPELL_UNRELENTING_AGONY_DMG     = 76341,
-    SPELL_UNRELENTING_AGONY_DMG_H   = 91493,
+    SPELL_UNRELENTING_AGONY_DMG_H   = 91493
 };
 
 enum Events
@@ -50,18 +50,18 @@ enum Events
     EVENT_ENSLAVE           = 5,
     EVENT_ABSORB_MAGIC      = 6,
     EVENT_MIND_FOG          = 7,
-    EVENT_UNRELENTING_AGONY = 8,
+    EVENT_UNRELENTING_AGONY = 8
 };
 
 enum Actions
 {
-    ACTION_GHURSHA_START    = 1,
+    ACTION_GHURSHA_START    = 1
 };
 
 enum Adds
 {
     NPC_EARTH_SHARDS    = 45469,
-    NPC_MIND_FOG        = 40861,
+    NPC_MIND_FOG        = 40861
 };
 
 class boss_erunak_stonespeaker : public CreatureScript

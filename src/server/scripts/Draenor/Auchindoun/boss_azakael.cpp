@@ -31,7 +31,7 @@ enum eAzzakelSpells
     SpellFelSparkPerioidicCreation   = 153727,
     SpellSummonImp                   = 153775,
     SpellFelGuard                    = 164080,
-    SpellSummonPyromaniac            = 164127,
+    SpellSummonPyromaniac            = 164127
 };
 
 enum eAzzakelEvents

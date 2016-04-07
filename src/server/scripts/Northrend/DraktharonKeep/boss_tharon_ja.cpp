@@ -29,7 +29,7 @@ enum Spells
     SPELL_POISON_CLOUD                            = 49548,
     H_SPELL_POISON_CLOUD                          = 59969,
     SPELL_RETURN_FLESH                            = 53463, //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
-    SPELL_ACHIEVEMENT_CHECK                       = 61863,
+    SPELL_ACHIEVEMENT_CHECK                       = 61863
 };
 
 enum Yells

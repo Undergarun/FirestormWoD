@@ -22,7 +22,7 @@ enum eData
     DATA_GRAND_CHAMPION_ENTRY,
     DATA_GRAND_CHAMPION_GUID,
     DATA_MEMORY_ENTRY,
-    DATA_I_VE_HAD_WORSE,
+    DATA_I_VE_HAD_WORSE
 };
 
 enum Data64
@@ -39,7 +39,7 @@ enum Data64
     DATA_CHEST,
 
     DATA_BLACK_KNIGHT,
-    DATA_BLACK_KNIGHT_GRYPHON,
+    DATA_BLACK_KNIGHT_GRYPHON
 };
 
 enum AnnouncerPhases
@@ -50,7 +50,7 @@ enum AnnouncerPhases
     EVENT_INTRO_ARGENT,
     EVENT_WAVES_ARGENT,
     EVENT_BLACK_KNIGHT_INTRO,
-    EVENTS_MAX,
+    EVENTS_MAX
 };
 
 enum achievementCriterias
@@ -111,7 +111,7 @@ enum achievementCriterias
     SPELL_ACHIEVEMENT_PALETRESS = 68574,
     SPELL_ACHIEVEMENT_MEMORIES = 68206,
     SPELL_ACHIEVEMENT_EADRIC = 68575,
-    SPELL_ACHIEVEMENT_BLACK_KNIGHT = 68663,
+    SPELL_ACHIEVEMENT_BLACK_KNIGHT = 68663
 };
 
 enum eNpcs
@@ -193,7 +193,7 @@ enum eNpcs
     NPC_THRALL      = 34994,
     NPC_GARROSH     = 34995,
     NPC_VARIAN      = 34990,
-    NPC_JAINA       = 34992,
+    NPC_JAINA       = 34992
 };
 
 enum eGameObjects
@@ -248,7 +248,7 @@ enum IntroSpells
 {
     SPELL_MOUNT_LANCE_STAND     = 64723,
     SPELL_DEATH_RESPITE_INTRO   = 66798,
-    SPELL_DEATH_PUSH_INTRO      = 66797,
+    SPELL_DEATH_PUSH_INTRO      = 66797
 };
 
 static void BindPlayersToInstance(Creature* creature)

@@ -40,7 +40,7 @@ enum Wizzlecrank
     QUEST_ESCAPE        = 863,
     FACTION_RATCHET     = 637,
     NPC_PILOT_WIZZ      = 3451,
-    NPC_MERCENARY       = 3282,
+    NPC_MERCENARY       = 3282
 };
 
 class npc_wizzlecrank_shredder : public CreatureScript

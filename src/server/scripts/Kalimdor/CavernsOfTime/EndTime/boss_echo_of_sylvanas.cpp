@@ -7,7 +7,7 @@ enum ScriptTexts
     SAY_DEATH   = 1,
     SAY_KILL    = 3,
     SAY_WIPE    = 2,
-    SAY_SPELL   = 4,
+    SAY_SPELL   = 4
 };
 
 enum Spells
@@ -36,7 +36,7 @@ enum Spells
     SPELL_JUMP_SCRIPT                   = 101527,
     SPELL_JUMP_VEHICLE                  = 101528,
     SPELL_PERMANENT_FEIGH_DEATH         = 96733,
-    SPELL_SHRINK                        = 101318,
+    SPELL_SHRINK                        = 101318
 };
 
 enum Events
@@ -50,7 +50,7 @@ enum Events
     EVENT_SPAWN_GHOUL               = 7,
     EVENT_MOVE_GHOUL                = 8,
     EVENT_FALL                      = 0,
-    EVENT_START                     = 10,
+    EVENT_START                     = 10
 };
 
 enum Adds
@@ -58,7 +58,7 @@ enum Adds
     NPC_GHOUL_1         = 54197,
     NPC_BRITTLE_GHOUL   = 54952,
     NPC_RISEN_GHOUL     = 54191,
-    NPC_JUMP            = 54385,
+    NPC_JUMP            = 54385
 };
 
 enum Others
@@ -66,7 +66,7 @@ enum Others
     DATA_GUID           = 1,
     POINT_GHOUL         = 2,
     ACTION_GHOUL        = 3,
-    ACTION_KILL_GHOUL   = 4,
+    ACTION_KILL_GHOUL   = 4
 };
 
 const Position centerPos = {3845.51f, 909.318f, 56.1463f, 1.309f};

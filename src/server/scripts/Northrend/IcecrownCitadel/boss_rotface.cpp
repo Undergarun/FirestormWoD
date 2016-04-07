@@ -29,7 +29,7 @@ enum Texts
     SAY_DEATH                   = 8,
     EMOTE_MUTATED_INFECTION     = 9,
 
-    EMOTE_PRECIOUS_ZOMBIES      = 0,
+    EMOTE_PRECIOUS_ZOMBIES      = 0
 };
 
 enum Spells
@@ -55,7 +55,7 @@ enum Spells
     // Precious
     SPELL_MORTAL_WOUND                      = 71127,
     SPELL_DECIMATE                          = 71123,
-    SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159,
+    SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159
 };
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
@@ -75,7 +75,7 @@ enum Events
     EVENT_STICKY_OOZE       = 7,
     EVENT_VILE_GAS          = 8,
     EVENT_BERSERK           = 9,
-    EVENT_ENABLE_ATTACK     = 10,
+    EVENT_ENABLE_ATTACK     = 10
 };
 
 class boss_rotface : public CreatureScript

@@ -79,7 +79,7 @@ enum eEvents
     EVENT_PREY_TIME         = 1,
     EVENT_IMPALING_STRIKE   = 2,
 
-    EVENT_DISRUPTOR_BOMBARD = 3,
+    EVENT_DISRUPTOR_BOMBARD = 3
 };
 
 enum ePhases

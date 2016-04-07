@@ -6,7 +6,7 @@ enum ScriptTexts
     SAY_AGGRO   = 0,
     SAY_KILL    = 1,
     SAY_CHAINS  = 2,
-    SAY_DEATH   = 3,
+    SAY_DEATH   = 3
 };
 
 enum Spells

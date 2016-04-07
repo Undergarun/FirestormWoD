@@ -136,7 +136,7 @@ enum eProtectorsEquipId
 enum eProtectorsType
 {
     TYPE_SET_WIPE = 1,
-    TYPE_UNSET_WIPE,
+    TYPE_UNSET_WIPE
 };
 
 uint32 bossEntries[3] = { NPC_ANCIENT_ASANI, NPC_ANCIENT_REGAIL, NPC_PROTECTOR_KAOLAN };

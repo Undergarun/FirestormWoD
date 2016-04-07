@@ -11,7 +11,7 @@ enum Data
     DATA_SLABHIDE               = 1,
     DATA_OZRUK                  = 2,
     DATA_HIGH_PRIESTESS_AZIL    = 3,
-    DATA_TEAM_IN_INSTANCE       = 4,
+    DATA_TEAM_IN_INSTANCE       = 4
 };
 
 enum CreatureIds
@@ -35,13 +35,13 @@ enum CreatureIds
 
     NPC_EARTHWARDEN_YRSA           = 50048,
     NPC_STONECORE_TELEPORTER1      = 51396,
-    NPC_STONECORE_TELEPORTER2      = 51397,
+    NPC_STONECORE_TELEPORTER2      = 51397
 };
 
 enum GameObjectIds
 {
     GO_BROKEN_PILLAR               = 207407,
-    GO_TWILIGHT_DOCUMENTS          = 207415,
+    GO_TWILIGHT_DOCUMENTS          = 207415
 };
 
 #endif

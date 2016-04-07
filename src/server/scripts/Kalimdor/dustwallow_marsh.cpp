@@ -155,7 +155,7 @@ enum SpellScripts
     SPELL_OOZE_ZAP              = 42489,
     SPELL_OOZE_ZAP_CHANNEL_END  = 42485,
     SPELL_OOZE_CHANNEL_CREDIT   = 42486,
-    SPELL_ENERGIZED             = 42492,
+    SPELL_ENERGIZED             = 42492
 };
 
 class spell_ooze_zap: public SpellScriptLoader
@@ -296,7 +296,7 @@ class spell_energize_aoe: public SpellScriptLoader
 enum PrisonersOfTheGrimTotems
 {
     NPC_THERAMORE_PRISONER                          = 23720,
-    SAY_FREE                                        = 0,
+    SAY_FREE                                        = 0
 };
 
 class go_blackhoof_cage : public GameObjectScript

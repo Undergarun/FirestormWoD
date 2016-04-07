@@ -1761,7 +1761,7 @@ enum eWildMushroomSpells
 
 enum eWildMushroomDatas
 {
-    NpcWildMushroom = 47649,
+    NpcWildMushroom = 47649
 };
 
 /// Wild Mushroom (Balance) - 88747

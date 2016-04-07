@@ -88,7 +88,7 @@ enum Yells
 enum Spells
 {
     CYANIGOSA_SPELL_TRANSFORM                     = 58668,
-    CYANIGOSA_BLUE_AURA                           = 47759,
+    CYANIGOSA_BLUE_AURA                           = 47759
 };
 
 class instance_violet_hold : public InstanceMapScript

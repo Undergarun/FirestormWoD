@@ -87,7 +87,7 @@ enum eActions
 
     ACTION_CHECK_SPIRITKINGS                = 41,
     ACTION_STOP_PETRIFY                     = 42,
-    ACTION_EVENT_WIPE                       = 43,
+    ACTION_EVENT_WIPE                       = 43
 };
 
 enum eCreatures
@@ -218,7 +218,7 @@ enum eGameObjects
     GOB_MOGU_RUNE_END               = 213955,
 
     // Will of Emperor
-    GOB_ANCIENT_CONTROL_CONSOLE     = 211584,
+    GOB_ANCIENT_CONTROL_CONSOLE     = 211584
 };
 
 enum ePhases
@@ -232,12 +232,12 @@ enum ePhases
 enum eAchievementData
 {
     // Dummy spells
-    ACHIEVEMENT_STONE_GUARD_KILL    = 128288,
+    ACHIEVEMENT_STONE_GUARD_KILL    = 128288
 };
 
 enum sharedSpells
 {
-    SPELL_BERSERK   = 26662,
+    SPELL_BERSERK   = 26662
 };
 
 #endif // MOGUSHAN_VAULT_H_

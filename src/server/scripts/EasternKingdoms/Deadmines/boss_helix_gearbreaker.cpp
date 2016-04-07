@@ -12,7 +12,7 @@ enum ScriptTexts
     SAY_OAF_DEAD = 2,
 
     SAY_OAF1     = 0,
-    SAY_OAF2     = 1,
+    SAY_OAF2     = 1
 };
 
 enum Spells
@@ -29,13 +29,13 @@ enum Spells
     SPELL_OAF_SMASH_H           = 91568,
     SPELL_CHARGE                = 88288,
     SPELL_FORCE_PLAYER_RIDE_OAF = 88278,
-    SPELL_RIDE_OAF              = 88277,
+    SPELL_RIDE_OAF              = 88277
 };
 
 enum Adds
 {
     NPC_STICKY_BOMB = 47314,
-    NPC_HELIX_CREW  = 49136,
+    NPC_HELIX_CREW  = 49136
 };
 
 enum Events
@@ -50,18 +50,18 @@ enum Events
     EVENT_CHARGE_OAF3   = 4,
     EVENT_BOMB_READY    = 9,
     EVENT_BOMB_EXPLODE  = 10,
-    EVENT_CHEST_BOMB    = 11,
+    EVENT_CHEST_BOMB    = 11
 };
 
 enum Points
 {
     POINT_START = 1,
-    POINT_END   = 2,
+    POINT_END   = 2
 };
 
 enum Actions
 {
-    ACTION_CHARGE   = 1,
+    ACTION_CHARGE   = 1
 };
 
 const Position lumberingoafPos[3] = 

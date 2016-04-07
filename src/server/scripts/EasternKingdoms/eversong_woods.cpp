@@ -33,7 +33,7 @@ EndContentData */
 enum SeconTrial
 {
     QUEST_SECOND_TRIAL                = 9686,
-    OFFSET_NEXT_ATTACK                = 750,
+    OFFSET_NEXT_ATTACK                = 750
 };
 
 enum eSpells
@@ -41,7 +41,7 @@ enum eSpells
     SPELL_FLASH_OF_LIGHT              = 19939,
     SPELL_SEAL_OF_JUSTICE             = 20164,
     SPELL_JUDGEMENT_OF_LIGHT          = 20271,
-    SPELL_SEAL_OF_COMMAND             = 20375,
+    SPELL_SEAL_OF_COMMAND             = 20375
 };
 
 enum eNpc
@@ -50,13 +50,13 @@ enum eNpc
     CHAMPION_BLOODWRATH               = 17809,
     CHAMPION_LIGHTREND                = 17810,
     CHAMPION_SWIFTBLADE               = 17811,
-    CHAMPION_SUNSTRIKER               = 17812,
+    CHAMPION_SUNSTRIKER               = 17812
 };
 
 enum eFaction
 {
     FACTION_HOSTILE                   = 45,
-    FACTION_FRIENDLY                  = 7,
+    FACTION_FRIENDLY                  = 7
 };
 
 enum eSays
@@ -64,7 +64,7 @@ enum eSays
     TEXT_SECOND_TRIAL_1               = 0,
     TEXT_SECOND_TRIAL_2               = 1,
     TEXT_SECOND_TRIAL_3               = 2,
-    TEXT_SECOND_TRIAL_4               = 3,
+    TEXT_SECOND_TRIAL_4               = 3
 };
 
 struct Locations

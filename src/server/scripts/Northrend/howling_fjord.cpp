@@ -330,7 +330,7 @@ enum eDaegarnn
 
     NPC_PRISONER_1                  = 24253,  // looks the same but has different abilities
     NPC_PRISONER_2                  = 24254,
-    NPC_PRISONER_3                  = 24255,
+    NPC_PRISONER_3                  = 24255
 };
 
 static float afSummon[] = {838.81f, -4678.06f, -94.182f};

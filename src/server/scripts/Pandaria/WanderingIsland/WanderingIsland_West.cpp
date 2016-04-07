@@ -355,7 +355,7 @@ enum Enums
 
     SPELL_SERPENT_SWEEP = 125990,
     SPELL_STUNNED       = 125992,
-    SPELL_LIGHTNING     = 126006,
+    SPELL_LIGHTNING     = 126006
 };
 
 Position ZhaoPos[] = 

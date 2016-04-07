@@ -12,7 +12,7 @@ enum ScriptTexts
     SAY_EVENT_4 = 6,
     SAY_KILL    = 7,
     SAY_EVENT_5 = 8,
-    SAY_TOMB    = 9,
+    SAY_TOMB    = 9
 };
 
 enum Spells
@@ -29,7 +29,7 @@ enum Spells
     // Frozen Servitor
     SPELL_ICY_BOULDER_AOE           = 102480,
     SPELL_ICY_BOULDER               = 102198,
-    SPELL_ICY_BOULDER_DMG           = 102199,
+    SPELL_ICY_BOULDER_DMG           = 102199
 };
 
 enum Events
@@ -38,14 +38,14 @@ enum Events
     EVENT_CHAINS_OF_FROST   = 2,
     EVENT_ICY_TOMB          = 3,
     EVENT_ICY_BOULDER       = 4,
-    EVENT_FROZEN_SERVITOR   = 5,
+    EVENT_FROZEN_SERVITOR   = 5
 };
 
 enum Adds
 {
     NPC_FROZEN_SERVITOR = 54600,
     NPC_ICY_TOMB        = 54995,
-    NPC_SPAWN_STALKER   = 57197,
+    NPC_SPAWN_STALKER   = 57197
 };
 
 #define MAX_SERVITOR 6

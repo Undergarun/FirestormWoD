@@ -30,7 +30,7 @@ Position const SummonPositions[10] =
     {726.499f, -1149.80f, -120.156f, 5.24055f},
     {722.408f, -1152.41f, -120.029f, 5.33087f},
     {718.994f, -1156.36f, -119.805f, 5.75738f},
-    {838.510f, -829.840f, -232.000f, 2.00000f},
+    {838.510f, -829.840f, -232.000f, 2.00000f}
 };
 
 class instance_molten_core : public InstanceMapScript

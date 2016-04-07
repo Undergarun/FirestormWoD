@@ -14,7 +14,7 @@ enum spells
     SPELL_EXPLOSE_GATE                  = 115456,
 
     SPELL_BOMB_CAST_VISUAL              = 106729,
-    SPELL_BOMB_AURA                     = 106875,
+    SPELL_BOMB_AURA                     = 106875
 };
 
 class mob_serpent_spine_defender : public CreatureScript

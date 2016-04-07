@@ -5,7 +5,7 @@ enum Texts
 {
     SAY_DEATH   = 0,
     SAY_AGGRO   = 1,
-    SAY_KILL    = 2,
+    SAY_KILL    = 2
 };
 
 enum Spells
@@ -53,14 +53,14 @@ enum Events
     EVENT_VOID_BARRIER          = 9,
     EVENT_CHARGED_FISTS         = 10,
 
-    EVENT_MOVE                  = 11,
+    EVENT_MOVE                  = 11
 };
 
 enum SeteshSummonTypes
 {
     SETESH_SUMMON_WURM      = 1,
     SETESH_SUMMON_SENTINEL  = 2,
-    SETESH_SUMMON_SEEKER    = 3,
+    SETESH_SUMMON_SEEKER    = 3
 };
 
 const Position movepos[9] =

@@ -20,7 +20,7 @@ EndScriptData */
 
 enum Texts
 {
-    EMOTE_FRENZY        = -1409001,
+    EMOTE_FRENZY        = -1409001
 };
 
 enum Spells
@@ -28,14 +28,14 @@ enum Spells
     SPELL_FRENZY        = 19451,
     SPELL_MAGMA_SPIT    = 19449,
     SPELL_PANIC         = 19408,
-    SPELL_LAVA_BOMB     = 19428,
+    SPELL_LAVA_BOMB     = 19428
 };
 
 enum Events
 {
     EVENT_FRENZY        = 1,
     EVENT_PANIC         = 2,
-    EVENT_LAVA_BOMB     = 3,
+    EVENT_LAVA_BOMB     = 3
 };
 
 class boss_magmadar : public CreatureScript

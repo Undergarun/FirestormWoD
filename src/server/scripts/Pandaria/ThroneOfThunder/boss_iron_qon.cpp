@@ -129,7 +129,7 @@ enum eQonEvents
 
     // Dam'Ren
     EVENT_DEAD_ZONE,
-    EVENT_FREEZE,
+    EVENT_FREEZE
 };
 
 enum eQonActions
@@ -145,7 +145,7 @@ enum eQonActions
     ACTION_MOUNT_DIES           = 10,
     ACTION_ACTIVATE_PHASE       = 11,
     ACTION_WINDSTORM_DELAY      = 12,
-    ACTION_WINDSTORM_LINGER     = 13,
+    ACTION_WINDSTORM_LINGER     = 13
 };
 
 enum eQonTypes
@@ -153,7 +153,7 @@ enum eQonTypes
     TYPE_GET_PHASE              = 1,
     TYPE_UPDATE_PHASE,
     TYPE_GET_SPEAR_INDEX,
-    TYPE_SET_STORM_INDEX,
+    TYPE_SET_STORM_INDEX
 };
 
 enum eQonAdds
@@ -163,17 +163,17 @@ enum eQonAdds
     NPC_IRON_QON_INVISIBLE_MAN  = 64693,
     NPC_RUSHING_WINDS_A         = 68852,
     NPC_RUSHING_WINDS_B         = 69703,
-    NPC_STORM_CLOUD             = 70660,
+    NPC_STORM_CLOUD             = 70660
 };
 
 enum eQonWeapons
 {
-    EQUIP_IRON_QON              = 93234,
+    EQUIP_IRON_QON              = 93234
 };
 
 enum eQonDisplay
 {
-    DISPLAYID_RUSHING_WINDS     = 38497,
+    DISPLAYID_RUSHING_WINDS     = 38497
 };
 
 enum eQonTalks

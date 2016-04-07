@@ -38,7 +38,7 @@ enum eEvents
     // Azure Serpent
     EVENT_STATIC_FIELD      = 3,
     EVENT_LIGHTNING_BREATH  = 4,
-    EVENT_MAGNETIC_SHROUD   = 5,
+    EVENT_MAGNETIC_SHROUD   = 5
 };
 
 enum eActions
@@ -50,7 +50,7 @@ enum eActions
     // Azure Serpent
     ACTION_AZURE_SERPENT_P_1    = 3,
     ACTION_AZURE_SERPENT_P_2    = 4,
-    ACTION_AZURE_SERPENT_RESET  = 5,
+    ACTION_AZURE_SERPENT_RESET  = 5
 };
 
 enum ePhases

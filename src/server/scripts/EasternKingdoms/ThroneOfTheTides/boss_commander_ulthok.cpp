@@ -12,7 +12,7 @@ enum Spells
     SPELL_DARK_FISSURE_AURA_H   = 91371,
     SPELL_DARK_FISSURE_DMG      = 76085,
     SPELL_DARK_FISSURE_DMG_H    = 91375,
-    SPELL_ULTHOK_INTRO          = 82960,
+    SPELL_ULTHOK_INTRO          = 82960
 };
 
 enum Events
@@ -20,17 +20,17 @@ enum Events
     EVENT_DARK_FISSURE      = 1,
     EVENT_SQUEEZE           = 2,
     EVENT_CURSE_OF_FATIGUE  = 3,
-    EVENT_ENRAGE            = 4,
+    EVENT_ENRAGE            = 4
 };
 
 enum Actions
 {
-    ACTION_COMMANDER_ULTHOK_START_EVENT = 2,
+    ACTION_COMMANDER_ULTHOK_START_EVENT = 2
 };
 
 enum Adds
 {
-    NPC_DARK_FISSURE = 40784,
+    NPC_DARK_FISSURE = 40784
 };
 
 class boss_commander_ulthok : public CreatureScript

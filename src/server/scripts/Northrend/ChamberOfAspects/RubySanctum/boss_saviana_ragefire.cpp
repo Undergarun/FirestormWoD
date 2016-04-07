@@ -24,7 +24,7 @@ enum Spells
     SPELL_FLAME_BEACON          = 74453,
     SPELL_CONFLAGRATION_2       = 74454, // Unknown dummy effect
     SPELL_ENRAGE                = 78722,
-    SPELL_FLAME_BREATH          = 74403,
+    SPELL_FLAME_BREATH          = 74403
 };
 
 enum Events
@@ -37,7 +37,7 @@ enum Events
     EVENT_AIR_MOVEMENT          = 6,
 
     // Event group
-    EVENT_GROUP_LAND_PHASE      = 1,
+    EVENT_GROUP_LAND_PHASE      = 1
 };
 
 enum MovementPoints
@@ -50,7 +50,7 @@ enum MovementPoints
 
 enum Misc
 {
-    SOUND_ID_DEATH              = 17531,
+    SOUND_ID_DEATH              = 17531
 };
 
 Position const SavianaRagefireFlyOutPos  = {3155.51f, 683.844f, 95.0f,   4.69f};

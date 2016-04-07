@@ -46,7 +46,7 @@ enum Spells
     SPELL_THROW_FOOD_10     = 89263,
     SPELL_THROW_FOOD_11     = 90604,
     SPELL_THROW_FOOD_12     = 90555,
-    SPELL_THROW_FOOD_13     = 90606,
+    SPELL_THROW_FOOD_13     = 90606
 };
 
 enum Adds
@@ -67,7 +67,7 @@ enum Adds
     NPC_ROTTEN_LOAF         = 48299,
     NPC_ROTTEN_MELON        = 48293,
     NPC_ROTTEN_MISTERY_MEAT = 48298,
-    NPC_ROTTEN_BUN          = 48302,
+    NPC_ROTTEN_BUN          = 48302
 };
 
 enum Events
@@ -75,7 +75,7 @@ enum Events
     EVENT_THROW_FOOD    = 1,
     EVENT_CAULDRON_1    = 2,
     EVENT_CAULDRON_2    = 3,
-    EVENT_MOVE          = 4,
+    EVENT_MOVE          = 4
 };
 
 const uint32 ThrowFoodSpells[12] = 

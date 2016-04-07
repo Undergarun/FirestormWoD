@@ -46,7 +46,7 @@ enum Spells
     SPELL_FOCUSED_EYEBEAM_DAMAGE_25     = 63976,
     SPELL_KOLOGARN_REDUCE_PARRY         = 64651,
     SPELL_KOLOGARN_PACIFY               = 63726,
-    SPELL_BERSERK                       = 47008,
+    SPELL_BERSERK                       = 47008
 };
 
 #define SPELL_ARM_DEAD_DAMAGE           RAID_MODE(SPELL_ARM_DEAD_DAMAGE_10, SPELL_ARM_DEAD_DAMAGE_25)
@@ -71,7 +71,7 @@ enum Events
     EVENT_FOCUSED_EYEBEAM       = 7,
     EVENT_RESPAWN_LEFT_ARM      = 8,
     EVENT_RESPAWN_RIGHT_ARM     = 9,
-    EVENT_ENRAGE                = 10,
+    EVENT_ENRAGE                = 10
 };
 
 enum Yells
@@ -86,7 +86,7 @@ enum Yells
     SAY_BERSERK                 = 7,
     EMOTE_LEFT                  = 8,
     EMOTE_RIGHT                 = 9,
-    EMOTE_STONE                 = 10,
+    EMOTE_STONE                 = 10
 };
 
 enum DataTypes

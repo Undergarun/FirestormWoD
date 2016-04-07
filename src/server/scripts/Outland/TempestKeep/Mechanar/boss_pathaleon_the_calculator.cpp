@@ -25,7 +25,7 @@ enum eSays
     SAY_ENRAGE                     = -1554024,
     SAY_SLAY_1                     = -1554025,
     SAY_SLAY_2                     = -1554026,
-    SAY_DEATH                      = -1554027,
+    SAY_DEATH                      = -1554027
 };
 // Spells to be casted
 enum eSpells
@@ -42,7 +42,7 @@ enum eSpells
     SPELL_SUMMON_NETHER_WRAITH_4   = 35288,
     // Add Spells
     SPELL_DETONATION               = 35058,
-    SPELL_ARCANE_MISSILES          = 35034,
+    SPELL_ARCANE_MISSILES          = 35034
 };
 
 class boss_pathaleon_the_calculator : public CreatureScript

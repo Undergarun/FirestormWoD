@@ -44,7 +44,7 @@ enum Events
 {
     EVENT_DISARM            = 1,        // 03:58:27, 03:58:49
     EVENT_THUNDERCRASH      = 2,        // 03:58:29, 03:58:50
-    EVENT_CHANGE_AGGRO      = 3,
+    EVENT_CHANGE_AGGRO      = 3
 };
 
 class boss_rajaxx : public CreatureScript

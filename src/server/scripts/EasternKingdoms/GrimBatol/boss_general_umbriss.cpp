@@ -5,7 +5,7 @@ enum ScriptTexts
 {
     SAY_AGGRO    = 0,
     SAY_KILL    = 1,
-    SAY_ADDS    = 4,
+    SAY_ADDS    = 4
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_MODGUD_MALICE_H       = 90169,
     SPELL_MODGUD_MALICE_AURA    = 90170,
     SPELL_MODGUD_MALADY            = 74837,
-    SPELL_MODGUD_MALADY_H        = 90179,
+    SPELL_MODGUD_MALADY_H        = 90179
 };
 
 enum Events
@@ -35,7 +35,7 @@ enum Events
     EVENT_GROUND_SIEGE         = 2,
     EVENT_BLITZ                 = 3,
     EVENT_CLAW_PUNCTURE         = 4,
-    EVENT_ADDS                 = 5,
+    EVENT_ADDS                 = 5
 };
 
 enum Adds
@@ -43,7 +43,7 @@ enum Adds
     NPC_GROUND_SIEGE_STALKER    = 40030,
     NPC_BLITZ_STALKER            = 40040,
     NPC_MALIGNANT_TROGG            = 39984,
-    NPC_TROGG_DWELLER            = 45467,
+    NPC_TROGG_DWELLER            = 45467
 };
 
 const Position troggPos[2]=

@@ -27,7 +27,7 @@ enum Texts
 {
     SAY_NECROTIC_AURA_APPLIED       = 0,
     SAY_NECROTIC_AURA_REMOVED       = 1,
-    SAY_NECROTIC_AURA_FADING        = 2,
+    SAY_NECROTIC_AURA_FADING        = 2
 };
 
 enum Events
@@ -36,12 +36,12 @@ enum Events
     EVENT_DEATHBLOOM                = 2,
     EVENT_INEVITABLE_DOOM           = 3,
     EVENT_SPORE                     = 4,
-    EVENT_NECROTIC_AURA_FADING      = 5,
+    EVENT_NECROTIC_AURA_FADING      = 5
 };
 
 enum Achievement
 {
-    DATA_ACHIEVEMENT_SPORE_LOSER    = 21822183,
+    DATA_ACHIEVEMENT_SPORE_LOSER    = 21822183
 };
 
 class boss_loatheb : public CreatureScript

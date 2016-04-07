@@ -25,7 +25,7 @@ enum eSays
     SAY_DRAGONS_BREATH_2           = -1554016,
     SAY_SLAY1                      = -1554017,
     SAY_SLAY2                      = -1554018,
-    SAY_DEATH                      = -1554019,
+    SAY_DEATH                      = -1554019
 };
 
 enum eSpells
@@ -39,7 +39,7 @@ enum eSpells
     H_SPELL_SUMMON_RAGIN_FLAMES    = 39084,
     SPELL_INFERNO                  = 35268,
     H_SPELL_INFERNO                = 39346,
-    SPELL_FIRE_TAIL                = 35278,
+    SPELL_FIRE_TAIL                = 35278
 };
 
 class boss_nethermancer_sepethrea : public CreatureScript

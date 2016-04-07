@@ -25,7 +25,7 @@ enum eSays
     SAY_CURSE                  = -1543013,
     SAY_KILL_1                 = -1543014,
     SAY_DIE                    = -1543015,
-    SAY_WIPE                   = -1543016,
+    SAY_WIPE                   = -1543016
 };
 
 enum eSpells
@@ -37,7 +37,7 @@ enum eSpells
     SPELL_DEMONIC_SHIELD       = 31901,
     SPELL_SHADOW_BOLT          = 30686,
     H_SPELL_SHADOW_BOLT        = 39297,
-    SPELL_SUMMON_FIENDISH_HOUND= 30707,
+    SPELL_SUMMON_FIENDISH_HOUND= 30707
 };
 
 class boss_omor_the_unscarred : public CreatureScript

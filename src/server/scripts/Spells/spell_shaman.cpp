@@ -3060,7 +3060,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
 enum CloudburstTotemSpells
 {
-    SPELL_CLOUDBURST    = 157503,
+    SPELL_CLOUDBURST    = 157503
 };
 
 /// Last updated : 6.1.2 19802

@@ -22,7 +22,7 @@
 
 enum Texts
 {
-    SAY_CRATES_COMPLETED    = 0,
+    SAY_CRATES_COMPLETED    = 0
 };
 
 const char* zombiefestWarnings[12] =
@@ -38,7 +38,7 @@ const char* zombiefestWarnings[12] =
     "|cFFFFFC00 [Zombiefest!] |cFF96FF00 progress: 80/100.",
     "|cFFFFFC00 [Zombiefest!] |cFF6CFF00 progress: 90/100.",
     "|cFFFFFC00 [Zombiefest!] |cFF33FF00 completed.",
-    "|cFFFFFC00 [Zombiefest!] |cFFFF0000 failed.",
+    "|cFFFFFC00 [Zombiefest!] |cFFFF0000 failed."
 };
 
 class instance_culling_of_stratholme : public InstanceMapScript

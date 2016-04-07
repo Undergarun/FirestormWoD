@@ -81,7 +81,7 @@ enum UnworthyInitiatePhase
     PHASE_TO_EQUIP,
     PHASE_EQUIPING,
     PHASE_TO_ATTACK,
-    PHASE_ATTACKING,
+    PHASE_ATTACKING
 };
 
 class npc_unworthy_initiate : public CreatureScript
@@ -729,7 +729,7 @@ public:
 enum SG
 {
     GHOULS = 28845,
-    GHOSTS = 28846,
+    GHOSTS = 28846
 };
 class npc_dkc1_gothik : public CreatureScript
 {

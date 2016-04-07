@@ -8,7 +8,7 @@ enum ValionaScriptTexts
     SAY_VALIONA_KILL        = 2,
     SAY_VALIONA_DEATH        = 3,
     SAY_VALIONA_DEEP        = 4,
-    SAY_VALIONA_BLACKOUT    = 5,
+    SAY_VALIONA_BLACKOUT    = 5
 };
 enum TheralionScriptTexts
 {
@@ -19,7 +19,7 @@ enum TheralionScriptTexts
     SAY_THERALION_DAZ1        = 4,
     SAY_THERALION_DAZ2        = 5,
     SAY_THERALION_MAGIC1    = 6,
-    SAY_THERALION_MAGIC2    = 7,
+    SAY_THERALION_MAGIC2    = 7
 };
 
 enum Spells
@@ -130,7 +130,7 @@ enum Spells
 
     //shared
     SPELL_TWILIGHT_SHIFT_BUFF                        = 86360,
-    SPELL_BERSERK                                    = 47008,
+    SPELL_BERSERK                                    = 47008
 };
 
 enum Adds
@@ -155,7 +155,7 @@ enum Action
     ACTION_VALIONA_FLY_START    = 2,
     ACTION_VALIONA_FLY_STOP        = 3,
     ACTION_THERALION_FLY_STOP    = 4,
-    ACTION_DAZZLING_DESTRUCTION    = 5,
+    ACTION_DAZZLING_DESTRUCTION    = 5
 };
 
 enum Points
@@ -167,7 +167,7 @@ enum Points
     POINT_VALIONA_3    = 5,
     POINT_VALIONA_4    = 6,
     POINT_VALIONA_5    = 7,
-    POINT_VALIONA_6    = 8,
+    POINT_VALIONA_6    = 8
 };
 
 enum Events
@@ -199,7 +199,7 @@ enum Events
     EVENT_COLLAPSING_TWILIGHT_PORTAL    = 25,
     EVENT_TWILIGHT_SENTRY                = 26,
     EVENT_TWILIGHT_SHIFT_STACK            = 27,
-    EVENT_BERSERK                        = 28,
+    EVENT_BERSERK                        = 28
 };
 
 const Position valionatheralionlandPos = {-740.86f, -681.37f, 831.89f};
@@ -216,7 +216,7 @@ const Position valionadeepbreathPos[2][3] =
         {-759.03f, -597.33f, 866.68f, 4.65f},
         {-737.71f, -597.60f, 866.68f, 4.65f},
         {-721.66f, -598.78f, 866.68f, 4.65f},
-    },
+    }
 };
 
 const Position valionatwilightflamePos[3][25] = 
@@ -301,7 +301,7 @@ const Position valionatwilightflamePos[3][25] =
         {-724.91f, -736.80f, 836.69f, 0.0f},
         {-724.91f, -742.80f, 836.69f, 0.0f},
         {-724.90f, -750.80f, 836.69f, 0.0f},
-    },
+    }
 };
 
 const Position twilightportalPos = {-745.01f, -688.87f, 831.89f, 0.0f};
@@ -317,7 +317,7 @@ const Position unstabletwilightPos[10] =
     {-757.44f, -740.75f, 840.69f, 4.64f},
     {-723.40f, -710.33f, 835.89f, 4.64f},
     {-739.04f, -725.81f, 837.82f, 4.64f},
-    {-758.30f, -646.80f, 837.87f, 1.44f},
+    {-758.30f, -646.80f, 837.87f, 1.44f}
 };
 
 const Position collapsingtwilightportalPos = {-741.16f, -689.19f, 831.89f, 1.47f};

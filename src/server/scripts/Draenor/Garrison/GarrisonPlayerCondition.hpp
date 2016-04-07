@@ -11,7 +11,7 @@
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Generic has building player condition script
     template<uint32 t_ConditionID, uint32 t_BuildingID> class GarrisonHasBuildingPlayerCondition : PlayerConditionScript

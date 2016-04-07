@@ -32,7 +32,7 @@ enum CreatureIds
 {
     NPC_RECLAIMER_AZAK      = 55564,
     NPC_AZJOL_ANAK_WARRIOR  = 55566,
-    NPC_NERUBIAN_FLYER      = 55573,
+    NPC_NERUBIAN_FLYER      = 55573
 };
 
 const Position questPos[3] =

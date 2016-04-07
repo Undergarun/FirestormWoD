@@ -955,7 +955,7 @@ enum RAJPhase
 {
     PHASE_JULIANNE      = 0,
     PHASE_ROMULO        = 1,
-    PHASE_BOTH          = 2,
+    PHASE_BOTH          = 2
 };
 
 void PretendToDie(Creature* creature)

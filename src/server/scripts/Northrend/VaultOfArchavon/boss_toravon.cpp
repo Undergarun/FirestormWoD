@@ -37,7 +37,7 @@ enum Events
     EVENT_FROZEN_ORB        = 2,
     EVENT_WHITEOUT          = 3,
 
-    EVENT_FROST_BLAST       = 4,
+    EVENT_FROST_BLAST       = 4
 };
 
 // Mob Frozen Orb

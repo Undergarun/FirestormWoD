@@ -18,7 +18,7 @@ enum DataTypes
     DATA_RENATAKI           = 6,
     DATA_WUSHOOLAY          = 7,
     DATA_GRILEK             = 8,
-    DATA_BOSSES             = 9,
+    DATA_BOSSES             = 9
 };
 
 enum CreatureIds
@@ -33,7 +33,7 @@ enum CreatureIds
     NPC_HAZZARAH            = 52271,
     NPC_RENATAKI            = 52269,
     NPC_WUSHOOLAY           = 52286,
-    NPC_GRILEK              = 52258,
+    NPC_GRILEK              = 52258
 };
 
 enum GameObjectIds
@@ -45,13 +45,13 @@ enum GameObjectIds
     GO_MANDOKIR_EXIT4   = 208848,
     GO_MANDOKIR_EXIT5   = 208849,
     GO_ZANZIL_EXIT      = 208850,
-    GO_KILNARA_EXIT     = 180497,
+    GO_KILNARA_EXIT     = 180497
 };
 
 enum OtherSpells
 {
     SPELL_FROSTBURN_FORMULA = 96331,
-    SPELL_HYPPOTHERMIA      = 96332,
+    SPELL_HYPPOTHERMIA      = 96332
 };
 
 #endif

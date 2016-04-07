@@ -152,7 +152,7 @@ enum FreyaSpells
     // Attuned To Nature spells
     SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
     SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
-    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521
 };
 
 #define SPELL_IRON_ROOTS    RAID_MODE(SPELL_IRON_ROOTS_10, SPELL_IRON_ROOTS_25)
@@ -174,7 +174,7 @@ enum FreyaNpcs
     NPC_IRON_ROOTS                               = 33088,
     NPC_STRENGTHENED_IRON_ROOTS                  = 33168,
 
-    OBJECT_NATURE_BOMB                           = 194902,
+    OBJECT_NATURE_BOMB                           = 194902
 };
 
 enum FreyaActions

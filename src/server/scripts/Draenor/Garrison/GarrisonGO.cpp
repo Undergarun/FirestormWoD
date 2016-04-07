@@ -15,7 +15,7 @@
 #include "GarrisonMgr.hpp"
 #include "Sites/GarrisonSiteBase.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     go_garrison_cache::go_garrison_cache()

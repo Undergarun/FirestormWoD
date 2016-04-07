@@ -404,7 +404,7 @@ enum eActions
     ACTION_LAUNCH_WEISHENG,
     ACTION_QUILEN_DIES,
     ACTION_MOGU_DIES,
-    ACTION_IRON_QON_TRASH_DONE,
+    ACTION_IRON_QON_TRASH_DONE
 };
 
 enum eEquipIds
@@ -3512,7 +3512,7 @@ class mob_shanze_celestial_shaper : public CreatureScript
 
 enum eStarAction
 {
-    ACTION_COSMIC_STARS = 6,
+    ACTION_COSMIC_STARS = 6
 };
 
 // 69365 - Star (from Shan'ze Celestial Shaper's Cosmic Strike

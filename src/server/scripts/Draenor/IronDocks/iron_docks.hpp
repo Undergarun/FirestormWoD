@@ -109,7 +109,7 @@ enum eIronDocksDatas
     DataSecondEvent,
     DataThirdEvent,
     /// Encounter Gates
-    DataEncounterGateOshir,
+    DataEncounterGateOshir
 };
 
 enum eIronDocksCreatures

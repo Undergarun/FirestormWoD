@@ -16,7 +16,7 @@ enum Texts
     SAY_SLAY                                      = 1,
     SAY_DEATH                                     = 2,
     SAY_IMPENDING_DESPAIR                         = 3,
-    SAY_DEFILING_HORROR                           = 4,
+    SAY_DEFILING_HORROR                           = 4
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_DEFILING_HORROR                         = 72435,
     SPELL_HOPELESSNESS_66                         = 72395,
     SPELL_HOPELESSNESS_33                         = 72396,
-    SPELL_HOPELESSNESS_10                         = 72397,
+    SPELL_HOPELESSNESS_10                         = 72397
 };
 
 enum Events
@@ -34,7 +34,7 @@ enum Events
     EVENT_NONE,
     EVENT_QUIVERING_STRIKE,
     EVENT_IMPENDING_DESPAIR,
-    EVENT_DEFILING_HORROR,
+    EVENT_DEFILING_HORROR
 };
 
 class boss_falric : public CreatureScript

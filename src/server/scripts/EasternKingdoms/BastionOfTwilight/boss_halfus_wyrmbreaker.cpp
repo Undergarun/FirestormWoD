@@ -5,18 +5,18 @@
 enum HalfusScriptTexts
 {
     SAY_AGGRO   = 0,
-    SAY_KILL    = 1,
+    SAY_KILL    = 1
 };
 
 enum ChogallScriptTexts
 {
     SAY_INTRO   = 1,
-    SAY_DEATH   = 2,
+    SAY_DEATH   = 2
 };
 
 enum Equipment
 {
-    EQUIPMENT_ONE   = 59492,
+    EQUIPMENT_ONE   = 59492
 };
 
 enum Spells
@@ -64,7 +64,7 @@ enum Spells
     SPELL_FIREBALL_BARRAGE_DMG1_10H = 86152,
     SPELL_FIREBALL_BARRAGE_DMG1_25H = 86153,
     SPELL_TIME_DILATION             = 83601,
-    SPELL_FIREBALL                  = 83862,
+    SPELL_FIREBALL                  = 83862
 };
 
 enum Adds
@@ -76,7 +76,7 @@ enum Adds
     NPC_ORPHANED_WHELP  = 44641,
 
     NPC_PROTO_BEHEMOTH  = 44687,
-    NPC_CYCLON_WIND     = 45026,
+    NPC_CYCLON_WIND     = 45026
 };
 
 enum Events
@@ -88,14 +88,14 @@ enum Events
     EVENT_FURIOUS_ROAR2     = 5,
     EVENT_FURIOUS_ROAR0     = 6,
     EVENT_SCORCHING_BREATH  = 7,
-    EVENT_DRAGON_DEATH      = 8,
+    EVENT_DRAGON_DEATH      = 8
 };
 
 enum Action
 {
     ACTION_WHELP_DIED       = 1,
     ACTION_ACTIVE_GOSSIP    = 2,
-    ACTION_WHELPS_RELEASE   = 3,
+    ACTION_WHELPS_RELEASE   = 3
 };
 
 
@@ -119,7 +119,7 @@ const Position halfusdrakePos[13] =
     //time warden
     {-345.21f, -699.77f, 888.10f, 5.17f},
     //slate drake
-    {-276.26f, -695.36f, 888.08f, 2.65f},
+    {-276.26f, -695.36f, 888.08f, 2.65f}
 };
 
 const Position halfusGoPos  = {-339.31f, -717.41f, 888.09f, 5.06f};

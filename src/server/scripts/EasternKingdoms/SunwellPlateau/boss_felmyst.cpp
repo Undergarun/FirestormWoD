@@ -73,14 +73,14 @@ enum Spells
     //Other
     SPELL_BERSERK                                 = 45078,
     SPELL_CLOUD_VISUAL                            = 45212,
-    SPELL_CLOUD_SUMMON                            = 45884,
+    SPELL_CLOUD_SUMMON                            = 45884
 };
 
 enum PhaseFelmyst
 {
     PHASE_NONE,
     PHASE_GROUND,
-    PHASE_FLIGHT,
+    PHASE_FLIGHT
 };
 
 enum EventFelmyst
@@ -96,7 +96,7 @@ enum EventFelmyst
 
     EVENT_FLIGHT_SEQUENCE,
     EVENT_SUMMON_DEAD,
-    EVENT_SUMMON_FOG,
+    EVENT_SUMMON_FOG
 };
 
 class boss_felmyst : public CreatureScript

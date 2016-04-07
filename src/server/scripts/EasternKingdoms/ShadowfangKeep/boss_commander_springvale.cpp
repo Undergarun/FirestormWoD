@@ -41,7 +41,7 @@ enum Spells
     SPELL_SHIELD_WALL               = 91463,
 
     //both
-    SPELL_UNHOLY_EMPOWERMENT        = 93844,
+    SPELL_UNHOLY_EMPOWERMENT        = 93844
 };
 
 enum Events
@@ -70,7 +70,7 @@ enum Adds
 {
     NPC_SPRINGVALE_GUARD    = 50613,
     NPC_SPRINGVALE_OFFICER  = 50615,
-    NOC_DESECRATION_BUNNY   = 50503,
+    NOC_DESECRATION_BUNNY   = 50503
 };
 
 const Position addSpawnPos[2] = 

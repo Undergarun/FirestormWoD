@@ -44,12 +44,12 @@ enum eRocksparkAndBorkaActions
 
 enum eRocksparkAndBorkaMovementInformed
 {
-    MovementInformedRocketsparkHigherGroundsStartx2101aMissileBarrage = 1,
+    MovementInformedRocketsparkHigherGroundsStartx2101aMissileBarrage = 1
 };
 
 enum eRocksparkAndBorkaCreatures
 {
-    CreatureTriggerLineOfSight = 0,
+    CreatureTriggerLineOfSight = 0
 };
 
 Position const g_PositionRandomRocketSparkMovements[4] =
@@ -57,13 +57,13 @@ Position const g_PositionRandomRocketSparkMovements[4] =
     { 1718.639f, 1572.846f, 7.7136f, 3.616752f },
     { 1687.059f, 1572.249f, 7.7136f, 0.032194f },
     { 1719.248f, 1553.528f, 7.7136f, 2.866693f },
-    { 1692.416f, 1583.240f, 7.7136f, 5.500137f },
+    { 1692.416f, 1583.240f, 7.7136f, 5.500137f }
 };
 
 Position const g_PostionRocketSparkHigherPlatform[2]= /// X21-01A Missile Barrage
 {
     { 1708.924f, 1647.510f, 17.315f, 1.610062f },
-    { 1726.215f, 1580.797f, 14.062f, 4.130380f },
+    { 1726.215f, 1580.797f, 14.062f, 4.130380f }
 };
 
 static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me, Unit* /*p_Target*/)

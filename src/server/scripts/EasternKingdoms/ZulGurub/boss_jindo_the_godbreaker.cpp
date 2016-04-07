@@ -9,14 +9,14 @@ enum JindoScriptTexts
     SAY_KILL_2                  = 3,
     SAY_PHASE_2                 = 5,
     SAY_SPAWN                   = 6,
-    SOUND_HAKKAR_BREAK_CHAINS   = 24245,
+    SOUND_HAKKAR_BREAK_CHAINS   = 24245
 };
 
 enum HakkarScriptTexts
 {
     SAY_PHASE   = 2,
     SAY_END_2   = 0,
-    SAY_END_1   = 1,
+    SAY_END_1   = 1
 };
 
 enum Spells
@@ -39,7 +39,7 @@ enum Spells
     SPELL_FRENZY                = 97088,
     SPELL_SUNDER_RIFT           = 96970,
     SPELL_SUNDER_RIFT_AURA      = 97320,
-    SPELL_BRITTLE_BARRIER       = 97417,
+    SPELL_BRITTLE_BARRIER       = 97417
 };
 
 enum Events
@@ -55,7 +55,7 @@ enum Events
     EVENT_END_2             = 9,
     EVENT_END_3             = 10,
     EVENT_END_4             = 11,
-    EVENT_SUMMON_GURUBASHI  = 12,
+    EVENT_SUMMON_GURUBASHI  = 12
 };
 
 enum Adds
@@ -67,12 +67,12 @@ enum Adds
     NPC_BROKEN_GROUND       = 52407,
     NPC_JINDO_THE_BROKEN    = 52154,
     NPC_SPIRIT_OF_HAKKAR    = 52222,
-    NPC_GURUBASHI_SPIRIT    = 52730,
+    NPC_GURUBASHI_SPIRIT    = 52730
 };
 
 enum Points
 {
-    POINT_JINDO = 1,
+    POINT_JINDO = 1
 };
 
 const Position chainPos[3] = 

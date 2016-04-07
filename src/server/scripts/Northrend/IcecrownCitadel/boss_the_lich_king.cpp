@@ -59,7 +59,7 @@ enum Texts
     // Terenas Menethil (Frostmourne)
     SAY_TERENAS_INTRO_1             = 0,
     SAY_TERENAS_INTRO_2             = 1,
-    SAY_TERENAS_INTRO_3             = 2,
+    SAY_TERENAS_INTRO_3             = 2
 };
 
 enum Spells
@@ -169,7 +169,7 @@ enum Spells
     // Shambling Horror
     SPELL_SHOCKWAVE                     = 72149,
     SPELL_ENRAGE                        = 72143,
-    SPELL_FRENZY                        = 28747,
+    SPELL_FRENZY                        = 28747
 };
 
 #define NECROTIC_PLAGUE_LK   RAID_MODE<uint32>(70337, 73912, 73913, 73914)
@@ -265,13 +265,13 @@ enum Events
     // Misc
     EVENT_REMOVE_TRAPS              = 64,
     EVENT_REMOVE_COLLISION          = 65,
-    EVENT_CHECK_PLAYER_POSITIONS    = 69,
+    EVENT_CHECK_PLAYER_POSITIONS    = 69
 };
 
 enum EventGroups
 {
     EVENT_GROUP_BERSERK         = 1,
-    EVENT_GROUP_VILE_SPIRITS    = 2,
+    EVENT_GROUP_VILE_SPIRITS    = 2
 };
 
 enum Phases
@@ -294,7 +294,7 @@ Position const LichKingIntro[3]   =
 {
     {432.0851f, -2123.673f, 864.6582f, 0.0f},
     {457.8351f, -2123.423f, 841.1582f, 0.0f},
-    {465.0730f, -2123.470f, 840.8569f, 0.0f},
+    {465.0730f, -2123.470f, 840.8569f, 0.0f}
 };
 Position const OutroPosition1     = {493.6286f, -2124.569f, 840.8569f, 0.0f};
 Position const OutroFlying        = {508.9897f, -2124.561f, 845.3565f, 0.0f};
@@ -349,7 +349,7 @@ enum MiscData
     EQUIP_ASHBRINGER_GLOWING    = 50442,
     EQUIP_BROKEN_FROSTMOURNE    = 50840,
 
-    MOVIE_FALL_OF_THE_LICH_KING = 16,
+    MOVIE_FALL_OF_THE_LICH_KING = 16
 };
 
 #define DATA_PLAGUE_STACK 70337

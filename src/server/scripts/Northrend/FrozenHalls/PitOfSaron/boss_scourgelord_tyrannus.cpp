@@ -37,7 +37,7 @@ enum Yells
     SAY_SYLVANAS_OUTRO_3            = -1658067,
     SAY_JAYNA_OUTRO_4               = -1658068,
     SAY_SYLVANAS_OUTRO_4            = -1658069,
-    SAY_JAYNA_OUTRO_5               = -1658070,
+    SAY_JAYNA_OUTRO_5               = -1658070
 };
 
 enum Spells
@@ -54,7 +54,7 @@ enum Spells
     SPELL_ICY_BLAST_AURA            = 69238,
 
     SPELL_EJECT_ALL_PASSENGERS      = 50630,
-    SPELL_FULL_HEAL                 = 43979,
+    SPELL_FULL_HEAL                 = 43979
 };
 
 enum Events
@@ -72,7 +72,7 @@ enum Events
     EVENT_INTRO_1           = 8,
     EVENT_INTRO_2           = 9,
     EVENT_INTRO_3           = 10,
-    EVENT_COMBAT_START      = 11,
+    EVENT_COMBAT_START      = 11
 };
 
 enum Phases
@@ -80,7 +80,7 @@ enum Phases
     PHASE_NONE      = 0,
     PHASE_INTRO     = 1,
     PHASE_COMBAT    = 2,
-    PHASE_OUTRO     = 3,
+    PHASE_OUTRO     = 3
 };
 
 enum Actions
@@ -88,7 +88,7 @@ enum Actions
     ACTION_START_INTRO      = 1,
     ACTION_START_RIMEFANG   = 2,
     ACTION_START_OUTRO      = 3,
-    ACTION_END_COMBAT       = 4,
+    ACTION_END_COMBAT       = 4
 };
 
 #define GUID_HOARFROST 1
@@ -104,7 +104,7 @@ static const Position rimefangPos[10] =
     {967.6233f, 168.9670f, 665.0453f, 0.000000f},
     {969.1198f, 140.4722f, 665.0453f, 0.000000f},
     {986.7153f, 141.6424f, 665.0453f, 0.000000f},
-    {1012.601f, 142.4965f, 665.0453f, 0.000000f},
+    {1012.601f, 142.4965f, 665.0453f, 0.000000f}
 };
 
 static const Position miscPos = {1018.376f, 167.2495f, 628.2811f, 0.000000f};   //tyrannus combat start position

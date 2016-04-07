@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_SIPHON  = 2,
     SAY_BOLTS   = 3,
     SAY_PET     = 4,
-    SAY_DEATH   = 5,
+    SAY_DEATH   = 5
 };
 
 enum Spells
@@ -83,7 +83,7 @@ enum Events
     EVENT_SIPHON_SOUL           = 2,
     EVENT_DRAIN_POWER           = 3,
     EVENT_PLAYER_ABILITY        = 4,
-    EVENT_PLAYER_ABILITY_OFF    = 5,
+    EVENT_PLAYER_ABILITY_OFF    = 5
 };
 
 enum Adds
@@ -91,7 +91,7 @@ enum Adds
     NPC_ALYSON_ANTILE   = 24240,
     NPC_SLITHER         = 24242, 
     NPC_GAZAKROTH       = 24244, 
-    NPC_DARKHEART       = 24246,
+    NPC_DARKHEART       = 24246
 };
 
 const Position addPos[2] = 

@@ -18,12 +18,12 @@ enum eSpells
     SPELL_SAP_PUDDLE        = 119939,
     SPELL_VISUAL_SHIELD     = 131628,
     SPELL_SAP_RESIDUE       = 119941, // DOT
-    SPELL_GROW              = 120865,
+    SPELL_GROW              = 120865
 };
 
 enum eEvents
 {
-    EVENT_GROW              = 1,
+    EVENT_GROW              = 1
 };
 
 class boss_jinbak : public CreatureScript

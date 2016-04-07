@@ -154,7 +154,7 @@ enum Movements
     POINT_FLY_OUT_OF_PLATFORM_P_TWO,
     POINT_SURGE_OF_POWER_P_TWO,
     POINT_DESTROY_PLATFORM_P_TWO,
-    POINT_IDLE_P_THREE,
+    POINT_IDLE_P_THREE
 };
 
 enum Seats
@@ -314,7 +314,7 @@ enum MiscData
     // DATA_THIRD_SURGE_TARGET_GUID  = 16,
     DATA_LAST_TARGET_BARRAGE_GUID    = 17,
 
-    NUM_MAX_SURGE_TARGETS            = 3,
+    NUM_MAX_SURGE_TARGETS            = 3
 };
 
 // Used to check if summons guids come from vehicles

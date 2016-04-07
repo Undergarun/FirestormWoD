@@ -12,7 +12,7 @@
 #include "../../../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     //////////////////////////////////////////////////////////////////////////
     /// 77382 - Christopher Macdonald                                     ////

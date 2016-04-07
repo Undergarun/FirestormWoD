@@ -25,7 +25,7 @@ enum Spells
 
 enum IchoronCreatures
 {
-    NPC_ICHOR_GLOBULE                           = 29321,
+    NPC_ICHOR_GLOBULE                           = 29321
 };
 
 enum Yells
@@ -44,7 +44,7 @@ enum Yells
 enum Actions
 {
     ACTION_WATER_ELEMENT_HIT                    = 1,
-    ACTION_WATER_ELEMENT_KILLED                 = 2,
+    ACTION_WATER_ELEMENT_KILLED                 = 2
 };
 
 // TODO get those positions from spawn of creature 29326
@@ -55,7 +55,7 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
     {1886.24f, 757.733f, 47.750f, 5.201f},
     {1877.91f, 845.915f, 43.417f, 3.560f},
     {1918.97f, 850.645f, 47.225f, 4.136f},
-    {1935.50f, 796.224f, 52.492f, 4.224f},
+    {1935.50f, 796.224f, 52.492f, 4.224f}
 };
 
 #define DATA_DEHYDRATION                        1

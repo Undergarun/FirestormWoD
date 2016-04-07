@@ -207,7 +207,7 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
 {
     GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
     GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
-    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
+    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15
 };
 
 class item_pile_fake_furs : public ItemScript
@@ -306,7 +306,7 @@ enum eHelpThemselves
     GO_MAMMOTH_TRAP_19                            = 188041,
     GO_MAMMOTH_TRAP_20                            = 188042,
     GO_MAMMOTH_TRAP_21                            = 188043,
-    GO_MAMMOTH_TRAP_22                            = 188044,
+    GO_MAMMOTH_TRAP_22                            = 188044
 };
 
 #define MammothTrapsNum 22

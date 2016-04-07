@@ -80,7 +80,7 @@ enum eUnsokEvents
     EVENT_DRAW_POWER,
     EVENT_AMBER_GLOBULE,
     EVENT_BERSERK,
-    EVENT_SCALPEL_DESPAWN,
+    EVENT_SCALPEL_DESPAWN
 };
 
 enum eUnsokTalk
@@ -93,7 +93,7 @@ enum eUnsokTalk
     TALK_PHASE2     = 5,
     TALK_PHASE3     = 6,
     TALK_SLAY       = 7,
-    TALK_DEATH      = 8,
+    TALK_DEATH      = 8
 };
 
 enum eUnsokActions
@@ -102,7 +102,7 @@ enum eUnsokActions
     ACTION_AMBER_POOL,
     ACTION_END_POOL,
     ACTION_AMBER_CONSUMED,
-    ACTION_LAUNCH_LAST_PHASE,
+    ACTION_LAUNCH_LAST_PHASE
 };
 
 enum eUnsokAdds
@@ -112,12 +112,12 @@ enum eUnsokAdds
     NPC_MUTATED_CONSTRUCT           = 62701,
     NPC_AMBER_MONSTRUOSITY          = 62711,
     NPC_AMBER_POOL_STALKER          = 62762,
-    NPC_AMBER_GLOBULE               = 64283,
+    NPC_AMBER_GLOBULE               = 64283
 };
 
 enum eUnsokTypes
 {
-    TYPE_GET_SCALPEL_TARGET         = 1,
+    TYPE_GET_SCALPEL_TARGET         = 1
 };
 
 Position spawnAmberMonstruosity = {-2549.87f, 770.0f, 582.92f, 0.0f};

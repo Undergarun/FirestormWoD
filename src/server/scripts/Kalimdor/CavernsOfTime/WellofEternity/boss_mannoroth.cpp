@@ -11,13 +11,13 @@ enum ScriptedTextMannoroth
     SAY_MANNOROTH_VAROTHEN  = 5,
     SAY_MANNOROTH_EVENT     = 6,
     SAY_MANNOROTH_KILL      = 7,
-    SAY_MANNOROTH_SPELL     = 8,
+    SAY_MANNOROTH_SPELL     = 8
 };
 enum ScriptedTextVarothen
 {
     SAY_VAROTHEN_AGGRO  = 0,
     SAY_VAROTHEN_DEATH  = 1,
-    SAY_VAROTHEN_KILL   = 2,
+    SAY_VAROTHEN_KILL   = 2
 };
 
 enum Spells
@@ -93,7 +93,7 @@ enum Events
     EVENT_GIFT_OF_SARGERAS_3    = 18, // Illidan says
     EVENT_GIFT_OF_SARGERAS_4    = 19, // Tyrande says
     EVENT_GIFT_OF_SARGERAS_5    = 20, // Illidan says
-    EVENT_DESPAWN               = 21,
+    EVENT_DESPAWN               = 21
 };
 
 enum Adds
@@ -107,13 +107,13 @@ enum Adds
     NPC_VAROTHEN_MAGICAL_BLADE  = 55837,
     NPC_EMBEDDED_BLADE          = 55838,
     NPC_PURPOSE_BUNNY_1         = 45979,
-    NPC_PURPOSE_BUNNY_2         = 54020,
+    NPC_PURPOSE_BUNNY_2         = 54020
 };
 
 enum Actions
 {
     ACTION_VAROTHEN_DIED    = 1,
-    ACTION_DEBILITATING_OFF = 2,
+    ACTION_DEBILITATING_OFF = 2
 };
 
 const Position portalPos = {3338.699951f, -5699.775879f, 13.01f, 3.87f};
@@ -137,7 +137,7 @@ const Position stalkerPos[3] =
 {
     {3295.44f, -5687.23f, 14.19f, 5.74213f},
     {3324.48f, -5694.27f, 13.97f, 3.1765f},
-    {3339.81f, -5698.5f, 15.5043f, 3.97935f},
+    {3339.81f, -5698.5f, 15.5043f, 3.97935f}
 };
 
 class boss_mannoroth : public CreatureScript

@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_HATCHER     = 2,
     SAY_35          = 3,
     SAY_KILL        = 4,
-    SAY_DEATH       = 5,
+    SAY_DEATH       = 5
 };
 
 enum Spells
@@ -26,7 +26,7 @@ enum Spells
     SPELL_SUMMON_HATCHLING      = 42493,
     SPELL_FRENZY                = 44779,
     SPELL_FLAMEBUFFET           = 43299,
-    SPELL_SUMMON_PLAYERS        = 43097,
+    SPELL_SUMMON_PLAYERS        = 43097
 };
 
 enum Adds
@@ -36,7 +36,7 @@ enum Adds
     NPC_AMANISHI_HATCHER2   = 24504,
     NPC_EGG                 = 23817,
     NPC_HATCHLING           = 23598,
-    NPC_WORLD_TRIGGER       = 21252,
+    NPC_WORLD_TRIGGER       = 21252
 };
 
 enum Events
@@ -48,7 +48,7 @@ enum Events
     EVENT_SUMMON_BOMBS      = 5,
     EVENT_DETONATE_BOMBS    = 6,
     EVENT_TELEPORT          = 7,
-    EVENT_FLAMEBUFFET       = 8,
+    EVENT_FLAMEBUFFET       = 8
 };
 
 const int area_dx = 44;

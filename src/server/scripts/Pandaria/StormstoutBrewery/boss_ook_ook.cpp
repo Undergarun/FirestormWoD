@@ -59,7 +59,7 @@ class boss_ook_ook : public CreatureScript
 enum eSpells
 {
     SPELL_BAREL_EXPLOSION           = 106769,
-    SPELL_FORCECAST_BARREL_DROP     = 122385,
+    SPELL_FORCECAST_BARREL_DROP     = 122385
 };
 
 class npc_barrel : public CreatureScript

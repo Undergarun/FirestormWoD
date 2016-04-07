@@ -29,7 +29,7 @@ enum Texts
     SAY_VALITHRIA_DEATH         = 4,
     SAY_VALITHRIA_PLAYER_DEATH  = 5,
     SAY_VALITHRIA_BERSERK       = 6,
-    SAY_VALITHRIA_SUCCESS       = 7,
+    SAY_VALITHRIA_SUCCESS       = 7
 };
 
 enum Spells
@@ -87,7 +87,7 @@ enum Spells
     SPELL_EMERALD_VIGOR                 = 70873,
 
     // Nightmare Cloud
-    SPELL_TWISTED_NIGHTMARE             = 71941,
+    SPELL_TWISTED_NIGHTMARE             = 71941
 };
 
 #define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
@@ -129,14 +129,14 @@ enum Events
     // Dream Cloud
     // Nightmare Cloud
     EVENT_CHECK_PLAYER                      = 17,
-    EVENT_EXPLODE                           = 18,
+    EVENT_EXPLODE                           = 18
 };
 
 enum Actions
 {
     ACTION_ENTER_COMBAT = 1,
     MISSED_PORTALS      = 2,
-    ACTION_DEATH        = 3,
+    ACTION_DEATH        = 3
 };
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};

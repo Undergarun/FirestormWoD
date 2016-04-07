@@ -52,7 +52,7 @@ Position const SpawnPos[] =
     {5318.704f, 2036.108f, 707.7781f, 4.223697f},
     {5280.513f, 1997.842f, 707.7781f, 0.296706f},
     {5337.833f, 2010.057f, 707.7781f, 3.228859f},
-    {5299.250f, 2035.998f, 707.7781f, 5.026548f},
+    {5299.250f, 2035.998f, 707.7781f, 5.026548f}
 };
 
 class instance_halls_of_reflection : public InstanceMapScript

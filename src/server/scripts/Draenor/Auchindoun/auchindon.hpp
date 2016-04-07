@@ -130,29 +130,30 @@ Position const g_PositionMageMoveTo = { 1895.09f, 3183.77f, 30.799f };
 Position const g_PositionThreeCorpses[2] =
 {
     { 1749.40f, 3145.85f, 35.140f, 3.690412f },
-    { 1751.31f, 3141.03f, 35.140f, 3.278078f },
+    { 1751.31f, 3141.03f, 35.140f, 3.278078f }
 };
+
 Position const g_PositionMagusAndDefenderHostile[2] =
 {
     { 1735.47f, 3139.28f, 35.140f, 0.185946f },
-    { 1738.86f, 3145.71f, 35.140f, 5.495237f },
+    { 1738.86f, 3145.71f, 35.140f, 5.495237f }
 };
 Position const g_PositionSargereiDefenders[2] =
 {
     { 1713.76f, 3104.75f, 35.140f, 0.902229f },
-    { 1710.27f, 3108.19f, 35.140f, 0.815836f },
+    { 1710.27f, 3108.19f, 35.140f, 0.815836f }
 };
 Position const g_PositionThreePrisoners[3] =
 {
     { 1700.59f, 3097.08f, 40.908f, 0.701154f },
     { 1707.98f, 3103.10f, 42.982f, 1.499199f },
-    { 1714.57f, 3111.26f, 43.196f, 3.066774f },
+    { 1714.57f, 3111.26f, 43.196f, 3.066774f }
 };
 Position const g_PositionThreeHostileArbitrerMagusSoulPriest[3] =
 {
     { 1679.36f, 3072.41f, 35.139f, 0.420260f },
     { 1691.86f, 3065.93f, 35.139f, 1.459343f },
-    { 1688.90f, 3070.54f, 35.139f, 1.441278f },
+    { 1688.90f, 3070.54f, 35.139f, 1.441278f }
 };
 Position const g_PositionCorpsesNearNyomi[12] =
 {
@@ -165,38 +166,39 @@ Position const g_PositionCorpsesNearNyomi[12] =
     { 1644.28f, 2937.78f, 35.173f, 1.460592f },
     { 1672.23f, 2938.41f, 35.208f, 1.825676f },
     { 1674.24f, 2933.18f, 35.131f, 1.916782f },
-    { 1669.27f, 2931.85f, 34.764f, 1.751064f },
+    { 1669.27f, 2931.85f, 34.764f, 1.751064f }
 };
+
 Position const g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[5] =
 {
     { 1846.22f, 3198.23f, 29.424f, 6.066411f },
     { 1849.56f, 3203.73f, 29.424f, 6.023211f },
     { 1844.11f, 3170.28f, 29.410f, 6.176361f },
-    { 1848.42f, 3162.75f, 29.423f, 0.003129f },
+    { 1848.42f, 3162.75f, 29.423f, 0.003129f }
 };
 Position const g_PositionAfterKaatharDeathForFourMages[4] =
 {
     { 1879.55f, 3201.58f, 34.418f },
     { 1876.59f, 3191.82f, 31.418f },
     { 1876.75f, 3171.40f, 31.418f },
-    { 1877.25f, 3165.11f, 31.418f },
+    { 1877.25f, 3165.11f, 31.418f }
 };
 Position const g_PositionGuardsAndWardens[2] =
 {
     { 1672.54f, 3012.73f, 35.139f, 1.318899f },
-    { 1659.39f, 3016.55f, 35.165f, 1.212869f },
+    { 1659.39f, 3016.55f, 35.165f, 1.212869f }
 };
 Position const g_PositionDefenderBehindMiddleWallOfNyami[4] =
 {
     { 1696.44f, 2957.14f, 35.613f, 3.265362f },
     { 2952.62f, 2952.80f, 35.613f, 3.120063f },
     { 1695.18f, 2947.33f, 35.613f, 3.040738f },
-    { 1692.70f, 2953.55f, 35.613f, 3.140484f },
+    { 1692.70f, 2953.55f, 35.613f, 3.140484f }
 };
 Position const g_PositionDefenderBehindBackWallOfNyami[2] =
 {
     { 1621.08f, 2949.12f, 35.193f, 0.044038f },
-    { 1621.33f, 2958.54f, 35.612f, 6.217269f },
+    { 1621.33f, 2958.54f, 35.612f, 6.217269f }
 };
 
 Position const g_PositionFirstPlatformFirstMove = { 1910.91f, 2810.94f, 119.795f }; // DURAG
@@ -230,13 +232,13 @@ Position const g_Positionsoul_move[4] =
     { 2010.29f, 2855.26f, 35.213f, 2.397908f },
     { 2011.11f, 3051.70f, 35.212f, 4.003247f },
     { 1812.13f, 3052.10f, 35.212f, 5.536366f },
-    { 1812.37f, 2854.15f, 35.212f, 0.796488f },
+    { 1812.37f, 2854.15f, 35.212f, 0.796488f }
 };
 Position const g_Positiondead_souls[3] =
 {
     { 1922.36f, 2988.91f, 27.743f, 4.405081f },
     { 1946.59f, 2973.00f, 30.193f, 3.678247f },
-    { 1963.11f, 3003.42f, 22.359f, 3.904775f },
+    { 1963.11f, 3003.42f, 22.359f, 3.904775f }
 };
 
 Position const g_PositionSafeZoneVessel = { 1658.81f, 2957.50f, 34.291f, 5.099889f };
@@ -289,7 +291,7 @@ enum eDataAuchindonDatas
     DataSoulTransport1,
     DataSoulTransport2,
     DataSoulTransport3,
-    DataSoulTransport4,
+    DataSoulTransport4
 };
 
 enum eAuchindonBosses
@@ -384,7 +386,7 @@ enum eAuchindonGeneralActions
     ActionSoulMove3,
     ActionSoulMove4,
     ActionConfirmTuulaniEvent,
-    ActionDemonSoulsAchievement,
+    ActionDemonSoulsAchievement
 };
 
 enum eAuchindonTalk
@@ -479,7 +481,7 @@ enum eAuchindonSpells
     SpellVoidShiftDmg                   = 157037,
     SpellShadowWordPainPriest                 = 176518,
     SpellPsychicTerrorDummy             = 154356,
-    SpellPsychicTerrorFear              = 154359,
+    SpellPsychicTerrorFear              = 154359
 };
 
 enum eAuchindonEvents
@@ -506,7 +508,7 @@ enum eAuchindonEvents
     EventConfligrate,
     EventBeginRp,
     EventShadowWordPainSoulPriest,
-    EventPsychicTerrors,
+    EventPsychicTerrors
 };
 
 enum eAuchindonObjects
@@ -533,6 +535,6 @@ enum eAuchindonAchievements
     AchievementAuchindonHeroic = 9049,
     AchievementAuchindonMythic = 10080,
     AchievementDemonSouls      = 9551,
-    AchievementNoTagBacks      = 9552,
+    AchievementNoTagBacks      = 9552
 };
 

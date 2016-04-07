@@ -59,7 +59,7 @@ enum eEnums
     NPC_DEVIATE_VIPER             = 5755,
     NPC_DEVIATE_MOCCASIN          = 5762,
     NPC_NIGHTMARE_ECTOPLASM       = 5763,
-    NPC_MUTANUS_THE_DEVOURER      = 3654,
+    NPC_MUTANUS_THE_DEVOURER      = 3654
 };
 
 #define GOSSIP_ID_START_1       698  //Naralex sleeps again!

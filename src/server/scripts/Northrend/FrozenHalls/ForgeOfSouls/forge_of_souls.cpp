@@ -53,7 +53,7 @@ enum Spells
 
     //Soul Horror
     SPELL_SOUL_STRIKE                           = 69088,
-    H_SPELL_SOUL_STRIKE                         = 70211,
+    H_SPELL_SOUL_STRIKE                         = 70211
 };
 
 enum Events
@@ -100,7 +100,7 @@ enum Events
     EVENT_SHADOW_MEND,
 
     //Soul Horror
-    EVENT_SOUL_STRIKE,
+    EVENT_SOUL_STRIKE
 };
 
 /****************************************SYLVANAS************************************/
@@ -123,19 +123,19 @@ enum Yells
     SAY_SYLVANAS_INTRO_3                        = -1632052,
     SAY_SYLVANAS_INTRO_4                        = -1632053,
     SAY_SYLVANAS_INTRO_5                        = -1632054,
-    SAY_SYLVANAS_INTRO_6                        = -1632055,
+    SAY_SYLVANAS_INTRO_6                        = -1632055
 };
 
 enum eSylvanas
 {
     GOSSIP_SPEECHINTRO                           = 13525,
-    ACTION_INTRO,
+    ACTION_INTRO
 };
 
 enum Phase
 {
     PHASE_NORMAL,
-    PHASE_INTRO,
+    PHASE_INTRO
 };
 
 class npc_sylvanas_fos : public CreatureScript

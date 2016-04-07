@@ -8,7 +8,7 @@ static const DoorData doordata[] =
     {GO_ICEWALL_1, DATA_ARCURION,   DOOR_TYPE_ROOM,     BOUNDARY_NONE},
     {GO_ICEWALL_2, DATA_ARCURION,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GO_GATE,      DATA_BENEDICTUS, DOOR_TYPE_ROOM,     BOUNDARY_NONE},
-    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE},
+    {0, 0, DOOR_TYPE_ROOM, BOUNDARY_NONE}
 };
 
 class instance_hour_of_twilight : public InstanceMapScript

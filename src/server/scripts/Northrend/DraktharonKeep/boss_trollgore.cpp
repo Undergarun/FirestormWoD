@@ -25,7 +25,7 @@ enum Spells
     //Heroic spells
     H_SPELL_CORPSE_EXPLODE                        = 59807,
     H_SPELL_CONSUME                               = 59803,
-    H_SPELL_CONSUME_AURA                          = 59805,
+    H_SPELL_CONSUME_AURA                          = 59805
 };
 
 enum Yells

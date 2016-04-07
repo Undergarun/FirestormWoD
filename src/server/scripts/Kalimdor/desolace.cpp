@@ -168,7 +168,7 @@ enum DemonPortal
 {
     NPC_DEMON_GUARDIAN          = 11937,
 
-    QUEST_PORTAL_OF_THE_LEGION  = 5581,
+    QUEST_PORTAL_OF_THE_LEGION  = 5581
 };
 
 class go_demon_portal : public GameObjectScript

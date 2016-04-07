@@ -17,7 +17,7 @@
 #include "Sites/GarrisonSiteBase.hpp"
 #include "GarrisonScriptData.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     npc_Skaggit::npc_Skaggit()

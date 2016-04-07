@@ -33,7 +33,7 @@ enum eSpells
     SPELL_BLAZE_OF_THE_HEAVENS_VISUAL          = 91179,
     SPELL_BLAZE_OF_THE_HEAVENS_TRANSFORM       = 95276,
     SPELL_BLAZE_OF_THE_HEAVENS_PERIODIC        = 95248,
-    SPELL_BLAZE_OF_THE_HEAVENS_SUMMON_FIRE     = 91189,
+    SPELL_BLAZE_OF_THE_HEAVENS_SUMMON_FIRE     = 91189
 };
 
 enum eCreatures
@@ -41,13 +41,13 @@ enum eCreatures
     NPC_BLAZE_OF_THE_HEAVENS_SUMMONER          = 48904,
     NPC_REPENTANCE_MIRROR                      = 43817,
     NPC_WAIL_OF_DARKNESS                       = 43926,
-    NPC_SOUL_FRAGMENT                          = 43934,
+    NPC_SOUL_FRAGMENT                          = 43934
 };
 
 enum eActions
 {
     ACTION_REPENTANCE_START                    = 1,
-    ACTION_REPENTANCE_DONE                     = 2,
+    ACTION_REPENTANCE_DONE                     = 2
 };
 
 enum eTexts
@@ -56,7 +56,7 @@ enum eTexts
     SAY_KNEEL_DOWN                             = -1877005,
     SAY_DEATH                                  = -1877006,
     SAY_KILL_PLAYER_1                          = -1877023,
-    SAY_KILL_PLAYER_2                          = -1877024,
+    SAY_KILL_PLAYER_2                          = -1877024
 };
 
 enum ePhases
@@ -68,7 +68,7 @@ enum ePhases
     PHASE_BLAZE                                = 3,
     PHASE_EGG                                  = 4,
     PHASE_BLAZE_MASK                           = 1 << PHASE_BLAZE,
-    PHASE_EGG_MASK                             = 1 << PHASE_EGG,
+    PHASE_EGG_MASK                             = 1 << PHASE_EGG
 };
 
 enum eEvents
@@ -83,12 +83,12 @@ enum eEvents
     EVENT_SOUL_SEVER                           = 1,
     EVENT_WAIL_OF_DARKNESS                     = 2,
     // Blaze
-    EVENT_SUMMON_BLAZE_OF_THE_HEAVENS_GROUND   = 1,
+    EVENT_SUMMON_BLAZE_OF_THE_HEAVENS_GROUND   = 1
 };
 
 enum eModels
 {
-    INVISIBLE_CREATURE_MODEL                   = 11686,
+    INVISIBLE_CREATURE_MODEL                   = 11686
 };
 
 class boss_high_prophet_barim : public CreatureScript

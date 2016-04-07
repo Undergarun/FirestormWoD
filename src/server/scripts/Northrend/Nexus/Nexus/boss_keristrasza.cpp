@@ -39,7 +39,7 @@ enum Yells
 enum Misc
 {
     DATA_INTENSE_COLD                             = 1,
-    DATA_CONTAINMENT_SPHERES                      = 3,
+    DATA_CONTAINMENT_SPHERES                      = 3
 };
 
 class boss_keristrasza : public CreatureScript

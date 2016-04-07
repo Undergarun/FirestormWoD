@@ -50,7 +50,7 @@ const Position FactionChampionPos[2][3] =
         {767.643f, 639.450f, 411.757f, 3.3663f},
         {779.169f, 618.351f, 411.607f, 3.06471f},
         {769.012f, 596.386f, 411.569f, 2.92883f},
-    },
+    }
 };
 const Position ArgentSoldierPosition[3] =
 {
@@ -104,7 +104,7 @@ enum Says
     SAY_BK_INTRO_2 = 11,
     SAY_BK_INTRO_3 = 12,
     SAY_VARIAN_INTRO_BK = 10,
-    SAY_GARROSH_INTRO_BK = 10,
+    SAY_GARROSH_INTRO_BK = 10
 };
 
 enum GossipTexts
@@ -112,7 +112,7 @@ enum GossipTexts
     GOSSIP_TEXT_NOT_MOUNTED_HORDE = 15043,
     GOSSIP_TEXT_NOT_MOUNTED_ALLIANCE = 14757,
     GOSSIP_TEXT_FACTION_CHAMPIONS_DEFEATED = 14737,
-    GOSSIP_TEXT_ARGENT_CHAMPIONS_DEFEATED = 14738,
+    GOSSIP_TEXT_ARGENT_CHAMPIONS_DEFEATED = 14738
 };
 class npc_announcer_toc5 : public CreatureScript
 {

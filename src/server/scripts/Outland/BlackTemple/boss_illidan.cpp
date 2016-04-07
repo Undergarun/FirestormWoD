@@ -153,7 +153,7 @@ enum CreatureEntry
     SPIRIT_OF_UDALO         =   23410,
     ILLIDARI_ELITE          =   23226,
     PARASITIC_SHADOWFIEND   =   23498,
-    CAGE_TRAP_TRIGGER       =   23292,
+    CAGE_TRAP_TRIGGER       =   23292
 };
 
 /*** Phase Names ***/
@@ -168,7 +168,7 @@ enum PhaseIllidan
     PHASE_TALK_SEQUENCE         =   6,
     PHASE_FLIGHT_SEQUENCE       =   7,
     PHASE_TRANSFORM_SEQUENCE    =   8,
-    PHASE_ILLIDAN_MAX           =   9,
+    PHASE_ILLIDAN_MAX           =   9
 }; // Maiev uses the same phase
 
 enum PhaseAkama
@@ -179,7 +179,7 @@ enum PhaseAkama
     PHASE_TALK              =   3,
     PHASE_FIGHT_ILLIDAN     =   4,
     PHASE_FIGHT_MINIONS     =   5,
-    PHASE_RETURN            =   6,
+    PHASE_RETURN            =   6
 };
 
 enum EventIllidan
@@ -209,7 +209,7 @@ enum EventIllidan
     // sequence phase
     EVENT_TALK_SEQUENCE         =   2,
     EVENT_FLIGHT_SEQUENCE       =   2,
-    EVENT_TRANSFORM_SEQUENCE    =   2,
+    EVENT_TRANSFORM_SEQUENCE    =   2
 };
 
 enum EventMaiev
@@ -219,7 +219,7 @@ enum EventMaiev
     EVENT_MAIEV_TAUNT           =   2,
     EVENT_MAIEV_SHADOW_STRIKE   =   3,
     EVENT_MAIEV_THROW_DAGGER    =   4,
-    EVENT_MAIEV_TRAP            =   4,
+    EVENT_MAIEV_TRAP            =   4
 };
 
 static const EventIllidan MaxTimer[9] =

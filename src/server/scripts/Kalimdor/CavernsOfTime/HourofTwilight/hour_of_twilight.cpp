@@ -15,7 +15,7 @@ enum Adds
     NPC_SHADOW_BORER                = 54686,
     NPC_TWILIGHT_PORTAL             = 58233,
 
-    NPC_EARTHEN_SHELL_TARGET        = 55445,
+    NPC_EARTHEN_SHELL_TARGET        = 55445
 };
 
 class npc_hour_of_twilight_life_warden : public CreatureScript

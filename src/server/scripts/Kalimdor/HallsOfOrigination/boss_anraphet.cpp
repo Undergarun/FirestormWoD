@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_KILL                   = 2,
     SAY_ALPHA                  = 3,
     SAY_OMEGA                  = 4,
-    SAY_AGGRO                  = 5,
+    SAY_AGGRO                  = 5
 };
 
 enum Spells
@@ -22,7 +22,7 @@ enum Spells
     SPELL_CRUMBLING_RUIN_H      = 91206, 
     SPELL_DESTRUCTION_PROTOCOL  = 77437,
     SPELL_NEMESIS_STRIKE        = 75604,
-    SPELL_OMEGA_STANCE          = 75622,
+    SPELL_OMEGA_STANCE          = 75622
 };
 
 enum Events
@@ -31,7 +31,7 @@ enum Events
     EVENT_CRUMBLING_RUIN       = 2,
     EVENT_DESTRUCTION_PROTOCOL = 3,
     EVENT_NEMESIS_STRIKE       = 4,
-    EVENT_INTRO                = 5,
+    EVENT_INTRO                = 5
 };
 
 enum Adds

@@ -26,7 +26,7 @@ enum CreatureIds
     GO_TENTACLE_LEFT            = 208301,
     GO_CONTROL_SYSTEM           = 203199,
     GO_INVISIBLE_DOOR_1         = 207997,
-    GO_INVISIBLE_DOOR_2         = 207998,
+    GO_INVISIBLE_DOOR_2         = 207998
 };
 
 enum Data
@@ -40,7 +40,7 @@ enum Data
     DATA_CORALES                = 6,
     DATA_LADY_NAZJAR_EVENT      = 7,
     DATA_COMMANDER_ULTHOK_EVENT = 8,
-    DATA_NEPTULON_EVENT         = 9,
+    DATA_NEPTULON_EVENT         = 9
 };
 
 #endif

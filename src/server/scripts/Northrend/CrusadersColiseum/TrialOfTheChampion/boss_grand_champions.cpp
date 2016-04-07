@@ -68,7 +68,7 @@ enum eSpells
     SPELL_EVISCERATE_H = 68317,
     SPELL_FAN_OF_KNIVES = 67706,
     SPELL_POISON_BOTTLE = 67701,
-    SPELL_DUAL_WIELD = 42459,
+    SPELL_DUAL_WIELD = 42459
 };
 
 enum eSeat
@@ -1131,7 +1131,7 @@ enum vehicleSpells
     SPELL_VISUAL_SHIELD_3 = 63132,
 
     // Shield break
-    SPELL_THROW_VISUAL = 45827,
+    SPELL_THROW_VISUAL = 45827
 };
 
 class spell_toc5_ride_mount: public SpellScriptLoader

@@ -7,7 +7,7 @@ enum ScriptTexts
     SAY_AGGRO           = 0,
     SAY_KILL            = 1,
     SAY_TRANSFORMATION  = 2,
-    SAY_DEATH           = 3,
+    SAY_DEATH           = 3
 };
 enum Spells
 {
@@ -17,7 +17,7 @@ enum Spells
     SPELL_THUNDERCLAP           = 76186,
     SPELL_TWITCHY               = 76167,
     SPELL_SHADOW_OF_OBSIDIUS    = 76164,
-    SPELL_CREPUSCULAR_VEIL      = 76189,
+    SPELL_CREPUSCULAR_VEIL      = 76189
 };
 
 enum Events
@@ -25,12 +25,12 @@ enum Events
     EVENT_STONEBLOW             = 1,
     EVENT_TWILIGHT_CORRUPTION   = 2,
     EVENT_THUNDERCLAP           = 3,
-    EVENT_CREPUSCULAR_VEIL      = 4,
+    EVENT_CREPUSCULAR_VEIL      = 4
 };
 
 enum Adds
 {
-    NPC_SHADOW_OF_OBSIDIUS  = 40817,
+    NPC_SHADOW_OF_OBSIDIUS  = 40817
 };
 
 const Position shadowofobsidiusPos[3] =

@@ -23,7 +23,7 @@ enum Spells
     SPELL_OBLITERATE                              = 72360,
     SPELL_WELL_OF_CORRUPTION                      = 72362,
     SPELL_CORRUPTED_FLESH                         = 72363,
-    SPELL_SHARED_SUFFERING                        = 72368,
+    SPELL_SHARED_SUFFERING                        = 72368
 };
 
 enum Events
@@ -32,7 +32,7 @@ enum Events
     EVENT_OBLITERATE,
     EVENT_WELL_OF_CORRUPTION,
     EVENT_CORRUPTED_FLESH,
-    EVENT_SHARED_SUFFERING,
+    EVENT_SHARED_SUFFERING
 };
 
 class boss_marwyn : public CreatureScript

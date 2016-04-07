@@ -120,18 +120,18 @@ enum eGaralonActions
     // Garalon's Legs
     ACTION_LEG_DIED,
     ACTION_MEND_LEG,          // Heal leg.
-    ACTION_LEG_WIPE,
+    ACTION_LEG_WIPE
 };
 
 enum eGaralonEntries
 {
     NPC_GARALON_LEG                 = 63053,
-    NPC_PHEROMONE_TRAIL             = 63021,
+    NPC_PHEROMONE_TRAIL             = 63021
 };
 
 enum eGaralonDisplayId
 {
-    DISPLAY_LEG_ACTIVE = 42852,
+    DISPLAY_LEG_ACTIVE = 42852
 };
 
 enum eGaralonGuids

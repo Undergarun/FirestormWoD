@@ -49,18 +49,18 @@ enum Events
     EVENT_KICK              = 6,
 
     // Amani Eagle
-    SPELL_TALON1             = 7,
+    SPELL_TALON1             = 7
 };
 
 enum Points
 {
     POINT_TURN  = 1,
-    POINT_DOWN  = 2,
+    POINT_DOWN  = 2
 };
 
 enum Actions
 {
-    ACTION_START_EVENT  = 1,
+    ACTION_START_EVENT  = 1
 };
 
 const Position posTurnPoint = {232.83f, 1367.78f, 48.58f, 1.79f};

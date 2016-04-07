@@ -28,7 +28,7 @@ enum Data
     DATA_DLG_COUNCIL_2              = 20,
     DATA_DLG_COUNCIL_3              = 21,
     DATA_DLG_ENTRANCE               = 22,
-    DATA_WIPE_COUNT                 = 23,
+    DATA_WIPE_COUNT                 = 23
 };
 
 enum CreatureIds
@@ -58,7 +58,7 @@ enum GameObjects
     DOOR_COUNCIL_EXIT       = 205227,
     DOOR_CHOGALL_ENTRANCE   = 205228,
     GO_CHOGALL_FLOOR        = 205898,
-    GO_SINESTRA_DOOR        = 207679,
+    GO_SINESTRA_DOOR        = 207679
 };
 
 enum ActionsDlg

@@ -3535,7 +3535,7 @@ class spell_warl_cataclysm : public SpellScriptLoader
 
 enum HavocSpells
 {
-    SPELL_GLYPH_OF_HAVOC    = 146962,
+    SPELL_GLYPH_OF_HAVOC    = 146962
 };
 
 // Havoc - 80240 

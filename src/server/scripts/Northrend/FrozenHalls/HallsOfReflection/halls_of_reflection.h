@@ -91,7 +91,7 @@ enum Creatures
     NPC_ICE_WALL                                  = 37014,
     NPC_RAGING_GNOUL                              = 36940,
     NPC_RISEN_WITCH_DOCTOR                        = 36941,
-    NPC_ABON                                      = 37069,
+    NPC_ABON                                      = 37069
 };
 
 enum GameObjects
@@ -123,13 +123,13 @@ enum GameObjects
 enum HorWorldStates
 {
     WORLD_STATE_HOR_WAVES_ENABLED                 = 4884,
-    WORLD_STATE_HOR_WAVE_COUNT                    = 4882,
+    WORLD_STATE_HOR_WAVE_COUNT                    = 4882
 };
 
 // Common actions from Instance Script to Boss Script
 enum Actions
 {
-    ACTION_ENTER_COMBAT,
+    ACTION_ENTER_COMBAT
 };
 
 enum TrashGeneralSpells
@@ -137,7 +137,7 @@ enum TrashGeneralSpells
     // General spells
     SPELL_WELL_OF_SOULS                           = 72630, // cast when spawn(become visible)
     SPELL_SPIRIT_ACTIVATE                         = 72130, // cast when unit activates
-    SPELL_QUELDELAR_AURA                          = 70013,
+    SPELL_QUELDELAR_AURA                          = 70013
 };
 
 enum InstanceEvents
@@ -145,7 +145,7 @@ enum InstanceEvents
     EVENT_SPAWN_WAVES                             = 1,
     EVENT_NEXT_WAVE                               = 2,
     EVENT_DO_WIPE                                 = 3,
-    EVENT_ADD_WAVE                                = 4,
+    EVENT_ADD_WAVE                                = 4
 };
 
 enum Achievements
@@ -153,7 +153,7 @@ enum Achievements
     ACHIEV_HALLS_OF_REFLECTION_N   = 4518,
     ACHIEV_HALLS_OF_REFLECTION_H   = 4521,
     ACHIEV_NOT_RETREATING_EVENT    = 22615,
-    SPELL_ACHIEV_CHECK             = 72830,
+    SPELL_ACHIEV_CHECK             = 72830
 };
 
 // Base class for FALRIC and MARWYN

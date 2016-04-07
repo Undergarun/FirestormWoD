@@ -9,7 +9,7 @@
 
 enum eBoss
 {
-    BOSS_WASE_MARI = 1,
+    BOSS_WASE_MARI = 1
 };
 
 enum eSpells
@@ -22,7 +22,7 @@ enum eSpells
     SPELL_HYDROLANCE_DMG_BOTTOM     = 106267,
     SPELL_HYDROLANCE_VISUAL         = 106055,
     SPELL_HYDROLANCE_DMG            = 106105,
-    SPELL_WASH_AWAY                 = 106331,
+    SPELL_WASH_AWAY                 = 106331
 };
 
 enum eTexts
@@ -33,7 +33,7 @@ enum eTexts
     TEXT_CALL_WATER       = 3,
     TEXT_PHASE_SWITCH     = 4,
     TEXT_DEATH            = 5,
-    TEXT_KILL_PLAYER      = 6,
+    TEXT_KILL_PLAYER      = 6
 };
 
 enum eEvents
@@ -42,14 +42,14 @@ enum eEvents
     EVENT_HYDROLANCE        = 2,
     EVENT_HYDROLANCE_START  = 3,
     EVENT_SWITCH_PHASE_TWO  = 4,
-    EVENT_WASH_AWAY         = 5,
+    EVENT_WASH_AWAY         = 5
 };
 
 enum eCreatures
 {
     CREATURE_FOUTAIN_TRIGGER            = 56586,
     CREATURE_CORRUPT_DROPLET            = 62358,
-    CREATURE_HYDROLANCE_BOTTOM_TRIGGER  = 56542,
+    CREATURE_HYDROLANCE_BOTTOM_TRIGGER  = 56542
 };
 
 enum eTimers
@@ -58,14 +58,14 @@ enum eTimers
     TIMER_HYDROLANCE_START      = 10000,
     TIMER_HYDROLANCE            =  5500,
     TIMER_SWITCH_PHASE_TWO      = 15000,
-    TIMER_WASH_AWAY             =   300,
+    TIMER_WASH_AWAY             =   300
 };
 
 enum hydrolancePhase
 {
     HYDROLANCE_BOTTOM   = 1,
     HYDROLANCE_LEFT     = 2,
-    HYDROLANCE_RIGHT    = 3,
+    HYDROLANCE_RIGHT    = 3
 };
 
 static const float fountainTriggerPos[4][3] =
@@ -73,7 +73,7 @@ static const float fountainTriggerPos[4][3] =
     {1022.743f, -2544.295f, 173.7757f},
     {1023.314f, -2569.695f, 176.0339f},
     {1059.943f, -2581.648f, 176.1427f},
-    {1075.231f, -2561.335f, 173.8758f},
+    {1075.231f, -2561.335f, 173.8758f}
 };
 
 static const float hydrolanceLeftTrigger[5][3] =
@@ -82,7 +82,7 @@ static const float hydrolanceLeftTrigger[5][3] =
     {1058.921f, -2573.487f, 174.2403f},
     {1055.910f, -2575.674f, 174.2403f},
     {1052.511f, -2577.188f, 174.2403f},
-    {1048.871f, -2577.961f, 174.2403f},
+    {1048.871f, -2577.961f, 174.2403f}
 };
 
 static const float hydrolanceRightTrigger[5][3] =
@@ -91,7 +91,7 @@ static const float hydrolanceRightTrigger[5][3] =
     {1032.795f, -2570.971f, 174.2403f},
     {1030.878f, -2567.781f, 174.2403f},
     {1029.667f, -2564.263f, 174.2403f},
-    {1029.213f, -2560.569f, 174.2403f},
+    {1029.213f, -2560.569f, 174.2403f}
 };
 
 class boss_wase_mari : public CreatureScript

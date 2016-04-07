@@ -31,7 +31,7 @@ enum eNyamiSpells
     SpellCrusaderStrike             = 176931,
     SpellArcaneBolt                 = 154235,
 
-    SpellStrangulateState           = 78037,
+    SpellStrangulateState           = 78037
 };
 
 enum eNyamiEvents
@@ -70,7 +70,7 @@ enum eNyamiTalks
 enum eNyamiActions
 {
     ActionSummonSpirits = 1,
-    ActionBreakLoose,
+    ActionBreakLoose
 };
 
 enum eNyamiCreatures

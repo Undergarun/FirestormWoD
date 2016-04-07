@@ -54,7 +54,7 @@ enum Spells
     SPELL_FROSTBOLT_VOLLEY      = 62580,
     SPELL_FROSTNOVA             = 62597,
     SPELL_BLIZZARD              = 62576,
-    SPELL_FROSTBOLT             = 69274,
+    SPELL_FROSTBOLT             = 69274
 };
 
 enum Events
@@ -94,7 +94,7 @@ enum Events
 
     // Ancient Rune Giant
     EVENT_STOMP                     = 1,
-    EVENT_DETONATION                = 2,
+    EVENT_DETONATION                = 2
 };
 
 enum Yells
@@ -112,7 +112,7 @@ enum Yells
     SAY_END_HARD    = 9,
 
     // Runic Colossus
-    EMOTE_BARRIER   = 0,
+    EMOTE_BARRIER   = 0
 };
 
 enum Actions
@@ -129,7 +129,7 @@ enum Actions
 enum ThorimData
 {
     DATA_LOSE_ILLUSION                  = 1,
-    DATA_DO_NOT_STAND_IN_THE_LIGHTING   = 2,
+    DATA_DO_NOT_STAND_IN_THE_LIGHTING   = 2
 };
 
 enum Phases
@@ -143,7 +143,7 @@ enum Phases
     // Runic Colossus
     PHASE_COLOSSUS_IDLE     = 1,
     PHASE_RUNIC_SMASH       = 2,
-    PHASE_MELEE             = 3,
+    PHASE_MELEE             = 3
 };
 
 const Position Pos[7] =

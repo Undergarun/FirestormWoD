@@ -10,7 +10,7 @@ enum Data64
     DATA_SIAMAT,
     MAX_ENCOUNTER,
     DATA_HARBINGER,
-    DATA_BLAZE,
+    DATA_BLAZE
 };
 
 enum Creatures
@@ -22,12 +22,12 @@ enum Creatures
     BOSS_AUGH                    = 49045,
     BOSS_SIAMAT                  = 44819,
     // Various NPCs
-    NPC_WIND_TUNNEL              = 48092,
+    NPC_WIND_TUNNEL              = 48092
 };
 
 enum GameObjects
 {
-    SIAMAT_PLATFORM              = 205365,
+    SIAMAT_PLATFORM              = 205365
 };
 
 #endif

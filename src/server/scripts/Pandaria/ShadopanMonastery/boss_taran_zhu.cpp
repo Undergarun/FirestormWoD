@@ -22,7 +22,7 @@ enum eSpells
 
     // Gripping Hatred
     SPELL_GRIP_OF_HATE              = 115010,
-    SPELL_POOL_OF_SHADOWS           = 112929,
+    SPELL_POOL_OF_SHADOWS           = 112929
 };
 
 enum eEvents
@@ -32,7 +32,7 @@ enum eEvents
     EVENT_SHA_BLAST                 = 3,
     EVENT_SUMMON_GRIPPING_HATRED    = 4,
 
-    EVENT_GRIP_OF_HATE              = 5,
+    EVENT_GRIP_OF_HATE              = 5
 };
 
 class boss_taran_zhu : public CreatureScript

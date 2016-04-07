@@ -8,7 +8,7 @@ enum Spells
     SPELL_LAVA_FISSURE_DUM  = 80798,
     SPELL_ERUPTION          = 80800,
     SPELL_ERUPTION_AURA     = 80801,
-    SPELL_ERUPTION_H        = 92657,
+    SPELL_ERUPTION_H        = 92657
 };
 
 enum Events
@@ -17,14 +17,14 @@ enum Events
     EVENT_LAVA_FISSURE  = 2,
     EVENT_FLY           = 3,
     EVENT_GROUND        = 4,
-    EVENT_ERUPTION      = 5,
+    EVENT_ERUPTION      = 5
 };
 
 enum Adds
 {
     NPC_LAVA_FISSURE = 43242,
     NPC_STALACTITE_TRIGGER  = 43159,
-    NPC_STALACTITE__GROUND_TRIGGER = 43357,
+    NPC_STALACTITE__GROUND_TRIGGER = 43357
 };
 
 Position slabhidegroundPos = {1278.23f, 1212.27f, 247.28f, 0.0f};

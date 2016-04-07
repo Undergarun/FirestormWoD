@@ -10,7 +10,7 @@ enum ScriptTexts
     SAY_SPELL2  = 3,
     SAY_SPELL3  = 4,
     SAY_SPELL4  = 5,
-    SAY_SPELL5  = 6,
+    SAY_SPELL5  = 6
 };
 enum Spells
 {
@@ -44,7 +44,7 @@ enum Spells
 
     SPELL_SWIRLING_VAPOR                = 92007,
     SPELL_CONDENSING_VAPOR              = 92008,
-    SPELL_FREEZING_VAPOR                = 92011,
+    SPELL_FREEZING_VAPOR                = 92011
 };
 
 enum Adds
@@ -64,7 +64,7 @@ enum Events
     EVENT_SWIRLING_VAPOR    = 6,
     EVENT_CONDENSING_VAPOR  = 7,
     EVENT_FREEZING_VAPOR    = 8,
-    EVENT_COALESCE          = 9,
+    EVENT_COALESCE          = 9
 };
 
 #define ACTION_COALESCE 1

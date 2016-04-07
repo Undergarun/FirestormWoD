@@ -26,7 +26,7 @@ enum eSays
     SAY_AGGRO_3            = -1543005,
     SAY_KILL_1             = -1543006,
     SAY_KILL_2             = -1543007,
-    SAY_DIE                = -1543008,
+    SAY_DIE                = -1543008
 };
 
 enum eSpells
@@ -34,7 +34,7 @@ enum eSpells
     SPELL_MORTAL_WOUND     = 30641,
     H_SPELL_MORTAL_WOUND   = 36814,
     SPELL_SURGE            = 34645,
-    SPELL_RETALIATION      = 22857,
+    SPELL_RETALIATION      = 22857
 };
 
 class boss_watchkeeper_gargolmar : public CreatureScript

@@ -13,7 +13,7 @@
 #include "GarrisonMgr.hpp"
 #include "SharedDefines.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Simple profession building NPC script
     /// @t_ScriptName   : Script name

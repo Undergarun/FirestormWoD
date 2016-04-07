@@ -21,7 +21,7 @@ enum eEnums
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
     SPELL_FIRESHIELD             = 19626,
-    SPELL_FRENZY                 = 8269 //28371,
+    SPELL_FRENZY                 = 8269 //28371
 };
 
 class boss_vectus : public CreatureScript

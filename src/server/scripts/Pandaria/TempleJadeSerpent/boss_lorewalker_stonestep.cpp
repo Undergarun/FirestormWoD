@@ -26,7 +26,7 @@ enum eBoss
     BOSS_ZAO_SUNSEEKER = 3,
 
     BOSS_STRIFE = 4,
-    BOSS_PERIL = 5,
+    BOSS_PERIL = 5
 };
 
 enum eSpells
@@ -46,7 +46,7 @@ enum eSpells
     SPELL_AGONY                 = 114571,
     SPELL_DISSIPATION           = 113379,
     SPELL_INTENSITY             = 113315,
-    SPELL_ULTIMATE_POWER        = 113309,
+    SPELL_ULTIMATE_POWER        = 113309
 };
 
 enum eEvents
@@ -72,7 +72,7 @@ enum eEvents
     EVENT_STRIFE_1 = 15,
     EVENT_STRIFE_2 = 16,
     EVENT_STRIFE_3 = 17,
-    EVENT_STRIFE_4 = 18,
+    EVENT_STRIFE_4 = 18
 };
 
 enum eTexts
@@ -94,7 +94,7 @@ enum eTexts
     EVENT_TALK_STRIFE_1 = 11,
     EVENT_TALK_STRIFE_2 = 12,
     EVENT_TALK_STRIFE_3 = 13,
-    EVENT_TALK_STRIFE_4 = 14,
+    EVENT_TALK_STRIFE_4 = 14
 };
 
 enum eCreatures
@@ -104,7 +104,7 @@ enum eCreatures
     CREATURE_HAUNTING_SHA_1         = 58865,
     CREATURE_HAUNTING_SHA_2         = 58856,
     CREATURE_SUN                    = 56915,
-    CREATURE_OSONG                  = 56872,
+    CREATURE_OSONG                  = 56872
 };
 
 class boss_lorewalker_stonestep : public CreatureScript

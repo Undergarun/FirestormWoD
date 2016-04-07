@@ -7,7 +7,7 @@ enum Yells
     SAY_DEATH   = 1,
     SAY_INTRO   = 2,
     SAY_KILL    = 3,   
-    SAY_SPELL   = 4,
+    SAY_SPELL   = 4
 };
 
 enum Spells
@@ -21,7 +21,7 @@ enum Spells
     SPELL_FROSTBOLT_VOLLEY      = 101810,
     SPELL_PYROBLAST             = 101809,
 
-    SPELL_FROST_BLADES_SUMMON   = 101339,
+    SPELL_FROST_BLADES_SUMMON   = 101339
 };
 
 enum Events
@@ -32,7 +32,7 @@ enum Events
     EVENT_PYROBLAST         = 4, 
     EVENT_FROST_BLADES      = 5, 
     EVENT_CHECK_PLAYER      = 6,
-    EVENT_EXPLODE           = 7,
+    EVENT_EXPLODE           = 7
 };
 
 enum Creatures
@@ -41,12 +41,12 @@ enum Creatures
     NPC_FROSTBLADES     = 54494,
     NPC_BLINK_TARGET    = 54542,
     NPC_ARCANE_CIRCLE   = 54639,
-    NPC_JAINA           = 54641,
+    NPC_JAINA           = 54641
 };
 
 enum Others
 {
-    ACTION_FRAGMENTS = 1,
+    ACTION_FRAGMENTS = 1
 };
 
 uint32 FragmentsCount = 1;

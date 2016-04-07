@@ -11,7 +11,7 @@
 #include "../../../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     namespace AuriaIrondreamer_Level1
     {

@@ -6,14 +6,14 @@ enum Spells
 {
     SPELL_TELEPORT_TO_START                 = 107934, 
     SPELL_TELEPORT_TO_AZSHARA_PALACE        = 107979, 
-    SPELL_TELEPORT_TO_WELL_OF_ETERNITY      = 107691,
+    SPELL_TELEPORT_TO_WELL_OF_ETERNITY      = 107691
 };
 
 enum InstanceTeleporter
 {
     START_TELEPORT          = 1,
     AZSHARA_TELEPORT        = 2,
-    WOE_TELEPORT            = 3,
+    WOE_TELEPORT            = 3
 };
 
 class go_well_of_eternity_teleport : public GameObjectScript

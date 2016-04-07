@@ -11,7 +11,7 @@ enum ScriptTexts
     SAY_AGGRO   = 0,
     SAY_SUMMON  = 1,
     SAY_KILL    = 2,
-    SAY_DEATH   = 3,
+    SAY_DEATH   = 3
 };
 
 enum Spells
@@ -21,13 +21,13 @@ enum Spells
     SPELL_ELECTRICAL_STORM  = 43648,
     SPELL_ELECTRICAL_SAFE   = 44007,
     SPELL_PLUCKED           = 97318,
-    SPELL_EAGLE_SWOOP       = 44732,
+    SPELL_EAGLE_SWOOP       = 44732
 };
 
 enum Adds
 {
     NPC_SOARING_EAGLE   = 24858,
-    NPC_AMANI_KIDNAPPER = 52638,
+    NPC_AMANI_KIDNAPPER = 52638
 };
 
 enum Events
@@ -39,12 +39,12 @@ enum Events
     EVENT_EAGLE_SWOOP       = 5,
     EVENT_GO_BACK           = 6,
     EVENT_SUMMON_EAGLE      = 7,
-    EVENT_SUMMON_KIDNAPPER  = 8,
+    EVENT_SUMMON_KIDNAPPER  = 8
 };
 
 enum Points
 {
-    POINT_HOME  = 1,
+    POINT_HOME  = 1
 };
 
 class boss_akilzon : public CreatureScript

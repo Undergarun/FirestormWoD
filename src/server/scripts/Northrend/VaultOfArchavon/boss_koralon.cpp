@@ -22,7 +22,7 @@ enum Events
     // Flame Warder
     EVENT_FW_LAVA_BIRST     = 6,
     EVENT_FW_METEOR_FISTS_A = 7,
-    EVENT_FW_METEOR_FISTS_B = 8,
+    EVENT_FW_METEOR_FISTS_B = 8
 };
 
 enum Spells
@@ -38,7 +38,7 @@ enum Spells
     // Spells Flame Warder
     SPELL_FW_LAVA_BIRST                         = 66813,
     SPELL_FW_METEOR_FISTS_A                     = 66808,
-    SPELL_FW_METEOR_FISTS_B                     = 67331,
+    SPELL_FW_METEOR_FISTS_B                     = 67331
 };
 
 class boss_koralon : public CreatureScript

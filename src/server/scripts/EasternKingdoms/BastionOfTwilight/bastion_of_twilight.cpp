@@ -17,7 +17,7 @@ enum ScriptTexts
     SAY_CHOGALL_11    = 11,
     SAY_CHOGALL_12    = 12,
     SAY_CHOGALL_13    = 13,
-    SAY_CHOGALL_14    = 14,
+    SAY_CHOGALL_14    = 14
 };
 
 enum Spells
@@ -36,7 +36,7 @@ enum Spells
     SPELL_UMBRAL_FLAMES            = 85664,
     SPELL_UMBRAL_FLAMES_DMG        = 85679,  
     SPELL_SHADOW_MENDING        = 85575,
-    SPELL_SHADOW_MENDING_HEAL    = 85577,
+    SPELL_SHADOW_MENDING_HEAL    = 85577
 };
 
 enum CreaturesIds
@@ -45,7 +45,7 @@ enum CreaturesIds
     NPC_TWILIGHT_PORTAL            = 45885,
     NPC_FACELESS_MINION            = 45703,
     NPC_TWILIGHT_SHIFTER        = 45687,
-    NPC_TWILIGHT_SHADOW_MENDER    = 45699,
+    NPC_TWILIGHT_SHADOW_MENDER    = 45699
 };
 
 enum Events
@@ -72,7 +72,7 @@ enum Events
     EVENT_COUNCIL_DLG_1                = 116,
     EVENT_COUNCIL_DLG_2                = 117,
     EVENT_COUNCIL_DLG_3                = 118,
-    EVENT_CHOGALL_DLG                = 119,
+    EVENT_CHOGALL_DLG                = 119
 };
 
 class npc_twilight_portal_shaper : public CreatureScript

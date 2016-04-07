@@ -31,7 +31,7 @@ enum Texts
     SAY_ARRIVAL1_RAG    = -1409009,
     SAY_ARRIVAL2_MAJ    = -1409010,
     SAY_ARRIVAL3_RAG    = -1409011,
-    SAY_ARRIVAL5_RAG    = -1409012,
+    SAY_ARRIVAL5_RAG    = -1409012
 };
 
 enum Spells
@@ -41,7 +41,7 @@ enum Spells
     SPELL_BLAST_WAVE        = 20229,
     SPELL_AEGIS_OF_RAGNAROS = 20620,
     SPELL_TELEPORT          = 20618,
-    SPELL_SUMMON_RAGNAROS   = 19774,
+    SPELL_SUMMON_RAGNAROS   = 19774
 };
 
 #define GOSSIP_HELLO 4995
@@ -56,7 +56,7 @@ enum Events
 
     EVENT_OUTRO_1           = 5,
     EVENT_OUTRO_2           = 6,
-    EVENT_OUTRO_3           = 7,
+    EVENT_OUTRO_3           = 7
 };
 
 class boss_majordomo : public CreatureScript

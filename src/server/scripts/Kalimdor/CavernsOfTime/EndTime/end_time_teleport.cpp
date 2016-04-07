@@ -19,7 +19,7 @@ enum InstanceTeleporter
     SYLVANAS_TELEPORT       = 3,
     TYRANDE_TELEPORT        = 4,
     BAINE_TELEPORT          = 5,
-    MUROZOND_TELEPORT       = 6,
+    MUROZOND_TELEPORT       = 6
 };
 
 class go_end_time_teleport : public GameObjectScript

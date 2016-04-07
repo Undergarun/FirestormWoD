@@ -42,7 +42,7 @@ enum Yells
 
 enum Achievements
 {
-    ACHIEV_GOOD_GRIEF_START_EVENT                 = 20383,
+    ACHIEV_GOOD_GRIEF_START_EVENT                 = 20383
 };
 
 class boss_maiden_of_grief : public CreatureScript

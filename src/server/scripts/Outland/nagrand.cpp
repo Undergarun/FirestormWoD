@@ -490,7 +490,7 @@ enum KurenaiCaptive
     NPC_KUR_MURK_RAIDER             = 18203,
     NPC_KUR_MURK_BRUTE              = 18211,
     NPC_KUR_MURK_SCAVENGER          = 18207,
-    NPC_KUR_MURK_PUTRIFIER          = 18202,
+    NPC_KUR_MURK_PUTRIFIER          = 18202
 };
 
 static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
@@ -661,7 +661,7 @@ enum FindingTheSurvivorsData
     QUEST_FINDING_THE_SURVIVORS                     = 9948,
     NPC_MAGHAR_PRISONER                             = 18428,
 
-    SAY_FREE                                        = 0,
+    SAY_FREE                                        = 0
 };
 
 class go_warmaul_prison : public GameObjectScript

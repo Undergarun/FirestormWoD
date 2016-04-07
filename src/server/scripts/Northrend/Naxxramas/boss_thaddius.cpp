@@ -83,7 +83,7 @@ enum ThaddiusSpells
     SPELL_NEGATIVE_CHARGE       = 28085,
     SPELL_NEGATIVE_CHARGE_STACK = 29660,
     SPELL_POSITIVE_POLARITY     = 28059,
-    SPELL_NEGATIVE_POLARITY     = 28084,
+    SPELL_NEGATIVE_POLARITY     = 28084
 };
 
 enum Events
@@ -91,12 +91,12 @@ enum Events
     EVENT_NONE,
     EVENT_SHIFT,
     EVENT_CHAIN,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 enum Achievement
 {
-    DATA_POLARITY_SWITCH    = 76047605,
+    DATA_POLARITY_SWITCH    = 76047605
 };
 
 class boss_thaddius : public CreatureScript

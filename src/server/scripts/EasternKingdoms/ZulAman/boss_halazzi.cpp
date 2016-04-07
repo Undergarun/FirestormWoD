@@ -7,7 +7,7 @@ enum ScriptTexts
     SAY_SPLIT   = 1,
     SAY_COMBINE = 2,
     SAY_ENRAGE  = 3,
-    SAY_DEATH   = 4,
+    SAY_DEATH   = 4
 };
 
 enum Spells
@@ -28,13 +28,13 @@ enum Spells
     
     SPELL_FIXATE                    = 97486,
     SPELL_SHRED_ARMOR               = 43243,
-    SPELL_LYNX_FLURRY               = 43290,
+    SPELL_LYNX_FLURRY               = 43290
 };
 enum Adds
 {
     NPC_SPIRIT_LYNX     = 24143,
     NPC_LIGHTNING_TOTEM = 24224,
-    NPC_WATER_TOTEM     = 52755,
+    NPC_WATER_TOTEM     = 52755
 };
 
 enum Events
@@ -49,18 +49,18 @@ enum Events
     EVENT_LYNX_FLURRY       = 7,
     EVENT_SHRED_ARMOR       = 8,
 
-    EVENT_LIGHTNING         = 9,
+    EVENT_LIGHTNING         = 9
 };
 
 enum Phases
 {
     PHASE_LYNX  = 1,
-    PHASE_HUMAN = 2,
+    PHASE_HUMAN = 2
 };
 
 enum Actions
 {
-    ACTION_COMBINE  = 1,
+    ACTION_COMBINE  = 1
 };
 
 class boss_halazzi : public CreatureScript

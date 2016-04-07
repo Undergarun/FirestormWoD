@@ -523,7 +523,7 @@ enum eSentry
     NPC_LIGHTNING_SENTRY                         = 26407,
     NPC_WAR_GOLEM                                = 27017,
 
-    SPELL_CHARGED_SENTRY_TOTEM                   = 52703,
+    SPELL_CHARGED_SENTRY_TOTEM                   = 52703
 };
 
 class npc_lightning_sentry : public CreatureScript
@@ -590,7 +590,7 @@ enum eSmokeEmOut
     QUEST_SMOKE_EM_OUT_H                         = 12324,
     SPELL_SMOKE_BOMB                             = 49075,
     SPELL_CHOP                                   = 43410,
-    SPELL_VENTURE_STRAGGLER_CREDIT               = 49093,
+    SPELL_VENTURE_STRAGGLER_CREDIT               = 49093
 };
 
 class npc_venture_co_straggler : public CreatureScript

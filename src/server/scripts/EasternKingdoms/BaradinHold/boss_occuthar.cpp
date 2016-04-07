@@ -25,13 +25,13 @@ enum Events
     EVENT_BERSERK           = 1,
     EVENT_SEARING_SHADOWS   = 2,
     EVENT_EYE_OF_OCCUTHAR   = 3,
-    EVENT_FOCUSED_FIRE      = 4,
+    EVENT_FOCUSED_FIRE      = 4
 };
 
 enum Adds
 {
     NPC_EYE_OF_OCCUTHAR = 52389,
-    NPC_EYESTALK        = 52369,
+    NPC_EYESTALK        = 52369
 };
 
 class boss_occuthar : public CreatureScript

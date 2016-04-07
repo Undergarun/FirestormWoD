@@ -187,7 +187,7 @@ Position DeceiverLocations[3]=
 {
     {1682.045f, 631.299f, 5.936f, 0.0f},
     {1684.099f, 618.848f, 0.589f, 0.0f},
-    {1694.170f, 612.272f, 1.416f, 0.0f},
+    {1694.170f, 612.272f, 1.416f, 0.0f}
 };
 
 // Locations, where Shield Orbs will spawn
@@ -227,7 +227,7 @@ static Speech Speeches[]=
     {SAY_KJ_PHASE5,             DATA_KILJAEDEN,     5500},
 
     // use in End sequence?
-    {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000},
+    {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000}
 };
 
 //AI for Kalecgos

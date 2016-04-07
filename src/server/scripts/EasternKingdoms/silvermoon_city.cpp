@@ -29,7 +29,7 @@ enum eStillbladeData
 
     QUEST_REDEEMING_THE_DEAD    = 9685,
     SPELL_SHIMMERING_VESSEL     = 31225,
-    SPELL_REVIVE_SELF           = 32343,
+    SPELL_REVIVE_SELF           = 32343
 };
 
 class npc_blood_knight_stillblade : public CreatureScript

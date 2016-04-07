@@ -28,7 +28,7 @@ enum PortalCreatures
     CREATURE_AZURE_CAPTAIN            = 30666,
     CREATURE_AZURE_SORCEROR           = 30667,
     CREATURE_AZURE_RAIDER             = 30668,
-    CREATURE_AZURE_STALKER            = 32191,
+    CREATURE_AZURE_STALKER            = 32191
 };
 
 enum AzureInvaderSpells
@@ -59,7 +59,7 @@ enum AzureBinderSpells
     SPELL_FROST_NOVA            = 58458,
     H_SPELL_FROST_NOVA          = 59253,
     SPELL_FROSTBOLT             = 58457,
-    H_SPELL_FROSTBOLT           = 59251,
+    H_SPELL_FROSTBOLT           = 59251
 };
 
 enum AzureMageSlayerSpells

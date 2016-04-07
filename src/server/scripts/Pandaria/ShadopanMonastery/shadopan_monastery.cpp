@@ -28,7 +28,7 @@ enum eSpells
     // Fragment of Hatred
     //SPELL_ICE_TRAP              = 135382,
     SPELL_SINISTER_STRIKE       = 112931,
-    SPELL_VOLLEY_OF_HATRED      = 112911,
+    SPELL_VOLLEY_OF_HATRED      = 112911
 };
 
 enum eEvents
@@ -47,7 +47,7 @@ enum eEvents
     // Fragment of Hatred
     //EVENT_ICE_TRAP              = 8,
     EVENT_SINISTER_STRIKE       = 9,
-    EVENT_VOLLEY_OF_HATRED      = 10,
+    EVENT_VOLLEY_OF_HATRED      = 10
 };
 
 class npc_shadopan_ambusher : public CreatureScript
@@ -404,7 +404,7 @@ enum areaTrigger
     AREATRIGGER_ARCHERY_FIRST_BEGIN     = 8271,
     AREATRIGGER_ARCHERY_FIRST_END       = 8272,
     AREATRIGGER_ARCHERY_SECOND_FIRST    = 7121,
-    AREATRIGGER_ARCHERY_SECOND_END      = 7126,
+    AREATRIGGER_ARCHERY_SECOND_END      = 7126
 };
 
 class areatrigger_at_shadopan_archery : public AreaTriggerScript

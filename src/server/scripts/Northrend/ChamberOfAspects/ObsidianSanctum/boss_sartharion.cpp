@@ -117,7 +117,7 @@ enum eEnums
 
     //using these custom points for dragons start and end
     POINT_ID_INIT                               = 100,
-    POINT_ID_LAND                               = 200,
+    POINT_ID_LAND                               = 200
 };
 
 #define DATA_CAN_LOOT   0

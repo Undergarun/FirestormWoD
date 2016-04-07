@@ -13,7 +13,7 @@
 # include "GarrisonMgr.hpp"
 # include "SharedDefines.h"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Scripts directly related to buildings.
     class GarrisonBuildingAuraPlayerScript : PlayerScript

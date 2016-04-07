@@ -6,13 +6,13 @@ enum Spells
     SPELL_FEL_FIRESTORM       = 88972,
     SPELL_CONSUMING_DARKNESS  = 88954,
     SPELL_METEOR_SLASH        = 88942,
-    SPELL_BERSERK             = 47008,
+    SPELL_BERSERK             = 47008
 };
 
 enum ePhases
 {
     PHASE_1,
-    PHASE_2,
+    PHASE_2
 };
 
 class boss_argaloth : public CreatureScript

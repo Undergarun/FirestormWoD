@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_EVENT_1     = 1,
     SAY_EVENT_2     = 2,
     SAY_LIGHT       = 6,
-    SAY_TWILIGHT    = 4,
+    SAY_TWILIGHT    = 4
 };
 
 enum Spells
@@ -58,7 +58,7 @@ enum Spells
     SPELL_TWILIGHT_DMG                  = 103775,
 
     SPELL_WAVE_OF_TWILIGHT              = 103780,
-    SPELL_WAVE_OF_TWILIGHT_DMG          = 103781,
+    SPELL_WAVE_OF_TWILIGHT_DMG          = 103781
 };
 
 enum Events
@@ -72,7 +72,7 @@ enum Events
     EVENT_CORRUPTING_TWILIGHT   = 7,
     EVENT_TWILIGHT_SNEAR        = 8,
     EVENT_CONTINUE              = 9,
-    EVENT_JUMP_2                = 10,
+    EVENT_JUMP_2                = 10
 };
 
 enum Adds
@@ -83,13 +83,13 @@ enum Adds
     NPC_WAVE_OF_VIRTUE      = 55551,
     NPC_CORRUPTING_TWILIGHT = 55467,
     NPC_TWILIGHT_BLAST      = 55468,
-    NPC_WAVE_OF_TWILIGHT    = 55469,
+    NPC_WAVE_OF_TWILIGHT    = 55469
 };
 
 enum Actions
 {
     ACTION_LIGHT    = 1,
-    ACTION_TWILIGHT = 2,
+    ACTION_TWILIGHT = 2
 };
 
 class boss_archbishop_benedictus : public CreatureScript

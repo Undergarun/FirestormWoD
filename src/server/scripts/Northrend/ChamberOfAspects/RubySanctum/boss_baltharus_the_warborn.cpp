@@ -31,7 +31,7 @@ enum Spells
     SPELL_CLONE                 = 74511,
     SPELL_REPELLING_WAVE        = 74509,
     SPELL_CLEAR_DEBUFFS         = 34098,
-    SPELL_SPAWN_EFFECT          = 64195,
+    SPELL_SPAWN_EFFECT          = 64195
 };
 
 enum Events
@@ -40,12 +40,12 @@ enum Events
     EVENT_CLEAVE                = 2,
     EVENT_ENERVATING_BRAND      = 3,
     EVENT_INTRO_TALK            = 4,
-    EVENT_OOC_CHANNEL           = 5,
+    EVENT_OOC_CHANNEL           = 5
 };
 
 enum Actions
 {
-    ACTION_CLONE                = 1,
+    ACTION_CLONE                = 1
 };
 
 enum Phases

@@ -41,7 +41,7 @@ enum Events
     EVENT_STRIKE,
     EVENT_SHOUT,
     EVENT_KNIFE,
-    EVENT_COMMAND,
+    EVENT_COMMAND
 };
 
 class boss_razuvious : public CreatureScript

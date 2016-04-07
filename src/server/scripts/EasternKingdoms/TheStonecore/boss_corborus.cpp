@@ -15,7 +15,7 @@ enum Spells
     SPELL_THRASHING_CHARGE_H    = 92651,
     SPELL_THRASHING_CHARGE_DUM    = 81801,
     SPELL_ROCK_BORE                = 80028,                
-    SPELL_ROCK_BORE_H            = 92630,
+    SPELL_ROCK_BORE_H            = 92630
 };
 
 enum Events
@@ -28,14 +28,14 @@ enum Events
     EVENT_THRASHING_CHARGE        = 6,
     EVENT_ROCK_BORER            = 7,
     EVENT_ROCK_BORE                = 8,
-    EVENT_CRYSTAL_SHARD_MOVE    = 9,
+    EVENT_CRYSTAL_SHARD_MOVE    = 9
 };
 
 enum Adds
 {
     NPC_ROCK_BORER            = 43917,
     NPC_CRYSTAL_SHARD        = 49267,
-    NPC_THRASHING_CHARGE    = 43743,
+    NPC_THRASHING_CHARGE    = 43743
 };
 
 class boss_corborus : public CreatureScript

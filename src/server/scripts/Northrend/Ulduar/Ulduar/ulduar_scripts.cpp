@@ -14,7 +14,7 @@
 enum Events
 {
     // Ironwork Cannon
-    EVENT_FLAME_CANNON      = 1,
+    EVENT_FLAME_CANNON      = 1
 };
 
 enum Spells

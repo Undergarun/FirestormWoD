@@ -9,7 +9,7 @@ enum ScriptedTextNozdormu
     SAY_NOZDORMU_INTRO_1    = 1,
     SAY_NOZDORMU_INTRO_2    = 2,
     SAY_NOZDORMU_INTRO_3    = 3,
-    SAY_NOZDORMU_INTRO_4    = 4,
+    SAY_NOZDORMU_INTRO_4    = 4
 };
 
 enum ScriptedTextIllidan1
@@ -21,7 +21,7 @@ enum ScriptedTextIllidan1
     SAY_ILLIDAN_1_OUTRO_2   = 4,
     SAY_ILLIDAN_1_SPELL     = 5,
     SAY_ILLIDAN_1_MOVE      = 13,
-    SAY_ILLIDAN_1_INTRO     = 24,
+    SAY_ILLIDAN_1_INTRO     = 24
 };
 
 enum ScriptedTextIllidan2
@@ -39,13 +39,13 @@ enum ScriptedTextIllidan2
     SAY_ILLIDAN_2_BUFF_1        = 16,
     SAY_ILLIDAN_2_BUFF_2        = 17,
     SAY_ILLIDAN_2_BUFF_3        = 18,
-    SAY_ILLIDAN_2_SPELL         = 19,
+    SAY_ILLIDAN_2_SPELL         = 19
 };
 
 enum ScriptedTextMalfurion
 {
     SAY_MALFURION_INTRO_1   = 4,
-    SAY_MALFURION_INTRO_2   = 5,
+    SAY_MALFURION_INTRO_2   = 5
 };
 
 enum ScriptedTextTyrande
@@ -60,7 +60,7 @@ enum ScriptedTextTyrande
     SAY_TYRANDE_NO_1        = 11,
     SAY_TYRANDE_NO_2        = 12,
     SAY_TYRANDE_MALFURION   = 13,
-    SAY_TYRANDE_MANY_DEMONS = 14,
+    SAY_TYRANDE_MANY_DEMONS = 14
 };
 
 enum Spells
@@ -115,7 +115,7 @@ enum Spells
     SPELL_ABYSSAL_FLAMES        = 103992,
 
     // Doomguard Debilitator
-    SPELL_DEBILITATING_FLAY         = 104678,
+    SPELL_DEBILITATING_FLAY         = 104678
 };
 
 enum Events
@@ -185,7 +185,7 @@ enum Events
     EVENT_HAND_OF_ELUNE             = 49,
 
     // Abyssal Doombringer
-    EVENT_ABYSSAL_FLAMES            = 49,
+    EVENT_ABYSSAL_FLAMES            = 49
 };
 
 enum Adds
@@ -240,7 +240,7 @@ enum Points
     POINT_ILLIDAN_2_10  = 16,
     POINT_TYRANDE_1     = 17,
     POINT_TYRANDE_2     = 18,
-    POINT_TYRANDE_3     = 19,
+    POINT_TYRANDE_3     = 19
 };
 
 enum Actions
@@ -255,7 +255,7 @@ enum Actions
     ACTION_DEBILITATING_OFF     = 8,
     ACTION_MANNOROTH_SARGERAS   = 9,
     ACTION_MANNOROTH_INFERNO    = 10,
-    ACTION_MANNOROTH_END        = 11,
+    ACTION_MANNOROTH_END        = 11
 };
 
 /*
@@ -272,7 +272,7 @@ const Position illidan1Pos[6] =
     {3242.290527f, -4901.905273f, 180.980728f, 0.0f},
     {3286.567139f, -4898.600098f, 181.077377f, 0.0f},
     {3327.890137f, -4892.302246f, 181.077682f, 0.0f},
-    {3362.441162f, -4934.355957f, 181.077682f, 0.0f},
+    {3362.441162f, -4934.355957f, 181.077682f, 0.0f}
 };
 
 const Position illidan2Pos[10] = 

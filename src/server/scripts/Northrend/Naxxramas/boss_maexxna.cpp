@@ -21,13 +21,13 @@ enum Spells
     SPELL_NECROTIC_POISON_10    = 28776,
     SPELL_NECROTIC_POISON_25    = 54121,
     SPELL_FRENZY_10             = 54123,
-    SPELL_FRENZY_25             = 54124,
+    SPELL_FRENZY_25             = 54124
 };
 
 enum Creatures
 {
     MOB_WEB_WRAP                = 16486,
-    MOB_SPIDERLING              = 17055,
+    MOB_SPIDERLING              = 17055
 };
 
 #define MAX_POS_WRAP            3
@@ -35,7 +35,7 @@ const Position PosWrap[MAX_POS_WRAP] =
 {
     {3546.796f, -3869.082f, 296.450f, 0.0f},
     {3531.271f, -3847.424f, 299.450f, 0.0f},
-    {3497.067f, -3843.384f, 302.384f, 0.0f},
+    {3497.067f, -3843.384f, 302.384f, 0.0f}
 };
 
 enum Events
@@ -46,7 +46,7 @@ enum Events
     EVENT_POISON,
     EVENT_WRAP,
     EVENT_SUMMON,
-    EVENT_FRENZY,
+    EVENT_FRENZY
 };
 
 class boss_maexxna : public CreatureScript

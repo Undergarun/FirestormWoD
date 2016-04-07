@@ -21,13 +21,13 @@ enum eSpells
     SPELL_SUMMON_CROCOLISK              = 84242,
     SPELL_SUMMON_AUGH_DRAGONS_BREATH    = 84805,
     SPELL_SUMMON_AUGH_WHITLWIND         = 84808,
-    SPELL_SUMMON_AUGH_BLOW_DART         = 84809,
+    SPELL_SUMMON_AUGH_BLOW_DART         = 84809
 };
 
 enum eCreatures
 {
     NPC_FRENZIED_CROCOLISK              = 43658,
-    NPC_DUST_FLAIL                      = 43655,
+    NPC_DUST_FLAIL                      = 43655
 };
 
 enum eTexts
@@ -41,7 +41,7 @@ enum eTexts
     AUGH_SAY_AUGH_BOSS                  = -1877017,
     AUGH_SAY_AUGH_STEAL                 = -1877018,
     AUGH_SAY_AUGH_BAD                   = -1877019,
-    AUGH_SAY_AAA                        = -1877020,
+    AUGH_SAY_AAA                        = -1877020
 };
 
 enum ePhases
@@ -50,7 +50,7 @@ enum ePhases
     AUGH_PHASE_ACTIVE                   = 1,
     AUGH_PHASE_STEALTHED                = 2,
     AUGH_PHASE_DISMOUNTED               = 3,
-    AUGH_PHASE_DESPAWNED                = 4,
+    AUGH_PHASE_DESPAWNED                = 4
 };
 
 enum eEvents
@@ -69,17 +69,17 @@ enum eEvents
     EVENT_BLOW_DART                     = 9,
     EVENT_DRAGONS_BREATH                = 10,
     EVENT_SMOKE_BOMB                    = 11,
-    EVENT_SAY_AAA                       = 12,
+    EVENT_SAY_AAA                       = 12
 };
 
 enum eActions
 {
-    ACTION_LOCKMAW_IS_DONE              = 1,
+    ACTION_LOCKMAW_IS_DONE              = 1
 };
 
 enum ePoins
 {
-    POINT_AUGH_BATTLE_POSITION          = 1,
+    POINT_AUGH_BATTLE_POSITION          = 1
 };
 
 const Position AughPos = {-11068.9f, -1668.37f, 0.74569f, 0.74265f};

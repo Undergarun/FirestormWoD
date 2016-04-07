@@ -164,7 +164,7 @@ enum Events
     EVENT_QUICKENING,
 
     // - Whirling Blade
-    EVENT_WB_BACK,
+    EVENT_WB_BACK
 };
 
 enum Adds
@@ -175,7 +175,7 @@ enum Adds
     NPC_WIND_BOMB                 = 67053,
     NPC_AMBER_PRISON              = 62531,
     NPC_WHIRLING_BLADE            = 63930,
-    NPC_CORROSIVE_RESIN_POOL      = 67046,
+    NPC_CORROSIVE_RESIN_POOL      = 67046
 };
 
 enum Types
@@ -192,7 +192,7 @@ enum eMeljarakActions
     ACTION_SRATHIK_DIED,
     ACTION_ZARTHIK_DIED,
     ACTION_ADDGROUP_DIED,
-    ACTION_CHECK_CONTROLLED_ADDS,
+    ACTION_CHECK_CONTROLLED_ADDS
 };
 
 #define DISPLAYID_WINDBOMB 45684

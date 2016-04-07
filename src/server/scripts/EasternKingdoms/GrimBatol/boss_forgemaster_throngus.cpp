@@ -11,7 +11,7 @@ enum ScriptTexts
     SAY_DEATH    = 2,
     SAY_SHIELD    = 3,
     SAY_MACE    = 5,
-    SAY_DUAL    = 4,
+    SAY_DUAL    = 4
 };
 
 enum Equipment
@@ -51,7 +51,7 @@ enum Adds
 {
     NPC_CAVE_IN_STALKER    = 40228,
     NPC_TWILIGHT_ARCHER = 40197,
-    NPC_FIRE_PATCH        = 48711,
+    NPC_FIRE_PATCH        = 48711
 };
 
 enum Events
@@ -61,14 +61,14 @@ enum Events
     EVENT_IMPALING_SLAM        = 3,
     EVENT_FLAMING_ARROW        = 4,
     EVENT_CAVE_IN_DUMMY        = 8,
-    EVENT_CAVE_IN_DMG        = 9,
+    EVENT_CAVE_IN_DMG        = 9
 };
 
 enum Others
 {
     ACTION_MACE            = 1,
     ACTION_DUAL_BLADES    = 2,
-    ACTION_SHIELD        = 3,
+    ACTION_SHIELD        = 3
 };
 
 

@@ -33,7 +33,7 @@ enum eSays
     SAY_FEAR_1             = -1552006,
     SAY_FEAR_2             = -1552007,
     SAY_IMAGE              = -1552008,
-    SAY_DEATH              = -1552009,
+    SAY_DEATH              = -1552009
 };
 
 enum eSpells

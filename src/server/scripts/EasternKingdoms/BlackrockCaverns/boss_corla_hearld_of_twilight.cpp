@@ -8,7 +8,7 @@ enum ScriptTexts
     SAY_AGGRO       = 0,
     SAY_KILL        = 1,
     SAY_TRANSFORM   = 2,
-    SAY_DEATH       = 3,
+    SAY_DEATH       = 3
 };
 
 enum Spells
@@ -21,17 +21,17 @@ enum Spells
     SPELL_TWILIGHT_EVOLUTION                     = 75732,
     SPELL_EVOLUTION_0                            = 75697,
     SPELL_EVOLUTION                              = 75610,
-    SPELL_KNEELING_IN_SUPPLICATION               = 75608,
+    SPELL_KNEELING_IN_SUPPLICATION               = 75608
 };
 
 enum Adds
 {
-    NPC_CORLA_TWILIGHT_ZEALOT   = 50284,
+    NPC_CORLA_TWILIGHT_ZEALOT   = 50284
 };
 
 enum Events
 {
-    EVENT_DARK_COMMAND  = 1,
+    EVENT_DARK_COMMAND  = 1
 };
 
 const Position twilightzealotPos[3] =

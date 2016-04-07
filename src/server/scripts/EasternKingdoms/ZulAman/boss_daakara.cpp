@@ -10,7 +10,7 @@ enum Scripttexts
     SAY_FIRE        = 4,
     SAY_KILL        = 5,
     SAY_LYNX        = 6,
-    SAY_AGGRO       = 7,
+    SAY_AGGRO       = 7
 };
 
 enum Spells
@@ -53,7 +53,7 @@ enum Spells
 
     SPELL_BERSERK                   = 45078,
 
-    SPELL_FERAL_SWIPE               = 43357,
+    SPELL_FERAL_SWIPE               = 43357
 };
 
 enum Events
@@ -73,19 +73,19 @@ enum Events
     EVENT_CONTINUE              = 13,
     EVENT_FERAL_SWIPE           = 14,
     EVENT_LIGHTNING_TOTEM       = 15,
-    EVENT_CHECK_PLAYERS         = 16,
+    EVENT_CHECK_PLAYERS         = 16
 };
 
 enum Adds
 {
     NPC_PILLAR_OF_FLAME     = 24187,
     NPC_AMANI_LYNX          = 52839,
-    NPC_FEATHER_VORTEX      = 24136,
+    NPC_FEATHER_VORTEX      = 24136
 };
 
 enum Actions
 {
-    ACTION_MOVE_TO_PLAYER   = 1,
+    ACTION_MOVE_TO_PLAYER   = 1
 };
 
 #define CENTER_X 120.148811f

@@ -10,7 +10,7 @@ enum Datas
 {
     DATA_ARCURION   = 0,
     DATA_ASIRA      = 1,
-    DATA_BENEDICTUS = 2,
+    DATA_BENEDICTUS = 2
 };
 
 enum CreatureIds
@@ -25,7 +25,7 @@ enum CreatureIds
 
     NPC_ARCURION        = 54590,
     NPC_ASIRA           = 54968,
-    NPC_BENEDICTUS      = 54938,
+    NPC_BENEDICTUS      = 54938
 };
 
 enum GameObjectIds
@@ -41,7 +41,7 @@ enum GameObjectIds
 
 enum OtherSpells
 {
-    SPELL_TELEPORT_ARCURION_DEATH   = 108928,
+    SPELL_TELEPORT_ARCURION_DEATH   = 108928
 };
 
 #endif

@@ -14,7 +14,7 @@ enum eBosses
 {
     BOSS_LIU_FLAMEHEART,
     BOSS_YU_LON,
-    BOSS_TRIGGER,
+    BOSS_TRIGGER
 };
 
 enum eSpells
@@ -59,14 +59,14 @@ enum eSpells
     SPELL_JADE_SERPENT_WAVE                 = 119508,
     SPELL_SERPENT_WAVE                      = 106938,
 
-    SPELL_JADE_FIRE_PERIODIC                = 107108,
+    SPELL_JADE_FIRE_PERIODIC                = 107108
 };
 
 enum eStatus
 {
     PHASE_1,
     PHASE_2,
-    PHASE_3,
+    PHASE_3
 };
 
 enum eEvents
@@ -83,7 +83,7 @@ enum eEvents
     EVENT_JADE_FIRE             = 8,
 
     EVENT_AURA_JADE             = 9,
-    EVENT_LIU_FALL              = 10,
+    EVENT_LIU_FALL              = 10
 };
 
 enum eTexts
@@ -94,12 +94,12 @@ enum eTexts
     TALK_EVENT_02,
     TALK_INTRO_01,
     TALK_KILL_01,
-    TALK_KILL_02,
+    TALK_KILL_02
 };
 
 enum eCreatures
 {
-    CREATURE_TRIGGER_WAVE = 56789,
+    CREATURE_TRIGGER_WAVE = 56789
 };
 
 class boss_liu_flameheart : public CreatureScript

@@ -19,7 +19,7 @@ enum corruptorData
     SAY_CORRUPTOR_DEAD      = -1595046,
     SAY_CORRUPTOR_DESPAWN   = -1595047,
 
-    NPC_TIME_RIFT           = 28409,
+    NPC_TIME_RIFT           = 28409
 };
 
 class boss_infinite_corruptor : public CreatureScript

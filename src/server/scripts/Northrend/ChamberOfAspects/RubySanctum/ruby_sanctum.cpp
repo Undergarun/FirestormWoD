@@ -22,7 +22,7 @@ enum Texts
     SAY_XERESTRASZA_EVENT_5     = 5,
     SAY_XERESTRASZA_EVENT_6     = 6,
     SAY_XERESTRASZA_EVENT_7     = 7,
-    SAY_XERESTRASZA_INTRO       = 8,
+    SAY_XERESTRASZA_INTRO       = 8
 };
 
 enum Events
@@ -33,7 +33,7 @@ enum Events
     EVENT_XERESTRASZA_EVENT_4   = 4,
     EVENT_XERESTRASZA_EVENT_5   = 5,
     EVENT_XERESTRASZA_EVENT_6   = 6,
-    EVENT_XERESTRASZA_EVENT_7   = 7,
+    EVENT_XERESTRASZA_EVENT_7   = 7
 };
 
 Position const xerestraszaMovePos = {3151.236f, 379.8733f, 86.31996f, 0.0f};

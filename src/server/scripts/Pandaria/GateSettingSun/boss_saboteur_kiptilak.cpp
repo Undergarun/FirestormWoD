@@ -21,7 +21,7 @@ enum eSpells
 
     SPELL_MUNITION_STABLE               = 109987,
     SPELL_MUNITION_EXPLOSION            = 107153,
-    SPELL_MUNITION_EXPLOSION_AURA       = 120551,
+    SPELL_MUNITION_EXPLOSION_AURA       = 120551
 };
 
 enum eEvents

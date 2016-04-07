@@ -64,7 +64,7 @@ enum AssemblySpells
     SPELL_LIGHTNING_TENDRILS_10        = 61887,
     SPELL_LIGHTNING_TENDRILS_25        = 63486,
     SPELL_LIGHTNING_TENDRILS_VISUAL    = 61883,
-    SPELL_STORMSHIELD                  = 64187,
+    SPELL_STORMSHIELD                  = 64187
 };
 
 // Steelbreaker
@@ -114,13 +114,13 @@ enum AssemblyEvents
     EVENT_LIGHTNING_TENDRILS_ENDFLIGHT,
     EVENT_LIGHTNING_TENDRILS_GROUND,
     EVENT_LIGHTNING_TENDRILS_LAND,
-    EVENT_MOVE_POSITION,
+    EVENT_MOVE_POSITION
 };
 
 enum AssemblyActions
 {
     ACTION_ADD_CHARGE           = 3,
-    ACTION_UPDATEPHASE          = 4,
+    ACTION_UPDATEPHASE          = 4
 };
 
 enum SteelBreakerYells
@@ -129,7 +129,7 @@ enum SteelBreakerYells
     SAY_STEELBREAKER_SLAY       = 1,
     SAY_STEELBREAKER_POWER      = 2,
     SAY_STEELBREAKER_DEATH      = 3,
-    SAY_STEELBREAKER_BERSERK    = 4,
+    SAY_STEELBREAKER_BERSERK    = 4
 };
 
 enum MolgeimYells
@@ -139,7 +139,7 @@ enum MolgeimYells
     SAY_MOLGEIM_RUNE_DEATH      = 2,
     SAY_MOLGEIM_SUMMON          = 3,
     SAY_MOLGEIM_DEATH           = 4,
-    SAY_MOLGEIM_BERSERK         = 5,
+    SAY_MOLGEIM_BERSERK         = 5
 };
 
 enum BrundirYells
@@ -155,7 +155,7 @@ enum BrundirYells
 
 enum AssemblyNPCs
 {
-    NPC_WORLD_TRIGGER = 22515,
+    NPC_WORLD_TRIGGER = 22515
 };
 
 enum MovePoints
@@ -1275,7 +1275,7 @@ const uint32 AssemblyMembers[] =
 {
     32867, // NPC_STEELBREAKER,
     32927, // NPC_RUNEMASTER_MOLGEIM,
-    32857, // NPC_STORMCALLER_BRUNDIR,
+    32857, // NPC_STORMCALLER_BRUNDIR
 };
 
 struct IsNoAssemblyMember

@@ -38,7 +38,7 @@ enum Yells
     SAY_BERSERK                                 = 14,
 
     // Leviathan MK II
-    EMOTE_PLASMA_BLAST                          = 0,
+    EMOTE_PLASMA_BLAST                          = 0
 };
 
 enum Spells
@@ -98,7 +98,7 @@ enum Spells
     SPELL_NOT_SO_FRIENDLY_FIRE                  = 65040,
 
     SPELL_WATER_SPRAY                           = 64619,
-    SPELL_RIDE_VEHICLE                          = 46598,
+    SPELL_RIDE_VEHICLE                          = 46598
 };
 
 enum Events
@@ -163,7 +163,7 @@ enum Phases
 
     // Aerial unit
     PHASE_AERIAL_SOLO__GLOBAL_3             = 10,
-    PHASE_AERIAL_ASSEMBLED__GLOBAL_4        = 11,
+    PHASE_AERIAL_ASSEMBLED__GLOBAL_4        = 11
 };
 
 enum Actions

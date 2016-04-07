@@ -21,7 +21,7 @@ enum Events
     EVENT_ASPHYXIATE         = 2,
     EVENT_STAY_OF_EXECUTION  = 3,
     EVENT_CALAMITY           = 4,
-    EVENT_WRACKING_PAIN      = 5,
+    EVENT_WRACKING_PAIN      = 5
 };
 
 enum Spells
@@ -38,7 +38,7 @@ enum Spells
     SPELL_DARK_ARCHANGEL_FORM_0 = 93766,
     SPELL_WRACKING_PAIN         = 93720,
     SPELL_CALAMITY              = 93812,
-    SPELL_CALAMITY_DMG          = 93810,
+    SPELL_CALAMITY_DMG          = 93810
 };
 
 class boss_baron_ashbury : public CreatureScript

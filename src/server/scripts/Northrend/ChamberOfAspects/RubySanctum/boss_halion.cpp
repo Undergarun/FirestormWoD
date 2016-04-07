@@ -139,7 +139,7 @@ enum Events
     EVENT_TRIGGER_BERSERK       = 16,
     EVENT_TWILIGHT_MENDING      = 17,
     EVENT_PULSARS_SHOOT_TRIGGER = 18,
-    EVENT_CHECK_PLAYERS         = 19,
+    EVENT_CHECK_PLAYERS         = 19
 };
 
 enum Actions

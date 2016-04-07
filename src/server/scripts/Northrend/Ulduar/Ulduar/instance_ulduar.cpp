@@ -21,7 +21,7 @@ static DoorData const doorData[] =
     {GO_DOODAD_UL_UNIVERSEFLOOR_02,     BOSS_ALGALON,   DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
     {GO_DOODAD_UL_UNIVERSEGLOBE01,      BOSS_ALGALON,   DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
     {GO_DOODAD_UL_ULDUAR_TRAPDOOR_03,   BOSS_ALGALON,   DOOR_TYPE_SPAWN_HOLE,   BOUNDARY_NONE   },
-    {0,                                 0,              DOOR_TYPE_ROOM,         BOUNDARY_NONE   },
+    {0,                                 0,              DOOR_TYPE_ROOM,         BOUNDARY_NONE   }
 };
 
 class instance_ulduar : public InstanceMapScript

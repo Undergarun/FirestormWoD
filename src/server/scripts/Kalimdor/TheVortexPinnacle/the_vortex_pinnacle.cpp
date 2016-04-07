@@ -26,7 +26,7 @@ enum Creatures
     NPC_WILD_VORTEX                    = 45912,
     NPC_SKYFALL_STAR                = 45932,
     NPC_GOLDEN_ORB                    = 51157,
-    NPC_ITESH                        = 49943,
+    NPC_ITESH                        = 49943
 };
 
 enum Spells
@@ -144,18 +144,18 @@ enum Events
     EVENT_CYCLONE                = 24,
     EVENT_WIND_SHOCK            = 25,
     EVENT_WV_LIGHTNING_BOLT        = 26,
-    EVENT_HOWLING_GALE            = 27,
+    EVENT_HOWLING_GALE            = 27
 };
 
 const Position teleportPos[2] = 
 {
     {-906.08f, -176.51f, 664.50f, 2.86f},
-    {-1193.67f, 472.83f, 634.86f, 0.50f},
+    {-1193.67f, 472.83f, 634.86f, 0.50f}
 };
 
 enum Other
 {
-    TYPE_SLIPSTREAM    = 1,
+    TYPE_SLIPSTREAM    = 1
 };
 
 class npc_vortex_pinnacle_slipsteam : public CreatureScript

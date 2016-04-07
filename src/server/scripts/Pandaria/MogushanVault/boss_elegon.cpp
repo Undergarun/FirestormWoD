@@ -118,7 +118,7 @@ enum eEvents
     EVENT_END_OF_PHASE_3            = 12,
     EVENT_RADIATING_ENERGIES        = 13,
     EVENT_LAUNCH_COSMIC_SPARK       = 14,
-    EVENT_COSMICSPARK_ATTACK        = 15,
+    EVENT_COSMICSPARK_ATTACK        = 15
 };
 
 enum elegonActions
@@ -127,24 +127,24 @@ enum elegonActions
     ACTION_SPAWN_ENERGY_CHARGES     = 2,
     ACTION_DESPAWN_ENERGY_CHARGES   = 3,
     ACTION_EMPYREAL_FOCUS_KILLED    = 4,
-    ACTION_WIPE                     = 5,
+    ACTION_WIPE                     = 5
 };
 
 enum eMovementPoints
 {
-    POINT_EMPYEREAN_FOCUS   = 1,
+    POINT_EMPYEREAN_FOCUS   = 1
 };
 
 enum empyrealFocusActions
 {
     ACTION_ACTIVATE_EMPYREAL_FOCUS  = 1,
-    ACTION_RESET_EMPYREAL_FOCUS     = 2,
+    ACTION_RESET_EMPYREAL_FOCUS     = 2
 };
 
 enum empyrealFocusEvents
 {
     EVENT_ACTIVATE_EMPYREAL_FOCUS   = 1,
-    EVENT_APPEAR_WALL_OF_LIGHTNING  = 2,
+    EVENT_APPEAR_WALL_OF_LIGHTNING  = 2
 };
 
 enum eTalk
@@ -161,7 +161,7 @@ enum eTalk
     TALK_C_TO_A_3       = 9,
     TALK_ENRAGE_HARD    = 10,
     TALK_ENRAGE_SOFT    = 11,
-    TALK_SLAY           = 12,
+    TALK_SLAY           = 12
 };
 
 // Set values in reset of mob_empyreal_focus
@@ -207,7 +207,7 @@ enum infiniteActions
     ACTION_INFINITE_FLASH_SPAWN     = 4,
     ACTION_INFINITE_SPAWN_PLATFORM  = 5,
     ACTION_INFINITE_SPAWN_BOSS      = 6,
-    ACTION_INFINITE_LOOT            = 7,
+    ACTION_INFINITE_LOOT            = 7
 };
 
 // Elegon - 60410
@@ -1259,7 +1259,7 @@ class mob_cosmic_spark : public CreatureScript
 
 enum energyChargeActions
 {
-    ACTION_ENERGIZE_EMPYREAL_FOCUS  = 1,
+    ACTION_ENERGIZE_EMPYREAL_FOCUS  = 1
 };
 
 // Energy Charge - 60913
@@ -1347,7 +1347,7 @@ enum infiniteEvents
     EVENT_FLASH_SPAWN       = 4,
     EVENT_BOSS_ACTIVATION   = 5,
     EVENT_BOSS_INTRO_2      = 6,
-    EVENT_CHECK_AURAS       = 7,
+    EVENT_CHECK_AURAS       = 7
 };
 
 // Infinite Energy - 65293

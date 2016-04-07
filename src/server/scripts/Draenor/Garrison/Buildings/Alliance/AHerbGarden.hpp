@@ -13,7 +13,7 @@
 #include "../GatheringBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Gather FMT : HerbSpawnType PrevSpawnTimeStamp NextSpawnTimeStamp BuildingLevel [for plot in plots]GobEntryOrHerbSpawnState[end_for]
 

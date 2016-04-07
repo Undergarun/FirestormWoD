@@ -30,7 +30,7 @@ enum Spells
     // Adds
     SPELL_HEAL                  = 19775,
     SPELL_SHADOWWORDPAIN        = 19776,
-    SPELL_IMMOLATE              = 20294,
+    SPELL_IMMOLATE              = 20294
 };
 
 enum Events
@@ -43,7 +43,7 @@ enum Events
 
     EVENT_HEAL                  = 6,
     EVENT_SHADOW_WORD_PAIN      = 7,
-    EVENT_IMMOLATE              = 8,
+    EVENT_IMMOLATE              = 8
 };
 
 class boss_sulfuron : public CreatureScript

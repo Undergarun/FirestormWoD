@@ -12,7 +12,7 @@
 
 enum eBosses
 {
-    BOSS_SHA_OF_DOUBT,
+    BOSS_SHA_OF_DOUBT
 };
 
 enum eSpells
@@ -37,7 +37,7 @@ enum eSpells
     SPELL_GATHERING_DOUBT_2     = 117571,
     SPELL_INVISIBILITY_DETECTION= 126839,
     SPELL_WEAKENED_BLOWS        = 115798,
-    SPELL_RELEASE_DOUBT         = 106112,
+    SPELL_RELEASE_DOUBT         = 106112
 };
 
 enum eEvents
@@ -56,12 +56,12 @@ enum eEvents
     EVENT_STUN = 10,
     EVENT_BLADE_SONG = 11,
     EVENT_UNTAMED_FURY = 12,
-    EVENT_GLIMPSE_OF_MADNESS = 13,
+    EVENT_GLIMPSE_OF_MADNESS = 13
 };
 
 enum eCreatures
 {
-    CREATURE_SHA_OF_DOUBT           = 56439,
+    CREATURE_SHA_OF_DOUBT           = 56439
 };
 
 enum eTalks
@@ -72,7 +72,7 @@ enum eTalks
     TALK_FIGMENT_02,
     TALK_RESET,
     TALK_SLAY_01,
-    TALK_SLAY_02,
+    TALK_SLAY_02
 };
 
 class boss_sha_of_doubt : public CreatureScript

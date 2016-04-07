@@ -9,7 +9,7 @@ enum Spells
     SPELL_SHOCKWAVE             = 83785,
 
     // Wind Tunnel
-    SPELL_SLIPSTREAM            = 85016,
+    SPELL_SLIPSTREAM            = 85016
 };
 
 
@@ -22,7 +22,7 @@ const Position RopeBeamPos[8]=
     {-11087.8f, -1379.89f, 11.4035f, 0.0f},
     {-11086.9f, -1378.05f, 17.2635f, 0.0f},
     {-11090.6f, -1369.01f, 17.2757f, 0.0f},
-    {-11092.2f, -1367.89f, 11.1261f, 0.0f},
+    {-11092.2f, -1367.89f, 11.1261f, 0.0f}
 };
 
 const uint32 SpellRopBeam[4] = {84168, 84167, 84171, 84172};

@@ -10,7 +10,7 @@ enum SinestraScriptTexts
     SAY_SINESTRA_PHASE_2_2  = 3,
     SAY_SINESTRA_PHASE_2_1  = 4,
     SAY_SINESTRA_PHASE_3    = 6,
-    SAY_SINESTRA_WHELP      = 7,
+    SAY_SINESTRA_WHELP      = 7
 };
 
 enum CalenScriptTexts
@@ -21,7 +21,7 @@ enum CalenScriptTexts
     SAY_CALEN_PHASE_3       = 3,
     SAY_CALEN_RECHARGE      = 4,
     SAY_CALEN_PHASE_2_2     = 5,
-    SAY_CALEN_DEATH         = 6,
+    SAY_CALEN_DEATH         = 6
 };
 
 enum Spells
@@ -83,7 +83,7 @@ enum Spells
     SPELL_FIERY_RESOLVE             = 87221,
     SPELL_FIERY_BARRIER             = 87229,
     SPELL_FIERY_BARRIER_AURA        = 87231,
-    SPELL_FIERY_BARRIER_DUMMY       = 95791,
+    SPELL_FIERY_BARRIER_DUMMY       = 95791
 };
 
 enum Adds
@@ -140,7 +140,7 @@ enum Events
     EVENT_ESSENCE_GROW,
 
     EVENT_TWILIGHT_BREATH,
-    //EVENT_CHECK_ESSENCE,
+    //EVENT_CHECK_ESSENCE
 };
 
 enum Others
@@ -150,7 +150,7 @@ enum Others
     ACTION_EGG,
     ACTION_WIPE,
     ACTION_START_EGG,
-    ACTION_END_EGG,
+    ACTION_END_EGG
 };
 
 const Position addsPos[16] = 

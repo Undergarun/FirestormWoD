@@ -16,7 +16,7 @@
 DoorData const doorData[] =
 {
     {GO_FIRE_FIELD,     DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE,  BOUNDARY_E   },
-    {0,                 0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {0,                 0,                          DOOR_TYPE_ROOM,     BOUNDARY_NONE}
 };
 
 class instance_ruby_sanctum : public InstanceMapScript

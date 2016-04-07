@@ -13,7 +13,7 @@ enum eData
     DATA_EVENT_NPC      = 5,
     DATA_GUARDS         = 6,
     DATA_GUARDS2        = 7,
-    DATA_TEAM           = 8,
+    DATA_TEAM           = 8
 };
 
 enum NPCs
@@ -38,7 +38,7 @@ enum NPCs
 
     GO_COURTYARD_DOOR       = 18895,
     GO_SORCERER_DOOR        = 18972,  
-    GO_ARUGAL_DOOR          = 18971,
+    GO_ARUGAL_DOOR          = 18971
 };
 
 #endif

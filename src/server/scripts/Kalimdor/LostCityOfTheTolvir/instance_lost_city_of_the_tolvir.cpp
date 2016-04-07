@@ -3,7 +3,7 @@
 
 enum eScriptText
 {
-    YELL_FREE                    = -1877010,
+    YELL_FREE                    = -1877010
 };
 
 class instance_lost_city_of_the_tolvir : public InstanceMapScript

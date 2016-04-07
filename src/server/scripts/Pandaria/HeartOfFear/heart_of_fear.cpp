@@ -1361,7 +1361,7 @@ class mob_zephyr : public CreatureScript
 enum eSwarmGuardType
 {
     TYPE_SWARM_LOWGUID = 1,
-    TYPE_AMBER_USED,
+    TYPE_AMBER_USED
 };
 
 // 64916 - Kor'thik Swarmguard
@@ -1589,7 +1589,7 @@ Position atriumPath[9] =
     { -2504.65f, 534.39f, 554.52f, 0.0f },
     { -2538.70f, 508.50f, 554.52f, 0.0f },
     { -2543.00f, 454.06f, 554.52f, 0.0f },
-    { -2528.75f, 432.90f, 554.52f, 0.0f },
+    { -2528.75f, 432.90f, 554.52f, 0.0f }
 };
 
 // 64902 - Kor'thik Fleshrender

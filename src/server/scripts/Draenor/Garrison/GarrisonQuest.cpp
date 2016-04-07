@@ -16,7 +16,7 @@
 #include "GarrisonScriptData.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonQuestPlayerScript::GarrisonQuestPlayerScript()

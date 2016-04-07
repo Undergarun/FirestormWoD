@@ -19,7 +19,7 @@ enum Spells
     SPELL_POSITIVE_CHARGE           = 39090,
     SPELL_NEGATIVE_POLARITY         = 39091,
     SPELL_NEGATIVE_CHARGE_STACK     = 39092,
-    SPELL_NEGATIVE_CHARGE           = 39093,
+    SPELL_NEGATIVE_CHARGE           = 39093
 };
 
 class spell_capacitus_polarity_charge: public SpellScriptLoader

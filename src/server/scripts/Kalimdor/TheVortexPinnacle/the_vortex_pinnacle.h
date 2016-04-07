@@ -7,7 +7,7 @@ enum Data
 {
     DATA_ERTAN      = 1,
     DATA_ALTAIRUS   = 2,
-    DATA_ASAAD      = 3,
+    DATA_ASAAD      = 3
 };
 
 
@@ -15,12 +15,12 @@ enum CreatureIds
 {
     NPC_GRAND_VIZIER_ERTAN     = 43878, 
     NPC_ALTAIRUS               = 43873,
-    NPC_ASAAD                  = 43875,
+    NPC_ASAAD                  = 43875
 };
 
 enum GameObjectIds
 {
-    GO_MAGIC_BRAZIER            = 207408,
+    GO_MAGIC_BRAZIER            = 207408
 };
 
 #endif

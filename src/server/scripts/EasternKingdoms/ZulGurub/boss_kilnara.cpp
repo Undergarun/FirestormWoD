@@ -10,7 +10,7 @@ enum ScriptTexts
     SAY_KILL        = 3,
     SAY_SPELL       = 4,
     SAY_TRANSFORM_1 = 5,
-    SAY_TRANSFORM_2 = 6,
+    SAY_TRANSFORM_2 = 6
 };
 
 enum Spells
@@ -48,7 +48,7 @@ enum Spells
     SPELL_RAT_LANDS             = 98216,
     SPELL_RAT_LURE              = 98238,
     SPELL_POUNCE_RAT            = 98241,
-    SPELL_RAT_MUNCH             = 98242,
+    SPELL_RAT_MUNCH             = 98242
 };
 
 enum Events
@@ -63,7 +63,7 @@ enum Events
     EVENT_GAPING_WOUND      = 8,
     EVENT_CONTINUE          = 9,
     EVENT_VENGEFUL_SMASH    = 10,
-    EVENT_PRIMAL_BLESSING   = 11,
+    EVENT_PRIMAL_BLESSING   = 11
 };
 
 enum Adds
@@ -72,7 +72,7 @@ enum Adds
     NPC_WAVE_OF_AGONY       = 52147,
     NPC_WAVE_OF_AGONY_END   = 52160,
     NPC_CAVE_IN_STALKER     = 52387,
-    NPC_TEMPLE_RAT          = 53108,
+    NPC_TEMPLE_RAT          = 53108
 };
 
 const Position pridePos[16] = 
