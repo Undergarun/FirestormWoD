@@ -319,7 +319,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
-    &Spell::EffectFinishGarrisonMission                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
