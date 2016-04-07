@@ -7106,9 +7106,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
-            case 110914:// Dark Bargain (DoT)
             case 113344:// Bloodbath (DoT)
             case 148022:// Icicle hit
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
+            case 110914:// Dark Bargain (DoT)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
             case 51657:
