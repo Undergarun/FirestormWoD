@@ -2206,6 +2206,7 @@ class spell_vital_strikes : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_heart_of_fear()
 {
     // Trashes
@@ -2240,3 +2241,4 @@ void AddSC_heart_of_fear()
     new mob_korthik_warsinger();        // 64458 - Kor'thik Warsinger
     new spell_vital_strikes();          // 123421 - Vital Strikes
 }
+#endif

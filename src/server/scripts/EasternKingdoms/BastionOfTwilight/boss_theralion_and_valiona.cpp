@@ -1603,6 +1603,7 @@ class spell_shifting_reality: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_theralion_and_valiona()
 {
     new boss_theralion();
@@ -1625,3 +1626,4 @@ void AddSC_boss_theralion_and_valiona()
     new spell_twilight_shift_stack();
     new spell_shifting_reality();
 }
+#endif

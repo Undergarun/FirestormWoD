@@ -237,7 +237,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_shadowmoon_burial_grounds()
 {
     new instance_shadowmoon_burial_grounds();
 }
+#endif

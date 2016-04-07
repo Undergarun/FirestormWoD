@@ -89,7 +89,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_grimrail_depot()
 {
     new instance_grimrail_depot();
 }
+#endif

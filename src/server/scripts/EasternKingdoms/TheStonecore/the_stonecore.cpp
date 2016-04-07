@@ -367,9 +367,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_stonecore()
 {
     new mob_crystalspawn_giant();
     new mob_impp();
     new mob_millhouse_manastorm();
 }
+#endif

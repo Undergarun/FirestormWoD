@@ -1632,6 +1632,7 @@ class areatrigger_highmaul_phemos_blaze : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_twin_ogron()
 {
     /// Bosses
@@ -1651,3 +1652,4 @@ void AddSC_boss_twin_ogron()
     /// AreaTrigger
     new areatrigger_highmaul_phemos_blaze();
 }
+#endif

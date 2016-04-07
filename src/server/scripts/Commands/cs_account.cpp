@@ -620,7 +620,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_account_commandscript()
 {
     new account_commandscript();
 }
+#endif

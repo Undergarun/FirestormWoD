@@ -178,7 +178,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_chat_log()
 {
     new ChatLogScript();
 }
+#endif

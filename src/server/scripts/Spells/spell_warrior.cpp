@@ -3355,6 +3355,7 @@ class spell_warr_taunt : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_taunt();
@@ -3424,3 +3425,4 @@ void AddSC_warrior_spell_scripts()
     /// Playerscripts
     new PlayerScript_second_wind();
 }
+#endif

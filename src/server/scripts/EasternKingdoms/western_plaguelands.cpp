@@ -397,10 +397,7 @@ public:
     };
 };
 
-/*######
-##
-######*/
-
+#ifndef __clang_analyzer__
 void AddSC_western_plaguelands()
 {
     new npcs_dithers_and_arbington();
@@ -409,3 +406,4 @@ void AddSC_western_plaguelands()
     new npc_andorhal_tower();
     new npc_anchorite_truuen();
 }
+#endif

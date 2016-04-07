@@ -46,8 +46,9 @@ class gatewatcher_gyro_kill : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mechanar()
 {
     new gatewatcher_gyro_kill();
 }
-
+#endif

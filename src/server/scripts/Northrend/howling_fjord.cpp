@@ -429,6 +429,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes;
@@ -437,3 +438,4 @@ void AddSC_howling_fjord()
     new npc_mcgoyver;
     new npc_daegarn;
  }
+#endif

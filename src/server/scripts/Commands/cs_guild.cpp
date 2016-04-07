@@ -295,7 +295,9 @@ class guild_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_guild_commandscript()
 {
     new guild_commandscript();
 }
+#endif

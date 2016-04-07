@@ -40,7 +40,9 @@ class PlayerScript_Event_April: public PlayerScript
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_event_april()
 {
     new PlayerScript_Event_April();
 };
+#endif

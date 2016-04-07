@@ -27,7 +27,9 @@ class instance_scenario_fate_of_karabor : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_scenario_fate_of_karabor()
 {
     new instance_scenario_fate_of_karabor();
 }
+#endif

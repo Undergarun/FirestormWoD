@@ -448,8 +448,10 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_instance_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::instance_Bloodmaul();
     new MS::Instances::Bloodmaul::AreaTrigger_at_SpawnSlagna();
 }
+#endif

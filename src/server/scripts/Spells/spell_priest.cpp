@@ -4386,6 +4386,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowform();
@@ -4473,3 +4474,4 @@ void AddSC_priest_spell_scripts()
     new PlayerScript_insanity();
     new PlayerScript_word_of_mending();
 }
+#endif

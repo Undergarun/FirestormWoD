@@ -237,6 +237,7 @@ class npc_amanishi_tempest : public CreatureScript
      };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_zulaman()
 {
     new npc_zulaman_forest_frog();
@@ -246,3 +247,4 @@ void AddSC_zulaman()
     //new npc_amani_eagle();
     //new npc_amanishi_warrior();
 }
+#endif

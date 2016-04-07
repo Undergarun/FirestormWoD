@@ -921,8 +921,9 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_character_commandscript()
 {
     new character_commandscript();
 }
+#endif

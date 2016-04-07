@@ -3797,6 +3797,7 @@ class npc_ymirjar_warlord : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_icecrown_citadel()
 {
     new npc_icc_ring_recover();
@@ -3846,3 +3847,4 @@ void AddSC_icecrown_citadel()
     new npc_ymirjar_huntress();
     new npc_ymirjar_warlord();
 }
+#endif

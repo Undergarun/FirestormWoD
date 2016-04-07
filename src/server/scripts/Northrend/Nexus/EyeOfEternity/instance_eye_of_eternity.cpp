@@ -333,7 +333,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_eye_of_eternity()
 {
    new instance_eye_of_eternity();
 }
+#endif

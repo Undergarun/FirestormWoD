@@ -4457,6 +4457,7 @@ class areatrigger_highmaul_arcane_residue : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_highmaul()
 {
     /// NPCs
@@ -4524,3 +4525,4 @@ void AddSC_highmaul()
     new areatrigger_highmaul_rune_of_disintegration();
     new areatrigger_highmaul_arcane_residue();
 }
+#endif

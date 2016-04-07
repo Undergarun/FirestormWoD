@@ -1101,6 +1101,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shadowmoon_burial_grounds()
 {
     new shadowmoon_burial_grounds_creature_talker;                          ///< 980004, 980005, 980006
@@ -1120,3 +1121,4 @@ void AddSC_shadowmoon_burial_grounds()
     new shadowmoon_burial_grounds_spell_exhume_the_crypts();                ///< 153268
     new shadowmoon_burial_grounds_spell_necrotic_burst();                   ///< 156718 
 }
+#endif

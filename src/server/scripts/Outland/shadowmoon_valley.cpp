@@ -2076,6 +2076,7 @@ class mob_collidus_the_warp_watcher : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shadowmoon_valley()
 {
     new mob_mature_netherwing_drake();
@@ -2097,3 +2098,4 @@ void AddSC_shadowmoon_valley()
     new npc_shadowmoon_tuber_node();
     new mob_collidus_the_warp_watcher();
 }
+#endif

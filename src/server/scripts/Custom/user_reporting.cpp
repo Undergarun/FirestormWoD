@@ -66,9 +66,10 @@ namespace MS { namespace UserReporting
 } ///< UserReporting
 } ///< MS
 
+#ifndef __clang_analyzer__
 void AddSC_user_reporting()
 {
     new MS::UserReporting::PlayerUserReporting();
     new MS::UserReporting::ServerUserReporting();
 };
-
+#endif

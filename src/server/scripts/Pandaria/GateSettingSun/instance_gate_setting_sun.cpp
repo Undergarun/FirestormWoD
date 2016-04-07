@@ -383,7 +383,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_gate_setting_sun()
 {
     new instance_gate_setting_sun();
 }
+#endif

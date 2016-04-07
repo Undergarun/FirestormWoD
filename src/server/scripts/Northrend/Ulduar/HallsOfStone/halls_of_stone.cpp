@@ -969,6 +969,7 @@ class achievement_brann_spankin_new : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_halls_of_stone()
 {
     new npc_brann_hos();
@@ -977,3 +978,4 @@ void AddSC_halls_of_stone()
     new mob_searing_gaze();
     new achievement_brann_spankin_new();
 }
+#endif

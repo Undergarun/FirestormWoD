@@ -305,9 +305,11 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_tanaris()
 {
     new npc_custodian_of_time();
     new npc_steward_of_time();
     new npc_OOX17();
 }
+#endif

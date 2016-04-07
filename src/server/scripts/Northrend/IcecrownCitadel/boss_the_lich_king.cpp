@@ -3518,6 +3518,7 @@ class achievement_neck_deep_in_vile : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_lich_king()
 {
     new boss_the_lich_king();
@@ -3565,3 +3566,4 @@ void AddSC_boss_the_lich_king()
     new achievement_been_waiting_long_time();
     new achievement_neck_deep_in_vile();
 }
+#endif

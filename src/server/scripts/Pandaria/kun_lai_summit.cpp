@@ -3069,6 +3069,7 @@ class mob_hackiss : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_kun_lai_summit()
 {
     new mob_nessos_the_oracle();
@@ -3097,3 +3098,4 @@ void AddSC_kun_lai_summit()
     new mob_healiss();
     new mob_hackiss();
 }
+#endif

@@ -717,6 +717,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shattrath_city()
 {
     new npc_raliq_the_drunk();
@@ -728,3 +729,4 @@ void AddSC_shattrath_city()
     new npc_ishanah();
     new npc_khadgar();
 }
+#endif

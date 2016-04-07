@@ -174,7 +174,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_bf_commandscript()
 {
     new bf_commandscript();
 }
+#endif

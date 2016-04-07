@@ -151,8 +151,10 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_isle_of_queldanas()
 {
     new npc_converted_sentry();
     new npc_greengill_slave();
 }
+#endif

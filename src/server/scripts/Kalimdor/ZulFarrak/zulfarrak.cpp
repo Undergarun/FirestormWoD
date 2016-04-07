@@ -457,6 +457,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_zulfarrak()
 {
     new npc_sergeant_bly();
@@ -465,3 +466,4 @@ void AddSC_zulfarrak()
     new at_zumrah();
     new go_troll_cage();
 }
+#endif

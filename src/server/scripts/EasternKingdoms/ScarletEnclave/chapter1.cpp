@@ -1096,6 +1096,7 @@ public:
 
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092
 
+#ifndef __clang_analyzer__
 void AddSC_the_scarlet_enclave_c1()
 {
     new npc_unworthy_initiate();
@@ -1111,3 +1112,4 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_scarlet_miner_cart();
     new go_inconspicuous_mine_car();
 }
+#endif

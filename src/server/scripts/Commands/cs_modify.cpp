@@ -1637,7 +1637,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_modify_commandscript()
 {
     new modify_commandscript();
 }
+#endif

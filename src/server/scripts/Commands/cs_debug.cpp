@@ -2681,14 +2681,16 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
+        /// This can be reported by static analyse, yes l_Pig is free and make it crash that the point !
         static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
         {
             p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
 
             Player* l_Pig = new Player(p_Handler->GetSession());
             delete l_Pig;
+#ifndef __clang_analyzer__
             l_Pig->isAFK();
-
+#endif
             return true;
         }
 
@@ -3693,7 +3695,9 @@ class debug_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_debug_commandscript()
 {
     new debug_commandscript();
 }
+#endif

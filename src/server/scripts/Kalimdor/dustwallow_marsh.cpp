@@ -329,6 +329,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dustwallow_marsh()
 {
     new npc_stinky();
@@ -337,3 +338,4 @@ void AddSC_dustwallow_marsh()
     new spell_energize_aoe();
     new go_blackhoof_cage();
 }
+#endif

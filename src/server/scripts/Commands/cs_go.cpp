@@ -678,7 +678,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_go_commandscript()
 {
     new go_commandscript();
 }
+#endif

@@ -237,7 +237,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_drak_tharon()
 {
     new instance_drak_tharon;
 }
+#endif

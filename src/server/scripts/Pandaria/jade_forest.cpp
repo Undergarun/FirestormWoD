@@ -2839,6 +2839,7 @@ class mob_chi_ji_student : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_jade_forest()
 {
     // Rare mobs
@@ -2882,3 +2883,4 @@ void AddSC_jade_forest()
     // Game Objects
     new gob_hozen_cage();
 }
+#endif

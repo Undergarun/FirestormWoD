@@ -1313,8 +1313,10 @@ class go_call_tram : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();
     new go_call_tram();
 }
+#endif

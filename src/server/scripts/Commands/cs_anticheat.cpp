@@ -259,7 +259,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_anticheat_commandscript()
 {
     new anticheat_commandscript();
 }
+#endif

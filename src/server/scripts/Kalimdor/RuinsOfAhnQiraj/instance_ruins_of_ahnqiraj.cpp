@@ -150,7 +150,9 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_ruins_of_ahnqiraj()
 {
     new instance_ruins_of_ahnqiraj();
 }
+#endif

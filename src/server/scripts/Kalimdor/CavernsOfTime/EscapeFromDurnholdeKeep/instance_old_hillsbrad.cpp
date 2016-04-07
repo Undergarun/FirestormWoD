@@ -240,7 +240,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_old_hillsbrad()
 {
     new instance_old_hillsbrad();
 }
+#endif

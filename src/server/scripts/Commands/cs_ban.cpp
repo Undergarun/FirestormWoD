@@ -759,7 +759,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ban_commandscript()
 {
     new ban_commandscript();
 }
+#endif

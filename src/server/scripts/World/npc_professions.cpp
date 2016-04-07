@@ -1158,6 +1158,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_professions()
 {
     new npc_prof_alchemy();
@@ -1166,3 +1167,4 @@ void AddSC_npc_professions()
     new npc_prof_leather();
     new npc_prof_tailor();
 }
+#endif

@@ -930,7 +930,9 @@ class garrison_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_garrison_commandscript()
 {
     new garrison_commandscript();
 }
+#endif

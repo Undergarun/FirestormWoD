@@ -233,9 +233,10 @@ class boss_warp_splinter : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warp_splinter()
 {
     new boss_warp_splinter();
     new mob_warp_splinter_treant();
 }
-
+#endif

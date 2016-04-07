@@ -90,7 +90,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_sethekk_halls()
 {
     new instance_sethekk_halls();
 }
+#endif

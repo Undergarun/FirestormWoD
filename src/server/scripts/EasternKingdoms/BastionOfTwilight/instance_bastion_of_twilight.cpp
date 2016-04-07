@@ -381,7 +381,10 @@ public:
             uint32 playerDied;
     };
 };
+
+#ifndef __clang_analyzer__
 void AddSC_instance_bastion_of_twilight()
 {
     new instance_bastion_of_twilight();
 }
+#endif

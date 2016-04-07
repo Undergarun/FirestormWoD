@@ -805,6 +805,7 @@ class spell_close_rift: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar();
@@ -819,3 +820,4 @@ void AddSC_storm_peaks()
     new npc_hyldsmeet_protodrake();
     new spell_close_rift();
 }
+#endif

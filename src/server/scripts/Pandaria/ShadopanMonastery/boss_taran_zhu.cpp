@@ -260,6 +260,7 @@ class spell_taran_zhu_grip_of_hate: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_taran_zhu()
 {
     new boss_taran_zhu();
@@ -268,3 +269,4 @@ void AddSC_boss_taran_zhu()
     new spell_taran_zhu_meditation();
     new spell_taran_zhu_grip_of_hate();
 }
+#endif

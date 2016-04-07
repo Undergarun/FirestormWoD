@@ -1629,7 +1629,9 @@ class instance_icecrown_citadel : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_icecrown_citadel()
 {
     new instance_icecrown_citadel();
 }
+#endif

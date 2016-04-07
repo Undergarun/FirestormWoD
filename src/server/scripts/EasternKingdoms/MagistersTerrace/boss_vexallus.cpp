@@ -227,8 +227,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_vexallus()
 {
     new boss_vexallus();
     new mob_pure_energy();
 }
+#endif

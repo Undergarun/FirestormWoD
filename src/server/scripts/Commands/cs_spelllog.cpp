@@ -83,7 +83,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spellog_commandscript()
 {
     new spellog_commandscript();
 }
+#endif

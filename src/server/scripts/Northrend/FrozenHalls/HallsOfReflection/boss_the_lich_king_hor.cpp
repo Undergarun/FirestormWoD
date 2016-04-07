@@ -673,6 +673,7 @@ class npc_abon : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_lich_king_hr()
 {
     new boss_lich_king_hor();
@@ -680,3 +681,4 @@ void AddSC_boss_lich_king_hr()
     new npc_risen_witch_doctor();
     new npc_abon();
 }
+#endif

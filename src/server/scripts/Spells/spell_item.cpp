@@ -4693,6 +4693,7 @@ class spell_item_hypnotize_critter : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4789,3 +4790,4 @@ void AddSC_item_spell_scripts()
     new spell_item_swapblaster();
     new spell_item_hypnotize_critter();
 }
+#endif

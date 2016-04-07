@@ -723,6 +723,7 @@ class spell_prey_time: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_striker_gadok()
 {
     new boss_striker_gadok();
@@ -732,3 +733,4 @@ void AddSC_boss_striker_gadok()
     new spell_gadok_strafing();
     new spell_prey_time();
 }
+#endif

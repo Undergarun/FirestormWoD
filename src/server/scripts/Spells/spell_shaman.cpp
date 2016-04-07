@@ -3606,6 +3606,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_glyph_of_ascendance();
@@ -3670,3 +3671,4 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_improved_chain_heal();
     new spell_sha_glyph_of_rain_of_frogs();
 }
+#endif

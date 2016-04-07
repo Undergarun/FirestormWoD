@@ -425,6 +425,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_terestian_illhoof()
 {
     new boss_terestian_illhoof();
@@ -433,3 +434,4 @@ void AddSC_boss_terestian_illhoof()
     new mob_kilrek();
     new mob_demon_chain();
 }
+#endif

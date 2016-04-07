@@ -1501,6 +1501,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hyjal_trash()
 {
     new mob_giant_infernal();
@@ -1514,3 +1515,4 @@ void AddSC_hyjal_trash()
     new mob_gargoyle();
     new alliance_rifleman();
 }
+#endif

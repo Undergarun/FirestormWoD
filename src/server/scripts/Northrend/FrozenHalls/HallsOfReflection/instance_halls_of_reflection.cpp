@@ -798,7 +798,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_halls_of_reflection()
 {
     new instance_halls_of_reflection();
 }
+#endif

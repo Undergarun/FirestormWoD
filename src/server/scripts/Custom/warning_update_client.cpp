@@ -49,7 +49,9 @@ class WarningUpdateClient : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_warning_update_client()
 {
     new WarningUpdateClient();
 };
+#endif

@@ -545,6 +545,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
@@ -553,3 +554,4 @@ void AddSC_Garrison_Quest()
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
 }
+#endif

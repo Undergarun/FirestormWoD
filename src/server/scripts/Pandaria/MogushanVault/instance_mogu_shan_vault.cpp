@@ -771,7 +771,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_mogu_shan_vault()
 {
     new instance_mogu_shan_vault();
 }
+#endif

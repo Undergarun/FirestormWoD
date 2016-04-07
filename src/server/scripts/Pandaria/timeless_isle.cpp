@@ -347,9 +347,11 @@ class spell_item_timeless_caches : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_timeless_isle()
 {
     new npc_prince_anduin();
     new npc_kairoz();
     new spell_item_timeless_caches();
 }
+#endif

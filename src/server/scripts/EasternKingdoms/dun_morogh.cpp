@@ -395,6 +395,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dun_morogh()
 {
     new npc_gnomeregan_survivor();
@@ -406,3 +407,4 @@ void AddSC_dun_morogh()
     new npc_gnomeregan_torben();
     new npc_gnomeregan_recrue();
 }
+#endif

@@ -428,6 +428,7 @@ class spell_vanessa_vancleef_backslash_targeting: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_vanessa_vancleef()
 {
     new boss_vanessa_vancleef();
@@ -435,3 +436,4 @@ void AddSC_boss_vanessa_vancleef()
     new npc_vanessa_vancleef_vanessa_sitting();
     new spell_vanessa_vancleef_backslash_targeting();
 }
+#endif

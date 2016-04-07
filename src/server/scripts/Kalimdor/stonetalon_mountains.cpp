@@ -104,8 +104,10 @@ class npc_kaya_flathoof : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_stonetalon_mountains()
 {
     new npc_kaya_flathoof();
     new npc_subjugator_devo();
 }
+#endif

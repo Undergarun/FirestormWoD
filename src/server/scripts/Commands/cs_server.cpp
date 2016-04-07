@@ -350,7 +350,9 @@ private:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_server_commandscript()
 {
     new server_commandscript();
 }
+#endif

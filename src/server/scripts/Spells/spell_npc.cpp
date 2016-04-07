@@ -1537,6 +1537,7 @@ class spell_npc_black_ox_statue : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1575,3 +1576,4 @@ void AddSC_npc_spell_scripts()
     /// Generic NPC
     new spell_npc_totem_of_harmony();
 }
+#endif

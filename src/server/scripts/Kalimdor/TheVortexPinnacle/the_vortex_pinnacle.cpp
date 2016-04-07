@@ -1190,6 +1190,7 @@ class spell_howling_gale_howling_gale: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_vortex_pinnacle()
 {
     new npc_vortex_pinnacle_slipsteam();
@@ -1211,3 +1212,4 @@ void AddSC_the_vortex_pinnacle()
     new spell_minister_of_air_lightning_lash();
     //new spell_howling_gale_howling_gale();
 };
+#endif

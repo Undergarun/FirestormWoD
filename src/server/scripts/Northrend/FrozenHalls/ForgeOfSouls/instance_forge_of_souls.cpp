@@ -153,7 +153,9 @@ class instance_forge_of_souls : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_forge_of_souls()
 {
     new instance_forge_of_souls();
 }
+#endif

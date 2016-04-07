@@ -1129,7 +1129,7 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_boss_yalnu()
 {
     new boss_yalnu();                                   ///< 83846
@@ -1145,3 +1145,4 @@ void AddSC_boss_yalnu()
     new the_everbloom_yalnu_spell_genesis();            ///< 169613
     new the_everbloom_yalnu_spell_colossal_blow();      ///< 169179
 }
+#endif

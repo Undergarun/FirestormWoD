@@ -168,9 +168,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_razorfen_downs()
 {
     new npc_henry_stern();
     new go_gong();
     new npc_tomb_creature();
 }
+#endif

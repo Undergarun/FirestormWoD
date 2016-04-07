@@ -222,8 +222,10 @@ class achievement_void_dance : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_zuramat()
 {
     new boss_zuramat();
     new achievement_void_dance();
 }
+#endif

@@ -85,7 +85,9 @@ class boss_wushoolay : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_wushoolay()
 {
     new boss_wushoolay();
 }
+#endif

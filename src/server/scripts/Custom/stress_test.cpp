@@ -72,7 +72,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_StressTest()
 {
     new StressTest();
 };
+#endif

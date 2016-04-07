@@ -4491,6 +4491,7 @@ class go_ancient_mogu_bell : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_throne_of_thunder()
 {
     new mob_zandalari_water_binder();   ///< 69455
@@ -4562,3 +4563,4 @@ void AddSC_throne_of_thunder()
     new spell_cosmic_strike();          ///< 139772
     new go_ancient_mogu_bell();         ///< 218723
 }
+#endif

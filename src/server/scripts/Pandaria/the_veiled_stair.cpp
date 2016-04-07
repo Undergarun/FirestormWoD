@@ -179,8 +179,10 @@ class npc_wrathion_mason : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_veiled_stair()
 {
     new npc_wrathion();
     new npc_wrathion_mason();
 }
+#endif

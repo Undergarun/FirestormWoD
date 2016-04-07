@@ -165,8 +165,10 @@ class at_baltharus_plateau : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ruby_sanctum()
 {
     new npc_xerestrasza();
     new at_baltharus_plateau();
 }
+#endif

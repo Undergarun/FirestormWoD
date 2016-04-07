@@ -291,7 +291,9 @@ class battlepay_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_battlepay_commandscript()
 {
     new battlepay_commandscript();
 }
+#endif

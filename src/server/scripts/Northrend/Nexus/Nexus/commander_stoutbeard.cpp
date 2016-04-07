@@ -75,7 +75,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_commander_stoutbeard()
 {
     new boss_commander_stoutbeard();
 }
+#endif

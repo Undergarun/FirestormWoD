@@ -5814,6 +5814,7 @@ class spell_dru_living_seed : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_living_seed();
@@ -5916,3 +5917,4 @@ void AddSC_druid_spell_scripts()
     /// PlayerScript
     new PlayerScript_soul_of_the_forest();
 }
+#endif

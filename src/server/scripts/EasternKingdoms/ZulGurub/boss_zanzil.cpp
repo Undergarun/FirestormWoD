@@ -372,6 +372,7 @@ class spell_frostburn_formula: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_zanzil()
 {
     new boss_zanzil();
@@ -380,3 +381,4 @@ void AddSC_boss_zanzil()
     new spell_zanzil_fire();
     new spell_frostburn_formula();
 }
+#endif

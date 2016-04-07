@@ -709,6 +709,7 @@ class achievement_incredible_hulk : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_svala()
 {
     new boss_svala();
@@ -718,3 +719,4 @@ void AddSC_boss_svala()
     new npc_scourge_hulk();
     new achievement_incredible_hulk();
 }
+#endif

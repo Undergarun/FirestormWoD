@@ -419,8 +419,10 @@ class achievement_kings_bane : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_ymiron()
 {
     new boss_ymiron();
     new achievement_kings_bane();
 }
+#endif

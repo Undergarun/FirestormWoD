@@ -128,8 +128,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_innkeeper()
 {
     new npc_innkeeper;
 }
-
+#endif

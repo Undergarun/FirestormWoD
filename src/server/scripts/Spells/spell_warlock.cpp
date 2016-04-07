@@ -4412,6 +4412,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_grimoire_of_supremacy_bonus();
@@ -4500,3 +4501,4 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_command_demon_spells();
     new spell_warl_cripple_doomguard();
 }
+#endif

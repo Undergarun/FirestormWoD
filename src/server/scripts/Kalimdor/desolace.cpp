@@ -229,9 +229,11 @@ class npc_dalinda_malem : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_desolace()
 {
     new npc_dalinda_malem();
     new npc_aged_dying_ancient_kodo();
     new go_demon_portal();
 }
+#endif

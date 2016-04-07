@@ -2456,6 +2456,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_quest_spell_scripts()
 {
     new spell_q31049_fae_spirit();
@@ -2518,3 +2519,4 @@ void AddSC_quest_spell_scripts()
     new spell_q30151_throw_ball();
     new spell_q30136_silken_rope();
 }
+#endif

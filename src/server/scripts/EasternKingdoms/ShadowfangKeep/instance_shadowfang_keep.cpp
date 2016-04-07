@@ -168,8 +168,9 @@ class instance_shadowfang_keep : public InstanceMapScript
 
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_instance_shadowfang_keep()
 {
     new instance_shadowfang_keep();
 }
+#endif

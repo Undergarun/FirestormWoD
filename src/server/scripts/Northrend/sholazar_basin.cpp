@@ -853,6 +853,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -865,3 +866,4 @@ void AddSC_sholazar_basin()
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();
 }
+#endif

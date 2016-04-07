@@ -696,7 +696,9 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_instance_Skyreach()
 {
     new MS::InstanceSkyreach::instance_Skyreach();
 }
+#endif

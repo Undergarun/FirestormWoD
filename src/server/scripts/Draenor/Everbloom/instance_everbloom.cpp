@@ -185,7 +185,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_everbloom()
 {
     new instance_everbloom();
 }
+#endif

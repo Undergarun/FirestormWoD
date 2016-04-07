@@ -798,6 +798,7 @@ class playerScript_AutoAcceptQuest: public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_East()
 {
     new AreaTrigger_at_bassin_curse();
@@ -813,3 +814,4 @@ void AddSC_WanderingIsland_East()
     new npc_ji_firepaw_killcredit();
     new playerScript_AutoAcceptQuest();
 }
+#endif

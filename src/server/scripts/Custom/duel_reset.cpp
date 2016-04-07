@@ -303,9 +303,10 @@ class duel_reset_aura_script: public PlayerScript
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_DuelReset()
 {
     //new duel_reset();
     new duel_reset_aura_script();
 }
+#endif

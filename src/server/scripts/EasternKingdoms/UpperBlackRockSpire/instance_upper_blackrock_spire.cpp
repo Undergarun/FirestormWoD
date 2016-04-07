@@ -401,8 +401,9 @@ class instance_upper_blackrock_spire : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_upper_blackrock_spire()
 {
     new instance_upper_blackrock_spire();
 }
-
+#endif

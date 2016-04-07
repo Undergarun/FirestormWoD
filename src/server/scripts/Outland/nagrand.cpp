@@ -696,6 +696,7 @@ class go_warmaul_prison : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_nagrand()
 {
     new npc_greatmother_geyah();
@@ -706,3 +707,4 @@ void AddSC_nagrand()
     new npc_kurenai_captive();
     new go_warmaul_prison();
 }
+#endif

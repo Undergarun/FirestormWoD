@@ -527,6 +527,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
@@ -538,3 +539,4 @@ void AddSC_hellfire_peninsula()
     new npc_wounded_blood_elf();
     new npc_fel_guard_hound();
 }
+#endif

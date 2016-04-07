@@ -211,7 +211,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_event_commandscript()
 {
     new event_commandscript();
 }
+#endif

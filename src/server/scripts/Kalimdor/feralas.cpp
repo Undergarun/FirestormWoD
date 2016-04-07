@@ -59,7 +59,9 @@ class npc_homing_robot_oox_22_fe : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_feralas()
 {
     new npc_homing_robot_oox_22_fe();
 }
+#endif

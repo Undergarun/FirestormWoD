@@ -197,6 +197,7 @@ class spell_resin_weaving: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_siege_of_the_niuzao_temple()
 {
     new mob_sikthik_guardian();
@@ -204,3 +205,4 @@ void AddSC_siege_of_the_niuzao_temple()
     new mob_sikthik_amber_weaver();
     new spell_resin_weaving();
 }
+#endif

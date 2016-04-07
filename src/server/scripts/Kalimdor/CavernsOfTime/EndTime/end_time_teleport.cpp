@@ -146,7 +146,9 @@ class go_end_time_teleport : public GameObjectScript
         }    
 };
 
+#ifndef __clang_analyzer__
 void AddSC_end_time_teleport()
 {
     new go_end_time_teleport();
 }
+#endif

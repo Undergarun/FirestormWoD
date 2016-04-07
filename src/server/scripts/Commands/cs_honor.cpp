@@ -114,7 +114,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_honor_commandscript()
 {
     new honor_commandscript();
 }
+#endif

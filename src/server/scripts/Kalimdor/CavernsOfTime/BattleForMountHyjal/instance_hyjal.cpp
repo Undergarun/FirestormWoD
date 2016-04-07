@@ -338,7 +338,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_mount_hyjal()
 {
     new instance_hyjal();
 }
+#endif

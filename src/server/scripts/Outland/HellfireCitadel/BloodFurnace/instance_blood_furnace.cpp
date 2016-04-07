@@ -410,8 +410,9 @@ class instance_blood_furnace : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_blood_furnace()
 {
     new instance_blood_furnace();
 }
-
+#endif

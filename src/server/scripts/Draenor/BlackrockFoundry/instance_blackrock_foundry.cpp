@@ -857,7 +857,9 @@ class instance_blackrock_foundry : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_blackrock_foundry()
 {
     new instance_blackrock_foundry();
 }
+#endif

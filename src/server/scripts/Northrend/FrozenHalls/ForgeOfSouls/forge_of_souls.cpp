@@ -902,6 +902,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_forge_of_souls()
 {
     new npc_sylvanas_fos();
@@ -915,3 +916,4 @@ void AddSC_forge_of_souls()
     new mob_soulguard_adept();
     new mob_soul_horror();
 }
+#endif

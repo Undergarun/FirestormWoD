@@ -315,9 +315,11 @@ class npc_end_time_infinite_suppressor : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_end_time()
 {
     new npc_end_time_image_of_nozdormu();
     new npc_end_time_infinite_warden();
     new npc_end_time_infinite_suppressor();
 }
+#endif

@@ -196,8 +196,10 @@ class boss_isle_of_conquest : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_isle_of_conquest()
 {
     new npc_four_car_garage();
     new boss_isle_of_conquest();
 }
+#endif

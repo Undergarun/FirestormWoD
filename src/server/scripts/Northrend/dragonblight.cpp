@@ -216,6 +216,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
@@ -223,3 +224,4 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_bark;
     new npc_wyrmrest_defender;
 }
+#endif

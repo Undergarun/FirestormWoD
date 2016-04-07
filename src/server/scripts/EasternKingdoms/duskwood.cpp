@@ -135,8 +135,10 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_duskwood()
 {
     new boss_twilight_corrupter();
     new at_twilight_grove();
 }
+#endif

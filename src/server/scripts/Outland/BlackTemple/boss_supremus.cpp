@@ -308,9 +308,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_supremus()
 {
     new boss_supremus();
     new molten_flame();
     new npc_volcano();
 }
+#endif

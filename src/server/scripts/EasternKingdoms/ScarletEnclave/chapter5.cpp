@@ -1703,8 +1703,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_scarlet_enclave_c5()
 {
     new npc_highlord_darion_mograine();
     new npc_the_lich_king_tirion_dawn();
 }
+#endif

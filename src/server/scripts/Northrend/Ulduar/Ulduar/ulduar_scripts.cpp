@@ -106,7 +106,9 @@ class npc_ironwork_cannon : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ulduar_scripts()
 {
     new npc_ironwork_cannon();
 }
+#endif

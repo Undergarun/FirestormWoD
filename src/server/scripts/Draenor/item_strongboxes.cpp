@@ -229,8 +229,10 @@ class item_runic_pouch : public ItemScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_item_strongboxes()
 {
     new item_strongbox();
     new item_runic_pouch();
 }
+#endif

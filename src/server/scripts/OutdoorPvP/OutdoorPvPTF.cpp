@@ -372,7 +372,9 @@ class OutdoorPvP_terokkar_forest : public OutdoorPvPScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_outdoorpvp_tf()
 {
     new OutdoorPvP_terokkar_forest();
 }
+#endif

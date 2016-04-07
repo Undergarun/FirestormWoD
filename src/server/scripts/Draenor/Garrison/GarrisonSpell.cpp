@@ -591,6 +591,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison()
 {
     new MS::Garrison::spell_garrison_stables_lasso();
@@ -603,3 +604,4 @@ void AddSC_Garrison()
     new MS::Garrison::spell_garrison_well_rested();
     new MS::Garrison::spell_garrison_tent_spawn();
 }
+#endif

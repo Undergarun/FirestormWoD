@@ -199,8 +199,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mulgore()
 {
     new npc_skorn_whitecloud();
     new npc_kyle_frenzied();
 }
+#endif

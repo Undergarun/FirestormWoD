@@ -122,7 +122,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_achievement_commandscript()
 {
     new achievement_commandscript();
 }
+#endif

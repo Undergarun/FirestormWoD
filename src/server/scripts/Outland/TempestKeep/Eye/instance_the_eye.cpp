@@ -197,8 +197,10 @@ class instance_the_eye : public InstanceMapScript
             return new instance_the_eye_InstanceMapScript(map);
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_instance_the_eye()
 {
     new instance_the_eye;
 }
-
+#endif

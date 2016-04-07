@@ -266,6 +266,7 @@ class mob_montak : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_thok_the_bloodthirsty()
 {
     new boss_thok_the_bloodthirsty();
@@ -274,3 +275,4 @@ void AddSC_thok_the_bloodthirsty()
     new mob_waterspeaker_gorai();
     new mob_montak();
 };
+#endif

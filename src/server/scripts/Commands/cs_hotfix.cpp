@@ -106,7 +106,9 @@ class hotfix_commandscript : public CommandScript
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hotfix_commandscript()
 {
     new hotfix_commandscript();
 }
+#endif

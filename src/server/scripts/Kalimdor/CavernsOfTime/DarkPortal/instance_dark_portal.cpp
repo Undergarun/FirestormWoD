@@ -348,7 +348,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_dark_portal()
 {
     new instance_dark_portal();
 }
+#endif

@@ -462,6 +462,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_uldum()
 {
     new mob_harrison_jones();
@@ -470,3 +471,4 @@ void AddSC_uldum()
     new npc_akmahat_fury_of_the_sands();
     new mob_lurking_tempest();
 }
+#endif

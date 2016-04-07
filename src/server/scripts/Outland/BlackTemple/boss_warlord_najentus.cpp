@@ -229,8 +229,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_najentus()
 {
     new boss_najentus();
     new go_najentus_spine();
 }
+#endif

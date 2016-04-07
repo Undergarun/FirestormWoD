@@ -352,6 +352,7 @@ class achievement_i_hate_that_song : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_temple_guardian_anhuur()
 {
     new boss_temple_guardian_anhuur();
@@ -359,3 +360,4 @@ void AddSC_boss_temple_guardian_anhuur()
     new go_beacon_of_light();
     new achievement_i_hate_that_song();
 }
+#endif

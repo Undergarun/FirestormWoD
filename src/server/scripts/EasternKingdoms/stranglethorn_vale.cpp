@@ -300,6 +300,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_stranglethorn_vale()
 {
     new mob_yenniku();
@@ -307,3 +308,4 @@ void AddSC_stranglethorn_vale()
     new mob_narkk();
     new mob_fleet_master_seahorn();
 }
+#endif

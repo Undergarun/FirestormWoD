@@ -27,7 +27,9 @@ class go_defias_cannon : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_deadmines()
 {
     new go_defias_cannon();
 }
+#endif

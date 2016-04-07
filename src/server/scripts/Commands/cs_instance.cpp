@@ -187,7 +187,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_commandscript()
 {
     new instance_commandscript();
 }
+#endif

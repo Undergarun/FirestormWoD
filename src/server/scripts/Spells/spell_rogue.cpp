@@ -3361,6 +3361,7 @@ class spell_rog_distract : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_instant_poison();
@@ -3425,3 +3426,4 @@ void AddSC_rogue_spell_scripts()
     /// Player Scripts
     new PlayerScript_ruthlessness();
 }
+#endif

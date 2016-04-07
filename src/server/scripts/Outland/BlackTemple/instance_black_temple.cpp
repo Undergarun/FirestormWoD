@@ -395,7 +395,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_black_temple()
 {
     new instance_black_temple();
 }
+#endif

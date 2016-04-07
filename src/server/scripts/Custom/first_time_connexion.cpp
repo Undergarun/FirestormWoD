@@ -16,7 +16,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_first_time_connexion()
 {
     new ReportingOnFirstTimeConnexion();
 };
+#endif

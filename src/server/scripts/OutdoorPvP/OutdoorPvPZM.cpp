@@ -466,7 +466,9 @@ class OutdoorPvP_zangarmarsh : public OutdoorPvPScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_outdoorpvp_zm()
 {
     new OutdoorPvP_zangarmarsh();
 }
+#endif

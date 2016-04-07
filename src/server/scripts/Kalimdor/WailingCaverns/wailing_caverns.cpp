@@ -397,7 +397,9 @@ else
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_wailing_caverns()
 {
     new npc_disciple_of_naralex();
 }
+#endif

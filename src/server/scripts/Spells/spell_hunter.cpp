@@ -4272,6 +4272,7 @@ class spell_hun_focusing_shot : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_focusing_shot();
@@ -4348,3 +4349,4 @@ void AddSC_hunter_spell_scripts()
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
 }
+#endif

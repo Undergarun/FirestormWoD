@@ -911,6 +911,7 @@ class spell_crystal_shell_heal_absorption: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tortos()
 {
     new boss_tortos();
@@ -929,3 +930,4 @@ void AddSC_boss_tortos()
     new spell_crystal_shell_damage_absorption();
     new spell_crystal_shell_heal_absorption();
 }
+#endif

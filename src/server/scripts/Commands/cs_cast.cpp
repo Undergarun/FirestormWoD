@@ -304,7 +304,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_cast_commandscript()
 {
     new cast_commandscript();
 }
+#endif

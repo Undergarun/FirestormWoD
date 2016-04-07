@@ -148,7 +148,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hinterlands()
 {
     new npc_00x09hl();
 }
+#endif

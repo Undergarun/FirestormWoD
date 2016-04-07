@@ -195,7 +195,9 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_HS()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonHordeShipyard();
 }
+#endif

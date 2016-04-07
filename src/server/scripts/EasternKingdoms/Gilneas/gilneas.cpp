@@ -2921,6 +2921,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gilneas()
 {
     new npc_gilneas_city_guard_phase1();
@@ -2961,3 +2962,4 @@ void AddSC_gilneas()
     new npc_bloodfang_stalker_c1();
     new npc_gilnean_crow();
 }
+#endif

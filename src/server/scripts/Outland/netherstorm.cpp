@@ -1065,6 +1065,7 @@ class go_captain_tyralius_prison : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_netherstorm()
 {
     new go_manaforge_control_console();
@@ -1077,3 +1078,4 @@ void AddSC_netherstorm()
     new npc_maxx_a_million_escort();
     new go_captain_tyralius_prison();
 }
+#endif

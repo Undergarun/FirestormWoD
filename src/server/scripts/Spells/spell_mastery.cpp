@@ -971,6 +971,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_icicles_proc();
@@ -989,3 +990,4 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_elemental_overload();
     new spell_mastery_primal_tenacity();
 }
+#endif

@@ -1484,6 +1484,7 @@ class spell_blade_tempest : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tayak()
 {
     new boss_tayak();                       // 62543
@@ -1504,3 +1505,4 @@ void AddSC_boss_tayak()
     new spell_su_dumaura();                 // 123616
     new spell_blade_tempest();              // 125310
 }
+#endif

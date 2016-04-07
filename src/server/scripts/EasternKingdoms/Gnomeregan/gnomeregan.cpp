@@ -594,8 +594,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gnomeregan()
 {
     new npc_blastmaster_emi_shortfuse();
     new boss_grubbis();
 }
+#endif

@@ -4866,6 +4866,7 @@ class spell_ethereal_pet_onkill_steal_essence : public SpellScriptLoader
 };
 /////////////////////////////////////////////////////////////
 
+#ifndef __clang_analyzer__
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4927,3 +4928,4 @@ void AddSC_npcs_special()
     new spell_ethereal_pet_onkill_steal_essence();
     /////////////////////////////////////////////////////////////
 }
+#endif

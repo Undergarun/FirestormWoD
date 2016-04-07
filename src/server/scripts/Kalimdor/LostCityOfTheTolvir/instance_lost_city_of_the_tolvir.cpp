@@ -239,7 +239,9 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_lost_city_of_the_tolvir()
 {
     new instance_lost_city_of_the_tolvir();
 }
+#endif

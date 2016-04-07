@@ -143,9 +143,11 @@ class AreaTrigger_at_map_chamber : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_uldaman()
 {
     new mob_jadespine_basilisk();
     new go_keystone_chamber();
     new AreaTrigger_at_map_chamber();
 }
+#endif

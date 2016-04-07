@@ -974,7 +974,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_temple_of_jade_serpent()
 {
     new instance_temple_of_jade_serpent();
 }
+#endif

@@ -262,8 +262,9 @@ class instance_magtheridons_lair : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_magtheridons_lair()
 {
     new instance_magtheridons_lair();
 }
-
+#endif

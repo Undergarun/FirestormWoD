@@ -582,6 +582,7 @@ class go_halls_of_origination_transit_device : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_halls_of_origination()
 {
     new npc_air_warden();
@@ -592,3 +593,4 @@ void AddSC_halls_of_origination()
     new npc_halls_of_origination_brann_bronzebeard();
     new go_halls_of_origination_transit_device();
 }
+#endif

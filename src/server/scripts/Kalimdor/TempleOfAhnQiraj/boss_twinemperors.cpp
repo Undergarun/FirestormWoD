@@ -593,8 +593,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_twinemperors()
 {
     new boss_veknilash();
     new boss_veklor();
 }
+#endif

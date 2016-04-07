@@ -128,8 +128,10 @@ class spell_groog_rampage : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_frostfire_ridge()
 {
     new npc_groog();
     new spell_groog_rampage();
 }
+#endif

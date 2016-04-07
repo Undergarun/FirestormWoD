@@ -1928,6 +1928,7 @@ class playerScript_pandaren_powerlevel : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_North()
 {
     new mob_master_shang_xi();
@@ -1955,3 +1956,4 @@ void AddSC_WanderingIsland_North()
     new AreaTrigger_at_temple_entrance();
     new playerScript_pandaren_powerlevel();
 }
+#endif

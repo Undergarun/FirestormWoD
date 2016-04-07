@@ -855,6 +855,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_everbloom()
 {
     new the_everbloom_mob_infested_icecaller();     ///< 84989
@@ -869,3 +870,4 @@ void AddSC_the_everbloom()
     new the_everbloom_mob_twisted_abomination();    ///< 84767
     new the_everbloom_spell_poisonous_claws();      ///< 169657    
 }
+#endif

@@ -209,8 +209,10 @@ class mob_flamewaker_priest : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_sulfuron()
 {
     new boss_sulfuron();
     new mob_flamewaker_priest();
 }
+#endif

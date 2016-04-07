@@ -338,7 +338,9 @@ class instance_oculus : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_oculus()
 {
     new instance_oculus();
 }
+#endif

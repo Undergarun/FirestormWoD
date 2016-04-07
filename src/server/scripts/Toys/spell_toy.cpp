@@ -183,6 +183,7 @@ class spell_toy_leyaras_locket : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spell_toy()
 {
     new spell_toy_stonebound();
@@ -190,3 +191,4 @@ void AddSC_spell_toy()
     new spell_toy_flippable_table();
     new spell_toy_leyaras_locket();
 }
+#endif

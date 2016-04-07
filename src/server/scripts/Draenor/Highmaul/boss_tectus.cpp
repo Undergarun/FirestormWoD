@@ -2087,6 +2087,7 @@ class areatrigger_highmaul_gift_of_earth : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tectus()
 {
     /// Boss
@@ -2116,3 +2117,4 @@ void AddSC_boss_tectus()
     new areatrigger_highmaul_crystalline_barrage();
     new areatrigger_highmaul_gift_of_earth();
 }
+#endif

@@ -1164,7 +1164,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_wp_commandscript()
 {
     new wp_commandscript();
 }
+#endif

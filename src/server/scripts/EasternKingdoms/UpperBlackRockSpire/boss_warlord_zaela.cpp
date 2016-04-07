@@ -891,6 +891,7 @@ class spell_burning_breath: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warlord_zaela()
 {
     new boss_warlord_zaela();
@@ -899,3 +900,4 @@ void AddSC_boss_warlord_zaela()
     new areatrigger_burning_bridge();
     new spell_burning_breath();
 }
+#endif

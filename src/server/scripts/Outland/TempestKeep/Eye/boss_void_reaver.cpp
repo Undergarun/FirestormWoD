@@ -176,8 +176,9 @@ class boss_void_reaver : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_void_reaver()
 {
     new boss_void_reaver();
 }
-
+#endif

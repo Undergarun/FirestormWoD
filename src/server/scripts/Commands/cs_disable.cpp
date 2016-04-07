@@ -374,7 +374,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_disable_commandscript()
 {
     new disable_commandscript();
 }
+#endif

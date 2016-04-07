@@ -173,7 +173,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_magisters_terrace()
 {
     new npc_kalecgos();
 }
+#endif

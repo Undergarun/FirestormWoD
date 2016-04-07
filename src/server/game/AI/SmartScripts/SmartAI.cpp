@@ -959,7 +959,9 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_SmartSCripts()
 {
     new SmartTrigger();
 }
+#endif

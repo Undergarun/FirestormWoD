@@ -592,6 +592,7 @@ class spell_venoxis_pool_of_acid_tears_dmg: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_venoxis()
 {
     new boss_venoxis();
@@ -603,3 +604,4 @@ void AddSC_boss_venoxis()
     new spell_venoxis_toxic_link_aura();
     new spell_venoxis_pool_of_acid_tears_dmg();
 }
+#endif

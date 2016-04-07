@@ -116,7 +116,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_thunder_bluff()
 {
     new npc_cairne_bloodhoof();
 }
+#endif

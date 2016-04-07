@@ -3255,6 +3255,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
@@ -3323,3 +3324,4 @@ void AddSC_mage_spell_scripts()
     /// Player Script
     new PlayerScript_rapid_teleportation();
 }
+#endif

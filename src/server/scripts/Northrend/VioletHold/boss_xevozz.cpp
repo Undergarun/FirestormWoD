@@ -301,8 +301,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_xevozz()
 {
     new boss_xevozz();
     new mob_ethereal_sphere();
 }
+#endif

@@ -826,6 +826,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -849,3 +850,4 @@ void AddSC_item_scripts()
     new PlayerScript_VehicleCheck();
     new PlayerScript_ProtoDrakeLootHackfix();
 }
+#endif

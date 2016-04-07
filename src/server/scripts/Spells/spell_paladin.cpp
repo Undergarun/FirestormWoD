@@ -3884,6 +3884,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_pillar_of_light();
@@ -3960,3 +3961,4 @@ void AddSC_paladin_spell_scripts()
     new PlayerScript_saved_by_the_light();
     new PlayerScript_paladin_wod_pvp_4p_bonus();
 }
+#endif

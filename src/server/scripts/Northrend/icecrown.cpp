@@ -524,6 +524,7 @@ class npc_hakmund_of_argus : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_icecrown()
 {
     new npc_hakmund_of_argus();
@@ -534,3 +535,4 @@ void AddSC_icecrown()
     new npc_vereth_the_cunning;
     new npc_tournament_training_dummy;
 }
+#endif

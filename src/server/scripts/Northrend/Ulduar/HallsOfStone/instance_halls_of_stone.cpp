@@ -269,7 +269,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_halls_of_stone()
 {
     new instance_halls_of_stone();
 }
+#endif

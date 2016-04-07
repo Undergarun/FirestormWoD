@@ -859,6 +859,7 @@ class spell_power_of_the_twins: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_twin_valkyr()
 {
     new boss_fjola();
@@ -872,3 +873,4 @@ void AddSC_boss_twin_valkyr()
     new spell_valkyr_essences();
     //new spell_power_of_the_twins();
 }
+#endif

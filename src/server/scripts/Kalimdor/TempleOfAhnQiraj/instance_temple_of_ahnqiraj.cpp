@@ -165,7 +165,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_temple_of_ahnqiraj()
 {
     new instance_temple_of_ahnqiraj();
 }
+#endif

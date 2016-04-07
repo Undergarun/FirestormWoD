@@ -2091,6 +2091,7 @@ class at_hor_door_teleport : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_halls_of_reflection()
 {
     new npc_jaina_or_sylvanas_hor();
@@ -2108,3 +2109,4 @@ void AddSC_halls_of_reflection()
     new npc_spiritual_reflection();
     new npc_jaina_and_sylvana_hor_part2();
 }
+#endif

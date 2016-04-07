@@ -1383,6 +1383,7 @@ class spell_light_of_the_day : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tsulong()
 {
     new boss_tsulong();                 // 62442
@@ -1400,3 +1401,4 @@ void AddSC_boss_tsulong()
     new spell_instability();            // 123697
     new spell_light_of_the_day();       // 123716
 }
+#endif

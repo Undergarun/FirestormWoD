@@ -339,6 +339,7 @@ class spell_quest_extincteur: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_elwyn_forest()
 {
     new npc_stormwind_infantry();
@@ -347,3 +348,4 @@ void AddSC_elwyn_forest()
     new spell_quest_fear_no_evil();
     new spell_quest_extincteur();
 }
+#endif

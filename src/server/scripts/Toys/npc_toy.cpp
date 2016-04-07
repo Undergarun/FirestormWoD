@@ -48,7 +48,9 @@ class npc_toy_mini_maba_bomb : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_toy()
 {
     new npc_toy_mini_maba_bomb();
 }
+#endif

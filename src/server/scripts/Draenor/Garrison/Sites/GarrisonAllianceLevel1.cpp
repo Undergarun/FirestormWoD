@@ -294,7 +294,9 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_A1()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonAllianceLevel1();
 }
+#endif

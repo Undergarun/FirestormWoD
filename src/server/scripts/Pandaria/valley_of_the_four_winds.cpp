@@ -941,6 +941,7 @@ class mob_nomi : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_valley_of_the_four_winds()
 {
     // Rare Mobs
@@ -966,3 +967,4 @@ void AddSC_valley_of_the_four_winds()
     new mob_lolo_lio();
     new mob_nomi();
 }
+#endif

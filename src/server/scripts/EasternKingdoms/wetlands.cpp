@@ -160,12 +160,10 @@ public:
     }
 };
 
-/*######
-## AddSC
-######*/
-
+#ifndef __clang_analyzer__
 void AddSC_wetlands()
 {
     new npc_tapoke_slim_jahn();
     new npc_mikhail();
 }
+#endif

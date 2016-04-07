@@ -308,7 +308,9 @@ class npc_PetBattleTrainer : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_PetBattleTrainer()
 {
     new npc_PetBattleTrainer;
 }
+#endif

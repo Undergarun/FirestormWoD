@@ -276,7 +276,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_quest_commandscript()
 {
     new quest_commandscript();
 }
+#endif

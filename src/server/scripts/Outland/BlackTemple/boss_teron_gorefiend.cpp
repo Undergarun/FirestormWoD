@@ -514,9 +514,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_teron_gorefiend()
 {
     new mob_doom_blossom();
     new mob_shadowy_construct();
     new boss_teron_gorefiend();
 }
+#endif

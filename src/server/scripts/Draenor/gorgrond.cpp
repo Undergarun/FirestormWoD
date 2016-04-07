@@ -862,6 +862,7 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
     /// Bosses
@@ -882,3 +883,4 @@ void AddSC_gorgrond()
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
 }
+#endif

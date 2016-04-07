@@ -31,7 +31,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_promotion_new_players()
 {
     new PromotionNewPlayers();
 };
+#endif

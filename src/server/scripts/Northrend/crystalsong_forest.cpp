@@ -106,7 +106,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_crystalsong_forest()
 {
     new npc_warmage_violetstand;
 }
+#endif

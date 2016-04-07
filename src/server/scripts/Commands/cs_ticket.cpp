@@ -738,7 +738,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ticket_commandscript()
 {
     new ticket_commandscript();
 }
+#endif

@@ -1722,7 +1722,9 @@ class EncounterScript_Global : public EncounterScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_EncounterScripts()
 {
     new EncounterScript_Global();
 }
+#endif

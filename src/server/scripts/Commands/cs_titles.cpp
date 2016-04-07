@@ -243,7 +243,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_titles_commandscript()
 {
     new titles_commandscript();
 }
+#endif

@@ -317,7 +317,9 @@ class instance_pit_of_saron : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_pit_of_saron()
 {
     new instance_pit_of_saron();
 }
+#endif

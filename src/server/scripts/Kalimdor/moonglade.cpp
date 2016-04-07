@@ -178,8 +178,10 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_moonglade()
 {
     new npc_omen();
     new npc_giant_spotlight();
 }
+#endif

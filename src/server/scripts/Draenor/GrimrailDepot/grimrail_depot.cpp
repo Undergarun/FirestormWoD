@@ -977,7 +977,7 @@ public:
     }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_grimrail_depot()
 {
     new grimrail_depot_mob_assault_cannon();          /// 79548
@@ -995,3 +995,4 @@ void AddSC_grimrail_depot()
     new grimrail_depot_mob_gromkar_hulk();            /// 80938
     new grimrail_depot_mob_iron_infantry();           /// 79888
 }
+#endif

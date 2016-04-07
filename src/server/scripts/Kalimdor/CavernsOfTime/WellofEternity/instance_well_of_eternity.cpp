@@ -292,7 +292,9 @@ class instance_well_of_eternity : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_well_of_eternity()
 {
     new instance_well_of_eternity();
 }
+#endif

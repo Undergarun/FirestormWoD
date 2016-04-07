@@ -4234,6 +4234,7 @@ class spell_tanaan_inferno : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_tanaan_jungle()
 {
     new npc_archmage_khadgar();
@@ -4299,3 +4300,4 @@ void AddSC_tanaan_jungle()
     g_SceneAllianceBoatPlayerScript = new playerScript_scene_alliance_boat();
     g_SceneHordeBoatPlayerScript    = new playerScript_scene_horde_boat();
 }
+#endif

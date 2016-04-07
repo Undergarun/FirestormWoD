@@ -2366,6 +2366,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_iron_docks()
 {
     /// NPCs
@@ -2402,3 +2403,4 @@ void AddSC_iron_docks()
     new iron_docks_area_trigger_jagged_caltrops();
     new iron_docks_area_trigger_lava_blast();
 }
+#endif

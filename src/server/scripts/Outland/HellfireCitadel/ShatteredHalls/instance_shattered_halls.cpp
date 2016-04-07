@@ -118,8 +118,9 @@ class instance_shattered_halls : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_shattered_halls()
 {
     new instance_shattered_halls();
 }
-
+#endif

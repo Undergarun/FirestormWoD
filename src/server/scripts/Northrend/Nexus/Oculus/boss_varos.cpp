@@ -389,6 +389,7 @@ class spell_varos_energize_core_area_entry: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_varos()
 {
     new boss_varos();
@@ -397,3 +398,4 @@ void AddSC_boss_varos()
     new spell_varos_energize_core_area_enemy();
     new spell_varos_energize_core_area_entry();
 }
+#endif

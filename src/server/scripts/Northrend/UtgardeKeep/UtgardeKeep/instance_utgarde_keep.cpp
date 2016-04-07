@@ -359,7 +359,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_utgarde_keep()
 {
     new instance_utgarde_keep();
 }
+#endif

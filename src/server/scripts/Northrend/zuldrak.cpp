@@ -1500,7 +1500,7 @@ class npc_storm_cloud : public CreatureScript
         }
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles;
@@ -1518,3 +1518,4 @@ void AddSC_zuldrak()
     new go_scourge_enclosure;
     new npc_storm_cloud();
 }
+#endif

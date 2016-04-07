@@ -145,7 +145,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_scholomance()
 {
     new instance_scholomance();
 }
+#endif

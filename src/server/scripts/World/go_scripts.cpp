@@ -1401,6 +1401,7 @@ class go_dark_iron_mole_machine_wreckage : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1448,3 +1449,4 @@ void AddSC_go_scripts()
     new go_challenge_orb();
     new go_dark_iron_mole_machine_wreckage();
 }
+#endif

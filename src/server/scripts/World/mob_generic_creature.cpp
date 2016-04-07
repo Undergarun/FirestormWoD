@@ -257,6 +257,7 @@ class npc_gilthares_firebough : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_generic_creature()
 {
     //new npc_gilthares_firebough();
@@ -264,3 +265,4 @@ void AddSC_generic_creature()
     new trigger_periodic;
     //new trigger_death;
 }
+#endif

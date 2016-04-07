@@ -457,7 +457,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_blackrock_depths()
 {
     new instance_blackrock_depths();
 }
+#endif

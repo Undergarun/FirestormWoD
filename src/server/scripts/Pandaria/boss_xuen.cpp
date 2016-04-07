@@ -107,7 +107,9 @@ class boss_xuen : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_xuen()
 {
     new boss_xuen();
 }
+#endif

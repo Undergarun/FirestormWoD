@@ -268,7 +268,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mob_anubisath_sentinel()
 {
     new mob_anubisath_sentinel();
 }
+#endif

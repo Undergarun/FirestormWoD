@@ -63,7 +63,9 @@ class npc_prospector_remtravel : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_darkshore()
 {
     new npc_prospector_remtravel();
 }
+#endif

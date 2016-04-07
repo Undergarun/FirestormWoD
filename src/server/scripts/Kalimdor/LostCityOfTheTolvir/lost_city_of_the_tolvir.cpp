@@ -268,9 +268,11 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_lost_city_of_the_tolvir()
 {
     new npc_enslaved_bandit_tv();
     new npc_pygmy_brute_tv();
     new npc_wind_tunnel();
 }
+#endif

@@ -339,7 +339,9 @@ class boss_urom : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_urom()
 {
     new boss_urom();
 }
+#endif

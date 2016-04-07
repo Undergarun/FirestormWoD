@@ -419,8 +419,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_auchindon()
 {
     new instance_auchindon;
 }
-
+#endif

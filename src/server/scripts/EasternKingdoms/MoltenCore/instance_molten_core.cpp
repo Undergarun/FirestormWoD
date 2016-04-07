@@ -257,7 +257,9 @@ class instance_molten_core : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_molten_core()
 {
     new instance_molten_core();
 }
+#endif

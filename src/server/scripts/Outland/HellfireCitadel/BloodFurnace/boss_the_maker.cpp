@@ -161,8 +161,9 @@ class boss_the_maker : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_maker()
 {
     new boss_the_maker();
 }
-
+#endif

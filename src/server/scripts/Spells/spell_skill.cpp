@@ -1480,6 +1480,7 @@ namespace MS { namespace Skill
 }   ///< namespace Skill
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_spell_skill()
 {
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
@@ -1507,3 +1508,4 @@ void AddSC_spell_skill()
     new MS::Skill::spell_skill_weapon_crystal_upgrade();
     new MS::Skill::spell_skill_hexweave_essence_upgrade();
 }
+#endif

@@ -62,7 +62,9 @@ class npc_a_me_01 : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ungoro_crater()
 {
     new npc_a_me_01();
 }
+#endif

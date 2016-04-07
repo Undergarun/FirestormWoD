@@ -206,7 +206,9 @@ class instance_zulgurub : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_zulgurub()
 {
     new instance_zulgurub();
 }
+#endif

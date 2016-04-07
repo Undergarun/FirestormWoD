@@ -340,10 +340,11 @@ class npc_westfall_stew : public CreatureScript
         };
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_westfall()
 {
     new npc_daphne_stilwell();
     new npc_defias_traitor();
     new npc_westfall_stew();
 }
+#endif

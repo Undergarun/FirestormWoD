@@ -3089,6 +3089,7 @@ class mob_zandalari_warbringer : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dread_wastes()
 {
     // Rare Elite Mobs
@@ -3136,3 +3137,4 @@ void AddSC_dread_wastes()
     new go_ancient_amber_chunk();
     new go_kunchong_cage();
 }
+#endif

@@ -117,8 +117,9 @@ public:
 
 };
 
-
+#ifndef __clang_analyzer__
 void AddSC_the_scarlet_enclave()
 {
     new npc_valkyr_battle_maiden();
 }
+#endif

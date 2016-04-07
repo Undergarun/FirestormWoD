@@ -124,9 +124,11 @@ class npc_lakota_windsong : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_thousand_needles()
 {
     new npc_lakota_windsong();
     new npc_kanati_greycloud();
     new npc_pao_ka_swiftmountain();
 }
+#endif

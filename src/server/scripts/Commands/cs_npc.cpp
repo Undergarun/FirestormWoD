@@ -1899,7 +1899,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_commandscript()
 {
     new npc_commandscript();
 }
+#endif

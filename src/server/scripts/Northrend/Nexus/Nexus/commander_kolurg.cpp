@@ -69,7 +69,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_commander_kolurg()
 {
     new boss_commander_kolurg();
 }
+#endif

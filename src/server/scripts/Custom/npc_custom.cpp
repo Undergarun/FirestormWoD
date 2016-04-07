@@ -715,9 +715,11 @@ class npc_season_2_premade_master : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_custom()
 {
 ///    new npc_world_boss_gossip();
     new npc_pve_tests_manager();
     new npc_season_2_premade_master();
 }
+#endif

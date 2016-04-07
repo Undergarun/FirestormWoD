@@ -262,7 +262,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_reset_commandscript()
 {
     new reset_commandscript();
 }
+#endif

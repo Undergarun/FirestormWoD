@@ -101,7 +101,9 @@ class instance_hour_of_twilight : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_hour_of_twilight()
 {
     new instance_hour_of_twilight();
 }
+#endif

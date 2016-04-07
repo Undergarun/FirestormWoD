@@ -1702,6 +1702,7 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_mob_instance_skyreach()
 {
     // Mobs.
@@ -1727,3 +1728,4 @@ void AddSC_mob_instance_skyreach()
     new MS::InstanceSkyreach::mob_GrandDefenseConstruct();
     new MS::InstanceSkyreach::npc_GossipIntroOutro();
 }
+#endif

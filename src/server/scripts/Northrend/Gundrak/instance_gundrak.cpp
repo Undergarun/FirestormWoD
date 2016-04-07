@@ -559,8 +559,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_gundrak()
 {
     new instance_gundrak();
     new go_gundrak_altar();
 }
+#endif

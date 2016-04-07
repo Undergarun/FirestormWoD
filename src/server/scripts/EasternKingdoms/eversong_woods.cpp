@@ -620,6 +620,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_eversong_woods()
 {
     new npc_second_trial_controller();
@@ -628,3 +629,4 @@ void AddSC_eversong_woods()
     new npc_apprentice_mirveda();
     new npc_infused_crystal();
 }
+#endif

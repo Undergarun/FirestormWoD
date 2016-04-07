@@ -216,6 +216,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_throne_of_the_tides()
 {
     new npc_lady_nazjar_event();
@@ -223,3 +224,4 @@ void AddSC_throne_of_the_tides()
     new npc_throne_of_the_tides_teleporter();
     new at_tott_lady_nazjar_event();
 }
+#endif

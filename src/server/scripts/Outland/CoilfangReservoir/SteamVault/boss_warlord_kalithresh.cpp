@@ -207,8 +207,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warlord_kalithresh()
 {
     new mob_naga_distiller();
     new boss_warlord_kalithresh();
 }
+#endif

@@ -696,6 +696,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_terokkar_forest()
 {
     new mob_unkor_the_ruthless();
@@ -709,3 +710,4 @@ void AddSC_terokkar_forest()
     new npc_slim();
     new npc_akuno();
 }
+#endif

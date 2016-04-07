@@ -243,6 +243,7 @@ class go_setting_sun_elevator : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gate_setting_sun()
 {
     new mob_serpent_spine_defender();
@@ -253,3 +254,4 @@ void AddSC_gate_setting_sun()
     new vehicle_artillery_to_wall();
     new go_setting_sun_elevator();
 }
+#endif

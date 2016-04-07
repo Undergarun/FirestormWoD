@@ -344,6 +344,7 @@ class spell_winter_veil_mistletoe: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -357,3 +358,4 @@ void AddSC_holiday_spell_scripts()
     // Winter Veil
     new spell_winter_veil_mistletoe();
 }
+#endif

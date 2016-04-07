@@ -367,7 +367,9 @@ class instance_heart_of_fear : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_heart_of_fear()
 {
     new instance_heart_of_fear();
 }
+#endif

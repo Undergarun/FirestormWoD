@@ -5889,6 +5889,7 @@ class spell_monk_serenity : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_serenity();
@@ -5987,3 +5988,4 @@ void AddSC_monk_spell_scripts()
     new spell_monk_vital_mists_power();
     new spell_monk_vital_mists();
 }
+#endif

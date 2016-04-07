@@ -324,8 +324,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_warchief_kargath_bladefist()
 {
     new boss_warchief_kargath_bladefist();
 }
-
+#endif

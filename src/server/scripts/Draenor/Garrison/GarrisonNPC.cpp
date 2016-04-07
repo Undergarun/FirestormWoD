@@ -1600,6 +1600,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_NPC()
 {
     /// Generic
@@ -1785,3 +1786,4 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FleetCommandTable;
     }
 }
+#endif

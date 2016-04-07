@@ -287,6 +287,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
@@ -294,3 +295,4 @@ void AddSC_stratholme()
     new mob_restless_soul();
     new mobs_spectral_ghostly_citizen();
 }
+#endif

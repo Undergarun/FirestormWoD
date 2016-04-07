@@ -321,7 +321,9 @@ class cheat_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_cheat_commandscript()
 {
     new cheat_commandscript();
 }
+#endif

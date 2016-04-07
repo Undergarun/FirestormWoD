@@ -170,8 +170,9 @@ class boss_watchkeeper_gargolmar : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_watchkeeper_gargolmar()
 {
     new boss_watchkeeper_gargolmar();
 }
-
+#endif

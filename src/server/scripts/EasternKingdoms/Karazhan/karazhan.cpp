@@ -666,9 +666,11 @@ class npc_image_of_medivh : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_karazhan()
 {
     new npc_barnes();
     new npc_berthold();
     new npc_image_of_medivh();
 }
+#endif

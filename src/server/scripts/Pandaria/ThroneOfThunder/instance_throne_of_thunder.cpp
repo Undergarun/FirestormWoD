@@ -807,7 +807,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_throne_of_thunder()
 {
     new instance_throne_of_thunder();
 }
+#endif

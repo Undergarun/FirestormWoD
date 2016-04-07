@@ -196,7 +196,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_gruuls_lair()
 {
     new instance_gruuls_lair();
 }
+#endif

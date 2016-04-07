@@ -302,7 +302,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_sunwell_plateau()
 {
     new instance_sunwell_plateau();
 }
+#endif

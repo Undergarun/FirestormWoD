@@ -568,6 +568,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spires_of_arak()
 {
     new boss_rukhmar();
@@ -576,3 +577,4 @@ void AddSC_spires_of_arak()
     new spell_rukhmar_loose_quills();
     new spell_aura_pierced_armor();
 }
+#endif

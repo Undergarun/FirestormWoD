@@ -1684,6 +1684,7 @@ class at_cancelling_noise : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_zorlok()
 {
     new boss_zorlok();                  ///< 62980 - Imperial Vizier Zor'lok
@@ -1699,3 +1700,4 @@ void AddSC_boss_zorlok()
     new spell_convert();                ///< 122740 - Convert
     new at_cancelling_noise();          ///< 122731 - Cancelling Noise AreaTrigger
 }
+#endif

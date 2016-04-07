@@ -481,9 +481,6 @@ public:
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
 
-        /*if (GetTalentSpellCost(spellId))
-            target->SendTalentsInfoData(false);*/
-
         return true;
     }
 
@@ -516,7 +513,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_learn_commandscript()
 {
     new learn_commandscript();
 }
+#endif

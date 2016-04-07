@@ -921,6 +921,7 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_GO()
 {
     new MS::Garrison::go_garrison_deactivated_mage_portal;
@@ -933,3 +934,4 @@ void AddSC_Garrison_GO()
     new MS::Garrison::go_garrison_timber;
     new MS::Garrison::go_garrison_essence_font;
 }
+#endif

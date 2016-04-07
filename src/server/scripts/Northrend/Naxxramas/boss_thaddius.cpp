@@ -554,6 +554,7 @@ class achievement_polarity_switch : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_thaddius()
 {
     new boss_thaddius();
@@ -563,3 +564,4 @@ void AddSC_boss_thaddius()
     new spell_thaddius_polarity_shift();
     new achievement_polarity_switch();
 }
+#endif

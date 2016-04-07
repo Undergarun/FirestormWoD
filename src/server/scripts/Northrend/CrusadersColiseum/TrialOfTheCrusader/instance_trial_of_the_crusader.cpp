@@ -794,7 +794,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_trial_of_the_crusader()
 {
     new instance_trial_of_the_crusader();
 }
+#endif

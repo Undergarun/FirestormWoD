@@ -2377,6 +2377,7 @@ class mob_mogu_engine_keeper : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mogu_shan_vault()
 {
     new mob_cursed_mogu_sculpture();    // 61334 / 61989 - Cursed Mogu Sculpture
@@ -2398,3 +2399,4 @@ void AddSC_mogu_shan_vault()
     new mob_mogu_warden();              // 64061/64947 - Mogu'shan Warden + 64063 - Mogu'shan Arcanist
     new mob_mogu_engine_keeper();       // 64068 - Mogu'shan Engine Keeper
 }
+#endif

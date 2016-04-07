@@ -95,19 +95,13 @@ public:
             SetFollowComplete();
         }
 
-        //call not needed here, no known abilities
-        /*void UpdateFollowerAI(const uint32 Diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }*/
     };
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_teldrassil()
 {
     new npc_mist();
 }
+#endif

@@ -150,8 +150,10 @@ class spell_voodoo: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_durotar()
 {
     new npc_lazy_peon();
     new spell_voodoo();
 }
+#endif

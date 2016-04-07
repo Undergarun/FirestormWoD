@@ -361,7 +361,9 @@ namespace MS { namespace Garrison { namespace Sites
 }   ///< namespace Garrison
 }   ///< namespace MS
 
+#ifndef __clang_analyzer__
 void AddSC_Garrison_H1()
 {
     new MS::Garrison::Sites::InstanceMapScript_GarrisonHordeLevel1();
 }
+#endif

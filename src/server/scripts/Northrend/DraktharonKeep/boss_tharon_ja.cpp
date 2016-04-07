@@ -252,7 +252,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tharon_ja()
 {
     new boss_tharon_ja;
 }
+#endif

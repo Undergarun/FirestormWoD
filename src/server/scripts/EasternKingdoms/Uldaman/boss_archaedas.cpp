@@ -444,7 +444,7 @@ class go_altar_of_the_keepers : public GameObjectScript
         }
 };
 
-#ifndef __clang_analyzer__t
+#ifndef __clang_analyzer__
 void AddSC_boss_archaedas()
 {
     new boss_archaedas();

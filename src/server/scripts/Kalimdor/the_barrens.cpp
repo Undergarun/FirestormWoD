@@ -195,7 +195,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_barrens()
 {
     new npc_wizzlecrank_shredder();
 }
+#endif

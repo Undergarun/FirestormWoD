@@ -1086,6 +1086,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_xeritac()
 {
     new boss_xeritac();                                 ///< 84550
@@ -1098,3 +1099,4 @@ void AddSC_boss_xeritac()
     new the_everbloom_xeritac_areatrigger_toxic_gas();  ///< 169224
     new the_everbloom_xertiac_gameobject_eggs();        ///< 234113
 }
+#endif

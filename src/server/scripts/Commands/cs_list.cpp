@@ -510,11 +510,11 @@ public:
                     std::string subject     = fields[5].GetString();
                     uint64 deliverTime      = fields[6].GetUInt32();
                     uint64 expireTime       = fields[7].GetUInt32();
-                    uint32 money            = fields[8].GetUInt32();
+                    uint64 money            = fields[8].GetUInt64();
                     int hasItem             = fields[9].GetUInt8();
-                    uint32 gold = money /GOLD;
-                    uint32 silv = (money % GOLD) / SILVER;
-                    uint32 copp = (money % GOLD) % SILVER;
+                    uint64 gold = money /GOLD;
+                    uint64 silv = (money % GOLD) / SILVER;
+                    uint64 copp = (money % GOLD) % SILVER;
                     std::string receiverStr = handler->playerLink(receiver);
                     std::string senderStr = handler->playerLink(sender);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , messageId, subject.c_str(),gold, silv, copp);
@@ -574,7 +574,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_list_commandscript()
 {
     new list_commandscript();
 }
+#endif

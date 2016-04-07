@@ -968,6 +968,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_South()
 {
     new AreaTrigger_at_mandori();
@@ -983,3 +984,4 @@ void AddSC_WanderingIsland_South()
     new npc_shen_healer();
     new npc_shang_xi_choose_faction();
 }
+#endif

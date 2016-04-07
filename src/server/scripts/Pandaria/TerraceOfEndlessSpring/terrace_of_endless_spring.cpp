@@ -543,6 +543,7 @@ class spell_night_terrors_periodic : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_terrace_of_endless_spring()
 {
     new npc_springtender_ashani();
@@ -553,3 +554,4 @@ void AddSC_terrace_of_endless_spring()
     new spell_night_terrors_missile();
     new spell_night_terrors_periodic();
 }
+#endif

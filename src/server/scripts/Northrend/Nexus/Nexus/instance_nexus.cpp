@@ -261,7 +261,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_nexus()
 {
     new instance_nexus();
 }
+#endif

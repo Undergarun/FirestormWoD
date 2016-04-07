@@ -391,7 +391,9 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_victor_nefarius()
 {
     new boss_victor_nefarius();
 }
+#endif

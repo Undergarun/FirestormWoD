@@ -145,7 +145,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_razorfen_kraul()
 {
     new npc_willix();
 }
+#endif

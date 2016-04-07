@@ -1138,6 +1138,7 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_the_scarlet_enclave_c2()
 {
     new npc_crusade_persuaded();
@@ -1150,3 +1151,4 @@ void AddSC_the_scarlet_enclave_c2()
     /// Playerscript
     new playerScript_koltira_deathweaver_escort();
 }
+#endif

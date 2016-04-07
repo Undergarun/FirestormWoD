@@ -137,7 +137,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_gnomeregan()
 {
     new instance_gnomeregan();
 }
+#endif

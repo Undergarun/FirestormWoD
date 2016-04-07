@@ -168,8 +168,10 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dalaran()
 {
     new npc_mageguard_dalaran;
     new npc_hira_snowdawn;
 }
+#endif

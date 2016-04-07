@@ -178,7 +178,9 @@ class items_commandscript : public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_items_commandscript()
 {
     new items_commandscript();
 }
+#endif

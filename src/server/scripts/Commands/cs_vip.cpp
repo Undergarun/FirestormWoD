@@ -115,7 +115,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_vip_commandscript()
 {
     new vip_commandscript();
 }
+#endif

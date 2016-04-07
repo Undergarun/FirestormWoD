@@ -66,8 +66,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_sunken_temple()
 {
     new at_malfurion_stormrage();
     new go_atalai_statue();
 }
+#endif

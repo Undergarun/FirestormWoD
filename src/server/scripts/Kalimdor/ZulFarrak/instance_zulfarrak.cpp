@@ -375,7 +375,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_zulfarrak()
 {
     new instance_zulfarrak();
 }
+#endif

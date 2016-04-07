@@ -1043,6 +1043,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_witherbark()
 {
     new boss_witherbark();                                    ///< 81522
@@ -1056,3 +1057,4 @@ void AddSC_boss_witherbark()
     new the_everbloom_witherbark_spell_living_leaves_dummy(); ///< 169494
     new the_everbloom_witherbark_areatrigger_living_leaves(); ///< 169497
 }
+#endif

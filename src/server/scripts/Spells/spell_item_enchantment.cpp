@@ -197,8 +197,10 @@ class spell_Mark_Of_The_Shattered_Bleed : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_spell_item_enchantment()
 {
     new spell_enchantment_mark();
     new spell_Mark_Of_The_Shattered_Bleed();
 }
+#endif

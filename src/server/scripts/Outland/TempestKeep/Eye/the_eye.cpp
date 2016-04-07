@@ -105,8 +105,10 @@ class mob_crystalcore_devastator : public CreatureScript
             return new mob_crystalcore_devastatorAI(creature);
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_the_eye()
 {
     new mob_crystalcore_devastator();
 }
-
+#endif

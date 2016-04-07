@@ -181,6 +181,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_eastern_plaguelands()
 {
     new mobs_ghoul_flayer();
@@ -188,3 +189,4 @@ void AddSC_eastern_plaguelands()
     new npc_darrowshire_spirit();
     new npc_tirion_fordring();
 }
+#endif

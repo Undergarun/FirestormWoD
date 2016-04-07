@@ -78,7 +78,9 @@ class go_well_of_eternity_teleport : public GameObjectScript
         }    
 };
 
+#ifndef __clang_analyzer__
 void AddSC_well_of_eternity_teleport()
 {
     new go_well_of_eternity_teleport();
 }
+#endif

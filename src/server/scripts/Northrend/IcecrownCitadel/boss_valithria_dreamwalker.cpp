@@ -1464,6 +1464,7 @@ class achievement_portal_jockey : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_valithria_dreamwalker()
 {
     new boss_valithria_dreamwalker();
@@ -1487,3 +1488,4 @@ void AddSC_boss_valithria_dreamwalker()
     new spell_dreamwalker_twisted_nightmares();
     new achievement_portal_jockey();
 }
+#endif

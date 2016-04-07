@@ -34,7 +34,9 @@ class npc_hour_of_twilight_life_warden : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hour_of_twilight()
 {
     new npc_hour_of_twilight_life_warden();
 }
+#endif

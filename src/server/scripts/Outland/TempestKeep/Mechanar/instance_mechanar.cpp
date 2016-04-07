@@ -95,8 +95,9 @@ class instance_mechanar : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_mechanar()
 {
     new instance_mechanar;
 }
-
+#endif

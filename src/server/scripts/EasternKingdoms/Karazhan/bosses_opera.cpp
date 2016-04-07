@@ -1506,6 +1506,7 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
     sLog->outError(LOG_FILTER_TSCR, "boss_julianneAI: DamageTaken reach end of code, that should not happen.");
 }
 
+#ifndef __clang_analyzer__
 void AddSC_bosses_opera()
 {
     new boss_dorothee();
@@ -1520,3 +1521,4 @@ void AddSC_bosses_opera()
     new boss_julianne();
     new boss_romulo();
 }
+#endif

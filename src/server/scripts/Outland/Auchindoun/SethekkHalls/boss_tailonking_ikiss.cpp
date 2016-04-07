@@ -213,7 +213,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_talon_king_ikiss()
 {
     new boss_talon_king_ikiss();
 }
+#endif

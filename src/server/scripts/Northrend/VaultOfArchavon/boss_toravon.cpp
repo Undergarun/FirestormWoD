@@ -277,6 +277,7 @@ class mob_frozen_orb_stalker : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_toravon()
 {
     new boss_toravon();
@@ -284,3 +285,4 @@ void AddSC_boss_toravon()
     new mob_frozen_orb();
     new mob_frozen_orb_stalker();
 }
+#endif

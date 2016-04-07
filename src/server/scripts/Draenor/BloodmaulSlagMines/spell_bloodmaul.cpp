@@ -244,6 +244,7 @@ namespace MS
     }
 }
 
+#ifndef __clang_analyzer__
 void AddSC_spell_Bloodmaul()
 {
     new MS::Instances::Bloodmaul::spell_ChainGrip();
@@ -253,3 +254,4 @@ void AddSC_spell_Bloodmaul()
     new MS::Instances::Bloodmaul::spell_VolcanicEruption();
     new MS::Instances::Bloodmaul::spell_LavaSplash();
 }
+#endif

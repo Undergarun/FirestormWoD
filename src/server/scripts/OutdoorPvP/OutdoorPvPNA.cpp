@@ -675,7 +675,9 @@ class OutdoorPvP_nagrand : public OutdoorPvPScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_outdoorpvp_na()
 {
     new OutdoorPvP_nagrand();
 }
+#endif

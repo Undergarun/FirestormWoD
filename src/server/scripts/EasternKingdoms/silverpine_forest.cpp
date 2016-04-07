@@ -134,11 +134,9 @@ public:
     }
 };
 
-/*######
-## AddSC
-######*/
-
+#ifndef __clang_analyzer__
 void AddSC_silverpine_forest()
 {
     new npc_deathstalker_erland();
 }
+#endif

@@ -572,6 +572,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_wintergrasp()
 {
     new npc_wg_queue();
@@ -584,3 +585,4 @@ void AddSC_wintergrasp()
     new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_defender_teleport();
 }
+#endif

@@ -509,6 +509,8 @@ class mob_hellfire_sentry : public CreatureScript
             return new mob_hellfire_sentryAI(creature);
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_boss_vazruden_the_herald()
 {
     new boss_vazruden_the_herald();
@@ -516,4 +518,4 @@ void AddSC_boss_vazruden_the_herald()
     new boss_nazan();
     new mob_hellfire_sentry();
 }
-
+#endif

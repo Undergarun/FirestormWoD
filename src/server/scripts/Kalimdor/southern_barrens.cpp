@@ -167,8 +167,10 @@ class mob_sabersnout : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_southern_barrens()
 {
     new mob_high_road_scout();
     new mob_sabersnout();
 }
+#endif

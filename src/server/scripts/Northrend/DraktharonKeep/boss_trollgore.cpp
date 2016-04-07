@@ -217,8 +217,10 @@ class achievement_consumption_junction : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_trollgore()
 {
     new boss_trollgore();
     new achievement_consumption_junction();
 }
+#endif

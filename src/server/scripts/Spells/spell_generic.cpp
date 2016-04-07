@@ -5670,6 +5670,7 @@ class spell_gen_transmorphose : public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_transmorphose();
@@ -5786,3 +5787,4 @@ void AddSC_generic_spell_scripts()
     new Resolve::PlayerScript_Resolve();
     new spell_gen_power_handler();
 }
+#endif

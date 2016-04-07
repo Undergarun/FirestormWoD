@@ -443,8 +443,10 @@ class instance_serpent_shrine : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_serpentshrine_cavern()
 {
     new instance_serpent_shrine();
     new go_bridge_console();
 }
+#endif

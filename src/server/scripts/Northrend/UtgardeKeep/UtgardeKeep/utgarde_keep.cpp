@@ -239,9 +239,12 @@ class spell_fixate: public SpellScriptLoader
             return new spell_fixate_SpellScript();
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_utgarde_keep()
 {
     new npc_dragonflayer_forge_master();
     new spell_ticking_time_bomb();
     new spell_fixate();
 }
+#endif

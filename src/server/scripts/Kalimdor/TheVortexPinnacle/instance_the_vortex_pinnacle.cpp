@@ -106,7 +106,9 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_the_vortex_pinnacle()
 {
     new instance_the_vortex_pinnacle();
 }
+#endif

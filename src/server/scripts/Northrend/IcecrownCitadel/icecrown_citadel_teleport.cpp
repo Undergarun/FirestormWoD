@@ -97,8 +97,10 @@ class at_frozen_throne_teleport : public AreaTriggerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_icecrown_citadel_teleport()
 {
     new icecrown_citadel_teleport();
     new at_frozen_throne_teleport();
 }
+#endif

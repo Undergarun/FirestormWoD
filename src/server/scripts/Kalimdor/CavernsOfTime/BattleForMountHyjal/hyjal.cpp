@@ -243,9 +243,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_hyjal()
 {
     new npc_jaina_proudmoore();
     new npc_thrall();
     new npc_tyrande_whisperwind();
 }
+#endif

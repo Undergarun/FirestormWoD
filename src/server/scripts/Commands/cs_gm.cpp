@@ -267,7 +267,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gm_commandscript()
 {
     new gm_commandscript();
 }
+#endif

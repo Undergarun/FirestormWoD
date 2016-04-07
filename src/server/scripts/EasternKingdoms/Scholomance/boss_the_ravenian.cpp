@@ -116,7 +116,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_theravenian()
 {
     new boss_the_ravenian();
 }
+#endif

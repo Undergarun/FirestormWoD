@@ -1243,6 +1243,7 @@ class achievement_nerf_gravity_bombs : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_xt002()
 {
     new mob_xt002_heart();
@@ -1267,6 +1268,7 @@ void AddSC_boss_xt002()
     new achievement_heartbreaker();
     new achievement_nerf_gravity_bombs();
 }
+#endif
 
 #undef SPELL_SEARING_LIGHT
 #undef SPELL_GRAVITY_BOMB

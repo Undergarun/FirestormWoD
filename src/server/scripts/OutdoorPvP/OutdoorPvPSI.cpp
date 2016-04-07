@@ -249,7 +249,9 @@ class OutdoorPvP_silithus : public OutdoorPvPScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_outdoorpvp_si()
 {
     new OutdoorPvP_silithus();
 }
+#endif

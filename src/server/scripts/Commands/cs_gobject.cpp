@@ -954,7 +954,9 @@ class gobject_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_gobject_commandscript()
 {
     new gobject_commandscript();
 }
+#endif

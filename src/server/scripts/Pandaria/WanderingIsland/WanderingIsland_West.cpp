@@ -1112,6 +1112,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WanderingIsland_West()
 {
     new mob_guardian_of_the_elders();
@@ -1133,3 +1134,4 @@ void AddSC_WanderingIsland_West()
     new gob_defaced_scroll_of_wisdom();
     new mob_shang_xi_second_air_balloon();
 }
+#endif

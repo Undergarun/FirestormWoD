@@ -2697,6 +2697,7 @@ class at_icy_shadows : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_twin_consorts()
 {
     new boss_suen();                        ///< 68904
@@ -2724,3 +2725,4 @@ void AddSC_boss_twin_consorts()
     new at_flames_of_passion();             ///< 137416
     new at_icy_shadows();                   ///< 137439
 }
+#endif

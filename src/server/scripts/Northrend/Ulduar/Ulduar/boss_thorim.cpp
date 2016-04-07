@@ -2051,6 +2051,7 @@ class achievement_who_needs_bloodlust : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_thorim()
 {
     new boss_thorim();
@@ -2080,3 +2081,4 @@ void AddSC_boss_thorim()
     new achievement_who_needs_bloodlust("achievement_who_needs_bloodlust");
     new achievement_who_needs_bloodlust("achievement_who_needs_bloodlust_25");
 }
+#endif

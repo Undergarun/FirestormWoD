@@ -1315,6 +1315,7 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_violet_hold()
 {
     new npc_sinclari_vh();
@@ -1329,3 +1330,4 @@ void AddSC_violet_hold()
     new mob_azure_stalker();
     new mob_azure_saboteur();
 }
+#endif

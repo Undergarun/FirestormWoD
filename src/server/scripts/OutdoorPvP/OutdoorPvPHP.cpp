@@ -374,7 +374,9 @@ class OutdoorPvP_hellfire_peninsula : public OutdoorPvPScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_outdoorpvp_hp()
 {
     new OutdoorPvP_hellfire_peninsula();
 }
+#endif

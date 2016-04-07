@@ -29,6 +29,7 @@
 #include "CreatureAIFactory.h"
 #include "SmartAI.h"
 
+#ifndef __clang_analyzer__
 namespace AIRegistry
 {
     void Initialize()
@@ -56,4 +57,4 @@ namespace AIRegistry
         (new MovementGeneratorFactory<WaypointMovementGenerator<Creature> >(WAYPOINT_MOTION_TYPE))->RegisterSelf();
     }
 }
-
+#endif

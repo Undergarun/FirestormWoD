@@ -304,7 +304,9 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_terrace_of_endless_spring()
 {
     new instance_terrace_of_endless_spring();
 }
+#endif

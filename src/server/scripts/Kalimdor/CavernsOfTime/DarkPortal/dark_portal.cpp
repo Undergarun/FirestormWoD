@@ -407,9 +407,11 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_dark_portal()
 {
     new npc_medivh_bm();
     new npc_time_rift();
     new npc_saat();
 }
+#endif

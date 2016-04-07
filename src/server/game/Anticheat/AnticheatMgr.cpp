@@ -209,10 +209,12 @@ void AnticheatMgr::SpeedHackDetection(Player* player, MovementInfo const& moveme
     }
 }
 
+#ifndef __clang_analyzer__
 void AnticheatMgr::StartScripts()
 {
     new AnticheatScripts();
 }
+#endif
 
 void AnticheatMgr::HandlePlayerLogin(Player* player)
 {

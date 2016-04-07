@@ -904,6 +904,7 @@ class areatrigger_highmaul_pale_vitriol : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_butcher()
 {
     /// Boss
@@ -922,3 +923,4 @@ void AddSC_boss_the_butcher()
     /// AreaTrigger
     new areatrigger_highmaul_pale_vitriol();
 }
+#endif

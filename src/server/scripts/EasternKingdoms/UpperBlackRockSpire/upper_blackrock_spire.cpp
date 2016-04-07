@@ -2159,6 +2159,7 @@ class go_ubrs_whelp_cage : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_upper_blackrock_spire()
 {
     new mob_black_iron_grunt();
@@ -2193,3 +2194,4 @@ void AddSC_upper_blackrock_spire()
     new spell_class_specific_res();
     new go_ubrs_whelp_cage();
 }
+#endif

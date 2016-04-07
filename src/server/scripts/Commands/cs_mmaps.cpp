@@ -309,7 +309,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_mmaps_commandscript()
 {
     new mmaps_commandscript();
 }
+#endif

@@ -131,7 +131,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_WeeklyEventBonusScripts()
 {
     new PlayerScript_Weekly_Event_Bonus();
 };
+#endif

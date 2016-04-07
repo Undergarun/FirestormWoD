@@ -1412,6 +1412,7 @@ class npc_cos_zombie : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_culling_of_stratholme()
 {
     new npc_arthas();
@@ -1419,3 +1420,4 @@ void AddSC_culling_of_stratholme()
     new npc_chromie();
     new npc_cos_zombie();
 }
+#endif

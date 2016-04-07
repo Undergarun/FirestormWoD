@@ -87,7 +87,9 @@ class ulduar_teleporter : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ulduar_teleporter()
 {
     new ulduar_teleporter();
 }
+#endif

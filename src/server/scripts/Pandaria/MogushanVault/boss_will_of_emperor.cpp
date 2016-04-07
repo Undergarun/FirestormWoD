@@ -1986,6 +1986,7 @@ class achievement_show_me_you_moves : public AchievementCriteriaScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_will_of_emperor()
 {
     new boss_jin_qin_xi();
@@ -2008,3 +2009,4 @@ void AddSC_boss_will_of_emperor()
     new go_ancien_control_console();
     new achievement_show_me_you_moves();
 }
+#endif

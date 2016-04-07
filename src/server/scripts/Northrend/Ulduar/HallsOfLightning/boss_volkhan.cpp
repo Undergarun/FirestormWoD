@@ -459,8 +459,10 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_volkhan()
 {
     new boss_volkhan();
     new mob_molten_golem();
 }
+#endif

@@ -262,7 +262,9 @@ class instance_iron_docks : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_iron_docks()
 {
     new instance_iron_docks();
 }
+#endif

@@ -1472,7 +1472,9 @@ and teleporting and unmounting them after defeating the mounted waves.
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_trial_of_the_champion()
 {
     new npc_announcer_toc5();
 }
+#endif

@@ -49,7 +49,9 @@ class CharacterRenderer : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_Character_Renderer()
 {
     new CharacterRenderer();
 };
+#endif

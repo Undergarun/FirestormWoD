@@ -476,7 +476,9 @@ class instance_stratholme : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_stratholme()
 {
     new instance_stratholme();
 }
+#endif

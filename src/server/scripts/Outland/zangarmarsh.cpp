@@ -425,10 +425,7 @@ public:
     }
 };
 
-/*######
-## AddSC
-######*/
-
+#ifndef __clang_analyzer__
 void AddSC_zangarmarsh()
 {
     new npcs_ashyen_and_keleth();
@@ -438,3 +435,4 @@ void AddSC_zangarmarsh()
     new npc_kayra_longmane();
     new npc_timothy_daniels();
 }
+#endif

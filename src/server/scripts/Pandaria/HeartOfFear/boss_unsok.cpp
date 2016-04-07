@@ -1434,6 +1434,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_unsok()
 {
     new boss_unsok();                   // 62511
@@ -1453,3 +1454,4 @@ void AddSC_boss_unsok()
     new spell_unsok_draw_power();       // 122547
     new spell_volatile_amber();         // 123014
 }
+#endif

@@ -1340,6 +1340,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_teronogoer()
 {
     new auchindon_boss_terongor();
@@ -1356,3 +1357,4 @@ void AddSC_teronogoer()
     new auchindon_teronogor_spell_demonic_leap();
     new auchindon_teronogor_seed_of_malevolence();
 }
+#endif

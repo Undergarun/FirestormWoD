@@ -381,7 +381,9 @@ class instance_ruby_sanctum : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_ruby_sanctum()
 {
     new instance_ruby_sanctum();
 }
+#endif

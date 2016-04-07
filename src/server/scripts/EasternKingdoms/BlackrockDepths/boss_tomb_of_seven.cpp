@@ -248,8 +248,10 @@ public:
     };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_tomb_of_seven()
 {
     new boss_gloomrel();
     new boss_doomrel();
 }
+#endif

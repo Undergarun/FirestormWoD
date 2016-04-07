@@ -447,6 +447,7 @@ namespace WebShop
     };
 }
 
+#ifndef __clang_analyzer__
 void AddSC_Webshop_Delivery()
 {
     new WebShop::Delivery_Item();
@@ -456,3 +457,4 @@ void AddSC_Webshop_Delivery()
     new WebShop::Delivery_Profession();
     new WebShop::Delivery_Save();
 };
+#endif

@@ -71,7 +71,9 @@ class PlayerScriptPetBattle : public PlayerScript
         std::mutex m_Mutex;
 };
 
+#ifndef __clang_analyzer__
 void AddSC_PetBattlePlayerScript()
 {
     new PlayerScriptPetBattle;
 }
+#endif

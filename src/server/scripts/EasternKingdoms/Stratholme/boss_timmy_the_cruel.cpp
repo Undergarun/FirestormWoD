@@ -83,7 +83,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_timmy_the_cruel()
 {
     new boss_timmy_the_cruel();
 }
+#endif

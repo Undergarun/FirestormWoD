@@ -913,7 +913,9 @@ class instance_highmaul : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_highmaul()
 {
     new instance_highmaul();
 }
+#endif

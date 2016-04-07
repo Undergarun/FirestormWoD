@@ -385,9 +385,11 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_guards()
 {
     new guard_generic;
     new guard_shattrath_aldor;
     new guard_shattrath_scryer;
 }
+#endif

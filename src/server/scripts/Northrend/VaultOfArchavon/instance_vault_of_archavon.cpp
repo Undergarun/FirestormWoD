@@ -142,7 +142,9 @@ class instance_archavon : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_archavon()
 {
     new instance_archavon();
 }
+#endif

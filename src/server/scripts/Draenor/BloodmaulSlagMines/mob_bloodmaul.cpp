@@ -1547,6 +1547,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 }
 } } ///< namespace MS::Instances
 
+#ifndef __clang_analyzer__
 void AddSC_mob_Bloodmaul()
 {
     /// Creatures
@@ -1571,3 +1572,4 @@ void AddSC_mob_Bloodmaul()
     /// Spells
     new MS::Instances::Bloodmaul::spell_bloodmaul_channel_flames();
 }
+#endif

@@ -650,13 +650,11 @@ public:
 
 };
 
-/*######
-## AddSC
-######*/
-
+#ifndef __clang_analyzer__
 void AddSC_old_hillsbrad()
 {
     new npc_erozion();
     new npc_thrall_old_hillsbrad();
     new npc_taretha();
 }
+#endif

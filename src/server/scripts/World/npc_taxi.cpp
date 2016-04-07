@@ -329,7 +329,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_npc_taxi()
 {
     new npc_taxi;
 }
+#endif

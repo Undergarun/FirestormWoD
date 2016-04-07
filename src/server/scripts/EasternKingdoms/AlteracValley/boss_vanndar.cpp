@@ -120,7 +120,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_vanndar()
 {
     new boss_vanndar;
 }
+#endif

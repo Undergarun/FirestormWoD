@@ -82,7 +82,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_siege_of_the_niuzao_temple()
 {
     new instance_siege_of_the_niuzao_temple();
 }
+#endif

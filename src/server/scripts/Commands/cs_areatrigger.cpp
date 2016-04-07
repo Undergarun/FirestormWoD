@@ -133,7 +133,9 @@ class at_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_at_commandscript()
 {
     new at_commandscript();
 }
+#endif

@@ -350,7 +350,9 @@ class instance_end_time : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_end_time()
 {
     new instance_end_time();
 }
+#endif

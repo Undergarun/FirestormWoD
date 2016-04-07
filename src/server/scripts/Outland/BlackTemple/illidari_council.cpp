@@ -926,6 +926,7 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_illidari_council()
 {
     new mob_illidari_council();
@@ -936,3 +937,4 @@ void AddSC_boss_illidari_council()
     new boss_high_nethermancer_zerevor();
     new spell_boss_lady_malande_shield();
 }
+#endif

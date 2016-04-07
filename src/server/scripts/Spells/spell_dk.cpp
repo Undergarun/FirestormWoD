@@ -3600,6 +3600,7 @@ class spell_dk_improved_death_grip : public PlayerScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_shadow_infusion();
@@ -3670,3 +3671,4 @@ void AddSC_deathknight_spell_scripts()
 
     new PlayerScript_Blood_Tap();
 }
+#endif

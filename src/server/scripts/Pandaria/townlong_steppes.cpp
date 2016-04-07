@@ -413,6 +413,7 @@ class mob_restless_leng : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_townlong_steppes()
 {
     //Rare mobs
@@ -425,3 +426,4 @@ void AddSC_townlong_steppes()
     // Standard Mobs
     new mob_restless_leng();
 }
+#endif

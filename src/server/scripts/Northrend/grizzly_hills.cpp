@@ -695,6 +695,7 @@ class npc_venture_co_straggler : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_grizzly_hills()
 {
     new npc_emily();
@@ -706,3 +707,4 @@ void AddSC_grizzly_hills()
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
 }
+#endif

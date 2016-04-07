@@ -261,8 +261,9 @@ class instance_arcatraz : public InstanceMapScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_arcatraz()
 {
     new instance_arcatraz;
 }
-
+#endif

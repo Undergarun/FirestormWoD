@@ -337,13 +337,11 @@ public:
     }
 };
 
-/*######
-## AddSC
-######*/
-
+#ifndef __clang_analyzer__
 void AddSC_undercity()
 {
     new npc_lady_sylvanas_windrunner();
     new npc_highborne_lamenter();
     new npc_parqual_fintallas();
 }
+#endif

@@ -421,9 +421,11 @@ class boss_warbringer_omrogg : public CreatureScript
             return new boss_warbringer_omroggAI (creature);
         }
 };
+
+#ifndef __clang_analyzer__
 void AddSC_boss_warbringer_omrogg()
 {
     new boss_warbringer_omrogg();
     new mob_omrogg_heads();
 }
-
+#endif

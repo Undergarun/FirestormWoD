@@ -339,7 +339,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_tele_commandscript()
 {
     new tele_commandscript();
 }
+#endif

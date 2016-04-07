@@ -371,8 +371,9 @@ class instance_zulaman : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_zulaman()
 {
     new instance_zulaman();
 }
-
+#endif

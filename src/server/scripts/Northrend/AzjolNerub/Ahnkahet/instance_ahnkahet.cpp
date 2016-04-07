@@ -334,7 +334,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_ahnkahet()
 {
    new instance_ahnkahet;
 }
+#endif

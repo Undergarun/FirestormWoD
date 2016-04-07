@@ -580,9 +580,11 @@ class go_wind_stone : public GameObjectScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_silithus()
 {
     new npc_highlord_demitrian();
     new npcs_rutgar_and_frankal();
     new go_wind_stone();
 }
+#endif

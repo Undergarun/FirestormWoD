@@ -1590,6 +1590,7 @@ class npc_well_of_eternity_portal_to_twisting_nether : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_well_of_eternity()
 {
     new npc_well_of_eternity_nozdormu();
@@ -1607,3 +1608,4 @@ void AddSC_well_of_eternity()
     new npc_well_of_eternity_dragon_soul();
     new npc_well_of_eternity_portal_to_twisting_nether();
 }
+#endif

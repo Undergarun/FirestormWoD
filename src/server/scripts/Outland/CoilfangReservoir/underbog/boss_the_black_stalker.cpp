@@ -184,7 +184,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_the_black_stalker()
 {
     new boss_the_black_stalker();
 }
+#endif

@@ -41,7 +41,9 @@ class npc_apothecary_hummel : public CreatureScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_shadowfang_keep()
 {
     new npc_apothecary_hummel();
 }
+#endif

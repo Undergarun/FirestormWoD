@@ -64,7 +64,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_winterspring()
 {
     new npc_rivern_frostwind();
 }
+#endif

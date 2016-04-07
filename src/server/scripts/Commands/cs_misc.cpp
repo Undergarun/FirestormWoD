@@ -3133,7 +3133,9 @@ class misc_commandscript: public CommandScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_misc_commandscript()
 {
     new misc_commandscript();
 }
+#endif

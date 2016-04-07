@@ -1554,6 +1554,7 @@ namespace MS
     };
 }
 
+#ifndef __clang_analyzer__
 void AddSC_spell_instance_skyreach()
 {
     // Spells.
@@ -1590,3 +1591,4 @@ void AddSC_spell_instance_skyreach()
     new MS::AreaTrigger_LensFlare();
     new MS::spell_CastDown();
 }
+#endif

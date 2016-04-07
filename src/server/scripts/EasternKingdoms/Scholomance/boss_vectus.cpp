@@ -102,7 +102,9 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_vectus()
 {
     new boss_vectus();
 }
+#endif

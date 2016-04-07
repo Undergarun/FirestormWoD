@@ -534,6 +534,7 @@ class spell_oculus_dream_funnel: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_oculus()
 {
     new npc_verdisa_belgaristrasz_eternos();
@@ -545,3 +546,4 @@ void AddSC_oculus()
     new spell_oculus_touch_the_nightmare();
     new spell_oculus_dream_funnel();
 }
+#endif

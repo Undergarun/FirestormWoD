@@ -1271,7 +1271,9 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_lookup_commandscript()
 {
     new lookup_commandscript();
 }
+#endif

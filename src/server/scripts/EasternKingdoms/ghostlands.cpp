@@ -181,8 +181,10 @@ public:
 
 };
 
+#ifndef __clang_analyzer__
 void AddSC_ghostlands()
 {
     new npc_rathis_tomber();
     new npc_ranger_lilatha();
 }
+#endif

@@ -1538,6 +1538,7 @@ class at_amethyst_pool : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_boss_stone_guard()
 {
     new boss_stone_guard_controler();   // 60089
@@ -1551,3 +1552,4 @@ void AddSC_boss_stone_guard()
     new spell_energized_tiles();        // 116541
     new at_amethyst_pool();             ///< 116235
 }
+#endif

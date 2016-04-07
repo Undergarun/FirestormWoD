@@ -1976,6 +1976,7 @@ class spell_twilight_thundercaller_electric_blast: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_grim_batol()
 {
     new npc_ascended_flameseeker();
@@ -2010,3 +2011,4 @@ void AddSC_grim_batol()
     new spell_twilight_shadow_weaver_shadow_weave();
     new spell_twilight_thundercaller_electric_blast();
 }
+#endif

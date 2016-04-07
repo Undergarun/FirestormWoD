@@ -329,7 +329,9 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
         };
 };
 
+#ifndef __clang_analyzer__
 void AddSC_instance_siege_of_orgrimmar()
 {
     new instance_siege_of_orgrimmar();
 }
+#endif

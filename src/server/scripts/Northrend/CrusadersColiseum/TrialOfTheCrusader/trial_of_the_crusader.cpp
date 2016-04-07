@@ -987,6 +987,7 @@ class npc_varian_toc : public CreatureScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_trial_of_the_crusader()
 {
     new boss_lich_king_toc();
@@ -996,3 +997,4 @@ void AddSC_trial_of_the_crusader()
     new npc_garrosh_toc();
     new npc_varian_toc();
 }
+#endif

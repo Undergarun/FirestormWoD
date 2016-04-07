@@ -1514,6 +1514,7 @@ class spell_at_dk_anti_magic_zone : public AreaTriggerEntityScript
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_areatrigger_spell_scripts()
 {
     /// Deathknight Area Trigger
@@ -1556,3 +1557,4 @@ void AddSC_areatrigger_spell_scripts()
     /// Rogue Area Trigger
     new spell_at_rogue_smoke_bomb();
 }
+#endif

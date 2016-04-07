@@ -235,6 +235,7 @@ class spell_trash_mob_glacial_strike: public SpellScriptLoader
         }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
@@ -242,3 +243,4 @@ void AddSC_pit_of_saron()
     new mob_geist_ambusher();
     new spell_trash_mob_glacial_strike();
 }
+#endif
