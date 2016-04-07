@@ -629,16 +629,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
             float l_SpellPower = p_Caster->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
 
             {
-                if (l_AttackPower == 0.f)
+                if (l_AttackPower == 0.0f)
                     l_AttackPower = p_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-                if (l_AttackPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_AttackPower == 0.0f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_AttackPower = p_Caster->GetOwner()->GetTotalAttackPowerValue(l_AttType);
             }
 
             {
-                if (l_SpellPower == 0.f)
+                if (l_SpellPower == 0.0f)
                     l_SpellPower = p_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                if (l_SpellPower == 0.f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
+                if (l_SpellPower == 0.0f && p_Caster->GetOwner() && p_Caster->GetOwner()->ToPlayer())
                     l_SpellPower = p_Caster->GetOwner()->SpellBaseDamageBonusDone(_spellInfo->GetSchoolMask());
             }
 
@@ -3921,7 +3921,7 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    return 1.f;
+    return 1.0f;
 }
 
 bool SpellInfo::CanTriggerBladeFlurry() const

@@ -27,7 +27,7 @@ Location MoveSpline::ComputePosition() const
 {
     ASSERT(Initialized());
 
-    float u = 1.f;
+    float u = 1.0f;
     int32 seg_time = spline.length(point_Idx, point_Idx+1);
     if (seg_time > 0)
         u = (time_passed - spline.length(point_Idx)) / (float)seg_time;
@@ -96,7 +96,7 @@ struct FallInitializer
     float start_elevation;
     inline int32 operator()(Spline<int32>& s, int32 i)
     {
-        return Movement::computeFallTime(start_elevation - s.getPoint(i+1).z, false) * 1000.f;
+        return Movement::computeFallTime(start_elevation - s.getPoint(i+1).z, false) * 1000.0f;
     }
 };
 
@@ -106,7 +106,7 @@ enum{
 
 struct CommonInitializer
 {
-    CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) { }
+    CommonInitializer(float _velocity) : velocityInv(1000.0f/_velocity), time(minimal_duration) { }
     float velocityInv;
     int32 time;
     inline int32 operator()(Spline<int32>& s, int32 i)
@@ -162,7 +162,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     initialOrientation = args.initialOrientation;
 
     time_passed = 0;
-    vertical_acceleration = 0.f;
+    vertical_acceleration = 0.0f;
     effect_start_time = 0;
 
     // Check if its a stop spline
@@ -182,13 +182,13 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
         if (args.flags.parabolic && effect_start_time < Duration())
         {
             float f_duration = MSToSec(Duration() - effect_start_time);
-            vertical_acceleration = args.parabolic_amplitude * 8.f / (f_duration * f_duration);
+            vertical_acceleration = args.parabolic_amplitude * 8.0f / (f_duration * f_duration);
         }
     }
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
-    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
+    vertical_acceleration(0.0f), initialOrientation(0.0f), effect_start_time(0), point_Idx(0), point_Idx_offset(0),
     onTransport(false)
 {
     splineflags.done = true;
@@ -206,7 +206,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
     }
     CHECK(path.size() > 1);
     CHECK(velocity > 0.1f);
-    CHECK(time_perc >= 0.f && time_perc <= 1.f);
+    CHECK(time_perc >= 0.0f && time_perc <= 1.0f);
     //CHECK(_checkPathBounds());
     return true;
 #undef CHECK

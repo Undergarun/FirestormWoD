@@ -28,8 +28,8 @@ namespace VMAP
 {
     ModelInstance::ModelInstance(const ModelSpawn &spawn, WorldModel* model): ModelSpawn(spawn), iModel(model)
     {
-        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iRot.y/180.f, G3D::pif()*iRot.x/180.f, G3D::pif()*iRot.z/180.f).inverse();
-        iInvScale = 1.f/iScale;
+        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iRot.y/180.0f, G3D::pif()*iRot.x/180.0f, G3D::pif()*iRot.z/180.0f).inverse();
+        iInvScale = 1.0f/iScale;
     }
 
     bool ModelInstance::intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const
@@ -82,7 +82,7 @@ namespace VMAP
             return;
         // child bounds are defined in object space:
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
-        Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+        Vector3 zDirModel = iInvRot * Vector3(0.0f, 0.0f, -1.0f);
         float zDist;
         if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
         {
@@ -116,7 +116,7 @@ namespace VMAP
             return false;
         // child bounds are defined in object space:
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
-        Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+        Vector3 zDirModel = iInvRot * Vector3(0.0f, 0.0f, -1.0f);
         float zDist;
         if (iModel->GetLocationInfo(pModel, zDirModel, zDist, info))
         {
@@ -139,7 +139,7 @@ namespace VMAP
     {
         // child bounds are defined in object space:
         Vector3 pModel = iInvRot * (p - iPos) * iInvScale;
-        //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+        //Vector3 zDirModel = iInvRot * Vector3(0.0f, 0.0f, -1.0f);
         float zDist;
         if (info.hitModel->GetLiquidLevel(pModel, zDist))
         {

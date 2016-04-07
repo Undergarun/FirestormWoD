@@ -167,9 +167,9 @@ class mob_animated_staff : public CreatureScript
 
             void Reset()
             {
-                _x = 0.f;
-                _y = 0.f;
-                point = 0.f;
+                _x = 0.0f;
+                _y = 0.0f;
+                point = 0.0f;
 
                 me->AddAura(SPELL_PERMANENT_FEIGN_DEATH, me);
 

@@ -1355,8 +1355,8 @@ class mob_zephyr : public CreatureScript
 
                 if (m_Events.ExecuteEvent() == EVENT_ZEPHYR_MOVE)
                 {
-                    float l_PosX = me->GetPositionX() + 100.f * cos(me->GetOrientation());
-                    float l_PosY = me->GetPositionY() + 100.f * sin(me->GetOrientation());
+                    float l_PosX = me->GetPositionX() + 100.0f * cos(me->GetOrientation());
+                    float l_PosY = me->GetPositionY() + 100.0f * sin(me->GetOrientation());
                     Position targetPoint = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                     me->GetMotionMaster()->MovePoint(0, targetPoint);
                 }

@@ -1128,8 +1128,8 @@ class mob_sonic_ring : public CreatureScript
                 me->SetSpeed(MOVE_WALK, 0.5f);
                 me->SetSpeed(MOVE_RUN,  0.5f);
 
-                float l_PosX = me->GetPositionX() + 50.f * cos(me->GetOrientation());
-                float l_PosY = me->GetPositionY() + 50.f * sin(me->GetOrientation());
+                float l_PosX = me->GetPositionX() + 50.0f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 50.0f * sin(me->GetOrientation());
                 m_TargetPos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                 m_Events.ScheduleEvent(EVENT_SONIC_MOVE, 500);
 
@@ -1187,8 +1187,8 @@ class mob_sonic_pulse : public CreatureScript
                 me->SetSpeed(MOVE_WALK, 0.3f);
                 me->SetSpeed(MOVE_RUN,  0.3f);
 
-                float l_PosX = me->GetPositionX() + 50.f * cos(me->GetOrientation());
-                float l_PosY = me->GetPositionY() + 50.f * sin(me->GetOrientation());
+                float l_PosX = me->GetPositionX() + 50.0f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 50.0f * sin(me->GetOrientation());
                 m_TargetPos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                 m_Events.ScheduleEvent(EVENT_SONIC_MOVE, 500);
 

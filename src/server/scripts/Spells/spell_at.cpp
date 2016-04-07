@@ -743,7 +743,7 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
         void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
         {
             Position l_Position;
-            float l_Dist = 40.f;
+            float l_Dist = 40.0f;
 
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
@@ -1100,7 +1100,7 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
         void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
         {
             Position l_Position;
-            float l_Dist = 24.f; // Hardcoded in the tooltip;
+            float l_Dist = 24.0f; // Hardcoded in the tooltip;
 
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
@@ -1400,7 +1400,7 @@ class spell_at_monk_charging_ox_wave : public AreaTriggerEntityScript
         void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
         {
             Position l_Position;
-            float l_Dist = 30.f;
+            float l_Dist = 30.0f;
 
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));

@@ -2086,7 +2086,7 @@ bool Item::IsLegendaryCloak() const
 float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
 {
     if (Quality > ITEM_QUALITY_HEIRLOOM)
-        return 0.f;
+        return 0.0f;
 
     ItemDamageEntry const* damageEntry = NULL;
 
@@ -2144,7 +2144,7 @@ float ItemTemplate::GetScalingDamageValue(uint32 ilvl) const
     default:
         break;
     }
-    return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.f;
+    return damageEntry ? damageEntry->DPS[Quality == ITEM_QUALITY_HEIRLOOM ? ITEM_QUALITY_RARE : Quality] : 0.0f;
 }
 
 int32 ItemTemplate::GetRandomPointsOffset() const
@@ -2214,7 +2214,7 @@ uint32 ItemTemplate::CalculateScalingStatDBCValue(uint32 ilvl) const
 float ItemTemplate::GetSocketCost(uint32 ilvl) const
 {
     gtItemSocketCostPerLevelEntry const* socket = sgtItemSocketCostPerLevelStore.LookupEntry(ilvl);
-    return socket ? socket->cost : 0.f;
+    return socket ? socket->cost : 0.0f;
 }
 
 int32 ItemTemplate::CalculateStatScaling(uint32 index, uint32 ilvl) const
@@ -2279,21 +2279,21 @@ void ItemTemplate::CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, 
         return;
 
     float weaponMinDamageCalc = (float)Delay * GetScalingDamageValue(ilvl) * 0.001f;
-    float weaponMaxDamageCalc = (((StatScalingFactor * 0.5f) + 1.f) * weaponMinDamageCalc) + 0.5f;
+    float weaponMaxDamageCalc = (((StatScalingFactor * 0.5f) + 1.0f) * weaponMinDamageCalc) + 0.5f;
 
     if (Delay != 0)
     {
         float delayModifier = 1000.0f / (float)Delay;
-        float midCalc = (delayModifier * ((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc)) + ArmorDamageModifier;
-        midCalc = midCalc > 1.f ? midCalc : 1.f;
-        float delayCoeff = 1.f / delayModifier;
+        float midCalc = (delayModifier * ((1.0f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc)) + ArmorDamageModifier;
+        midCalc = midCalc > 1.0f ? midCalc : 1.0f;
+        float delayCoeff = 1.0f / delayModifier;
         minDamage = floor((delayCoeff * midCalc) + 0.5f);
         maxDamage = floor((delayCoeff * ((delayModifier * weaponMaxDamageCalc) + ArmorDamageModifier)) + 0.5f);
     }
     else
     {
         maxDamage = floor(weaponMaxDamageCalc + 0.5f);
-        minDamage = floor(((1.f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
+        minDamage = floor(((1.0f - (StatScalingFactor * 0.5f)) * weaponMinDamageCalc) + 0.5f);
     }
 }
 

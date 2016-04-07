@@ -497,7 +497,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
+    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.0f;
     float attackPower = GetTotalAttackPowerValue(attType);
 
     /// If player doesn't have weapons we should calculate damage with this values: min damage = 1 and max damage = 2
@@ -508,7 +508,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     ///float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
     float dualWieldModifier = 1.0f; ///< I don't know about reducing for 19%. We have checked it on PTR, and damage is the same with dual wield - like without it.
     if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
-        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
+        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.0f;
 
     float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
     float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
@@ -1006,11 +1006,11 @@ void Player::UpdateAllSpellCritChances()
 void Player::UpdateMultistrikePercentage()
 {
     float value = GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT);
-    float effect = 30.f; // Default value
+    float effect = 30.0f; // Default value
     value += GetRatingBonusValue(CR_MULTISTRIKE);
     AddPct(effect, GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_EFFECT_PCT));
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
-    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.f);
+    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, effect / 100.0f);
 }
 
 void Player::UpdateLeechPercentage()
@@ -1038,14 +1038,14 @@ void Player::UpdateVersatilityPercentage()
 
 void Player::UpdateAvoidancePercentage()
 {
-    float value = 0.f;//GetTotalAuraModifier(SPELL_AURA);
+    float value = 0.0f;//GetTotalAuraModifier(SPELL_AURA);
     value += GetRatingBonusValue(CR_AVOIDANCE);
     SetFloatValue(PLAYER_FIELD_AVOIDANCE, value);
 }
 
 void Player::UpdateSpeedPercentage()
 {
-    float value = 0.f;
+    float value = 0.0f;
     value += GetRatingBonusValue(CR_SPEED);
     SetFloatValue(PLAYER_FIELD_SPEED, value);
 }
@@ -1312,7 +1312,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 
 void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
 {
-    float l_Variance = 1.f;
+    float l_Variance = 1.0f;
     UnitMods l_UnitMod;
     switch (p_AttType)
     {
@@ -1647,7 +1647,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 
     float l_BaseAttackPower       = l_BaseValue;
     float l_SpellPower            = l_BaseValue;
-    float l_AttackPowerMultiplier = 1.f;
+    float l_AttackPowerMultiplier = 1.0f;
 
     PetStatInfo const* l_PetStat = GetPetStat();
     if (l_PetStat != nullptr)

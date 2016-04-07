@@ -100,7 +100,7 @@ namespace MS { namespace Garrison { namespace Sites
         {
             Creature* l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
-            if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) > 2)
+            if (l_Creature && l_Creature->GetDistance2d(5593.0f, 4476.0f) > 2)
             {
                 l_Creature->SetWalk(false);
                 l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II);
@@ -154,7 +154,7 @@ namespace MS { namespace Garrison { namespace Sites
             {
                 Creature * l_Creature = HashMapHolder<Creature>::Find(*(m_CreaturesPerEntry[NPCs::NPC_SENIOR_PEON_II].begin()));
 
-                if (l_Creature && l_Creature->GetDistance2d(5593.f, 4476.f) < 2)
+                if (l_Creature && l_Creature->GetDistance2d(5593.0f, 4476.0f) < 2)
                 {
                     l_Creature->SetWalk(false);
                     l_Creature->LoadPath(Waypoints::MOVE_PATH_SENIOR_PEON_II_BACK);

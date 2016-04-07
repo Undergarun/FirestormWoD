@@ -559,13 +559,13 @@ float LFGListMgr::GetPlayerItemLevelForActivity(GroupFinderActivityEntry const* 
 
 float LFGListMgr::GetLowestItemLevelInGroup(LFGListEntry* p_Entry) const
 {
-    float l_MinIlvl = 100000.f;
+    float l_MinIlvl = 100000.0f;
 
     for (GroupReference const* l_Ref = p_Entry->m_Group->GetFirstMember(); l_Ref != NULL; l_Ref = l_Ref->next())
         if (Player* l_Player = l_Ref->getSource())
             l_MinIlvl = std::min(l_MinIlvl, GetPlayerItemLevelForActivity(p_Entry->m_ActivityEntry, l_Player));
 
-    return l_MinIlvl != 100000.f ? l_MinIlvl : 0.f;
+    return l_MinIlvl != 100000.0f ? l_MinIlvl : 0.0f;
 }
 
 uint8 LFGListMgr::GetMemeberCountInGroupIncludingInvite(LFGListEntry* p_Entry)

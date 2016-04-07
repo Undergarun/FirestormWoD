@@ -85,9 +85,9 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             SiteID = 0;
             LootGameObjectID = 0;
-            LootGameObjectX = 0.f;
-            LootGameObjectY = 0.f;
-            LootGameObjectZ = 0.f;
+            LootGameObjectX = 0.0f;
+            LootGameObjectY = 0.0f;
+            LootGameObjectZ = 0.0f;
             SiteLootCount = 0;
             SiteMaxLootCount = 0;
         }

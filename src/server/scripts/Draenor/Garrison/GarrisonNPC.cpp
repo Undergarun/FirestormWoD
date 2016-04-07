@@ -578,7 +578,7 @@ namespace MS { namespace Garrison
                 me->m_spells[2] = me->m_spells[0];
 
             for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
-                me->m_threatModifier[i] *= 10000.f;
+                me->m_threatModifier[i] *= 10000.0f;
         }
     }
 
@@ -610,7 +610,7 @@ namespace MS { namespace Garrison
 
         if (m_Ranged)
         {
-            if (me->IsWithinMeleeRange(me->getVictim(), 1.f))
+            if (me->IsWithinMeleeRange(me->getVictim(), 1.0f))
             {
                 me->CastSpell(me, Spells::Disengage, TRIGGERED_FULL_MASK);
                 me->resetAttackTimer();

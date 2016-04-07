@@ -177,7 +177,7 @@ bool BattlegroundSA::ResetObjs()
     /*if (GameObject* l_BoatOne = GetBGObject(BG_SA_BOAT_ONE))
     {
         if (l_BoatOne->GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
-            l_BoatOne->SetRotationAngles(acosf(0.0002f), 0.f, 0.f);
+            l_BoatOne->SetRotationAngles(acosf(0.0002f), 0.0f, 0.0f);
         else
             l_BoatOne->UpdateRotationFields(1.0f, 0.0002f);
 
@@ -188,7 +188,7 @@ bool BattlegroundSA::ResetObjs()
     if (GameObject* l_BoatTwo = GetBGObject(BG_SA_BOAT_ONE))
     {
         if (l_BoatTwo->GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
-            l_BoatTwo->SetRotationAngles(acosf(0.00001f), 0.f, 0.f);
+            l_BoatTwo->SetRotationAngles(acosf(0.00001f), 0.0f, 0.0f);
         else
             l_BoatTwo->UpdateRotationFields(1.0f, 0.00001f);
 

@@ -575,7 +575,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
                 for (uint32 l_I = 0; l_I < l_Spline->getPath().size(); l_I++)
                 {
-                    float l_Salt = (float(l_I) / 1000.f);
+                    float l_Salt = (float(l_I) / 1000.0f);
 
                     /// Add a salt in points because the client doesn't like to have 2 time the same points
                     *p_Data << float(l_Spline->getPath()[l_I].x + l_Salt);  ///< Path node X
@@ -1881,7 +1881,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
     VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
     return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
     if (IsInWorld())
-        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.f, ox, oy, oz+2.f, GetPhaseMask());
+        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.0f, ox, oy, oz+2.0f, GetPhaseMask());
 
     return true;
 }
@@ -3812,7 +3812,7 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.f*/, float p_SourceY /*= 0.f*/, float p_SourceZ /*= 0.f*/)
+void WorldObject::PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject /*= NULL*/, float p_SourceX /*= 0.0f*/, float p_SourceY /*= 0.0f*/, float p_SourceZ /*= 0.0f*/)
 {
     float l_X = (p_SourceObject && p_SourceX == 0) ? p_SourceObject->GetPositionX() : p_SourceX;
     float l_Y = (p_SourceObject && p_SourceY == 0) ? p_SourceObject->GetPositionY() : p_SourceY;

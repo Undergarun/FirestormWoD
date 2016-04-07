@@ -110,7 +110,7 @@ namespace MS
                                     break;
                                 case uint32(MobEntries::BloodmaulWarder):
                                 {
-                                    static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.f };
+                                    static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.0f };
 
                                     if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
                                         m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());

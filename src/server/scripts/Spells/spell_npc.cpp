@@ -187,7 +187,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                     /// Frozen Orb slows down when it damages an enemy
                     if (!me->HasAura(Spells::SelfSnare90Pct))
                     {
-                        const float l_MaxRadius = 10.f; ///< Spell radius
+                        const float l_MaxRadius = 10.0f; ///< Spell radius
 
                         /// Find all the enemies in range
                         std::list<Unit*> l_Targets;
@@ -246,11 +246,11 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                 l_Dest.m_positionZ += Constants::HeightCompensation - Constants::HoverHeight;
 
                 float l_DestHeight = std::max(l_Dest.GetPositionZ(), me->GetMap()->GetHeight(l_Dest.GetPositionX(), l_Dest.GetPositionY(), MAX_HEIGHT));
-                float l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.f; ///< +1 because reasons (I have no idea why this is required, but it is)
+                float l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.0f; ///< +1 because reasons (I have no idea why this is required, but it is)
 
                 if (l_Diff > l_MaxStep)
                 {
-                    float l_Step = l_CheckDist / 10.f;
+                    float l_Step = l_CheckDist / 10.0f;
 
                     for (uint32 l_I = 0; l_I < 10; ++l_I)
                     {
@@ -258,7 +258,7 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                         l_Dest.m_positionY -= l_Step * l_RotSin;
 
                         l_DestHeight = me->GetMap()->GetHeight(l_Dest.m_positionX, l_Dest.m_positionY, MAX_HEIGHT);
-                        l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.f;
+                        l_Diff = l_DestHeight - l_Dest.m_positionZ + 1.0f;
                         if (l_Diff < l_MaxStep)
                             break;
                     }
@@ -273,13 +273,13 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                 VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(me->GetMapId(),
                     l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
                     l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
-                    l_StaticHit.m_positionX, l_StaticHit.m_positionY, l_StaticHit.m_positionZ, 0.f);
+                    l_StaticHit.m_positionX, l_StaticHit.m_positionY, l_StaticHit.m_positionZ, 0.0f);
 
                 Position l_DynamicHit;
                 me->GetMap()->getObjectHitPos(me->GetPhaseMask(),
                     l_Origin.m_positionX, l_Origin.m_positionY, l_Origin.m_positionZ,
                     l_Dest.m_positionX, l_Dest.m_positionY, l_Dest.m_positionZ,
-                    l_DynamicHit.m_positionX, l_DynamicHit.m_positionY, l_DynamicHit.m_positionZ, 0.f);
+                    l_DynamicHit.m_positionX, l_DynamicHit.m_positionY, l_DynamicHit.m_positionZ, 0.0f);
 
                 /// Get the closer hit pos (for obvious reasons)
                 Position l_FinalPos;

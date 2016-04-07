@@ -243,7 +243,7 @@ class boss_primordius : public CreatureScript
                 if (m_IntroDone)
                     return;
 
-                if (p_Who->IsPlayer() && p_Who->GetDistance(me) <= 60.f)
+                if (p_Who->IsPlayer() && p_Who->GetDistance(me) <= 60.0f)
                 {
                     Talk(TALK_INTRO_01);
                     m_IntroDone = true;
@@ -349,7 +349,7 @@ class boss_primordius : public CreatureScript
 
                 if (!m_HasEvolued)
                 {
-                    if (me->GetPowerPct(POWER_ENERGY) >= 100.f)
+                    if (me->GetPowerPct(POWER_ENERGY) >= 100.0f)
                     {
                         me->AddAura(SPELL_EVOLUTION, me);
                         me->SetPower(POWER_ENERGY, 0, true);

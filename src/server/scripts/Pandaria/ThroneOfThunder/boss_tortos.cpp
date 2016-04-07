@@ -225,7 +225,7 @@ class boss_tortos : public CreatureScript
                         sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
-                me->SummonGameObject(GOB_TORTOS_DEATH_COLLISION, 6038.69f, 4923.87f, -61.1953f, 1.513821f, 0, 0, 0, 1.f, 0);
+                me->SummonGameObject(GOB_TORTOS_DEATH_COLLISION, 6038.69f, 4923.87f, -61.1953f, 1.513821f, 0, 0, 0, 1.0f, 0);
             }
 
             void DoAction(const int32 action)
@@ -434,8 +434,8 @@ class mob_whirl_turtle : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
 
-                me->SetSpeed(MOVE_WALK, 2.f);
-                me->SetSpeed(MOVE_RUN, 2.f);
+                me->SetSpeed(MOVE_WALK, 2.0f);
+                me->SetSpeed(MOVE_RUN, 2.0f);
 
                 events.Reset();
             }
@@ -460,8 +460,8 @@ class mob_whirl_turtle : public CreatureScript
                         if (plrList.empty())
                             break;
 
-                        me->SetSpeed(MOVE_WALK, 1.f);
-                        me->SetSpeed(MOVE_RUN, 1.f);
+                        me->SetSpeed(MOVE_WALK, 1.0f);
+                        me->SetSpeed(MOVE_RUN, 1.0f);
                         JadeCore::RandomResizeList(plrList, 1);
                         me->GetMotionMaster()->MoveChase(plrList.front());
                         me->CombatStart(plrList.front());
@@ -777,8 +777,8 @@ class spell_kick_shell: public SpellScriptLoader
                     {
                         target->RemoveAura(SPELL_KICK_SHELL_ROOT);
                         target->ClearUnitState(UNIT_STATE_CASTING | UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
-                        target->SetSpeed(MOVE_WALK, 5.f);
-                        target->SetSpeed(MOVE_RUN, 5.f);
+                        target->SetSpeed(MOVE_WALK, 5.0f);
+                        target->SetSpeed(MOVE_RUN, 5.0f);
                         target->AddAura(SPELL_SHELL_CONCUSSION, target);
                         float orientation = caster->GetOrientation();
                         float x = target->GetPositionX() + ((150.0f) * cos(orientation));

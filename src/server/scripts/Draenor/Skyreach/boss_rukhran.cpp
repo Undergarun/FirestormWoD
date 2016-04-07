@@ -471,7 +471,7 @@ namespace MS
                         // We want to cast PierceArmor on the closest ennemy.
                         if (me->getVictim() && me->getVictim()->IsWithinMeleeRange(me))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
-                        else if (ScriptUtils::SelectNearestPlayer(me, 15.f))
+                        else if (ScriptUtils::SelectNearestPlayer(me, 15.0f))
                             me->CastSpell(me->getVictim(), uint32(Spells::PIERCE_ARMOR));
                         break;
                     case uint32(Events::QUILLS):

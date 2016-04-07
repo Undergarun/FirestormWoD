@@ -2071,7 +2071,7 @@ class mob_mysterious_mushroom : public CreatureScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_CHECK_PLAYER:
-                        if (Unit* target = me->SelectNearestPlayerNotGM(4.f))
+                        if (Unit* target = me->SelectNearestPlayerNotGM(4.0f))
                         {
                             me->CastSpell(me, SPELL_FUNGAL_EXPLOSION_DAMAGE, true);
                             me->DespawnOrUnsummon();
@@ -2658,7 +2658,7 @@ class mob_gastropod : public CreatureScript
                         Position l_Pos;
 
                         me->GetPosition(&l_Pos);
-                        me->GetPlayerListInGrid(l_Targets, 0.f);
+                        me->GetPlayerListInGrid(l_Targets, 0.0f);
 
                         for (Player* l_Player : l_Targets)
                         {
@@ -2671,10 +2671,10 @@ class mob_gastropod : public CreatureScript
                             Position l_PlayerPos;
                             l_Player->GetPosition(&l_PlayerPos);
 
-                            if (l_Pos.m_positionX >= l_PlayerPos.m_positionX - 5.f &&
-                                l_Pos.m_positionX <= l_PlayerPos.m_positionX + 5.f &&
-                                l_Pos.m_positionY >= l_PlayerPos.m_positionY - 5.f &&
-                                l_Pos.m_positionY <= l_PlayerPos.m_positionY + 5.f)
+                            if (l_Pos.m_positionX >= l_PlayerPos.m_positionX - 5.0f &&
+                                l_Pos.m_positionX <= l_PlayerPos.m_positionX + 5.0f &&
+                                l_Pos.m_positionY >= l_PlayerPos.m_positionY - 5.0f &&
+                                l_Pos.m_positionY <= l_PlayerPos.m_positionY + 5.0f)
                             {
                                 me->CastSpell(l_Player, SPELL_DEVOURED, true);
                                 break;
@@ -3478,7 +3478,7 @@ class mob_shanze_celestial_shaper : public CreatureScript
 
                 SetEquipmentSlots(false, SHANZE_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-                if (Creature* l_Construct = me->FindNearestCreature(NPC_CELESTIAL_CONSTRUCT, 50.f))
+                if (Creature* l_Construct = me->FindNearestCreature(NPC_CELESTIAL_CONSTRUCT, 50.0f))
                     me->CastSpell(l_Construct, SPELL_SIPHON_ESSENCE, false);
 
                 m_Events.ScheduleEvent(EVENT_LIGHTNING_LASH, 2000);
@@ -3634,7 +3634,7 @@ class mob_celestial_construct : public CreatureScript
                 me->AddUnitState(UNIT_STATE_STUNNED);
                 me->CastSpell(me, SPELL_INACTIVE_FIRST, true);
 
-                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.f))
+                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.0f))
                     l_InvisibleMan->CastSpell(l_InvisibleMan, SPELL_INACTIVE_PLATFORM, true);
             }
 
@@ -3643,10 +3643,10 @@ class mob_celestial_construct : public CreatureScript
                 if (p_Who->GetTypeId() != TYPEID_PLAYER || me->HasAura(SPELL_INACTIVE_SECOND_SMALLER))
                     return;
 
-                if (p_Who->GetDistance(me) > 50.f)
+                if (p_Who->GetDistance(me) > 50.0f)
                     return;
 
-                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.f))
+                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.0f))
                     l_InvisibleMan->CastSpell(l_InvisibleMan, SPELL_INACTIVE_SECOND_SMALLER, true);
 
                 me->CastSpell(me, SPELL_INACTIVE_SECOND_SMALLER, true);

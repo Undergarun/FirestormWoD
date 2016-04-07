@@ -485,7 +485,7 @@ class mob_haunting_sha : public CreatureScript
                     if (!zao)
                         return;
 
-                    me->getThreatManager().addThreat(zao, 1000000.f);
+                    me->getThreatManager().addThreat(zao, 1000000.0f);
                     me->AI()->AttackStart(zao);
                 }
             }

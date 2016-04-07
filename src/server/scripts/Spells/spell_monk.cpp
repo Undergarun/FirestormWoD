@@ -5082,9 +5082,9 @@ class spell_monk_chi_explosion_heal: public SpellScriptLoader
 
                     Unit* l_MainTarget = (*p_Targets.begin())->ToUnit();
                     std::list<Unit*> l_UnitList;
-                    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_MainTarget, l_MainTarget, 8.f);
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_MainTarget, l_MainTarget, 8.0f);
                     JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_MainTarget, l_UnitList, u_check);
-                    l_MainTarget->VisitNearbyObject(8.f, searcher);
+                    l_MainTarget->VisitNearbyObject(8.0f, searcher);
 
                     for (auto& l_Iter : l_UnitList)
                         if (std::find(p_Targets.begin(), p_Targets.end(), l_Iter) == p_Targets.end())

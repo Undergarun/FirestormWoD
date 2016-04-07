@@ -771,7 +771,7 @@ class npc_tempest_slash_tornado : public CreatureScript
                 if (!id || type != POINT_MOTION_TYPE)
                     return;
 
-                float l_NewAngle = 0.f;
+                float l_NewAngle = 0.0f;
 
                 if (id == 7)
                     /// In circle loop : just change the orientation from 1/16 of circle (that is 2 * Pi / 16, so Pi / 8)
@@ -1041,7 +1041,7 @@ class mob_gale_winds_stalker : public CreatureScript
                         {
                             // Player doesn't have forcedMovement
                             if (player->isAlive() && !player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
-                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.f, 1);
+                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.0f, 1);
                             // Dead player has forcedMovement
                             else if (!player->isAlive() && player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
                                 player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);

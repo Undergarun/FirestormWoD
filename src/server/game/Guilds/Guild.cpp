@@ -2074,7 +2074,7 @@ void Guild::HandleGuildPartyRequest(WorldSession * p_Session)
 
     l_Data << uint32(0);                                                                        ///< Current guild members
     l_Data << uint32(0);                                                                        ///< Needed guild members
-    l_Data << float(0.f);                                                                       ///< Guild XP multiplier
+    l_Data << float(0.0f);                                                                       ///< Guild XP multiplier
 
     p_Session->SendPacket(&l_Data);
 }

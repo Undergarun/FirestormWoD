@@ -189,7 +189,7 @@ namespace Movement
 
     inline void MoveSplineInit::SetAnimation(AnimType anim)
     {
-        args.time_perc = 0.f;
+        args.time_perc = 0.0f;
         args.flags.EnableAnimation((uint8)anim);
     }
 

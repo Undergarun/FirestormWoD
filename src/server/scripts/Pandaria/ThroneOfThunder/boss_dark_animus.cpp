@@ -225,36 +225,36 @@ Position const g_LargeGolemPos[8] =
     { 5758.92f, 4858.97f, 77.6523f, 4.71239f },
     { 5706.99f, 4754.17f, 77.6523f, 1.5708f },
     { 5715.76f, 4753.81f, 77.6523f, 1.5708f },
-    { 5705.67f, 4859.f, 77.6523f, 4.71239f }
+    { 5705.67f, 4859.0f, 77.6523f, 4.71239f }
 };
 
 Position const g_AnimaGolemPos[25] =
 {
-    { 5763.82f, 4765.f, 77.6523f, 1.5708f },
-    { 5756.32f, 4765.f, 77.6523f, 1.5708f },
-    { 5707.95f, 4848.f, 77.6523f, 4.71239f },
-    { 5715.45f, 4848.f, 77.6523f, 4.71239f },
+    { 5763.82f, 4765.0f, 77.6523f, 1.5708f },
+    { 5756.32f, 4765.0f, 77.6523f, 1.5708f },
+    { 5707.95f, 4848.0f, 77.6523f, 4.71239f },
+    { 5715.45f, 4848.0f, 77.6523f, 4.71239f },
     { 5724.62f, 4837.5f, 75.3576f, 4.71239f },
     { 5732.12f, 4837.5f, 75.3577f, 4.71239f },
-    { 5748.82f, 4848.f, 77.6523f, 4.71239f },
+    { 5748.82f, 4848.0f, 77.6523f, 4.71239f },
     { 5739.62f, 4837.5f, 75.3576f, 4.71239f },
-    { 5756.32f, 4848.f, 77.6523f, 4.71239f },
-    { 5763.82f, 4848.f, 77.6523f, 4.71239f },
-    { 5700.45f, 4765.f, 77.6523f, 1.5708f },
-    { 5707.95f, 4765.f, 77.6523f, 1.5708f },
-    { 5777.f, 4828.23f, 77.6523f, 3.14159f },
-    { 5765.f, 4813.98f, 75.3576f, 3.14159f },
+    { 5756.32f, 4848.0f, 77.6523f, 4.71239f },
+    { 5763.82f, 4848.0f, 77.6523f, 4.71239f },
+    { 5700.45f, 4765.0f, 77.6523f, 1.5708f },
+    { 5707.95f, 4765.0f, 77.6523f, 1.5708f },
+    { 5777.0f, 4828.23f, 77.6523f, 3.14159f },
+    { 5765.0f, 4813.98f, 75.3576f, 3.14159f },
     { 5724.62f, 4775.5f, 75.3576f, 1.5708f },
-    { 5715.45f, 4765.f, 77.6523f, 1.5708f },
-    { 5777.f, 4820.73f, 77.6523f, 3.14159f },
-    { 5765.f, 4806.48f, 75.3576f, 3.14159f },
+    { 5715.45f, 4765.0f, 77.6523f, 1.5708f },
+    { 5777.0f, 4820.73f, 77.6523f, 3.14159f },
+    { 5765.0f, 4806.48f, 75.3576f, 3.14159f },
     { 5732.12f, 4775.5f, 75.3577f, 1.5708f },
     { 5739.62f, 4775.5f, 75.3576f, 1.5708f },
-    { 5765.f, 4798.98f, 75.3577f, 3.14159f },
-    { 5777.f, 4792.23f, 77.6523f, 3.14159f },
-    { 5748.82f, 4765.f, 77.6523f, 1.5708f },
-    { 5777.f, 4784.73f, 77.6523f, 3.14159f },
-    { 5700.45f, 4848.f, 77.6523f, 4.71239f }
+    { 5765.0f, 4798.98f, 75.3577f, 3.14159f },
+    { 5777.0f, 4792.23f, 77.6523f, 3.14159f },
+    { 5748.82f, 4765.0f, 77.6523f, 1.5708f },
+    { 5777.0f, 4784.73f, 77.6523f, 3.14159f },
+    { 5700.45f, 4848.0f, 77.6523f, 4.71239f }
 };
 
 enum eNumGolems
@@ -342,7 +342,7 @@ class boss_dark_animus : public CreatureScript
                     return;
 
                 /// Check if golems are already here or not
-                if (GetClosestCreatureWithEntry(me, NPC_ANIMA_GOLEM, 200.f))
+                if (GetClosestCreatureWithEntry(me, NPC_ANIMA_GOLEM, 200.0f))
                     return;
 
                 std::list<Creature*> l_AnimaGolemList;
@@ -548,7 +548,7 @@ class boss_dark_animus : public CreatureScript
                     {
                         m_CheckPowerTimer = 0;
 
-                        if (Player* l_Target = me->FindNearestPlayer(50.f))
+                        if (Player* l_Target = me->FindNearestPlayer(50.0f))
                             EnterCombat(l_Target);
                         break;
                     }
@@ -595,7 +595,7 @@ class boss_dark_animus : public CreatureScript
                         {
                             m_CheckPowerTimer = 0;
 
-                            if (Player* l_Target = me->FindNearestPlayer(100.f))
+                            if (Player* l_Target = me->FindNearestPlayer(100.0f))
                                 AttackStart(l_Target);
                         }
                     }
@@ -752,7 +752,7 @@ class mob_anima_orb : public CreatureScript
                 if (p_Who->GetTypeId() != TYPEID_PLAYER || m_IntroDone || !m_Instance)
                     return;
 
-                if (p_Who->GetDistance(me) >= 50.f)
+                if (p_Who->GetDistance(me) >= 50.0f)
                     return;
 
                 m_IntroDone = true;
@@ -760,7 +760,7 @@ class mob_anima_orb : public CreatureScript
                 if (Creature* l_DarkAnimus = Creature::GetCreature(*me, m_Instance->GetData64(NPC_DARK_ANIMUS)))
                     l_DarkAnimus->AI()->DoAction(ACTION_SUMMON_GOLEMS);
 
-                if (Creature* l_DarkRitualist = me->FindNearestCreature(NPC_DARK_RITUALIST, 20.f))
+                if (Creature* l_DarkRitualist = me->FindNearestCreature(NPC_DARK_RITUALIST, 20.0f))
                 {
                     m_LinkedDarkRitualist = l_DarkRitualist->GetGUID();
                     l_DarkRitualist->AI()->Talk(TALK_INTRO);
@@ -805,7 +805,7 @@ class mob_anima_orb : public CreatureScript
                 if (!m_Instance)
                     return;
 
-                if (!m_Instance->CheckRequiredBosses(DATA_DARK_ANIMUS) || p_Attacker->GetPositionX() < 5655.f)
+                if (!m_Instance->CheckRequiredBosses(DATA_DARK_ANIMUS) || p_Attacker->GetPositionX() < 5655.0f)
                     return;
 
                 if (m_Instance->GetBossState(DATA_DARK_ANIMUS) != DONE)
@@ -1039,7 +1039,7 @@ class mob_anima_golem : public CreatureScript
 
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (Player* l_Target = me->FindNearestPlayer(150.f))
+                        if (Player* l_Target = me->FindNearestPlayer(150.0f))
                             AttackStart(l_Target);
 
                         m_Activated = true;
@@ -1109,7 +1109,7 @@ class mob_anima_golem : public CreatureScript
                     case EVENT_CHECK_NEAR_GOLEM:
                     {
                         std::list<Creature*> l_GolemList;
-                        me->GetCreatureListWithEntryInGrid(l_GolemList, NPC_ANIMA_GOLEM, 2.f);
+                        me->GetCreatureListWithEntryInGrid(l_GolemList, NPC_ANIMA_GOLEM, 2.0f);
 
                         // Remove before reapply to prevent overstacking
                         me->RemoveAura(SPELL_ACCELERATION_LINK);
@@ -1271,7 +1271,7 @@ class mob_large_anima_golem : public CreatureScript
 
                         me->SetReactState(REACT_AGGRESSIVE);
 
-                        if (Player* l_Target = me->FindNearestPlayer(150.f))
+                        if (Player* l_Target = me->FindNearestPlayer(150.0f))
                             AttackStart(l_Target);
                         break;
                     }
@@ -1346,7 +1346,7 @@ class mob_large_anima_golem : public CreatureScript
             void DespawnCrimsonWakes()
             {
                 std::list<Creature*> l_CrimsonWakesList;
-                me->GetCreatureListWithEntryInGrid(l_CrimsonWakesList, NPC_CRIMSON_WAKE, 150.f);
+                me->GetCreatureListWithEntryInGrid(l_CrimsonWakesList, NPC_CRIMSON_WAKE, 150.0f);
 
                 for (Creature* l_CrimsonWake : l_CrimsonWakesList)
                     l_CrimsonWake->DespawnOrUnsummon();
@@ -1482,7 +1482,7 @@ class mob_massive_anima_golem : public CreatureScript
                         {
                             m_CheckPowerTimer = 0;
 
-                            if (Player* l_Target = me->FindNearestPlayer(50.f))
+                            if (Player* l_Target = me->FindNearestPlayer(50.0f))
                                 AttackStart(l_Target);
                         }
                     }
@@ -1550,7 +1550,7 @@ class mob_crimson_wake : public CreatureScript
                 if (!p_Summoner || !p_Summoner->ToCreature() || !p_Summoner->ToCreature()->AI())
                     return;
 
-                if (Unit* l_Target = p_Summoner->ToCreature()->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true, -SPELL_FIXATED))
+                if (Unit* l_Target = p_Summoner->ToCreature()->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, -SPELL_FIXATED))
                 {
                     m_FollowedPlayerGUID = l_Target->GetGUID();
                     AttackStart(l_Target);
@@ -1589,7 +1589,7 @@ class spell_long_ritual_lightning : public SpellScriptLoader
                     if (!p_Object)
                         return true;
 
-                    if (p_Object->GetDistance(GetCaster()) > 30.f)
+                    if (p_Object->GetDistance(GetCaster()) > 30.0f)
                         return false;
 
                     return true;
@@ -1968,7 +1968,7 @@ class spell_matter_swap : public SpellScriptLoader
                     if (Unit* l_Target = GetTarget())
                     {
                         std::list<Player*> l_PlayerList;
-                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.f);
+                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.0f);
 
                         if (l_PlayerList.empty())
                             return;
@@ -2020,7 +2020,7 @@ class spell_matter_swap : public SpellScriptLoader
                     if (Unit* l_Target = GetTarget())
                     {
                         std::list<Player*> l_PlayerList;
-                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.f);
+                        l_Target->GetPlayerListInGrid(l_PlayerList, 100.0f);
 
                         if (l_PlayerList.empty())
                             return;
@@ -2120,7 +2120,7 @@ class spell_anima_ring : public SpellScriptLoader
 
             bool Load()
             {
-                m_Angle = 0.f;
+                m_Angle = 0.0f;
                 return true;
             }
 
@@ -2130,12 +2130,12 @@ class spell_anima_ring : public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        float l_X = l_Target->GetPositionX() + ((6.f) * cos(m_Angle));
-                        float l_Y = l_Target->GetPositionY() + ((6.f) * sin(m_Angle));
+                        float l_X = l_Target->GetPositionX() + ((6.0f) * cos(m_Angle));
+                        float l_Y = l_Target->GetPositionY() + ((6.0f) * sin(m_Angle));
 
                         l_Target->CastSpell(l_X, l_Y, l_Target->GetPositionZ(), g_AnimaRingSpells[p_EffIndex], true, NULL, nullptr, l_Caster->GetGUID());
 
-                        m_Angle += (M_PI * 2.f) / 12.f;
+                        m_Angle += (M_PI * 2.0f) / 12.0f;
                     }
                 }
             }

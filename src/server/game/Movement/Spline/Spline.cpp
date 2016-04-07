@@ -61,15 +61,15 @@ SplineBase::InitMethtod SplineBase::initializers[SplineBase::ModesEnd] =
 using G3D::Matrix4;
 static const Matrix4 s_catmullRomCoeffs(
     -0.5f, 1.5f, -1.5f, 0.5f,
-    1.f, -2.5f, 2.f, -0.5f,
-    -0.5f, 0.f,  0.5f, 0.f,
-    0.f,  1.f,  0.f,  0.f);
+    1.0f, -2.5f, 2.0f, -0.5f,
+    -0.5f, 0.0f,  0.5f, 0.0f,
+    0.0f,  1.0f,  0.0f,  0.0f);
 
 static const Matrix4 s_Bezier3Coeffs(
-    -1.f,  3.f, -3.f, 1.f,
-    3.f, -6.f,  3.f, 0.f,
-    -3.f,  3.f,  0.f, 0.f,
-    1.f,  0.f,  0.f, 0.f);
+    -1.0f,  3.0f, -3.0f, 1.0f,
+    3.0f, -6.0f,  3.0f, 0.0f,
+    -3.0f,  3.0f,  0.0f, 0.0f,
+    1.0f,  0.0f,  0.0f, 0.0f);
 
 /*  classic view:
 inline void C_Evaluate(const Vector3 *vertice, float t, const float (&matrix)[4][4], Vector3 &position)
@@ -97,7 +97,7 @@ inline void C_Evaluate(const Vector3 *vertice, float t, const float (&matrix)[4]
 
 inline void C_Evaluate(const Vector3 *vertice, float t, const Matrix4& matr, Vector3 &result)
 {
-    Vector4 tvec(t*t*t, t*t, t, 1.f);
+    Vector4 tvec(t*t*t, t*t, t, 1.0f);
     Vector4 weights(tvec * matr);
 
     result = vertice[0] * weights[0] + vertice[1] * weights[1]
@@ -106,7 +106,7 @@ inline void C_Evaluate(const Vector3 *vertice, float t, const Matrix4& matr, Vec
 
 inline void C_Evaluate_Derivative(const Vector3 *vertice, float t, const Matrix4& matr, Vector3 &result)
 {
-    Vector4 tvec(3.f*t*t, 2.f*t, 1.f, 0.f);
+    Vector4 tvec(3.0f*t*t, 2.0f*t, 1.0f, 0.0f);
     Vector4 weights(tvec * matr);
 
     result = vertice[0] * weights[0] + vertice[1] * weights[1]
@@ -185,7 +185,7 @@ float SplineBase::SegLengthBezier3(index_type index) const
     Vector3 curPos, nextPos;
     const Vector3 * p = &points[index];
 
-    C_Evaluate(p, 0.f, s_Bezier3Coeffs, nextPos);
+    C_Evaluate(p, 0.0f, s_Bezier3Coeffs, nextPos);
     curPos = nextPos;
 
     index_type i = 1;

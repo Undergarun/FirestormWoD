@@ -3306,7 +3306,7 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                     return;
 
                 if ((int32)l_Player->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
-                    (int32)(100.f * (l_Player->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) >= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                    (int32)(100.0f * (l_Player->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) >= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                 {
                     l_Player->CastSpell(l_Player, eSpells::NaturesGuardian, true);
                     l_Player->AddSpellCooldown(eSpells::NaturesGuardian, 0, 30 * IN_MILLISECONDS);
@@ -3364,7 +3364,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 Unit* l_Target = GetTarget();
                 ///< Should proc only when the target pass from > 50% health to < 50% health
-                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
+                if (l_Target->GetHealthPct() <= l_HealthPct && (100.0f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
                 {
                     if (AuraEffect* l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {

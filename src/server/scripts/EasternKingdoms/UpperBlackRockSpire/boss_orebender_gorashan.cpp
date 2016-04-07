@@ -222,12 +222,12 @@ class boss_orebender_gorashan : public CreatureScript
                         if (m_ApprenticeEngaged)
                             break;
 
-                        if (Player* l_Player = me->FindNearestPlayer(30.f))
+                        if (Player* l_Player = me->FindNearestPlayer(30.0f))
                         {
                             m_ApprenticeEngaged = true;
 
                             std::list<Creature*> l_ApprenticeList;
-                            me->GetCreatureListWithEntryInGrid(l_ApprenticeList, NPC_BLACK_IRON_APPRENTICE, 150.f);
+                            me->GetCreatureListWithEntryInGrid(l_ApprenticeList, NPC_BLACK_IRON_APPRENTICE, 150.0f);
 
                             bool l_FirstTalk = false;
                             for (Creature* l_Apprentice : l_ApprenticeList)
@@ -338,7 +338,7 @@ class boss_orebender_gorashan : public CreatureScript
             bool CanActivate()
             {
                 std::list<Creature*> l_RunesOfPower;
-                me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.f);
+                me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.0f);
 
                 for (Creature* l_Rune : l_RunesOfPower)
                 {
@@ -359,7 +359,7 @@ class boss_orebender_gorashan : public CreatureScript
                     m_InitializeTimer = 0;
 
                     std::list<Creature*> l_RunesOfPower;
-                    me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.f);
+                    me->GetCreatureListWithEntryInGrid(l_RunesOfPower, NPC_RUNE_OF_POWER, 50.0f);
 
                     for (Creature* l_Rune : l_RunesOfPower)
                         l_Rune->AI()->DoAction(ACTION_POWER_CONDUIT);
@@ -453,7 +453,7 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 {
                     if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                     {
-                        if (GameObject* l_Conductor = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.f))
+                        if (GameObject* l_Conductor = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.0f))
                         {
                             if (Creature* l_Orebender = Creature::GetCreature(*l_Conductor, l_InstanceScript->GetData64(NPC_OREBENDER_GORASHAN)))
                             {
@@ -480,7 +480,7 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 {
                     case EVENT_POWER_CONDUIT:
                     {
-                        if (GameObject* l_Conduit = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.f))
+                        if (GameObject* l_Conduit = me->FindNearestGameObject(GOB_RUNIC_CONDUIT, 5.0f))
                         {
                             l_Conduit->SetGoState(GO_STATE_ACTIVE);
                             l_Conduit->SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NODESPAWN);

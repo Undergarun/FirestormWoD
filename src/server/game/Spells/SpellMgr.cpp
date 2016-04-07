@@ -6419,7 +6419,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119931:
             case 119932:
             case 119933:
-                spellInfo->Speed = 5.f;
+                spellInfo->Speed = 5.0f;
                 break;
             case 106112: ///< Release Doubt
             {

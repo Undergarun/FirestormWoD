@@ -213,7 +213,7 @@ class boss_warlord_zaela : public CreatureScript
 
             void MoveInLineOfSight(Unit* p_Who)
             {
-                if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER || p_Who->GetDistance(me) > 35.f)
+                if (p_Who->GetTypeId() != TypeID::TYPEID_PLAYER || p_Who->GetDistance(me) > 35.0f)
                     return;
 
                 if (!m_TharbekIntroDone && m_Instance != nullptr && m_Instance->GetBossState(eDatas::DATA_COMMANDER_THARBEK) != EncounterState::DONE)

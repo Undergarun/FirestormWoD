@@ -582,7 +582,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_spellAura = nullptr;
     isStolen = false;
 
-    m_CustomCritChance = -1.f;
+    m_CustomCritChance = -1.0f;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
@@ -8648,7 +8648,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
     
-    if (m_CustomCritChance < 0.f)
+    if (m_CustomCritChance < 0.0f)
         targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
     else
         targetInfo.crit = roll_chance_f(m_CustomCritChance);

@@ -97,7 +97,7 @@ namespace MS
                     for (uint32 i = Blocks::FirstStair; i <= Blocks::SecondStair; i++)
                         m_WindMazeBlockGuids.push_back(MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 6452, HIGHGUID_AREATRIGGER));
 
-                    instance->SetObjectVisibility(1000.f);
+                    instance->SetObjectVisibility(1000.0f);
                 }
 
                 void OnCreatureCreate(Creature* p_Creature)

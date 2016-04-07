@@ -42,12 +42,12 @@ namespace Movement
 
     inline uint32 SecToMS(float sec)
     {
-        return static_cast<uint32>(sec * 1000.f);
+        return static_cast<uint32>(sec * 1000.0f);
     }
 
     inline float MSToSec(uint32 ms)
     {
-        return ms / 1000.f;
+        return ms / 1000.0f;
     }
 
     float computeFallTime(float path_length, bool isSafeFall);

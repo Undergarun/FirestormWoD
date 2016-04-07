@@ -1509,7 +1509,7 @@ class spell_acid_rain_damage: public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        float dist = std::max(1.f, caster->GetDistance(target));
+                        float dist = std::max(1.0f, caster->GetDistance(target));
                         SetHitDamage(int32(ceil(GetHitDamage() / dist)));
                     }
                 }

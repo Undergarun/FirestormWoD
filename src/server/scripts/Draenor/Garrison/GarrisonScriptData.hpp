@@ -1061,7 +1061,7 @@ namespace MS { namespace Garrison
         /// Alliance
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
         { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
-        {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
+        {    0.0f,       0.0f,      0.0f,      0.00f    }  ///< Alliance Level 3
     };
 
     /// Creature that follow garrison owner level

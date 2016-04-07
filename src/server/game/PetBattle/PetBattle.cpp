@@ -1313,7 +1313,7 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
                 {
                     uint32  l_MyTeamPetCount = Teams[l_CurrentTeamID]->TeamPetCount; ///< l_MyTeamPetCount is never read 01/18/16
                     uint32  l_XpEarn = 0;
-                    float   l_XpMod[] = { 1.f, 1.f, 0.5f };
+                    float   l_XpMod[] = { 1.0f, 1.0f, 0.5f };
 
                     for (uint32 l_OpponentTeamCurrentPet = 0; l_OpponentTeamCurrentPet < Teams[PETBATTLE_PVE_TEAM_ID]->TeamPetCount; l_OpponentTeamCurrentPet++)
                     {

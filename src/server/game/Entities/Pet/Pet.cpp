@@ -746,7 +746,7 @@ void Creature::Regenerate(Powers power)
             if (GetOwner())
             {
                 /// Calculate owners haste
-                float l_OwnerHastePct = 1.f / GetOwner()->GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                float l_OwnerHastePct = 1.0f / GetOwner()->GetFloatValue(UNIT_FIELD_MOD_HASTE);
                 float l_OwnerBaseRegen = 4.0f;
                 /// Calculate regenerate for 1 second and multiply for update interval
                 addvalue += (l_OwnerBaseRegen * l_OwnerHastePct) * PET_FOCUS_REGEN_INTERVAL / IN_MILLISECONDS * sWorld->getRate(RATE_POWER_FOCUS);

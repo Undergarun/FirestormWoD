@@ -444,7 +444,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
         /// Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)
-            l_MaxDepth = 1000.f;
+            l_MaxDepth = 1000.0f;
 
         /// Vash'jir zones
         switch (l_PlayerMover->GetZoneId())

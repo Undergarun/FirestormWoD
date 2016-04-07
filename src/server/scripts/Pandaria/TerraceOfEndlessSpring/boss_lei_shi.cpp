@@ -1046,13 +1046,13 @@ class at_get_away : public AreaTriggerEntityScript
 
             for (Player* l_Player : l_PlayerList)
             {
-                if (l_Player->IsWithinDist(p_AreaTrigger, 40.f, false))
+                if (l_Player->IsWithinDist(p_AreaTrigger, 40.0f, false))
                 {
                     if (!l_Player->isAlive() && l_Player->HasMovementForce(l_AreatTriggerGuid))
                         l_Player->SendApplyMovementForce(l_AreatTriggerGuid, false, l_Pos);
 
                     if (l_Player->isAlive() && !l_Player->HasMovementForce(l_AreatTriggerGuid))
-                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.f, 1);
+                        l_Player->SendApplyMovementForce(l_AreatTriggerGuid, true, l_Pos, -3.0f, 1);
                 }
                 /// Remove movement force if we're outside of the range
                 else if (l_Player->HasMovementForce(l_AreatTriggerGuid))

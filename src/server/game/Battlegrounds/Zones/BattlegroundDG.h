@@ -46,11 +46,11 @@ enum BG_DG_Sound
 
 const float BG_DG_DoorPositions[4][8] =
 {
-    //      x,          y,          z,          o,     rot0, rot1, rot2, rot3
-    { -263.434998f, 218.514999f, 132.054993f, 4.683630f, 0.f, 0.f, 0.f, 0.f },
-    { -213.848007f, 201.164001f, 132.382004f, 3.978350f, 0.f, 0.f, 0.f, 0.f },
-    { -119.559998f, 799.192993f, 132.414001f, 0.793560f, 0.f, 0.f, 0.f, 0.f },
-    { -70.1034010f, 781.851013f, 132.164993f, 1.594670f, 0.f, 0.f, 0.f, 0.f }
+    //      x,          y,          z,          o,        rot0, rot1, rot2, rot3
+    { -263.434998f, 218.514999f, 132.054993f, 4.683630f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -213.848007f, 201.164001f, 132.382004f, 3.978350f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -119.559998f, 799.192993f, 132.414001f, 0.793560f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { -70.1034010f, 781.851013f, 132.164993f, 1.594670f, 0.0f, 0.0f, 0.0f, 0.0f }
 };
 
 enum BG_DG_NodeObjectId
@@ -246,9 +246,9 @@ const float BG_DG_CartPositions[2][4] =
 
 const float BG_DG_CollisionPJPositions[BG_DG_ALL_NODES_COUNT][4] =
 {
-    { -398.1615f, 574.5243f, 111.5271f, 0.f },          // Goblin mine
-    { -167.3698f, 499.1858f, 92.83675f, 0.f },          // Central mine
-    { 68.421880f, 431.1945f, 111.7609f, 0.f }           // Pandaren mine
+    { -398.1615f, 574.5243f, 111.5271f, 0.0f },          // Goblin mine
+    { -167.3698f, 499.1858f, 92.83675f, 0.0f },          // Central mine
+    { 68.421880f, 431.1945f, 111.7609f, 0.0f }           // Pandaren mine
 };
 
 const float BG_DG_NodePositions[BG_DG_ALL_NODES_COUNT][4] =

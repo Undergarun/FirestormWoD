@@ -530,7 +530,7 @@ class mob_rune_glow : public CreatureScript
                 {
                     case EVENT_CHECK_ADDS:
                     {
-                        if (me->SelectNearbyTarget(me, 10.f))
+                        if (me->SelectNearbyTarget(me, 10.0f))
                         {
                             m_Events.ScheduleEvent(EVENT_CHECK_ADDS, 1000);
                             break;

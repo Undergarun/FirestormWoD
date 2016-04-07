@@ -45,7 +45,7 @@ namespace VMAP
             float iScale;
             void init()
             {
-                iRotation = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iDir.y/180.f, G3D::pif()*iDir.x/180.f, G3D::pif()*iDir.z/180.f);
+                iRotation = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iDir.y/180.0f, G3D::pif()*iDir.x/180.0f, G3D::pif()*iDir.z/180.0f);
             }
             G3D::Vector3 transform(const G3D::Vector3& pIn) const;
             void moveToBasePos(const G3D::Vector3& pBasePos) { iPos -= pBasePos; }

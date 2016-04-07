@@ -97,7 +97,7 @@ class npc_PetBattleTrainer : public CreatureScript
             {
                 p_Player->CLOSE_GOSSIP_MENU();
 
-                float const l_Distance = 10.f;
+                float const l_Distance = 10.0f;
 
                 Position l_PlayerPosition;
                 {

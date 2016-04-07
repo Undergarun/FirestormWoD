@@ -133,15 +133,15 @@ enum ArenaSlots
 
 namespace Arena
 {
-    const float g_PvpMinCPPerWeek = 1500.f;
-    const float g_PvpMaxCPPerWeek = 3000.f;
+    const float g_PvpMinCPPerWeek = 1500.0f;
+    const float g_PvpMaxCPPerWeek = 3000.0f;
     const float g_PvpCPNumerator = 1511.26f;
     const float g_PvpCPBaseCoefficient = 1639.28f;
     const float g_PvpCPExpCoefficient = 0.00412f;
 
     inline float CalculateRatingFactor(int p_Rating)
     {
-        return g_PvpCPNumerator / (expf(p_Rating * g_PvpCPExpCoefficient * -1.f) * g_PvpCPBaseCoefficient + 1.0f);
+        return g_PvpCPNumerator / (expf(p_Rating * g_PvpCPExpCoefficient * -1.0f) * g_PvpCPBaseCoefficient + 1.0f);
     }
 
     inline uint32 GetConquestCapFromRating(int p_Rating)

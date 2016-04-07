@@ -115,14 +115,14 @@ class BIH
         template<typename RayCallback>
         void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst=false) const
         {
-            float intervalMin = -1.f;
-            float intervalMax = -1.f;
+            float intervalMin = -1.0f;
+            float intervalMax = -1.0f;
             G3D::Vector3 org = r.origin();
             G3D::Vector3 dir = r.direction();
             G3D::Vector3 invDir;
             for (int i=0; i<3; ++i)
             {
-                invDir[i] = 1.f / dir[i];
+                invDir[i] = 1.0f / dir[i];
                 if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
                     float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
@@ -131,7 +131,7 @@ class BIH
                         std::swap(t1, t2);
                     if (t1 > intervalMin)
                         intervalMin = t1;
-                    if (t2 < intervalMax || intervalMax < 0.f)
+                    if (t2 < intervalMax || intervalMax < 0.0f)
                         intervalMax = t2;
                     // intervalMax can only become smaller for other axis,
                     //  and intervalMin only larger respectively, so stop early
@@ -142,7 +142,7 @@ class BIH
 
             if (intervalMin > intervalMax)
                 return;
-            intervalMin = std::max(intervalMin, 0.f);
+            intervalMin = std::max(intervalMin, 0.0f);
             intervalMax = std::min(intervalMax, maxDist);
 
             uint32 offsetFront[3];

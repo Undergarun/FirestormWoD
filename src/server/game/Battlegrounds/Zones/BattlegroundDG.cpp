@@ -1091,7 +1091,7 @@ class spell_mine_cart : public SpellScriptLoader
                 if (l_Entry != 0)
                 {
                     std::list<Creature*> l_Carts;
-                    GetCaster()->GetCreatureListWithEntryInGrid(l_Carts, l_Entry, 500.f);
+                    GetCaster()->GetCreatureListWithEntryInGrid(l_Carts, l_Entry, 500.0f);
                     for (std::list<Creature*>::iterator l_Iter = l_Carts.begin(); l_Iter != l_Carts.end(); ++l_Iter)
                     {
                         if (TempSummon* l_TempSummon = (*l_Iter)->ToTempSummon())
@@ -1138,11 +1138,11 @@ class npc_dg_cart : public CreatureScript
 
                 if (me->GetOwner())
                 {
-                    me->SetSpeed(MOVE_RUN, (me->GetOwner()->GetSpeed(MOVE_RUN) + 1.f) / playerBaseMoveSpeed[MOVE_RUN], true);
+                    me->SetSpeed(MOVE_RUN, (me->GetOwner()->GetSpeed(MOVE_RUN) + 1.0f) / playerBaseMoveSpeed[MOVE_RUN], true);
                     if (!me->isMoving() && m_Events.Empty())
                         m_Events.ScheduleEvent(EVENT_NEW_WAYPOINT, 700);
                     if (m_Events.ExecuteEvent() == EVENT_NEW_WAYPOINT)
-                        me->GetMotionMaster()->MoveChase(me->GetOwner(), frand(0.5f, 1.f), frand(0.f, 2.f * M_PI));
+                        me->GetMotionMaster()->MoveChase(me->GetOwner(), frand(0.5f, 1.0f), frand(0.0f, 2.0f * M_PI));
                     if (!me->HasAura(52595))
                         me->GetOwner()->CastSpell(me, 52595, true);
                 }

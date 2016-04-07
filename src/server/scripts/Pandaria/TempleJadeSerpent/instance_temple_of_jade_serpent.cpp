@@ -370,7 +370,7 @@ public:
                     if (creature == nullptr)
                         return 2;
 
-                    if (creature->GetHealthPct() < 70.f)
+                    if (creature->GetHealthPct() < 70.0f)
                         return 1;
                     else
                         return 0;

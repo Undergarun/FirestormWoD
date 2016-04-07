@@ -93,7 +93,7 @@ class mob_xian_the_weaponmaster_trigger : public CreatureScript
                         break;
                     case EVENT_JUMP_XIAN:
                         Talk(TALK_INTRO_02);
-                        me->GetMotionMaster()->MoveJump(-4296.391f, -2613.577f, 22.325f, 30.f, 20.f);
+                        me->GetMotionMaster()->MoveJump(-4296.391f, -2613.577f, 22.325f, 30.0f, 20.0f);
                         events.ScheduleEvent(EVENT_DISAPPEAR, 5000);
                         break;
                     case EVENT_DISAPPEAR:
@@ -242,8 +242,8 @@ class boss_ming_the_cunning : public CreatureScript
                                 Player* plr = i->getSource();
                                 if (!plr)
                                     continue;
-                                if (plr->GetDistance2d(me) <= 5.f)
-                                    plr->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 25.0f, 10.f);
+                                if (plr->GetDistance2d(me) <= 5.0f)
+                                    plr->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 25.0f, 10.0f);
                             }
                         }
                         magnetic_timer = 1000;

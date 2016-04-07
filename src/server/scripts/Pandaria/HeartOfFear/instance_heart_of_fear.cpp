@@ -321,7 +321,7 @@ class instance_heart_of_fear : public InstanceMapScript
 
             void OnPlayerEnter(Player* p_Player) override
             {
-                p_Player->GetMap()->SetObjectVisibility(350.f);
+                p_Player->GetMap()->SetObjectVisibility(350.0f);
 
                 if (!m_SecondPartInitialized && instance->IsLFR())
                 {

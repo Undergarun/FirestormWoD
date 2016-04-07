@@ -1169,11 +1169,11 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                float l_SetMod = 1.f;
+                float l_SetMod = 1.0f;
 
                 // Item - Druid T10 Restoration 2P Bonus
                 if (AuraEffect* l_T10Resto2PBonus = l_Caster->GetAuraEffect(eSpells::T10Resto2PBonus, EFFECT_0))
-                    l_SetMod = 1.f - l_T10Resto2PBonus->GetAmount() / 100.f;
+                    l_SetMod = 1.0f - l_T10Resto2PBonus->GetAmount() / 100.0f;
 
                 int32 l_Amount = p_AurEff->GetAmount();
                 l_Amount -= l_SetMod * CalculatePct(m_TooltipAmount, 2);  ///< "each successive tick losing 2% of the tooltip heal" http://wowwiki.wikia.com/Wild_Growth

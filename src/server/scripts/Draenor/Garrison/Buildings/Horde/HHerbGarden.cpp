@@ -126,7 +126,7 @@ namespace MS { namespace Garrison
                 SequencePosition const& l_CurrentPosition = s_Position[l_I];
 
                 if (Creature* l_Creature = SummonRelativeCreature(NPCs::NpcFrostwallNibbler, l_CurrentPosition.X, l_CurrentPosition.Y, l_CurrentPosition.Z, 0, TEMPSUMMON_MANUAL_DESPAWN))
-                    l_Creature->GetMotionMaster()->MoveRandom(10.f);
+                    l_Creature->GetMotionMaster()->MoveRandom(10.0f);
             }
         }
     }
@@ -155,7 +155,7 @@ namespace MS { namespace Garrison
             static const Position l_Pos = *p_Player;
 
             std::list<Creature*> l_CreatureList;
-            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::NpcFrostwallNibbler, 65.f);
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::NpcFrostwallNibbler, 65.0f);
 
             for (Creature* l_Creature : l_CreatureList)
                 l_Creature->DespawnOrUnsummon();

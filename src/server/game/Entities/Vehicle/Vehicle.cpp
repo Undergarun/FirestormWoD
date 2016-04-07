@@ -418,7 +418,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             break;
         case 11227:
         case 11228:
-            unit->m_movementInfo.t_pos.SetOrientation(M_PI / 2.f);
+            unit->m_movementInfo.t_pos.SetOrientation(M_PI / 2.0f);
             break;
         default:
             break;
@@ -438,7 +438,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         init.MoveTo(unit->m_movementInfo.t_pos.m_positionX, unit->m_movementInfo.t_pos.m_positionY, unit->m_movementInfo.t_pos.m_positionZ);
 
         if (veSeat->m_ID == 11227 || veSeat->m_ID == 11228)
-            init.SetFacing(M_PI / 2.f);
+            init.SetFacing(M_PI / 2.0f);
         else
             init.SetFacing(0.0f);
 

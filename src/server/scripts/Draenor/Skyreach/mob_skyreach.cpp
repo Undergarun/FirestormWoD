@@ -159,7 +159,7 @@ namespace MS
                 {
                     me->GetPosition(&m_Pos);
                     me->GetPosition(&m_Home);
-                    me->SetSpeed(MOVE_FLIGHT, 5.f);
+                    me->SetSpeed(MOVE_FLIGHT, 5.0f);
                     m_Pos.m_positionX += 13.0f * cos(me->GetOrientation());
                     m_Pos.m_positionY += 13.0f * sin(me->GetOrientation());
                 }
@@ -179,14 +179,14 @@ namespace MS
                     switch (p_PointId)
                     {
                     case 0:
-                        me->SetSpeed(MOVE_FLIGHT, 1.f);
+                        me->SetSpeed(MOVE_FLIGHT, 1.0f);
                         me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
                         if (Player* l_Plr = sObjectAccessor->GetPlayer(*me, m_TargetGuid))
                             me->CastSpell(l_Plr, uint32(Spells::Pierce));
                         m_TargetGuid = 0;
                         break;
                     case 1:
-                        me->SetSpeed(MOVE_FLIGHT, 5.f);
+                        me->SetSpeed(MOVE_FLIGHT, 5.0f);
                         me->SetOrientation(m_Home.GetOrientation());
                         m_events.ScheduleEvent(uint32(Events::Pierce), 500);
                         break;
@@ -368,7 +368,7 @@ namespace MS
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
 
-                    if (me->GetHealthPct() < 10.f)
+                    if (me->GetHealthPct() < 10.0f)
                     {
                         me->CastSpell(me, uint32(Spells::SelfDestruct));
                         return;
@@ -452,7 +452,7 @@ namespace MS
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
 
-                    if (me->GetHealthPct() < 10.f)
+                    if (me->GetHealthPct() < 10.0f)
                     {
                         me->CastSpell(me, uint32(Spells::SelfDestruct));
                         return;

@@ -3424,7 +3424,7 @@ void Player::Regenerate(Powers power)
             /// Regenerate Focus
             case POWER_FOCUS:
             {
-                float l_HastePct = 1.f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
+                float l_HastePct = 1.0f / GetFloatValue(UNIT_FIELD_MOD_HASTE);
                 addvalue += 4.0f * l_HastePct * sWorld->getRate(RATE_POWER_FOCUS);
                 break;
             }
@@ -4741,7 +4741,7 @@ void Player::InitSpellForLevel()
 
         if (l_LevelDiff > 0)
         {
-            uint8 l_CurrentIndex = floor(((l_LevelDiff - 1.f) > 0.f ? (l_LevelDiff - 1.f) : 0) / l_Coeff);
+            uint8 l_CurrentIndex = floor(((l_LevelDiff - 1.0f) > 0.0f ? (l_LevelDiff - 1.0f) : 0) / l_Coeff);
 
             for (auto perk : *l_PerkList)
             if (l_CurrentIndex >= perk->orderIndex)
@@ -10706,9 +10706,9 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
             int32 l_StatValue = 0;
 
             if (!p_RescaleToItemLevel)
-                l_StatValue = l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl);
+                l_StatValue = l_Proto->CalculateStatScaling(l_ScalingValue, 0.0f, ilvl);
             else
-                l_StatValue = abs(int32(l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, p_RescaleToItemLevel) - l_Proto->CalculateStatScaling(l_ScalingValue, 0.f, ilvl)));
+                l_StatValue = abs(int32(l_Proto->CalculateStatScaling(l_ScalingValue, 0.0f, p_RescaleToItemLevel) - l_Proto->CalculateStatScaling(l_ScalingValue, 0.0f, ilvl)));
 
             switch (l_Stat)
             {
@@ -18937,7 +18937,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                         if (l_Map != nullptr
                             && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR)
                         {
-                            float l_Roll = frand(0.f, 100.f);
+                            float l_Roll = frand(0.0f, 100.0f);
                             float l_Coeff = 1.0f;
 
                             if (GetGarrison())
@@ -25399,7 +25399,7 @@ void Player::AddSpellMod(SpellModifier* p_Modifier, bool p_Apply)
 
         if (p_Modifier->mask & l_Mask)
         {
-            float l_Value = p_Modifier->type == SPELLMOD_FLAT ? 0.f : 1.f;
+            float l_Value = p_Modifier->type == SPELLMOD_FLAT ? 0.0f : 1.0f;
 
             if (p_Modifier->type == SPELLMOD_FLAT)
             {
@@ -31222,7 +31222,7 @@ void Player::ActivateSpec(uint8 spec)
         }
     }
 
-    SetHealth(GetMaxHealth() * l_HPPct / 100.f);
+    SetHealth(GetMaxHealth() * l_HPPct / 100.0f);
 
     uint32 usedTalentPoint = 0;
     for (auto itr : *GetTalentMap(GetActiveSpec()))
@@ -33664,7 +33664,7 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
     {
         if (p_KeepHPPct)
         {
-            int32 l_Health = std::max(1, int32(l_HealthPct * (float)GetMaxHealth() / 100.f));
+            int32 l_Health = std::max(1, int32(l_HealthPct * (float)GetMaxHealth() / 100.0f));
             SetHealth(l_Health);
         }
 

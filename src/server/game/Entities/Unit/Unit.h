@@ -160,7 +160,7 @@ class CustomSpellValues : public std::vector<CustomSpellValueMod>
 {
     public:
         CustomSpellValues() :
-        m_CustomCritChance(-1.f)
+        m_CustomCritChance(-1.0f)
         {
         }
 
@@ -1643,7 +1643,7 @@ class Unit : public WorldObject
         bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return int64(GetHealth()) - int64(damage) < int64(CountPctFromMaxHealth(pct)); }
         bool HealthAbovePct(int32 pct) const { return GetHealth() > CountPctFromMaxHealth(pct); }
         bool HealthAbovePctHealed(int32 pct, uint32 heal) const { return uint64(GetHealth()) + uint64(heal) > CountPctFromMaxHealth(pct); }
-        float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
+        float GetHealthPct() const { return GetMaxHealth() ? 100.0f * GetHealth() / GetMaxHealth() : 0.0f; }
         uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePct(GetMaxHealth(), pct); }
         uint32 CountPctFromMaxHealth(float p_Percent) const { return CalculatePct((float)GetMaxHealth(), p_Percent); }
         uint32 CountPctFromCurHealth(int32 pct) const { return CalculatePct(GetHealth(), pct); }
@@ -1661,7 +1661,7 @@ class Unit : public WorldObject
         Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
-        float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
+        float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.0f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -10000 : 0; }
         int32 GetMaxPower(Powers power) const;
         int32 GetPowerCoeff(Powers p_powerType) const;

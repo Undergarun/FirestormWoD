@@ -95,7 +95,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
     if (GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
-        SetRotationAngles(0.f, float(M_PI / 2.0f), 0.f);
+        SetRotationAngles(0.0f, float(M_PI / 2.0f), 0.0f);
     else
         UpdateRotationFields(0.0f, 1.0f);
     return true;

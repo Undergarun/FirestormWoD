@@ -255,14 +255,14 @@ void MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
         {
             uint32 count = spline.getPointCount() - 3;
             for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.push_back(G3D::Vector3(array[i + 2].x + (float(i) / 1000.f), array[i + 2].y, array[i + 2].z));
+                movementSpline.Points.push_back(G3D::Vector3(array[i + 2].x + (float(i) / 1000.0f), array[i + 2].y, array[i + 2].z));
         }
         else
         {
             uint32 count = spline.getPointCount() - 3;
-            movementSpline.Points.push_back(G3D::Vector3(array[1].x + (float(50) / 1000.f), array[1].y, array[1].z));
+            movementSpline.Points.push_back(G3D::Vector3(array[1].x + (float(50) / 1000.0f), array[1].y, array[1].z));
             for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.push_back(G3D::Vector3(array[i + 1].x + (float(i) / 1000.f), array[i + 1].y, array[i + 1].z));
+                movementSpline.Points.push_back(G3D::Vector3(array[i + 1].x + (float(i) / 1000.0f), array[i + 1].y, array[i + 1].z));
         }
     }
     else
@@ -270,11 +270,11 @@ void MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
         uint32 lastIdx = spline.getPointCount() - 3;
         G3D::Vector3 const* realPath = &spline.getPoint(1);
 
-        movementSpline.Points.push_back(G3D::Vector3(realPath[lastIdx].x + (float(50) / 1000.f), realPath[lastIdx].y, realPath[lastIdx].z));
+        movementSpline.Points.push_back(G3D::Vector3(realPath[lastIdx].x + (float(50) / 1000.0f), realPath[lastIdx].y, realPath[lastIdx].z));
 
         if (lastIdx > 1)
         {
-            G3D::Vector3 middle = (realPath[0] + realPath[lastIdx]) / 2.f;
+            G3D::Vector3 middle = (realPath[0] + realPath[lastIdx]) / 2.0f;
 
             // first and last points already appended
             for (uint32 i = 1; i < lastIdx; ++i)
@@ -430,7 +430,7 @@ namespace Movement
             const Vector3 * l_RealPath = &l_MoveSpline.spline.getPoint(1);
 
             /// Add a salt in points because the client doesn't like to have 2 time the same points
-            l_SplineDestinationX = l_RealPath[l_LastIndex].x + (float(50) / 1000.f);
+            l_SplineDestinationX = l_RealPath[l_LastIndex].x + (float(50) / 1000.0f);
             l_SplineDestinationY = l_RealPath[l_LastIndex].y;
             l_SplineDestinationZ = l_RealPath[l_LastIndex].z;
         }
@@ -467,12 +467,12 @@ namespace Movement
                 uint32 p_Count = l_MoveSpline.spline.getPointCount() - 2;
 
                 ///< fake point, client will erase it from the spline after first cycle done
-                l_Data << (l_MoveSpline.spline.getPoint(1).x + (float(50) / 1000.f)) << l_MoveSpline.spline.getPoint(1).y << l_MoveSpline.spline.getPoint(1).z;
+                l_Data << (l_MoveSpline.spline.getPoint(1).x + (float(50) / 1000.0f)) << l_MoveSpline.spline.getPoint(1).y << l_MoveSpline.spline.getPoint(1).z;
 
                 for (uint32 l_I = 0; l_I < p_Count; l_I++)
                 {
                     /// Add a salt in points because the client doesn't like to have 2 time the same points
-                    l_Data  << (l_MoveSpline.spline.getPoint(l_I + 1).x + (float(l_I) / 1000.f))
+                    l_Data  << (l_MoveSpline.spline.getPoint(l_I + 1).x + (float(l_I) / 1000.0f))
                             << l_MoveSpline.spline.getPoint(l_I + 1).y
                             << l_MoveSpline.spline.getPoint(l_I + 1).z;
                 }
@@ -484,7 +484,7 @@ namespace Movement
                 for (uint32 l_I = 0; l_I < l_Count; l_I++)
                 {
                     /// Add a salt in points because the client doesn't like to have 2 time the same points
-                    l_Data << (l_MoveSpline.spline.getPoint(l_I + 2).x + (float(l_I) / 1000.f)) << l_MoveSpline.spline.getPoint(l_I + 2).y << l_MoveSpline.spline.getPoint(l_I + 2).z;
+                    l_Data << (l_MoveSpline.spline.getPoint(l_I + 2).x + (float(l_I) / 1000.0f)) << l_MoveSpline.spline.getPoint(l_I + 2).y << l_MoveSpline.spline.getPoint(l_I + 2).z;
                 }
             }
         }
@@ -503,7 +503,7 @@ namespace Movement
 
             if (l_LastIndex > 0)
             {
-                Vector3 l_Middle = (l_RealPath[0] + l_RealPath[l_LastIndex]) / 2.f;
+                Vector3 l_Middle = (l_RealPath[0] + l_RealPath[l_LastIndex]) / 2.0f;
                 Vector3 l_Offset;
 
                 /// end points already appended
@@ -657,7 +657,7 @@ namespace Movement
                 angle -= transport->GetOrientation();
         }
 
-        args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
+        args.facing.angle = G3D::wrap(angle, 0.0f, (float)G3D::twoPi());
         args.flags.EnableFacingAngle();
     }
 

@@ -50,9 +50,9 @@ namespace MS
                     ///      \
                     ///       \
                     ///        R
-                    static const Position s_OriginPosition = { 918.919f, 1913.459f, 213.f };
-                    static const Position s_RightPosition = { 936.999f, 1872.137f, 213.f };
-                    static const Position s_LeftPosition = { 951.305f, 1882.338f, 213.f };
+                    static const Position s_OriginPosition = { 918.919f, 1913.459f, 213.0f };
+                    static const Position s_RightPosition = { 936.999f, 1872.137f, 213.0f };
+                    static const Position s_LeftPosition = { 951.305f, 1882.338f, 213.0f };
 
                     Position l_RefLeftVect = s_LeftPosition - s_OriginPosition;
                     Position l_RefRightVect = s_RightPosition - s_OriginPosition;

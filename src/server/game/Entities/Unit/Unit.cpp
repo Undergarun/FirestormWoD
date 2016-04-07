@@ -250,8 +250,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
-        m_weaponDamage[i][MINDAMAGE] = 0.f;
-        m_weaponDamage[i][MAXDAMAGE] = 0.f;
+        m_weaponDamage[i][MINDAMAGE] = 0.0f;
+        m_weaponDamage[i][MAXDAMAGE] = 0.0f;
     }
 
     for (uint8 i = 0; i < MAX_STATS; ++i)
@@ -927,7 +927,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (l_Player->GetShapeshiftForm() == FORM_BEAR || l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
         {
             Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
-            float l_WeaponSpeed = (l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
+            float l_WeaponSpeed = (l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.0f;
 
             float l_RageGain = l_WeaponSpeed * 1.75f;
 
@@ -6033,8 +6033,8 @@ void Unit::SendSpellMiss(Unit* p_Target, uint32 p_SpellID, SpellMissInfo p_MissI
         l_Data.FlushBits();
 
         /// if (HasDebug)
-            ///data << float(0.f);                                  ///< HitRoll
-            ///data << float(0.f);                                  ///< HitRollNeeded
+            ///data << float(0.0f);                                  ///< HitRoll
+            ///data << float(0.0f);                                  ///< HitRollNeeded
         /// endif
     /// end loop
 
@@ -12854,7 +12854,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     }
 
     // Check for table values
-    float coeff = 0.f;
+    float coeff = 0.0f;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     if (bonus && (spellProto->Effects[effIndex].BonusMultiplier == 0.0f && spellProto->Effects[effIndex].AttackPowerMultiplier == 0.0f))
     {
@@ -16923,7 +16923,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (IsPlayer() && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
     {
-        SendPlaySpellVisual(33584, target, 6.f, 0.0f, Position());
+        SendPlaySpellVisual(33584, target, 6.0f, 0.0f, Position());
         CastSpell(target, 147193, true);
     }
 
@@ -18347,10 +18347,10 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
         chance = spellProcEvent->customChance;
     // If PPM exist calculate chance from PPM
     float procsPerMinute = spellProto->ProcsPerMinute;
-    if (procsPerMinute == 0.f && spellProcEvent && spellProcEvent->ppmRate != 0.f)
+    if (procsPerMinute == 0.0f && spellProcEvent && spellProcEvent->ppmRate != 0.0f)
         procsPerMinute = spellProcEvent->ppmRate;
 
-    if (procsPerMinute != 0.f)
+    if (procsPerMinute != 0.0f)
     {
         if (!isVictim)
         {
@@ -19805,9 +19805,9 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, float
         GetPosition(&p_Pos);
     else if (p_Pos.m_positionX == 0.0f && p_Pos.m_positionY == 0.0f && p_Pos.m_positionZ == 0.0f)
     {
-        p_Pos.m_positionX = 0.f;
-        p_Pos.m_positionY = 0.f;
-        p_Pos.m_positionZ = 0.f;
+        p_Pos.m_positionX = 0.0f;
+        p_Pos.m_positionY = 0.0f;
+        p_Pos.m_positionZ = 0.0f;
     }
 
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 16 + 2 + 16 + 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
@@ -22337,7 +22337,7 @@ float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
         if (l_LevelDiff < 1)
         {
             // Negative numbers fiyyy
-            l_DamageDealtFactor = 1.f;
+            l_DamageDealtFactor = 1.0f;
         }
         else if (l_LevelDiff < 5)
         {

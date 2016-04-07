@@ -228,7 +228,7 @@ namespace MS { namespace Garrison
             static const uint32 s_PositionCount = sizeof(s_Position) / sizeof(s_Position[0]);
 
             std::list<Creature*> l_CreatureList;
-            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.f);
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.0f);
 
             for (Creature* l_Creature : l_CreatureList)
                 l_Creature->DespawnOrUnsummon();
@@ -238,7 +238,7 @@ namespace MS { namespace Garrison
                 SequencePosition const& l_CurrentPosition = s_Position[l_I];
                 Creature * l_Creature = SummonRelativeCreature(NPCs::LunarfallRaccoon, l_CurrentPosition.X, l_CurrentPosition.Y, l_CurrentPosition.Z, 0, TEMPSUMMON_MANUAL_DESPAWN);
                 if (l_Creature)
-                    l_Creature->GetMotionMaster()->MoveRandom(10.f);
+                    l_Creature->GetMotionMaster()->MoveRandom(10.0f);
             }
         }
     }
@@ -267,7 +267,7 @@ namespace MS { namespace Garrison
             static const Position s_CinematicLoc = { 1847.9746f, 144.6517f, 78.40f, 0.803772f };
 
             std::list<Creature*> l_CreatureList;
-            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.f);
+            me->GetCreatureListWithEntryInGrid(l_CreatureList, NPCs::LunarfallRaccoon, 65.0f);
 
             for (Creature* l_Creature : l_CreatureList)
                 l_Creature->DespawnOrUnsummon();

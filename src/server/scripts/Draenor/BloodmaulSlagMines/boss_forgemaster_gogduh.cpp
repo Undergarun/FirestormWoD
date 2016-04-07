@@ -75,7 +75,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void MoveInLineOfSight(Unit* p_Who)
                 {
-                    if (!m_SaidAggro && me->IsWithinDist2d(p_Who, 30.f))
+                    if (!m_SaidAggro && me->IsWithinDist2d(p_Who, 30.0f))
                     {
                         m_SaidAggro = true;
                         Talk((uint8)Yells::Aggro);
@@ -240,7 +240,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 {
                     Talk((uint8)Yells::Release);
                     me->SetControlled(false, UNIT_STATE_ROOT);
-                    me->GetMotionMaster()->MovePoint(1, 2082.f, 116.f, 225.f);
+                    me->GetMotionMaster()->MovePoint(1, 2082.0f, 116.0f, 225.0f);
                 }
 
                 void JustReachedHome()
@@ -602,7 +602,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void Reset()
                 {
-                    if (Unit* l_Target = me->SelectNearbyTarget(nullptr, 4.f, (uint32)Spells::ShatterEarthDamage))
+                    if (Unit* l_Target = me->SelectNearbyTarget(nullptr, 4.0f, (uint32)Spells::ShatterEarthDamage))
                         me->CastSpell(l_Target, (uint32)Spells::ShatterEarthDamage, true);
                     m_DeathTimer = 2000;
                 }
@@ -727,7 +727,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                         bool operator()(WorldObject* p_Unit) const
                         {
-                            return !m_CasterPosition->HasInArc(float(M_PI) / 3.f, p_Unit);
+                            return !m_CasterPosition->HasInArc(float(M_PI) / 3.0f, p_Unit);
                         }
 
                     private:
@@ -914,7 +914,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void HandleScript(SpellEffIndex)
                 {
-                    SetHitDamage((float)GetHitDamage() * (30.f - std::min((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.f)) / 30.f);
+                    SetHitDamage((float)GetHitDamage() * (30.0f - std::min((float)GetHitDest()->GetExactDist(GetHitUnit()), 30.0f)) / 30.0f);
                 }
 
                 void Register()
@@ -989,9 +989,9 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         return;
 
                     AreaTrigger* l_Trigger = nullptr;
-                    JadeCore::NearestAreaTriggerWithIdInObjectRangeCheck u_check(l_Owner, (uint32)Spells::MagmaBarrageAreaTrigger, 3.f);
+                    JadeCore::NearestAreaTriggerWithIdInObjectRangeCheck u_check(l_Owner, (uint32)Spells::MagmaBarrageAreaTrigger, 3.0f);
                     JadeCore::AreaTriggerSearcher<JadeCore::NearestAreaTriggerWithIdInObjectRangeCheck> searcher(l_Owner, l_Trigger, u_check);
-                    l_Owner->VisitNearbyObject(3.f, searcher);
+                    l_Owner->VisitNearbyObject(3.0f, searcher);
 
                     if (!l_Trigger)
                         p_AurEff->GetBase()->Remove();
@@ -1034,29 +1034,29 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 switch ((Spells)p_AreaTrigger->GetSpellId())
                 {
                     case Spells::ShatterEarthNW:
-                        l_Orientation = M_PI / 4.f; // 45°
+                        l_Orientation = M_PI / 4.0f; // 45°
                         break;
                     case Spells::ShatterEarthSW:
-                        l_Orientation = M_PI / 4.f * 3.f; // 135°
+                        l_Orientation = M_PI / 4.0f * 3.0f; // 135°
                         break;
                     case  Spells::ShatterEarthSE:
-                        l_Orientation = M_PI / 4.f * 5.f; // 225°
+                        l_Orientation = M_PI / 4.0f * 5.0f; // 225°
                         break;
                     case Spells::ShatterEarthNE:
-                        l_Orientation = M_PI / 4.f * 7.f; // 315°
+                        l_Orientation = M_PI / 4.0f * 7.0f; // 315°
                         break;
                     default:
-                        l_Orientation = 0.f;
+                        l_Orientation = 0.0f;
                 }
 
-                p_SourcePosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 8.f);
-                p_SourcePosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 8.f);
+                p_SourcePosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 8.0f);
+                p_SourcePosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 8.0f);
                 p_SourcePosition.m_positionZ = p_SourcePosition.GetPositionZ();
                 p_Caster->UpdateGroundPositionZ(p_SourcePosition.m_positionX, p_SourcePosition.m_positionY, p_SourcePosition.m_positionZ);
                 p_SourcePosition.SetOrientation(l_Orientation);
 
-                p_DestinationPosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 20.f);
-                p_DestinationPosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 20.f);
+                p_DestinationPosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 20.0f);
+                p_DestinationPosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 20.0f);
                 p_DestinationPosition.m_positionZ = p_SourcePosition.GetPositionZ();
                 p_Caster->UpdateGroundPositionZ(p_DestinationPosition.m_positionX, p_DestinationPosition.m_positionY, p_DestinationPosition.m_positionZ);
                 p_DestinationPosition.SetOrientation(l_Orientation);
@@ -1066,7 +1066,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 Unit* l_Caster = p_AreaTrigger->GetCaster();
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 3.f;
+                float l_Radius = 3.0f;
 
                 if (!l_Caster)
                     return;
@@ -1119,29 +1119,29 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 switch ((Spells)p_AreaTrigger->GetSpellId())
                 {
                     case Spells::VolcanicTrantrumNW:
-                        l_Orientation = M_PI / 4.f; // 45°
+                        l_Orientation = M_PI / 4.0f; // 45°
                         break;
                     case Spells::VolcanicTrantrumSW:
-                        l_Orientation = M_PI / 4.f * 3.f; // 135°
+                        l_Orientation = M_PI / 4.0f * 3.0f; // 135°
                         break;
                     case Spells::VolcanicTrantrumSE:
-                        l_Orientation = M_PI / 4.f * 5.f; // 225°
+                        l_Orientation = M_PI / 4.0f * 5.0f; // 225°
                         break;
                     case Spells::VolcanicTrantrumNE:
-                        l_Orientation = M_PI / 4.f * 7.f; // 315°
+                        l_Orientation = M_PI / 4.0f * 7.0f; // 315°
                         break;
                     default:
-                        l_Orientation = 0.f;
+                        l_Orientation = 0.0f;
                 }
 
-                p_SourcePosition.m_positionX = p_Caster->GetPositionX() + (cos(l_Orientation) * 8.f);
-                p_SourcePosition.m_positionY = p_Caster->GetPositionY() + (sin(l_Orientation) * 8.f);
+                p_SourcePosition.m_positionX = p_Caster->GetPositionX() + (cos(l_Orientation) * 8.0f);
+                p_SourcePosition.m_positionY = p_Caster->GetPositionY() + (sin(l_Orientation) * 8.0f);
                 p_SourcePosition.m_positionZ = p_Caster->GetPositionZ();
                 p_Caster->UpdateGroundPositionZ(p_SourcePosition.m_positionX, p_SourcePosition.m_positionY, p_SourcePosition.m_positionZ);
                 p_SourcePosition.SetOrientation(l_Orientation);
 
-                p_DestinationPosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 20.f);
-                p_DestinationPosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 20.f);
+                p_DestinationPosition.m_positionX = p_SourcePosition.GetPositionX() + (cos(l_Orientation) * 20.0f);
+                p_DestinationPosition.m_positionY = p_SourcePosition.GetPositionY() + (sin(l_Orientation) * 20.0f);
                 p_DestinationPosition.m_positionZ = p_SourcePosition.GetPositionZ();
                 p_Caster->UpdateGroundPositionZ(p_DestinationPosition.m_positionX, p_DestinationPosition.m_positionY, p_DestinationPosition.m_positionZ);
                 p_DestinationPosition.SetOrientation(l_Orientation);
@@ -1152,7 +1152,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 Unit* l_Caster = p_AreaTrigger->GetCaster();
                 Unit* l_Target = nullptr;
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 3.f;
+                float l_Radius = 3.0f;
 
                 if (!l_Caster)
                     return;
@@ -1195,7 +1195,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 Unit* l_Caster = p_AreaTrigger->GetCaster();
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 3.f;
+                float l_Radius = 3.0f;
 
                 if (!l_Caster)
                     return;

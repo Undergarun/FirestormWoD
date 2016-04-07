@@ -1035,7 +1035,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
                 void MoveInLineOfSight(Unit* p_Who)
                 {
-                    if (p_Who->IsPlayer() && me->IsWithinDist2d(p_Who, 5.f) && !p_Who->HasAura(Spells::SpellDebuff))
+                    if (p_Who->IsPlayer() && me->IsWithinDist2d(p_Who, 5.0f) && !p_Who->HasAura(Spells::SpellDebuff))
                         me->CastSpell(p_Who, Spells::SpellDebuff, true);
                 }
 

@@ -287,7 +287,7 @@ namespace MS
             std::vector<uint32> l_BlockIndices = k_WindMazeIndices[p_BlockId];
             assert(l_BlockIndices.size() == 4);
 
-            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.f;
+            l_ForceDir = ((k_WindMazeVertices[l_BlockIndices[3]] - k_WindMazeVertices[l_BlockIndices[0]]) + (k_WindMazeVertices[l_BlockIndices[2]] - k_WindMazeVertices[l_BlockIndices[1]])) / 2.0f;
             l_ForceDir.m_positionZ = 0;
             normalizeXY(l_ForceDir);
             l_ForceDir.m_positionX *= p_Magnitude;

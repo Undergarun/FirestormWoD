@@ -94,7 +94,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             ///    auto l_FNIsWithinLOS = [=](float p_OutX, float p_OutY, float p_OutZ) -> bool
             ///    {
             ///        if (i_target->IsInWorld())
-            ///            return i_target->GetMap()->isInLineOfSight(l_InterpolatedPosition.GetPositionX(), l_InterpolatedPosition.GetPositionY(), l_InterpolatedPosition.GetPositionZ() + 2.f, p_OutX, p_OutY, p_OutZ + 2.f, i_target->GetPhaseMask());
+            ///            return i_target->GetMap()->isInLineOfSight(l_InterpolatedPosition.GetPositionX(), l_InterpolatedPosition.GetPositionY(), l_InterpolatedPosition.GetPositionZ() + 2.0f, p_OutX, p_OutY, p_OutZ + 2.0f, i_target->GetPhaseMask());
             ///
             ///        return true;
             ///    };
@@ -183,7 +183,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     init.SetWalk(((D*)this)->EnableWalking());
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly
-    if (i_angle == 0.f)
+    if (i_angle == 0.0f)
         init.SetFacing(i_target.getTarget());
 
     init.Launch();
@@ -266,7 +266,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (owner->movespline->Finalized())
     {
         static_cast<D*>(this)->MovementInform(owner);
-        if (i_angle == 0.f && !owner->HasInArc(0.01f, i_target.getTarget()))
+        if (i_angle == 0.0f && !owner->HasInArc(0.01f, i_target.getTarget()))
             owner->SetInFront(i_target.getTarget());
 
         if (!i_targetReached)

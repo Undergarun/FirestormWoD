@@ -611,7 +611,7 @@ float AuraEffect::GetCalculatedAmountForClient_Second()
             break;
     }
 
-    return 0.f;
+    return 0.0f;
 }
 
 void AuraEffect::GetTargetList(std::list<Unit*> & targetList) const
@@ -8482,7 +8482,7 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* p_AurApp, ui
     if (l_Player->GetPowerIndex(POWER_MANA, l_Player->getClass()) == MAX_POWERS)
         return;
 
-    float l_Mod   = 1.f;
+    float l_Mod   = 1.0f;
     uint32 l_HP;
     uint32 l_Mana = 0;
 

@@ -176,7 +176,7 @@ class boss_liu_flameheart : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->GetHealthPct() < 70.f && status == PHASE_1)
+                if (me->GetHealthPct() < 70.0f && status == PHASE_1)
                 {
                     me->AddAura(SPELL_JADE_ESSENCE, me);
 
@@ -186,7 +186,7 @@ class boss_liu_flameheart : public CreatureScript
                     Talk(TALK_EVENT_01);
                     status = PHASE_2;
                 }
-                if (me->GetHealthPct() < 30.f && status == PHASE_2)
+                if (me->GetHealthPct() < 30.0f && status == PHASE_2)
                 {
                     events.Reset();
                     events.ScheduleEvent(EVENT_SUMMON_YULON, 500);
@@ -210,7 +210,7 @@ class boss_liu_flameheart : public CreatureScript
                                     Player* plr = i->getSource();
                                     if (!plr)
                                         continue;
-                                    if (plr->GetDistance2d(me) < 10.f)
+                                    if (plr->GetDistance2d(me) < 10.0f)
                                         plr->KnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10, 10);
                                 }
                             }
@@ -276,7 +276,7 @@ class boss_liu_flameheart : public CreatureScript
                                     Player* plr = i->getSource();
                                     if (!plr)
                                         continue;
-                                    if (plr->GetDistance2d(me) < 10.f)
+                                    if (plr->GetDistance2d(me) < 10.0f)
                                         plr->KnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10, 10);
                                 }
                             }

@@ -240,7 +240,7 @@ enum class QuestRewardItemBonus : uint32
     RareToEpic      = 545
 };
 
-const float gQuestRewardBonusRareChanceRange[2] = { 0.f,    10.f };    ///< Range 0-10
+const float gQuestRewardBonusRareChanceRange[2] = { 0.0f,    10.0f };    ///< Range 0-10
 const float gQuestRewardBonusEpicChanceRange[2] = { 10.01f, 20.0f};    ///< Range 10.01-20
 
 struct QuestLocale

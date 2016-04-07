@@ -1517,7 +1517,7 @@ class spell_pri_atonement: public SpellScriptLoader
 
                     if (GetSpell()->IsCritForTarget(GetHitUnit()))
                     {
-                        l_Values.SetCustomCritChance(100.f);
+                        l_Values.SetCustomCritChance(100.0f);
                         l_Heal /= 2; ///< Since we are going critical again
                     }
 

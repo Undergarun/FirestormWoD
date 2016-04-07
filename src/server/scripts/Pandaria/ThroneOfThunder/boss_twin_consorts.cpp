@@ -2204,7 +2204,7 @@ class spell_cosmic_barrage : public SpellScriptLoader
                     GetCreatureListWithEntryInGrid(l_StarList, l_Caster, NPC_STAR, 10.0f);
 
                     std::list<Player*> l_PlayerList;
-                    GetPlayerListInGrid(l_PlayerList, l_Caster, 100.f);
+                    GetPlayerListInGrid(l_PlayerList, l_Caster, 100.0f);
 
                     for (Creature* l_Star : l_StarList)
                     {
@@ -2615,7 +2615,7 @@ class at_flames_of_passion : public AreaTriggerEntityScript
                 return;
 
             std::list<Player*> l_TargetList;
-            GetPlayerListInGrid(l_TargetList, p_AreaTrigger, 10.f);
+            GetPlayerListInGrid(l_TargetList, p_AreaTrigger, 10.0f);
 
             for (Player* l_Player : l_TargetList)
             {
@@ -2667,7 +2667,7 @@ class at_icy_shadows : public AreaTriggerEntityScript
                 return;
 
             std::list<Unit*> l_TargetList;
-            float l_Radius = 10.f;
+            float l_Radius = 10.0f;
 
             JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
             JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);

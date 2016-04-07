@@ -1596,7 +1596,7 @@ class go_celestial_control_console : public GameObjectScript
         {
             std::list<Player*> playerList;
             playerList.clear();
-            go->GetPlayerListInGrid(playerList, 10.f);
+            go->GetPlayerListInGrid(playerList, 10.0f);
 
             if (!playerList.empty())
             {
@@ -2032,7 +2032,7 @@ class at_draw_power : public AreaTriggerEntityScript
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
             std::list<Unit*> l_TargetList;
-            float l_Radius = 30.f;
+            float l_Radius = 30.0f;
             Unit* l_Caster = p_AreaTrigger->GetCaster();
 
             if (!l_Caster)
@@ -2044,7 +2044,7 @@ class at_draw_power : public AreaTriggerEntityScript
 
             for (Unit* l_Unit : l_TargetList)
             {
-                if (l_Unit->IsInAxe(l_Caster, p_AreaTrigger, 2.f))
+                if (l_Unit->IsInAxe(l_Caster, p_AreaTrigger, 2.0f))
                 {
                     if (l_Unit->HasAura(SPELL_ENERGY_CONDUIT))
                         l_Caster->AddAura(SPELL_ENERGY_CONDUIT, l_Unit);

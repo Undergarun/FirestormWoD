@@ -1003,7 +1003,7 @@ class WorldObject : public Object, public WorldLocation
         void MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid);
         void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 TargetGuid) const;
 
-        void PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject = NULL, float p_SourceX = 0.f, float p_SourceY = 0.f, float p_SourceZ = 0.f);
+        void PlayDistanceSound(WorldObject * p_SourceObject, uint32 p_SoundKitID, WorldObject * p_TargetObject = NULL, float p_SourceX = 0.0f, float p_SourceY = 0.0f, float p_SourceZ = 0.0f);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);
 
         void SendObjectDeSpawnAnim(uint64 guid);

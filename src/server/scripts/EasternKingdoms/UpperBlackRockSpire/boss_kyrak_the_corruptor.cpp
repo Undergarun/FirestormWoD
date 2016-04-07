@@ -176,7 +176,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_REJUVENATING_SERUM, 33000);
                         break;
                     case EVENT_VILEBLOOD_SERUM:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.f, true))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                         {
                             std::list<Unit*> l_PlayerList;
                             l_Target->GetPartyMembers(l_PlayerList);
@@ -217,7 +217,7 @@ class boss_kyrak_the_corruptor : public CreatureScript
                     m_InitializeAdds = 0;
 
                     std::list<Creature*> l_DrakonidList;
-                    me->GetCreatureListWithEntryInGrid(l_DrakonidList, NPC_DRAKONID_MONSTROSITY_2, 10.f);
+                    me->GetCreatureListWithEntryInGrid(l_DrakonidList, NPC_DRAKONID_MONSTROSITY_2, 10.0f);
 
                     // Should be 2
                     if (l_DrakonidList.empty() || l_DrakonidList.size() != 2)

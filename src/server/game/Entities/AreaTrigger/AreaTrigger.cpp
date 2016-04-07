@@ -447,7 +447,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
                 for (auto& l_Path : m_PathToLinearDestination)
                     l_PathList[l_Itr++] = l_Path;
 
-                float l_Dist = 0.f;
+                float l_Dist = 0.0f;
                 for (int l_I = 1; l_I < (int)l_PathList.size(); l_I++)
                     l_Dist += l_PathList[l_I].GetExactDist(&l_PathList[l_I - 1]);
                 

@@ -790,7 +790,7 @@ class mob_jump_to_boss_platform : public CreatureScript
                     if (m_CheckTimer <= diff)
                     {
                         std::list<Player*> l_PlayerList;
-                        me->GetPlayerListInGrid(l_PlayerList, 13.f);
+                        me->GetPlayerListInGrid(l_PlayerList, 13.0f);
 
                         for (Player* l_Player : l_PlayerList)
                             l_Player->CastSpell(g_BossPlatformPos.m_positionX, g_BossPlatformPos.m_positionY, g_BossPlatformPos.m_positionZ, SPELL_FORCE_TO_JUMP, true);
@@ -975,7 +975,7 @@ class mob_fall_catcher : public CreatureScript
                     float l_PlayerX = p_Player->GetPositionX();
                     float l_PlayerY = p_Player->GetPositionY();
 
-                    if (l_PlayerX > 6045.f && l_PlayerX < 6247.f && l_PlayerY > 4220.f && l_PlayerY < 4446.f)
+                    if (l_PlayerX > 6045.0f && l_PlayerX < 6247.0f && l_PlayerY > 4220.0f && l_PlayerY < 4446.0f)
                         return true;
                 }
 
@@ -984,7 +984,7 @@ class mob_fall_catcher : public CreatureScript
 
             bool IsTransportablePlayer(Player* p_Player)
             {
-                if (!IsPlayerInPreventDamageArea(p_Player) || !p_Player->isAlive() || p_Player->HasAura(SPELL_SAFETY_NET_TRIGGER) || p_Player->IsOnVehicle() || p_Player->GetPositionZ() > -183.f)
+                if (!IsPlayerInPreventDamageArea(p_Player) || !p_Player->isAlive() || p_Player->HasAura(SPELL_SAFETY_NET_TRIGGER) || p_Player->IsOnVehicle() || p_Player->GetPositionZ() > -183.0f)
                     return false;
                 return true;
             }
@@ -2195,17 +2195,17 @@ class at_down_draft : public AreaTriggerEntityScript
                 return;
 
             std::list<Player*> l_PlayerList;
-            GetPlayerListInGrid(l_PlayerList, p_AreaTrigger, 40.f);
+            GetPlayerListInGrid(l_PlayerList, p_AreaTrigger, 40.0f);
 
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);
 
             for (Player* l_Player : l_PlayerList)
             {
-                if (l_Player->IsWithinDist(l_Caster, 30.f, false))
+                if (l_Player->IsWithinDist(l_Caster, 30.0f, false))
                 {
                     if (l_Player->isAlive() && !l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
-                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, l_Pos, -7.f, 1);
+                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, l_Pos, -7.0f, 1);
                     else if (!l_Player->isAlive() && l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
                         l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, l_Pos);
                 }

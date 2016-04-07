@@ -169,7 +169,7 @@ class spell_lightning_tether: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Target->GetDistance(l_Caster) > 30.f)
+                        if (l_Target->GetDistance(l_Caster) > 30.0f)
                             l_Caster->CastSpell(l_Target, SPELL_LIGHTNING_TETHER_20K, true);
                     }
                 }

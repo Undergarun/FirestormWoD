@@ -88,8 +88,8 @@ namespace VMAP
                 else if (entry->second.flags & MOD_WORLDSPAWN) // WMO maps and terrain maps use different origin, so we need to adapt :/
                 {
                     /// @todo remove extractor hack and uncomment below line:
-                    //entry->second.iPos += Vector3(533.33333f*32, 533.33333f*32, 0.f);
-                    entry->second.iBound = entry->second.iBound + Vector3(533.33333f*32, 533.33333f*32, 0.f);
+                    //entry->second.iPos += Vector3(533.33333f*32, 533.33333f*32, 0.0f);
+                    entry->second.iBound = entry->second.iBound + Vector3(533.33333f*32, 533.33333f*32, 0.0f);
                 }
                 mapSpawns.push_back(&(entry->second));
                 spawnedModelFiles.insert(entry->second.name);

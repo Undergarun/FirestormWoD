@@ -2217,7 +2217,7 @@ class spell_dk_runic_empowerment : public PlayerScript
             if (AuraEffect* l_RunicEmpowerment = p_Player->GetAuraEffect(eSpells::RunicEmpowerment, EFFECT_0))
             {
                 /// 1.50% chance per Runic Power spent
-                float l_Chance = (l_RunicEmpowerment->GetAmount() / 100.f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
+                float l_Chance = (l_RunicEmpowerment->GetAmount() / 100.0f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
 
                 if (roll_chance_f(l_Chance))
                 {
@@ -2263,7 +2263,7 @@ class spell_dk_runic_corruption : public PlayerScript
             if (AuraEffect* l_RunicCorruption = p_Player->GetAuraEffect(eSpells::RunicCorruptionAura, EFFECT_1))
             {
                 /// 1.50% chance per Runic Power spent
-                float l_Chance = (l_RunicCorruption->GetAmount() / 100.f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
+                float l_Chance = (l_RunicCorruption->GetAmount() / 100.0f) * (l_PowerSpent / p_Player->GetPowerCoeff(p_Power));
 
                 if (roll_chance_f(l_Chance))
                 {
