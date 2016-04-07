@@ -2061,7 +2061,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
         }
 };
 
-// Demonic Gateway - 111771
+/// Last Update 6.2.3
+/// Demonic Gateway - 111771
 class spell_warl_demonic_gateway: public SpellScriptLoader
 {
     public:
@@ -2082,7 +2083,7 @@ class spell_warl_demonic_gateway: public SpellScriptLoader
                 if (!dest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f)
+                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f || dest->GetPositionZ() < player->GetPositionZ() - 5.0f)
                     return SPELL_FAILED_NOPATH;
 
                 return SPELL_CAST_OK;
