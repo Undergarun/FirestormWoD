@@ -77,10 +77,10 @@ namespace MS { namespace Garrison
 
     bool npc_ElrondirSurrion::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstJewelcraftingWorkOrder, 4);
+        if (p_Player->HasQuest(Quests::Horde_YourFirstJewelcraftingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstJewelcraftingWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstJewelcraftingWorkOrder, 4);
 
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
+        if (p_Player->HasQuest(Quests::Horde_YourFirstJewelcraftingWorkOrder) || p_Player->IsQuestRewarded(Quests::Horde_YourFirstJewelcraftingWorkOrder))
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
