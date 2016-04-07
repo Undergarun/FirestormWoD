@@ -397,6 +397,7 @@ class ByteBuffer
             l_Time.tm_mon = (l_Date >> 20) & 0xF;
             l_Time.tm_year = ((l_Date >> 24) & 0x1F) + 100;
 
+            /// Needed for the msvc 2013 support
 #ifdef _MSC_VER
             return uint32(mktime(&l_Time) + _timezone);
 #else

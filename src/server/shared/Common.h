@@ -104,7 +104,7 @@
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
 
-// To remove later, when VS will support thread_local (c++11)
+/// MSVC 18 (2013) have only partial support of thread_local (c++11)
 #ifdef __GNUC__
 # define thread_local __thread
 #elif __STDC_VERSION__ >= 201112L
