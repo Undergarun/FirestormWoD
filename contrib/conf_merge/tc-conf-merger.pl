@@ -1,9 +1,10 @@
 #!/usr/bin/perl -w
 
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-# Author: leak
-# Date: 2010-12-06
-# Note: Based on conf file format of rev 10507
+#
+#  MILLENIUM-STUDIO
+#  Copyright 2016 Millenium-studio SARL
+#  All Rights Reserved.
+#
 
 use strict;
 
