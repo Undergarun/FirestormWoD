@@ -12,6 +12,7 @@ function sendToSlack {
     for hook_url in "${slack_hook_urls[@]}"
     do
         curl -X POST \
+             --max-time 15 \
              --data-urlencode 'payload={"attachments": [{"pretext": "*'"$REALM_VERSION"'*", "text": "'"$msg"'", "color": "'"$color"'", "mrkdwn_in": ["pretext", "text"]}]}' \
              $hook_url
     done
