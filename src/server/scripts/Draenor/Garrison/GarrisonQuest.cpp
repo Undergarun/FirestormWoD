@@ -13,6 +13,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonScriptData.hpp"
+#include "Buildings/Alliance/Medium/ATradingPost.hpp"
 
 namespace MS { namespace Garrison 
 {
@@ -34,7 +35,7 @@ namespace MS { namespace Garrison
         uint32 l_NoSpaceForCount = 0;
         ItemPosCountVec l_Destination;
 
-        if (p_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
+        if (p_Player->HasQuest(Quests::Horde_BuildYourBarracks) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
         {
             p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
             return;
@@ -141,7 +142,7 @@ namespace MS { namespace Garrison
         {
             Player * l_Player = GetCaster()->ToPlayer();
 
-            if (l_Player->GetGarrison() && l_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+            if (l_Player->GetGarrison() && l_Player->HasQuest(Quests::Horde_BuildYourBarracks))
                 l_Player->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, l_Player->GetGUID());
         }
     }
@@ -325,17 +326,6 @@ namespace MS { namespace Garrison
             default:
                 break;
         }
-
-        if (!p_Player->IsInGarrison())
-            return;
-
-        Manager* l_GarrisonMgr = p_Player->GetGarrison();
-
-        if (l_GarrisonMgr == nullptr)
-            return;
-
-        if (p_Player->IsInGarrison())
-            UpdateGarrisonPhaseMask(p_Player);
     }
 
     void playerScript_Garrison_Portals_Phases::OnLogin(Player* p_Player)
@@ -550,6 +540,7 @@ void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
     new MS::Garrison::GarrisonQuestPlayerScript;
+	new MS::Garrison::playerScript_Garrison_TradingPost;
     new MS::Garrison::playerScript_Garrison_Portals_Phases;
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;

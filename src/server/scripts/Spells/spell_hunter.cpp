@@ -347,9 +347,6 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (l_Player->HasSpellCooldown(eSpells::LockAndLoad))
-                        return;
-
                     if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                         return;
 
@@ -357,7 +354,6 @@ class spell_hun_black_arrow : public SpellScriptLoader
                         l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
 
                     l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
-                    l_Player->AddSpellCooldown(eSpells::LockAndLoad, 0, 22 * IN_MILLISECONDS);
                 }
             }
 

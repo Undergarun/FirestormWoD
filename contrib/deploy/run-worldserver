@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# These variables are replaced at drone build
+repo=@REPO@
+commit=@COMMIT@
+
 function sendToSlack {
     msg=$1
     color=$2
@@ -8,6 +12,7 @@ function sendToSlack {
     for hook_url in "${slack_hook_urls[@]}"
     do
         curl -X POST \
+             --max-time 15 \
              --data-urlencode 'payload={"attachments": [{"pretext": "*'"$REALM_VERSION"'*", "text": "'"$msg"'", "color": "'"$color"'", "mrkdwn_in": ["pretext", "text"]}]}' \
              $hook_url
     done
@@ -76,7 +81,7 @@ function analyseCrash {
         crash_at=$(echo $crash_location | grep -oP 'at /.*/\K(.*)')
     fi
 
-    sendToSlack "_${REALM_NAME}_ (<https://github.com/MilleniumStudio/wod/commit/$COMMIT|${COMMIT:0:7}>) crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
+    sendToSlack "_${REALM_NAME}_ (<https://github.com/$repo/commit/$commit|${commit:0:7}>) crashed in \`$crash_in\` at \`$crash_at\` <$crashlog_link|Show more...>" "danger"
 
     # Only if it's a crash we made the log avalaible
     cp /tmp/backtrace.log /usr/local/var/log/firestorm/crashlogs/$crashlog_filename

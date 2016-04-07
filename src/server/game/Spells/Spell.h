@@ -528,6 +528,7 @@ public:
     void EffectEnchantIllusion(SpellEffIndex p_EffIndex);
     void EffectLearnFollowerAbility(SpellEffIndex p_EffIndex);
     void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
+	void EffectFinishGarrisonMission(SpellEffIndex p_EffIndex);
     void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
 
     typedef std::set<Aura*> UsedSpellMods;

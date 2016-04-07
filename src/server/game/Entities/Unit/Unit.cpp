@@ -3096,8 +3096,12 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
     if (p_Spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
         return SPELL_MISS_NONE;
 
+    /// Same spells cannot be parry/dodge
+    if (p_Spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
+        return SPELL_MISS_NONE;
+
     // cast by caster in front of victim
-    if (p_Victim->HasInArc(M_PI, this) || p_Victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if ((p_Victim->HasInArc(M_PI, this) || p_Victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
         int32 l_DeflectChance = p_Victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         l_Tmp += l_DeflectChance;
@@ -11598,7 +11602,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         /// Default is 5% of crit
         float crit_chance = 5.0f;
-        crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
+        crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
 
@@ -12403,7 +12407,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 crit_chance = 0.0f;
             // For other schools
             else if (IsPlayer())
-                crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
+            {
+                /// Default is 5% of crit
+                float crit_chance = 5.0f;
+                crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
+            }
             else
             {
                 crit_chance = (float)m_baseSpellCritChance;
@@ -13283,10 +13291,14 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         // Check for immune to application of harmful magical effects
         AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
         for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
+        {
             if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
-                !spellInfo->IsPositiveEffect(index) && !spellInfo->CanPierceImmuneAura((*iter)->GetSpellInfo()))                        // Harmful
+                !spellInfo->IsPositiveEffect(index) && !spellInfo->CanPierceImmuneAura((*iter)->GetSpellInfo())) // Harmful
+            {
                 if (!(spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
                     return true;
+            }
+        }
     }
 
     return false;
