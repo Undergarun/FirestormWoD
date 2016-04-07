@@ -4,6 +4,7 @@ branches:
 
 clone:
   depth: 20
+  tags: true
   recursive: true
   submodule_update_remote: true
 
