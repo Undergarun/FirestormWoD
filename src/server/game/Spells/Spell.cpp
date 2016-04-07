@@ -1974,7 +1974,10 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
-                int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
+                int8 l_Stacks = havoc->GetStackAmount();
+
+                if (GetSpellInfo()->Id != 157736) ///< Dot of immolate should not drop a stack
+                    l_Stacks -= l_StacksToDrop;
 
                 if (l_Stacks > 0)
                 {
