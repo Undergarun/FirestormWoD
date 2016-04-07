@@ -1,21 +1,10 @@
-/*
-* Copyright (C) 2012-2014 JadeCore <http://www.pandashan.com/>
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlegroundDG.h"
 #include "Player.h"
@@ -796,16 +785,16 @@ void BattlegroundDG::HandleAreaTrigger(Player* p_Player, uint32 p_TriggerID)
                     EventPlayerCapturedFlag(p_Player);
             }
             break;
-        case 9139: // http://puu.sh/7ncT2/4a77b468c8.jpg behind the wood on the spawn building alliance on the right
-        case 9140: // http://puu.sh/7ncS9/a10d5dc38a.jpg inside building
-        case 9159: // http://puu.sh/7ncBW/4b3db412e9.jpg buff location
-        case 9160: // http://puu.sh/7ncDJ/7bcc833a93.jpg buff location
-        case 9161: // http://puu.sh/7ncFq/737cfcd28a.jpg buff location
-        case 9162: // http://puu.sh/7ncHt/7ca1796256.jpg buff location
-        case 9299: // http://puu.sh/7ncJH/575a9957d7.jpg on the roof
-        case 9301: // http://puu.sh/7ncLP/f9dccc266c.jpg on the roof
-        case 9302: // http://puu.sh/7ncO3/439e7c485a.jpg flying => should tp outside the mine when triggered
-        case 9303: // http://puu.sh/7ncQJ/4bd31bff18.jpg flying => should tp outside the mine when triggered
+        case 9139: // behind the wood on the spawn building alliance on the right
+        case 9140: // inside building
+        case 9159: // buff location
+        case 9160: // buff location
+        case 9161: // buff location
+        case 9162: // buff location
+        case 9299: // on the roof
+        case 9301: // on the roof
+        case 9302: // flying => should tp outside the mine when triggered
+        case 9303: // flying => should tp outside the mine when triggered
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundDG : Handled AreaTrigger(ID : %u) have been activated by Player %s (ID : %u)",
                 p_TriggerID, p_Player->GetName(), GUID_LOPART(p_Player->GetGUID()));
             break;

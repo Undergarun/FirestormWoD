@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "BuildingScripts.hpp"
 #include "GarrisonMgr.hpp"
 #include "../GarrisonScriptData.hpp"
