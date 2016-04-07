@@ -614,7 +614,7 @@ void PetBattleAura::Process(PetBattle* p_Battle)
                     l_AbilityTurn.ChainFailure |= 1 << (l_AbilityEffectInfo->effectIndex - 1);
 
                 /// Update "buff turn" on all event triggered by the current ability effect
-                for (; l_It != p_Battle->RoundEvents.end(); l_It++)
+                for (; l_It != p_Battle->RoundEvents.end(); ++l_It)
                     l_It->BuffTurn = Turn;
 
                 if (l_Effect.StopChain)
@@ -731,7 +731,7 @@ void PetBattleTeam::DoCasts(uint32 p_Turn0ProcCond)
         else
             PetBattleInstance->Cast(ActivePetID, ActiveAbilityId, 0, p_Turn0ProcCond, PETBATTLE_CAST_TRIGGER_ALL);
 
-        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); l_It++)
+        for (PetBattleAuraList::iterator l_It = PetBattleInstance->PetAuras.begin(); l_It != PetBattleInstance->PetAuras.end(); ++l_It)
             if (!(*l_It)->Expired && (*l_It)->CasterPetID == ActivePetID)
                 PetBattleInstance->Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_ABILITY, PETBATTLE_CAST_TRIGGER_ALL);
     }
@@ -965,7 +965,7 @@ PetBattle::~PetBattle()
         delete Teams[l_CurrentTeamID];
     }
 
-    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
         delete (*l_It);
 }
 
@@ -1154,11 +1154,11 @@ void PetBattle::ProceedRound()
     /// Process all auras
 
     l_FirstTeam = RoundFirstTeamCasting;
-    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
         if (!(*l_It)->Expired && Pets[(*l_It)->CasterPetID]->TeamID == l_FirstTeam)
             (*l_It)->Process(this);
 
-    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
         if (!(*l_It)->Expired && Pets[(*l_It)->CasterPetID]->TeamID == !l_FirstTeam)
             (*l_It)->Process(this);
 
@@ -1204,11 +1204,11 @@ void PetBattle::ProceedRound()
     /// clear expired auras
     PetBattleAuraList l_AurasToRemove;
 
-    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
         if ((*l_It)->Expired)
             l_AurasToRemove.push_back(*l_It);
 
-    for (PetBattleAuraList::iterator l_It = l_AurasToRemove.begin(); l_It != l_AurasToRemove.end(); l_It++)
+    for (PetBattleAuraList::iterator l_It = l_AurasToRemove.begin(); l_It != l_AurasToRemove.end(); ++l_It)
     {
         PetAuras.remove((*l_It));
         delete (*l_It);
@@ -1528,7 +1528,7 @@ void PetBattle::SwapPet(uint32 p_TeamID, uint32 p_NewFrontPetID, bool p_Initial)
 
     if (l_PetChanged)
     {
-        for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+        for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
             if (!(*l_It)->Expired)
                 Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_SWAP_OUT, PETBATTLE_CAST_TRIGGER_ALL);
     }
@@ -1547,7 +1547,7 @@ void PetBattle::SwapPet(uint32 p_TeamID, uint32 p_NewFrontPetID, bool p_Initial)
 
     if (l_PetChanged)
     {
-        for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+        for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
             if (!(*l_It)->Expired)
                 Cast((*l_It)->CasterPetID, (*l_It)->AbilityID, 0, PETBATTLE_ABILITY_TURN0_PROC_ON_SWAP_IN, PETBATTLE_CAST_TRIGGER_ALL);
     }
@@ -1804,7 +1804,7 @@ void PetBattle::Kill(int8 p_Killer, int8 p_Target, uint32 p_KillerAbibilityEffec
         Teams[Pets[p_Target]->TeamID]->activeAbilityTurnMax = 0;
     }
 
-    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); l_It++)
+    for (PetBattleAuraList::iterator l_It = PetAuras.begin(); l_It != PetAuras.end(); ++l_It)
         if ((*l_It)->TargetPetID == p_Target)
             (*l_It)->Expire(this);
 

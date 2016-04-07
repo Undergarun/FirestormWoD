@@ -1119,7 +1119,7 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
                 return;
 
             std::list<Unit*> l_TargetList;
-            float l_Radius = 3.f;
+            float l_Radius = 3.0f;
             bool friendly = p_AreaTrigger->GetSpellId() == SPELL_DIVINE_STAR_HOLY;
             uint32 l_SpellID = friendly ? SPELL_DIVINE_STAR_HEAL : SPELL_DIVINE_STAR_DAMAGE;
 
@@ -1130,7 +1130,7 @@ class spell_at_pri_divine_star : public AreaTriggerEntityScript
                 else
                 {
                     iter->second -= p_Time;
-                    iter++;
+                    ++iter;
                 }
             }
 

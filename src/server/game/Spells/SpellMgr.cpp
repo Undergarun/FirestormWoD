@@ -636,7 +636,7 @@ bool SpellMgr::IsSpellForbidden(uint32 spellid)
 {
     std::list<uint32>::iterator Itr;
 
-    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); Itr++)
+    for (Itr = mForbiddenSpells.begin(); Itr != mForbiddenSpells.end(); ++Itr)
         if ((*Itr) == spellid)
             return true;
 
@@ -3084,7 +3084,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
-            for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
+            for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); ++itr)
                 mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr));
         }
     }
