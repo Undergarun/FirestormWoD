@@ -200,6 +200,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
                 l_TargetGUID = pUser->GetGUID();
                 break;
+			case SPELL_EFFECT_FINISH_GARRISON_MISSION:
+				l_TargetGUID = pUser->GetGUID();
+				break;
             default:
                 break;
         }
@@ -283,6 +286,19 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             pItem->SetBinding(true);
         }
     }
+
+	if (l_TargetFlags & SpellCastTargetFlags::TARGET_FLAG_GARRISON_MISSION && l_Misc[0])
+	{
+		if (MS::Garrison::Manager* l_GarrisonMgr = pUser->GetGarrison())
+		{
+			if (!l_GarrisonMgr->HasPendingMission(l_Misc[0]))
+			{
+				/// Need to find appropriate equip error
+				pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+				return;
+			}
+		}
+	}
 
     Unit* mover = pUser->m_mover;
     if (mover != pUser && mover->IsPlayer())

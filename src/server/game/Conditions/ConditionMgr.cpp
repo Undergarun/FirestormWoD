@@ -312,7 +312,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                             break;
                         }
 
-                        if (l_GarrisonMgr->GetBuildingLevel(l_Building) == ConditionValue2)
+                        if (l_GarrisonMgr->GetBuildingLevel(l_Building) >= ConditionValue2)
                             condMeets = true;
                         else
                             condMeets = false;
