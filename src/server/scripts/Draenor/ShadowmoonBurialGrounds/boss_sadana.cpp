@@ -646,22 +646,22 @@ public:
             me->setFaction(HostileFaction);           
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eSadanaSpells::SpellTenebreuxViolet);
-            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, frand(0.3f, 1.2f));              
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.5f);              
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC); 
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
-            Movement::MoveSplineInit init(me);
+            /* that shit won't work on the live server, id on't fucking know why fffffffs
+            Movement::MoveSplineInit init(*me);
             FillCirclePath(g_PositionSpiritHomePoint, me->GetDistance2d(g_PositionSpiritHomePoint.GetPositionX(), g_PositionSpiritHomePoint.GetPositionY()), g_PositionSpiritHomePoint.GetPositionZ(), init.Path(), true);
             init.SetWalk(true);
             init.SetCyclic();
             init.Launch();
+            */
 
-            /*
             Position l_Position;
             l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
             me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
-            */
         }
 
         void DoAction(int32 const p_Action) override
@@ -692,6 +692,7 @@ public:
             }
         }
 
+        /*
         void FillCirclePath(Position const& p_CenterPos, float p_Radius, float p_Z, Movement::PointsArray& p_Path, bool p_Clockwise)
         {
             float m_Step   =  p_Clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
@@ -707,9 +708,9 @@ public:
                 p_Path.push_back(l_Point);
             }
         }
+        */
 
-        /*
-        void MovementInform(uint32 /*p_Type, uint32 p_Id) override
+        void MovementInform(uint32 p_Type, uint32 p_Id) override
         {
             if (me && me->IsInWorld() && me->isAlive())
             {
@@ -727,7 +728,6 @@ public:
                 }
             }
         }
-        */
 
         void JustDied(Unit* /*p_Killer*/) override
         {
@@ -916,7 +916,7 @@ public:
                     }        
                     m_HasBeenActivated = true;
                     me->CastSpell(me, eShadowRuneSpells::SpellLunarPurityAreaTrigger);
-                    for (uint8 l_I = 0; l_I < 4; l_I++)
+                    for (uint8 l_I = 0; l_I < 3; l_I++)
                         me->RemoveAura(g_ShadowRuneEntries[l_I]);
                     break;
                 }
@@ -941,7 +941,7 @@ public:
                     }
                     m_HasBeenActivated = false;
                     me->RemoveAura(eShadowRuneSpells::SpellLunarRitual);                 
-                    for (uint8 l_I = 0; l_I < 4; l_I++)
+                    for (uint8 l_I = 0; l_I < 3; l_I++)
                         me->RemoveAura(g_LunarRuneEntries[l_I]);            
                     break;
                 }
