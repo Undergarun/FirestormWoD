@@ -84,7 +84,7 @@ namespace MS { namespace Garrison { namespace Sites
             p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9545), nullptr);
 
         /// Build your Barracks quest
-        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             Manager* l_GarrisonMgr = p_Owner->GetGarrison();
 

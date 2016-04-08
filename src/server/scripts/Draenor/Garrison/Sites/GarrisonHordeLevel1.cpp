@@ -110,7 +110,7 @@ namespace MS { namespace Garrison { namespace Sites
         }
 
         /// Build your Barracks quest
-        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             Manager* l_GarrisonMgr = p_Owner->GetGarrison();
 
@@ -191,7 +191,7 @@ namespace MS { namespace Garrison { namespace Sites
         if (l_GarrisonMgr == nullptr)
             return 0;
 
-        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
             l_PhaseMask |= GarrisonPhases::PhaseBuildYourBarracks;
 
         if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
@@ -279,7 +279,7 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
             return 2;   ///< 2 second, unk retail value
 
         return p_BaseTime;
@@ -290,7 +290,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
 
@@ -316,7 +316,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
         }
