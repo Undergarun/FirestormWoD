@@ -143,12 +143,12 @@ namespace MS { namespace Garrison
             std::vector<GarrisonMission> GetMissions() const;
             /// Get all completed missions
             std::vector<GarrisonMission> GetCompletedMissions() const;
-			/// Get all missions in progress
-			std::vector<GarrisonMission> GetPendingMissions() const;
-			/// Check if player has pending mission
-			bool HasPendingMission(uint32 p_MissionID);
-			/// Get mission with mission ID
-			GarrisonMission* GetMissionWithID(uint32 p_MissionID);
+            /// Get all missions in progress
+            std::vector<GarrisonMission> GetPendingMissions() const;
+            /// Check if player has pending mission
+            bool HasPendingMission(uint32 p_MissionID);
+            /// Get mission with mission ID
+            GarrisonMission* GetMissionWithID(uint32 p_MissionID);
 
         /// Follower section
         public:

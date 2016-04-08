@@ -52,15 +52,15 @@ namespace MS { namespace Garrison
             };
     };
 
-	/// Handle Reputation Restrictions
+    /// Handle Reputation Restrictions
     class playerScript_Garrison_TradingPost : public PlayerScript
     {
         public:
-			playerScript_Garrison_TradingPost() : PlayerScript("playerScript_Garrison_TradingPost") { }
+            playerScript_Garrison_TradingPost() : PlayerScript("playerScript_Garrison_TradingPost") { }
 
-			void OnReputationChange(Player* p_Player, uint32 p_FactionID, int32& p_Standing, bool p_Incremential) override;
+            void OnReputationChange(Player* p_Player, uint32 p_FactionID, int32& p_Standing, bool p_Incremential) override;
 
-			bool CheckRequirements(Player* p_Player);
+            bool CheckRequirements(Player* p_Player);
     };
 
 }   ///< namespace Garrison
