@@ -1236,6 +1236,7 @@ class ObjectMgr
         void LoadDisabledEncounters();
         void LoadBattlePetTemplate();
         void LoadBattlePetNpcTeamMember();
+        void ComputeBattlePetSpawns();
 
         void LoadGuildChallengeRewardInfo();
 

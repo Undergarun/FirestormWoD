@@ -236,6 +236,7 @@ enum BattlePetState
     BATTLEPET_STATE_Passive_Boss                    = 162,
     BATTLEPET_STATE_Cosmetic_TreasureGoblin         = 176,
     BATTLEPET_STATE_Ignore_Damage_Below_Threshold   = 191,
+    BATTLEPET_STATE_Cosmetic_Spectral_Blue          = 196,
     NUM_BATTLEPET_STATES
 };
 
