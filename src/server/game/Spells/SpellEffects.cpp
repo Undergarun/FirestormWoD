@@ -8324,24 +8324,24 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
 
 void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
 {
-	if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
-		return;
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
 
-	Unit* l_Target = HashMapHolder<Unit>::Find(unitTarget->GetGUID());
+    Unit* l_Target = GetUnitTarget();
 
-	if (l_Target == nullptr)
-		return;
+    if (l_Target == nullptr)
+        return;
 
-	if (Player* l_Player = l_Target->ToPlayer())
-	{
-		if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
-		{
-			if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
-			{
-				/// @TODO : Finish to implement mission instant completion
-			}
-		}
-	}
+    if (Player* l_Player = l_Target->ToPlayer())
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+        {
+            if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
+            {
+                /// @TODO : Finish to implement mission instant completion
+            }
+        }
+    }
 }
 
 void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
