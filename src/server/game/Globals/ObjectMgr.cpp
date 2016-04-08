@@ -9831,6 +9831,146 @@ void ObjectMgr::LoadBattlePetNpcTeamMember()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet npc team member in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
+#include <fstream>
+#include <iostream>
+
+/// Compute battle pet spawns
+void ObjectMgr::ComputeBattlePetSpawns()
+{
+    uint32 l_OldMSTime = getMSTime();
+    QueryResult l_Result = WorldDatabase.Query("SELECT CritterEntry, BattlePetEntry FROM temp_battlepet_spawn_relation a");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> ComputeBattlePetSpawns No battlepet relation");
+        return;
+    }
+
+    std::map<uint32, uint32> l_BattlePetToCritter;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        l_BattlePetToCritter[l_Fields[1].GetUInt32()] = l_Fields[0].GetUInt32();
+    } while (l_Result->NextRow());
+
+    l_Result = WorldDatabase.Query("SELECT MapID, a.Zone, BattlePetNPCID, XPos, YPos, MinLevel, MaxLevel FROM temp_battlepet_tocompute a");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> ComputeBattlePetSpawns No data");
+        return;
+    }
+
+    struct PoolInfo
+    {
+        uint32 ZoneID;
+        std::map<uint32, uint32> CountPerBattlePetTemplateEntry;
+        uint32 MinLevel;
+        uint32 MaxLevel;
+    };
+
+    std::map<uint32, PoolInfo> l_PoolInfosPerZoneID;
+    std::map<uint32, uint32> l_MissingCorelations;
+
+    std::ofstream l_OutSpawns;
+    l_OutSpawns.open("BattlePetSpawns.sql");
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_MapID = l_Fields[0].GetUInt32();
+        uint32 l_ZoneID = l_Fields[1].GetUInt32();
+        uint32 l_BattlePetNpcID = l_Fields[2].GetUInt32();
+        double l_XPos = l_Fields[3].GetDouble();
+        double l_YPos = l_Fields[4].GetDouble();
+        uint32 l_MinLevel = l_Fields[5].GetUInt32();
+        uint32 l_MaxLevel = l_Fields[6].GetUInt32();
+
+        if (l_BattlePetToCritter.find(l_BattlePetNpcID) == l_BattlePetToCritter.end())
+        {
+            l_MissingCorelations[l_BattlePetNpcID] = 1;
+            continue;
+        }
+
+        if (!MapManager::IsValidMapCoord(l_MapID, l_XPos, l_YPos))
+        {
+            printf("Map %u Zone %u Npc %u X %f Y %F invalid map coord\n", l_MapID, l_ZoneID, l_BattlePetNpcID, l_XPos, l_YPos);
+            continue;
+        }
+
+        Map const* l_Map = sMapMgr->CreateBaseMap(l_MapID);
+        float l_ZPos = l_Map->GetHeight(l_XPos, l_YPos, MAX_HEIGHT) + 0.5f;
+
+        std::string l_Query = "INSERT INTO creature(id, map, zoneID, spawnMask, phaseMask, position_x, position_y, position_z, spawntimesecs) VALUES (";
+        l_Query += std::to_string(l_BattlePetToCritter[l_BattlePetNpcID]) + ", " + std::to_string(l_MapID) + ", " + std::to_string(l_ZoneID) + ", 1, 1, " + std::to_string(l_XPos) + ", " + std::to_string(l_YPos) + ", " + std::to_string(l_ZPos) + ", 120);\n";
+
+        l_OutSpawns << l_Query << std::flush;
+
+        l_PoolInfosPerZoneID[l_ZoneID].ZoneID = l_ZoneID;
+        l_PoolInfosPerZoneID[l_ZoneID].MinLevel = l_MinLevel;
+        l_PoolInfosPerZoneID[l_ZoneID].MaxLevel = l_MaxLevel;
+
+        if (l_PoolInfosPerZoneID[l_ZoneID].CountPerBattlePetTemplateEntry.find(l_BattlePetNpcID) == l_PoolInfosPerZoneID[l_ZoneID].CountPerBattlePetTemplateEntry.end())
+            l_PoolInfosPerZoneID[l_ZoneID].CountPerBattlePetTemplateEntry[l_BattlePetNpcID] = 1;
+        else
+            l_PoolInfosPerZoneID[l_ZoneID].CountPerBattlePetTemplateEntry[l_BattlePetNpcID] = 1 + l_PoolInfosPerZoneID[l_ZoneID].CountPerBattlePetTemplateEntry[l_BattlePetNpcID];
+    } while (l_Result->NextRow());
+
+    for (std::map<uint32, uint32>::iterator l_Current = l_MissingCorelations.begin(); l_Current != l_MissingCorelations.end(); l_Current++)
+        printf("Npc %u no critter npc found\n", l_Current->first);
+
+    l_OutSpawns.close();
+
+    std::ofstream l_OutPools;
+    l_OutPools.open("BattlePetPools.sql");
+    for (std::map<uint32, PoolInfo>::iterator l_Current = l_PoolInfosPerZoneID.begin(); l_Current != l_PoolInfosPerZoneID.end(); l_Current++)
+    {
+        PoolInfo& l_PoolInfo = l_Current->second;
+
+        for (std::map<uint32, uint32>::iterator l_CurrentTemplate = l_PoolInfo.CountPerBattlePetTemplateEntry.begin(); l_CurrentTemplate != l_PoolInfo.CountPerBattlePetTemplateEntry.end(); l_CurrentTemplate++)
+        {
+            uint32 l_RespawnTime = 60;
+            uint32 l_Replace = l_BattlePetToCritter[l_CurrentTemplate->first];
+            uint32 l_Max = float(l_CurrentTemplate->second) > 1 ? (float(l_CurrentTemplate->second) * 0.95f) : 1;
+
+            if (l_BattlePetToCritter[l_CurrentTemplate->first] == l_CurrentTemplate->first)
+                l_Max = l_CurrentTemplate->second;
+
+            uint32 l_Species = 0;
+
+            for (std::size_t l_I = 0; l_I < sBattlePetSpeciesStore.GetNumRows(); ++l_I)
+            {
+                BattlePetSpeciesEntry const* l_Entry = sBattlePetSpeciesStore.LookupEntry(l_I);
+
+                if (!l_Entry || l_Entry->entry != l_CurrentTemplate->first)
+                    continue;
+
+                l_Species = l_Entry->id;
+                break;
+            }
+
+            if (l_Species == 0 || l_Replace == 0)
+            {
+                printf("No species or replacement for npc %u found\n", l_CurrentTemplate->first);
+                continue;
+            }
+
+            std::string l_Query = "INSERT INTO `wild_battlepet_zone_pool` (`Zone`, `Species`, `Replace`, `Max`, `RespawnTime`, `MinLevel`, `MaxLevel`, `Breed0`, `Breed1`, `Breed2`, `Breed3`, `Breed4`, `Breed5`, `Breed6`, `Breed7`, `Breed8`, `Breed9`) VALUES (";
+            l_Query += std::to_string(l_PoolInfo.ZoneID) + ", " + std::to_string(l_Species) + ", " + std::to_string(l_Replace) + ", " + std::to_string(l_Max) + ", " + std::to_string(l_RespawnTime) + ", " + std::to_string(l_PoolInfo.MinLevel) + ", " + std::to_string(l_PoolInfo.MaxLevel) + ", '3', '3', '3', '3', '3', '3', '3', '3', '3', '3');\n";
+
+            l_OutPools << l_Query << std::flush;
+        }
+    }
+
+    l_OutPools.close();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> ComputeBattlePetSpawns %u ms.", GetMSTimeDiffToNow(l_OldMSTime));
+
+#ifdef _WIN32
+    system("pause");
+#endif
+}
+
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
 {
     GameObjectTemplateContainer::const_iterator itr = _gameObjectTemplateStore.find(entry);

@@ -125,7 +125,7 @@ namespace MS { namespace Garrison
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
     }
 
@@ -171,8 +171,10 @@ namespace MS { namespace Garrison
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(ClefthoofQuests::QuestCapturingAClefthoof);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
+
+        p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());
 
         return true;
     }
@@ -214,7 +216,10 @@ namespace MS { namespace Garrison
         using namespace StablesData::Horde;
 
         if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[0].X, g_HordeCreaturesPos[0].Y, g_HordeCreaturesPos[0].Z, g_HordeCreaturesPos[0].O, TEMPSUMMON_MANUAL_DESPAWN))
+        {
             m_SummonsEntries.push_back(l_Creature->GetEntry());
+            l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
 
         l_MountEntries.erase(std::remove(l_MountEntries.begin(), l_MountEntries.end(), l_MountEntry), l_MountEntries.end());
         l_MountEntry = 0;
@@ -225,7 +230,10 @@ namespace MS { namespace Garrison
         if (l_MountEntry)
         {
             if (Creature* l_Creature = SummonRelativeCreature(l_MountEntry, g_HordeCreaturesPos[1].X, g_HordeCreaturesPos[1].Y, g_HordeCreaturesPos[1].Z, g_HordeCreaturesPos[1].O, TEMPSUMMON_MANUAL_DESPAWN))
+            {
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
+                l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
         }
 
         using namespace StablesData::Horde::TormakQuestGiver;
@@ -233,8 +241,15 @@ namespace MS { namespace Garrison
         
         if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
         {
-            if (!l_QuestID)
-                return;
+            /// Has no quest waiting for completion, this check is ugly but prevents wrong display of questgiver/taker icon
+            if (((std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) == g_BoarQuests.end() && l_QuestID != BoarQuests::QuestBestingABoar) || l_QuestID == (BoarQuests::QuestBestingABoar | StablesData::g_PendingQuestFlag)) ||
+                ((std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) == g_ElekkQuests.end() && l_QuestID != ElekkQuests::QuestEntanglingAnElekk) || l_QuestID == (ElekkQuests::QuestEntanglingAnElekk | StablesData::g_PendingQuestFlag)) ||
+                ((std::find(g_ClefthoofQuests.begin(), g_ClefthoofQuests.end(), l_QuestID) == g_ClefthoofQuests.end() && l_QuestID != ClefthoofQuests::QuestCapturingAClefthoof) || l_QuestID == (ClefthoofQuests::QuestCapturingAClefthoof | StablesData::g_PendingQuestFlag)))
+            {
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            }
+            else
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
             if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[2].X, g_HordeCreaturesPos[2].Y, g_HordeCreaturesPos[2].Z, g_HordeCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
@@ -253,9 +268,6 @@ namespace MS { namespace Garrison
 
         if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
         {
-            if (!l_QuestID)
-                return;
-
             if (Creature* l_SecondCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[3].X, g_HordeCreaturesPos[3].Y, g_HordeCreaturesPos[3].Z, g_HordeCreaturesPos[3].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
@@ -279,7 +291,25 @@ namespace MS { namespace Garrison
                 g_HordeCreaturesPos[4].Z,
                 g_HordeCreaturesPos[4].O,
                 TEMPSUMMON_MANUAL_DESPAWN))
+            {
                 m_SummonsEntries.push_back(l_Creature->GetEntry());
+
+
+                if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest))
+                {
+                    /// Has no quest waiting for completion, this check is ugly but prevents wrong display of questgiver/taker icon
+                    if (((std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) == g_WolfQuests.end() && l_QuestID != WolfQuests::QuestWanglingAWolf) || l_QuestID == (WolfQuests::QuestWanglingAWolf | StablesData::g_PendingQuestFlag)) ||
+                        ((std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID) == g_TalbukQuests.end() && l_QuestID != TalbukQuests::QuestTamingATalbuk) || l_QuestID == (TalbukQuests::QuestTamingATalbuk | StablesData::g_PendingQuestFlag)) ||
+                        ((std::find(g_RiverbeastQuests.begin(), g_RiverbeastQuests.end(), l_QuestID) == g_RiverbeastQuests.end() && l_QuestID != RiverbeastQuests::QuestRequisitionARiverbeast) || l_QuestID == (RiverbeastQuests::QuestRequisitionARiverbeast | StablesData::g_PendingQuestFlag)))
+                    {
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    }
+                    else
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                }
+                else
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            }
         }
     }
 
@@ -364,7 +394,7 @@ namespace MS { namespace Garrison
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
     }
 
@@ -410,7 +440,7 @@ namespace MS { namespace Garrison
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(RiverbeastQuests::QuestRequisitionARiverbeast);
 
             if (l_Quest != nullptr)
-                p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
+                p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
 
         return true;

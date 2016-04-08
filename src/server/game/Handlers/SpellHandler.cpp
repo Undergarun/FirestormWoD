@@ -65,9 +65,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     float l_MissibleTrajectorySpeed = 0.00f;
     float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint8   * l_SpellWeightType     = nullptr;
-    uint32  * l_SpellWeightID       = nullptr;
-    uint32  * l_SpellWeightQuantity = nullptr;
+    uint8* l_SpellWeightType      = nullptr;
+    uint32* l_SpellWeightID       = nullptr;
+    uint32* l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID            = 0;
     uint32 l_TargetFlags        = 0;
@@ -200,6 +200,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
             case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
                 l_TargetGUID = pUser->GetGUID();
                 break;
+            case SPELL_EFFECT_FINISH_GARRISON_MISSION:
+                l_TargetGUID = pUser->GetGUID();
+                break;
             default:
                 break;
         }
@@ -284,6 +287,19 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
+    if (l_TargetFlags & SpellCastTargetFlags::TARGET_FLAG_GARRISON_MISSION && l_Misc[0])
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = pUser->GetGarrison())
+        {
+            if (!l_GarrisonMgr->HasPendingMission(l_Misc[0]))
+            {
+                /// Need to find appropriate equip error
+                pUser->SendEquipError(InventoryResult::EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+                return;
+            }
+        }
+    }
+
     Unit* mover = pUser->m_mover;
     if (mover != pUser && mover->IsPlayer())
         return;
@@ -323,7 +339,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
         return;
     }
 
-    const ItemTemplate * l_ItemTemplate = l_Item->GetTemplate();
+    const ItemTemplate* l_ItemTemplate = l_Item->GetTemplate();
 
     if (!l_ItemTemplate)
     {
@@ -355,7 +371,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
     {
         if (l_LockID)
         {
-            const LockEntry * l_LockInfo = sLockStore.LookupEntry(l_LockID);
+            const LockEntry* l_LockInfo = sLockStore.LookupEntry(l_LockID);
 
             if (!l_LockInfo)
             {
@@ -464,9 +480,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     float l_MissibleTrajectorySpeed = 0.00f;
     float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint8   * l_SpellWeightType     = nullptr;
-    uint32  * l_SpellWeightID       = nullptr;
-    uint32  * l_SpellWeightQuantity = nullptr;
+    uint8* l_SpellWeightType      = nullptr;
+    uint32* l_SpellWeightID       = nullptr;
+    uint32* l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID            = 0;
     uint32 l_Misc[2]            = {0, 0};
@@ -870,7 +886,7 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     recvData.read_skip<uint32>();
 
     /// ignore for remote control state (for player case)
-    Unit * l_Mover = m_Player->m_mover;
+    Unit* l_Mover = m_Player->m_mover;
     if (l_Mover != m_Player && l_Mover->IsPlayer())
         return;
 
@@ -924,7 +940,7 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
     l_TryAutoDismount = p_Packet.ReadBit(); ///< l_tryAutoDismount is never read 01/18/16
 
     // this will get something not in world. crash
-    Creature * l_Unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_NpcGuid);
+    Creature* l_Unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, l_NpcGuid);
 
     if (!l_Unit)
         return;
@@ -1089,9 +1105,9 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     float l_MissibleTrajectorySpeed = 0.00f;
     float l_MissibleTrajectoryPitch = 0.00f;
 
-    uint8   * l_SpellWeightType = nullptr;
-    uint32  * l_SpellWeightID = nullptr;
-    uint32  * l_SpellWeightQuantity = nullptr;
+    uint8* l_SpellWeightType      = nullptr;
+    uint32* l_SpellWeightID       = nullptr;
+    uint32* l_SpellWeightQuantity = nullptr;
 
     uint32 l_SpellID = 0;
     uint32 l_TargetFlags = 0;

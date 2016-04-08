@@ -10592,7 +10592,7 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime && !i->second->GetRemoveMode())
+        if (!i->second->IsPositive() && m_Duel->opponent != nullptr && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime && !i->second->GetRemoveMode())
             RemoveAura(i);
         else
             ++i;

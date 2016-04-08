@@ -2061,7 +2061,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
         }
 };
 
-// Demonic Gateway - 111771
+/// Last Update 6.2.3
+/// Demonic Gateway - 111771
 class spell_warl_demonic_gateway: public SpellScriptLoader
 {
     public:
@@ -2082,7 +2083,7 @@ class spell_warl_demonic_gateway: public SpellScriptLoader
                 if (!dest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f)
+                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f || dest->GetPositionZ() < player->GetPositionZ() - 5.0f)
                     return SPELL_FAILED_NOPATH;
 
                 return SPELL_CAST_OK;
@@ -2344,6 +2345,7 @@ class spell_warl_ember_tap_glyph : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
 class spell_warl_conflagrate_aura: public SpellScriptLoader
 {
@@ -2356,17 +2358,22 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Player* l_Player = l_Caster->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAura(WARLOCK_IMMOLATE) && !l_Player->HasGlyph(WARLOCK_GLYPH_OF_CONFLAGRATE))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (!target->HasAura(WARLOCK_IMMOLATE) && !caster->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
-                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
-                                target->RemoveAura(WARLOCK_CONFLAGRATE);
-                            if (!target->HasAura(WARLOCK_IMMOLATE))
-                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
-                                target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
-                    }
+                    if (Aura* conflagrate = l_Target->GetAura(WARLOCK_CONFLAGRATE))
+                        l_Target->RemoveAura(WARLOCK_CONFLAGRATE);
+                }
+                if (!l_Target->HasAura(WARLOCK_IMMOLATE))
+                {
+                    if (Aura* conflagrate = l_Target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
+                        l_Target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
                 }
             }
 
@@ -3750,6 +3757,18 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_fel_firebolt_SpellScript);
 
+            enum eSpells
+            {
+                Firebolt = 104318
+            };
+
+            enum eDatas
+            {
+                WildImp = 55659
+            };
+
+            int8 m_Charges = 10;
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -3765,6 +3784,17 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
+
+                if (m_scriptSpellId == eSpells::Firebolt)
+                {
+                    Creature* l_Creature = l_Caster->ToCreature();
+
+                    if (l_Creature == nullptr)
+                        return;
+
+                    if (l_Creature->GetEntry() == eDatas::WildImp)
+                        l_Creature->AI()->DropCharge();
+                }
             }
 
             void Register()
