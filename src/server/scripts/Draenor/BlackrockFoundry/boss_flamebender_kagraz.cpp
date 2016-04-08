@@ -502,7 +502,7 @@ class boss_flamebender_kagraz : public CreatureScript
                     }
                     case eEvents::EventSummonEnchantedArmament:
                     {
-                        if (Player* l_Target = SelectRangedTarget())
+                        if (Player* l_Target = SelectRangedTarget(true, -eSpells::MoltenTorrentAura))
                             me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
 
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
