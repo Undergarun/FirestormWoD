@@ -562,12 +562,16 @@ class mob_anduin_wrynn_escort : public CreatureScript
                     {
                         if (Unit* l_Target = l_Summoner->getVictim())
                         {
-                            if (CAST_CRE(l_Target)->GetEntry() == 59651)
+                            if (Creature* l_Creature = l_Target->ToCreature())
                             {
-                                me->Attack(l_Target, true);
-                                DoMeleeAttackIfReady();
+                                if (l_Creature->GetEntry() == 59651)
+                                {
+                                    me->Attack(l_Target, true);
+                                    DoMeleeAttackIfReady();
+                                }
                             }
                         }
+
                         m_Events.ScheduleEvent(EVENT_CHECK_TARGET, 1000);
                     }
                     else

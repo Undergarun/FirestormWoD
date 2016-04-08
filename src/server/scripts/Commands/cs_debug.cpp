@@ -209,6 +209,7 @@ class debug_commandscript: public CommandScript
             }
 
             l_Target->SendEquipError((InventoryResult)l_ErrorID, nullptr, nullptr);
+            return true;
         }
 
         static bool HandleDebugStressTestCommand(ChatHandler* p_Handler, char const* p_Args)

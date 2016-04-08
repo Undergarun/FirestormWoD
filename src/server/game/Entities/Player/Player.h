@@ -67,7 +67,7 @@ typedef std::chrono::system_clock Clock;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
-#define PLAYER_EXPLORED_ZONES_SIZE  200
+#define PLAYER_EXPLORED_ZONES_SIZE  256
 
 /// 6.2.3 20726
 enum ToastTypes
