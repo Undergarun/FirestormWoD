@@ -8327,7 +8327,7 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
-    Unit* l_Target = HashMapHolder<Unit>::Find(unitTarget->GetGUID());
+    Unit* l_Target = GetUnitTarget();
 
     if (l_Target == nullptr)
         return;
