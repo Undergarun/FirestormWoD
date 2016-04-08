@@ -1,4 +1,4 @@
-﻿////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 //  MILLENIUM-STUDIO
 //  Copyright 2016 Millenium-studio SARL
@@ -417,15 +417,13 @@ int Master::Run()
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", GitRevision::GetFullVersion());
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
     
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Millenium-Studio SARL\n");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$\      $$\           $$$$$$$\   $$$$$$\                                ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$ | $\  $$ |          $$  __$$\ $$  __$$\                               ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$ |$$$\ $$ | $$$$$$\  $$ |  $$ |$$ /  \__| $$$$$$\   $$$$$$\   $$$$$$\  ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$ $$ $$\$$ |$$  __$$\ $$ |  $$ |$$ |      $$  __$$\ $$  __$$\ $$  __$$\ ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$$$  _$$$$ |$$ /  $$ |$$ |  $$ |$$ |      $$ /  $$ |$$ |  \__|$$$$$$$$ |");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$$  / \$$$ |$$ |  $$ |$$ |  $$ |$$ |  $$\ $$ |  $$ |$$ |      $$   ____|");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "$$  /   \$$ |\$$$$$$  |$$$$$$$  |\$$$$$$  |\$$$$$$  |$$ |      \$$$$$$$\ ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "\__/     \__| \______/ \_______/  \______/  \______/ \__|       \_______|");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "               _                      _____                      ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "     /\\       | |                    / ____|                    ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "    /  \\   ___| |__  _ __ __ _ _ __ | |     ___  _ __ ___       ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   / /\\ \\ / __| '_ \\| '__/ _` | '_ \\| |    / _ \\| '__/ _ \\ ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "  / ____ \\\\__ | | | | | | (_| | | | | |___| (_) | | |  __/     ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " /_/    \\_|___|_| |_|_|  \\__,_|_| |_|\\_____\\___/|_|  \\___|  ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " MILLENIUM STUDIO SARL\n");
 
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
