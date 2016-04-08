@@ -6267,6 +6267,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
+            case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
             case 73685:  ///< Unleash Life (restoration)
