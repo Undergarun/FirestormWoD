@@ -7469,8 +7469,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         /// Ignite should remove Polymorph
         if (GetSpellInfo()->Id == 12654 && caster && target)
         {
-            if (target->HasAura(118))
-                target->RemoveAura(118);
+            /// Polymorph
+            if (target->IsPolymorphed())
+                target->RemoveAurasDueToSpell(target->getTransForm());
         }
 
         /// Poisoned Ammo and Devouring Plague
