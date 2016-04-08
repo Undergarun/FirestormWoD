@@ -539,7 +539,7 @@ void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
     new MS::Garrison::GarrisonQuestPlayerScript;
-	new MS::Garrison::playerScript_Garrison_TradingPost;
+    new MS::Garrison::playerScript_Garrison_TradingPost;
     new MS::Garrison::playerScript_Garrison_Portals_Phases;
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;
