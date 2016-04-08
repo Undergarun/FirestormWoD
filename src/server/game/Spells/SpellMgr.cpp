@@ -3656,6 +3656,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_2].TargetB = 0;
                 break;
             case 154951: ///< Pin Down (Beastlord Darmac)
+            case 163045: ///< Flame Vent Cosmetics (Flame Vent)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
