@@ -3903,9 +3903,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Iron Docks 
+			case 163705:  ///< Abrupt Restoration
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[0].TargetB = 0;
+				break;
             case 178154:  ///< Acid Spit
             case 178155:  ///< Acid Spit Trigger Missile
-            case 163705:  ///< Abrupt Restoration
             case 163689:  ///< Sanguine Sphere
             case 176287:  ///< Chain Drag
             case 172885:  ///< Charging Slash
