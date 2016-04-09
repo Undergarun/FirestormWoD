@@ -479,7 +479,7 @@ class boss_sadana_bloodfury : public CreatureScript
                 if (Creature* l_Creature = Creature::GetCreature(*me, m_CommunionGuid))
                 {
                     l_Creature->UpdatePosition(l_Creature->GetPositionX(), l_Creature->GetPositionY(), l_Creature->GetPositionZ(), l_Creature->GetOrientation(), true);  
-                    if (me->IsWithinDistInMap(l_Creature, 3.5f))
+                    if (me->IsWithinDistInMap(l_Creature, 6.0f))
                     {           
                         m_CommunionInRange = false;    
                         l_Creature->DespawnOrUnsummon();
