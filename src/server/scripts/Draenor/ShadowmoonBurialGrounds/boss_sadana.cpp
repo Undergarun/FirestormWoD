@@ -82,7 +82,8 @@ enum eSadanaActions
     ActionActivateDefiledSpirit = 1, 
     ActionMoveDefiledSpirits,
     ActionActivateLunarTriggersActivate, 
-    ActionActivateLunarTriggersDeactivate
+    ActionActivateLunarTriggersDeactivate,
+	ActionSadanaReset
 };
 
 enum eSadanaCreatures
@@ -134,7 +135,7 @@ Position const g_PositionSpiritHomePoint = {1795.783f, -27.240f, 277.135f, 0.040
 /// Basic Event - [The message Sadana says few minutes after players entered the instance for the first time]
 class EventSadanaIntro : public BasicEvent
 {
-public:
+	public:
 
     explicit EventSadanaIntro(Unit* unit) : m_Obj(unit)
     {
@@ -163,7 +164,7 @@ private:
 /// Sadana Bloodyfury - 75509 [Boss]
 class boss_sadana_bloodfury : public CreatureScript
 {
-public:
+	public:
 
     boss_sadana_bloodfury() : CreatureScript("boss_sadana_bloodfury") { }
 
@@ -268,6 +269,21 @@ public:
                     l_Itr->Remove(1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
+
+			/// Attempt to forcely reset the defiled spirits.
+			std::list<Creature*> l_ListDefiledSpirit;
+			me->GetCreatureListWithEntryInGrid(l_ListDefiledSpirit, eSadanaCreatures::CreatureDefiledSpiritSadanaEncounter, 300.0f);
+			if (!l_ListDefiledSpirit.empty())
+			{
+				for (Creature* l_Itr : l_ListDefiledSpirit)
+				{
+					if (!l_Itr->IsAIEnabled)
+						continue;
+
+					l_Itr->GetAI()->Reset();
+				}
+			}
+
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
         }
@@ -620,7 +636,7 @@ public:
 /// Defiled Spirit - 75966 [The spirits that flies around in circles, responsible for dark communion spell]
 class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_creature_defiled_spirit() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_defiled_spirit") {}
 
@@ -651,17 +667,17 @@ public:
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
 
-            /* that shit won't work on the live server, id on't fucking know why fffffffs
             Movement::MoveSplineInit init(*me);
             FillCirclePath(g_PositionSpiritHomePoint, me->GetDistance2d(g_PositionSpiritHomePoint.GetPositionX(), g_PositionSpiritHomePoint.GetPositionY()), g_PositionSpiritHomePoint.GetPositionZ(), init.Path(), true);
             init.SetWalk(true);
             init.SetCyclic();
-            init.Launch();
-            */
+            init.Launch();      
 
+			/*
             Position l_Position;
             l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
             me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), 286.785f + frand(2.0f, 10.0f));
+			*/
         }
 
         void DoAction(int32 const p_Action) override
@@ -687,12 +703,15 @@ public:
                     }
                     break;
                 }
+				case eSadanaActions::ActionSadanaReset:
+				{
+					break;
+				}
                 default:
                     break;
             }
         }
 
-        /*
         void FillCirclePath(Position const& p_CenterPos, float p_Radius, float p_Z, Movement::PointsArray& p_Path, bool p_Clockwise)
         {
             float m_Step   =  p_Clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
@@ -708,8 +727,8 @@ public:
                 p_Path.push_back(l_Point);
             }
         }
-        */
 
+		/*
         void MovementInform(uint32 p_Type, uint32 p_Id) override
         {
             if (me && me->IsInWorld() && me->isAlive())
@@ -728,6 +747,7 @@ public:
                 }
             }
         }
+		*/
 
         void JustDied(Unit* /*p_Killer*/) override
         {
@@ -767,7 +787,7 @@ public:
 /// Falling Dagger - 75981 [Falling dagger]
 class shadowmoon_burial_grounds_sadana_creature_falling_dagger : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_creature_falling_dagger() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_falling_dagger") {}
 
@@ -842,7 +862,7 @@ public:
 /// Shadow Rune - 75778 [Responsible for the cosmetic shadow runes changing to lunars when eclipse starts]
 class shadowmoon_burial_grounds_sadana_creature_shadow_rune : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_creature_shadow_rune() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_shadow_rune") {}
 
@@ -960,7 +980,7 @@ public:
 /// Eclipse Trigger - 76052 [Responsible for the eclipse trigger, searching targets when activated to grant them a buff
 class shadowmoon_burial_grounds_sadana_creature_eclipse_trigger : public CreatureScript
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_creature_eclipse_trigger() : CreatureScript("shadowmoon_burial_grounds_sadana_creature_eclipse_trigger") {}
 
@@ -1040,7 +1060,7 @@ public:
 /// Shadow Burn - 153224 [Ticking damage spell from daggerfall proc]
 class shadowmoon_burial_grounds_sadana_spell_shadow_burn : public SpellScriptLoader
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_spell_shadow_burn() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_shadow_burn") { }
 
@@ -1074,7 +1094,7 @@ public:
 /// Dark Communion - 153153  [ Responisble for making the ghost stop moving, and start following the boss ]
 class shadowmoon_burial_grounds_sadana_spell_dark_communion : public SpellScriptLoader
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_spell_dark_communion() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_communion") { }
 
@@ -1138,7 +1158,7 @@ public:
 /// Dark Eclipse - 164685  [Handles the trigger deactivation, and somethign with the damage]
 class shadowmoon_burial_grounds_sadana_spell_dark_eclipse : public SpellScriptLoader
 {
-public:
+	public:
     
     shadowmoon_burial_grounds_sadana_spell_dark_eclipse() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_eclipse") { }
 
@@ -1182,7 +1202,7 @@ public:
 /// Dark Eclipse damage - 164686 [Makes every damage coming from eclipse set to 0 if you have the eclipse immunity from standing in the lunars]
 class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage : public SpellScriptLoader
 {
-public:
+	public:
 
     shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage() : SpellScriptLoader("shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage") { }
 
