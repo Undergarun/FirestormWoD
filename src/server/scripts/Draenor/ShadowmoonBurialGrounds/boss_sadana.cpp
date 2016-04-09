@@ -646,7 +646,7 @@ public:
             me->setFaction(HostileFaction);           
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eSadanaSpells::SpellTenebreuxViolet);
-            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.5f);              
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 0.9f);              
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC); 
             if (me->GetMap())
                 me->GetMap()->SetObjectVisibility(1000.0f);
@@ -661,7 +661,7 @@ public:
 
             Position l_Position;
             l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-            me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+            me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), 286.785f + frand(2.0f, 10.0f));
         }
 
         void DoAction(int32 const p_Action) override
@@ -724,7 +724,7 @@ public:
 
                     Position l_Position;
                     l_Position = g_PositionDefiledSpiritsMovement[m_MovementIndentifier];
-                    me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), l_Position.GetPositionZ() + frand(2.0f, 10.0f));
+					me->GetMotionMaster()->MoveTakeoff(m_MovementIndentifier, l_Position.GetPositionX() + frand(2.0f, 8.0f), l_Position.GetPositionY() + frand(2.0f, 10.0f), 286.785f + frand(2.0f, 10.0f));
                 }
             }
         }
@@ -1082,7 +1082,7 @@ public:
     {
         PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript);
 
-        void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnApply(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (!GetTarget())
                 return;
@@ -1094,7 +1094,7 @@ public:
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
         }
 
-        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
