@@ -3096,8 +3096,12 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* p_Victim, SpellInfo const* p_Spell
     if (p_Spell->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT)
         return SPELL_MISS_NONE;
 
+    /// Same spells cannot be parry/dodge
+    if (p_Spell->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
+        return SPELL_MISS_NONE;
+
     // cast by caster in front of victim
-    if (p_Victim->HasInArc(M_PI, this) || p_Victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if ((p_Victim->HasInArc(M_PI, this) || p_Victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
         int32 l_DeflectChance = p_Victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         l_Tmp += l_DeflectChance;
@@ -11598,7 +11602,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     {
         /// Default is 5% of crit
         float crit_chance = 5.0f;
-        crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
+        crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
         DoneTotal += CalculatePct(pdamage, crit_chance);
     }
 
@@ -11623,8 +11627,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     /// Frost Orb should remove Polymorph
     if (IsPlayer() && spellProto && victim && spellProto->Id == 84721)
     {
-        if (victim->HasAura(118))
-            victim->RemoveAura(118);
+        /// Polymorph
+        if (victim->IsPolymorphed())
+            victim->RemoveAurasDueToSpell(victim->getTransForm());
     }
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
@@ -12403,7 +12408,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 crit_chance = 0.0f;
             // For other schools
             else if (IsPlayer())
-                crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
+            {
+                /// Default is 5% of crit
+                float crit_chance = 5.0f;
+                crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
+            }
             else
             {
                 crit_chance = (float)m_baseSpellCritChance;
@@ -13283,10 +13292,14 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         // Check for immune to application of harmful magical effects
         AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
         for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
+        {
             if (((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
-                !spellInfo->IsPositiveEffect(index) && !spellInfo->CanPierceImmuneAura((*iter)->GetSpellInfo()))                        // Harmful
+                !spellInfo->IsPositiveEffect(index) && !spellInfo->CanPierceImmuneAura((*iter)->GetSpellInfo())) // Harmful
+            {
                 if (!(spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT))
                     return true;
+            }
+        }
     }
 
     return false;
@@ -14841,11 +14854,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
             default:
                 return;
         }
-
-        if (IsPlayer())
-            ToPlayer()->GetSession()->SendPacket(&l_SelfPacket);
-        else
-            SendMessageToSet(&l_SelfPacket, true);
+        SendMessageToSet(&l_SelfPacket, true);
     }
 }
 
@@ -20184,6 +20193,9 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     l_ClawOfShirvallahModel =  59268; // Panther
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    hairColor = urand(0, 10);
+
                 switch (hairColor)
                 {
                     case 7: // Violet
@@ -20237,6 +20249,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     l_ClawOfShirvallahModel = 59270; // Tiger
 
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059))
+                    hairColor = urand(0, 12); ///< Glyph of the Chameleon
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -20293,6 +20307,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
 
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 9);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20399,6 +20415,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     l_ClawOfShirvallahModel = 59267; // Lion
 
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 20);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20529,6 +20547,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             if (getRace() == RACE_NIGHTELF)
             {
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    hairColor = urand(0, 8);
                 switch (hairColor)
                 {
                     case 0: // Green
@@ -20573,6 +20593,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TROLL)
             {
                 uint8 hairColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    hairColor = urand(0, 14);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -20622,6 +20644,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             {
                 // Based on Skin color
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 8);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20716,6 +20740,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             else if (getRace() == RACE_TAUREN)
             {
                 uint8 skinColor = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+                if (HasAura(107059)) ///< Glyph of the Chameleon
+                    skinColor = urand(0, 20);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -20976,7 +21002,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         }
     }
 
-    if (!modelid && form != FORM_STEALTH)
+    if (!modelid && form != FORM_STEALTH && form != FORM_SHADOW)
         modelid = GetNativeDisplayId();
     return modelid;
 }
@@ -21358,12 +21384,21 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
-    Position pos;
-    if (!exitPosition)                          // Exit position not specified
-        vehicle->GetBase()->GetPosition(&pos);  // This should use passenger's current position, leaving it as it is now
-                                                // because we calculate positions incorrect (sometimes under map)
+    Position l_ExitPos;
+
+    /// Exit position not specified
+    /// This should use passenger's current position, leaving it as it is now
+    /// Because we calculate positions incorrect (sometimes under map)
+    if (!exitPosition)
+        vehicle->GetBase()->GetPosition(&l_ExitPos);
     else
-        pos = *exitPosition;
+        l_ExitPos = *exitPosition;
+
+    if (Creature* l_Me = ToCreature())
+    {
+        if (l_Me->IsAIEnabled)
+            l_Me->AI()->OnExitVehicle(vehicle->GetBase(), l_ExitPos);
+    }
 
     AddUnitState(UNIT_STATE_MOVE);
 
@@ -21378,7 +21413,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 
     Movement::MoveSplineInit init(this);
-    init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+    init.MoveTo(l_ExitPos.GetPositionX(), l_ExitPos.GetPositionY(), l_ExitPos.GetPositionZ(), false);
     init.SetFacing(GetOrientation());
     init.SetTransportExit();
     init.Launch();

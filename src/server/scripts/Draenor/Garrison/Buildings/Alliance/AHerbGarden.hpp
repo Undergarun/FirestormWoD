@@ -75,7 +75,9 @@ namespace MS { namespace Garrison
         public:
             /// Constructor
             /// @p_Creature : AI Owner
-            npc_NaronBloomthistleAI(Creature * p_Creature);
+            npc_NaronBloomthistleAI(Creature* p_Creature);
+
+            virtual void OnPlotInstanceUnload() override;
 
             /// When the PlotInstance ID is set
             /// @p_BuildingID : Set plot instance ID
@@ -104,7 +106,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const override;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance

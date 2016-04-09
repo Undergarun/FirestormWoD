@@ -3398,7 +3398,6 @@ void SpellMgr::LoadSpellCustomAttr()
         switch (spellInfo->Id)
         {
             case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
-            case 101603:    ///< Hack for Throw Totem, Echo of Baine
             case 161710:    ///< Garrison enchanter study
             case 160201:    ///< Garrison enchanter study
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
@@ -3558,8 +3557,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156220: ///< Tactical Retreat
             case 156883: ///< Tactical Retreat (Other)
             case 163636: ///< Firestorm V2 Missile (Firestorm Stalker)
-			case 162757: ///< Ice Trap (Iron Marksman)
-			case 156704: ///< Slam (Kromog)
+            case 162757: ///< Ice Trap (Iron Marksman)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 155747: ///< Body Slam
@@ -3658,6 +3656,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_2].TargetB = 0;
                 break;
             case 154951: ///< Pin Down (Beastlord Darmac)
+            case 163045: ///< Flame Vent Cosmetics (Flame Vent)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
@@ -3667,6 +3666,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 155198: ///< Savage Howl (Cruelfang)
                 spellInfo->PreventionType = 0;
+                break;
+            case 155221: ///< Tantrum (Ironcrusher)
+            case 155520: ///< Tantrum (Beastlord Darmac)
+                spellInfo->AuraInterruptFlags = 0;
+                spellInfo->ChannelInterruptFlags = 0;
+                spellInfo->InterruptFlags = 0;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3801,63 +3806,64 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
-                /// Shadowmoon Burial Grounds
-            case 153068: ///< Void Devestation
-                spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
-                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RADIUS;
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
-                break;
-            case 152962: ///< Soul Steal
-                spellInfo->Effects[0].TriggerSpell = 0;
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = NULL;
-                break;
-            case 152979: ///< Soul Shread
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
-                break;
-            case 164693: ///< Lunar Runes
-            case 164695:
-            case 164696:
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
-                break;
-            case 154327: ///< Domination
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                break;
-            case 153164: ///< Dark Communion
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-                spellInfo->Effects[0].TargetB = NULL;
-                spellInfo->Effects[1].TargetB = NULL;
-                spellInfo->Effects[2].TargetB = NULL;
-                break;
-            case 153153: ///< Dark Communion
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-                spellInfo->Effects[0].TargetB = NULL;
-                break;
-            case 153501: ///< Void Blast
-            case 153070: ///< Void Devestation
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
-                break;
-            case 173073: ///< Ground Marker
-                sSpellDurationStore.LookupEntry(1); ///< 10s
-                break;
-            case 153686: ///< Body Slam
-                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-                break;
+				/// Shadowmoon Burial Grounds
+			case 153068: ///< Void Devestation
+				spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
+				spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RADIUS;
+				spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
+				break;
+			case 152962: ///< Soul Steal
+				spellInfo->Effects[0].TriggerSpell = 0;
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+				spellInfo->Effects[0].TargetB = NULL;
+				break;
+			case 152979: ///< Soul Shreads
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+				spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+				break;
+			case 164693: ///< Lunar Runes
+			case 164695:
+			case 164696:
+				spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
+				break;
+			case 154327: ///< Domination
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+				break;
+			case 153164: ///< Dark Communion
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[0].TargetB = NULL;
+				spellInfo->Effects[1].TargetB = NULL;
+				spellInfo->Effects[2].TargetB = NULL;
+				break;
+			case 153153: ///< Dark Communion
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+				spellInfo->Effects[0].TargetB = NULL;
+				break;
+			case 153501: ///< Void Blast
+			case 153070: ///< Void Devestation
+				spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+				break;
+			case 173073: ///< Ground Marker
+				sSpellDurationStore.LookupEntry(1); ///< 10s
+				break;
+			case 153686: ///< Body Slam
+				spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+				break;
 			case 154469: ///< Ritaul Of Bones - Darkness
-            case 153692: ///< Necrotic Pitch Debuff
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
-                break;
-            case 153236: ///< DaggerFall
-                spellInfo->Effects[0].TargetA = 0;
-                spellInfo->Effects[0].TargetB = 0;
-                break;
-            case 164685: ///< Dark Eclipse
-                spellInfo->Effects[0].Amplitude = 600;
-                break;
+			case 153692: ///< Necrotic Pitch Debuff
+				spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+				break;
+			case 153236: ///< DaggerFall
+				spellInfo->Effects[0].TargetA = 0;
+				spellInfo->Effects[0].TargetB = 0;
+				break;
+			case 164685: ///< Dark Eclipse
+				spellInfo->Effects[0].Amplitude = 600;
+				break;
                 /// Everbloom
             case 164643: ///< Rending Charge
             case 164886: ///< Dreadpetal Toxin
@@ -3898,9 +3904,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Iron Docks 
+			case 163705:  ///< Abrupt Restoration
+				spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[0].TargetB = 0;
+				break;
             case 178154:  ///< Acid Spit
             case 178155:  ///< Acid Spit Trigger Missile
-            case 163705:  ///< Abrupt Restoration
             case 163689:  ///< Sanguine Sphere
             case 176287:  ///< Chain Drag
             case 172885:  ///< Charging Slash
@@ -3954,6 +3963,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
                 /// Auchindoun
+			case 157505: ///< Arcane Bolt
+				spellInfo->Effects[0].Amplitude = 1500;
+				break;
             case 154340: ///< Sanctified Ground
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
                 break;
@@ -4335,6 +4347,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 157763: ///< Fixate (Imperator Mar'gok)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                break;
+            case 137143:
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
             case 156734: ///< Destructive Resonance - Summon (Imperator Mar'gok)
@@ -6260,6 +6275,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 166009: ///< Item - Hunter WoD PvP 2P Bonus
+            case 171383: ///< Item - Warlock WoD PvP Destruction 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
             case 73685:  ///< Unleash Life (restoration)
@@ -7099,9 +7115,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
-            case 110914:// Dark Bargain (DoT)
             case 113344:// Bloodbath (DoT)
             case 148022:// Icicle hit
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
+            case 110914:// Dark Bargain (DoT)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
             case 51657:

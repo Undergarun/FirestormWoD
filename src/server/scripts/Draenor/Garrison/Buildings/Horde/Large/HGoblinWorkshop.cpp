@@ -168,6 +168,7 @@ namespace MS { namespace Garrison
             l_Owner->SaveToDB();
 
             OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
 }   ///< namespace Garrison

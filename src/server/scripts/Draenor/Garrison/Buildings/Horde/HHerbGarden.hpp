@@ -47,6 +47,8 @@ namespace MS { namespace Garrison
             /// @p_Creature : AI Owner
             npc_TarnonAI(Creature* p_Creature);
 
+            virtual void OnPlotInstanceUnload() override;
+
             /// When the PlotInstance ID is set
             /// @p_BuildingID : Set plot instance ID
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
