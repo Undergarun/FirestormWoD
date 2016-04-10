@@ -680,31 +680,31 @@ public:
 		{
 			switch (p_Action)
 			{
-			case eSadanaActions::ActionActivateDefiledSpirit:
-			{
-				if (m_Activation)
-					return;
-
-				events.Reset();
-				m_Activation = true;
-				me->StopMoving();
-				me->SetSpeed(UnitMoveType::MOVE_RUN, 0.1f, true);
-				me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
-
-				if (m_Instance != nullptr)
+				case eSadanaActions::ActionActivateDefiledSpirit:
 				{
-					///< Reset handling - encounter.
-					if (Creature * l_Sadana = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
-						me->GetMotionMaster()->MoveFollow(l_Sadana, 0, 0);
+					if (m_Activation)
+						return;
+
+					events.Reset();
+					m_Activation = true;
+					me->StopMoving();
+					me->SetSpeed(UnitMoveType::MOVE_RUN, 0.1f, true);
+					me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+
+					if (m_Instance != nullptr)
+					{
+						///< Reset handling - encounter.
+						if (Creature * l_Sadana = m_Instance->instance->GetCreature(m_Instance->GetData64(eShadowmoonBurialGroundsDatas::DataBossSadana)))
+							me->GetMotionMaster()->MoveFollow(l_Sadana, 0, 0);
+					}
+					break;
 				}
-				break;
-			}
-			case eSadanaActions::ActionSadanaReset:
-			{
-				break;
-			}
-			default:
-				break;
+				case eSadanaActions::ActionSadanaReset:
+				{
+					break;
+				}
+				default:
+					break;
 			}
 		}
 
