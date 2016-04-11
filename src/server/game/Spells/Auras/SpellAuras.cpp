@@ -2404,8 +2404,9 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
     }
 
-    if (IsSameRaidBuff(existingAura))
-        return false;
+    /// Actually raid buff are stacking when it should not, we need to fine a better way to fix it
+    /*if (IsSameRaidBuff(existingAura))
+        return false;*/
 
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)
