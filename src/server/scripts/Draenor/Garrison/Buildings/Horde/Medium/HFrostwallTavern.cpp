@@ -109,7 +109,6 @@ namespace MS { namespace Garrison
 
                     l_GarrisonMgr->CleanGarrisonTavernData();
                     l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
-                    OnSetPlotInstanceID(GetPlotInstanceID());
                 }
                 else
                 {
@@ -123,8 +122,10 @@ namespace MS { namespace Garrison
                     l_GarrisonMgr->CleanGarrisonTavernData();
                     l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
                     l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
-                    OnSetPlotInstanceID(GetPlotInstanceID());
                 }
+
+                OnSetPlotInstanceID(GetPlotInstanceID());
+                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
             }
         }
     }

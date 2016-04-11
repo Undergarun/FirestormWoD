@@ -1029,6 +1029,9 @@ void PetBattle::AddPet(uint32 p_TeamID, std::shared_ptr<BattlePetInstance> p_Pet
         if (!l_SpeciesStateInfo || l_SpeciesStateInfo->speciesId != p_Pet->Species)
             continue;
 
+        if (l_SpeciesStateInfo->stateId > NUM_BATTLEPET_STATES)
+            continue;
+
         p_Pet->States[l_SpeciesStateInfo->stateId] += l_SpeciesStateInfo->value;
     }
 

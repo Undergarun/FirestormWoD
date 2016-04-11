@@ -2310,6 +2310,10 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
         else
             return true;
     }
+    /// Hackfix : Potent Murloc Pheromones and Release Ebon Gargoyle on Player
+    if ((Id == 82799 || Id == 84009) && target->IsPlayer())
+        return false;
+
     uint32 creatureType = target->GetCreatureTypeMask();
     return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType);
 }

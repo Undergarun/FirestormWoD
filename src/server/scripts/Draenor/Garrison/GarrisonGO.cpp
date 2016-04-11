@@ -344,13 +344,17 @@ namespace MS { namespace Garrison
             bool l_CanGetItems = true;
             uint32 l_NoSpaceForCount = 0;
             uint8 l_Itr = 0;
+            std::vector<uint32> l_UniqueItems = { 113261, 113262, 113263, 113264 };
 
             for (auto l_RewardItem : l_RewardItems)
             {
                 if (!l_RewardItem.second)
                     continue;
 
-                uint32 l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+                uint32 l_ItemCount = 1;
+
+                if (std::find(l_UniqueItems.begin(), l_UniqueItems.end(), l_RewardItem.first) == l_UniqueItems.end())
+                    l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
 
                 /// check space and find places
                 ItemPosCountVec l_Destination;
@@ -371,7 +375,10 @@ namespace MS { namespace Garrison
                     if (!l_RewardItem.second)
                         continue;
 
-                    uint32 l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+                    uint32 l_ItemCount = 1;
+
+                    if (std::find(l_UniqueItems.begin(), l_UniqueItems.end(), l_RewardItem.first) == l_UniqueItems.end())
+                        l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
 
                     /// check space and find places
                     ItemPosCountVec l_Destination;

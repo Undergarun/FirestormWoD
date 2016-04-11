@@ -146,7 +146,7 @@ m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemov
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_OriginalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
+m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_CreatureScript(nullptr)
 {
     m_valuesCount = UNIT_END;
     _dynamicValuesCount = UNIT_DYNAMIC_END;
@@ -2497,6 +2497,14 @@ CreatureAddon const* Creature::GetCreatureAddon() const
 
     // dependent from difficulty mode entry
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
+}
+
+CreatureScript* Creature::GetCreatureScript()
+{
+    if (m_CreatureScript == nullptr)
+        m_CreatureScript = sScriptMgr->GetCreatureScriptByID(GetScriptId());
+
+    return m_CreatureScript;
 }
 
 /// creature_addon table

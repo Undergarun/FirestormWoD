@@ -103,6 +103,10 @@ class ScriptMgr
 
     /// CreatureScript
     public:
+        /// Get Creature script by ScriptID
+        /// @p_ScriptID : ScriptID from the creature template
+        CreatureScript* GetCreatureScriptByID(uint32 p_ScriptID);
+
         /// Called when a dummy spell effect is triggered on the creature.
         /// @p_Caster      : Spell Caster
         /// @p_SpellID     : Casted spell ID

@@ -64,6 +64,11 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_FACTION_TEMPLATE);
             }
 
+            void EnterEvadeMode() override
+            {
+                ///< No evade mode for Prismatic Crystal
+            }
+
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (p_Attacker->GetGUID() != m_Owner)
@@ -597,12 +602,15 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
                     return;
                 }
+
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+                    return;
 
                 m_Events.Update(p_Diff);
 
@@ -681,12 +689,15 @@ class spell_npc_sha_fire_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
                     return;
                 }
+
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+                    return;
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -759,12 +770,16 @@ class spell_npc_sha_earth_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
                     return;
                 }
+
+
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+                    return;
 
                 if (AngeredEarth_Timer <= diff)
                 {
@@ -1022,6 +1037,13 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 me->SetReactState(REACT_HELPER);
             }
 
+            void DropCharge()
+            {
+                m_Charges--;
+                if (m_Charges <= 0)
+                    me->DespawnOrUnsummon();
+            }
+
             void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* l_Owner = me->GetOwner())
@@ -1042,17 +1064,10 @@ class spell_npc_warl_wild_imp : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (m_Charges == 0)
-                {
-                    me->DespawnOrUnsummon();
-                    return;
-                }
-
                 if (!me->IsValidAttackTarget(me->getVictim()))
                     return;
 
                 me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
-                m_Charges--;
 
                 if (Unit* l_Owner = me->GetOwner())
                 {

@@ -1210,8 +1210,8 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                         }
                         else
                         {
-                            l_Bp = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, HEAL);
-                            l_Bp = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Bp, HEAL);
+                            l_Bp = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, DOT);
+                            l_Bp = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Bp, DOT);
                         }
 
                         l_AuraEffect->SetAmount(l_Bp);
