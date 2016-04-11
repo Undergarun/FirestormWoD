@@ -1974,7 +1974,10 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
-                int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
+                int8 l_Stacks = havoc->GetStackAmount();
+
+                if (GetSpellInfo()->Id != 157736) ///< Dot of immolate should not drop a stack
+                    l_Stacks -= l_StacksToDrop;
 
                 if (l_Stacks > 0)
                 {
@@ -6962,7 +6965,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!l_Garrison)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                printf("%i %i\n", m_Misc[0], m_Misc[1]);
                 SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), i);
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;

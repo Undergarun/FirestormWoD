@@ -5207,7 +5207,13 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                     return;
 
                 int32 l_Damage = GetHitDamage() * (l_Chi + 1);
-                if (GetHitUnit() != GetExplTargetUnit())
+                Unit* l_Target = GetHitUnit();
+                Unit* l_ExplTarget = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_ExplTarget == nullptr)
+                    return;
+
+                if (l_Target != l_ExplTarget)
                     l_Damage /= 3;
 
                 SetHitDamage(l_Damage);
@@ -5239,11 +5245,12 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
+
                 if (l_Caster->GetPower(POWER_CHI) <= 3)
                 {
                     p_Targets.clear();
 
-                    if (Unit* l_Target = GetHitUnit())
+                    if (Unit* l_Target = GetExplTargetUnit())
                         p_Targets.push_back(l_Target);
                 }
             }
@@ -5283,8 +5290,14 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
+                Unit* l_Target = GetHitUnit();
+                Unit* l_ExplTarget = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_ExplTarget == nullptr)
+                    return;
+
                 int32 l_Damage = GetHitDamage() * (l_Chi + 1);
-                if (GetHitUnit() != GetExplTargetUnit())
+                if (l_Target != l_ExplTarget)
                     l_Damage /= 3;
 
                 SetHitDamage(l_Damage);
@@ -5322,7 +5335,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 {
                     p_Targets.clear();
 
-                    if (Unit* l_Target = GetHitUnit())
+                    if (Unit* l_Target = GetExplTargetUnit())
                         p_Targets.push_back(l_Target);
                 }
             }

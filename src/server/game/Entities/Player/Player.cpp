@@ -10599,7 +10599,7 @@ void Player::DuelComplete(DuelCompleteType p_DuelType)
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
-        if (!i->second->IsPositive() && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime && !i->second->GetRemoveMode())
+        if (!i->second->IsPositive() && m_Duel->opponent != nullptr && aura->GetCasterGUID() == m_Duel->opponent->GetGUID() && aura->GetApplyTime() >= m_Duel->startTime && !i->second->GetRemoveMode())
             RemoveAura(i);
         else
             ++i;
@@ -26799,7 +26799,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* p_SpellInfo, uint32 p
     {
         // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
-        if (l_Cooldown <= 0 && l_CategoryCooldown <= 0 && (l_CategoryId == 76 || (p_SpellInfo->IsAutoRepeatRangedSpell() && p_SpellInfo->Id != 75 && p_SpellInfo->Id != 5019)))
+        if (l_Cooldown <= 0 && l_CategoryCooldown <= 0 && (l_CategoryId == 7611 || (p_SpellInfo->IsAutoRepeatRangedSpell() && p_SpellInfo->Id != 75 && p_SpellInfo->Id != 5019 && p_SpellInfo->Id != 121733)))
             l_Cooldown = GetAttackTime(WeaponAttackType::RangedAttack);
 
         // Now we have cooldown data (if found any), time to apply mods
@@ -30184,7 +30184,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
+                /// Dont show an error, if the skill dosent exist anymore in SkillLine delete it from database (see below).
+                //sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
                 continue;
             }
 

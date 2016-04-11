@@ -91,8 +91,8 @@ class item_strongbox : public ItemScript
                 case 120151: ///< Gleaming Ashmaul Strongbox (H)
                 {
                     l_ItemChance = 100;
-                    l_RareChance = 50;
-                    l_EpicChance = 50;
+                    l_RareChance = 90;
+                    l_EpicChance = 10;
                     break;
                 }
                 case 118093: ///< Dented Ashmaul Strongbox (H) - NYI

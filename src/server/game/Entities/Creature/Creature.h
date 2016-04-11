@@ -36,6 +36,7 @@ class Quest;
 class Player;
 class WorldSession;
 class CreatureGroup;
+class CreatureScript;
 
 enum CreatureFlagsExtra
 {
@@ -668,6 +669,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         CreatureTemplate const* GetNativeTemplate() const { return m_NativeCreatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
+        CreatureScript* GetCreatureScript();
 
         std::string GetAIName() const;
         std::string GetScriptName() const;
@@ -907,9 +909,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool DisableReputationGain;
 
-        CreatureTemplate const* m_creatureInfo;             ///< in difficulty mode > 0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
+        CreatureTemplate const* m_creatureInfo;             ///  0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
         CreatureTemplate const* m_NativeCreatureInfo;
         CreatureData const* m_creatureData;
+        CreatureScript* m_CreatureScript;
 
         uint16 m_LootMode;                                  ///< bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         uint32 guid_transport;

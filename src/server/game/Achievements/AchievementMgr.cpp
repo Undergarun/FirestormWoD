@@ -986,13 +986,6 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             if (!progressMap)
                 continue;
 
-            // Achievement in both account & characters achievement_progress, problem
-            if (progressMap->find(id) != progressMap->end())
-            {
-                sLog->outError(LOG_FILTER_ACHIEVEMENTSYS, "Achievement '%u' in both account & characters achievement_progress", id);
-                continue;
-            }
-
             CriteriaProgress& progress = (*progressMap)[id];
             progress.counter = counter;
             progress.date    = date;

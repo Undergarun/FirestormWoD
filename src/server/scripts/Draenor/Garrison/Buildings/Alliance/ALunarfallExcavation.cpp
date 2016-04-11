@@ -154,6 +154,11 @@ namespace MS { namespace Garrison
         SetAIObstacleManagerEnabled(true);
     }
 
+    void npc_TimothyLeensAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea({ NPCs::NpcLunarfallGorenHatchling, NPCs::NpcLunarfallGoren, NPCs::NpcStonetooth }, 200.0f);
+    }
+
     void npc_TimothyLeensAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();

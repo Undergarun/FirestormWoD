@@ -70,10 +70,15 @@ namespace MS { namespace Garrison
 
     /// Constructor
     /// @p_Creature : AI Owner
-    npc_TarnonAI::npc_TarnonAI(Creature * p_Creature)
+    npc_TarnonAI::npc_TarnonAI(Creature* p_Creature)
         : GatheringBuildingMaster(p_Creature)
     {
 
+    }
+
+    void npc_TarnonAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea(NPCs::NpcFrostwallNibbler, 200.0f);
     }
 
     /// When the PlotInstance ID is set
@@ -216,7 +221,7 @@ namespace MS { namespace Garrison
                 {
                     p_Player->PlayerTalkClass->ClearMenus();
                     p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+///                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
                 }
             }

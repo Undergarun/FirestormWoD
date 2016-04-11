@@ -98,16 +98,18 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_living_mushroom' WHERE e
 UPDATE creature_template SET ScriptName = 'npc_highmaul_rejuvenating_mushroom' WHERE entry IN (78868);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_bfc9000' WHERE entry IN (81403);
 
-DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666, 163347, 163310, 165223, 164248);
+DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666, 163347, 163310, 165223, 164248, 173244, 163663);
 INSERT INTO spell_script_names VALUES
-(159220, 'spell_highmaul_necrotic_breath'),
-(163667, 'spell_highmaul_flamethrower_regen'),
-(163322, 'spell_highmaul_flamethrower_aura'),
-(163666, 'spell_highmaul_pulsing_heat'),
-(163347, 'spell_highmaul_creeping_moss'),
-(163310, 'spell_highmaul_flamethrower'),
-(165223, 'spell_highmaul_burning_infusion'),
-(164248, 'spell_highmaul_energy_regen');
+(159220, "spell_highmaul_necrotic_breath"),
+(163667, "spell_highmaul_flamethrower_regen"),
+(163322, "spell_highmaul_flamethrower_aura"),
+(163666, "spell_highmaul_pulsing_heat"),
+(163347, "spell_highmaul_creeping_moss"),
+(163310, "spell_highmaul_flamethrower"),
+(165223, "spell_highmaul_burning_infusion"),
+(164248, "spell_highmaul_energy_regen"),
+(173244, "spell_highmaul_spore_shot"),
+(163663, "spell_highmaul_flamethrower_overrider");
 
 DELETE FROM areatrigger_scripts WHERE entry IN (10094);
 INSERT INTO areatrigger_scripts VALUE
