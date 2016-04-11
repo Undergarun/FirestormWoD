@@ -12410,7 +12410,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             else if (IsPlayer())
             {
                 /// Default is 5% of crit
-                float crit_chance = 5.0f;
+                crit_chance = 5.0f;
                 crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
             }
             else
