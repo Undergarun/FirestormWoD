@@ -30155,7 +30155,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
+                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
+                l_Stmt->setUInt32(0, GetGUIDLow());
+                l_Stmt->setUInt32(1, skill);
+                CharacterDatabase.Execute(l_Stmt);
+
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist, delete it.", GetGUIDLow(), skill);
                 continue;
             }
 
