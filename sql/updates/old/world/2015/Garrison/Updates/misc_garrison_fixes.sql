@@ -393,3 +393,14 @@
 	(86108, 116434, -57, 1, 0, 1, 1, ''),
 	(85822, 116434, -52, 1, 0, 1, 1, ''),
 	(86106, 116434, -50, 1, 0, 1, 1, '');
+
+-- Trading Post : Add conditions to get quests offered
+
+	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 20 AND SourceEntry IN (37119, 37046);
+	INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionValue1, ConditionValue2) VALUES (20, 0, 37119, 39, 6, 2);
+	INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionValue1, ConditionValue2) VALUES (20, 0, 37046, 39, 6, 2);
+
+#230764/Gob
+
+	DELETE FROM gameobject WHERE id = 230764;
+	DELETE FROM garrison_plot_content WHERE creature_or_gob = -230764;
