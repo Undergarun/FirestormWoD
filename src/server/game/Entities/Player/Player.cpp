@@ -30155,7 +30155,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
+                /// Dont show an error, if the skill dosent exist anymore in SkillLine delete it from database (see below).
+                //sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
                 continue;
             }
 

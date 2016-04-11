@@ -585,6 +585,14 @@ void ScriptMgr::OnDestinationReached(AreaTrigger* p_AreaTrigger)
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+
+/// Get Creature script by ScriptID
+/// @p_ScriptID : ScriptID from the creature template
+CreatureScript* ScriptMgr::GetCreatureScriptByID(uint32 p_ScriptID)
+{
+    return ScriptRegistry<CreatureScript>::GetScriptById(p_ScriptID);
+}
+
 /// Called when a dummy spell effect is triggered on the creature.
 /// @p_Caster      : Spell Caster
 /// @p_SpellID     : Casted spell ID

@@ -4154,7 +4154,8 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->MinLevel == uint32(-1) || qinfo->MinLevel > DEFAULT_MAX_LEVEL)
         {
-            sLog->outError(LOG_FILTER_SQL, "Quest %u should be disabled because `MinLevel` = %i", qinfo->GetQuestId(), int32(qinfo->MinLevel));
+            /// We dont need this log, blizzard send this on data.
+            ///sLog->outError(LOG_FILTER_SQL, "Quest %u should be disabled because `MinLevel` = %i", qinfo->GetQuestId(), int32(qinfo->MinLevel));
             // No changes needed, sending -1 in SMSG_QUEST_QUERY_RESPONSE is valid
         }
 
