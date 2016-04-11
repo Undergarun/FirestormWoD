@@ -2238,6 +2238,9 @@ class spell_warl_ember_tap: public SpellScriptLoader
                     l_Caster->ModifyPower(POWER_BURNING_EMBERS, 5);
                 }
 
+                l_HealAmount = l_Caster->SpellHealingBonusDone(l_Caster, GetSpellInfo(), l_HealAmount, EFFECT_0, HEAL);
+                l_HealAmount = l_Caster->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_HealAmount, HEAL);
+
                 SetHitHeal(l_HealAmount);
                 /// Your Ember Tap also heals your pet demon for 20% as much.
                 if (AuraEffect* l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
