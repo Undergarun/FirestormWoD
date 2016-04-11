@@ -323,14 +323,6 @@ namespace MS { namespace Garrison
     /// @p_Value : Value
     void GarrisonNPCAI::SetData(uint32 p_ID, uint32 p_Value)
     {
-        Player* l_Owner = GetOwner();
-        if (l_Owner == nullptr)
-            return;
-
-        Manager* l_GarrisonMgr = l_Owner->GetGarrison();
-        if (l_GarrisonMgr == nullptr)
-            return;
-
         switch (p_ID)
         {
             case CreatureAIDataIDs::PlotInstanceID:
@@ -366,7 +358,7 @@ namespace MS { namespace Garrison
             }
             case CreatureAIDataIDs::DailyReset:
                 OnDataReset();
-                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
+///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
                 break;
             case CreatureAIDataIDs::DespawnData:
                 OnPlotInstanceUnload();
