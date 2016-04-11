@@ -39,8 +39,7 @@ mysql_version.h
 
 [Dd]ebug/
 [Rr]elease/
-x64/
-build/
+build/*
 [Bb]in/
 [Oo]bj/
 *.sln
@@ -185,6 +184,3 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
-
-# Lib curl
-/dep/curl/lib/libcurl*

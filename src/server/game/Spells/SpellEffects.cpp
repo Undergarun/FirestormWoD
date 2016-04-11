@@ -319,7 +319,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
-    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
@@ -8318,6 +8318,32 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
         {
             l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_I, l_UpgradeFlags);
             break;
+        }
+    }
+}
+
+void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    Unit* l_Target = GetUnitTarget();
+
+    if (l_Target == nullptr)
+        return;
+
+    if (Player* l_Player = l_Target->ToPlayer())
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+        {
+            if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
+            {
+                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                    l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
+
+                WorldPacket l_PlaceHolder;
+                l_Player->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
+            }
         }
     }
 }

@@ -463,11 +463,10 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = GetUnitOwner();
-                Unit* l_Target = GetTarget();
 
-                Unit* l_TabUnit[3] = { l_Caster, l_Owner, l_Target };
+                Unit* l_TabUnit[2] = { l_Caster, l_Owner };
 
-                for (uint8 l_Idx = 0; l_Idx < 3; ++l_Idx)
+                for (uint8 l_Idx = 0; l_Idx < 2; ++l_Idx)
                 {
                     if (l_TabUnit[l_Idx])
                     {
@@ -5631,37 +5630,61 @@ class spell_gen_transmorphose : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_transmorphose_AuraScript);
 
-            void OnApplyandRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetTarget()->ToPlayer();
-
                 if (l_Player == nullptr)
                     return;
 
-                PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(l_Player->getRace(), l_Player->getClass());
-                if (l_Info == nullptr)
+                AuraEffect* l_AuraEffect = GetEffect(0);
+                if (l_AuraEffect == nullptr)
                     return;
 
                 Gender l_NewGender = (Gender)l_Player->getGender();
-                if (l_Player->getGender() == GENDER_MALE)            ///< MALE
+
+                /// This need to understand if player already have this buff (for example after logout), to prevent change of the gender one more time
+                uint32 l_NativeGender = l_AuraEffect->GetAmount();
+                if (l_NativeGender == 0)
+                    l_AuraEffect->SetAmount(l_NewGender + 1);
+
+                uint32 l_OtherGender = l_AuraEffect->GetAmount() - 1;
+                if (l_OtherGender == GENDER_MALE)            ///< MALE
                     l_NewGender = GENDER_FEMALE;
-                else if (l_Player->getGender() == GENDER_FEMALE)     ///< FEMALE
+                else if (l_OtherGender == GENDER_FEMALE)     ///< FEMALE
                     l_NewGender = GENDER_MALE;
                 else
                     return;
 
-                /// Set gender
+                /// Set new gender
                 l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NewGender);
                 l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NewGender);
 
-                /// Change display ID
+                /// Change disply ID
+                l_Player->InitDisplayIds();
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                AuraEffect* l_AuraEffect = GetEffect(0);
+                if (l_AuraEffect == nullptr)
+                    return;
+
+                uint32 l_NativeGender = l_AuraEffect->GetAmount() - 1;
+
+                l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NativeGender);
+                l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NativeGender);
+
                 l_Player->InitDisplayIds();
             }
 
             void Register()
             {
-                AfterEffectApply += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApplyandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApplyandRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_transmorphose_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

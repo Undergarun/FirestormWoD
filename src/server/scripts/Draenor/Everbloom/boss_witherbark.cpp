@@ -666,11 +666,8 @@ public:
                     {
                         if (!me->isMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.
                         {
-                            printf("moving");
                             me->GetMotionMaster()->MovePoint(0, *l_Witherbark);
                         }
-                        else
-                            printf("ain't moving");
 
                         if (m_DiffCheckup <= p_Diff && !m_Caught) // Checks radius between Witherbark and current globule and increases water power incase of contact.
                         {
@@ -692,14 +689,8 @@ public:
                         else
                             m_DiffCheckup -= p_Diff;
                     }
-                    else
-                        printf("boss not in combat or missing aura");
                 }
-                else
-                    printf("boss not found");
             }
-            else
-                printf("instance not found");
         }
     };
 

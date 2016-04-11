@@ -106,6 +106,9 @@ ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
 
 void ScriptedAI::UpdateOperations(uint32 const p_Diff)
 {
+    if (me->HasUnitState(UnitState::UNIT_STATE_EVADE))
+        return;
+
     for (auto l_It = m_TimedDelayedOperations.begin(); l_It != m_TimedDelayedOperations.end(); l_It++)
     {
         l_It->first -= p_Diff;

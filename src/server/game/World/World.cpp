@@ -2185,6 +2185,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet npc team member...");
     sObjectMgr->LoadBattlePetNpcTeamMember();
+    ///sObjectMgr->ComputeBattlePetSpawns();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Wild BattlePet pools...");
     sWildBattlePetMgr->Load();

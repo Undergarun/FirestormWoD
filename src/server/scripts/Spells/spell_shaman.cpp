@@ -2759,7 +2759,7 @@ class spell_sha_lava_burst: public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Player->HasAura(eSpells::LavaSurge) && !m_HasLavaSurge)
+                if (l_Player->HasAura(eSpells::LavaSurge) && m_HasLavaSurge)
                 {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
