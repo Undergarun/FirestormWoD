@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,32 +23,11 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
     }
 
-    using npc_WarraTheWeaverAI = SimpleSequenceCosmeticScriptAI<&npc_WarraTheWeaverData::FnLevel1, &npc_WarraTheWeaverData::FnLevel2, &npc_WarraTheWeaverData::FnLevel3>;
-
-    class npc_WarraTheWeaver : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_WarraTheWeaver();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI* GetAI(Creature* p_Creature) const override;
-
-    };
+    using npc_WarraTheWeaver = ProfessionBuilding_SkillNPC<npc_WarraTheWeaverData::ScriptName, SKILL_TAILORING, Quests::Horde_YourFirstTailoringWorkOrder, 79864, &npc_WarraTheWeaverData::FnLevel1, &npc_WarraTheWeaverData::FnLevel2, &npc_WarraTheWeaverData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79863 - Turga                                                     ////

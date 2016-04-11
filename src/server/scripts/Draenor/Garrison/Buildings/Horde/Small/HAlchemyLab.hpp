@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_AlbertDeHyde = ProfessionBuilding_SkillNPC<npc_AlbertDeHydeAIData::ScriptName, SKILL_ALCHEMY, Quests::Horde_YourFirstAlchemyWorkOrder, &npc_AlbertDeHydeAIData::Recipes, &npc_AlbertDeHydeAIData::FnLevel1, &npc_AlbertDeHydeAIData::FnLevel2, &npc_AlbertDeHydeAIData::FnLevel3>;
+    using npc_AlbertDeHyde = ProfessionBuilding_SkillNPC<npc_AlbertDeHydeAIData::ScriptName, SKILL_ALCHEMY, Quests::Horde_YourFirstAlchemyWorkOrder, 79813, &npc_AlbertDeHydeAIData::FnLevel1, &npc_AlbertDeHydeAIData::FnLevel2, &npc_AlbertDeHydeAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79814 - Keyana Tone                                               ////

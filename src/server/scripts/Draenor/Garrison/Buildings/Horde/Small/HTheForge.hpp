@@ -25,11 +25,9 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_OrgekIronhand = ProfessionBuilding_SkillNPC<npc_OrgekIronhandAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Horde_YourFirstBlacksmithingWorkOrder, &npc_OrgekIronhandAIData::Recipes, &npc_OrgekIronhandAIData::FnLevel1, &npc_OrgekIronhandAIData::FnLevel2, &npc_OrgekIronhandAIData::FnLevel3>;
+    using npc_OrgekIronhand = ProfessionBuilding_SkillNPC<npc_OrgekIronhandAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Horde_YourFirstBlacksmithingWorkOrder, 79867, &npc_OrgekIronhandAIData::FnLevel1, &npc_OrgekIronhandAIData::FnLevel2, &npc_OrgekIronhandAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79817 - Kinja                                                      ///

@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_MaryKearie = ProfessionBuilding_SkillNPC<npc_MaryKearieAIData::ScriptName, SKILL_ALCHEMY, Quests::Alliance_YourFirstAlchemyWorkOrder, &npc_MaryKearieAIData::Recipes, &npc_MaryKearieAIData::FnLevel1, &npc_MaryKearieAIData::FnLevel2, &npc_MaryKearieAIData::FnLevel3>;
+    using npc_MaryKearie = ProfessionBuilding_SkillNPC<npc_MaryKearieAIData::ScriptName, SKILL_ALCHEMY, Quests::Alliance_YourFirstAlchemyWorkOrder, 77363, &npc_MaryKearieAIData::FnLevel1, &npc_MaryKearieAIData::FnLevel2, &npc_MaryKearieAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77791 - Peter Kearie                                              ////

@@ -37,7 +37,9 @@ namespace MS { namespace Garrison
 
         char ScriptName[] = "npc_Dorogarr_Garr";
 
-        std::vector<SkillNPC_RecipeEntry> Recipes
+///        std::vector<RecipesConditions> Recipes = sObjectMgr->GetNpcRecipesConditions(79829);
+
+       /* std::vector<RecipesConditions> Recipes
         {
             { 170701, 28179 },
             { 170706,     0 },
@@ -61,7 +63,7 @@ namespace MS { namespace Garrison
             { 170718, 28180 },
             { 170717, 28180 },
             { 170716, 28180 },
-        };
+        };*/
     }
 
     //////////////////////////////////////////////////////////////////////////

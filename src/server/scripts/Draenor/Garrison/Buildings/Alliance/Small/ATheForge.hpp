@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_AuriaIrondreamer = ProfessionBuilding_SkillNPC<npc_AuriaIrondreamerAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Alliance_YourFirstBlacksmithingWorkOrder, &npc_AuriaIrondreamerAIData::Recipes, &npc_AuriaIrondreamerAIData::FnLevel1, &npc_AuriaIrondreamerAIData::FnLevel2, &npc_AuriaIrondreamerAIData::FnLevel3>;
+    using npc_AuriaIrondreamer = ProfessionBuilding_SkillNPC<npc_AuriaIrondreamerAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Alliance_YourFirstBlacksmithingWorkOrder, 77359, &npc_AuriaIrondreamerAIData::FnLevel1, &npc_AuriaIrondreamerAIData::FnLevel2, &npc_AuriaIrondreamerAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77792 - Yulia Samras

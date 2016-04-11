@@ -25,11 +25,9 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_YuklaGreenshadow = ProfessionBuilding_SkillNPC<npc_YuklaGreenshadowAIData::ScriptName, SKILL_ENCHANTING, Quests::Horde_YourFirstEnchantingWorkOrder, &npc_YuklaGreenshadowAIData::Recipes, &npc_YuklaGreenshadowAIData::FnLevel1, &npc_YuklaGreenshadowAIData::FnLevel2, &npc_YuklaGreenshadowAIData::FnLevel3>;
+    using npc_YuklaGreenshadow = ProfessionBuilding_SkillNPC<npc_YuklaGreenshadowAIData::ScriptName, SKILL_ENCHANTING, Quests::Horde_YourFirstEnchantingWorkOrder, 79821, &npc_YuklaGreenshadowAIData::FnLevel1, &npc_YuklaGreenshadowAIData::FnLevel2, &npc_YuklaGreenshadowAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79820 - Garra                                                     ////

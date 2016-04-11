@@ -23,13 +23,6 @@ namespace MS { namespace Garrison
         float X, Y, Z, O;
     };
 
-    /// TradeSkill NPC recipes
-    struct SkillNPC_RecipeEntry
-    {
-        uint32 AbilitySpellID;
-        uint32 AbilitySpellIDPlayerCondition;
-    };
-
     class GarrisonNPCAI : public AI::CosmeticAI
     {
         public:
@@ -48,7 +41,7 @@ namespace MS { namespace Garrison
             /// Set NPC recipes
             /// @p_Recipes          : Recipes
             /// @p_RecipesSkillID   : Skill line ID
-            void SetRecipes(std::vector<SkillNPC_RecipeEntry> p_Recipes, uint32 p_RecipesSkillID);
+            void SetRecipes(std::vector<RecipesConditions> p_Recipes, uint32 p_RecipesSkillID);
 
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
@@ -139,7 +132,7 @@ namespace MS { namespace Garrison
             uint8 m_SequencePosition;
 
         private:
-            std::vector<SkillNPC_RecipeEntry> m_Recipes;
+            std::vector<RecipesConditions> m_Recipes;
             uint32 m_RecipesSkillID;
 
     };
@@ -201,7 +194,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
-    template<const char * t_ScriptName, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<const char* t_ScriptName, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class SimpleSequenceCosmeticScript : public CreatureScript
     {
         public:
@@ -267,7 +260,7 @@ namespace MS { namespace Garrison
                 /// @p_Diff : Time since last update
                 virtual void UpdateAI(const uint32 p_Diff) override;
 
-                Player * m_Owner;
+                Player* m_Owner;
                 bool m_Ranged;
             };
 
@@ -486,7 +479,7 @@ namespace MS { namespace Garrison
             struct npc_SeniorPeonIIAI : public CreatureAI
             {
                 /// Constructor
-                npc_SeniorPeonIIAI(Creature * p_Creature);
+                npc_SeniorPeonIIAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -549,7 +542,7 @@ namespace MS { namespace Garrison
             struct npc_FrostwallPeonAI : public CreatureAI
             {
                 /// Constructor
-                npc_FrostwallPeonAI(Creature * p_Creature);
+                npc_FrostwallPeonAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -676,7 +669,7 @@ namespace MS { namespace Garrison
             struct npc_GarrisonStablesCreaturesAI : public npc_escortAI
             {
                 /// Constructor
-                npc_GarrisonStablesCreaturesAI(Creature * p_Creature);
+                npc_GarrisonStablesCreaturesAI(Creature* p_Creature);
 
                 enum eCreaturesEntries
                 {
