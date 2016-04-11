@@ -1146,7 +1146,7 @@ void Aura::RefreshTimers()
     }
 
     /// In WoD blizzards have made "Pandemic" system for all auras, check if we need to use it
-    if (GetCaster()->IsPlayer() && GetSpellInfo()->IsAffectedByWodAuraSystem())
+    if (GetCaster() && GetCaster()->IsPlayer() && GetSpellInfo()->IsAffectedByWodAuraSystem())
     {
         for (uint8 i = 0; i < m_EffectCount; ++i)
         {
@@ -2404,8 +2404,9 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
     }
 
-    if (IsSameRaidBuff(existingAura))
-        return false;
+    /// Actually raid buff are stacking when it should not, we need to fine a better way to fix it
+    /*if (IsSameRaidBuff(existingAura))
+        return false;*/
 
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)

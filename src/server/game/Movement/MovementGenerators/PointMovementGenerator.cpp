@@ -135,10 +135,6 @@ enum specialSpells
     ChainHurl                           = 159947,
     AnimChainHurl                       = 5917,
 
-    /// The Butcher - Highmaul
-    BoundingCleaveJump                  = 156171,
-    BoundingCleaveDamage                = 156172,
-
     /// Krush - Highmaul
     BoarsRuchJump                       = 166225,
     Winded                              = 166227,
@@ -257,9 +253,6 @@ void EffectMovementGenerator::MovementInform(Unit* unit)
             break;
         case specialSpells::ChainHurlJumpDestPlayer:
             unit->CastSpell(unit, specialSpells::ChainHurlAoEStunPlayer, true);
-            break;
-        case specialSpells::BoundingCleaveJump:
-            unit->CastSpell(unit, specialSpells::BoundingCleaveDamage, true);
             break;
         case specialSpells::BoarsRuchJump:
             unit->CastSpell(unit, specialSpells::Winded, true);

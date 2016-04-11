@@ -95,7 +95,7 @@ void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAg
     SelectTargetList(targetList, DefaultTargetSelector(me, dist, playerOnly, aura), num, targetType);
 }
 
-Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/) const
+Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/, int32 p_CheckAura /*= 0*/) const
 {
     std::list<HostileReference*> const& l_ThreatList = me->getThreatManager().getThreatList();
     if (l_ThreatList.empty())
@@ -111,10 +111,24 @@ Player* UnitAI::SelectRangedTarget(bool p_AllowHeal /*= true*/) const
     if (l_TargetList.empty())
         return nullptr;
 
-    l_TargetList.remove_if([this, p_AllowHeal](Player* p_Player) -> bool
+    l_TargetList.remove_if([&](Player* p_Player) -> bool
     {
         if (!p_Player->IsRangedDamageDealer(p_AllowHeal))
             return true;
+
+        if (p_CheckAura)
+        {
+            if (p_CheckAura > 0)
+            {
+                if (!p_Player->HasAura(p_CheckAura))
+                    return true;
+            }
+            else
+            {
+                if (p_Player->HasAura(-p_CheckAura))
+                    return true;
+            }
+        }
 
         return false;
     });

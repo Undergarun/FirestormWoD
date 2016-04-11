@@ -358,6 +358,7 @@ namespace MS { namespace Garrison
             }
             case CreatureAIDataIDs::DailyReset:
                 OnDataReset();
+///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
                 break;
             case CreatureAIDataIDs::DespawnData:
                 OnPlotInstanceUnload();
