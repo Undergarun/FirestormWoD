@@ -51,7 +51,7 @@ class battlepay_commandscript: public CommandScript
 
             uint32 l_FlagsFilter = atoi(strtok(nullptr, " "));
 
-            QueryResult l_Result = WebDatabase.PQuery("SELECT itemID, price, fake_price FROM shop_items WHERE category = %u", l_Category);
+            QueryResult l_Result = WebDatabase.PQuery("SELECT TypeEntryOrData, Price FROM api_shop_entries WHERE Parent = %u", l_Category);
             if (!l_Result)
                 return false;
 
@@ -70,7 +70,7 @@ class battlepay_commandscript: public CommandScript
                 Field* l_Fields    = l_Result->Fetch();
                 uint32 l_ItemID    = l_Fields[0].GetUInt32();
                 uint32 l_Price     = l_Fields[1].GetUInt32();
-                uint32 l_FakePrice = l_Fields[2].GetUInt32();
+                uint32 l_FakePrice = l_Price;
 
                 if (l_FakePrice == 0)
                     l_FakePrice = l_Price;
@@ -82,7 +82,7 @@ class battlepay_commandscript: public CommandScript
                 uint32 l_CreatureDisplayInfoID = 0;
                 uint32 l_FileDataID = 0;
 
-                std::string l_Description = "";
+                std::string l_Description[3];
 
                 /// Mount
                 if (l_FlagsFilter & 0x01)
@@ -94,7 +94,9 @@ class battlepay_commandscript: public CommandScript
                             continue;
 
                         l_CreatureDisplayInfoID = l_MountEntry->CreatureDisplayID;
-                        l_Description = l_MountEntry->Description->Get(LocaleConstant::LOCALE_enUS);
+                        l_Description[0] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_enUS);
+                        l_Description[1] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_frFR);
+                        l_Description[2] = l_MountEntry->Description->Get(LocaleConstant::LOCALE_esES);
                         break;
                     }
                 }
@@ -136,6 +138,7 @@ class battlepay_commandscript: public CommandScript
                 l_StrBuilder << "INSERT INTO `battlepay_product` (ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID) VALUES (" << "@PRODUCTID" << "," << l_Price << "," << l_FakePrice << ",0,2,47," << "@DISPLAYINFOID" << ");" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_product_item` (ProductID, ItemID, Quantity, DisplayID, PetResult) VALUES (" << "@PRODUCTID" << "," << l_ItemID << ",1,0,0);" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << "," << l_FileDataID << ",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_enUS) << "\", '',\"" << "" << "\", 0);" << std::endl;
+                l_StrBuilder << "INSERT INTO `locales_battlepay_display_info` (DisplayInfoID, Name_loc2, Name_loc6, Name_loc7, Description_loc2, Description_loc6, Description_loc7) VALUES (@DISPLAYINFOID,\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_frFR) << "\",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_esES) << "\",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_esES) << "\",\"" << l_Description[1] << "\",\"" << l_Description[2] << "\",\"" << l_Description[2] << "\");" << std::endl;
                 l_StrBuilder << "SET @PRODUCTID := @PRODUCTID + 1;" << std::endl;
                 l_StrBuilder << "SET @ORDER := @ORDER + 1;" << std::endl;
                 l_StrBuilder << "SET @DISPLAYINFOID := @DISPLAYINFOID + 1;" << std::endl;
