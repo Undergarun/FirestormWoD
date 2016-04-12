@@ -18282,6 +18282,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
             return true;
         else if (spellProto && spellProto->Id == 76669 && procSpell && procSpell->Id == 156322) ///< Eternal flame dot should proc on Illuminated healing
             return true;
+        else if (spellProto && spellProto->Id == 108446 && procSpell && !procSpell->IsPositive()) ///< Soul link should proc on every damage that warlock deal
+            return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
         else if ((spellProto && spellProto->Id == 165459 && procSpell && procSpell->Id == 48108) ||

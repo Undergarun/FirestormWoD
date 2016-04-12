@@ -7181,6 +7181,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108446:
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             default:
                 break;
