@@ -5945,6 +5945,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[2].ApplyAuraName = 0;
                 spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 break;
             case 34433: ///< Shadowfiend
                 spellInfo->Effects[EFFECT_0].MiscValueB = 1561;
