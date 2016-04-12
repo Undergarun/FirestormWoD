@@ -1116,6 +1116,9 @@ class boss_franzok : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                 m_ExitTankGuid = 0;
 
                 m_State = 0;
