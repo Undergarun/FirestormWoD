@@ -95,10 +95,10 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_PeterKearie::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstBlacksmithingWorkOrder, 4);
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstAlchemyWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstAlchemyWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstAlchemyWorkOrder, 4);
 
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstBlacksmithingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstBlacksmithingWorkOrder))
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstAlchemyWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstAlchemyWorkOrder))
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
