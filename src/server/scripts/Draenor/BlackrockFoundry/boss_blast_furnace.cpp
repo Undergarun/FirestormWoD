@@ -337,7 +337,11 @@ class boss_heart_of_the_mountain : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Tempered);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MeltDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::BlastFurnaceBonus, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::BlastFurnaceBonus, true);
 
                     if (Creature* l_Blackhand = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BlackhandCosmetic)))
                     {
