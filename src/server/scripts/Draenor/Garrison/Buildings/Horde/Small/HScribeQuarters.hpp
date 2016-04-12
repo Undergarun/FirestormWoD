@@ -25,11 +25,9 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_Urgra = ProfessionBuilding_SkillNPC<npc_UrgraAIData::ScriptName, SKILL_INSCRIPTION, Quests::Horde_YourFirstInscriptionWorkOrder, &npc_UrgraAIData::Recipes, &npc_UrgraAIData::FnLevel1, &npc_UrgraAIData::FnLevel2, &npc_UrgraAIData::FnLevel3>;
+    using npc_Urgra = ProfessionBuilding_SkillNPC<npc_UrgraAIData::ScriptName, SKILL_INSCRIPTION, Quests::Horde_YourFirstInscriptionWorkOrder, 79829, &npc_UrgraAIData::FnLevel1, &npc_UrgraAIData::FnLevel2, &npc_UrgraAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79831 - Yrogg                                                     ////

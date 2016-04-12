@@ -110,8 +110,11 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 {
     uint32 setid = proto->ItemSet;
 
-    ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
+    /// If set ID = 0, we don't need to search for ItemSetEntry
+    if (!setid)
+        return;
 
+    ItemSetEntry const* set = sItemSetStore.LookupEntry(setid);
     if (!set)
     {
         sLog->outError(LOG_FILTER_SQL, "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);

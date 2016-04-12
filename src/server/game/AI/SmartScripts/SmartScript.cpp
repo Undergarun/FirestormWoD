@@ -2172,7 +2172,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             Creature* l_Creature = l_Object->ToCreature();
 
-            if (l_Creature == nullptr || l_Creature->AI())
+            if (l_Creature == nullptr || l_Creature->AI() == nullptr)
                 return;
 
             MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());

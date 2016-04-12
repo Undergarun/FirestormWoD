@@ -3438,7 +3438,12 @@ class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
 
             void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
             {
-                if (GetCaster()->HasAura(eSpells::GlyphofArmyoftheDead))
+                Unit* l_Owner = GetCaster()->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(eSpells::GlyphofArmyoftheDead))
                     PreventHitAura();
             }
 

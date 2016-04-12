@@ -602,14 +602,14 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(me->getVictim()))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
                     return;
                 }
 
-                if (!me->IsValidAttackTarget(me->getVictim()))
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
                     return;
 
                 m_Events.Update(p_Diff);
@@ -689,14 +689,14 @@ class spell_npc_sha_fire_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(me->getVictim()))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
                     return;
                 }
 
-                if (!me->IsValidAttackTarget(me->getVictim()))
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
                     return;
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -770,12 +770,16 @@ class spell_npc_sha_earth_elemental : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget))
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
                     return;
                 }
+
+
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+                    return;
 
                 if (AngeredEarth_Timer <= diff)
                 {

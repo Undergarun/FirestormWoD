@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_AndersLongstitch = ProfessionBuilding_SkillNPC<npc_AndersLongstitchAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Alliance_YourFirstLeatherworkingWorkOrder, &npc_AndersLongstitchAIData::Recipes, &npc_AndersLongstitchAIData::FnLevel1, &npc_AndersLongstitchAIData::FnLevel2, &npc_AndersLongstitchAIData::FnLevel3>;
+    using npc_AndersLongstitch = ProfessionBuilding_SkillNPC<npc_AndersLongstitchAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Alliance_YourFirstLeatherworkingWorkOrder, 77383, &npc_AndersLongstitchAIData::FnLevel1, &npc_AndersLongstitchAIData::FnLevel2, &npc_AndersLongstitchAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 78207 - Marianne Levine                                           ////
@@ -59,8 +59,11 @@ namespace MS { namespace Garrison
                 npc_MarianneLevineAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
+                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID

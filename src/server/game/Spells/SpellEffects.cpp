@@ -8328,7 +8328,11 @@ void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
         {
             if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
             {
-                /// @TODO : Finish to implement mission instant completion
+                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                    l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
+
+                WorldPacket l_PlaceHolder;
+                l_Player->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
             }
         }
     }

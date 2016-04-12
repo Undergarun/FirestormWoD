@@ -365,8 +365,8 @@ class spell_mage_comet_storm : public SpellScriptLoader
                         SetHitDamage(l_Damage);
 
                         /// Polymorph
-                        if (l_Target->HasAura(118))
-                            l_Target->RemoveAura(118);
+                        if (l_Target->IsPolymorphed())
+                            l_Target->RemoveAurasDueToSpell(l_Target->getTransForm());
                     }
                 }
             }

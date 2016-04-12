@@ -30145,7 +30145,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
+                PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
+                l_Stmt->setUInt32(0, GetGUIDLow());
+                l_Stmt->setUInt32(1, skill);
+                CharacterDatabase.Execute(l_Stmt);
+
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist, delete it.", GetGUIDLow(), skill);
                 continue;
             }
 
@@ -33507,6 +33512,14 @@ void Player::DeleteGarrison()
     m_Garrison = nullptr;
 }
 
+uint32 Player::GetPlotInstanceID() const
+{
+    if (m_Garrison == nullptr)
+        return 0;
+
+    return m_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID;
+}
+
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;
@@ -33638,7 +33651,7 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
     {
         if (Item* l_Item = m_items[l_I])
         {
-            if (l_Item->CantBeUse() || !CanUseAttackType(GetAttackBySlot(l_I)))
+            if (l_Item->CantBeUse() || !CanUseAttackType(GetAttackBySlot(l_I)) || l_Item->GetTemplate() == nullptr)
                 continue;
 
             uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate(), m_items[l_I]);

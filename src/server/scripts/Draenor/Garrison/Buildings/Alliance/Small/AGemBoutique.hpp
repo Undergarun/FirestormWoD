@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_CostanHighwall = ProfessionBuilding_SkillNPC<npc_CostanHighwallAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Alliance_YourFirstJewelcraftingWorkOrder, &npc_CostanHighwallAIData::Recipes, &npc_CostanHighwallAIData::FnLevel1, &npc_CostanHighwallAIData::FnLevel2, &npc_CostanHighwallAIData::FnLevel3>;
+    using npc_CostanHighwall = ProfessionBuilding_SkillNPC<npc_CostanHighwallAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Alliance_YourFirstJewelcraftingWorkOrder, 77356, &npc_CostanHighwallAIData::FnLevel1, &npc_CostanHighwallAIData::FnLevel2, &npc_CostanHighwallAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77775 - Kaya Solasen                                              ////
@@ -59,8 +59,11 @@ namespace MS { namespace Garrison
                 npc_KayaSolasenAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
+                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID

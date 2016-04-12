@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_AuriaIrondreamer = ProfessionBuilding_SkillNPC<npc_AuriaIrondreamerAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Alliance_YourFirstBlacksmithingWorkOrder, &npc_AuriaIrondreamerAIData::Recipes, &npc_AuriaIrondreamerAIData::FnLevel1, &npc_AuriaIrondreamerAIData::FnLevel2, &npc_AuriaIrondreamerAIData::FnLevel3>;
+    using npc_AuriaIrondreamer = ProfessionBuilding_SkillNPC<npc_AuriaIrondreamerAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Alliance_YourFirstBlacksmithingWorkOrder, 77359, &npc_AuriaIrondreamerAIData::FnLevel1, &npc_AuriaIrondreamerAIData::FnLevel2, &npc_AuriaIrondreamerAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77792 - Yulia Samras
@@ -70,8 +70,11 @@ namespace MS { namespace Garrison
                 npc_YuliaSamrasAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
+                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID

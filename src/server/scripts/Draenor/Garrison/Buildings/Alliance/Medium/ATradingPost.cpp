@@ -199,8 +199,6 @@ namespace MS { namespace Garrison
             default:
                 break;
         }
-
-        p_Standing = 0;
     }
 
     bool playerScript_Garrison_TradingPost::CheckRequirements(Player* p_Player)

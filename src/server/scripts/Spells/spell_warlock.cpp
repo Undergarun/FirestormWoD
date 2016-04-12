@@ -2229,6 +2229,9 @@ class spell_warl_ember_tap: public SpellScriptLoader
                     l_Caster->ModifyPower(POWER_BURNING_EMBERS, 5);
                 }
 
+                l_HealAmount = l_Caster->SpellHealingBonusDone(l_Caster, GetSpellInfo(), l_HealAmount, EFFECT_0, HEAL);
+                l_HealAmount = l_Caster->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_HealAmount, HEAL);
+
                 SetHitHeal(l_HealAmount);
                 /// Your Ember Tap also heals your pet demon for 20% as much.
                 if (AuraEffect* l_EnhancedEmberTap = l_Caster->GetAuraEffect(eSpells::EnhancedEmberTap, EFFECT_0))
@@ -3352,64 +3355,6 @@ class spell_warl_WodPvPDemonology4PBonus : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
-/// Called by Immolation - 157736
-/// Item - Warlock WoD PvP Destruction 2P Bonus
-class spell_warl_WoDPvPDestruction2PBonus : public SpellScriptLoader
-{
-    public:
-        spell_warl_WoDPvPDestruction2PBonus() : SpellScriptLoader("spell_warl_WoDPvPDestruction2PBonus") { }
-
-        class spell_warl_WoDPvPDestruction2PBonus_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_WoDPvPDestruction2PBonus_AuraScript);
-
-            enum eSpells
-            {
-                WoDPvPDestruction2PBonusAura    = 171383,
-                WoDPvPDestruction2PBonus        = 171384,
-                T17Destruction2P                = 165455,
-                ImmolateEnergize                = 169998
-            };
-
-            void OnTick(AuraEffect const* p_AurEff)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::T17Destruction2P, EFFECT_0))
-                    {
-                        if (!roll_chance_i(l_AuraEffect->GetAmount()))
-                            return;
-
-                        l_Caster->CastSpell(l_Caster, eSpells::ImmolateEnergize, true);
-                    }
-                }
-            }
-
-            void HandleDispel(DispelInfo* /*dispelInfo*/)
-            {
-                Unit* l_Caster = GetCaster();
-
-                if (l_Caster == nullptr)
-                    return;
-
-                if (l_Caster->HasAura(eSpells::WoDPvPDestruction2PBonusAura))
-                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPDestruction2PBonus, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_WoDPvPDestruction2PBonus_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                AfterDispel += AuraDispelFn(spell_warl_WoDPvPDestruction2PBonus_AuraScript::HandleDispel);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_WoDPvPDestruction2PBonus_AuraScript();
-        }
-};
-
 /// Corruption - 172
 class spell_warl_corruption : public SpellScriptLoader
 {
@@ -4510,7 +4455,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_bolt();
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
-    new spell_warl_WoDPvPDestruction2PBonus();
     new spell_warl_fel_firebolt();
     new spell_warl_doom_bolt();
     new spell_warl_grimoire_of_synergy();

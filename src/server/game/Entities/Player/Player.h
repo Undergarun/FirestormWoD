@@ -1583,6 +1583,7 @@ class Player : public Unit, public GridObject<Player>
         int32 GetGarrisonMapID() const;
         int32 GetShipyardMapID() const;
         void DeleteGarrison();
+        uint32 GetPlotInstanceID() const;
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 

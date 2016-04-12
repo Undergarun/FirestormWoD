@@ -1592,6 +1592,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
     sObjectMgr->LoadGarrisonPlotBuildingContent();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Npc Recipes Conditions...");
+    sObjectMgr->LoadNpcRecipesConditions();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
@@ -2167,6 +2170,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattlePet npc team member...");
     sObjectMgr->LoadBattlePetNpcTeamMember();
+    ///sObjectMgr->ComputeBattlePetSpawns();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Wild BattlePet pools...");
     sWildBattlePetMgr->Load();

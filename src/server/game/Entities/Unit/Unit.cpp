@@ -11618,8 +11618,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     /// Frost Orb should remove Polymorph
     if (IsPlayer() && spellProto && victim && spellProto->Id == 84721)
     {
-        if (victim->HasAura(118))
-            victim->RemoveAura(118);
+        /// Polymorph
+        if (victim->IsPolymorphed())
+            victim->RemoveAurasDueToSpell(victim->getTransForm());
     }
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
@@ -12400,7 +12401,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             else if (IsPlayer())
             {
                 /// Default is 5% of crit
-                float crit_chance = 5.0f;
+                crit_chance = 5.0f;
                 crit_chance += GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
             }
             else

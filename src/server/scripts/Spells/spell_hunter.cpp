@@ -285,6 +285,7 @@ class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Black Arrow - 3674
 class spell_hun_black_arrow : public SpellScriptLoader
 {
@@ -298,16 +299,28 @@ class spell_hun_black_arrow : public SpellScriptLoader
             enum eSpells
             {
                 T17Survival2P   = 165544,
-                LockAndLoad     = 168980
+                LockAndLoad     = 168980,
+                ExplosiveShot   = 53301
             };
 
             void HandleApplyDoT(SpellEffIndex p_EffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasAura(eSpells::T17Survival2P))
-                        l_Caster->CastSpell(l_Caster, eSpells::LockAndLoad, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::T17Survival2P))
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
+                    l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
+                l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
             }
 
             void Register() override

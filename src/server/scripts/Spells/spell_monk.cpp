@@ -1480,10 +1480,14 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
 
             void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
+                Unit* l_Owner = GetCaster();
                 Unit* l_Caster = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
-                if (l_Attacker == nullptr || l_Caster == nullptr)
+                if (l_Attacker == nullptr || l_Caster == nullptr || l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetGUID() != l_Caster->GetGUID())
                     return;
 
                 Unit* l_Target = nullptr;
