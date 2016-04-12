@@ -392,13 +392,6 @@ class boss_tectus : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                if (me->GetEntry() == eHighmaulCreatures::Tectus)
-                {
-                    _JustDied();
-
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::TectusBonus, true);
-                }
-
                 me->RemoveAllAreasTrigger();
 
                 if (m_Instance != nullptr)
@@ -407,6 +400,16 @@ class boss_tectus : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrystallineBarrageDoT);
+
+                    if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                    {
+                        _JustDied();
+
+                        if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                            me->SetLootRecipient(nullptr);
+                        else
+                            CastSpellToPlayers(me->GetMap(), me, eSpells::TectusBonus, true);
+                    }
 
                     Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
                     if (l_PlayerList.isEmpty())
