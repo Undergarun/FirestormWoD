@@ -1111,7 +1111,7 @@ class shadowmoon_burial_grounds_sadana_spell_dark_communion : public SpellScript
                 GetTarget()->GetAI()->DoAction(eSadanaActions::ActionActivateDefiledSpirit);
         }
 
-        void OnRemove(AuraEffect const*/*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
