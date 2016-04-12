@@ -131,7 +131,7 @@ namespace MS { namespace Garrison
             return;
 
 
-        SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
+        SequencePosition const l_GameObjectPos = { -10.5838f, /*19.9354*/21.f, 4.2703f, 1.5092f };
         SummonRelativeGameObject(l_GobID, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
 
         l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_GobID);
