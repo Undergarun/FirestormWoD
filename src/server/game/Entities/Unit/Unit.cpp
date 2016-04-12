@@ -16917,9 +16917,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (IsPlayer() && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
         RemoveAura(121153);
 
-    // Hack Fix Immolate - Critical strikes generate burning embers
-    if (IsPlayer() && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
-        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
+    /// Hack Fix Immolate - Critical strikes generate burning embers
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION && procSpell && (procSpell->Id == 348 || procSpell->Id == 157736) && (procExtra & PROC_EX_CRITICAL_HIT))
+        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + (1 * GetPowerCoeff(POWER_BURNING_EMBERS)));
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (IsPlayer() && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
