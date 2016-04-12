@@ -265,6 +265,17 @@ namespace MS { namespace Garrison
             m_OwnerGuid = p_Guid;
     }
 
+    void npc_Kinja::npc_KinjaAI::OnPlotInstanceUnload()
+    {
+        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
+        {
+            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
+                l_Creature->DespawnOrUnsummon();
+
+            l_Guid = m_Summons.erase(l_Guid);
+        }
+    }
+
     void npc_Kinja::npc_KinjaAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
@@ -291,6 +302,7 @@ namespace MS { namespace Garrison
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                m_Summons.push_back(l_Creature->GetGUID());
                             }
                             break;
                         default:

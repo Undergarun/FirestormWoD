@@ -129,6 +129,17 @@ namespace MS { namespace Garrison
             m_OwnerGuid = p_Guid;
     }
 
+    void npc_ElrondirSurrion::npc_ElrondirSurrionAI::OnPlotInstanceUnload()
+    {
+        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
+        {
+            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
+                l_Creature->DespawnOrUnsummon();
+
+            l_Guid = m_Summons.erase(l_Guid);
+        }
+    }
+
     void npc_ElrondirSurrion::npc_ElrondirSurrionAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
@@ -137,11 +148,28 @@ namespace MS { namespace Garrison
             {
                 if (l_GarrisonMgr->HasRequiredFollowerAssignedAbility(p_PlotInstanceID))
                 {
+                    GarrisonFollower* l_Follower = l_GarrisonMgr->GetAssignedFollower(p_PlotInstanceID);
+
+                    if (l_Follower == nullptr)
+                        return;
+
+                    GarrFollowerEntry const* l_GarrFollEntry = l_Follower->GetEntry();
+
+                    if (l_GarrFollEntry == nullptr)
+                        return;
+
                     switch (GetBuildingID())
                     {
                         case Buildings::GemBoutique_GemBoutique_Level2:
                         case Buildings::GemBoutique_GemBoutique_Level3:
-                            SummonRelativeCreature(NPCs::NpcHordeJewelCraftingFollower, -0.9046f, 5.7426f, 0.8908f, 4.7023f, TEMPSUMMON_MANUAL_DESPAWN);
+                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -0.9046f, 5.7426f, 0.8908f, 4.7023f, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+                                m_Summons.push_back(l_Creature->GetGUID());
+                            }
                             break;
                         default:
                             break;
