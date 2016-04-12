@@ -503,7 +503,7 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eEvents::EventLavaSlash:
                     {
-                        if (Player* l_Target = SelectRangedTarget())
+                        if (Player* l_Target = SelectRangedTarget(true, -eSpells::MoltenTorrentAura))
                         {
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
