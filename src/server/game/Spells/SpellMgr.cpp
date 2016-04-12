@@ -5892,6 +5892,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); ///< -1s
                 break;
+            case 118253:
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
             case 53257: ///< Cobra Strikes
                 spellInfo->Effects[0].BasePoints = 0;
                 spellInfo->Effects[1].BasePoints = 0;
@@ -5942,6 +5945,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[2].ApplyAuraName = 0;
                 spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 break;
             case 34433: ///< Shadowfiend
                 spellInfo->Effects[EFFECT_0].MiscValueB = 1561;
@@ -7112,6 +7116,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 124280:// Touch of Karma (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
@@ -7179,6 +7185,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108446:
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             default:
                 break;

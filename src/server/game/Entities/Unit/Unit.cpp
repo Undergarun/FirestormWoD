@@ -16826,7 +16826,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Leader of the Pack
-    if (!isVictim && IsPlayer() && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
+    if (!isVictim && IsPlayer() && ToPlayer()->getClass() == CLASS_DRUID && HasAura(17007) && (procExtra & PROC_EX_CRITICAL_HIT) &&
         (attType == WeaponAttackType::BaseAttack || (procSpell && procSpell->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)))
     {
         if (!ToPlayer()->HasSpellCooldown(68285))
@@ -16837,7 +16837,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Brain Freeze
-    if (procSpell && procSpell->Id == 116 && HasAura(44549) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+    if (procSpell && procSpell->Id == 116 && IsPlayer() && ToPlayer()->getClass() == CLASS_MAGE && ToPlayer()->GetSpecializationId() == SPEC_MAGE_FROST && HasAura(44549) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
     {
         int32 l_Chance = 10;
         l_Chance += (l_TotalMultistrike * 15);
@@ -16846,11 +16846,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Runic Strikes
-    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && HasAura(165394) && IsPlayer() && ToPlayer()->IsTwoHandUsed() && procSpell == nullptr)
+    if ((procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && IsPlayer() && ToPlayer()->getClass() == CLASS_DEATH_KNIGHT && ToPlayer()->IsTwoHandUsed() && HasAura(165394) && procSpell == nullptr)
         CastSpell(this, 163948, true);
 
     /// Plaguebearer
-    if (procSpell && target && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
+    if (procSpell && target && IsPlayer() && ToPlayer()->getClass() == CLASS_DEATH_KNIGHT  && (procSpell->Id == 47541 || procSpell->Id == 49143) && HasAura(161497))
     {
         if (Aura* l_BloodPlague = target->GetAura(55078, GetGUID()))
             l_BloodPlague->SetDuration(l_BloodPlague->GetDuration() + 4000);
@@ -16863,7 +16863,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     // Dematerialize
-    if (target && !isVictim && target->IsPlayer() && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
+    if (target && !isVictim && target->IsPlayer() && target->ToPlayer()->getClass() == CLASS_MONK && target->HasAura(122464) && procSpell && procSpell->GetAllEffectsMechanicMask() & (1 << MECHANIC_STUN))
     {
         if (!target->ToPlayer()->HasSpellCooldown(122465))
         {
@@ -16873,7 +16873,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Words of Mending - 152117
-    if (HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_PRIEST && ToPlayer()->GetSpecializationId() != SPEC_PRIEST_SHADOW && HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
     {
         if (procFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
         {
@@ -16891,14 +16891,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Revealing Strike - 84617
-    if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_ROGUE && target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {
         if (roll_chance_i(25))
             AddComboPoints(1);
     }
 
     /// Hack Fix Ice Floes - Drop charges
-    if (IsPlayer() && !isVictim && HasAura(108839) && procSpell && procSpell->Id != 108839 &&
+    if (IsPlayer() && !isVictim && ToPlayer()->getClass() == CLASS_MAGE && HasAura(108839) && procSpell && procSpell->Id != 108839 &&
         ((procSpell->CastTimeEntry && procSpell->CastTimeEntry->CastTime > 0 && procSpell->CastTimeEntry->CastTime < 4000)
         || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
@@ -16917,9 +16917,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     if (IsPlayer() && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
         RemoveAura(121153);
 
-    // Hack Fix Immolate - Critical strikes generate burning embers
-    if (IsPlayer() && procSpell && procSpell->Id == 348 && (procExtra & PROC_EX_CRITICAL_HIT))
-        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
+    /// Hack Fix Immolate - Critical strikes generate burning embers
+    if (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION && procSpell && (procSpell->Id == 348 || procSpell->Id == 157736) && (procExtra & PROC_EX_CRITICAL_HIT))
+        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + (1 * GetPowerCoeff(POWER_BURNING_EMBERS)));
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (IsPlayer() && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
@@ -18281,6 +18281,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
         else if (spellProto && spellProto->Id == 121152 && procSpell && procSpell->Id == 1329)
             return true;
         else if (spellProto && spellProto->Id == 76669 && procSpell && procSpell->Id == 156322) ///< Eternal flame dot should proc on Illuminated healing
+            return true;
+        else if (spellProto && spellProto->Id == 108446 && procSpell && !procSpell->IsPositive()) ///< Soul link should proc on every damage that warlock deal
             return true;
         /// Pyroblast! must make T17 fire 4P bonus procs!
         /// Arcane Charge must make T17 arcane 4P bonus procs!
