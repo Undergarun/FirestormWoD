@@ -215,15 +215,15 @@ class spell_mastery_sniper_training : public SpellScriptLoader
                 {
                     if (Aura* l_Aura = l_Player->GetAura(Masteries::SniperTrainingAura))
                     {
-                        if (l_Player->isMoving() && l_Aura->GetDuration() == -1)
+                        if (l_Player->IsMoving() && l_Aura->GetDuration() == -1)
                         {
                             l_Aura->SetDuration(6000);
                             l_Aura->SetMaxDuration(6000);
                         }
-                        else if (!l_Player->isMoving() && l_Aura->GetDuration() != -1 && !l_Player->HasAura(Masteries::RecentlyMoved))
+                        else if (!l_Player->IsMoving() && l_Aura->GetDuration() != -1 && !l_Player->HasAura(Masteries::RecentlyMoved))
                             l_Player->CastSpell(l_Player, Masteries::RecentlyMoved, true);
                     }
-                    else if (!l_Player->isMoving() && !l_Player->HasAura(Masteries::RecentlyMoved))
+                    else if (!l_Player->IsMoving() && !l_Player->HasAura(Masteries::RecentlyMoved))
                         l_Player->CastSpell(l_Player, Masteries::RecentlyMoved, true);
                 }
             }
