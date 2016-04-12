@@ -479,7 +479,10 @@ class boss_koragh : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuppressionFieldSilence);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicFrostAura);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::KoraghBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::KoraghBonus, true);
                 }
 
                 Talk(eTalks::Death);
