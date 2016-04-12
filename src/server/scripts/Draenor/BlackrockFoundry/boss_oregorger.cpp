@@ -1373,7 +1373,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                         if (Unit* l_Caster = GetCaster())
                         {
                             std::list<Unit*> l_TargetList;
-                            float l_Radius = 0.1f;
+                            float l_Radius = 0.01f;
 
                             JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                             JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
