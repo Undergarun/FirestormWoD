@@ -33522,6 +33522,14 @@ void Player::DeleteGarrison()
     m_Garrison = nullptr;
 }
 
+uint32 Player::GetPlotInstanceID() const
+{
+    if (m_Garrison == nullptr)
+        return 0;
+
+    return m_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID;
+}
+
 Stats Player::GetPrimaryStat() const
 {
     int8 magicNumber = -1;

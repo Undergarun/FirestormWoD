@@ -393,3 +393,7 @@
 	(86108, 116434, -57, 1, 0, 1, 1, ''),
 	(85822, 116434, -52, 1, 0, 1, 1, ''),
 	(86106, 116434, -50, 1, 0, 1, 1, '');
+
+#192628/Object - Anvil
+
+	UPDATE gameobject_template SET data1 = 20, scriptname = "go_garrison_anvil" WHERE entry = 192628;
