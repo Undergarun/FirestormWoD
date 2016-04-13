@@ -37,12 +37,6 @@
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 {
-    time_t l_Now = time(nullptr);
-    if (l_Now - m_TimeLastUseItem < 1)
-        return;
-    else
-        m_TimeLastUseItem = l_Now;
-
     // TODO: add targets.read() check
     Player* pUser = m_Player;
 
