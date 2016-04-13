@@ -2037,8 +2037,6 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
             bool m_MustExplode;
 
-            uint32 m_DespawnTimer;
-
             void Reset() override
             {
                 me->CastSpell(me, eSpells::ClusterOfLitBombs, true);
@@ -2049,20 +2047,32 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
                 me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, eSpells::BombOverrider);
 
+                uint32 l_DespawnTimer;
+
                 if (IsMythic())
-                    m_DespawnTimer = 8 * TimeConstants::IN_MILLISECONDS;
+                    l_DespawnTimer = 8 * TimeConstants::IN_MILLISECONDS;
                 else if (IsHeroic())
-                    m_DespawnTimer = 10 * TimeConstants::IN_MILLISECONDS;
+                    l_DespawnTimer = 10 * TimeConstants::IN_MILLISECONDS;
                 else
-                    m_DespawnTimer = 15 * TimeConstants::IN_MILLISECONDS;
+                    l_DespawnTimer = 15 * TimeConstants::IN_MILLISECONDS;
 
                 if (Aura* l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))
                 {
-                    l_Aura->SetDuration(m_DespawnTimer);
-                    l_Aura->SetMaxDuration(m_DespawnTimer);
+                    l_Aura->SetDuration(l_DespawnTimer + 500);
+                    l_Aura->SetMaxDuration(l_DespawnTimer + 500);
                 }
 
-                me->DespawnOrUnsummon(m_DespawnTimer);
+                me->DespawnOrUnsummon(l_DespawnTimer + 1 * TimeConstants::IN_MILLISECONDS);
+
+                AddTimedDelayedOperation(l_DespawnTimer, [this]() -> void
+                {
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+
+                    me->SetUInt32Value(EUnitFields::UNIT_FIELD_INTERACT_SPELL_ID, 0);
+
+                    if (m_MustExplode)
+                        me->CastSpell(me, eSpells::BombAoEDespawn, true);
+                });
             }
 
             void OnSpellClick(Unit* p_Clicker) override
@@ -2072,28 +2082,27 @@ class npc_foundry_cluster_of_lit_bombs : public CreatureScript
 
                 p_Clicker->CastSpell(p_Clicker, eSpells::BombOverrider, true);
 
-                if (Aura* l_Bomb = p_Clicker->GetAura(eSpells::BombOverrider))
-                    l_Bomb->SetDuration(m_DespawnTimer);
-
                 if (Aura* l_Aura = me->GetAura(eSpells::ClusterOfLitBombs))
+                {
                     l_Aura->DropCharge();
+
+                    if (Aura* l_Bomb = p_Clicker->GetAura(eSpells::BombOverrider))
+                        l_Bomb->SetDuration(l_Aura->GetDuration());
+                }
 
                 if (!me->HasAura(eSpells::ClusterOfLitBombs))
                 {
                     m_MustExplode = false;
+
+                    ClearDelayedOperations();
+
                     me->DespawnOrUnsummon();
                 }
             }
 
-            void JustDespawned() override
-            {
-                if (m_MustExplode)
-                    me->CastSpell(me, eSpells::BombAoEDespawn, true);
-            }
-
             void UpdateAI(uint32 const p_Diff) override
             {
-                m_DespawnTimer -= p_Diff;
+                UpdateOperations(p_Diff);
 
                 ScriptedAI::UpdateAI(p_Diff);
             }
