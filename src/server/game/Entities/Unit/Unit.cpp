@@ -8739,6 +8739,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!damage || !procSpell)
                         return false;
 
+                    if (procSpell->IsPositive())
+                        return false;
+
                     Unit* firstSpirit = NULL;
                     Unit* secondSpirit = NULL;
 
