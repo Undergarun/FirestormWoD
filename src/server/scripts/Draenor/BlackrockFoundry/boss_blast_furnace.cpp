@@ -997,10 +997,19 @@ class boss_foreman_feldspar : public CreatureScript
 
             void EnterEvadeMode() override
             {
-                CreatureAI::EnterEvadeMode();
+                AddTimedDelayedOperation(50, [this]() -> void
+                {
+                    me->StopMoving();
+                    me->GetMotionMaster()->Clear();
+                });
 
-                if (m_Instance != nullptr)
-                    ResetEncounter(me, m_Instance);
+                AddTimedDelayedOperation(150, [this]() -> void
+                {
+                    CreatureAI::EnterEvadeMode();
+
+                    if (m_Instance != nullptr)
+                        ResetEncounter(me, m_Instance);
+                });
             }
 
             void JustReachedHome() override
@@ -1136,7 +1145,7 @@ class boss_foreman_feldspar : public CreatureScript
                 {
                     if (Creature* l_Iter = Creature::GetCreature(*me, l_Guid))
                     {
-                        if (l_Iter->IsAIEnabled)
+                        if (l_Iter->IsAIEnabled && !l_Iter->isInCombat())
                         {
                             if (l_Iter->GetEntry() != eCreatures::BellowsOperator && l_Iter->GetEntry() != eCreatures::HeatRegulator)
                                 l_Iter->AI()->AttackStart(p_Attacker);
@@ -1859,6 +1868,15 @@ class npc_foundry_security_guard : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 m_Events.ScheduleEvent(eEvent::EventDefense, 5 * TimeConstants::IN_MILLISECONDS);
+
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Foreman = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                    {
+                        if (!l_Foreman->isInCombat())
+                            l_Foreman->SetInCombatWithZone();
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1953,6 +1971,15 @@ class npc_foundry_furnace_engineer : public CreatureScript
             {
                 m_Events.ScheduleEvent(eEvents::EventElectrocution, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventBomb, 10 * TimeConstants::IN_MILLISECONDS);
+
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (Creature* l_Foreman = Creature::GetCreature(*me, l_Instance->GetData64(eFoundryCreatures::ForemanFeldspar)))
+                    {
+                        if (!l_Foreman->isInCombat())
+                            l_Foreman->SetInCombatWithZone();
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
