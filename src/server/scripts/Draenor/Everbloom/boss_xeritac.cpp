@@ -870,7 +870,7 @@ public:
                         if (!l_Player->HasAura(eGorgedBustersSpells::SpellFixate)) /// Fixated aura
                             me->AddAura(eGorgedBustersSpells::SpellFixate, l_Player);
 
-                        if (!me->isMoving())
+                        if (!me->IsMoving())
                             me->GetMotionMaster()->MoveFollow(l_Player, 0, 0, MovementSlot::MOTION_SLOT_ACTIVE);
 
                         if (l_Player->IsWithinDistInMap(me, 1.0f))

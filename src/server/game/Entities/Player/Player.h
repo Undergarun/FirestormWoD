@@ -1553,7 +1553,6 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsInWater() const { return m_isInWater; } ///< overrides a member function but is not marked 'override'
         bool IsUnderWater() const; ///< overrides a member function but is not marked 'override'
-        bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -2638,8 +2637,6 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
 
-        void SendTeleportPacket(Position &p_NewPosition);
-
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
         void CreateCorpse();
@@ -3038,8 +3035,6 @@ class Player : public Unit, public GridObject<Player>
 
         void SetMover(Unit* target);
 
-        bool SetHover(bool enable);
-
         void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
@@ -3307,11 +3302,7 @@ class Player : public Unit, public GridObject<Player>
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
         */
-        void SendMovementSetCanFly(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        void SendMovementSetHover(bool apply);
-        void SendMovementSetWaterWalking(bool apply);
-        void SendMovementSetFeatherFall(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); } ///< overrides a member function but is not marked 'override'

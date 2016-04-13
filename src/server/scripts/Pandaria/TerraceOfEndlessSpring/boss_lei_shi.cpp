@@ -799,7 +799,7 @@ class spell_get_away_damage : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (target->isMoving() && target->isInFront(caster))
+                        if (target->IsMoving() && target->isInFront(caster))
                             SetHitDamage(GetHitDamage() / 2);
                     }
                 }

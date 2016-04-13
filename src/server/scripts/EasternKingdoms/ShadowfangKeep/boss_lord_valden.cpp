@@ -199,7 +199,7 @@ class spell_valden_toxic_coagulant: public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
-                if (GetTarget()->isMoving())
+                if (GetTarget()->IsMoving())
                     GetTarget()->RemoveAuraFromStack(SPELL_TOXIC_COAGULANT_DMG);
             }
 

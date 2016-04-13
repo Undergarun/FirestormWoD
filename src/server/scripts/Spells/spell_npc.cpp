@@ -110,11 +110,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
         enum Constants
         {
-            CheckDist          = 5,                   ///< Every AI update, the orb will try to travel this distance
             DamageDelay        = 1 * IN_MILLISECONDS, ///< Delay between damage cast (and self-snare check)
-            HeightMaxStep      = 3,                   ///< Maximum step height the orb can go before stopping (this value goes along with CheckDist)
-            HoverHeight        = 0,                   ///< "Display" height modification (some modelid are centered at the origin),
-            HeightCompensation = -1                   ///< Looks like the orb is rising by itself, let's compensate (hackfix though)
+            HeightMaxStep      = 2,                   ///< Maximum step height the orb can go before stopping between 2 points
         };
 
         enum Spells
@@ -136,11 +133,66 @@ class spell_npc_mage_frozen_orb : public CreatureScript
         {
             uint32 m_DamageTimer;
             bool m_KeepMoving;
+            float m_Orientation;
+            float m_RotCos;
+            float m_RotSin;
+            Position m_StartPosition;
+            std::vector<Position> m_PathPoints;
+            uint32 m_PathPosition;
 
             spell_npc_mage_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
             {
                 m_DamageTimer = Constants::DamageDelay; ///< As we want the damage to proc on summon
                 m_KeepMoving = true;
+                m_Orientation = me->GetOrientation();
+                m_RotCos = std::cos(m_Orientation);
+                m_RotSin = std::sin(m_Orientation);
+
+                m_StartPosition = *me;
+                m_StartPosition.m_positionZ += me->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+
+                float l_MaxStep = float(Constants::HeightMaxStep);
+                static int s_StepCount = 60;
+
+                for (int l_I = 0; l_I < s_StepCount; ++l_I)
+                {
+                    float l_Distance = float(l_I);
+
+                    Position l_Point;
+                    l_Point.m_positionX = m_StartPosition.m_positionX + (m_RotCos * l_Distance);
+                    l_Point.m_positionY = m_StartPosition.m_positionY + (m_RotSin * l_Distance);
+                    l_Point.m_positionZ = me->GetMap()->GetHeight(l_Point.m_positionX, l_Point.m_positionY, MAX_HEIGHT) + me->GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+
+                    Position l_Origin;
+                    if (l_I > 1)
+                        l_Origin = m_PathPoints[l_I - 1];
+                    else
+                        l_Origin = m_StartPosition;
+
+                    float l_Diff = std::abs(l_Origin.m_positionZ - l_Point.m_positionZ);
+
+                    if (l_Diff > l_MaxStep)
+                        break;
+
+                    m_PathPoints.push_back(l_Point);
+                }
+
+                m_PathPosition = 0;
+
+                if (!m_PathPoints.empty())
+                    me->GetMotionMaster()->MovePoint(1, m_PathPoints[m_PathPosition], false);
+            }
+
+            /// Called at waypoint reached or PointMovement end
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type == POINT_MOTION_TYPE && p_ID == 1)
+                {
+                    m_PathPosition++;
+
+                    if (m_PathPosition < m_PathPoints.size())
+                        me->GetMotionMaster()->MovePoint(1, m_PathPoints[m_PathPosition], false);
+                }
             }
 
             void EnterEvadeMode() override
@@ -151,11 +203,9 @@ class spell_npc_mage_frozen_orb : public CreatureScript
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->getHostileRefManager().setOnlineOfflineState(false);
                 me->AddAura(Spells::FrozenOrbVisual, me);
                 me->SetCanFly(true);
-
-                /// Give it a movement
-                UpdateMovement();
 
                 if (Unit* l_Owner = me->GetOwner())
                 {
@@ -222,11 +272,9 @@ class spell_npc_mage_frozen_orb : public CreatureScript
 
                     m_DamageTimer -= Constants::DamageDelay;
                 }
-
-                /// Keep updating movement
-                UpdateMovement();
             }
 
+<<<<<<< HEAD
             void UpdateMovement()
             {
                 if (!m_KeepMoving)
@@ -294,6 +342,8 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                 if (l_Dest.GetExactDistSq(&l_FinalPos) > 0.1f)
                     m_KeepMoving = false;
             }
+=======
+>>>>>>> refs/remotes/origin/wod_ptr
         };
 
         CreatureAI* GetAI(Creature* creature) const

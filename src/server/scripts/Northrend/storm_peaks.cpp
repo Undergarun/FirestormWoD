@@ -591,7 +591,7 @@ public:
                         return;
 
                     me->EnterVehicle(who, seat);
-                    me->SendMovementFlagUpdate();
+                    //me->SendMovementFlagUpdate();
                     hasEmptySeats = false;
                 }
             }
