@@ -1198,7 +1198,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
 
     ResearchProject =  p_SpellEntry->ResearchProject;
 
-    FirstSpellXSpellVIsualID = 0;
+    FirstSpellXSpellVisualID = 0;
 
     DifficultyEntry const* l_DiffEntry = sDifficultyStore.LookupEntry(DifficultyID);
     while (l_DiffEntry)
@@ -1210,7 +1210,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
             {
                 if (!l_Visual->ConditionID)
                 {
-                    FirstSpellXSpellVIsualID = l_Visual->Id;
+                    FirstSpellXSpellVisualID = l_Visual->Id;
 
                     SpellVisual[0] = l_Visual->VisualID[0];
                     SpellVisual[1] = l_Visual->VisualID[1];
@@ -1220,13 +1220,13 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
         }
 
         /// Stop looping if visual found
-        if (FirstSpellXSpellVIsualID)
+        if (FirstSpellXSpellVisualID)
             break;
 
         l_DiffEntry = sDifficultyStore.LookupEntry(l_DiffEntry->FallbackDifficultyID);
     }
 
-    if (!FirstSpellXSpellVIsualID)
+    if (!FirstSpellXSpellVisualID)
     {
         auto l_Iter = p_Visuals.find(Difficulty::DifficultyNone);
         if (l_Iter != p_Visuals.end())
@@ -1235,7 +1235,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellV
             {
                 if (!l_Visual->ConditionID)
                 {
-                    FirstSpellXSpellVIsualID = l_Visual->Id;
+                    FirstSpellXSpellVisualID = l_Visual->Id;
 
                     SpellVisual[0] = l_Visual->VisualID[0];
                     SpellVisual[1] = l_Visual->VisualID[1];

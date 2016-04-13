@@ -443,7 +443,7 @@ public:
     SpellChainNode const* ChainEntry;
     std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
-    uint32 FirstSpellXSpellVIsualID;
+    uint32 FirstSpellXSpellVisualID;
     uint8 EffectCount;
 
     // SpecializationSpellEntry
