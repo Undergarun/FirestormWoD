@@ -328,6 +328,9 @@ private:
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
+typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;
+typedef std::unordered_map<uint32, SpellVisualVector> SpellVisualMap;
+
 class SpellInfo
 {
 public:
@@ -471,7 +474,7 @@ public:
     SpellShapeshiftEntry const* GetSpellShapeshift() const;
     SpellTotemsEntry const* GetSpellTotems() const;
 
-    SpellInfo(SpellEntry const* spellEntry, uint32 difficulty);
+    SpellInfo(SpellEntry const* spellEntry, uint32 difficulty, SpellVisualMap&& p_Visuals);
     ~SpellInfo();
 
     uint32 GetCategory() const;
