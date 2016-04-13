@@ -1055,7 +1055,7 @@ class spell_biting_cold: public SpellScriptLoader
                     }
                     else
                     {
-                        if (target->isMoving())
+                        if (target->IsMoving())
                             itr->second = 1;
                         else
                             itr->second++;
@@ -1103,7 +1103,7 @@ class spell_biting_cold_dot: public SpellScriptLoader
                 int32 damage = int32(200 * pow(2.0f, GetStackAmount()));
                 caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
 
-                if (caster->isMoving())
+                if (caster->IsMoving())
                     caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);
             }
 
