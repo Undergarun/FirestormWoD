@@ -6,6 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "BattlepayMgr.h"
+#include "Interfaces\Interface_BattlePay.hpp"
 
 namespace BattlePay
 {
@@ -23,7 +25,7 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
     public:
         BattlePay_Gold(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product) override
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -33,7 +35,7 @@ template<int64 t_Gold> class BattlePay_Gold : BattlePayProductScript
             l_Player->SaveToDB();
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason) override
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)

@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 #ifndef SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_BATTLEPAY_HPP_INCLUDED

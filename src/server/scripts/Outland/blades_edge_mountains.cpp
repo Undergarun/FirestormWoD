@@ -325,7 +325,7 @@ class spell_quest_lashhan_channeling : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register() override
+            void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_quest_lashhan_channeling_SpellScript::CheckCast);
             }

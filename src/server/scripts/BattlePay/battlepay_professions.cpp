@@ -6,6 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "BattlepayMgr.h"
 
 namespace BattlePay
 {
@@ -13,21 +14,21 @@ namespace BattlePay
     {
         enum
         {
-            Alchemy = 156614,
-            Blacksmithing = 169923,
-            Enchanting = 161788,
-            Engineering = 161787,
-            Inscription = 161789,
-            JewelCrafting = 169926,
-            LeatherWorking = 169925,
-            Tailoring = 169924,
-            FirstAid = 160329,
-            Cooking = 160360,
-            Herbalism = 158745,
-            Mining = 158754,
-            Skinning = 158756,
-            Archaeology = 158762,
-            Fishing = 160326
+            Alchemy         = 156614,
+            Blacksmithing   = 169923,
+            Enchanting      = 161788,
+            Engineering     = 161787,
+            Inscription     = 161789,
+            JewelCrafting   = 169926,
+            LeatherWorking  = 169925,
+            Tailoring       = 169924,
+            FirstAid        = 160329,
+            Cooking         = 160360,
+            Herbalism       = 158745,
+            Mining          = 158754,
+            Skinning        = 158756,
+            Archaeology     = 158762,
+            Fishing         = 160326
         };
     }
 
@@ -35,7 +36,7 @@ namespace BattlePay
     {
         enum
         {
-            Prospecting = 31252,
+            Prospecting = 31252
         };
     }
 
@@ -64,7 +65,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
     public:
         BattlePay_Profession(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product) override
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -95,7 +96,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             l_Player->SaveToDB();
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason) override
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
