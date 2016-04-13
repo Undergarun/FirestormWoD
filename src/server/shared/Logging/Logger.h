@@ -10,6 +10,7 @@
 #define LOGGER_H
 
 #include "Appender.h"
+#include "Common.h"
 
 class Logger
 {

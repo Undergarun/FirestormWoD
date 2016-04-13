@@ -10,6 +10,7 @@
 #define _ITEM_ENCHANTMENT_MGR_H
 
 #include "Common.h"
+#include "DBCStructure.h"
 
 enum enchantmentRandomType
 {

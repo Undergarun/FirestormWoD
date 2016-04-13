@@ -23,6 +23,7 @@ go_legion_obelisk
 go_thunderspike
 EndContentData */
 
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
