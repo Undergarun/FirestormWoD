@@ -3202,6 +3202,36 @@ void Player::ProcessDelayedOperations()
             g->SendUpdateToPlayer(GetGUID());
     }
 
+    if (m_DelayedOperations & DELAYED_PET_BATTLE_INITIAL)
+    {
+        if (PetBattle* l_Battle = sPetBattleSystem->GetBattle(_petBattleId))
+        {
+            uint8 l_TeamID = l_Battle->Teams[PETBATTLE_TEAM_1]->OwnerGuid == GetGUID() ? PETBATTLE_TEAM_1 : PETBATTLE_TEAM_2;
+
+            PetBattleRequest l_Request;
+            memcpy(&l_Request, &l_Battle->PvPMatchMakingRequest, sizeof(PetBattleRequest));
+
+            if (l_TeamID == PETBATTLE_TEAM_2)
+            {
+                std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][0], l_Request.TeamPosition[PETBATTLE_TEAM_2][0]);
+                std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][1], l_Request.TeamPosition[PETBATTLE_TEAM_2][1]);
+                std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][2], l_Request.TeamPosition[PETBATTLE_TEAM_2][2]);
+            }
+
+            GetSession()->SendPetBattleFinalizeLocation(&l_Request);
+
+            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
+            SetFacingTo(GetAngle(l_Battle->PvPMatchMakingRequest.TeamPosition[!l_TeamID][0], l_Battle->PvPMatchMakingRequest.TeamPosition[!l_TeamID][1]));
+            SetRooted(true);
+
+            if (!l_Battle->PvPMatchMakingRequest.IsPvPReady[l_TeamID])
+                l_Battle->PvPMatchMakingRequest.IsPvPReady[l_TeamID] = true;
+
+            if (l_Battle->PvPMatchMakingRequest.IsPvPReady[PETBATTLE_TEAM_1] == true && l_Battle->PvPMatchMakingRequest.IsPvPReady[PETBATTLE_TEAM_2] == true)
+                l_Battle->Begin();
+        }
+    }
+
     //we have executed ALL delayed ops, so clear the flag
     m_DelayedOperations = 0;
 }
