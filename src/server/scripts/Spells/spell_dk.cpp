@@ -1408,7 +1408,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 uint32 l_MaxHealth = target->GetMaxHealth();
                 float l_AbsorbAmount = absorbAmount;
                 float l_Percent = (l_AbsorbAmount / l_MaxHealth) * 200.0f;
-                int32 bp = (int32)l_Percent * 10;
+                int32 bp = (int32)(l_Percent * 10);
                 target->EnergizeBySpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, bp, POWER_RUNIC_POWER);
             }
 
