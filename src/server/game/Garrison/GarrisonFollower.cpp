@@ -11,6 +11,7 @@
 #include "DB2Stores.h"
 #include "GarrisonMgr.hpp"
 #include "Player.h"
+#include "Object.h"
 
 namespace MS { namespace Garrison 
 {
