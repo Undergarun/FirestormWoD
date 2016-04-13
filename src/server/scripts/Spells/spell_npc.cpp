@@ -274,7 +274,6 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                 }
             }
 
-<<<<<<< HEAD
             void UpdateMovement()
             {
                 if (!m_KeepMoving)
@@ -342,8 +341,6 @@ class spell_npc_mage_frozen_orb : public CreatureScript
                 if (l_Dest.GetExactDistSq(&l_FinalPos) > 0.1f)
                     m_KeepMoving = false;
             }
-=======
->>>>>>> refs/remotes/origin/wod_ptr
         };
 
         CreatureAI* GetAI(Creature* creature) const
