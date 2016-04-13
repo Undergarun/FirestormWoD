@@ -22604,7 +22604,7 @@ void Unit::SetChannelSpellID(SpellInfo const* p_SpellInfo)
     if (p_SpellInfo)
     {
         SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, p_SpellInfo->Id);
-        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVIsualID);
+        SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL_XSPELL_VISUAL, p_SpellInfo->FirstSpellXSpellVisualID);
     }
     else
     {

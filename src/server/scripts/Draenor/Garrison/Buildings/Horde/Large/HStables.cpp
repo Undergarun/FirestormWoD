@@ -42,6 +42,19 @@ namespace MS { namespace Garrison
         return new npc_TormakAI(p_Creature);
     }
 
+    bool npc_Tormak::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+    {
+        GarrisonNPCAI* l_AI = p_Creature->GetAI() ? dynamic_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
+
+        if (l_AI == nullptr)
+            return true;
+
+        if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+            l_GarrisonMgr->UpdatePlot(l_AI->GetPlotInstanceID());
+
+        return true;
+    }
+
     bool npc_Tormak::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
     {
         using namespace StablesData::Horde::TormakQuestGiver;
@@ -244,7 +257,7 @@ namespace MS { namespace Garrison
 
         if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
         {
-            uint32 l_TormakNextQuestID = 0;
+            /*uint32 l_TormakNextQuestID = 0;
 
             CreatureScript* l_CreatureScript = me->GetCreatureScript();
 
@@ -261,10 +274,10 @@ namespace MS { namespace Garrison
 
             l_Owner->PlayerTalkClass->GetQuestMenu().ClearMenu();
 
-            if (l_TormakNextQuestID)
-                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            else
+            if (!l_TormakNextQuestID || l_Owner->GetQuestStatus(l_TormakNextQuestID) == QUEST_STATUS_INCOMPLETE)
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            else
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);*/
 
             if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[2].X, g_HordeCreaturesPos[2].Y, g_HordeCreaturesPos[2].Z, g_HordeCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
@@ -326,10 +339,10 @@ namespace MS { namespace Garrison
 
                 l_Owner->PlayerTalkClass->GetQuestMenu().ClearMenu();
 
-                if (l_PalunaNextQuestID)
-                    l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                else
+                if (!l_PalunaNextQuestID || l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE)
                     l_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                else
+                    l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             }
         }
     }

@@ -230,6 +230,8 @@ class boss_hansgar : public CreatureScript
 
                 _JustDied();
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -239,7 +241,11 @@ class boss_hansgar : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ScorchingBurnsDoT);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SearingPlatesDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
                 }
             }
 
@@ -1116,6 +1122,9 @@ class boss_franzok : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
                 m_ExitTankGuid = 0;
 
                 m_State = 0;
@@ -1192,6 +1201,8 @@ class boss_franzok : public CreatureScript
                 EndStampingPressesEvent();
 
                 _JustDied();
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);

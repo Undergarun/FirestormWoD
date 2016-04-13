@@ -1691,6 +1691,14 @@ bool ScriptMgr::OnConditionCheck(Condition const* p_Condition, ConditionSourceIn
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Called just before item is destroyed
+/// @p_Item        : Item to be destroyed
+/// @p_Player      : Player level
+void ScriptMgr::OnItemDestroyed(Player* p_Player, Item* p_Item)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnItemDestroyed(p_Player, p_Item);
+}
+
 /// Called when a player kills another player
 /// @p_Killer : Killer instance
 /// @p_Killed : Killed instance

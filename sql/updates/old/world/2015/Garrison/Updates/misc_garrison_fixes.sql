@@ -393,3 +393,46 @@
 	(86108, 116434, -57, 1, 0, 1, 1, ''),
 	(85822, 116434, -52, 1, 0, 1, 1, ''),
 	(86106, 116434, -50, 1, 0, 1, 1, '');
+
+#192628/Object - Anvil
+
+	UPDATE gameobject_template SET data1 = 20, scriptname = "go_garrison_anvil" WHERE entry = 192628;
+
+#84217/NPC - Robot-coq
+
+	UPDATE creature_template SET dmg_multiplier = 8 WHERE entry = 84217;
+
+#/Gob - Mine deposits
+
+	DELETE FROM gameobject_loot_template WHERE entry IN ( 55500, 55519, 55521, 55524);
+	INSERT INTO gameobject_loot_template VALUES
+	(55500, 109118, 100, 1, 0, 2, 15, ''), -- blackrock ore
+	(55500, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55500, 115508, 100, 1, 0, 1, 3, ''), -- draenic stone
+	(55500, 120945, 15, 1, 0, 1, 1, ''); -- primal spirit
+
+	INSERT INTO gameobject_loot_template VALUES
+	(55519, 109118, 100, 1, 0, 2, 15, ''), -- blackrock ore
+	(55519, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55519, 115508, 100, 1, 0, 1, 5, ''), -- draenic stone
+	(55519, 120945, 28, 1, 0, 1, 1, ''); -- primal spirit
+
+	INSERT INTO gameobject_loot_template VALUES
+	(55521, 109119, 100, 1, 0, 2, 8, ''), -- true iron ore
+	(55521, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55521, 115508, 100, 1, 0, 1, 3, ''), -- draenic stone
+	(55521, 120945, 15, 1, 0, 1, 1, ''); -- primal spirit
+
+	INSERT INTO gameobject_loot_template VALUES
+	(55524, 109119, 100, 1, 0, 2, 15, ''), -- true iron ore
+	(55524, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55524, 115508, 100, 1, 0, 1, 5, ''), -- draenic stone
+	(55524, 120945, 28, 1, 0, 1, 1, ''); -- primal spirit
+
+#Items/Goblin workshop // Gnommish gearworks
+
+	REPLACE INTO item_template_addon VALUES
+	(114983, 0x0001, 0, 0, 0, 0),
+	(119158, 0x0001, 0, 0, 0, 0),
+	(114974, 0x0001, 0, 0, 0, 0),
+	(114246, 0x0001, 0, 0, 0, 0);
