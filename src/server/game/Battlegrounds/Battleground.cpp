@@ -1426,6 +1426,9 @@ void Battleground::AddPlayer(Player* player)
 
     sScriptMgr->OnEnterBG(player, GetMapId());
 
+    if (IsRatedBG())
+        player->RemoveArenaSpellCooldowns(true);
+
     // add arena specific auras
     if (isArena())
     {
