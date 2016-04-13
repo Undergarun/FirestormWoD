@@ -1012,9 +1012,9 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
         return;
 
     uint32 l_Times[eChallengeMedals::MedalTypeGold];
-    l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
-    l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
-    l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
+    l_Times[eChallengeMedals::MedalTypeBronze - 1]  = l_ChallengeEntry->BronzeTime * TimeConstants::IN_MILLISECONDS;
+    l_Times[eChallengeMedals::MedalTypeSilver - 1]  = l_ChallengeEntry->SilverTime * TimeConstants::IN_MILLISECONDS;
+    l_Times[eChallengeMedals::MedalTypeGold - 1]    = l_ChallengeEntry->GoldTime * TimeConstants::IN_MILLISECONDS;
 
     /// Downgrade Medal if needed
     switch (m_MedalType)
