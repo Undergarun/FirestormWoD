@@ -1025,7 +1025,7 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if (l_Player->GetArenaPersonalRating(SLOT_RBG) < l_Player->GetArenaMatchMakerRating(SLOT_RBG))
             {
-                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner);
+                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner, true);
                 l_Player->SetArenaPersonalRating(SLOT_RBG, std::max(0, (int)l_Player->GetArenaPersonalRating(SLOT_RBG) + l_RatingChange));
             }
 
