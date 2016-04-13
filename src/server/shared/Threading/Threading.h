@@ -13,6 +13,8 @@
 #include <ace/TSS_T.h>
 #include <atomic>
 #include <assert.h>
+#include "Define.h"
+#include "Common.h"
 
 namespace ACE_Based
 {

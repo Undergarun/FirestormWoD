@@ -9,6 +9,8 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "auchindon.hpp"
+#include "Unit.h"
+#include "GridNotifiers.h"
 
 /// Event teleports player to Kaathar hall.
 class EventTeleportPlayer : public BasicEvent

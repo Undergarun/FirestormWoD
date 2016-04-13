@@ -7,6 +7,8 @@
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common.h"
+#include "GridNotifiers.h"
 #include "the_everbloom.hpp"
 
 enum eXeritacCreatures

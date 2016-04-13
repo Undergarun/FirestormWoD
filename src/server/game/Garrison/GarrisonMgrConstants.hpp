@@ -8,6 +8,7 @@
 #ifndef GARRISON_CONSTANTS_HPP_GARRISON
 #define GARRISON_CONSTANTS_HPP_GARRISON
 
+#include "Common.h"
 #include "SharedDefines.h"
 #include "GarrisonMgrStructures.hpp"
 

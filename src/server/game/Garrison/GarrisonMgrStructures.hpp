@@ -5,8 +5,12 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "Define.h"
+#include "Common.h"
+
 #ifndef GARRISON_STRUCTURES_HPP_GARRISON
-#define GARRISON_STRUCTURES_HPP_GARRISON
+# define GARRISON_STRUCTURES_HPP_GARRISON
 
 namespace MS { namespace Garrison 
 {

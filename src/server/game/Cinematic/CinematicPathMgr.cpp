@@ -29,6 +29,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/PhysicsFrame.h"
 #include "G3D/UprightFrame.h"
+#include "DB2Stores.h"
 
 enum
 {

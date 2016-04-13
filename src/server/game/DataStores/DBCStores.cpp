@@ -16,6 +16,7 @@
 #include "ItemPrototype.h"
 #include "TransportMgr.h"
 #include "Battleground.h"
+#include "Player.h"
 
 #include <iostream>
 #include <fstream>

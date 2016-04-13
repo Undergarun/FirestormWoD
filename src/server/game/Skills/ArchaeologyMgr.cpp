@@ -6,7 +6,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "ArchaeologyMgr.hpp"
+#include "ObjectMgr.h"
+#include "ArchaeologyMgr.hpp"
+#include "Player.h"
 
 const static int q_patt[2][2] = { { 0, 1 }, { 3, 2 } };
 

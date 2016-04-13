@@ -5,6 +5,9 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "Define.h"
+
 #pragma once
 #ifndef WOWTIME_HPP_INCLUDED
 #define WOWTIME_HPP_INCLUDED

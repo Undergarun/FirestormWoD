@@ -6,6 +6,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "SpellScript.h"
+#include "Common.h"
+#include "GridNotifiers.h"
 #include "ScriptedCreature.h"
 #include "auchindon.hpp"
 

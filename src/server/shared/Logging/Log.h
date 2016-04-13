@@ -14,6 +14,7 @@
 #include "Appender.h"
 #include "LogWorker.h"
 #include "Logger.h"
+#include "LogOperation.h"
 
 #include <ace/Singleton.h>
 

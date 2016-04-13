@@ -6,6 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ScriptedGossip.h"
+#include "GossipDef.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 

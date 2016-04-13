@@ -10,6 +10,7 @@
 #include "GarrisonMgrConstants.hpp"
 #include "DB2Stores.h"
 #include "GarrisonMgr.hpp"
+#include "Player.h"
 
 namespace MS { namespace Garrison 
 {

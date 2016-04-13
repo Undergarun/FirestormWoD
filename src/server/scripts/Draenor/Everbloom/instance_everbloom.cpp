@@ -6,6 +6,7 @@
 ///  Coded by Davethebrave
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "the_everbloom.hpp"
 
