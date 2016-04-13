@@ -16063,6 +16063,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
     if (pItem)
     {
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: DestroyItem bag = %u, slot = %u, item = %u", bag, slot, pItem->GetEntry());
+        sScriptMgr->OnItemDestroyed(this, pItem);
+
         // Also remove all contained items if the item is a bag.
         // This if () prevents item saving crashes if the condition for a bag to be empty before being destroyed was bypassed somehow.
         if (pItem->IsNotEmptyBag())
@@ -33550,6 +33552,14 @@ void Player::DeleteGarrison()
 
     delete m_Garrison;
     m_Garrison = nullptr;
+}
+
+uint32 Player::GetPlotInstanceID() const
+{
+    if (m_Garrison == nullptr)
+        return 0;
+
+    return m_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID;
 }
 
 Stats Player::GetPrimaryStat() const
