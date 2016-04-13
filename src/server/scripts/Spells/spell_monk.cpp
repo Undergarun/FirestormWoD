@@ -2824,6 +2824,41 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
             }
         };
 
+        class spell_monk_chi_torpedo_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_chi_torpedo_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->IsFalling() || l_Player->m_movementInfo.fallTime != 0 || l_Player->m_movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_FALLING))
+                    && !l_Player->m_movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_HOVER)
+                    && !l_Player->m_movementInfo.HasMovementFlag(MovementFlags2::MOVEMENTFLAG2_NO_JUMPING))
+                {
+                    p_Amount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_chi_torpedo_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_MINIMUM_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_chi_torpedo_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_chi_torpedo_SpellScript();
