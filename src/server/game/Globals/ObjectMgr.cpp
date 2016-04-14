@@ -5581,13 +5581,13 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = _npcTextLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_LOCALES; ++j)
+            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
             {
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
+                AddLocaleString(fields[1 + (TOTAL_LOCALES - 1) * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
+                AddLocaleString(fields[1 + (TOTAL_LOCALES - 1) * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
             }
         }
     }
