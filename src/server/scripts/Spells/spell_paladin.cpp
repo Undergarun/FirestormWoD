@@ -1446,10 +1446,10 @@ class spell_pal_holy_prism_effect: public SpellScriptLoader
 
                 /// damage
                 if (GetSpellInfo()->Id == 114862)
-                    _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_ENNEMIES, true);
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_ENNEMIES, true);
                 /// heal
                 else if (GetSpellInfo()->Id == 121551)
-                    _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_ALLIES, true);
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_ALLIES, true);
             }
 
             void Register()
