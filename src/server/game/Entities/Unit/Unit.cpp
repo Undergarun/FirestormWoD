@@ -18889,6 +18889,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     /// Hook for OnPVPKill Event
     if (Player* l_KillerPlayer = ToPlayer())
     {
+        sScriptMgr->OnKill(l_KillerPlayer, p_KilledVictim);
         if (Player* l_KilledPlayer = p_KilledVictim->ToPlayer())
             sScriptMgr->OnPVPKill(l_KillerPlayer, l_KilledPlayer);
         else if (Creature* l_KilledCreature = p_KilledVictim->ToCreature())
@@ -22505,6 +22506,10 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Ice Nova - In pvp, damage reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x80000)
             return -20.0f;
+
+        /// Living Bomb - In pvp, damage reduce by 15%
+        if (p_Spellproto->Id == 44461)
+            return -15.0f;
         break;
     }
     case SPELLFAMILY_WARRIOR:

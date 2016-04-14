@@ -1707,6 +1707,14 @@ void ScriptMgr::OnPVPKill(Player* p_Killer, Player* p_Killed)
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(p_Killer, p_Killed);
 }
 
+/// Called when a player kills a Unit
+/// @p_Killer : Killer instance
+/// @p_Killed : Killed instance
+void ScriptMgr::OnKill(Player* p_Killer, Unit* p_Killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnKill(p_Killer, p_Killed);
+}
+
 /// Called when a player kills a creature
 /// @p_Killer : Killer instance
 /// @p_Killed : Killed instance

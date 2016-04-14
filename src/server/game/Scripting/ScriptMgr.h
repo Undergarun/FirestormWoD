@@ -599,6 +599,11 @@ class ScriptMgr
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player* p_Killer, Player* p_Killed);
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        void OnKill(Player* p_Killer, Unit* p_Killed);
         
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance

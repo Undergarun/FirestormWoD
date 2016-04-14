@@ -3144,7 +3144,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 {
                     if ((*itr)->GetEntry() == NPC_SNAKE_JADE_STATUE)
                     {
-                        if ((*itr)->GetDistance(p_Caster) <= 40.0f)
+                        if ((*itr)->GetDistance(p_Caster) <= 500.0f)
                             l_JadeStatue = (*itr);
                     }
                 }
@@ -3173,7 +3173,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 for (Unit* l_Target : l_PartyList)
                 {
-                    if (!l_Target->IsValidAssistTarget(l_Target))
+                    if (!l_Caster->IsValidAssistTarget(l_Target))
                         continue;
 
                     if (l_Target->GetDistance(l_JadeStatue) > 40.0f)
@@ -3241,11 +3241,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 Unit *l_JadeStatue = GetStatueOfUnit(l_Caster);
 
                 if (l_JadeStatue == nullptr)
-                    return;
-
-                Unit *l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
-
-                if (l_TargetOfJadeStatue == nullptr)
                     return;
 
                 l_JadeStatue->CastStop();

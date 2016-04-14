@@ -3978,6 +3978,27 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
         }
 };
 
+/// Demonic Fury regeneration by kill
+class PlayerScript_DemonicFury_On_Kill : public PlayerScript
+{
+    public:
+        PlayerScript_DemonicFury_On_Kill() :PlayerScript("PlayerScript_DemonicFury_On_Kill") { }
+
+        enum eSpells
+        {
+            Metamorphis = 103958
+        };
+
+        void OnKill(Player* p_Player, Unit* p_Victim) override
+        {
+            if (p_Player->GetSpecializationId() != SPEC_WARLOCK_DEMONOLOGY)
+                return;
+
+            if (p_Player->isHonorOrXPTarget(p_Victim) && p_Player->HasAura(eSpells::Metamorphis))
+                p_Player->ModifyPower(POWER_DEMONIC_FURY, 100 * p_Player->GetPowerCoeff(POWER_DEMONIC_FURY));
+        }
+};
+
 /// Create Healthstone - 6201
 class spell_warl_create_healthstone: public SpellScriptLoader
 {
@@ -4473,4 +4494,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_shards_visual();
     new spell_warl_command_demon_spells();
     new spell_warl_cripple_doomguard();
+    new PlayerScript_DemonicFury_On_Kill();
 }
