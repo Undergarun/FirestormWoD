@@ -22506,6 +22506,10 @@ float Unit::GetDiminishingPVPDamage(SpellInfo const* p_Spellproto) const
         /// Ice Nova - In pvp, damage reduce by 20%
         if (p_Spellproto->SpellFamilyFlags[3] & 0x80000)
             return -20.0f;
+
+        /// Living Bomb - In pvp, damage reduce by 15%
+        if (p_Spellproto->Id == 44461)
+            return -15.0f;
         break;
     }
     case SPELLFAMILY_WARRIOR:
