@@ -436,3 +436,12 @@
 	(119158, 0x0001, 0, 0, 0, 0),
 	(114974, 0x0001, 0, 0, 0, 0),
 	(114246, 0x0001, 0, 0, 0, 0);
+
+#79862/NPC
+
+	DELETE FROM creature WHERE id = 79862;
+
+#168342/Spell
+
+	DELETE FROM spell_script_names WHERE spell_id = 168342;
+	INSERT INTO spell_script_names VALUE (168342, "spell_aura_garrison_skyterror_falling");
