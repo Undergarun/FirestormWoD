@@ -588,11 +588,46 @@ namespace MS { namespace Garrison
             }
     };
 
+    /// Well-rested - 172425
+    class spell_aura_garrison_skyterror_falling : public SpellScriptLoader
+    {
+        public:
+            spell_aura_garrison_skyterror_falling() : SpellScriptLoader("spell_aura_garrison_skyterror_falling") { }
+
+            class spell_aura_garrison_skyterror_falling_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript);
+
+                void OnUpdate(uint32 p_Diff)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    /// Awaits for hardcpp's PR validation...
+///                    if (!l_Owner->IsFalling())
+///                        Remove();
+                }
+
+                void Register() override
+                {
+                    OnAuraUpdate += AuraUpdateFn(spell_aura_garrison_skyterror_falling_AuraScript::OnUpdate);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_aura_garrison_skyterror_falling_AuraScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_aura_garrison_skyterror_falling();
     new MS::Garrison::spell_garrison_stables_lasso();
     new MS::Garrison::spell_garrison_hearthstone();
     new MS::Garrison::spell_garrison_portal();

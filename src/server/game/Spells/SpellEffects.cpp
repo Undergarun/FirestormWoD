@@ -7874,7 +7874,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
         return;
     }
 
-    if (l_TargetPlayer->GetGarrison())
+    if (l_TargetPlayer->GetGarrison() && l_TargetPlayer->getLevel() >= 90)
     {
         ChatHandler(l_TargetPlayer).PSendSysMessage("Player already have a garrison");
         return;
