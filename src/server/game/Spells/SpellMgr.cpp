@@ -3499,7 +3499,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155897: ///< Earthshaking Collision (Oregorger)
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
-            case 173461: ///< Blackrock Barrage
+            case 159958: ///< Earthshaking Stomp (Oregorger)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 173461: ///< Blackrock Barrage (Oregorger)
                 spellInfo->CasterAuraSpell = 0;
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;

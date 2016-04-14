@@ -501,6 +501,9 @@ class boss_oregorger : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                m_Events.Reset();
+                m_CosmeticEvents.Reset();
+
                 me->RemoveAllAuras();
 
                 me->RemoveAllAreasTrigger();
