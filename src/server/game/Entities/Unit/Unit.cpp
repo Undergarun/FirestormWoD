@@ -18889,6 +18889,7 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     /// Hook for OnPVPKill Event
     if (Player* l_KillerPlayer = ToPlayer())
     {
+        sScriptMgr->OnKill(l_KillerPlayer, p_KilledVictim);
         if (Player* l_KilledPlayer = p_KilledVictim->ToPlayer())
             sScriptMgr->OnPVPKill(l_KillerPlayer, l_KilledPlayer);
         else if (Creature* l_KilledCreature = p_KilledVictim->ToCreature())
