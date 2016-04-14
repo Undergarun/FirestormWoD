@@ -2691,6 +2691,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 126908: ///< Bronze Strongbox A - S2
             case 126907: ///< Silver Strongbox A - S2
             case 126906: ///< Gold Strongbox A - S2
+            case 126919: ///< Champion's Strongbox A (RBG)
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -2703,6 +2704,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 126903: ///< Bronze Strongbox H - S2
             case 126902: ///< Silver Strongbox H - S2
             case 126901: ///< Gold Strongbox H - S2
+            case 126920: ///< Champion's Strongbox H (RBG)
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;

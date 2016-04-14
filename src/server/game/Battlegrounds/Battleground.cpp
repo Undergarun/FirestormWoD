@@ -1031,6 +1031,16 @@ void Battleground::EndBattleground(uint32 p_Winner)
 
             if (l_Team == p_Winner)
             {
+                uint32 l_BattleHardened[2] = { 38929, 38927 };
+
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_BattleHardened[l_Player->GetTeamId()]))
+                {
+                    if (!l_Player->HasQuest(l_Quest->GetQuestId()) && l_Player->CanTakeQuest(l_Quest, false))
+                        l_Player->AddQuest(l_Quest, l_Player);
+
+                    l_Player->KilledMonsterCredit(66623);
+                }
+
                 l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
