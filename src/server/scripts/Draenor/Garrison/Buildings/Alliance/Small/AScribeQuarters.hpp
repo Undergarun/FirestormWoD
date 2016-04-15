@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_EricBroadoak = ProfessionBuilding_SkillNPC<npc_EricBroadoakAIData::ScriptName, SKILL_INSCRIPTION, Quests::Alliance_YourFirstInscriptionWorkOrder, &npc_EricBroadoakAIData::Recipes, &npc_EricBroadoakAIData::FnLevel1, &npc_EricBroadoakAIData::FnLevel2, &npc_EricBroadoakAIData::FnLevel3>;
+    using npc_EricBroadoak = ProfessionBuilding_SkillNPC<npc_EricBroadoakAIData::ScriptName, SKILL_INSCRIPTION, Quests::Alliance_YourFirstInscriptionWorkOrder, 77372, &npc_EricBroadoakAIData::FnLevel1, &npc_EricBroadoakAIData::FnLevel2, &npc_EricBroadoakAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77777 - KurtBroadoak                                              ////

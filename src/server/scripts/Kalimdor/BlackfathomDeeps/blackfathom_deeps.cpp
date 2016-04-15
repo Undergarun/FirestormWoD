@@ -245,8 +245,7 @@ public:
             {
                 case 4:
                     SetEscortPaused(true);
-                    me->SetOrientation(1.775791f);
-                    me->SendMovementFlagUpdate();
+                    me->SetFacingTo(1.775791f);
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     DoScriptText(SAY_MORRIDUNE_2, me);
                     break;

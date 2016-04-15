@@ -372,6 +372,8 @@ void RespawnBrothers(Creature* p_Source, InstanceScript* p_Instance)
         l_Other->Respawn();
         l_Other->GetMotionMaster()->MoveTargetedHome();
     }
+
+    p_Instance->DoCombatStopOnPlayers();
 }
 
 void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instance)

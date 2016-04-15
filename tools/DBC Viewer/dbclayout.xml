@@ -3819,6 +3819,7 @@
     <field type="int" name="field133" />
     <field type="int" name="field134" />
     <field type="int" name="field135" />
+    <field type="int" name="newField" />
   </PlayerCondition>
   <AreaPOI build="19243">
     <index>

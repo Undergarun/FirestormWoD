@@ -253,7 +253,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
         return;
 
     p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Base->GetId());                                  ///< SpellID
-    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVIsualID);                                         ///< SpellVisuals
+    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVisualID);                                         ///< SpellVisuals
     p_Data << uint8(l_Flags);                                                                                   ///< Flags
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Base->GetCasterLevel());                                                                 ///< Cast Level
@@ -2404,8 +2404,9 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
     }
 
-    if (IsSameRaidBuff(existingAura))
-        return false;
+    /// Actually raid buff are stacking when it should not, we need to fine a better way to fix it
+    /*if (IsSameRaidBuff(existingAura))
+        return false;*/
 
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)

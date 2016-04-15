@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_Pozzlow = ProfessionBuilding_SkillNPC<npc_PozzlowAIData::ScriptName, SKILL_ENGINEERING, Quests::Horde_YourFirstEngineeringWorkOrder, &npc_PozzlowAIData::Recipes, &npc_PozzlowAIData::FnLevel1, &npc_PozzlowAIData::FnLevel2, &npc_PozzlowAIData::FnLevel3>;
+    using npc_Pozzlow = ProfessionBuilding_SkillNPC<npc_PozzlowAIData::ScriptName, SKILL_ENGINEERING, Quests::Horde_YourFirstEngineeringWorkOrder, 79826, &npc_PozzlowAIData::FnLevel1, &npc_PozzlowAIData::FnLevel2, &npc_PozzlowAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 86696 - Garbra Fizzwonk                                           ////
