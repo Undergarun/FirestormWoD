@@ -14109,7 +14109,12 @@ bool Unit::IsValidAttackTarget(Unit const* target) const
 // function based on function Unit::CanAttack from 13850 client
 bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj) const
 {
-    ASSERT(target);
+    /// Pointer cannot be null in well-defined C++ code; comparison may be assumed to always evaluate to false
+    if (target == nullptr)
+    {
+        sLog->outAshran("Unit::_IsValidAttackTarget, target is null!");
+        return false;
+    }
 
     bool areaSpell = false;
     if (bySpell)
