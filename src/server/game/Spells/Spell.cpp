@@ -4548,7 +4548,8 @@ void Spell::finish(bool ok)
     // potions disabled by client, send event "not in combat" if need
     if (m_caster->IsPlayer() && !IsSpellTriggeredAfterCast())
     {
-        if (!m_triggeredByAuraSpell)
+        /// There is no cooldown to update for triggered spells
+        if (!m_triggeredByAuraSpell && !(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
             m_caster->ToPlayer()->UpdatePotionCooldown(this);
 
         // triggered spell pointer can be not set in some cases
