@@ -33805,8 +33805,6 @@ uint32 Player::GetBattlePetCombatSize()
 /// Load pet battle async callback
 bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 {
-    sLog->outAshran("Player::_LoadPetBattles %u", GetGUIDLow());
-
     m_BattlePets.clear();
 
     if (!p_Result)
@@ -33835,13 +33833,13 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
                 l_BattlePet.Level   = 1;
             }
 
-            // Calculate XP for level
+            /// Calculate XP for level
             l_BattlePet.XP = 0;
 
             if (l_BattlePet.Level > 1 && l_BattlePet.Level < 100)
                 l_BattlePet.XP = sGtBattlePetXPStore.LookupEntry(l_BattlePet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + l_BattlePet.Level - 2)->value;
 
-            // Calculate stats
+            /// Calculate stats
             l_BattlePet.UpdateStats();
             l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
             l_BattlePet.AddToPlayer(this);
@@ -33919,19 +33917,19 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
             l_BattlePet.Level   = 1;
         }
 
-        // Calculate XP for level
+        /// Calculate XP for level
         l_BattlePet.XP = 0;
 
         if (l_BattlePet.Level > 1 && l_BattlePet.Level < 100)
             l_BattlePet.XP = sGtBattlePetXPStore.LookupEntry(l_BattlePet.Level - 2)->value * sGtBattlePetXPStore.LookupEntry(100 + l_BattlePet.Level - 2)->value;
 
-        // Calculate stats
+        /// Calculate stats
         l_BattlePet.UpdateStats();
         l_BattlePet.Health = l_BattlePet.InfoMaxHealth;
 
         l_BattlePet.AddToPlayer(this);
 
-        //removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
+        ///removeSpell(m_OldPetBattleSpellToMerge[l_I].first);
     }
 
     m_OldPetBattleSpellToMerge.clear();
