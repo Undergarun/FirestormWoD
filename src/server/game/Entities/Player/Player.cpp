@@ -2650,70 +2650,6 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-void Player::SendTeleportPacket(Position& p_OldPosition)
-{
-    ObjectGuid l_TransportGUID = GetTransGUID();
-    bool l_HasVehicle = false;
-
-    WorldPacket l_TeleportPacket(SMSG_MOVE_TELEPORT, 38);
-    l_TeleportPacket.appendPackGUID(GetGUID());
-    l_TeleportPacket << uint32(0);                  //  SequenceIndex
-    l_TeleportPacket << float(GetPositionX());
-    l_TeleportPacket << float(GetPositionY());
-    l_TeleportPacket << float(GetPositionZMinusOffset());
-    l_TeleportPacket << float(GetOrientation());
-
-    l_TeleportPacket.WriteBit(uint64(l_TransportGUID) != 0LL);
-    l_TeleportPacket.WriteBit(l_HasVehicle);
-    l_TeleportPacket.FlushBits();
-
-    if (l_TransportGUID)
-        l_TeleportPacket.appendPackGUID(GetTransGUID());
-
-    if (l_HasVehicle)
-    {
-        l_TeleportPacket << uint8(0);   ///< VehicleSeatIndex
-        l_TeleportPacket.WriteBit(0);   ///< VehicleExitVoluntary
-        l_TeleportPacket.WriteBit(0);   ///< VehicleExitTeleport
-        l_TeleportPacket.FlushBits();
-    }
-
-    SendDirectMessage(&l_TeleportPacket);
-
-    GetPosition(&m_mover->m_movementInfo.pos);
-    Relocate(&p_OldPosition);
-
-    m_mover->m_movementInfo.time = getMSTime();
-
-    WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
-
-    GetSession()->WriteMovementInfo(l_TeleportUpdatePacket, &m_mover->m_movementInfo);
-    l_TeleportUpdatePacket << uint32(0);    ///< Movement force count
-
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasWalkSpeed
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasRunSpeed
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasRunBack
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimSpeed
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasSwimBack
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightSpeed
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasFlightBack
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasTurnRate
-    l_TeleportUpdatePacket.WriteBit(true);  ///< HasPitchRate
-    l_TeleportUpdatePacket.FlushBits();
-
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_WALK));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_RUN));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_RUN_BACK));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_SWIM));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_SWIM_BACK));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_FLIGHT));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_FLIGHT_BACK));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_TURN_RATE));
-    l_TeleportUpdatePacket << float(GetSpeed(MOVE_PITCH_RATE));
-
-    SendMessageToSet(&l_TeleportUpdatePacket, this);
-}
-
 bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_Options)
 {
     if (!MapManager::IsValidMapCoord(p_MapID, p_X, p_Y, p_Z, p_O))
@@ -2768,7 +2704,8 @@ bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p
         ExitVehicle();
 
     /// Reset movement flags at teleport, because player will continue move with these flags after teleport
-    SetUnitMovementFlags(0);
+    SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
+    m_movementInfo.ResetJump();
     DisableSpline();
 
     if (m_transport)
@@ -2836,13 +2773,7 @@ bool Player::TeleportTo(uint32 p_MapID, float p_X, float p_Y, float p_Z, float p
         SetSemaphoreTeleportNear(true);
         /// Near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
-        {
-            Position l_OldPos = *this;
-            Relocate(p_X, p_Y, p_Z, p_O);
-
-            /// This automatically relocates to oldPos in order to broadcast the packet in the right place
-            SendTeleportPacket(l_OldPos);
-        }
+            SendTeleportPacket(m_teleport_dest);
     }
     else
     {
@@ -3217,6 +3148,8 @@ void Player::ProcessDelayedOperations()
                 std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][1], l_Request.TeamPosition[PETBATTLE_TEAM_2][1]);
                 std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][2], l_Request.TeamPosition[PETBATTLE_TEAM_2][2]);
             }
+
+            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[2] = GetMap()->GetHeight(l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[0], l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[1], MAX_HEIGHT);
 
             GetSession()->SendPetBattleFinalizeLocation(&l_Request);
 
@@ -7225,7 +7158,7 @@ void Player::BuildPlayerRepop()
     /// convert player body to ghost
     SetHealth(1);
 
-    SendMovementSetWaterWalking(true);
+    SetWaterWalking(true);
 
     if (!GetSession()->isLogingOut())
         SetRooted(false);
@@ -7276,7 +7209,7 @@ void Player::ResurrectPlayer(float p_RestorePercent, bool p_ApplySickness)
 
     setDeathState(ALIVE);
 
-    SendMovementSetWaterWalking(false);
+    SetWaterWalking(false, true);
     SetRooted(false);
 
     m_deathTimer = 0;
@@ -25012,7 +24945,7 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
         return;
 
     WorldPacket l_Data;
-    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_UNIVERSAL, p_Prefix.c_str());
+    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_ADDON, p_Prefix.c_str());
     p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
@@ -27752,7 +27685,7 @@ void Player::SendInitialPacketsAfterAddToMap()
             SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
-    GetSession()->SendPetBattleJournal();
+    GetSession()->SendBattlePetJournal();
 
     if (GetSkillValue(SKILL_ARCHAEOLOGY))
     {
@@ -28105,13 +28038,13 @@ void Player::SendAurasForTarget(Unit* p_Target)
 
     /// Blizz sends certain movement packets sometimes even before CreateObject
     if (p_Target->HasAuraType(SPELL_AURA_FEATHER_FALL))
-        p_Target->SendMovementFeatherFall();
+        p_Target->SetFeatherFall(true, true);
 
     if (p_Target->HasAuraType(SPELL_AURA_WATER_WALK))
-        p_Target->SendMovementWaterWalking();
+        p_Target->SetWaterWalking(true, true);
 
     if (p_Target->HasAuraType(SPELL_AURA_HOVER))
-        p_Target->SendMovementHover(true);
+        p_Target->SetHover(true, true);
 
     Unit::VisibleAuraMap const* l_VisibleAuras = p_Target->GetVisibleAuras();
 
@@ -32204,34 +32137,6 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
     return NULL;
 }
 
-bool Player::SetHover(bool enable)
-{
-    if (!Unit::SetHover(enable))
-        return false;
-
-    return true;
-}
-
-void Player::SendMovementSetCanFly(bool p_Apply)
-{
-    WorldPacket l_Data;
-
-    if (p_Apply)
-    {
-        l_Data.Initialize(SMSG_MOVE_SET_CAN_FLY, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-    else
-    {
-        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-
-    SendDirectMessage(&l_Data);
-}
-
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool p_Apply)
 {
     WorldPacket l_Data;
@@ -32245,66 +32150,6 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool p_Apply)
     else
     {
         l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-
-    SendDirectMessage(&l_Data);
-}
-
-void Player::SendMovementSetHover(bool p_Apply)
-{
-    WorldPacket l_Data;
-
-    if (p_Apply)
-    {
-        l_Data.Initialize(SMSG_MOVE_SET_HOVER, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-    else
-    {
-        l_Data.Initialize(SMSG_MOVE_UNSET_HOVER, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-
-    SendDirectMessage(&l_Data);
-}
-
-void Player::SendMovementSetWaterWalking(bool p_Apply)
-{
-    WorldPacket l_Data;
-
-    if (p_Apply)
-    {
-        l_Data.Initialize(SMSG_MOVE_WATER_WALK, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-    else
-    {
-        l_Data.Initialize(SMSG_MOVE_LAND_WALK, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-
-    SendDirectMessage(&l_Data);
-}
-
-void Player::SendMovementSetFeatherFall(bool p_Apply)
-{
-    WorldPacket l_Data;
-
-    if (p_Apply)
-    {
-        l_Data.Initialize(SMSG_MOVE_FEATHER_FALL, 2 + 16 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);                ///< Movement counter
-    }
-    else
-    {
-        l_Data.Initialize(SMSG_MOVE_NORMAL_FALL, 2 + 16 + 4);
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(0);                ///< Movement counter
     }
@@ -33029,24 +32874,42 @@ void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)
     SendDirectMessage(&l_Data);
 }
 
+/// Has battle pet training
+bool Player::HasBattlePetTraining()
+{
+    return HasSpell(119467);
+}
+
+/// Get battle pet trap level
+uint32 Player::GetBattlePetTrapLevel()
+{
+    /// Pro Pet Crew
+    if (GetAchievementMgr().HasAccountAchieved(6581))
+        return 3;     ///< Pristine Pet Trap
+
+    /// Going to Need More Traps
+    if (GetAchievementMgr().HasAccountAchieved(6556))
+        return 2;      ///< Strong Pet Trap
+
+    return 1; ///< Pet trap
+}
+
 /// Compute the unlocked pet battle slot
 uint32 Player::GetUnlockedPetBattleSlot()
 {
-    uint32 l_SlotCount = 0;
-
-    /// battle pet training
-    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
-        l_SlotCount++;
+    /// Just a Pup
+    if (GetAchievementMgr().HasAccountAchieved(6566))
+        return 3;
 
     /// Newbie
     if (GetAchievementMgr().HasAccountAchieved(7433))
-        l_SlotCount++;
+        return 2;
 
-    /// Just a Pup
-    if (GetAchievementMgr().HasAccountAchieved(6566))
-        l_SlotCount++;
+    /// battle pet training
+    if (HasBattlePetTraining())
+        return 1;
 
-    return l_SlotCount;
+    return 0;
 }
 
 /// Summon current pet if any active
@@ -33937,7 +33800,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
     if (l_OldPetAdded)
         return false;
 
-    GetSession()->SendPetBattleJournal();
+    GetSession()->SendBattlePetJournal();
 
     return true;
 }

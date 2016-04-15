@@ -8054,7 +8054,8 @@ void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
             l_Pet->Health = l_Pet->InfoMaxHealth;
         }
 
-        m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetsHealed();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetUpdates(false);
     }
 }
 
@@ -8072,7 +8073,7 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    player->GetSession()->SendPetBattleSlotUpdates(false);
 }
 
 void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)
