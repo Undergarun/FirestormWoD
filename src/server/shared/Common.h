@@ -85,6 +85,7 @@
 #include <functional>   ///< std::less
 #include <algorithm>    ///< std::sort, std::includes
 
+#include <atomic>
 #include <mutex>
 #include <thread>
 #include <array>
