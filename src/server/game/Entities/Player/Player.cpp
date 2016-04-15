@@ -17660,7 +17660,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantItemVisualId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);

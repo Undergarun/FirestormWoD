@@ -3396,15 +3396,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 179244:    ///< Summon Chauffeur (Horde)
+            case 179245:    ///< Summon Chauffeur (Alliance)
+                spellInfo->Effects[EFFECT_0].MiscValueB = 284;  ///< This will allow level 1 mounting at 160% normal speed
+                break;
             case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
             case 161710:    ///< Garrison enchanter study
             case 160201:    ///< Garrison enchanter study
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
                 break;
-        }
-
-        switch (spellInfo->Id)
-        {
             case 178444: ///< Create Armor Enhancement (garrison loot spell)
             case 178445: ///< Create Weapon Boost (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
