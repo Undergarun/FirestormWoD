@@ -3423,7 +3423,7 @@ void SpellMgr::LoadSpellCustomAttr()
             /// Stables
             ///////////////////////////////////////////////////////////////////////////////////
             case 174216:
-            case 174218:
+            case 174218: ///< potentially fixed, but causes player stuck
             case 174219:
             case 174220:
             case 174221:
@@ -3434,7 +3434,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].MiscValue = 305;
                 spellInfo->Effects[0].MiscValueB = 230;
                 break;
-            case 173702:
+            case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 173686: ///< Stables Lasso
