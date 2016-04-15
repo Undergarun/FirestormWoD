@@ -3405,6 +3405,10 @@ class Player : public Unit, public GridObject<Player>
         /// @p_SceneInstanceID : Scene instance ID
         void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
+        /// Has battle pet training
+        bool HasBattlePetTraining();
+        /// Get battle pet trap level
+        uint32 GetBattlePetTrapLevel();
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();
         /// Summon current pet if any active

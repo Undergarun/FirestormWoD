@@ -3218,6 +3218,8 @@ void Player::ProcessDelayedOperations()
                 std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][2], l_Request.TeamPosition[PETBATTLE_TEAM_2][2]);
             }
 
+            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[2] = GetMap()->GetHeight(l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[0], l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[1], MAX_HEIGHT);
+
             GetSession()->SendPetBattleFinalizeLocation(&l_Request);
 
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -27752,7 +27754,7 @@ void Player::SendInitialPacketsAfterAddToMap()
             SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
-    GetSession()->SendPetBattleJournal();
+    GetSession()->SendBattlePetJournal();
 
     if (GetSkillValue(SKILL_ARCHAEOLOGY))
     {
@@ -33029,24 +33031,42 @@ void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)
     SendDirectMessage(&l_Data);
 }
 
+/// Has battle pet training
+bool Player::HasBattlePetTraining()
+{
+    return HasSpell(119467);
+}
+
+/// Get battle pet trap level
+uint32 Player::GetBattlePetTrapLevel()
+{
+    /// Pro Pet Crew
+    if (GetAchievementMgr().HasAccountAchieved(6581))
+        return 3;     ///< Pristine Pet Trap
+
+    /// Going to Need More Traps
+    if (GetAchievementMgr().HasAccountAchieved(6556))
+        return 2;      ///< Strong Pet Trap
+
+    return 1; ///< Pet trap
+}
+
 /// Compute the unlocked pet battle slot
 uint32 Player::GetUnlockedPetBattleSlot()
 {
-    uint32 l_SlotCount = 0;
-
-    /// battle pet training
-    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
-        l_SlotCount++;
+    /// Just a Pup
+    if (GetAchievementMgr().HasAccountAchieved(6566))
+        return 3;
 
     /// Newbie
     if (GetAchievementMgr().HasAccountAchieved(7433))
-        l_SlotCount++;
+        return 2;
 
-    /// Just a Pup
-    if (GetAchievementMgr().HasAccountAchieved(6566))
-        l_SlotCount++;
+    /// battle pet training
+    if (HasBattlePetTraining())
+        return 1;
 
-    return l_SlotCount;
+    return 0;
 }
 
 /// Summon current pet if any active
@@ -33937,7 +33957,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
     if (l_OldPetAdded)
         return false;
 
-    GetSession()->SendPetBattleJournal();
+    GetSession()->SendBattlePetJournal();
 
     return true;
 }
