@@ -1290,13 +1290,15 @@ enum Opcodes
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT       = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x0000, ///<
-    CMSG_ADDON_REGISTERED_PREFIXES              = 0x0000, ///<
+    CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT       = 0x17FA, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x16D9, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x03FE, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x16FD, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x07B1, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x02BE, ///< 6.2.3 20779
+    CMSG_CHAT_ADDON_MESSAGE_CHANNEL             = 0x03D6, ///< 6.2.3 20779
+    CMSG_CHAT_REGISTER_ADDON_PREFIXES           = 0x0692, ///< 6.2.3 20779
+    CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES     = 0x03F9, ///< 6.2.3 20779
 
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0EF9, ///< 6.2.3 20726
