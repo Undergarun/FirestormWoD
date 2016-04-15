@@ -55,8 +55,6 @@ template void Map::AddToActive<Corpse>(Corpse* obj);
 
 Map::~Map()
 {
-    sLog->outAshran("Map::~Map(%u)", GetId());
-
     sScriptMgr->OnDestroyMap(this);
 
     // We need to depopulate WildBattlePet for respawn replaced creatures next time
