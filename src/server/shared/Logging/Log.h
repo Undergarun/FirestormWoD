@@ -16,8 +16,6 @@
 #include "Logger.h"
 #include "LogOperation.h"
 
-#include <ace/Singleton.h>
-
 #include <cstdarg>
 #include <cstdio>
 

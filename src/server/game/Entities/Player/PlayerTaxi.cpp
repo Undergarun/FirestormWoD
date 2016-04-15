@@ -9,7 +9,6 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "Common.h"
-#include <stdlib.h>
 
 /// String to unsigned long
 /// @p_Str : String input

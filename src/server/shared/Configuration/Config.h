@@ -9,7 +9,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <string>
+#include "Common.h"
 
 namespace ConfigMgr
 {

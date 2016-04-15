@@ -6,7 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <string>
+#include "Common.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"

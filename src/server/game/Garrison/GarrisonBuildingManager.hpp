@@ -9,7 +9,6 @@
 #ifndef GARRISON_BUILDING_MANAGER_HPP_GARRISON
 # define GARRISON_BUILDING_MANAGER_HPP_GARRISON
 
-#include <ace/Singleton.h>
 #include "Common.h"
 
 namespace MS { namespace Garrison 

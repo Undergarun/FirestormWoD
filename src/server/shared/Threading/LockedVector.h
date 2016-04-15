@@ -13,9 +13,6 @@
 #define LOCKEDVECTOR_H
 
 #include "Common.h"
-#include <vector>
-#include <list>
-#include <assert.h>
 
 namespace ACE_Based
 {

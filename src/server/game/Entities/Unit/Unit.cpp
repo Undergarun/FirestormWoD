@@ -50,7 +50,6 @@
 #include "UpdateFieldFlags.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include <math.h>
 #include "SpellAuraEffects.h"
 #include "BattlegroundKT.h"
 #include "BattlegroundWS.h"

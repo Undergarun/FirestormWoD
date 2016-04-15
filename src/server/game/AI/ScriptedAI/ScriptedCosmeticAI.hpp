@@ -5,14 +5,13 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef SCRIPTED_COMESTIC_AI_HPP_SCRIPTED_AI
-#define SCRIPTED_COMESTIC_AI_HPP_SCRIPTED_AI
+# define SCRIPTED_COMESTIC_AI_HPP_SCRIPTED_AI
 
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Common.h"
-
-#include <vector>
 
 namespace MS { namespace AI 
 {

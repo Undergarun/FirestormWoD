@@ -10,7 +10,6 @@
 #define TRINITY_CONDITIONMGR_H
 
 #include "LootMgr.h"
-#include <ace/Singleton.h>
 #include "Common.h"
 
 class Creature;

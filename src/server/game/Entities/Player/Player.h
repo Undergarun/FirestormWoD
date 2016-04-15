@@ -40,7 +40,6 @@
 // for template
 #include "SpellMgr.h"
 #include <ace/Stack_Trace.h>
-#include <unordered_set>
 #include <chrono>
 #include <deque>
 

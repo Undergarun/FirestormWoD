@@ -9,10 +9,8 @@
 #ifndef LOCKEDQUEUE_H
 #define LOCKEDQUEUE_H
 
-#include <ace/Guard_T.h>
-#include <ace/Thread_Mutex.h>
+#include "Common.h"
 #include <deque>
-#include <assert.h>
 #include "Debugging/Errors.h"
 
 namespace ACE_Based

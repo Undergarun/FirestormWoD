@@ -23,7 +23,7 @@
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Group.h"
-#include <thread>
+#include "Common.h"
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 

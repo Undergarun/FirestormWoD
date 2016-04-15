@@ -11,10 +11,11 @@
 #ifndef LOCKEDMAP_H
 #define LOCKEDMAP_H
 
-#include "Common.h"
 #include <map>
 #include <assert.h>
 #include <ace/Guard_T.h>
+
+#include "Common.h"
 
 namespace ACE_Based
 {

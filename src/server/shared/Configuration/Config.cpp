@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Config.h"
+#include "Common.h"
 #include <ace/Auto_Ptr.h>
 #include <ace/Configuration_Import_Export.h>
 #include <ace/Thread_Mutex.h>

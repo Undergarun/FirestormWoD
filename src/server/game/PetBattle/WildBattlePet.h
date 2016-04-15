@@ -11,7 +11,6 @@
 #define _WILDBATTLEPET_HEADER_
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include "Timer.h"
 #include "PetBattle.h"
 

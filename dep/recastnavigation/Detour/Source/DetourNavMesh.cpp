@@ -18,7 +18,6 @@
 
 #include <float.h>
 #include <string.h>
-#include <stdio.h>
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"

@@ -10,9 +10,6 @@
 #define _INSTANCESAVEMGR_H
 
 #include "Define.h"
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
-
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"

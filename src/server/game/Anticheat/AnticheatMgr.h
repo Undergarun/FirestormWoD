@@ -1,7 +1,6 @@
 #ifndef SC_ACMGR_H
 #define SC_ACMGR_H
 
-#include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ScriptPCH.h"

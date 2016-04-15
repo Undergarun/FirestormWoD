@@ -10,7 +10,6 @@
 #define TRINITY_PACKETLOG_H
 
 #include "Common.h"
-#include <ace/Singleton.h>
 
 enum Direction
 {

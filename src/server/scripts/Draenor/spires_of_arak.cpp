@@ -15,7 +15,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 
 
 /// 83746 - Rukhmar

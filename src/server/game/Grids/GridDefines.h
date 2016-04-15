@@ -11,7 +11,6 @@
 
 #include "Common.h"
 #include "NGrid.h"
-#include <cmath>
 
 // Forward class definitions
 class Corpse;

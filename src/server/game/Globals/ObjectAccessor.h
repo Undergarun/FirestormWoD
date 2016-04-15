@@ -9,9 +9,6 @@
 #ifndef TRINITY_OBJECTACCESSOR_H
 #define TRINITY_OBJECTACCESSOR_H
 
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
-
 #include "Common.h"
 #include "Define.h"
 #include "UpdateData.h"

@@ -10,7 +10,6 @@
 #define SCRIPTING_INTERFACES_INTERFACEBASE_HPP_INCLUDED
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
 
 #include "Player.h"

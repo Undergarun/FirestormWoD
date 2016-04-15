@@ -11,7 +11,6 @@
 
 // For static or at-server-startup loaded spell data
 
-#include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Unit.h"

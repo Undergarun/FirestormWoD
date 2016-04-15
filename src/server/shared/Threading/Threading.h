@@ -11,8 +11,6 @@
 
 #include <ace/Thread.h>
 #include <ace/TSS_T.h>
-#include <atomic>
-#include <assert.h>
 #include "Define.h"
 #include "Common.h"
 

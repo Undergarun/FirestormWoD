@@ -12,8 +12,6 @@
 
 #include "Common.h"
 #include "Player.h"
-#include <ace/Singleton.h>
-#include "Player.h"
 
 class Field;
 

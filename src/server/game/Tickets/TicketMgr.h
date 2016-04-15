@@ -9,9 +9,7 @@
 #ifndef _TICKETMGR_H
 #define _TICKETMGR_H
 
-#include <string>
-#include <ace/Singleton.h>
-
+#include "Common.h"
 #include "ObjectMgr.h"
 
 class ChatHandler;

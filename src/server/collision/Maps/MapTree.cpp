@@ -14,7 +14,6 @@
 #include "Errors.h"
 #include "Common.h"
 
-#include <sstream>
 #include <iomanip>
 
 using G3D::Vector3;

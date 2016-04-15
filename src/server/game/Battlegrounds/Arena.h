@@ -10,7 +10,6 @@
 #define ARENATEAM_H
 
 #include "QueryResult.h"
-#include <ace/Singleton.h>
 #include "Common.h"
 
 class WorldSession;

@@ -11,8 +11,7 @@
 #include "BoundingIntervalHierarchy.h"
 #include "VMapDefinitions.h"
 
-#include <set>
-#include <sstream>
+#include "Common.h"
 #include <iomanip>
 
 using G3D::Vector3;

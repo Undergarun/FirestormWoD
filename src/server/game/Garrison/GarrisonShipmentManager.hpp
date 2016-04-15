@@ -10,7 +10,6 @@
 # define GARRISON_SHIPMENT_MANAGER_HPP_GARRISON
 
 #include "Common.h"
-#include <ace/Singleton.h>
 
 namespace MS { namespace Garrison 
 {

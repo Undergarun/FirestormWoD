@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Spline.h"
-#include <sstream>
+#include "Common.h"
 #include <G3D/Matrix4.h>
 
 namespace Movement{

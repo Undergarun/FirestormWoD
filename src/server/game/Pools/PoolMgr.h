@@ -10,7 +10,6 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
-#include <ace/Singleton.h>
 #include "Creature.h"
 #include "GameObject.h"
 #include "QuestDef.h"

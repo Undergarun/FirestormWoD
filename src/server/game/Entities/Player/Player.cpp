@@ -62,7 +62,6 @@
 #include "LFGMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "InstanceScript.h"
-#include <cmath>
 #include "AccountMgr.h"
 #include "DB2Stores.h"
 #include "DBCStores.h"

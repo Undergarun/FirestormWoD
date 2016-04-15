@@ -9,8 +9,6 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include <ace/Singleton.h>
-
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"

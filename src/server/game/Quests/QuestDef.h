@@ -14,9 +14,7 @@
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
-
-#include <string>
-#include <vector>
+#include "Common.h"
 
 class Player;
 

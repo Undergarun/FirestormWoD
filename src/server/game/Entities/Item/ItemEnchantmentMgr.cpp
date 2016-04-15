@@ -6,7 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <stdlib.h>
 #include <functional>
 #include "ItemEnchantmentMgr.h"
 #include "DatabaseEnv.h"

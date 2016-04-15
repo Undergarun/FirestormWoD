@@ -16,7 +16,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"
-#include <stdlib.h>
+#include "Common.h"
 
 class modify_commandscript: public CommandScript
 {

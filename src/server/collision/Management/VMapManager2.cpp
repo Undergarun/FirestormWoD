@@ -8,8 +8,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <sstream>
 #include "VMapManager2.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
@@ -18,6 +16,7 @@
 #include "Log.h"
 #include "VMapDefinitions.h"
 #include "Errors.h"
+#include "Common.h"
 
 using G3D::Vector3;
 

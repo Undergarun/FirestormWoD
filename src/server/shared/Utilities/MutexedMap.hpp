@@ -10,7 +10,6 @@
 #ifndef MUTEXEDMAP_HPP_INCLUDED
 # define MUTEXEDMAP_HPP_INCLUDED
 
-#include <ace/Thread_Mutex.h>
 #include "Common.h"
 
 namespace MS { namespace Utilities

@@ -6,12 +6,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/** \file
-    \ingroup Trinityd
-*/
-
-#include <thread>
-
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"

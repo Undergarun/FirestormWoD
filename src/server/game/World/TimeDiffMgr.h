@@ -1,7 +1,14 @@
-#ifndef TIMEDIFFMGR_H
-#define TIMEDIFFMGR_H
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
-#include <ace/Singleton.h>
+#ifndef TIMEDIFFMGR_H
+# define TIMEDIFFMGR_H
+
 #include "Common.h"
 
 enum UpdateTimeLogInterval

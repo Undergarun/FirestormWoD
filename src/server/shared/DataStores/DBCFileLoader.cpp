@@ -6,10 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "Common.h"
 #include "DBCFileLoader.h"
 #include "Errors.h"
 

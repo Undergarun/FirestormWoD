@@ -10,8 +10,7 @@
 #define __EVENTPROCESSOR_H
 
 #include "Define.h"
-
-#include <map>
+#include "Common.h"
 
 // Note. All times are in milliseconds here.
 

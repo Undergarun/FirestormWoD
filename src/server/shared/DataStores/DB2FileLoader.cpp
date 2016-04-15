@@ -7,10 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "DB2FileLoader.h"
 
 DB2FileLoader::DB2FileLoader()

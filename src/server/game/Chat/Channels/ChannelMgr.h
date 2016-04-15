@@ -10,8 +10,6 @@
 
 #include "Common.h"
 #include "Channel.h"
-#include <ace/Singleton.h>
-
 #include "World.h"
 
 class ChannelMgr

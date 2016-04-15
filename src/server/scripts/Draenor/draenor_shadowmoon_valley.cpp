@@ -15,7 +15,7 @@
 #include "NPCHandler.h"
 #include "Vehicle.h"
 #include "PhaseMgr.h"
-#include <random>
+#include "Common.h"
 /*
 /// 79206 - Prophet Velen
 class shadowmoon_prophet_velen_eventide_questgiver : public CreatureScript

@@ -20,7 +20,6 @@
 
 #include <cstdarg>
 #include <cstdio>
-#include <sstream>
 #include <future>
 
 Log::Log() : worker(NULL)

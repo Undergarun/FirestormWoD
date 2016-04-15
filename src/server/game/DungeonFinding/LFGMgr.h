@@ -10,7 +10,6 @@
 #define _LFGMGR_H
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include "LFG.h"
 #include "LockedMap.h"
 #include "LFGPlayerData.h"

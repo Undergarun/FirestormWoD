@@ -10,8 +10,6 @@
 #define TRINITY_MAP_H
 
 #include "Define.h"
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
 
 #include "DBCStructure.h"
 #include "GridDefines.h"
@@ -22,9 +20,9 @@
 #include "MapRefManager.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
+#include "Common.h"
 
 #include <bitset>
-#include <list>
 
 class Unit;
 class WorldPacket;

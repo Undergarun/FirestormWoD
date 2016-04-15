@@ -79,8 +79,11 @@
 #include <map>
 #include <queue>
 #include <sstream>
-#include <algorithm>
 #include <forward_list>
+
+#include <iostream>     ///< std::cout
+#include <functional>   ///< std::less
+#include <algorithm>    ///< std::sort, std::includes
 
 #include <mutex>
 #include <thread>
@@ -93,6 +96,7 @@
 #include <ace/Guard_T.h>
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
+#include <ace/Singleton.h>
 
 /// MSVC 18 (2013) have only partial support of thread_local (c++11)
 #ifdef __GNUC__
