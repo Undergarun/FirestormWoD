@@ -432,18 +432,36 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_STABLE_RESULT,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
 
         /// Battle pet opcodes
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_UPDATES,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_TRAP_LEVEL,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_JOURNAL_LOCK_ACQUIRED,                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_JOURNAL,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_QUERY_PET_NAME_RESPONSE,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_REQUEST_FAILED,                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FIRST_ROUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FULL_UPDATE,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINALIZE_LOCATION,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_PVP_CHALLENGE,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_ROUND_RESULT,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_REPLACEMENTS_MADE,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINAL_ROUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINISHED,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_DELETED,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_REVOKED,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_RESTORED,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PETS_HEALED,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_LICENSE_CHANGED,                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_ERROR,                                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_CAGE_DATE_ERROR,                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+
+        /// Pet Battle opcodes
         DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_SLOT_UPDATES,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_REQUEST_FAILED,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_PVPCHALLENGE,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_FINALIZE_LOCATION,                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_INITIAL_UPDATE,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_FIRST_ROUND,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_ROUND_RESULT,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_REPLACEMENTS_MADE,                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_FINAL_ROUND,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_FINISHED,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_CHAT_RESTRICTED,                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_MAX_GAME_LENGTH_WARNING,              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_QUEUE_STATUS,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_DEBUG_QUEUE_DUMP_RESPONSE,            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
 
         /// Instances
         DEFINE_OPCODE_HANDLER(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT,                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
@@ -1331,13 +1349,15 @@ void InitOpcodes()
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT,                STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode       , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_WHISPER,                      STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode       , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_GUILD,                        STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode       , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_OFFICER,                      STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode       , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_RAID,                         STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode       , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_PARTY,                        STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode       , PROCESS_DISTANT_IF_NEED);
-    DEFINE_OPCODE_HANDLER(CMSG_ADDON_REGISTERED_PREFIXES,                       STATUS_NEVER,       PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonRegisteredPrefixesOpcode, PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_WHISPER,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_GUILD,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_OFFICER,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_RAID,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_PARTY,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_CHANNEL,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode,        PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_REGISTER_ADDON_PREFIXES,                    STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonRegisteredPrefixesOpcode, PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES,              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleUnregisterAddonPrefixesOpcode, PROCESS_DISTANT_IF_NEED);
 
     /// Chat
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_MESSAGE_RAID_WARNING,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMessagechatOpcode          , PROCESS_DISTANT_IF_NEED);
@@ -1430,13 +1450,13 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK,         STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleForceSpeedChangeAck        );
     //DEFINE_OPCODE_HANDLER(CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK,                 STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleForceSpeedChangeAck        );
     //DEFINE_OPCODE_HANDLER(CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK,                STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleForceSpeedChangeAck        );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMoveKnockBackAck           );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_FLY_ACK,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_HOVER_ACK,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
-    DEFINE_OPCODE_HANDLER(CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK,                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes            );
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMoveKnockBackAck, PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_FLY_ACK,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_FEATHER_FALL_ACK,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_WATER_WALK_ACK,                             STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_HOVER_ACK,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_APPLY_MOVEMENT_FORCE_ACK,                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_REMOVE_MOVEMENT_FORCE_ACK,                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleMovementOpcodes , PROCESS_DISTANT_IF_NEED);
 
     //////////////////////////////////////////////////////////////////////////
     /// Group
@@ -1589,19 +1609,40 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
     //////////////////////////////////////////////////////////////////////////
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_SET_ABILITY,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandlePetBattleSetAbility                    , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_RENAME,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRename                        , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_CAGE_PET,                              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleCagePet                       , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_QUERY_NAME,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleQueryName                     , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_REQUEST_WILD,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRequestWild                   , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_REQUEST_PVP,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRequestPvP                    , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_JOIN_QUEUE,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleJoinQueue                     , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_REQUEST_UPDATE,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRequestUpdate                 , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING,        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleCancelRequestPvPMatchmaking   , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_INPUT,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleInput                         , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_INPUT_NEW_FRONT_PET,                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleInputNewFrontPet              , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_BATTLEPET_SET_BATTLESLOT,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetSetBattleSlot                 , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_SUMMON_COMPANION,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSummonCompanion                        , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_QUERY_BATTLE_PET_NAME,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetQueryName,                    PROCESS_LOCAL);
+
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PETS_RECONVERT,                           STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetsReconvert,                   PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_UPDATE_NOTIFY,                        STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetUpdateNotify,                 PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK,                 STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetRequestJournalLock,           PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_REQUEST_JOURNAL,                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetRequestJournal,               PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_DELETE_PET,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetDeletePet,                    PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_DELETE_PET_CHEAT,                     STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetDeletePetCheat,               PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_DELETE_JOURNAL,                       STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetDeleteJournal,                PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_MODIFY_NAME,                          STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetModifyName,                   PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_SUMMON,                               STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetSummon,                       PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_SET_LEVEL,                            STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetSetLevel,                     PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_SET_BATTLE_SLOT,                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetSetBattleSlot,                PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_SET_COLLAR,                           STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetSetCollar,                    PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_BATTLE_PET_SET_FLAGS,                            STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleBattlePetSetFlags,                     PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_RESTORE_BATTLE_PETS_HEALTH,                      STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetsRestoreHealth,               PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_ADD_BATTLE_PET,                                  STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetAdd,                          PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_CHEAT_BATTLE_PET_SET_QUALITY,                    STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandleBattlePetSetQualityCheat,              PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_CAGE_BATTLE_PET,                                 STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBattlePetCage,                         PROCESS_LOCAL);
+
+    DEFINE_OPCODE_HANDLER(CMSG_JOIN_PET_BATTLE_QUEUE,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleJoinQueue,                    PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_LEAVE_PET_BATTLE_QUEUE,                          STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleLeaveQueue,                   PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_REQUEST_WILD,                         STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleRequestWild,                  PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_WILD_LOCATION_FAIL,                   STATUS_NEVER,       PROCESS_INPLACE,        &WorldSession::HandlePetBattleWildLocationFail,             PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_REQUEST_PVP,                          STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleRequestPvP,                   PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_REQUEST_UPDATE,                       STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleRequestUpdate,                PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_QUIT_NOTIFY,                          STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleQuitNotify,                   PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_FINAL_NOTIFY,                         STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleFinalNotify,                  PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY,                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleScriptErrorNotify,            PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH_RESULT,           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleQueueProposeMatchResult,      PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_INPUT_FIRST_PET,                      STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleFirstPet,                     PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_INPUT,                                STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleInput,                        PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_REPLACE_FRONT_PET,                    STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleReplaceFrontPet,              PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_DEBUG_QUEUE_DUMP,                     STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandlePetBattleDebugQueueDump,               PROCESS_LOCAL);
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
@@ -1803,7 +1844,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_TIME_ADJUSTMENT_RESPONSE,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_TIME_SYNC_RESP_FAILED,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     , PROCESS_DISTANT_IF_NEED);
     //DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SPECIALIZATION,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_UNREGISTER_ALL_ADDON_PREFIXES,           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUnregisterAddonPrefixesOpcode);
     //DEFINE_OPCODE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   );
     //DEFINE_OPCODE_HANDLER(CMSG_UPGRADE_ITEM,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpgradeItemOpcode         );
     //DEFINE_OPCODE_HANDLER(CMSG_USED_FOLLOW,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

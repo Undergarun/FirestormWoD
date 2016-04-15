@@ -70,9 +70,21 @@ public:
             DoScriptText(RAND(YELL_RESPAWN1, YELL_RESPAWN2), me);
         }
 
+        bool CheckInRoom()
+        {
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+            {
+                EnterEvadeMode();
+                Talk(YELL_EVADE);
+                return false;
+            }
+
+            return true;
+        }
+
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !CheckInRoom())
                 return;
 
             if (AvatarTimer <= diff)

@@ -36,27 +36,6 @@ namespace MS { namespace Garrison
         };
 
         char ScriptName[] = "npc_AlbertDeHyde_Garr";
-
-        std::vector<SkillNPC_RecipeEntry> Recipes
-        {
-            { 156582,     0 },
-            { 156585,     0 },
-            { 156577, 27405 },
-            { 156578, 27405 },
-            { 156579, 27405 },
-            { 156580, 27405 },
-            { 156581, 27405 },
-            { 156561, 27406 },
-            { 156563, 27406 },
-            { 156564, 27406 },
-            { 175869,     0 },
-            { 175868,     0 },
-            { 175867,     0 },
-            { 175866,     0 },
-            { 175865,     0 },
-            { 175853,     0 },
-            { 156568, 27406 }
-        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -146,6 +125,17 @@ namespace MS { namespace Garrison
             m_OwnerGuid = p_Guid;
     }
 
+    void npc_KeyanaTone::npc_KeyanaToneAI::OnPlotInstanceUnload()
+    {
+        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
+        {
+            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
+                l_Creature->DespawnOrUnsummon();
+
+            l_Guid = m_Summons.erase(l_Guid);
+        }
+    }
+
     void npc_KeyanaTone::npc_KeyanaToneAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
@@ -173,6 +163,7 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                                m_Summons.push_back(l_Creature->GetGUID());
                             }
                             break;
                         default:

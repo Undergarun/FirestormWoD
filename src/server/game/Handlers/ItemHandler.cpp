@@ -359,7 +359,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleDestroyItemOpcode(WorldPacket& p_Packet)
 {
     uint32 l_Count          = 0;
     uint8  l_ContainerId    = 0;
@@ -397,7 +397,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & p_Packet)
     }
 
     /// If trading
-    if (TradeData * l_TradeData = m_Player->GetTradeData())
+    if (TradeData* l_TradeData = m_Player->GetTradeData())
     {
         /// If current item is in trade window (only possible with packet spoofing - silent return)
         if (l_TradeData->GetTradeSlotForItem(l_Item->GetGUID()) != TRADE_SLOT_INVALID)

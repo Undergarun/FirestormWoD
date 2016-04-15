@@ -81,6 +81,9 @@ void BattlegroundSM::Reset()
 
     for (uint8 l_Iter = 0; l_Iter < SM_MAX_PATHS; ++l_Iter)
         m_PathDone[l_Iter][l_Iter] = false;
+
+    if (GetBgMap())
+        GetBgMap()->SetObjectVisibility(1000.0f);   ///< Hardcode visibility to see carts on the whole map (shoudn't be a performance issue since we have cross realm)
 }
 
 void BattlegroundSM::PostUpdateImpl(uint32 p_Diff)
