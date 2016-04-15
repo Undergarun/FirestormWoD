@@ -25012,7 +25012,7 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
         return;
 
     WorldPacket l_Data;
-    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_UNIVERSAL, p_Prefix.c_str());
+    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_ADDON, p_Prefix.c_str());
     p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
