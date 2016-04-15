@@ -1088,6 +1088,7 @@ enum PlayerDelayedOperations
     DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
     DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
     DELAYED_BG_GROUP_RESTORE    = 0x20,                     ///< Flag to restore group state after teleport from BG
+    DELAYED_PET_BATTLE_INITIAL  = 0x40,
     DELAYED_END
 };
 
@@ -1567,7 +1568,6 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsInWater() const { return m_isInWater; } ///< overrides a member function but is not marked 'override'
         bool IsUnderWater() const; ///< overrides a member function but is not marked 'override'
-        bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -2652,8 +2652,6 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr, const GuidUnorderedSet& p_IgnoreList = GuidUnorderedSet()) override;
 
-        void SendTeleportPacket(Position &p_NewPosition);
-
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
         void CreateCorpse();
@@ -3052,8 +3050,6 @@ class Player : public Unit, public GridObject<Player>
 
         void SetMover(Unit* target);
 
-        bool SetHover(bool enable);
-
         void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0, G3D::Vector3 p_TransportPos = G3D::Vector3(0.0f, 0.0f, 0.0f));
         void RemoveAllMovementForces(uint32 p_Entry = 0);
         bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
@@ -3321,11 +3317,7 @@ class Player : public Unit, public GridObject<Player>
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
         */
-        void SendMovementSetCanFly(bool apply);
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        void SendMovementSetHover(bool apply);
-        void SendMovementSetWaterWalking(bool apply);
-        void SendMovementSetFeatherFall(bool apply);
         void SendMovementSetCollisionHeight(float height);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); } ///< overrides a member function but is not marked 'override'
@@ -3404,6 +3396,10 @@ class Player : public Unit, public GridObject<Player>
         /// @p_SceneInstanceID : Scene instance ID
         void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
+        /// Has battle pet training
+        bool HasBattlePetTraining();
+        /// Get battle pet trap level
+        uint32 GetBattlePetTrapLevel();
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();
         /// Summon current pet if any active
@@ -3614,7 +3610,13 @@ class Player : public Unit, public GridObject<Player>
 
         void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
         void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
-        
+
+        void ScheduleDelayedOperation(uint32 operation)
+        {
+            if (operation < DELAYED_END)
+                m_DelayedOperations |= operation;
+        }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3965,12 +3967,6 @@ class Player : public Unit, public GridObject<Player>
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
-
-        void ScheduleDelayedOperation(uint32 operation)
-        {
-            if (operation < DELAYED_END)
-                m_DelayedOperations |= operation;
-        }
 
         MapReference m_mapRef;
 

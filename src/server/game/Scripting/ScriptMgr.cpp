@@ -1109,7 +1109,7 @@ void ScriptMgr::OnGuildEvent(Guild* p_Guild, uint8 p_EventType, uint32 p_PlayerG
 /// @p_ItemOrMoney    : Item entry or gold amount
 /// @p_ItemStackCount : Item stack count
 /// @p_DestTabID      : Destination tab ID
-void ScriptMgr::OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
+void ScriptMgr::OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
 {
     FOREACH_SCRIPT(GuildScript)->OnBankEvent(p_Guild, p_EventType, p_TabID, p_PlayerGUID, p_ItemOrMoney, p_ItemStackCount, p_DestTabID);
 }
@@ -1705,6 +1705,14 @@ void ScriptMgr::OnItemDestroyed(Player* p_Player, Item* p_Item)
 void ScriptMgr::OnPVPKill(Player* p_Killer, Player* p_Killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(p_Killer, p_Killed);
+}
+
+/// Called when a player kills a Unit
+/// @p_Killer : Killer instance
+/// @p_Killed : Killed instance
+void ScriptMgr::OnKill(Player* p_Killer, Unit* p_Killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnKill(p_Killer, p_Killed);
 }
 
 /// Called when a player kills a creature

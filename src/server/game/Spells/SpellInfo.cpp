@@ -1008,7 +1008,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 246 SPELL_EFFECT_246
 };
 
-SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
+SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty, SpellVisualMap&& p_Visuals)
 {
     Id = p_SpellEntry->Id;
     DifficultyID = p_Difficulty;
@@ -1197,7 +1197,53 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     ChainEntry = NULL;
 
     ResearchProject =  p_SpellEntry->ResearchProject;
-    FirstSpellXSpellVIsualID = 0;
+
+    FirstSpellXSpellVisualID = 0;
+
+    DifficultyEntry const* l_DiffEntry = sDifficultyStore.LookupEntry(DifficultyID);
+    while (l_DiffEntry)
+    {
+        auto l_Iter = p_Visuals.find(DifficultyID);
+        if (l_Iter != p_Visuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : l_Iter->second)
+            {
+                if (!l_Visual->ConditionID)
+                {
+                    FirstSpellXSpellVisualID = l_Visual->Id;
+
+                    SpellVisual[0] = l_Visual->VisualID[0];
+                    SpellVisual[1] = l_Visual->VisualID[1];
+                    break;
+                }
+            }
+        }
+
+        /// Stop looping if visual found
+        if (FirstSpellXSpellVisualID)
+            break;
+
+        l_DiffEntry = sDifficultyStore.LookupEntry(l_DiffEntry->FallbackDifficultyID);
+    }
+
+    if (!FirstSpellXSpellVisualID)
+    {
+        auto l_Iter = p_Visuals.find(Difficulty::DifficultyNone);
+        if (l_Iter != p_Visuals.end())
+        {
+            for (SpellXSpellVisualEntry const* l_Visual : l_Iter->second)
+            {
+                if (!l_Visual->ConditionID)
+                {
+                    FirstSpellXSpellVisualID = l_Visual->Id;
+
+                    SpellVisual[0] = l_Visual->VisualID[0];
+                    SpellVisual[1] = l_Visual->VisualID[1];
+                    break;
+                }
+            }
+        }
+    }
 }
 
 SpellInfo::~SpellInfo()

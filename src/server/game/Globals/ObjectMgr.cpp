@@ -2691,6 +2691,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 126908: ///< Bronze Strongbox A - S2
             case 126907: ///< Silver Strongbox A - S2
             case 126906: ///< Gold Strongbox A - S2
+            case 126919: ///< Champion's Strongbox A (RBG)
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_ALLIANCE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -2703,6 +2704,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
             case 126903: ///< Bronze Strongbox H - S2
             case 126902: ///< Silver Strongbox H - S2
             case 126901: ///< Gold Strongbox H - S2
+            case 126920: ///< Champion's Strongbox H (RBG)
                 l_ItemTemplate.Flags2 |= ITEM_FLAG2_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
@@ -5579,13 +5581,13 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = _npcTextLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_LOCALES; ++j)
+            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
             {
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
-                AddLocaleString(fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
+                AddLocaleString(fields[1 + (TOTAL_LOCALES - 1) * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
+                AddLocaleString(fields[1 + (TOTAL_LOCALES - 1) * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
             }
         }
     }

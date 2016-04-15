@@ -158,6 +158,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Killed);
         }
 
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        virtual void OnKill(Player* p_Killer, Unit* p_Killed)
+        {
+            UNUSED(p_Killer);
+            UNUSED(p_Killed);
+        }
+
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance

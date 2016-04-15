@@ -664,7 +664,7 @@ public:
                 {
                     if (l_Witherbark->isInCombat() && l_Witherbark->HasAura(eAqueousGlobuleSpells::SpellBrittleBarkAura))
                     {
-                        if (!me->isMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.
+                        if (!me->IsMoving()) /// Automatically forces the aqueous globule to get to Witherbark location.
                         {
                             me->GetMotionMaster()->MovePoint(0, *l_Witherbark);
                         }

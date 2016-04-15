@@ -742,6 +742,24 @@ void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
     }
 }
 
+void InstanceScript::DoCombatStopOnPlayers()
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (!l_Player->isInCombat())
+                continue;
+
+            l_Player->CombatStop();
+        }
+    }
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
@@ -994,9 +1012,9 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
         return;
 
     uint32 l_Times[eChallengeMedals::MedalTypeGold];
-    l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
-    l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
-    l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
+    l_Times[eChallengeMedals::MedalTypeBronze - 1]  = l_ChallengeEntry->BronzeTime * TimeConstants::IN_MILLISECONDS;
+    l_Times[eChallengeMedals::MedalTypeSilver - 1]  = l_ChallengeEntry->SilverTime * TimeConstants::IN_MILLISECONDS;
+    l_Times[eChallengeMedals::MedalTypeGold - 1]    = l_ChallengeEntry->GoldTime * TimeConstants::IN_MILLISECONDS;
 
     /// Downgrade Medal if needed
     switch (m_MedalType)

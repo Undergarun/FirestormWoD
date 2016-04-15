@@ -432,7 +432,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         }
     }
 
-    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+    if (!l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT | QUEST_FLAGS_AUTOCOMPLETE))
     {
         l_Object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
@@ -629,7 +629,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(l_QuestID))
     {
-        if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
+        if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT | QUEST_FLAGS_AUTOCOMPLETE))
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [playerGuid: %u] tried to complete questId [entry: %u] by auto-submit flag for quest witch not suport it.",
                 m_Player->GetName(), m_Player->GetGUIDLow(), l_QuestID);

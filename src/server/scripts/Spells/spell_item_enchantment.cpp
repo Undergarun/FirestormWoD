@@ -56,6 +56,18 @@ namespace eEnchantmentMarkIds
     };
 }
 
+namespace eGloryEnchantmentMarkIds
+{
+    enum
+    {
+        Thunderlord = 5352,
+        Warsong = 5355,
+        Frostwolf = 5356,
+        Blackrock = 5354,
+        Shadowmoon = 5353
+    };
+}
+
 class spell_enchantment_mark : public SpellScriptLoader
 {
     public:
@@ -80,6 +92,7 @@ class spell_enchantment_mark : public SpellScriptLoader
 
                 uint32 l_ProcAuraId = 0;
                 uint32 l_EnchantId = 0;
+                uint32 l_GloryEnchantId = 0;
                 bool l_HasEnchant = false;
 
                 if (l_Player == nullptr)
@@ -99,26 +112,32 @@ class spell_enchantment_mark : public SpellScriptLoader
                     case eEnchantmentMarkAura::Thunderlord:
                         l_ProcAuraId = eEnchantmentMarkProc::Thunderlord;
                         l_EnchantId = eEnchantmentMarkIds::Thunderlord;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Thunderlord;
                         break;
                     case eEnchantmentMarkAura::Warsong:
                         l_ProcAuraId = eEnchantmentMarkProc::Warsong;
                         l_EnchantId = eEnchantmentMarkIds::Warsong;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Warsong;
                         break;
                     case eEnchantmentMarkAura::BleedingHollow:
                         l_ProcAuraId = eEnchantmentMarkProc::BleedingHollow;
                         l_EnchantId = eEnchantmentMarkIds::BleedingHollow;
+
                         break;
                     case eEnchantmentMarkAura::Frostwolf:
                         l_ProcAuraId = eEnchantmentMarkProc::Frostwolf;
                         l_EnchantId = eEnchantmentMarkIds::Frostwolf;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Frostwolf;
                         break;
                     case eEnchantmentMarkAura::Shadowmoon:
                         l_ProcAuraId = eEnchantmentMarkProc::Shadowmoon;
                         l_EnchantId = eEnchantmentMarkIds::Shadowmoon;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Shadowmoon;
                         break;
                      case eEnchantmentMarkAura::Blackrock:
                         l_ProcAuraId = eEnchantmentMarkProc::Blackrock;
                         l_EnchantId = eEnchantmentMarkIds::Blackrock;
+                        l_GloryEnchantId = eGloryEnchantmentMarkIds::Blackrock;
                         break;
                     default:
                         break;
@@ -129,7 +148,8 @@ class spell_enchantment_mark : public SpellScriptLoader
 
                 /// Check if we have this enchant on that weapon
                 for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-                    if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)))
+                    if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)) ||
+                        l_GloryEnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(enchant_slot)))
                         l_HasEnchant = true;
 
                 if (l_HasEnchant && l_Player && l_ProcAuraId && l_Item)

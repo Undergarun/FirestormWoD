@@ -1025,12 +1025,22 @@ void Battleground::EndBattleground(uint32 p_Winner)
         {
             if (l_Player->GetArenaPersonalRating(SLOT_RBG) < l_Player->GetArenaMatchMakerRating(SLOT_RBG))
             {
-                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner);
+                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner, true);
                 l_Player->SetArenaPersonalRating(SLOT_RBG, std::max(0, (int)l_Player->GetArenaPersonalRating(SLOT_RBG) + l_RatingChange));
             }
 
             if (l_Team == p_Winner)
             {
+                uint32 l_BattleHardened[2] = { 38929, 38927 };
+
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_BattleHardened[l_Player->GetTeamId()]))
+                {
+                    if (!l_Player->HasQuest(l_Quest->GetQuestId()) && l_Player->CanTakeQuest(l_Quest, false))
+                        l_Player->AddQuest(l_Quest, l_Player);
+
+                    l_Player->KilledMonsterCredit(66623);
+                }
+
                 l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
@@ -1425,6 +1435,9 @@ void Battleground::AddPlayer(Player* player)
     player->ResetAllPowers();
 
     sScriptMgr->OnEnterBG(player, GetMapId());
+
+    if (IsRatedBG())
+        player->RemoveArenaSpellCooldowns(true);
 
     // add arena specific auras
     if (isArena())

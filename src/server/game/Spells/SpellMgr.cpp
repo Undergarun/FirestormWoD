@@ -3033,7 +3033,7 @@ void SpellMgr::InitializeSpellDifficulty()
         }
     }
 
-    // SpellInterrupts
+    /// SpellInterrupts
     for (uint32 l_I = 0; l_I < sSpellInterruptsStore.GetNumRows(); ++l_I)
     {
         if (SpellInterruptsEntry const* l_SpellInterrupt = sSpellInterruptsStore.LookupEntry(l_I))
@@ -3046,7 +3046,7 @@ void SpellMgr::InitializeSpellDifficulty()
         }
     }
 
-    // SpellLevels
+    /// SpellLevels
     for (uint32 l_I = 0; l_I < sSpellLevelsStore.GetNumRows(); ++l_I)
     {
         if (SpellLevelsEntry const* l_SpellLevel = sSpellLevelsStore.LookupEntry(l_I))
@@ -3058,8 +3058,8 @@ void SpellMgr::InitializeSpellDifficulty()
         }
     }
 
-    // SpellTargetStriction
-    for (uint32 l_I = 0; l_I < sSpellTargetRestrictionsStore.GetNumRows(); l_I++)
+    /// SpellTargetStriction
+    for (uint32 l_I = 0; l_I < sSpellTargetRestrictionsStore.GetNumRows(); ++l_I)
     {
         if (SpellTargetRestrictionsEntry const* l_SpellTargetRestriction = sSpellTargetRestrictionsStore.LookupEntry(l_I))
         {
@@ -3067,6 +3067,18 @@ void SpellMgr::InitializeSpellDifficulty()
 
             if (l_SpellTargetRestriction->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellTargetRestrictionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellTargetRestriction->SpellId, l_SpellTargetRestriction->DifficultyID), l_SpellTargetRestriction->Id));
+        }
+    }
+
+    /// SpellXSpellVisual
+    for (uint32 l_I = 0; l_I < sSpellXSpellVisualStore.GetNumRows(); ++l_I)
+    {
+        if (SpellXSpellVisualEntry const* l_Visual = sSpellXSpellVisualStore.LookupEntry(l_I))
+        {
+            mAvaiableDifficultyBySpell[l_Visual->SpellId].insert(l_Visual->DifficultyID);
+
+            if (l_Visual->DifficultyID != Difficulty::DifficultyNone)
+                mDatastoreSpellDifficultyKey[sSpellXSpellVisualStore.GetDB2FileName()].insert(std::make_pair(std::make_pair(l_Visual->SpellId, l_Visual->DifficultyID), l_Visual->Id));
         }
     }
 }
@@ -3079,13 +3091,24 @@ void SpellMgr::LoadSpellInfoStore()
     for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
+    std::unordered_map<uint32, SpellVisualMap> l_VisualsBySpell;
+
+    for (uint32 l_ID = 0; l_ID < sSpellXSpellVisualStore.GetNumRows(); ++l_ID)
+    {
+        SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
+        if (!l_Entry)
+            continue;
+
+        l_VisualsBySpell[l_Entry->SpellId][l_Entry->DifficultyID].push_back(l_Entry);
+    }
+
     for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
     {
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(l_I))
         {
             std::set<uint32> difficultyInfo = mAvaiableDifficultyBySpell[l_I];
             for (std::set<uint32>::iterator itr = difficultyInfo.begin(); itr != difficultyInfo.end(); itr++)
-                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr));
+                mSpellInfoMap[(*itr)][l_I] = new SpellInfo(spellEntry, (*itr), std::move(l_VisualsBySpell[l_I]));
         }
     }
 
@@ -3121,30 +3144,6 @@ void SpellMgr::LoadSpellInfoStore()
             l_SpellInfo = (SpellInfo*)sSpellMgr->GetSpellInfo(l_TalentEntry->OverridesSpellID);
             if (l_SpellInfo)
                 l_SpellInfo->OverrideSpellList.push_back(l_TalentEntry->SpellID);
-        }
-    }
-
-    for (uint32 l_ID = 0; l_ID < sSpellXSpellVisualStore.GetNumRows(); l_ID++)
-    {
-        SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
-
-        if (!l_Entry)
-            continue;
-
-        if (!l_Entry->SpellId || l_Entry->SpellId >= sSpellStore.GetNumRows())
-            continue;
-
-        /// Register first visual entry found for all difficulties
-        for (uint8 l_I = 0; l_I < Difficulty::MaxDifficulties; ++l_I)
-        {
-            SpellInfo* l_SpellInfo = mSpellInfoMap[l_I][l_Entry->SpellId];
-            if (!l_SpellInfo)
-                continue;
-
-            for (uint8 l_J = 0; l_J < MAX_SPELL_VISUAL; ++l_J)
-                l_SpellInfo->SpellVisual[l_J] = l_Entry->VisualID[l_J];
-
-            l_SpellInfo->FirstSpellXSpellVIsualID = l_Entry->Id;
         }
     }
 
@@ -3500,7 +3499,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155897: ///< Earthshaking Collision (Oregorger)
                 spellInfo->Mechanic = MECHANIC_DISCOVERY;
                 break;
-            case 173461: ///< Blackrock Barrage
+            case 159958: ///< Earthshaking Stomp (Oregorger)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 173461: ///< Blackrock Barrage (Oregorger)
                 spellInfo->CasterAuraSpell = 0;
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -5892,6 +5894,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); ///< -1s
                 break;
+            case 118253:
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
             case 53257: ///< Cobra Strikes
                 spellInfo->Effects[0].BasePoints = 0;
                 spellInfo->Effects[1].BasePoints = 0;
@@ -5942,6 +5947,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[2].ApplyAuraName = 0;
                 spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 break;
             case 34433: ///< Shadowfiend
                 spellInfo->Effects[EFFECT_0].MiscValueB = 1561;
@@ -6324,6 +6330,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 980: ///< Agony
                 spellInfo->StackAmount = 10;
                 break;
+            case 131740: ///< Corruption (Malefic Grasp)
+            case 131736: ///< Unstable Affliction (Malefic Grasp)
+            case 132566: ///< Seed of Corruption (Malefic Grasp)
+            case 131737: ///< Agony (Malefic Grasp)
             case 42463:  ///< Seal of Truth
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
@@ -6491,7 +6501,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88869:  ///< Illustrious Grand Master Fishing
             case 110412: ///< Zen Master Fishing
             {
-                SpellInfo* fishingDummy = new SpellInfo(sSpellStore.LookupEntry(131474), difficulty);
+                std::unordered_map<uint32, SpellVisualMap> l_VisualsBySpell;
+                SpellInfo* fishingDummy = new SpellInfo(sSpellStore.LookupEntry(131474), difficulty, std::move(l_VisualsBySpell[spellInfo->Effects[0].TriggerSpell]));
                 fishingDummy->Id = spellInfo->Effects[0].TriggerSpell;
                 mSpellInfoMap[difficulty][spellInfo->Effects[0].TriggerSpell] = fishingDummy;
                 break;
@@ -7112,6 +7123,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 124280:// Touch of Karma (DoT)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
@@ -7179,6 +7192,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108446:
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
             default:
                 break;

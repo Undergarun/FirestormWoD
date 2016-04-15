@@ -2665,7 +2665,7 @@ class spell_hun_kill_command: public SpellScriptLoader
                     /// Kill Command has a chance to reset the cooldown of Bestial Wrath.
                     if (AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(eSpells::T17BeastMaster2P, EFFECT_0))
                     {
-                        if (l_Player->HasSpellCooldown(eSpells::BestialWrath) && roll_chance_i(l_AuraEffect->GetAmount()))
+                        if (l_Player->HasSpellCooldown(eSpells::BestialWrath) && roll_chance_i(12))
                             l_Player->RemoveSpellCooldown(eSpells::BestialWrath, true);
                     }
 
@@ -4205,7 +4205,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
 
                 Pet* l_Pet = l_Player->GetPet();
 
-                if (!l_Player->isMoving())
+                if (!l_Player->IsMoving())
                 {
                     if (l_Player->HasAura(eSpells::GlyphOfCamouflage))
                     {
