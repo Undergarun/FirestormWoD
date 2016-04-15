@@ -13,7 +13,6 @@
 #include "WorldSession.h"
 #include "Define.h"
 #include "ObjectMgr.h"
-#include "Interfaces\Interface_BattlePay.hpp"
 
 namespace Battlepay
 {

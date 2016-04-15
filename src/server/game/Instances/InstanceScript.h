@@ -340,6 +340,9 @@ class InstanceScript : public ZoneScript
         /// Remove cooldown for spell on all players in instance
         void DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID);
 
+        /// Do combat stop on all players in instance
+        void DoCombatStopOnPlayers();
+
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 

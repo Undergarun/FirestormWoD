@@ -2447,7 +2447,19 @@ class spell_warr_shield_slam : public SpellScriptLoader
                     if (l_Caster->HasAura(l_T17Protection2P->Id) && roll_chance_i(l_T17Protection2P->ProcChance))
                     {
                         if (l_Caster->HasAura(eSpells::GladiatorStance))
-                            l_Caster->CastSpell(l_Target, eSpells::ShieldCharge, true);
+                        {
+                            int32 l_RemainingDuration = 0;
+
+                            l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+                            if (Aura* l_OldChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                                l_RemainingDuration = l_OldChargeBuff->GetDuration();
+                            l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+                            if (Aura* l_ChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                            {
+                                l_ChargeBuff->SetMaxDuration(l_ChargeBuff->GetDuration() + l_RemainingDuration);
+                                l_ChargeBuff->RefreshDuration();
+                            }
+                        }
                         else
                             l_Caster->CastSpell(l_Target, eSpells::ShieldBlock, true);
                     }

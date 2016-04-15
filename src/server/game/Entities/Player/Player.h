@@ -182,11 +182,12 @@ enum TalentTree // talent tabs
 
 enum CharacterWorldStates
 {
-    CharWorldStateGarrisonStablesFirstQuest              = 1,
-    CharWorldStateGarrisonStablesSecondQuest             = 2,
-    CharWorldStateGarrisonWorkshopGearworksInvention     = 3,
-    CharWorldStateGarrisonTradingPostDailyRandomTrader   = 4,
-    CharWorldStateGarrisonTradingPostDailyRandomShipment = 5
+    CharWorldStateGarrisonStablesFirstQuest                     = 1,
+    CharWorldStateGarrisonStablesSecondQuest                    = 2,
+    CharWorldStateGarrisonWorkshopGearworksInvention            = 3,
+    CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
+    CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
+    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6
 };
 
 // Spell modifier (used for modify other spells)
@@ -1074,6 +1075,7 @@ enum PlayerDelayedOperations
     DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
     DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
     DELAYED_BG_GROUP_RESTORE    = 0x20,                     ///< Flag to restore group state after teleport from BG
+    DELAYED_PET_BATTLE_INITIAL  = 0x40,
     DELAYED_END
 };
 
@@ -3591,7 +3593,13 @@ class Player : public Unit, public GridObject<Player>
 
         void SetStoreDeliverySaved() { m_StoreDeliverySave = true; }
         void SetStoreDeliveryProccesed(StoreCallback p_DeliveryType) { m_StoreDeliveryProcessed[p_DeliveryType] = true; }
-        
+
+        void ScheduleDelayedOperation(uint32 operation)
+        {
+            if (operation < DELAYED_END)
+                m_DelayedOperations |= operation;
+        }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3942,12 +3950,6 @@ class Player : public Unit, public GridObject<Player>
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
-
-        void ScheduleDelayedOperation(uint32 operation)
-        {
-            if (operation < DELAYED_END)
-                m_DelayedOperations |= operation;
-        }
 
         MapReference m_mapRef;
 

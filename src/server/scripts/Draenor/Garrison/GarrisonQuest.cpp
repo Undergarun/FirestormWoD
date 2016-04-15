@@ -115,7 +115,7 @@ namespace MS { namespace Garrison
             case WorkshopGearworks::InventionItemIDs::ItemXD57BullseyeGuidedRocketKit:
             case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
             case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
-                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, 0);
+                p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment).Value);
             default:
                 break;
         }
@@ -533,6 +533,30 @@ namespace MS { namespace Garrison
 
         p_Player->SetPhaseMask(l_PhaseMask, true);
     }
+
+    void playerScript_Garrison_Quests_Phases::OnItemDestroyed(Player* p_Player, Item* p_Item)
+    {
+        /// Check for Garrison Goblin Workshop Items
+        switch (p_Item->GetEntry())
+        {
+            /// Level 1
+            case 114983:
+            case 119158:
+            case 114974:
+            case 114246:
+            {
+                if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                {
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, p_Item->GetSpellCharges());
+                    l_GarrisonMgr->UpdatePlot(p_Player->GetPlotInstanceID());
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 

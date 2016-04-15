@@ -590,11 +590,20 @@ class ScriptMgr
 
     /// PlayerScript
     public:
-        
+
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        void OnItemDestroyed(Player* p_Player, Item* p_Item);
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player* p_Killer, Player* p_Killed);
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        void OnKill(Player* p_Killer, Unit* p_Killed);
         
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance

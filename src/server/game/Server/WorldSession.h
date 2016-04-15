@@ -1174,6 +1174,8 @@ class WorldSession
         void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
         void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
         void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
+        void HandlePetBattleLeaveQueue(WorldPacket& p_RecvData);
+        void HandlePetBattleQueueProposeMatchResult(WorldPacket& p_RecvData);
         void HandlePetBattleRequestUpdate(WorldPacket& p_RecvData);
         void HandlePetBattleCancelRequestPvPMatchmaking(WorldPacket& p_RecvData);
         void HandlePetBattleInput(WorldPacket& p_RecvData);
@@ -1189,6 +1191,12 @@ class WorldSession
         void SendPetBattleFirstRound(PetBattle* battle);
         void SendPetBattleFinalRound(PetBattle* p_Battle);
         void SendPetBattleFinished(PetBattle* battle);
+        void SendPetBattlePvPChallenge(PetBattleRequest* p_Request);
+        void SendPetBattleQueueUpdateResult(uint32 p_TicketTime, uint32 p_TicketID, uint32 p_Status, uint32 p_AvgWaitTime);
+        void SendPetBattleQueueProposeMatch();
+        void SendPetBattleJournalLockAcquired();
+        void SendPetBattleJournalLockDenied();
+
 
         //////////////////////////////////////////////////////////////////////////
         /// ToyBox
@@ -1311,6 +1319,7 @@ class WorldSession
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;
         bool m_playerSave;
+        bool m_IsPetBattleJournalLocked;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;

@@ -37,6 +37,7 @@
 #include "WardenMac.h"
 #include "GarrisonMgr.hpp"
 #include "AccountMgr.h"
+#include "PetBattle.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -142,6 +143,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
     m_playerLoading         = false;
     m_playerLogout          = false;
     m_inQueue               = false;
+    m_IsPetBattleJournalLocked = false;
     ///////////////////////////////////////////////////////////////////////////////
 
     _warden = NULL;
@@ -597,6 +599,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 /// %Log the player out
 void WorldSession::LogoutPlayer(bool Save)
 {
+    sPetBattleSystem->LeaveQueue(m_Player);
+
     // fix exploit with Aura Bind Sight
     m_Player->StopCastingBindSight();
     m_Player->StopCastingCharm();

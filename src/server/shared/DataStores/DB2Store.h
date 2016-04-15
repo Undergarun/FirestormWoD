@@ -733,6 +733,8 @@ template<class T> class DB2Storage : public DB2StorageBase
             if (!l_DB2Reader.Load(p_FileName, m_Format))
                 return false;
 
+            m_DB2FileName = p_FileName;
+
             /// load strings from another locale dbc data
             m_StringPoolList.push_back(l_DB2Reader.AutoProduceStrings(m_Format, (char*)m_DataTable));
 
@@ -772,6 +774,11 @@ template<class T> class DB2Storage : public DB2StorageBase
                 delete m_SQL;
         }
 
+        std::string GetDB2FileName() const
+        {
+            return m_DB2FileName;
+        }
+
     private:
         T** m_IndexTable;
         T* m_DataTable;
@@ -780,7 +787,7 @@ template<class T> class DB2Storage : public DB2StorageBase
         std::list<std::string> m_CustomStrings;
         std::set<LocalizedString*> m_LocalizedString;
         SqlDb2 * m_SQL;
-
+        std::string m_DB2FileName;
 };
 
 #endif

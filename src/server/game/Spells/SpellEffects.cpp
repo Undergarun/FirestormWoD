@@ -60,6 +60,8 @@
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 #include "PathGenerator.h"
+#include "Chat.h"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -277,7 +279,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.1.2
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS Unlocks boosted players' spells (ChrUpgrade*.db2)
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON        171905
@@ -7844,6 +7846,59 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
     }
     else
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
+}
+
+void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (GetCaster() == nullptr)
+        return;
+
+    Player* l_TargetPlayer = GetCaster()->ToPlayer();
+
+    if (!l_TargetPlayer)
+    {
+        ChatHandler(l_TargetPlayer).PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+        return;
+    }
+
+    if (l_TargetPlayer->GetGarrison())
+    {
+        ChatHandler(l_TargetPlayer).PSendSysMessage("Player already have a garrison");
+        return;
+    }
+
+    l_TargetPlayer->CreateGarrison();
+
+    uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
+    uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+    uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
+
+    l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
+
+    l_TargetPlayer->SendMovieStart(l_MovieID);
+
+    if (l_TeamID == TEAM_ALLIANCE)
+    {
+        l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+    }
+    else if (l_TeamID == TEAM_HORDE)
+    {
+        l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+    }
+
+    /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+    l_TargetPlayer->GetGarrison()->AddFollower(34);
+    l_TargetPlayer->GetGarrison()->AddFollower(89);
+    l_TargetPlayer->GetGarrison()->AddFollower(92);
+
 }
 
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)

@@ -1526,6 +1526,76 @@ class spell_npc_black_ox_statue : public CreatureScript
         }
 };
 
+/// Last Update 6.2.3
+/// Treant - 1964
+class spell_npc_treant_balance : public CreatureScript
+{
+    public:
+        spell_npc_treant_balance() : CreatureScript("npc_treant_balance") { }
+
+        enum eSpells
+        {
+            EntanglingRoots = 113770,
+            Wrath           = 113769
+        };
+
+        struct spell_npc_treant_balanceAI : public ScriptedAI
+        {
+            spell_npc_treant_balanceAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            bool m_Rooted;
+
+            void Reset()
+            {
+                m_Rooted = false;
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim() && me->getVictim() == nullptr)
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = NULL;
+                        if (Player* l_Plr = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Plr->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+                        {
+                            m_Rooted = false;
+                            AttackStart(l_OwnerTarget);
+                        }
+                    }
+                    return;
+                }
+
+                if (me->getVictim() && !me->IsValidAttackTarget(me->getVictim()))
+                    return;
+
+                if (me->getVictim() == nullptr)
+                    return;
+
+                if (!m_Rooted)
+                {
+                    m_Rooted = true;
+                    me->CastSpell(me->getVictim(), eSpells::EntanglingRoots, false);
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::Wrath, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_treant_balanceAI(p_Creature);
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_npc_spell_scripts()
 {
@@ -1561,6 +1631,7 @@ void AddSC_npc_spell_scripts()
 
     /// Druid NPC
     new spell_npc_dru_force_of_nature_resto();
+    new spell_npc_treant_balance();
 
     /// Generic NPC
     new spell_npc_totem_of_harmony();

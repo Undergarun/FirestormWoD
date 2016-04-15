@@ -4866,7 +4866,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
+    data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -5081,7 +5081,7 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
-    l_Data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
+    l_Data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);

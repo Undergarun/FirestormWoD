@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlepayMgr.h"
-#include "Interfaces\Interface_BattlePay.hpp"
 
 namespace BattlePay
 {

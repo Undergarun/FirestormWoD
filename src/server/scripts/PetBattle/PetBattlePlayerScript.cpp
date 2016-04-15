@@ -12,8 +12,6 @@
 #include "PetBattle.h"
 #include "Common.h"
 
-#include <mutex>
-
 class PlayerScriptPetBattle : public PlayerScript
 {
     public:

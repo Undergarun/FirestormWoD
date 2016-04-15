@@ -971,6 +971,8 @@ class npc_foundry_cruelfang : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionCruelfangKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1221,6 +1223,8 @@ class npc_foundry_dreadwing : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionDreadwingKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
@@ -1443,6 +1447,8 @@ class npc_foundry_ironcrusher : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionIroncrusherKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
@@ -1805,8 +1811,11 @@ class npc_foundry_pack_beast : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
+                /// Pack beasts despawns after 5 seconds if Dreadwing's alive, if not, 30 seconds.
                 if (me->HasAura(eSpells::FlameInfusionTriggered))
                     me->CastSpell(me, eSpells::FlameInfusionAreaTrigger, true);
+                else
+                    me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) override

@@ -434,6 +434,10 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINAL_ROUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINISHED,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_SLOT_UPDATES,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_JOURNAL_LOCK_ACQUIRED,                 STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_JOURNAL_LOCK_DENINED,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_QUEUE_STATUS,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Instances
         DEFINE_OPCODE_HANDLER(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT,                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1585,12 +1589,13 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_REQUEST_WILD,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRequestWild       );
     DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_REQUEST_PVP,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRequestPvP        );
     DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_JOIN_QUEUE,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleJoinQueue         );
+    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_LEAVE_QUEUE,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleLeaveQueue        );
     DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_REQUEST_UPDATE,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleRequestUpdate     );
-    DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING,        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleCancelRequestPvPMatchmaking);
     DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_INPUT,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleInput             );
     DEFINE_OPCODE_HANDLER(CMSG_PETBATTLE_INPUT_NEW_FRONT_PET,                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleInputNewFrontPet  );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEPET_SET_BATTLESLOT,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetSetBattleSlot     );
     DEFINE_OPCODE_HANDLER(CMSG_SUMMON_COMPANION,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSummonCompanion            );
+    DEFINE_OPCODE_HANDLER(CMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH_RESULT,           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePetBattleQueueProposeMatchResult);
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay
