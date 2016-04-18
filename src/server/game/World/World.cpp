@@ -1615,6 +1615,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Garrison Plot Building Content...");
     sObjectMgr->LoadGarrisonPlotBuildingContent();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Npc Recipes Conditions...");
+    sObjectMgr->LoadNpcRecipesConditions();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
@@ -3911,7 +3914,7 @@ void World::LoadCharacterInfoStore()
     {
         Field* fields = result->Fetch();
         AddCharacterInfo(fields[0].GetUInt32(), fields[1].GetString(), fields[2].GetUInt32() /*accountid*/,
-                         fields[3].GetUInt8() /*gender*/, fields[4].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
+                         fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
         ++count;
     }
     while (result->NextRow());

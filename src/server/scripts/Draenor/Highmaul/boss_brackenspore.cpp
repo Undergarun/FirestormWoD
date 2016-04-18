@@ -417,7 +417,10 @@ class boss_brackenspore : public CreatureScript
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
                 }
 
                 ResetPlayersPower(me);

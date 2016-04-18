@@ -37,53 +37,8 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_WarraTheWeaver::npc_WarraTheWeaver()
-        : CreatureScript("npc_WarraTheWeaver_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_WarraTheWeaver::OnGossipHello(Player* p_Player, Creature* p_Creature)
-    {
-        if (!p_Player->HasQuest(Quests::Horde_YourFirstTailoringWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstTailoringWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstTailoringWorkOrder, 4);
-
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_WarraTheWeaver::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        p_Player->CLOSE_GOSSIP_MENU();
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI* npc_WarraTheWeaver::GetAI(Creature* p_Creature) const
-    {
-        return new npc_WarraTheWeaverAI(p_Creature);
+        char ScriptName[] = "npc_WarraTheWeaver_Garr";
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -218,6 +173,17 @@ namespace MS { namespace Garrison
             m_OwnerGuid = p_Guid;
     }
 
+    void npc_Turga::npc_TurgaAI::OnPlotInstanceUnload()
+    {
+        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
+        {
+            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
+                l_Creature->DespawnOrUnsummon();
+
+            l_Guid = m_Summons.erase(l_Guid);
+        }
+    }
+
     void npc_Turga::npc_TurgaAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
@@ -245,6 +211,7 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                                m_Summons.push_back(l_Creature->GetGUID());
                             }
                             break;
                         default:

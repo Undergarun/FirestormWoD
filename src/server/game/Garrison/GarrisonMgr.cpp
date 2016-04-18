@@ -3017,6 +3017,8 @@ namespace MS { namespace Garrison
                 m_LastPlotBuildingType.erase(l_PlotInstanceEntry->PlotID);
         }
 
+        AssignFollowerToBuilding(GetBuilding(p_PlotInstanceID).FollowerAssigned, 0);
+
         UpdatePlot(p_PlotInstanceID);
 
         GarrisonPlotInstanceInfoLocation l_PlotLocation = GetPlot(p_PlotInstanceID);

@@ -25,11 +25,9 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_Dorogarr = ProfessionBuilding_SkillNPC<npc_DorogarrAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, &npc_DorogarrAIData::Recipes, &npc_DorogarrAIData::FnLevel1, &npc_DorogarrAIData::FnLevel2, &npc_DorogarrAIData::FnLevel3>;
+    using npc_Dorogarr = ProfessionBuilding_SkillNPC<npc_DorogarrAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, 79832, &npc_DorogarrAIData::FnLevel1, &npc_DorogarrAIData::FnLevel2, &npc_DorogarrAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79830 - Elrondir Surrion                                          ////
@@ -59,8 +57,11 @@ namespace MS { namespace Garrison
                 npc_ElrondirSurrionAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
+                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID
