@@ -258,6 +258,9 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& p_RecvData)
 
     BattlePet::Ptr l_BattlePet = m_Player->GetBattlePet(l_JournalGuid);
 
+    if (!l_BattlePet)
+        return;
+
     bool l_HaveCustomName = l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP) != 0;
     bool l_HaveDeclinedNames = false;
 
