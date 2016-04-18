@@ -1759,35 +1759,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         }
                         break;
                     }
-                    case 44457: // Living Bomb
-                    {
-                        UnitList targets;
-                        JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(caster, caster, 300.0f, 44457, false);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(caster, targets, u_check);
-                        caster->VisitNearbyObject(300.0f, searcher);
-                        if (targets.size() >= 4)
-                        {
-                            std::list<Aura*> auras;
-                            for (UnitList::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                                if (Aura* aur = (*itr)->GetAura(44457, caster->GetGUID()))
-                                    auras.push_back(aur);
-
-                            if (auras.size() >= 4)
-                            {
-                                auras.sort(JadeCore::DurationOrderPred(false));
-                                auras.pop_front();
-                                auras.pop_front();
-                                auras.pop_front();
-                                for (std::list<Aura*>::iterator itr = auras.begin(); itr != auras.end();)
-                                {
-                                    (*itr)->Remove();
-                                    itr = auras.erase(itr);
-                                }
-                            }
-                        }
-
-                        break;
-                    }
                     // Ring of Frost - 2.5 sec immune
                     case 82691:
                         target->AddAura(91264, target);
