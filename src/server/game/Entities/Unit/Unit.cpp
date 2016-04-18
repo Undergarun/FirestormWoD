@@ -13415,7 +13415,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     if (spellProto)
     {
-        if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+        if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && !spellProto->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE) &&
+            !spellProto->HasEffect(SPELL_EFFECT_WEAPON_PERCENT_DAMAGE) && !spellProto->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)) ///< Already apply on CalculateDamage by TOTAL_PCT
         {
             AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
