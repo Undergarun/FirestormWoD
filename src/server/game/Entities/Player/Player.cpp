@@ -29992,7 +29992,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
 
         /// Add bonus to item if needed
-        newitem->AddItemBonuses(item->itemBonuses);
+        if (newitem)
+            newitem->AddItemBonuses(item->itemBonuses);
 
         ItemContext l_Context   = ItemContext::None;
         uint32 l_EncounterID    = 0;
@@ -30030,7 +30031,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
             /// If item is not equipable, it doesn't need to be displayed
             /// If item is not from listed difficulties, it doesn't need to be displayed
-            if (!newitem->IsEquipable() || l_Context == ItemContext::None)
+            if ((newitem && !newitem->IsEquipable()) || l_Context == ItemContext::None)
             {
                 l_EncounterID   = 0;
                 l_Context       = ItemContext::None;
@@ -30046,7 +30047,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
         /// Complete the tracking quest if needed
         AddTrackingQuestIfNeeded(loot->source);
-        sScriptMgr->OnPlayerItemLooted(this, newitem);
+
+        if (newitem)
+            sScriptMgr->OnPlayerItemLooted(this, newitem);
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
