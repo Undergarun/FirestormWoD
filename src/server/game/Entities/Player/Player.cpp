@@ -933,6 +933,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_InterRealmPlayerState = InterRealmPlayerState::None;
     m_BeaconOfFaithTargetGUID = 0;
+
+    m_MasteryCache = 0.0f;
 }
 
 Player::~Player()

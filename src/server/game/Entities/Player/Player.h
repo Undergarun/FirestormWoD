@@ -3641,6 +3641,8 @@ class Player : public Unit, public GridObject<Player>
                 m_DelayedOperations |= operation;
         }
 
+        float GetMasteryCache() const { return m_MasteryCache; }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -4123,6 +4125,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Character WorldState
         std::map<uint32/*WorldState*/, CharacterWorldState> m_CharacterWorldStates;
+
+        /// Armory caches
+        float m_MasteryCache;
 
 };
 
