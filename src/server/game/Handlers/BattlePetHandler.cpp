@@ -256,7 +256,10 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& p_RecvData)
     if (!l_Creature)
         return;
 
-    BattlePet::Ptr l_BattlePet = m_Player->GetBattlePet(l_JournalGuid);
+    BattlePet::Ptr l_BattlePet = nullptr;
+
+    if (l_Creature->GetOwner() && l_Creature->GetOwner()->IsPlayer())
+        l_BattlePet = l_Creature->GetOwner()->ToPlayer()->GetBattlePet(l_JournalGuid);
 
     if (!l_BattlePet)
         return;
@@ -264,10 +267,13 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& p_RecvData)
     bool l_HaveCustomName = l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP) != 0;
     bool l_HaveDeclinedNames = false;
 
-    for (int l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+    if (l_BattlePet)
     {
-        if (!l_BattlePet->DeclinedNames[l_I].empty())
-            l_HaveDeclinedNames = true;
+        for (int l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+        {
+            if (!l_BattlePet->DeclinedNames[l_I].empty())
+                l_HaveDeclinedNames = true;
+        }
     }
 
     WorldPacket l_Packet(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE, 0x40);
@@ -283,7 +289,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& p_RecvData)
         l_Packet.WriteBit(l_HaveDeclinedNames);
 
         for (uint32 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
-            l_Packet.WriteBits(l_BattlePet->DeclinedNames[l_I].size(), 7);
+            l_Packet.WriteBits(l_BattlePet ? l_BattlePet->DeclinedNames[l_I].size() : 0, 7);
     }
 
     l_Packet.FlushBits();
@@ -293,7 +299,7 @@ void WorldSession::HandleBattlePetQueryName(WorldPacket& p_RecvData)
         l_Packet.WriteString(l_Creature->GetName());
 
         for (uint32 l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
-            l_Packet.WriteString(l_BattlePet->DeclinedNames[l_I]);
+            l_Packet.WriteString(l_BattlePet ? l_BattlePet->DeclinedNames[l_I] : "");
     }
 
     m_Player->GetSession()->SendPacket(&l_Packet);
