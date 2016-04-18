@@ -1140,11 +1140,12 @@ void WorldSession::HandlePetBattleRequestUpdate(WorldPacket& p_RecvData)
             ++l_PlayerOpposantPetCount;
         }
 
-        if (!l_PlayerOpposantPetCount || l_PlayerPetCount)
+        if (!l_PlayerOpposantPetCount || !l_PlayerPetCount)
         {
             m_Player->GetSession()->SendPetBattleRequestFailed(PETBATTLE_REQUEST_NO_PETS_IN_SLOT);
             l_Opposant->GetSession()->SendPetBattleRequestFailed(PETBATTLE_REQUEST_NO_PETS_IN_SLOT);
             sPetBattleSystem->RemoveRequest(l_TargetGUID);
+            return;
         }
 
         m_Player->GetSession()->SendPetBattleFinalizeLocation(l_BattleRequest);
