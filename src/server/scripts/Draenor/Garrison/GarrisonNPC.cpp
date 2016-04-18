@@ -1105,7 +1105,7 @@ namespace MS { namespace Garrison
             {
                 if (l_Creature->AI())
                 {
-                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = dynamic_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
 
                     if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr)
                         l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
