@@ -926,6 +926,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_StoreDeliverySave = false;
     m_BeaconOfFaithTargetGUID = 0;
+
+    m_MasteryCache = 0.0f;
 }
 
 Player::~Player()

@@ -971,6 +971,8 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, l_Value);
 
+    bool l_MasteryCache = false;
+
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
     for (auto l_Iter : l_AppliedAuras)
@@ -990,6 +992,12 @@ void Player::UpdateMasteryPercentage()
                     else
                     {
                         l_AurEff->ChangeAmount((int32)(l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+
+                        if (!l_MasteryCache)
+                        {
+                            m_MasteryCache = l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier;
+                            l_MasteryCache = true;
+                        }
                     }
                 }
             }

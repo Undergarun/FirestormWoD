@@ -753,4 +753,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_WORLD_STATE_DATA, "DELETE FROM `character_worldstates` WHERE `guid` = ? AND `worldstate` = ? and `value` = ?", CONNECTION_ASYNC);
 
     PREPARE_STATEMENT(CHAR_UPD_XP_RATE, "UPDATE characters SET xpRate = ? WHERE guid = ?", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_REP_STATS, "REPLACE INTO `character_stats_wod` (`guid`, `strength`, `agility`, `stamina`, `intellect`, `critPct`, `haste`, `mastery`, `spirit`, `armorBonus`, `multistrike`, `leech`, `versatility`, `avoidance`, `attackDamage`, `attackPower`, `attackSpeed`, `spellPower`, `manaRegen`, `armor`, `dodgePct`, `parryPct`, `blockPct`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }
