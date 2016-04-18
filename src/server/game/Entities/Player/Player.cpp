@@ -23411,6 +23411,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
         stmt->setFloat(index++, m_PersonnalXpRate);
+        stmt->setUInt32(index++, m_petSlotUsed);
     }
     else
     {
@@ -23565,6 +23566,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
+        stmt->setUInt32(index++, m_petSlotUsed);
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
