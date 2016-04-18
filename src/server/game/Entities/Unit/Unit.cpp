@@ -16922,7 +16922,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     /// Hack Fix Immolate - Critical strikes generate burning embers
     if (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION && procSpell && (procSpell->Id == 348 || procSpell->Id == 157736) && (procExtra & PROC_EX_CRITICAL_HIT))
-        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + (1 * GetPowerCoeff(POWER_BURNING_EMBERS)));
+        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (IsPlayer() && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
