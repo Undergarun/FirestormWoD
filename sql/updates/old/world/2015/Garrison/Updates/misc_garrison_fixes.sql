@@ -436,3 +436,17 @@
 	(119158, 0x0001, 0, 0, 0, 0),
 	(114974, 0x0001, 0, 0, 0, 0),
 	(114246, 0x0001, 0, 0, 0, 0);
+
+#79862/NPC
+
+	DELETE FROM creature WHERE id = 79862;
+
+#168342/Spell
+
+	DELETE FROM spell_script_names WHERE spell_id = 168342;
+	INSERT INTO spell_script_names VALUE (168342, "spell_aura_garrison_skyterror_falling");
+
+#Stables mounts script
+
+	UPDATE creature_template SET vehicleid = 3889 WHERE entry = 87078;
+	UPDATE creature_template SET scriptname = "npc_StablesTrainingMounts_Garr" WHERE entry IN (87078, 87076, 87079, 87080, 87081, 87082);

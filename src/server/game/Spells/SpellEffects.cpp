@@ -7874,7 +7874,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
         return;
     }
 
-    if (l_TargetPlayer->GetGarrison())
+    if (l_TargetPlayer->GetGarrison() && l_TargetPlayer->getLevel() >= 90)
     {
         ChatHandler(l_TargetPlayer).PSendSysMessage("Player already have a garrison");
         return;
@@ -8054,7 +8054,8 @@ void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
             l_Pet->Health = l_Pet->InfoMaxHealth;
         }
 
-        m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetsHealed();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetUpdates(false);
     }
 }
 
@@ -8072,7 +8073,7 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    player->GetSession()->SendPetBattleSlotUpdates(false);
 }
 
 void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)

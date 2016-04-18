@@ -1788,7 +1788,7 @@ class npc_foundry_forge_overdrive : public CreatureScript
             {
                 m_BeltEntry = 0;
 
-                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_CAN_SAFE_FALL);
+                p_Creature->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_DISABLE_COLLISION);
 
                 p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
             }

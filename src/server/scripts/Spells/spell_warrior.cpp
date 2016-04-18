@@ -360,9 +360,9 @@ class spell_warr_dragon_roar: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
             }
 
             void Register()
@@ -2434,11 +2434,6 @@ class spell_warr_shield_slam : public SpellScriptLoader
 
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
-
-                /// Heavy Repercussions
-                if (l_Caster->HasAura(WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED) || l_Caster->HasAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
-                    if (Aura* l_HeavyRepercussions = l_Caster->GetAura(WARRIOR_HEAVY_REPERCUSSIONS))
-                        l_Damage += CalculatePct(l_Damage, l_HeavyRepercussions->GetEffect(0)->GetAmount());
 
                 /// Shield Charge
                 if (Aura* l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))

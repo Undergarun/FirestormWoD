@@ -4205,7 +4205,7 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
 
                 Pet* l_Pet = l_Player->GetPet();
 
-                if (!l_Player->isMoving())
+                if (!l_Player->IsMoving())
                 {
                     if (l_Player->HasAura(eSpells::GlyphOfCamouflage))
                     {

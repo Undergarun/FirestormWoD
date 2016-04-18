@@ -908,13 +908,10 @@ uint32 PetBattleTeam::GetCatchAbilityID()
 
     if (l_Player)
     {
-        /// Pro Pet Crew
-        if (l_Player->GetAchievementMgr().HasAchieved(6581))
-            return 135;     ///< Pristine Pet Trap
+        /// LevelUpDisplay.lua => LEVEL_UP_TRAP_LEVELS
+        static const uint32 l_PetBattleCatchAbilityID[] = { 427, 77, 135 };
 
-        /// Going to Need More Traps
-        if (l_Player->GetAchievementMgr().HasAchieved(6556))
-            return 77;      ///< Strong Pet Trap
+        return l_PetBattleCatchAbilityID[l_Player->GetBattlePetTrapLevel() - 1];
     }
 
     return 427; ///< Pet trap
@@ -1092,7 +1089,7 @@ void PetBattle::Begin()
         {
             l_Player->PetBattleCountBattleSpecies();
 
-            l_Player->GetSession()->SendPetBattleFullUpdate(this);
+            l_Player->GetSession()->SendPetBattleInitialUpdate(this);
             l_Player->GetSession()->SendPetBattleFirstRound(this); 
         }
 
@@ -1107,8 +1104,8 @@ void PetBattle::Begin()
 
         if (l_PlayerA && l_PlayerB)
         {
-            l_PlayerA->GetSession()->SendPetBattleFullUpdate(this);
-            l_PlayerB->GetSession()->SendPetBattleFullUpdate(this);
+            l_PlayerA->GetSession()->SendPetBattleInitialUpdate(this);
+            l_PlayerB->GetSession()->SendPetBattleInitialUpdate(this);
 
             l_PlayerA->GetSession()->SendPetBattleFirstRound(this);
             l_PlayerB->GetSession()->SendPetBattleFirstRound(this);
@@ -1450,6 +1447,9 @@ void PetBattle::Finish(uint32 p_WinnerTeamID, bool p_Aborted)
             l_Player->SummonLastSummonedBattlePet();
             l_Player->ReloadPetBattles();
             l_Player->_petBattleId = 0;
+
+            if (BattleType == PETBATTLE_TYPE_PVP_MATCHMAKING)
+                l_Player->TeleportTo(l_Player->m_recallMap, l_Player->m_recallX, l_Player->m_recallY, l_Player->m_recallZ, l_Player->m_recallO);
         }
         else
         {
@@ -1987,7 +1987,7 @@ void PetBattleSystem::JoinQueue(Player* p_Player)
     /// Pandaren case
     if (p_Player->GetTeamId() == TEAM_NEUTRAL)
     {
-        p_Player->GetSession()->SendPetBattleQueueUpdateResult(0, 1, LFBUpdateStatus::LFB_CANT_JOIN_DUE_TO_UNSELECTED_FACTION, 0);
+        p_Player->GetSession()->SendPetBattleQueueStatus(0, 1, LFBUpdateStatus::LFB_CANT_JOIN_DUE_TO_UNSELECTED_FACTION, 0);
         return;
     }
 
@@ -2009,17 +2009,17 @@ void PetBattleSystem::JoinQueue(Player* p_Player)
         return;
 
     LFBTicket* l_Ticket = new LFBTicket();
-    l_Ticket->State = LFBState::LFB_STATE_QUEUED;
-    l_Ticket->JoinTime = time(nullptr);
-    l_Ticket->TicketID = 1;
-    l_Ticket->MatchingOpponent = nullptr;
-    l_Ticket->ProposalAnswer = LFBAnswer::LFB_ANSWER_PENDING;
-    l_Ticket->Weight = l_Weight;
-    l_Ticket->RequesterGUID = p_Player->GetGUID();
-    l_Ticket->TeamID = p_Player->GetTeamId();
+    l_Ticket->State             = LFBState::LFB_STATE_QUEUED;
+    l_Ticket->JoinTime          = time(nullptr);
+    l_Ticket->TicketID          = 1;
+    l_Ticket->MatchingOpponent  = nullptr;
+    l_Ticket->ProposalAnswer    = LFBAnswer::LFB_ANSWER_PENDING;
+    l_Ticket->Weight            = l_Weight;
+    l_Ticket->RequesterGUID     = p_Player->GetGUID();
+    l_Ticket->TeamID            = p_Player->GetTeamId();
 
-    p_Player->GetSession()->SendPetBattleJournalLockAcquired();
-    p_Player->GetSession()->SendPetBattleQueueUpdateResult(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
+    p_Player->GetSession()->SendBattlePetJournalLockAcquired();
+    p_Player->GetSession()->SendPetBattleQueueStatus(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
 
     m_LFBRequests[p_Player->GetGUID()] = l_Ticket;
 }
@@ -2062,7 +2062,7 @@ void PetBattleSystem::LeaveQueue(Player* p_Player)
                 l_Ticket->MatchingOpponent->State = LFBState::LFB_STATE_QUEUED;
 
                 if (l_Opponent)
-                    l_Opponent->GetSession()->SendPetBattleQueueUpdateResult(l_Ticket->MatchingOpponent->JoinTime, l_Ticket->MatchingOpponent->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
+                    l_Opponent->GetSession()->SendPetBattleQueueStatus(l_Ticket->MatchingOpponent->JoinTime, l_Ticket->MatchingOpponent->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
             }
 
             /// Continue to other case handlers
@@ -2071,8 +2071,8 @@ void PetBattleSystem::LeaveQueue(Player* p_Player)
         case LFBState::LFB_STATE_IN_COMBAT:
         case LFBState::LFB_STATE_QUEUED:
         {
-            p_Player->GetSession()->SendPetBattleQueueUpdateResult(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_LEAVE_QUEUE, m_LFBAvgWaitTime);
-            p_Player->GetSession()->SendPetBattleJournalLockDenied();
+            p_Player->GetSession()->SendPetBattleQueueStatus(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_LEAVE_QUEUE, m_LFBAvgWaitTime);
+            p_Player->GetSession()->SendBattlePetJournalLockDenied();
 
             delete m_LFBRequests[p_Player->GetGUID()];
             m_LFBRequests[p_Player->GetGUID()] = nullptr;
@@ -2157,7 +2157,7 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
 
                     if (l_Player)
                     {
-                        l_Player->GetSession()->SendPetBattleQueueUpdateResult(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_UPDATE_STATUS, m_LFBAvgWaitTime);
+                        l_Player->GetSession()->SendPetBattleQueueStatus(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_UPDATE_STATUS, m_LFBAvgWaitTime);
 
                         std::vector<LFBTicket*> l_PossibleOpponent;
                         for (auto l_Pair : m_LFBRequests)
@@ -2198,8 +2198,8 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
                             l_Left->ProposalTime = time(nullptr);
                             l_Right->ProposalTime = time(nullptr);
 
-                            l_LeftPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_PROPOSAL_BEGIN, m_LFBAvgWaitTime);
-                            l_RightPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Right->JoinTime, l_Right->TicketID, LFBUpdateStatus::LFB_PROPOSAL_BEGIN, m_LFBAvgWaitTime);
+                            l_LeftPlayer->GetSession()->SendPetBattleQueueStatus(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_PROPOSAL_BEGIN, m_LFBAvgWaitTime);
+                            l_RightPlayer->GetSession()->SendPetBattleQueueStatus(l_Right->JoinTime, l_Right->TicketID, LFBUpdateStatus::LFB_PROPOSAL_BEGIN, m_LFBAvgWaitTime);
 
                             l_LeftPlayer->GetSession()->SendPetBattleQueueProposeMatch();
                             l_RightPlayer->GetSession()->SendPetBattleQueueProposeMatch();
@@ -2222,8 +2222,8 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
                     {
                         if (l_LeftPlayer && l_RightPlayer)
                         {
-                            l_LeftPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_PET_BATTLE_IS_STARTED, m_LFBAvgWaitTime);
-                            l_RightPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Right->JoinTime, l_Right->TicketID, LFBUpdateStatus::LFB_PET_BATTLE_IS_STARTED, m_LFBAvgWaitTime);
+                            l_LeftPlayer->GetSession()->SendPetBattleQueueStatus(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_PET_BATTLE_IS_STARTED, m_LFBAvgWaitTime);
+                            l_RightPlayer->GetSession()->SendPetBattleQueueStatus(l_Right->JoinTime, l_Right->TicketID, LFBUpdateStatus::LFB_PET_BATTLE_IS_STARTED, m_LFBAvgWaitTime);
 
                             l_Left->State   = LFBState::LFB_STATE_IN_COMBAT;
                             l_Right->State  = LFBState::LFB_STATE_IN_COMBAT;
@@ -2254,15 +2254,16 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
                             l_Battle->PvPMatchMakingRequest.TeamPosition[PETBATTLE_TEAM_2][1] = l_Location.Positions[1].y;
                             l_Battle->PvPMatchMakingRequest.TeamPosition[PETBATTLE_TEAM_2][2] = l_Location.Positions[1].z;
 
-                            G3D::Vector3 l_Minimum = l_Location.Positions[PETBATTLE_TEAM_1].min(l_Location.Positions[PETBATTLE_TEAM_2]);
-                            G3D::Vector3 l_Maximum = l_Location.Positions[PETBATTLE_TEAM_1].max(l_Location.Positions[PETBATTLE_TEAM_2]);
+                            Position l_BattleCenterPosition;
+                            {
+                                l_BattleCenterPosition.m_positionX = (l_Location.Positions[0].x + l_Location.Positions[1].x) / 2;
+                                l_BattleCenterPosition.m_positionY = (l_Location.Positions[0].y + l_Location.Positions[1].y) / 2;
+                                l_BattleCenterPosition.m_positionZ = (l_Location.Positions[0].z + l_Location.Positions[1].z) / 2;
+                            }
 
-                            G3D::Vector3 l_Center = l_Location.Positions[PETBATTLE_TEAM_1].min(l_Location.Positions[PETBATTLE_TEAM_2]);
-                            l_Center += (l_Maximum - l_Minimum) / 2.0f;
-
-                            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[0] = l_Center.x;
-                            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[1] = l_Center.y;
-                            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[2] = l_Center.z;
+                            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[0] = l_BattleCenterPosition.m_positionX;
+                            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[1] = l_BattleCenterPosition.m_positionY;
+                            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[2] = l_BattleCenterPosition.m_positionZ;
 
                             G3D::Vector3 const& l_One = l_Location.Positions[PETBATTLE_TEAM_1];
                             G3D::Vector3 const& l_Second = l_Location.Positions[PETBATTLE_TEAM_2];
@@ -2342,11 +2343,13 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
 
                             l_LeftPlayer->SetBattlegroundEntryPoint();
                             l_LeftPlayer->ScheduleDelayedOperation(DELAYED_PET_BATTLE_INITIAL);
-                            l_LeftPlayer->TeleportTo(l_Location.MapID, l_Location.Positions[PETBATTLE_TEAM_1].x + 0.01f, l_Location.Positions[PETBATTLE_TEAM_1].y + 0.01f, l_Location.Positions[PETBATTLE_TEAM_1].z + 0.01f, l_LeftPlayer->GetOrientation());
+                            l_LeftPlayer->SaveRecallPosition();
+                            l_LeftPlayer->TeleportTo(l_Location.MapID, l_Location.Positions[PETBATTLE_TEAM_1].x + 0.01f, l_Location.Positions[PETBATTLE_TEAM_1].y + 0.01f, l_Location.Positions[PETBATTLE_TEAM_1].z + 0.01f, l_RightPlayer->GetOrientation() - M_PI);
 
                             l_RightPlayer->SetBattlegroundEntryPoint();
                             l_RightPlayer->ScheduleDelayedOperation(DELAYED_PET_BATTLE_INITIAL);
-                            l_RightPlayer->TeleportTo(l_Location.MapID, l_Location.Positions[PETBATTLE_TEAM_2].x + 0.01f, l_Location.Positions[PETBATTLE_TEAM_2].y + 0.01f, l_Location.Positions[PETBATTLE_TEAM_2].z + 0.01f, l_LeftPlayer->GetOrientation());
+                            l_RightPlayer->SaveRecallPosition();
+                            l_RightPlayer->TeleportTo(l_Location.MapID, l_Location.Positions[PETBATTLE_TEAM_2].x + 0.01f, l_Location.Positions[PETBATTLE_TEAM_2].y + 0.01f, l_Location.Positions[PETBATTLE_TEAM_2].z + 0.01f, l_LeftPlayer->GetOrientation() - M_PI);
 
                             l_TicketsToRemove.push_back(l_Left->RequesterGUID);
                             l_TicketsToRemove.push_back(l_Right->RequesterGUID);
@@ -2362,14 +2365,14 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
                         {
                             if (l_Left->ProposalAnswer == LFBAnswer::LFB_ANSWER_DENY)
                             {
-                                l_RightPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_OPPONENT_PROPOSAL_DECLINED, m_LFBAvgWaitTime);
+                                l_RightPlayer->GetSession()->SendPetBattleQueueStatus(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_OPPONENT_PROPOSAL_DECLINED, m_LFBAvgWaitTime);
                                 l_TicketsToRemove.push_back(l_Left->RequesterGUID);
                                 p_LeftRemoved = true;
                             }
 
                             if (l_Right->ProposalAnswer == LFBAnswer::LFB_ANSWER_DENY)
                             {
-                                l_LeftPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_OPPONENT_PROPOSAL_DECLINED, m_LFBAvgWaitTime);
+                                l_LeftPlayer->GetSession()->SendPetBattleQueueStatus(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_OPPONENT_PROPOSAL_DECLINED, m_LFBAvgWaitTime);
                                 l_TicketsToRemove.push_back(l_Right->RequesterGUID);
                                 p_RightRemoved = true;
                             }
@@ -2377,12 +2380,12 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
                             if (!p_LeftRemoved)
                             {
                                 l_Left->State = LFBState::LFB_STATE_QUEUED;
-                                l_LeftPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
+                                l_LeftPlayer->GetSession()->SendPetBattleQueueStatus(l_Left->JoinTime, l_Left->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
                             }
                             if (!p_RightRemoved)
                             {
                                 l_Right->State = LFBState::LFB_STATE_QUEUED;
-                                l_RightPlayer->GetSession()->SendPetBattleQueueUpdateResult(l_Right->JoinTime, l_Right->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
+                                l_RightPlayer->GetSession()->SendPetBattleQueueStatus(l_Right->JoinTime, l_Right->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
                             }
                         }
                     }
@@ -2430,7 +2433,7 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
                         l_Ticket->MatchingOpponent->State            = LFBState::LFB_STATE_QUEUED;
 
                         if (l_Opponent)
-                            l_Opponent->GetSession()->SendPetBattleQueueUpdateResult(l_Ticket->MatchingOpponent->JoinTime, l_Ticket->MatchingOpponent->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
+                            l_Opponent->GetSession()->SendPetBattleQueueStatus(l_Ticket->MatchingOpponent->JoinTime, l_Ticket->MatchingOpponent->TicketID, LFBUpdateStatus::LFB_JOIN_QUEUE, m_LFBAvgWaitTime);
                     }
 
                     /// Continue to other case handlers
@@ -2443,8 +2446,8 @@ void PetBattleSystem::Update(uint32 p_TimeDiff)
 
                     if (l_Player)
                     {
-                        l_Player->GetSession()->SendPetBattleQueueUpdateResult(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_LEAVE_QUEUE, m_LFBAvgWaitTime);
-                        l_Player->GetSession()->SendPetBattleJournalLockDenied();
+                        l_Player->GetSession()->SendPetBattleQueueStatus(l_Ticket->JoinTime, l_Ticket->TicketID, LFBUpdateStatus::LFB_LEAVE_QUEUE, m_LFBAvgWaitTime);
+                        l_Player->GetSession()->SendBattlePetJournalLockDenied();
                     }
 
                     delete m_LFBRequests[l_Guid];

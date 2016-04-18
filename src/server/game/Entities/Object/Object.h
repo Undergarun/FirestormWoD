@@ -743,6 +743,12 @@ struct MovementInfo
 
     void OutDebug();
     void Normalize();
+
+    void ResetJump()
+    {
+        fallTime = 0;
+        JumpVelocity = j_cosAngle = j_sinAngle = j_xyspeed = 0.0f;
+    }
 };
 
 #define MAPID_INVALID 0xFFFFFFFF
