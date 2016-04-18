@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_Zaren = ProfessionBuilding_SkillNPC<npc_ZarenAIData::ScriptName, SKILL_ENGINEERING, Quests::Alliance_YourFirstEngineeringWorkOrder, &npc_ZarenAIData::Recipes, &npc_ZarenAIData::FnLevel1, &npc_ZarenAIData::FnLevel2, &npc_ZarenAIData::FnLevel3>;
+    using npc_Zaren = ProfessionBuilding_SkillNPC<npc_ZarenAIData::ScriptName, SKILL_ENGINEERING, Quests::Alliance_YourFirstEngineeringWorkOrder, 77365, &npc_ZarenAIData::FnLevel1, &npc_ZarenAIData::FnLevel2, &npc_ZarenAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77831 - Helayn Whent                                              ////

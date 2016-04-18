@@ -372,7 +372,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     {
         uint32 l_MovementForceCount = 0;
 
-        bool l_HasSpline = l_Unit->movespline->Initialized();
+        bool l_HasSpline = l_Unit->IsSplineEnabled();
 
         /// Movement
         {

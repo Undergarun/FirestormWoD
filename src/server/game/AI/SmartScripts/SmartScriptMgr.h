@@ -500,6 +500,7 @@ enum SMART_ACTION
     SMART_ACTION_SEND_SCENARIO_PROGRESS_UPDATE      = 113,
     SMART_ACTION_SEND_SCENARIO_STATE                = 114,
     SMART_ACTION_UPDATE_PLOT_INSTANCE               = 115,
+    SMART_ACTION_PLAY_SCENE_OBJECT                  = 116,
 
     SMART_ACTION_END
 };
@@ -981,6 +982,11 @@ struct SmartAction
             uint32 ScenarioID;
             uint32 StepIndex;
         } sendScenarioState;
+
+        struct
+        {
+            uint32 SceneID;
+        } playSceneObject;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

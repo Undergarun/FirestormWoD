@@ -37,7 +37,7 @@ namespace MS { namespace Garrison
 
         char ScriptName[] = "npc_EricBroadoak_Garr";
 
-        std::vector<SkillNPC_RecipeEntry> Recipes
+        std::vector<RecipesConditions> Recipes
         {
             { 175392,     0 },
             { 175390,     0 },

@@ -232,7 +232,11 @@ class boss_gruul_foundry : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PetrifiedStun);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CaveInDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
                 }
             }
 

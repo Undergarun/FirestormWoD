@@ -2181,7 +2181,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             Creature* l_Creature = l_Object->ToCreature();
 
-            if (l_Creature == nullptr || l_Creature->AI())
+            if (l_Creature == nullptr || l_Creature->AI() == nullptr)
                 return;
 
             MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
@@ -2190,6 +2190,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
 
             break;
+        }
+        case SMART_ACTION_PLAY_SCENE_OBJECT:
+        {
+            WorldObject* l_Object = GetBaseObject();
+
+            if (l_Object == nullptr)
+                break;
+
+            Player* l_Player = l_Object->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->PlayScene(e.action.playSceneObject.SceneID, l_Player);
         }
         default:
             sLog->outDebug(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());

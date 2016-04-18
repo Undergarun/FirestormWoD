@@ -1786,8 +1786,7 @@ class spell_item_unusual_compass: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                caster->SetOrientation(frand(0.0f, 62832.0f) / 10000.0f);
-                caster->SendMovementFlagUpdate();
+                caster->SetFacingTo(frand(0.0f, 62832.0f) / 10000.0f);
             }
 
             void Register()
@@ -4658,6 +4657,120 @@ public:
         return new spell_item_swapblaster_SpellScript();
     }
 };
+
+
+/// Transmorphic Tincture - 112090, Called by: 162313
+class spell_item_transmorphic_tincture : public SpellScriptLoader
+{
+    public:
+    spell_item_transmorphic_tincture() : SpellScriptLoader("spell_item_transmorphic_tincture") { }
+
+    class  spell_item_transmorphic_tincture_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_item_transmorphic_tincture_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Player* l_Player = GetTarget()->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            AuraEffect* l_AuraEffect = GetEffect(0);
+            if (l_AuraEffect == nullptr)
+                return;
+
+            Gender l_NewGender = (Gender)l_Player->getGender();
+
+            /// This need to understand if player already have this buff (for example after logout), to prevent change of the gender one more time
+            uint32 l_NativeGender = l_AuraEffect->GetAmount();
+            if (l_NativeGender == 0)
+                l_AuraEffect->SetAmount(l_NewGender + 1);
+
+            uint32 l_OtherGender = l_AuraEffect->GetAmount() - 1;
+            if (l_OtherGender == GENDER_MALE)            ///< MALE
+                l_NewGender = GENDER_FEMALE;
+            else if (l_OtherGender == GENDER_FEMALE)     ///< FEMALE
+                l_NewGender = GENDER_MALE;
+            else
+                return;
+
+            /// Set new gender
+            l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NewGender);
+            l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NewGender);
+
+            PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(l_Player->getRace(), l_Player->getClass());
+            if (!l_Info)
+                return;
+            uint16 l_NewDisplayId = 0;
+
+            if (l_NewGender == GENDER_MALE)
+                l_NewDisplayId = l_Info->displayId_m;
+            else if (l_NewGender == GENDER_FEMALE)
+                l_NewDisplayId = l_Info->displayId_f;
+
+            /// Check if this is first time, our player already has this aura
+            /// If aura has applied less then 3 seconds ago - just casted
+            bool l_FirstTime = false;
+            if (Aura* l_Transmorphed = l_Player->GetAura(GetSpellInfo()->Id))
+                if (l_Transmorphed->GetDuration() > (l_Transmorphed->GetMaxDuration() - 500))
+                    l_FirstTime = true;
+
+            /// Check if at the moment player has the same model as his native
+            bool l_CurrentModelEqualNative = l_Player->GetNativeDisplayId() == l_Player->GetDisplayId();
+
+            /// If not in original form (for example cat,bear,metamorphosis), we don't need to change displayId now
+            if ((!l_FirstTime && !l_CurrentModelEqualNative) || l_CurrentModelEqualNative)
+                l_Player->InitDisplayIds();
+            else
+                l_Player->SetNativeDisplayId(l_NewDisplayId);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Player* l_Player = GetTarget()->ToPlayer();
+            if (l_Player == nullptr)
+                return;
+
+            AuraEffect* l_AuraEffect = GetEffect(0);
+            if (l_AuraEffect == nullptr)
+                return;
+
+            uint32 l_NativeGender = l_AuraEffect->GetAmount() - 1;
+
+            l_Player->SetByteValue(UNIT_FIELD_SEX, 3, l_NativeGender);
+            l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, 0, l_NativeGender);
+
+
+            PlayerInfo const* l_Info = sObjectMgr->GetPlayerInfo(l_Player->getRace(), l_Player->getClass());
+            if (!l_Info)
+                return;
+            uint16 l_NativeDisplayId = 0;
+
+            if (l_NativeGender == GENDER_MALE)
+                l_NativeDisplayId = l_Info->displayId_m;
+            else if (l_NativeGender == GENDER_FEMALE)
+                l_NativeDisplayId = l_Info->displayId_f;
+
+            /// If not in original form (for example cat,bear,metamorphosis), we don't need to change displayId now
+            if (l_Player->GetNativeDisplayId() == l_Player->GetDisplayId())
+                l_Player->InitDisplayIds();
+            else
+                l_Player->SetNativeDisplayId(l_NativeDisplayId);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_item_transmorphic_tincture_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_SEND_FOR_CLIENT));
+            AfterEffectRemove += AuraEffectRemoveFn(spell_item_transmorphic_tincture_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_item_transmorphic_tincture_AuraScript();
+    }
+};
+
 
 /// Hypnosis Goggles - 113631, Called by: 167839
 class spell_item_hypnotize_critter : public SpellScriptLoader

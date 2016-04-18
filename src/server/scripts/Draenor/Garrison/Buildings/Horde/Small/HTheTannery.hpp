@@ -25,11 +25,9 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_MurneGreenhoof = ProfessionBuilding_SkillNPC<npc_MurneGreenhoofAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, &npc_MurneGreenhoofAIData::Recipes, &npc_MurneGreenhoofAIData::FnLevel1, &npc_MurneGreenhoofAIData::FnLevel2, &npc_MurneGreenhoofAIData::FnLevel3>;
+    using npc_MurneGreenhoof = ProfessionBuilding_SkillNPC<npc_MurneGreenhoofAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Horde_YourFirstLeatherworkingWorkOrder, 79834, &npc_MurneGreenhoofAIData::FnLevel1, &npc_MurneGreenhoofAIData::FnLevel2, &npc_MurneGreenhoofAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79833 - Yanney                                                    ////
@@ -59,8 +57,11 @@ namespace MS { namespace Garrison
                 npc_YanneyAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
+                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID

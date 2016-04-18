@@ -25,11 +25,9 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel3;
 
         extern char ScriptName[];
-
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_OrgekIronhand = ProfessionBuilding_SkillNPC<npc_OrgekIronhandAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Horde_YourFirstBlacksmithingWorkOrder, &npc_OrgekIronhandAIData::Recipes, &npc_OrgekIronhandAIData::FnLevel1, &npc_OrgekIronhandAIData::FnLevel2, &npc_OrgekIronhandAIData::FnLevel3>;
+    using npc_OrgekIronhand = ProfessionBuilding_SkillNPC<npc_OrgekIronhandAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Horde_YourFirstBlacksmithingWorkOrder, 79867, &npc_OrgekIronhandAIData::FnLevel1, &npc_OrgekIronhandAIData::FnLevel2, &npc_OrgekIronhandAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79817 - Kinja                                                      ///
@@ -70,8 +68,11 @@ namespace MS { namespace Garrison
                 npc_KinjaAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
+                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
+
+                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID

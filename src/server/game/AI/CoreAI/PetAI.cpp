@@ -135,6 +135,10 @@ void PetAI::UpdateAI(const uint32 diff)
             HandleReturnMovement();
     }
 
+    /// Special case for Singe Magic of warlock pet Imp, should always trigger on caster, even if spell is not not on active state
+    if (!me->HasUnitState(UNIT_STATE_CASTING) && me->HasSpell(89808) && owner && owner->HasAuraType(SPELL_AURA_MOD_SILENCE))
+        me->CastSpell(owner, 89808, true);
+
     // Autocast (casted only in combat or persistent spells in any state)
     if (!me->HasUnitState(UNIT_STATE_CASTING))
     {

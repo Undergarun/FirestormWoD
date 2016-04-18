@@ -112,7 +112,7 @@ namespace MS { namespace Garrison
     /// Set NPC recipes
     /// @p_Recipes          : Recipes
     /// @p_RecipesSkillID   : Skill line ID
-    void GarrisonNPCAI::SetRecipes(std::vector<SkillNPC_RecipeEntry> p_Recipes, uint32 p_RecipesSkillID)
+    void GarrisonNPCAI::SetRecipes(std::vector<RecipesConditions> p_Recipes, uint32 p_RecipesSkillID)
     {
         m_Recipes           = p_Recipes;
         m_RecipesSkillID    = p_RecipesSkillID;
@@ -385,15 +385,15 @@ namespace MS { namespace Garrison
 
             uint32 l_RecipeID = p_ID & ~CreatureAIDataIDs::HasRecipe;
 
-            auto l_It = std::find_if(m_Recipes.begin(), m_Recipes.end(), [l_RecipeID](SkillNPC_RecipeEntry const& p_Entry) -> bool
+            auto l_It = std::find_if(m_Recipes.begin(), m_Recipes.end(), [l_RecipeID](RecipesConditions const& p_Entry) -> bool
             {
-                return p_Entry.AbilitySpellID == l_RecipeID;
+                return p_Entry.RecipeID == l_RecipeID;
             });
 
             if (l_It == m_Recipes.end())
                 return (uint32)-1;
 
-            return l_It->AbilitySpellIDPlayerCondition;
+            return l_It->PlayerConditionID;
         }
         
         return (uint32)-1;
@@ -438,14 +438,14 @@ namespace MS { namespace Garrison
                 l_Data << uint32(m_RecipesSkillID);     ///< Skill line ID
 
                 for (uint32 l_I = 0; l_I < m_Recipes.size(); ++l_I)
-                    l_Data << m_Recipes.at(l_I).AbilitySpellID;
+                    l_Data << m_Recipes.at(l_I).RecipeID;
 
                 l_Data << uint32(m_Recipes.size());    ///< Skill known ability spell id condition count
 
                 for (uint32 l_I = 0; l_I < m_Recipes.size(); ++l_I)
                 {
-                    if (m_Recipes.at(l_I).AbilitySpellIDPlayerCondition && !p_Player->EvalPlayerCondition(m_Recipes.at(l_I).AbilitySpellIDPlayerCondition).first)
-                        l_Data << m_Recipes.at(l_I).AbilitySpellIDPlayerCondition;
+                    if (m_Recipes.at(l_I).PlayerConditionID && !p_Player->EvalPlayerCondition(m_Recipes.at(l_I).PlayerConditionID).first)
+                        l_Data << m_Recipes.at(l_I).PlayerConditionID;
                     else
                         l_Data << uint32(0);
                 }
@@ -1148,7 +1148,7 @@ namespace MS { namespace Garrison
                 case Buildings::TailoringEmporium_TailoringEmporium_Level2:
                 case Buildings::TailoringEmporium_TailoringEmporium_Level3:
                 {
-                    std::vector<SkillNPC_RecipeEntry> l_Recipes;
+                    std::vector<RecipesConditions> l_Recipes;
 
                     switch (p_Player->GetTeamId())
                     {
@@ -1187,7 +1187,7 @@ namespace MS { namespace Garrison
                 case Buildings::TheTannery_TheTannery_Level2:
                 case Buildings::TheTannery_TheTannery_Level3:
                 {
-                    std::vector<SkillNPC_RecipeEntry> l_Recipes;
+                    std::vector<RecipesConditions> l_Recipes;
 
                     switch (p_Player->GetTeamId())
                     {
@@ -1266,7 +1266,7 @@ namespace MS { namespace Garrison
                 case Buildings::EnchanterStudy_EnchanterStudy_Level2:
                 case Buildings::EnchanterStudy_EnchanterStudy_Level3:
                 {
-                    std::vector<SkillNPC_RecipeEntry> l_Recipes = 
+                    std::vector<RecipesConditions> l_Recipes =
                     {
                         { 173718, 0 },
                         { 174979, 0 },
@@ -1599,6 +1599,32 @@ namespace MS { namespace Garrison
         }
     }
 
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
+    }
+
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    {
+        if (p_Apply)
+            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+        else
+            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+    }
+
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* p_Killer)
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
+            l_Player->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_StablesTrainingMounts_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_StablesTrainingMounts_GarrAI(p_Creature);
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -1611,6 +1637,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_garrison_atheeru_palestar;
     new MS::Garrison::npc_GarrisonStablesCreatures;
     new MS::Garrison::npc_follower_generic_script;
+    new MS::Garrison::npc_StablesTrainingMounts_Garr;
 
     /// Alliance
     {

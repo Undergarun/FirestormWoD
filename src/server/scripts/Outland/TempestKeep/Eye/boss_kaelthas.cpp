@@ -925,7 +925,7 @@ class boss_kaelthas : public CreatureScript
                                                 unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_AURA, true, 0, nullptr, me->GetGUID());
 
                                                 if (unit->ToPlayer())
-                                                    unit->ToPlayer()->SendMovementSetCanFly(true);
+                                                    unit->ToPlayer()->SetCanFly(true);
                                             }
                                         }
                                         GravityLapse_Timer = 10000;
@@ -948,7 +948,7 @@ class boss_kaelthas : public CreatureScript
                                             if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                                             {
                                                 if (unit->ToPlayer())
-                                                    unit->ToPlayer()->SendMovementSetCanFly(false);
+                                                    unit->ToPlayer()->SetCanFly(false);
                                             }
                                         }
 
