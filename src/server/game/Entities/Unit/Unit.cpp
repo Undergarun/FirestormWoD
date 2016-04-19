@@ -715,13 +715,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    /// Death Siphon
-    if (spellProto && spellProto->Id == 108196)
-    {
-        int32 bp = damage * 4;
-        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
-    }
-
     /// @todo update me ?
     /// Custom MoP Script
     if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId() == SPEC_MONK_BREWMASTER && HasAura(115315))
@@ -16874,6 +16867,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             target->CastSpell(target, 122465, true);
             target->ToPlayer()->AddSpellCooldown(122465, 0, 10 * IN_MILLISECONDS);
         }
+    }
+
+    /// Death Siphon
+    if (procSpell && procSpell->Id == 108196)
+    {
+        int32 bp = l_TotalDamage * 4;
+        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
     }
 
     /// Words of Mending - 152117
