@@ -3092,12 +3092,6 @@ void Player::ProcessDelayedOperations()
 
         SpawnCorpseBones();
 
-        if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
-        {
-            if (InstanceScript* l_InstanceScript = GetInstanceScript())
-                l_InstanceScript->ConsumeCombatResurrectionCharge();
-        }
-
         /// Resurrecting - 60s aura preventing client from new res spells
         RemoveAura(160029);
     }
@@ -28869,6 +28863,24 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
 
 void Player::ResurectUsingRequestData()
 {
+    if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+        {
+            if (l_InstanceScript->CanUseCombatResurrection())
+                l_InstanceScript->ConsumeCombatResurrectionCharge();
+            else
+            {
+                /// Resurrecting - 60s aura preventing client from new res spells
+                RemoveAura(160029);
+                ClearResurrectRequestData();
+                SendGameError(GameError::ERR_SPELL_FAILED_S, 236);
+                SendForcedDeathUpdate();
+                return;
+            }
+        }
+    }
+
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
     float x, y, z, o;
     _resurrectionData->Location.GetPosition(x, y, z, o);
@@ -28907,14 +28919,19 @@ void Player::ResurectUsingRequestData()
 
     SpawnCorpseBones();
 
-    if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
-    {
-        if (InstanceScript* l_InstanceScript = GetInstanceScript())
-            l_InstanceScript->ConsumeCombatResurrectionCharge();
-    }
-
     /// Resurrecting - 60s aura preventing client from new res spells
     RemoveAura(160029);
+}
+
+void Player::SendForcedDeathUpdate()
+{
+    WorldPacket l_Data(Opcodes::SMSG_FORCED_DEATH_UPDATE, 0);
+    GetSession()->SendPacket(&l_Data);
+}
+
+void Player::SendGameError(GameError::Type p_Error, uint32 p_Data1 /*= 0xF0F0F0F0*/, uint32 p_Data2 /*= 0xF0F0F0F0*/)
+{
+    GetSession()->SendGameError(p_Error, p_Data1, p_Data2);
 }
 
 void Player::SetClientControl(Unit* p_Target, uint8 p_AllowMove)
