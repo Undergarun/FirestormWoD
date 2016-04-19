@@ -61,6 +61,8 @@ namespace MS { namespace Garrison
             /// @p_SequenceSize     : Size of sequence table,
             /// @p_FirstMovePointID : First move point ID
             void SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+
+            void AddSummonGUID(uint64 p_GUID) { m_Summons.push_back(p_GUID); }
             /// Do next sequence element
             virtual void DoNextSequenceAction();
 
@@ -134,6 +136,7 @@ namespace MS { namespace Garrison
             uint8 m_SequencePosition;
 
         private:
+            std::vector<uint64> m_Summons;
             std::vector<RecipesConditions> m_Recipes;
             uint32 m_RecipesSkillID;
 

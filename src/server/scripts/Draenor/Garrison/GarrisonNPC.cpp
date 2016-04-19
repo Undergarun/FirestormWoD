@@ -312,7 +312,13 @@ namespace MS { namespace Garrison
 
     void GarrisonNPCAI::OnPlotInstanceUnload()
     {
+        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
+        {
+            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
+                l_Creature->DespawnOrUnsummon();
+        }
 
+        m_Summons.clear();
     }
 
     //////////////////////////////////////////////////////////////////////////

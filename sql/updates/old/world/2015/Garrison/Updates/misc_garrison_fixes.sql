@@ -450,3 +450,51 @@
 
 	UPDATE creature_template SET vehicleid = 3889 WHERE entry = 87078;
 	UPDATE creature_template SET scriptname = "npc_StablesTrainingMounts_Garr" WHERE entry IN (87078, 87076, 87079, 87080, 87081, 87082);
+
+#86698/NPC - Kil Rip
+
+	DELETE FROM npc_vendor WHERE entry = 86698 AND item IN (117473, 117452, 115354, 117472, 117474);
+
+#trading post vendors conditions
+
+	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 77377;
+	INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, conditionvalue1, conditionvalue2, COMMENT) VALUES
+	(23, 77377, 113797, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113798, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113799, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113800, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113801, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113802, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113803, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113804, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113789, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113790, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113791, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113792, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113793, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113794, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113795, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113796, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113813, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113814, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113815, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113816, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113817, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113818, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113819, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113820, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113805, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113806, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113807, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113808, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113809, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113810, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113811, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113812, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 127319, 39, 6, 2, "this item needs trading post lvl 2 to be sold");
+
+
+
+#84960/NPC - Lunarfall Arcanist
+
+	UPDATE creature_template SET minlevel = 90, maxlevel = 90 WHERE entry = 84960;

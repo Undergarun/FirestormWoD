@@ -62,9 +62,6 @@ namespace MS { namespace Garrison
                 npc_KaylieMacdonaldAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
-                std::vector<uint64> m_Summons;
-
-                void OnPlotInstanceUnload() override;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
 
