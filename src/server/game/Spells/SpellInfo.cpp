@@ -4672,6 +4672,7 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     switch (Id)
     {
         case 158831: ///< Devouring Plague DOT
+        case 124280: ///< Touch of Karma
             return false;
         default:
             return true;
