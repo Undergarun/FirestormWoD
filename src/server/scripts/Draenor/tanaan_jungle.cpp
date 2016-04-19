@@ -42,7 +42,7 @@ class playerScript_quests_custom_gestion : public PlayerScript
 
         void OnItemLooted(Player* p_Player, Item* p_Item)
         {
-            if (p_Item->GetVisibleEntry() == 112323)
+            if (p_Item && p_Item->GetVisibleEntry() == 112323)
                 p_Player->AddAura(162676, p_Player);
         }
 
