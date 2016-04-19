@@ -3071,7 +3071,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building with type
-    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType) const
+    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive) const
     {
         for (GarrisonBuilding l_Building : m_Buildings)
         {
@@ -3080,7 +3080,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->Type == p_BuildingType && l_Building.Active == true)
+            if (l_BuildingEntry->Type == p_BuildingType && (p_DontNeedActive ? true : l_Building.Active == true))
                 return l_Building;
         }
 
@@ -4308,7 +4308,10 @@ namespace MS { namespace Garrison
 
         }
 
-        if ((m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap) && (m_Owner->IsQuestRewarded(Quests::Alliance_BuildYourBarracks) || m_Owner->IsQuestRewarded(Quests::Horde_BuildYourBarracks)))
+        bool l_Cond1 = m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap;
+        bool l_Cond2 = GetGarrisonSiteLevelEntry()->Level == 1 ? (m_Owner->IsQuestRewarded(Quests::Alliance_BuildYourBarracks) || m_Owner->IsQuestRewarded(Quests::Horde_BuildYourBarracks)) : true;
+
+        if (l_Cond1 && l_Cond2)
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);

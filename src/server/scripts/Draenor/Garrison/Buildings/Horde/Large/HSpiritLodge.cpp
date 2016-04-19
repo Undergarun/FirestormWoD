@@ -78,7 +78,7 @@ namespace MS { namespace Garrison
 
             for (uint32 l_QuestID : l_QuestList)
             {
-                if (l_Owner->IsQuestRewarded(l_QuestID) && l_Itr < l_BuildingEntry->Level)
+                if (l_Owner->IsQuestRewarded(l_QuestID) && l_BuildingEntry && l_Itr < l_BuildingEntry->Level)
                 {
                     switch (l_QuestID)
                     {
