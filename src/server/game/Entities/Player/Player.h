@@ -2366,6 +2366,9 @@ class Player : public Unit, public GridObject<Player>
 
         void ResurectUsingRequestData();
 
+        void SendForcedDeathUpdate();
+        void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
+
         uint8 getCinematic()
         {
             return m_cinematic;

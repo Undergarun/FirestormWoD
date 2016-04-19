@@ -6077,7 +6077,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
         {
             if (!l_InstanceScript->CanUseCombatResurrection())
-                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+                return SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED;
         }
 
         if (m_targets.GetUnitTarget() != nullptr)
