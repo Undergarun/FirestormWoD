@@ -771,6 +771,15 @@ namespace MS { namespace Garrison
             {
                 /// Constructor
                 npc_follower_generic_scriptAI(Creature* p_Creature);
+
+                uint32 m_UpdateTimer;
+                uint64 m_OwnerGUID;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+
+                virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
             };
     };
 

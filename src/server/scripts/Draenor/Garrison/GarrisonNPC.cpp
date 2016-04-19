@@ -1258,15 +1258,8 @@ namespace MS { namespace Garrison
                 case Buildings::AlchemyLab_AlchemyLab_Level3:
                     if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(37270))
                     {
-                        sObjectMgr->AddCreatureQuestRelationBounds(p_Creature->GetEntry(), 37270);
-                        sObjectMgr->AddCreatureQuestInvolvedRelationBounds(p_Creature->GetEntry(), 37270);
-
-                        if (p_Player->GetQuestStatus(37270) == QUEST_STATUS_NONE)
-                            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-                        else if (p_Player->GetQuestStatus(37270) == QUEST_STATUS_REWARDED)
-                            break;
-                        else
-                            p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
+                        if (l_Quest != nullptr && p_Player->CanTakeQuest(l_Quest, false))
+                            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
                     }
                     break;
                 case Buildings::EnchanterStudy_EnchanterStudy_Level2:
@@ -1371,6 +1364,47 @@ namespace MS { namespace Garrison
         : GarrisonNPCAI(p_Creature)
     {
         SetAIObstacleManagerEnabled(true);
+    }
+
+    void npc_follower_generic_script::npc_follower_generic_scriptAI::Reset()
+    {
+        m_UpdateTimer = 10000;
+        m_OwnerGUID   = 0;
+    }
+
+    void npc_follower_generic_script::npc_follower_generic_scriptAI::UpdateAI(uint32 p_Diff)
+    {
+        if (m_UpdateTimer)
+        {
+            if (m_UpdateTimer <= p_Diff)
+            {
+                if (Player* l_Player = HashMapHolder<Player>::Find(m_OwnerGUID))
+                {
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(37270))
+                    {
+                        if (l_Quest != nullptr && l_Player->CanTakeQuest(l_Quest, false))
+                        {
+                            if (l_Player->GetQuestStatus(37270) == QUEST_STATUS_NONE)
+                                l_Player->PlayerTalkClass->SendQuestGiverStatus(__QuestGiverStatus::DIALOG_STATUS_AVAILABLE_REP, me->GetGUID());
+                            else if (l_Player->GetQuestStatus(37270) == QUEST_STATUS_COMPLETE)
+                                l_Player->PlayerTalkClass->SendQuestGiverStatus(__QuestGiverStatus::DIALOG_STATUS_REWARD_REP, me->GetGUID());
+                            else
+                                l_Player->PlayerTalkClass->SendQuestGiverStatus(__QuestGiverStatus::DIALOG_STATUS_NONE, me->GetGUID());
+                        }
+                    }
+                }
+
+                m_UpdateTimer = 1000;
+            }
+            else
+                m_UpdateTimer -= p_Diff;
+        }
+    }
+
+    void npc_follower_generic_script::npc_follower_generic_scriptAI::SetGUID(uint64 p_GUID, int32 p_ID)
+    {
+        if (p_ID == 1)
+            m_OwnerGUID = p_GUID;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1564,6 +1598,9 @@ namespace MS { namespace Garrison
                 me->AddAura(l_Association.second, me);
         }
 
+        me->SetDisplayId(11686);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
         me->DespawnOrUnsummon(300 * TimeConstants::IN_MILLISECONDS);
     }
@@ -1644,6 +1681,9 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_GarrisonStablesCreatures;
     new MS::Garrison::npc_follower_generic_script;
     new MS::Garrison::npc_StablesTrainingMounts_Garr;
+    new MS::Garrison::npc_LeatherWorkingTent_Garr;
+    new MS::Garrison::npc_InspiringBattleStandard;
+    new MS::Garrison::npc_FearsomeBattleStandard;
 
     /// Alliance
     {
@@ -1654,7 +1694,6 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_VindicatorMaraad;
         new MS::Garrison::npc_LunarfallLaborer;
         new MS::Garrison::npc_AncientTradingMechanism_Garr;
-        new MS::Garrison::npc_LeatherWorkingTent_Garr;
 
         /// Barracks
         new MS::Garrison::npc_JonathanStephens;

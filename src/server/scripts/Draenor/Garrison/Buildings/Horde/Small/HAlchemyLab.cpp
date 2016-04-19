@@ -152,7 +152,12 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                                sObjectMgr->AddCreatureQuestRelationBounds(l_Creature->GetEntry(), 37270);
+                                sObjectMgr->AddCreatureQuestInvolvedRelationBounds(l_Creature->GetEntry(), 37270);
                                 AddSummonGUID(l_Creature->GetGUID());
+
+                                /// inform client about quest status
+                                l_Owner->PlayerTalkClass->SendQuestGiverStatus(__QuestGiverStatus::DIALOG_STATUS_AVAILABLE_REP, l_Creature->GetGUID());
                             }
                             break;
                         default:

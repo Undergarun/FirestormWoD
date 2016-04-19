@@ -498,3 +498,11 @@
 #84960/NPC - Lunarfall Arcanist
 
 	UPDATE creature_template SET minlevel = 90, maxlevel = 90 WHERE entry = 84960;
+
+#237257-237039/Gob - Crate of Surplus Material
+
+	UPDATE gameobject SET phasemask = 1024 WHERE id IN (237257, 237039);
+
+#78207/NPC
+
+	REPLACE INTO creature_questender VALUE (78207, 36642);

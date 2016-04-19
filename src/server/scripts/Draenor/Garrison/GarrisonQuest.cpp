@@ -504,7 +504,7 @@ namespace MS { namespace Garrison
         {
             case Quests::Alliance_LostInTransition:
             case Quests::Horde_LostInTransition:
-                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
                 break;
             default:
                 break;
@@ -524,7 +524,7 @@ namespace MS { namespace Garrison
         {
             case Quests::Alliance_LostInTransition:
             case Quests::Horde_LostInTransition:
-                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
                 break;
             default:
                 break;

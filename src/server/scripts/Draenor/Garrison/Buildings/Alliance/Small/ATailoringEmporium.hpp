@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -26,7 +27,7 @@ namespace MS { namespace Garrison
         extern char gScriptName[];
     }
 
-    using npc_ChristopherMacdonald = SimpleSequenceCosmeticScript<npc_ChristopherMacdonaldData::gScriptName, &npc_ChristopherMacdonaldData::FnLevel1, &npc_ChristopherMacdonaldData::FnLevel2, &npc_ChristopherMacdonaldData::FnLevel3>;
+    using npc_ChristopherMacdonald = ProfessionBuilding_SkillNPC<npc_ChristopherMacdonaldData::gScriptName, SKILL_TAILORING, Quests::Alliance_YourFirstTailoringWorkOrder, 77382, &npc_ChristopherMacdonaldData::FnLevel1, &npc_ChristopherMacdonaldData::FnLevel2, &npc_ChristopherMacdonaldData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77778 - Kaylie Macdonald                                          ////
@@ -48,7 +49,11 @@ namespace MS { namespace Garrison
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
-
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
             virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
             /// Called when a CreatureAI object is needed for the creature.

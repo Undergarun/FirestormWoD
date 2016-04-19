@@ -525,7 +525,7 @@ namespace MS { namespace Garrison
                     Unit* l_Caster = GetCaster();
 
                     /// Only in Draenor map or Garrison
-                    if (l_Caster->GetMapId() != 1116 || (l_Caster->GetTypeId() == TYPEID_PLAYER && !l_Caster->ToPlayer()->IsInGarrison()))
+                    if (l_Caster->GetMapId() != 1116 && (l_Caster->GetTypeId() == TYPEID_PLAYER && !l_Caster->ToPlayer()->IsInGarrison()))
                         return SPELL_FAILED_INCORRECT_AREA;
 
                     return SPELL_CAST_OK;
