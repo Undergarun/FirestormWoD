@@ -2168,11 +2168,12 @@ class spell_rog_internal_bleeding: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
+                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA) || (l_Owner && l_Owner->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA)))
                     l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
             }
 
