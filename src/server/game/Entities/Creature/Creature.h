@@ -874,6 +874,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_NeedRespawn;
         int m_RespawnFrameDelay;
 
+        int32 m_MovingUpdateTimer;
+        int32 m_NotMovingUpdateTimer;
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = nullptr);
         bool InitEntry(uint32 entry, uint32 team = ALLIANCE, const CreatureData* data = nullptr);
