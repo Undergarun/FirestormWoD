@@ -1282,8 +1282,12 @@ uint32 AuraEffect::AbsorbBonusDone(Unit* p_Caster, int32 p_Amount)
     /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
     if (Player* l_ModOwner = p_Caster->GetSpellModOwner())
     {
-        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
-            AddPct(l_TotalMod, -15.0f);
+        if (m_spellInfo->Id != 86273 && ///< Mastery: Illuminated Healing is already affected by Versatility because trigger by a healing spell
+            m_spellInfo->Id != 47753) ///< Divine Aegis is already affected by Versatility because trigger by a healing spell)
+        {
+            if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
+                AddPct(l_TotalMod, -15.0f);
+        }
     }
 
     p_Amount *= l_TotalMod;
