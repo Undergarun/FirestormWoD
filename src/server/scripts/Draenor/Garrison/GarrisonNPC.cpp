@@ -1644,6 +1644,9 @@ namespace MS { namespace Garrison
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::IsSummonedBy(Unit* p_Summoner)
     {
         p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
@@ -1668,6 +1671,54 @@ namespace MS { namespace Garrison
     CreatureAI* npc_StablesTrainingMounts_Garr::GetAI(Creature* p_Creature) const
     {
         return new npc_StablesTrainingMounts_GarrAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    void npc_robot_rooster::npc_robot_roosterAI::EnterCombat(Unit* p_Attacker)
+    {
+        m_Events.ScheduleEvent(eDatas::EventBerserk, 5000);
+        m_Events.ScheduleEvent(eDatas::EventNitroBoosts, 20000);
+    }
+
+    void npc_robot_rooster::npc_robot_roosterAI::EnterEvadeMode()
+    {
+        m_Events.Reset();
+    }
+
+    void npc_robot_rooster::npc_robot_roosterAI::UpdateAI(uint32 const p_Diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        m_Events.Update(p_Diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        switch (m_Events.ExecuteEvent())
+        {
+            case eDatas::EventBerserk:
+                me->CastSpell(me, eDatas::SpellBerserk, false);
+                events.ScheduleEvent(eDatas::EventBerserk, 30000);
+                break;
+            case eDatas::EventNitroBoosts:
+                me->CastSpell(me, eDatas::SpellNitroBoosts, false);
+                events.ScheduleEvent(eDatas::EventNitroBoosts, 30000);
+                break;
+            default:
+                break;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_robot_rooster::GetAI(Creature* p_Creature) const
+    {
+        return new npc_robot_roosterAI(p_Creature);
     }
 
 }   ///< namespace Garrison
