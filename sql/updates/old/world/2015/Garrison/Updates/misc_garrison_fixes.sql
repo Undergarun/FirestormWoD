@@ -400,7 +400,7 @@
 
 #84217/NPC - Robot-coq
 
-	UPDATE creature_template SET dmg_multiplier = 8 WHERE entry = 84217;
+	UPDATE creature_template SET dmg_multiplier = 8, scriptname = "npc_robot_rooster" WHERE entry = 84217;
 
 #/Gob - Mine deposits
 
@@ -506,3 +506,44 @@
 #78207/NPC
 
 	REPLACE INTO creature_questender VALUE (78207, 36642);
+
+#Quests that need garrison lvl 3
+
+	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 77377;
+	INSERT INTO conditions (SourceTypeOrReferenceId, SourceEntry, ConditionTypeOrReference, conditionvalue1, COMMENT) VALUES
+	(19, 35186, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38253, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38561, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38421, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34409, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36134, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35837, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34026, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35861, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35185, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35985, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38560, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35679, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36163, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 37687, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34284, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36160, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38567, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38458, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34309, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 37688, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35843, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34034, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36136, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35876, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 32979, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36117, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36261, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38453, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35680, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34335, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38415, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36282, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36281, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36280, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36219, 40, 3, "this quest needs garrison lvl 3 to be offered");
