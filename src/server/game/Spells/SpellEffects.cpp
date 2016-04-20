@@ -7869,17 +7869,11 @@ void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
 
     Player* l_TargetPlayer = GetCaster()->ToPlayer();
 
-    if (!l_TargetPlayer)
-    {
-        ChatHandler(l_TargetPlayer).PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+    if (l_TargetPlayer == nullptr)
         return;
-    }
 
     if (l_TargetPlayer->GetGarrison() && l_TargetPlayer->getLevel() >= 90)
-    {
-        ChatHandler(l_TargetPlayer).PSendSysMessage("Player already have a garrison");
         return;
-    }
 
     l_TargetPlayer->CreateGarrison();
 
