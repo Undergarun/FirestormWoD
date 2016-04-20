@@ -192,7 +192,8 @@ namespace MS { namespace Garrison
                                 AddSummonGUID(l_Creature->GetGUID());
 
                                 /// inform client about quest status
-                                l_Owner->PlayerTalkClass->SendQuestGiverStatus(__QuestGiverStatus::DIALOG_STATUS_AVAILABLE_REP, l_Creature->GetGUID());
+                                if (l_Creature->AI())
+                                    l_Creature->AI()->SetGUID(m_OwnerGuid, 1);
                             }
                             break;
                         default:

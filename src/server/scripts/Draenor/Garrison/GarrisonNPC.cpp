@@ -1258,8 +1258,10 @@ namespace MS { namespace Garrison
                 case Buildings::AlchemyLab_AlchemyLab_Level3:
                     if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(37270))
                     {
-                        if (l_Quest != nullptr && p_Player->CanTakeQuest(l_Quest, false))
+                        if (p_Player->CanTakeQuest(l_Quest, false) || p_Player->CanRewardQuest(l_Quest, false))
                             p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
+
+                        p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());
                     }
                     break;
                 case Buildings::EnchanterStudy_EnchanterStudy_Level2:
@@ -1382,7 +1384,7 @@ namespace MS { namespace Garrison
                 {
                     if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(37270))
                     {
-                        if (l_Quest != nullptr && l_Player->CanTakeQuest(l_Quest, false))
+                        if (l_Player->CanTakeQuest(l_Quest, false) || l_Player->CanRewardQuest(l_Quest, false))
                         {
                             if (l_Player->GetQuestStatus(37270) == QUEST_STATUS_NONE)
                                 l_Player->PlayerTalkClass->SendQuestGiverStatus(__QuestGiverStatus::DIALOG_STATUS_AVAILABLE_REP, me->GetGUID());
