@@ -9748,7 +9748,7 @@ void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* 
     SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
 }
 
-int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /* = None */)
+int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool p_SuppressLog /*= true*/, bool p_IgnoreMultipliers /*= false*/, bool p_IgnoreLimit /*= false*/, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /*= None*/)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && p_Count >= 0 &&
             (  p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
@@ -9870,7 +9870,7 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
             if (l_CurrencyEntry->Category == CURRENCY_CATEGORY_META_CONQUEST)
             {
                 // count was changed to week limit, now we can modify original points.
-                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, printLog);
+                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, p_SuppressLog);
                 return p_Count;
             }
 
@@ -9899,7 +9899,7 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
 
             l_Packet.WriteBit(l_WeekCap != 0);
             l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);
-            l_Packet.WriteBit(0);                         // SuppressChatLog
+            l_Packet.WriteBit(p_SuppressLog);
             l_Packet.FlushBits();
 
             if (l_WeekCap)
@@ -31399,6 +31399,14 @@ void Player::SendRefundInfo(Item* p_Item)
 
         for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
         {
+            /// Second field in dbc is season count except one row
+            if (l_I == 1 && l_ExtendedCost->ID != 2999)
+            {
+                l_Data << uint32(0);
+                l_Data << uint32(0);
+                continue;
+            }
+
             l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
             l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I]);
         }
