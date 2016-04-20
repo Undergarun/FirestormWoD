@@ -7856,6 +7856,53 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
+void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (GetCaster() == nullptr)
+        return;
+
+    Player* l_TargetPlayer = GetCaster()->ToPlayer();
+
+    if (l_TargetPlayer == nullptr)
+        return;
+
+    if (l_TargetPlayer->GetGarrison() && l_TargetPlayer->getLevel() >= 90)
+        return;
+
+    l_TargetPlayer->CreateGarrison();
+
+    uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
+    uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
+    uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
+
+    l_TargetPlayer->AddMovieDelayedTeleport(l_MovieID, l_MapID, MS::Garrison::gGarrisonCreationCoords[l_TeamID][0],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][1],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][2],
+        MS::Garrison::gGarrisonCreationCoords[l_TeamID][3]);
+
+    l_TargetPlayer->SendMovieStart(l_MovieID);
+
+    if (l_TeamID == TEAM_ALLIANCE)
+    {
+        l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A), l_TargetPlayer);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
+    }
+    else if (l_TeamID == TEAM_HORDE)
+    {
+        l_TargetPlayer->AddQuest(sObjectMgr->GetQuestTemplate(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H), l_TargetPlayer);
+        l_TargetPlayer->CompleteQuest(MS::Garrison::Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
+    }
+
+    /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
+    l_TargetPlayer->GetGarrison()->AddFollower(34);
+    l_TargetPlayer->GetGarrison()->AddFollower(89);
+    l_TargetPlayer->GetGarrison()->AddFollower(92);
+
+}
+
 void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
