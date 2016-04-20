@@ -608,8 +608,9 @@ enum PlayerFieldBytesOffsets
 
 enum PlayerFieldBytes2Offsets
 {
-    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
-    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+    PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 2  ///< uint16!
 };
 
 enum PlayerAvgItemLevelOffsets
@@ -2352,6 +2353,9 @@ class Player : public Unit, public GridObject<Player>
 
         void ResurectUsingRequestData();
 
+        void SendForcedDeathUpdate();
+        void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
+
         uint8 getCinematic()
         {
             return m_cinematic;
@@ -3382,6 +3386,10 @@ class Player : public Unit, public GridObject<Player>
         /// @p_SceneInstanceID : Scene instance ID
         void CancelStandaloneScene(uint32 p_SceneInstanceID);
 
+        /// Has battle pet training
+        bool HasBattlePetTraining();
+        /// Get battle pet trap level
+        uint32 GetBattlePetTrapLevel();
         /// Compute the unlocked pet battle slot
         uint32 GetUnlockedPetBattleSlot();
         /// Summon current pet if any active
@@ -3598,6 +3606,8 @@ class Player : public Unit, public GridObject<Player>
             if (operation < DELAYED_END)
                 m_DelayedOperations |= operation;
         }
+
+        float GetMasteryCache() const { return m_MasteryCache; }
 
     protected:
         void OnEnterPvPCombat();
@@ -4076,6 +4086,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Character WorldState
         std::map<uint32/*WorldState*/, CharacterWorldState> m_CharacterWorldStates;
+
+        /// Armory caches
+        float m_MasteryCache;
 
 };
 

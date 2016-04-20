@@ -915,6 +915,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_StoreDeliverySave = false;
     m_BeaconOfFaithTargetGUID = 0;
+
+    m_MasteryCache = 0.0f;
 }
 
 Player::~Player()
@@ -3079,12 +3081,6 @@ void Player::ProcessDelayedOperations()
 
         SpawnCorpseBones();
 
-        if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
-        {
-            if (InstanceScript* l_InstanceScript = GetInstanceScript())
-                l_InstanceScript->ConsumeCombatResurrectionCharge();
-        }
-
         /// Resurrecting - 60s aura preventing client from new res spells
         RemoveAura(160029);
     }
@@ -3137,6 +3133,8 @@ void Player::ProcessDelayedOperations()
                 std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][1], l_Request.TeamPosition[PETBATTLE_TEAM_2][1]);
                 std::swap(l_Request.TeamPosition[PETBATTLE_TEAM_1][2], l_Request.TeamPosition[PETBATTLE_TEAM_2][2]);
             }
+
+            l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[2] = GetMap()->GetHeight(l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[0], l_Battle->PvPMatchMakingRequest.PetBattleCenterPosition[1], MAX_HEIGHT);
 
             GetSession()->SendPetBattleFinalizeLocation(&l_Request);
 
@@ -17647,7 +17645,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 0, apply ? item->GetEnchantItemVisualId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
@@ -23396,6 +23394,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
         stmt->setFloat(index++, m_PersonnalXpRate);
+        stmt->setUInt32(index++, m_petSlotUsed);
     }
     else
     {
@@ -23550,6 +23549,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
+        stmt->setUInt32(index++, m_petSlotUsed);
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -24932,7 +24932,7 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
         return;
 
     WorldPacket l_Data;
-    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_UNIVERSAL, p_Prefix.c_str());
+    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_ADDON, p_Prefix.c_str());
     p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
@@ -27672,7 +27672,7 @@ void Player::SendInitialPacketsAfterAddToMap()
             SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
-    GetSession()->SendPetBattleJournal();
+    GetSession()->SendBattlePetJournal();
 
     if (GetSkillValue(SKILL_ARCHAEOLOGY))
     {
@@ -28852,6 +28852,24 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
 
 void Player::ResurectUsingRequestData()
 {
+    if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
+    {
+        if (InstanceScript* l_InstanceScript = GetInstanceScript())
+        {
+            if (l_InstanceScript->CanUseCombatResurrection())
+                l_InstanceScript->ConsumeCombatResurrectionCharge();
+            else
+            {
+                /// Resurrecting - 60s aura preventing client from new res spells
+                RemoveAura(160029);
+                ClearResurrectRequestData();
+                SendGameError(GameError::ERR_SPELL_FAILED_S, 236);
+                SendForcedDeathUpdate();
+                return;
+            }
+        }
+    }
+
     /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
     float x, y, z, o;
     _resurrectionData->Location.GetPosition(x, y, z, o);
@@ -28890,14 +28908,19 @@ void Player::ResurectUsingRequestData()
 
     SpawnCorpseBones();
 
-    if (_resurrectionData->ResSpell != nullptr && _resurrectionData->ResSpell->IsBattleResurrection())
-    {
-        if (InstanceScript* l_InstanceScript = GetInstanceScript())
-            l_InstanceScript->ConsumeCombatResurrectionCharge();
-    }
-
     /// Resurrecting - 60s aura preventing client from new res spells
     RemoveAura(160029);
+}
+
+void Player::SendForcedDeathUpdate()
+{
+    WorldPacket l_Data(Opcodes::SMSG_FORCED_DEATH_UPDATE, 0);
+    GetSession()->SendPacket(&l_Data);
+}
+
+void Player::SendGameError(GameError::Type p_Error, uint32 p_Data1 /*= 0xF0F0F0F0*/, uint32 p_Data2 /*= 0xF0F0F0F0*/)
+{
+    GetSession()->SendGameError(p_Error, p_Data1, p_Data2);
 }
 
 void Player::SetClientControl(Unit* p_Target, uint8 p_AllowMove)
@@ -29913,7 +29936,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
 
         /// Add bonus to item if needed
-        newitem->AddItemBonuses(item->itemBonuses);
+        if (newitem)
+            newitem->AddItemBonuses(item->itemBonuses);
 
         ItemContext l_Context   = ItemContext::None;
         uint32 l_EncounterID    = 0;
@@ -29951,7 +29975,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
             /// If item is not equipable, it doesn't need to be displayed
             /// If item is not from listed difficulties, it doesn't need to be displayed
-            if (!newitem->IsEquipable() || l_Context == ItemContext::None)
+            if ((newitem && !newitem->IsEquipable()) || l_Context == ItemContext::None)
             {
                 l_EncounterID   = 0;
                 l_Context       = ItemContext::None;
@@ -29967,7 +29991,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
         /// Complete the tracking quest if needed
         AddTrackingQuestIfNeeded(loot->source);
-        sScriptMgr->OnPlayerItemLooted(this, newitem);
+
+        if (newitem)
+            sScriptMgr->OnPlayerItemLooted(this, newitem);
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
@@ -32861,24 +32887,42 @@ void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)
     SendDirectMessage(&l_Data);
 }
 
+/// Has battle pet training
+bool Player::HasBattlePetTraining()
+{
+    return HasSpell(119467);
+}
+
+/// Get battle pet trap level
+uint32 Player::GetBattlePetTrapLevel()
+{
+    /// Pro Pet Crew
+    if (GetAchievementMgr().HasAccountAchieved(6581))
+        return 3;     ///< Pristine Pet Trap
+
+    /// Going to Need More Traps
+    if (GetAchievementMgr().HasAccountAchieved(6556))
+        return 2;      ///< Strong Pet Trap
+
+    return 1; ///< Pet trap
+}
+
 /// Compute the unlocked pet battle slot
 uint32 Player::GetUnlockedPetBattleSlot()
 {
-    uint32 l_SlotCount = 0;
-
-    /// battle pet training
-    if (HasSpell(119467) || (GetAchievementMgr().HasAccountAchieved(7433) || GetAchievementMgr().HasAccountAchieved(6566)))
-        l_SlotCount++;
+    /// Just a Pup
+    if (GetAchievementMgr().HasAccountAchieved(6566))
+        return 3;
 
     /// Newbie
     if (GetAchievementMgr().HasAccountAchieved(7433))
-        l_SlotCount++;
+        return 2;
 
-    /// Just a Pup
-    if (GetAchievementMgr().HasAccountAchieved(6566))
-        l_SlotCount++;
+    /// battle pet training
+    if (HasBattlePetTraining())
+        return 1;
 
-    return l_SlotCount;
+    return 0;
 }
 
 /// Summon current pet if any active
@@ -33769,7 +33813,7 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
     if (l_OldPetAdded)
         return false;
 
-    GetSession()->SendPetBattleJournal();
+    GetSession()->SendBattlePetJournal();
 
     return true;
 }

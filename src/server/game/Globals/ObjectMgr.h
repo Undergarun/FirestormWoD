@@ -706,6 +706,7 @@ struct ChallengeReward
     uint32 MapID;
     uint32 MoneyReward[4];
     uint32 TitleID;
+    uint32 AchievementID;
 };
 
 struct MapChallengeModeHotfix

@@ -3387,15 +3387,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 179244:    ///< Summon Chauffeur (Horde)
+            case 179245:    ///< Summon Chauffeur (Alliance)
+                spellInfo->Effects[EFFECT_0].MiscValueB = 284;  ///< This will allow level 1 mounting at 160% normal speed
+                break;
             case 1843:      ///< Hack for disarm. Client sends the spell instead of gameobjectuse.
             case 161710:    ///< Garrison enchanter study
             case 160201:    ///< Garrison enchanter study
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_ALWAYS_ACTIVE;
                 break;
-        }
-
-        switch (spellInfo->Id)
-        {
             case 178444: ///< Create Armor Enhancement (garrison loot spell)
             case 178445: ///< Create Weapon Boost (garrison loot spell)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
@@ -3413,7 +3413,7 @@ void SpellMgr::LoadSpellCustomAttr()
             /// Stables
             ///////////////////////////////////////////////////////////////////////////////////
             case 174216:
-            case 174218:
+            case 174218: ///< potentially fixed, but causes player stuck
             case 174219:
             case 174220:
             case 174221:
@@ -3424,7 +3424,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].MiscValue = 305;
                 spellInfo->Effects[0].MiscValueB = 230;
                 break;
-            case 173702:
+            case 173702: ///< Lasso Break
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 173686: ///< Stables Lasso
@@ -6321,6 +6321,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 980: ///< Agony
                 spellInfo->StackAmount = 10;
                 break;
+            case 131740: ///< Corruption (Malefic Grasp)
+            case 131736: ///< Unstable Affliction (Malefic Grasp)
+            case 132566: ///< Seed of Corruption (Malefic Grasp)
+            case 131737: ///< Agony (Malefic Grasp)
             case 42463:  ///< Seal of Truth
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;

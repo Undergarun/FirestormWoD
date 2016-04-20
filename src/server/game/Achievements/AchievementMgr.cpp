@@ -2219,9 +2219,19 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
         if (Guild* guild = sGuildMgr->GetGuildById(referencePlayer->GetGuildId()))
             guild->GetNewsLog().AddNewEvent(GUILD_NEWS_PLAYER_ACHIEVEMENT, time(NULL), referencePlayer->GetGUID(), achievement->flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER, achievement->ID);*/
 
-    /// Slot unlocked
-    if (p_Achievement->ID == 7433 /* Newbie */ || p_Achievement->ID == 6566 /* Just a Pup */)
-        GetOwner()->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    switch (p_Achievement->ID)
+    {
+        case 7433:  ///< Newbie
+        case 6566:  ///< Just a Pup
+            GetOwner()->GetSession()->SendPetBattleSlotUpdates(true);
+            GetOwner()->GetSession()->SendBattlePetLicenseChanged();
+            break;
+
+        case 6556:  ///< Going to Need More Traps
+        case 6581:  ///< Pro Pet Crew
+            GetOwner()->GetSession()->SendBattlePetTrapLevel();
+            break;
+    }
 
     if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
         SendAchievementEarned(p_Achievement);

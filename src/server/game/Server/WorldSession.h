@@ -1166,37 +1166,68 @@ class WorldSession
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
         void SendGarrisonSetMissionNpc(uint64 p_CreatureGUID);
 
-        // Pet Battle System
-        void HandlePetBattleSetAbility(WorldPacket& p_RecvData);
-        void HandlePetBattleRename(WorldPacket& p_RecvData);
-        void HandlePetBattleCagePet(WorldPacket& p_RecvData);
-        void HandlePetBattleQueryName(WorldPacket& p_RecvData);
-        void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
-        void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
+        /// Battle pet
+        void SendBattlePetUpdates(bool p_AddedPet);
+        void SendBattlePetTrapLevel();
+        void SendBattlePetJournalLockAcquired();
+        void SendBattlePetJournalLockDenied();
+        void SendBattlePetJournal();
+        void SendBattlePetDeleted(uint64 p_BattlePetGUID);
+        void SendBattlePetRevoked(uint64 p_BattlePetGUID);
+        void SendBattlePetRestored(uint64 p_BattlePetGUID);
+        void SendBattlePetsHealed();
+        void SendBattlePetLicenseChanged();
+        void SendBattlePetError(uint32 p_Result, uint32 p_CreatureID);
+        void SendBattlePetCageDateError(uint32 p_SecondsUntilCanCage);
+        void HandleBattlePetQueryName(WorldPacket& p_RecvData);
+        void HandleBattlePetsReconvert(WorldPacket& p_RecvData);
+        void HandleBattlePetUpdateNotify(WorldPacket& p_RecvData);
+        void HandleBattlePetRequestJournalLock(WorldPacket& p_RecvData);
+        void HandleBattlePetRequestJournal(WorldPacket& p_RecvData);
+        void HandleBattlePetDeletePet(WorldPacket& p_RecvData);
+        void HandleBattlePetDeletePetCheat(WorldPacket& p_RecvData);
+        void HandleBattlePetDeleteJournal(WorldPacket& p_RecvData);
+        void HandleBattlePetModifyName(WorldPacket& p_RecvData);
+        void HandleBattlePetSummon(WorldPacket& p_RecvData);
+        void HandleBattlePetSetLevel(WorldPacket& p_RecvData);
+        void HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData);
+        void HandleBattlePetSetCollar(WorldPacket& p_RecvData);
+        void HandleBattlePetSetFlags(WorldPacket& p_RecvData);
+        void HandleBattlePetsRestoreHealth(WorldPacket& p_RecvData);
+        void HandleBattlePetAdd(WorldPacket& p_RecvData);
+        void HandleBattlePetSetQualityCheat(WorldPacket& p_RecvData);
+        void HandleBattlePetCage(WorldPacket& p_RecvData);
+
+        /// Pet battle
+        void SendPetBattleSlotUpdates(bool p_NewSlotUnlocked);
+        void SendPetBattleRequestFailed(uint8 p_Reason);
+        void SendPetBattlePvPChallenge(PetBattleRequest* p_Request);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* p_Request);
+        void SendPetBattleInitialUpdate(PetBattle* p_Battle);
+        void SendPetBattleFirstRound(PetBattle* p_Battle);
+        void SendPetBattleRoundResult(PetBattle* p_Battle);
+        void SendPetBattleReplacementMade(PetBattle* p_Battle);
+        void SendPetBattleFinalRound(PetBattle* p_Battle);
+        void SendPetBattleFinished(PetBattle* p_Battle);
+        void SendPetBattleChatRestricted();
+        void SendPetBattleMaxGameLenghtWarning();
+        void SendPetBattleQueueProposeMatch();
+        void SendPetBattleQueueStatus(uint32 p_TicketTime, uint32 p_TicketID, uint32 p_Status, uint32 p_AvgWaitTime);
+        void SendPetBattleDebugQueueDumpResponse();
         void HandlePetBattleJoinQueue(WorldPacket& p_RecvData);
         void HandlePetBattleLeaveQueue(WorldPacket& p_RecvData);
-        void HandlePetBattleQueueProposeMatchResult(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestWild(WorldPacket& p_RecvData);
+        void HandlePetBattleWildLocationFail(WorldPacket& p_RecvData);
+        void HandlePetBattleRequestPvP(WorldPacket& p_RecvData);
         void HandlePetBattleRequestUpdate(WorldPacket& p_RecvData);
-        void HandlePetBattleCancelRequestPvPMatchmaking(WorldPacket& p_RecvData);
+        void HandlePetBattleQuitNotify(WorldPacket& p_RecvData);
+        void HandlePetBattleFinalNotify(WorldPacket& p_RecvData);
+        void HandlePetBattleScriptErrorNotify(WorldPacket& p_RecvData);
+        void HandlePetBattleQueueProposeMatchResult(WorldPacket& p_RecvData);
+        void HandlePetBattleFirstPet(WorldPacket& p_RecvData);
         void HandlePetBattleInput(WorldPacket& p_RecvData);
-        void HandlePetBattleInputNewFrontPet(WorldPacket& p_RecvData);
-        void HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData);
-        void HandleSummonCompanion(WorldPacket& p_RecvData);
-        void SendPetBattleRequestFailed(uint8 reason);
-        void SendPetBattleJournal();
-        void SendPetBattleJournalBattleSlotUpdate();
-        void SendPetBattleFinalizeLocation(PetBattleRequest* request);
-        void SendPetBattleFullUpdate(PetBattle* battle);
-        void SendPetBattleRoundResult(PetBattle* battle);
-        void SendPetBattleFirstRound(PetBattle* battle);
-        void SendPetBattleFinalRound(PetBattle* p_Battle);
-        void SendPetBattleFinished(PetBattle* battle);
-        void SendPetBattlePvPChallenge(PetBattleRequest* p_Request);
-        void SendPetBattleQueueUpdateResult(uint32 p_TicketTime, uint32 p_TicketID, uint32 p_Status, uint32 p_AvgWaitTime);
-        void SendPetBattleQueueProposeMatch();
-        void SendPetBattleJournalLockAcquired();
-        void SendPetBattleJournalLockDenied();
-
+        void HandlePetBattleReplaceFrontPet(WorldPacket& p_RecvData);
+        void HandlePetBattleDebugQueueDump(WorldPacket& p_RecvData);
 
         //////////////////////////////////////////////////////////////////////////
         /// ToyBox

@@ -148,7 +148,7 @@ struct BattlemasterListEntry
     //uint32    isRated;                                    // 27       m_Flags                 2 - Rated / 4 - TarenMill BG
     //uint32    m_IconFileDataID;                           // 28       m_IconFileDataID
     //char*     objectiveType;                              // 29       m_GametypeLang
-    //uint32    Unk_601_18612;                              // 30       6.0.1 18612             Only TarenMill BG have data
+    //uint32    PlayerConditionID;                          // 30       6.0.1 18612
 };
 
 struct CharTitlesEntry

@@ -686,6 +686,9 @@ enum CharacterDatabaseStatements
 
     CHAR_UPD_XP_RATE,
 
+    /// Armory stats
+    CHAR_REP_STATS,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

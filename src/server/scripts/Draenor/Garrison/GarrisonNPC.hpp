@@ -14,6 +14,8 @@
 #include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
 #include "Common.h"
 #include "ScriptedCosmeticAI.hpp"
+#include "Vehicle.h"
+#include "CombatAI.h"
 
 namespace MS { namespace Garrison
 {
@@ -887,6 +889,47 @@ namespace MS { namespace Garrison
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
             };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Tent (86327, 86333, 86334, 86335, 86336, 86337, 86338, 86339, 86340, 86341, 86342, 86343, 86344, 86345, 86346, 86347, 86348, 86349, 86350, 86351, 86352, 86353, 86354
+    class npc_StablesTrainingMounts_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_StablesTrainingMounts_Garr() : CreatureScript("npc_StablesTrainingMounts_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_StablesTrainingMounts_GarrAI : public VehicleAI
+            {
+                /// Constructor
+                npc_StablesTrainingMounts_GarrAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                }
+
+                enum eSpells
+                {
+                    SpellAuraRideVehicle = 178807
+                };
+
+                uint64 m_SummonerGUID;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
+
+                virtual void JustDied(Unit* p_Killer) override;
+            };            
 
     };
 

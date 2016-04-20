@@ -7490,7 +7490,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                     break;
             }
         }
-        if (GetTickNumber() <= 1 && GetTotalTicks() == GetSpellInfo()->GetDuration() / GetAmplitude()) ///< Some spells should not deal damage at first tick of first apply
+        if (GetAmplitude() && GetTickNumber() <= 1 && GetTotalTicks() == GetSpellInfo()->GetDuration() / GetAmplitude()) ///< Some spells should not deal damage at first tick of first apply
         {
             switch (GetId())
             {

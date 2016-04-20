@@ -144,7 +144,7 @@ class GuildScript : public ScriptObjectImpl<false>
         /// @p_ItemOrMoney    : Item entry or gold amount
         /// @p_ItemStackCount : Item stack count
         /// @p_DestTabID      : Destination tab ID
-        virtual void OnBankEvent(Guild * p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
+        virtual void OnBankEvent(Guild * p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID)
         {
             UNUSED(p_Guild);
             UNUSED(p_EventType);

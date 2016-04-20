@@ -139,7 +139,7 @@ namespace MS { namespace Garrison
 
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
-            if (l_Quest != nullptr)
+            if (l_Quest != nullptr && p_Player->CanTakeQuest(l_Quest, false))
                 p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
 
@@ -148,6 +148,9 @@ namespace MS { namespace Garrison
 
     bool npc_Tormak::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
+        if (!p_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+            return true;
+
         using namespace StablesData::Horde::TormakQuestGiver;
         bool l_NeedFirstQuest = true;
 
@@ -187,7 +190,7 @@ namespace MS { namespace Garrison
         {
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(ClefthoofQuests::QuestCapturingAClefthoof);
 
-            if (l_Quest != nullptr)
+            if (l_Quest != nullptr && p_Player->CanTakeQuest(l_Quest, false))
                 p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
 
@@ -258,7 +261,7 @@ namespace MS { namespace Garrison
 
         if (uint64 l_QuestID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
         {
-            /*uint32 l_TormakNextQuestID = 0;
+            uint32 l_TormakNextQuestID = 0;
 
             CreatureScript* l_CreatureScript = me->GetCreatureScript();
 
@@ -278,17 +281,17 @@ namespace MS { namespace Garrison
             if (!l_TormakNextQuestID || l_Owner->GetQuestStatus(l_TormakNextQuestID) == QUEST_STATUS_INCOMPLETE)
                 me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             else
-                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);*/
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
             if (Creature* l_FirstCreature = SummonRelativeCreature(305, g_HordeCreaturesPos[2].X, g_HordeCreaturesPos[2].Y, g_HordeCreaturesPos[2].Z, g_HordeCreaturesPos[2].O, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 m_SummonsEntries.push_back(l_FirstCreature->GetEntry());
 
-                if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
+                if (std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID) != g_BoarQuests.end() || std::find(g_BoarQuests.begin(), g_BoarQuests.end(), l_QuestID | StablesData::g_PendingQuestFlag) != g_BoarQuests.end() || l_QuestID == BoarQuests::QuestBestingABoar)
                     l_FirstCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedRocktusk);
-                else if (std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) != g_ElekkQuests.end() || l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
+                else if (std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID) != g_ElekkQuests.end() || std::find(g_ElekkQuests.begin(), g_ElekkQuests.end(), l_QuestID | StablesData::g_PendingQuestFlag) != g_ElekkQuests.end() || l_QuestID == ElekkQuests::QuestEntanglingAnElekk)
                     l_FirstCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedMeadowstomper);
-                else if (std::find(g_ClefthoofQuests.begin(), g_ClefthoofQuests.end(), l_QuestID) != g_ClefthoofQuests.end() || l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
+                else if (std::find(g_ClefthoofQuests.begin(), g_ClefthoofQuests.end(), l_QuestID) != g_ClefthoofQuests.end()|| std::find(g_ClefthoofQuests.begin(), g_ClefthoofQuests.end(), l_QuestID | StablesData::g_PendingQuestFlag) != g_ClefthoofQuests.end() || l_QuestID == ClefthoofQuests::QuestCapturingAClefthoof)
                     l_FirstCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedIcehoof);
                 else
                     l_FirstCreature->DespawnOrUnsummon();
@@ -301,11 +304,11 @@ namespace MS { namespace Garrison
             {
                 m_SummonsEntries.push_back(l_SecondCreature->GetEntry());
 
-                if (std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
+                if (std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID) != g_WolfQuests.end() || std::find(g_WolfQuests.begin(), g_WolfQuests.end(), l_QuestID | StablesData::g_PendingQuestFlag) != g_WolfQuests.end() || l_QuestID == WolfQuests::QuestWanglingAWolf)
                     l_SecondCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedSnarler);
-                else if (std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID) != g_TalbukQuests.end() || l_QuestID == TalbukQuests::QuestTamingATalbuk)
+                else if (std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID) != g_TalbukQuests.end() || std::find(g_TalbukQuests.begin(), g_TalbukQuests.end(), l_QuestID | StablesData::g_PendingQuestFlag) != g_TalbukQuests.end() || l_QuestID == TalbukQuests::QuestTamingATalbuk)
                     l_SecondCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedSilverpelt);
-                else if (std::find(g_RiverbeastQuests.begin(), g_RiverbeastQuests.end(), l_QuestID) != g_RiverbeastQuests.end() || l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
+                else if (std::find(g_RiverbeastQuests.begin(), g_RiverbeastQuests.end(), l_QuestID) != g_RiverbeastQuests.end() || std::find(g_RiverbeastQuests.begin(), g_RiverbeastQuests.end(), l_QuestID | StablesData::g_PendingQuestFlag) != g_RiverbeastQuests.end() || l_QuestID == RiverbeastQuests::QuestRequisitionARiverbeast)
                     l_SecondCreature->SetDisplayId(StablesData::MountDisplayIDs::DisplayTrainedRiverwallow);
                 else
                     l_SecondCreature->DespawnOrUnsummon();
@@ -340,7 +343,9 @@ namespace MS { namespace Garrison
 
                 l_Owner->PlayerTalkClass->GetQuestMenu().ClearMenu();
 
-                if (!l_PalunaNextQuestID || l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE)
+
+                if (!l_PalunaNextQuestID || l_Owner->GetQuestStatus(l_PalunaNextQuestID) == QUEST_STATUS_INCOMPLETE &&
+                    (l_Owner->IsQuestRewarded(ClefthoofQuests::QuestCapturingAClefthoof) && l_Owner->IsQuestRewarded(RiverbeastQuests::QuestRequisitionARiverbeast)))
                     l_Creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 else
                     l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -449,7 +454,7 @@ namespace MS { namespace Garrison
 
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_NextQuestID);
 
-            if (l_Quest != nullptr)
+            if (l_Quest != nullptr && p_Player->CanTakeQuest(l_Quest, false))
                 p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
 
             p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());
@@ -458,6 +463,9 @@ namespace MS { namespace Garrison
 
     bool npc_SagePaluna::OnGossipHello(Player* p_Player, Creature* p_Creature)
     {
+        if (!p_Creature->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+            return true;
+
         using namespace StablesData::Horde::SagePalunaQuestGiver;
         bool l_NeedFirstQuest = true;
 
@@ -497,7 +505,7 @@ namespace MS { namespace Garrison
         {
             Quest const* l_Quest = sObjectMgr->GetQuestTemplate(RiverbeastQuests::QuestRequisitionARiverbeast);
 
-            if (l_Quest != nullptr)
+            if (l_Quest != nullptr && p_Player->CanTakeQuest(l_Quest, false))
                 p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
         }
 

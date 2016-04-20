@@ -233,6 +233,14 @@ namespace MS { namespace Garrison { namespace Sites
         /// Build your Barracks quest
         if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Alliance_BuildYourBarracks))
             p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
+        else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1731 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+        }
     }
     /// When a building is activated
     /// @p_Owner      : Garrison owner

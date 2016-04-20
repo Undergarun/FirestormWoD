@@ -705,13 +705,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    /// Death Siphon
-    if (spellProto && spellProto->Id == 108196)
-    {
-        int32 bp = damage * 4;
-        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
-    }
-
     /// @todo update me ?
     /// Custom MoP Script
     if (IsPlayer() && getClass() == CLASS_MONK && ToPlayer()->GetSpecializationId() == SPEC_MONK_BREWMASTER && HasAura(115315))
@@ -13405,7 +13398,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     if (spellProto)
     {
-        if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
+        if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && !spellProto->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE) &&
+            !spellProto->HasEffect(SPELL_EFFECT_WEAPON_PERCENT_DAMAGE) && !spellProto->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)) ///< Already apply on CalculateDamage by TOTAL_PCT
         {
             AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
@@ -14093,7 +14087,12 @@ bool Unit::IsValidAttackTarget(Unit const* target) const
 // function based on function Unit::CanAttack from 13850 client
 bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, WorldObject const* obj) const
 {
-    ASSERT(target);
+    /// Pointer cannot be null in well-defined C++ code; comparison may be assumed to always evaluate to false
+    if (target == nullptr)
+    {
+        sLog->outAshran("Unit::_IsValidAttackTarget, target is null!");
+        return false;
+    }
 
     bool areaSpell = false;
     if (bySpell)
@@ -16860,6 +16859,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    /// Death Siphon
+    if (procSpell && procSpell->Id == 108196)
+    {
+        int32 bp = l_TotalDamage * 4;
+        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
+    }
+
     /// Words of Mending - 152117
     if (IsPlayer() && ToPlayer()->getClass() == CLASS_PRIEST && ToPlayer()->GetSpecializationId() != SPEC_PRIEST_SHADOW && HasAura(152117) && target && procSpell && (procSpell->IsHealingSpell() || procSpell->IsShieldingSpell()) && procSpell->Id != SPELL_PLAYER_LIFE_STEAL && procSpell->Id != 77489)
     {
@@ -16907,7 +16913,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     /// Hack Fix Immolate - Critical strikes generate burning embers
     if (IsPlayer() && ToPlayer()->getClass() == CLASS_WARLOCK && ToPlayer()->GetSpecializationId() == SPEC_WARLOCK_DESTRUCTION && procSpell && (procSpell->Id == 348 || procSpell->Id == 157736) && (procExtra & PROC_EX_CRITICAL_HIT))
-        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + (1 * GetPowerCoeff(POWER_BURNING_EMBERS)));
+        SetPower(POWER_BURNING_EMBERS, GetPower(POWER_BURNING_EMBERS) + 1);
 
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (IsPlayer() && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)

@@ -1104,7 +1104,7 @@ namespace MS { namespace Garrison
             {
                 if (l_Creature->AI())
                 {
-                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = reinterpret_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
+                    MS::Garrison::GarrisonNPCAI* l_GarrisonAI = dynamic_cast<MS::Garrison::GarrisonNPCAI*>(l_Creature->AI());
 
                     if (l_GarrisonAI != nullptr && l_GarrisonAI->GetOwner() != nullptr)
                         l_GarrisonAI->GetOwner()->GetGarrison()->UpdatePlot(l_GarrisonAI->GetPlotInstanceID());
@@ -1598,6 +1598,32 @@ namespace MS { namespace Garrison
         }
     }
 
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        p_Summoner->CastSpell(me, eSpells::SpellAuraRideVehicle, true);
+    }
+
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply)
+    {
+        if (p_Apply)
+            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, eUnitFlags3::UNIT_FLAG3_CAN_FIGHT_WITHOUT_DISMOUNT);
+        else
+            p_Passenger->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+    }
+
+    void npc_StablesTrainingMounts_Garr::npc_StablesTrainingMounts_GarrAI::JustDied(Unit* p_Killer)
+    {
+        if (Player* l_Player = HashMapHolder<Player>::Find(m_SummonerGUID))
+            l_Player->SetUInt32Value(EUnitFields::UNIT_FIELD_FLAGS_3, 0);
+    }
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_StablesTrainingMounts_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_StablesTrainingMounts_GarrAI(p_Creature);
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -1611,6 +1637,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_garrison_atheeru_palestar;
     new MS::Garrison::npc_GarrisonStablesCreatures;
     new MS::Garrison::npc_follower_generic_script;
+    new MS::Garrison::npc_StablesTrainingMounts_Garr;
 
     /// Alliance
     {

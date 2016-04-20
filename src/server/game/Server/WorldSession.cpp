@@ -1299,8 +1299,11 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 
     for (uint32 l_I = 0; l_I < l_Count; ++l_I)
     {
-        p_Packet.FlushBits();
-        _registeredAddonPrefixes.push_back(p_Packet.ReadString(p_Packet.ReadBits(5)));
+        uint8 l_Size = p_Packet.ReadBits(5);
+
+        p_Packet.ResetBitReading();
+
+        _registeredAddonPrefixes.push_back(p_Packet.ReadString(l_Size));
     }
 
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen

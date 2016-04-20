@@ -1036,11 +1036,11 @@ enum Language
     LANG_GOBLIN_BINARY                 = 38,
     LANG_WORGEN                        = 39,
     LANG_GOBLIN                        = 40,
-    LANG_PANDAREN_N                    = 42,           // Pandaren neutral
-    LANG_PANDAREN_A                    = 43,           // Pandaren Alliance
-    LANG_PANDAREN_H                    = 44,           // Pandaren Horde
+    LANG_PANDAREN_N                    = 42,    ///< Pandaren neutral
+    LANG_PANDAREN_A                    = 43,    ///< Pandaren Alliance
+    LANG_PANDAREN_H                    = 44,    ///< Pandaren Horde
     LANG_RIKKITUN                      = 168,
-    LANG_ADDON                         = 0xFFFFFFFF    // used by addons, since 2.4.0 not exist, replaced by messagetype?
+    LANG_ADDON                         = 0xFF   ///< Used by addons, since 2.4.0 not exist, replaced by messagetype?
 };
 
 #define LANGUAGES_COUNT   25

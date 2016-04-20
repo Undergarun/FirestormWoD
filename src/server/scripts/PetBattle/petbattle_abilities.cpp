@@ -20,7 +20,9 @@ public:
                 if (!p_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING))
                 {
                     p_Player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
-                    p_Player->GetSession()->SendPetBattleJournal();
+                    p_Player->GetSession()->SendBattlePetJournal();
+                    p_Player->GetSession()->SendBattlePetTrapLevel();
+                    p_Player->GetSession()->SendBattlePetLicenseChanged();
                 }
                 break;
             }

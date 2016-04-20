@@ -136,9 +136,9 @@ namespace MS { namespace Garrison
         {
             if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
                 l_Creature->DespawnOrUnsummon();
-
-            l_Guid = m_Summons.erase(l_Guid);
         }
+
+        m_Summons.clear();
     }
 
     void npc_ElrondirSurrion::npc_ElrondirSurrionAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
