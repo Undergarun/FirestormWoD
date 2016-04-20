@@ -2448,7 +2448,8 @@ class spell_rog_evicerate : public SpellScriptLoader
 
             enum eSpells
             {
-                Tier5Bonus2P = 37169
+                Tier5Bonus2P        = 37169,
+                MasteryExecutioner  = 76808
             };
 
             void HandleDamage(SpellEffIndex effIndex)
@@ -2465,7 +2466,11 @@ class spell_rog_evicerate : public SpellScriptLoader
 
                 if (l_ComboPoint)
                 {
-                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * 0.88f * l_ComboPoint);
+                    float l_Mult = 1.0f; ///< Mastery is apply in MeleeDamageBonusDone, so we let this to 1
+                    if (!l_Caster->HasAura(eSpells::MasteryExecutioner))
+                        l_Mult = 0.88f;
+
+                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
 
                     /// Tier 5 Bonus 2 pieces
                     if (AuraEffect* l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
