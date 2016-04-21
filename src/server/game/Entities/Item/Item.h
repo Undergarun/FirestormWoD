@@ -189,18 +189,6 @@ enum eItemModifiers
     MaxItemModifiers
 };
 
-enum eItemModifierFlags
-{
-    TransmogAppearanceModFlag   = 1 << eItemModifiers::TransmogAppearanceMod,
-    TransmogItemIDFlag          = 1 << eItemModifiers::TransmogItemID,
-    UpgradeIDFlag               = 1 << eItemModifiers::UpgradeID,
-    BattlePetSpeciesIDFlag      = 1 << eItemModifiers::BattlePetSpeciesID,
-    BattlePetBreedDataFlag      = 1 << eItemModifiers::BattlePetBreedData, ///< (BreedID) | (BreedQuality << 24)
-    BattlePetLevelFlag          = 1 << eItemModifiers::BattlePetLevel,
-    BattlePetDisplayIDFlag      = 1 << eItemModifiers::BattlePetDisplayID,
-    EnchantIllusionFlag         = 1 << eItemModifiers::EnchantIllusion
-};
-
 // -1 from client enchantment slot number
 enum EnchantmentSlot
 {
