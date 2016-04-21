@@ -8083,14 +8083,24 @@ void Player::UpdateRating(CombatRating p_CombatRating)
             }
         }
 
+        std::map<SpellGroup, int32> SameEffectSpellGroup;
         AuraEffectList const& l_MeleeSlowAuras = GetAuraEffectsByType(SPELL_AURA_MELEE_SLOW);
         for (AuraEffectList::const_iterator l_Iter = l_MeleeSlowAuras.begin(); l_Iter != l_MeleeSlowAuras.end(); ++l_Iter)
         {
-            if ((*l_Iter)->GetAmount() > 0)
+            if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*l_Iter)->GetSpellInfo(), (*l_Iter)->GetAmount(), SameEffectSpellGroup))
             {
-                l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
-                l_HastePct += (*l_Iter)->GetAmount();
+                if ((*l_Iter)->GetAmount() > 0)
+                {
+                    l_HastePct *= (1.0f + (*l_Iter)->GetAmount() / 100.0f);
+                    l_HastePct += (*l_Iter)->GetAmount();
+                }
             }
+        }
+
+        for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+        {
+            l_HastePct *= (1.0f + itr->second / 100.0f);
+            l_HastePct += itr->second;
         }
 
         float l_Haste = 1.0f / (1.0f + l_HastePct / 100.0f);
