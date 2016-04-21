@@ -425,11 +425,11 @@ void Unit::Update(uint32 p_time)
 
     // not implemented before 3.0.2
     if (uint32 base_att = getAttackTimer(WeaponAttackType::BaseAttack))
-        setAttackTimer(WeaponAttackType::BaseAttack, (p_time >= base_att ? 0 : base_att - p_time));
+        setAttackTimer(WeaponAttackType::BaseAttack, (base_att - p_time));
     if (uint32 ranged_att = getAttackTimer(WeaponAttackType::RangedAttack))
-        setAttackTimer(WeaponAttackType::RangedAttack, (p_time >= ranged_att ? 0 : ranged_att - p_time));
+        setAttackTimer(WeaponAttackType::RangedAttack, (ranged_att - p_time));
     if (uint32 off_att = getAttackTimer(WeaponAttackType::OffAttack))
-        setAttackTimer(WeaponAttackType::OffAttack, (p_time >= off_att ? 0 : off_att - p_time));
+        setAttackTimer(WeaponAttackType::OffAttack, (off_att - p_time));
 
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
@@ -530,7 +530,10 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
+    if (m_attackTimer[type] < 0 && uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) > m_attackTimer[type] * -1)
+        m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) + m_attackTimer[type];
+    else
+        m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
