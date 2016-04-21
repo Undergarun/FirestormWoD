@@ -318,7 +318,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
-    &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectApplyEnchantIllusion,                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
@@ -8260,46 +8260,26 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectEnchantIllusion(SpellEffIndex effIndex)
+void Spell::EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
     if (!itemTarget)
         return;
 
-    Player* p_caster = (Player*)m_caster;
-
-    uint32 l_EnchantId = m_spellInfo->Effects[effIndex].MiscValue;
-    if (!l_EnchantId)
+    Player* l_Player = m_caster->ToPlayer();
+    if (l_Player == nullptr || l_Player->GetGUID() != itemTarget->GetOwnerGUID())
         return;
 
-    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(l_EnchantId);
-    if (!pEnchant)
-        return;
-    /// If we don't have visual id for this enchant illusion - nothing to do
-    if (!pEnchant->itemVisualID)
-        return;
+    itemTarget->SetState(ItemUpdateState::ITEM_CHANGED, l_Player);
+    itemTarget->SetModifier(eItemModifiers::EnchantIllusion, m_spellInfo->Effects[p_EffIndex].MiscValue);
 
-    /// Item can be in trade slot and have owner diff. from caster
-    Player* l_ItemOwner = itemTarget->GetOwner();
-    if (!l_ItemOwner)
-        return;
+    if (itemTarget->IsEquipped())
+        l_Player->SetUInt16Value(EPlayerFields::PLAYER_FIELD_VISIBLE_ITEMS + (itemTarget->GetSlot() * 2) + 1, 1, itemTarget->GetVisibleItemVisual());
 
-    auto l_Enchant = BONUS_ENCHANTMENT_SLOT;
-
-    /// remove old enchanting before applying new if equipped
-    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, false);
-
-    itemTarget->SetEnchantment(l_Enchant, l_EnchantId, 0, 0);
-
-    /// add new enchant illusion effect on item
-    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, true);
-
-    l_ItemOwner->RemoveTradeableItem(itemTarget);
-    itemTarget->ClearSoulboundTradeable(l_ItemOwner);
+    l_Player->RemoveTradeableItem(itemTarget);
+    itemTarget->ClearSoulboundTradeable(l_Player);
 }
 
 void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)

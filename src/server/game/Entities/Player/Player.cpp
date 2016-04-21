@@ -2566,44 +2566,64 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     *p_Data << uint32(0);                                   ///< Profession 2
 
     /// Character visible equipment
+    bool l_IsOld = l_CharacterEquipment.size() != (InventorySlots::INVENTORY_SLOT_BAG_END * 3);
+
     for (uint8 l_EquipmentSlot = 0; l_EquipmentSlot < INVENTORY_SLOT_BAG_END; ++l_EquipmentSlot)
     {
         uint32 l_Visualbase = l_EquipmentSlot * 3;
-        uint64 l_ItemDatas  = GetUInt64ValueFromArray(l_CharacterEquipment, l_Visualbase);
-        uint32 l_ItemID     = ((uint32*)(&l_ItemDatas))[0];
-        uint32 l_DisplayID  = ((uint32*)(&l_ItemDatas))[1];
 
-        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
-        if (!l_ItemTemplate)
+        /// Every time you change the storage (adding or removing a value from the array), put the ancient loading here
+        if (l_IsOld)
         {
-            *p_Data << uint32(0);                           ///< Item display ID
-            *p_Data << uint32(0);                           ///< Enchantment aura ID
-            *p_Data << uint8(0);                            ///< Inventory type
+            uint64 l_ItemDatas = GetUInt64ValueFromArray(l_CharacterEquipment, l_Visualbase);
+            uint32 l_ItemID = ((uint32*)(&l_ItemDatas))[0];
+            uint32 l_DisplayID = ((uint32*)(&l_ItemDatas))[1];
 
-            continue;
-        }
-
-        SpellItemEnchantmentEntry const* l_ItemEnchantmentEntry = nullptr;
-
-        uint32 l_EnchantmentData = GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase + 1);
-
-        for (uint8 l_EnchantmentSlot = PERM_ENCHANTMENT_SLOT; l_EnchantmentSlot <= TEMP_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
-        {
-            /// Values stored in 2 uint16
-            uint32 l_EnchantmentID = 0x0000FFFF & (l_EnchantmentData >> l_EnchantmentSlot * 16);
-
-            if (!l_EnchantmentID)
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
+            if (!l_ItemTemplate)
+            {
+                *p_Data << uint32(0);                           ///< Item display ID
+                *p_Data << uint32(0);                           ///< Enchantment aura ID
+                *p_Data << uint8(0);                            ///< Inventory type
                 continue;
+            }
 
-            l_ItemEnchantmentEntry = sSpellItemEnchantmentStore.LookupEntry(l_EnchantmentID);
+            SpellItemEnchantmentEntry const* l_ItemEnchantmentEntry = nullptr;
 
-            if (l_ItemEnchantmentEntry)
-                break;
+            uint32 l_EnchantmentData = GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase + 1);
+
+            for (uint8 l_EnchantmentSlot = PERM_ENCHANTMENT_SLOT; l_EnchantmentSlot <= TEMP_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
+            {
+                /// Values stored in 2 uint16
+                uint32 l_EnchantmentID = 0x0000FFFF & (l_EnchantmentData >> l_EnchantmentSlot * 16);
+                if (!l_EnchantmentID)
+                    continue;
+
+                l_ItemEnchantmentEntry = sSpellItemEnchantmentStore.LookupEntry(l_EnchantmentID);
+
+                if (l_ItemEnchantmentEntry)
+                    break;
+            }
+
+            *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);           ///< Item display ID
+            *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->itemVisualID : 0);   ///< Enchantment aura ID
+            *p_Data << uint8(l_ItemTemplate->InventoryType);                                        ///< Inventory type
         }
+        else
+        {
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase));
+            if (!l_ItemTemplate)
+            {
+                *p_Data << uint32(0);                           ///< Item display ID
+                *p_Data << uint32(0);                           ///< Enchantment aura ID
+                *p_Data << uint8(0);                            ///< Inventory type
+                continue;
+            }
 
-        *p_Data << uint32(l_DisplayID ? l_DisplayID : l_ItemTemplate->DisplayInfoID);       ///< Item display ID
-        *p_Data << uint32(l_ItemEnchantmentEntry ? l_ItemEnchantmentEntry->itemVisualID : 0);    ///< Enchantment aura ID
-        *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
+            *p_Data << uint32(GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase + 1)); ///< Item display ID
+            *p_Data << uint32(GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase + 2)); ///< Enchantment aura ID
+            *p_Data << uint8(l_ItemTemplate->InventoryType);                                    ///< Inventory type
+        }
     }
 
     p_Data->WriteBits(l_CharacterName.size(), 6);           ///< Character name
@@ -6847,8 +6867,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                uint32 item_guidlow = itemFields[15].GetUInt32();
-                                uint32 item_template = itemFields[16].GetUInt32();
+                                uint32 item_guidlow = itemFields[16].GetUInt32();
+                                uint32 item_template = itemFields[17].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
@@ -9748,7 +9768,7 @@ void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* 
     SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
 }
 
-int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /* = None */)
+int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool p_SuppressLog /*= true*/, bool p_IgnoreMultipliers /*= false*/, bool p_IgnoreLimit /*= false*/, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType /*= None*/)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && p_Count >= 0 &&
             (  p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
@@ -9870,7 +9890,7 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
             if (l_CurrencyEntry->Category == CURRENCY_CATEGORY_META_CONQUEST)
             {
                 // count was changed to week limit, now we can modify original points.
-                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, printLog);
+                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, p_SuppressLog);
                 return p_Count;
             }
 
@@ -9899,7 +9919,7 @@ int32 Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/*
 
             l_Packet.WriteBit(l_WeekCap != 0);
             l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);
-            l_Packet.WriteBit(0);                         // SuppressChatLog
+            l_Packet.WriteBit(p_SuppressLog);
             l_Packet.FlushBits();
 
             if (l_WeekCap)
@@ -15834,7 +15854,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetAppearanceModID());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetEnchantItemVisualId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetVisibleItemVisual());
     }
     else
     {
@@ -17655,11 +17675,8 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
     }
 
     // visualize enchantment at player and equipped items
-    if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
-
-    if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, apply ? item->GetEnchantItemVisualId(slot) : 0);
+    if (slot == PERM_ENCHANTMENT_SLOT || slot == TEMP_ENCHANTMENT_SLOT)
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (item->GetSlot() * 2) + 1, 1, item->GetVisibleItemVisual());
 
     if (apply_dur)
     {
@@ -21944,8 +21961,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                uint32 bagGuid  = fields[15].GetUInt32();
-                uint8  slot     = fields[16].GetUInt8();
+                uint32 bagGuid  = fields[16].GetUInt32();
+                uint8  slot     = fields[17].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -22114,8 +22131,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = NULL;
-    uint32 itemGuid  = fields[17].GetUInt32();
-    uint32 itemEntry = fields[18].GetUInt32();
+    uint32 itemGuid  = fields[18].GetUInt32();
+    uint32 itemEntry = fields[19].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -22273,9 +22290,9 @@ void Player::_LoadMailedItems(PreparedQueryResult p_MailedItems)
     {
         Field* l_Fields = p_MailedItems->Fetch();
 
-        uint32 l_ItemGuid     = l_Fields[15].GetUInt32();
-        uint32 l_ItemTemplate = l_Fields[16].GetUInt32();
-        uint32 l_MailId       = l_Fields[18].GetUInt32();
+        uint32 l_ItemGuid     = l_Fields[16].GetUInt32();
+        uint32 l_ItemTemplate = l_Fields[17].GetUInt32();
+        uint32 l_MailId       = l_Fields[19].GetUInt32();
 
         Mail* l_Mail = GetMail(l_MailId);
         if (l_Mail == nullptr)
@@ -22300,7 +22317,7 @@ void Player::_LoadMailedItems(PreparedQueryResult p_MailedItems)
         }
 
         Item* l_Item = NewItemOrBag(l_Proto);
-        if (!l_Item->LoadFromDB(l_ItemGuid, MAKE_NEW_GUID(l_Fields[17].GetUInt32(), 0, HIGHGUID_PLAYER), l_Fields, l_ItemTemplate))
+        if (!l_Item->LoadFromDB(l_ItemGuid, MAKE_NEW_GUID(l_Fields[18].GetUInt32(), 0, HIGHGUID_PLAYER), l_Fields, l_ItemTemplate))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", l_Mail->messageID, l_ItemGuid);
 
@@ -23369,17 +23386,18 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
 
         ss.str("");
-        // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
+
+        /// Cache equipment...
+        for (uint32 l_I = 0; l_I < EquipmentSlots::EQUIPMENT_SLOT_END; ++l_I)
         {
-            uint64 l_Value = 0;
-            ((uint32*)(&l_Value))[0] = GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 0);
-            ((uint32*)(&l_Value))[1] = GetItemDisplayID(((uint32*)(&l_Value))[0], (uint32)GetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 1, 0));
-
-            ss << l_Value << ' ';
-
-            if (((i + 1) % 2) == 0)
-                ss << ' ';
+            if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            {
+                ss << l_Item->GetVisibleEntry() << ' ';
+                ss << GetItemDisplayID(l_Item->GetVisibleEntry(), l_Item->GetVisibleAppearanceModID()) << ' ';
+                ss << l_Item->GetVisibleItemVisual() << ' ';
+            }
+            else
+                ss << "0 0 0 ";
         }
 
         // ...and bags for enum opcode
@@ -23515,17 +23533,17 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
 
-        // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
+        /// Cache equipment...
+        for (uint32 l_I = 0; l_I < EquipmentSlots::EQUIPMENT_SLOT_END; ++l_I)
         {
-            uint64 l_Value = 0;
-            ((uint32*)(&l_Value))[0] = GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 0);
-            ((uint32*)(&l_Value))[1] = GetItemDisplayID(((uint32*)(&l_Value))[0], (uint32)GetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + i + 1, 0));
-
-            ss << l_Value << ' ';
-
-            if (((i + 1) % 2) == 0)
-                ss << ' ';
+            if (Item* l_Item = GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
+            {
+                ss << l_Item->GetVisibleEntry() << ' ';
+                ss << GetItemDisplayID(l_Item->GetVisibleEntry(), l_Item->GetVisibleAppearanceModID()) << ' ';
+                ss << l_Item->GetVisibleItemVisual() << ' ';
+            }
+            else
+                ss << "0 0 0 ";
         }
 
         // ...and bags for enum opcode
@@ -23557,10 +23575,10 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
 
         stmt->setFloat(index++, m_PersonnalXpRate);
+        stmt->setUInt32(index++, m_petSlotUsed);
 
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
-        stmt->setUInt32(index++, m_petSlotUsed);
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -31399,6 +31417,14 @@ void Player::SendRefundInfo(Item* p_Item)
 
         for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
         {
+            /// Second field in dbc is season count except one row
+            if (l_I == 1 && l_ExtendedCost->ID != 2999)
+            {
+                l_Data << uint32(0);
+                l_Data << uint32(0);
+                continue;
+            }
+
             l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
             l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I]);
         }
