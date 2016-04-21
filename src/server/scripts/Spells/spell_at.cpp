@@ -435,7 +435,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue() && p_AreaTrigger->IsInWorld())
                     {
                         l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
@@ -487,7 +487,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue() && p_AreaTrigger->IsInWorld()))
                     {
                         l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
