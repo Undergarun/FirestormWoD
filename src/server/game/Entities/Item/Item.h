@@ -175,9 +175,30 @@ enum SellResult
     SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
 };
 
-enum eItemsModifiedFlags
+enum eItemModifiers
 {
-    ITEM_TRANSMOGRIFIED = 0x02
+    TransmogAppearanceMod,
+    TransmogItemID,
+    UpgradeID,
+    BattlePetSpeciesID,
+    BattlePetBreedData,
+    BattlePetLevel,
+    BattlePetDisplayID,
+    EnchantIllusion,
+
+    MaxItemModifiers
+};
+
+enum eItemModifierFlags
+{
+    TransmogAppearanceModFlag   = 1 << eItemModifiers::TransmogAppearanceMod,
+    TransmogItemIDFlag          = 1 << eItemModifiers::TransmogItemID,
+    UpgradeIDFlag               = 1 << eItemModifiers::UpgradeID,
+    BattlePetSpeciesIDFlag      = 1 << eItemModifiers::BattlePetSpeciesID,
+    BattlePetBreedDataFlag      = 1 << eItemModifiers::BattlePetBreedData, ///< (BreedID) | (BreedQuality << 24)
+    BattlePetLevelFlag          = 1 << eItemModifiers::BattlePetLevel,
+    BattlePetDisplayIDFlag      = 1 << eItemModifiers::BattlePetDisplayID,
+    EnchantIllusionFlag         = 1 << eItemModifiers::EnchantIllusion
 };
 
 // -1 from client enchantment slot number
@@ -463,6 +484,7 @@ class Item : public Object
         bool CheckSoulboundTradeExpire();
 
         void BuildUpdate(UpdateDataMapType&);
+        void BuildDynamicValuesUpdate(uint8 p_UpdateType, ByteBuffer* p_Data, Player* p_Target) const override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
@@ -471,12 +493,14 @@ class Item : public Object
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
-        uint32 GetVisibleEntry() const
-        {
-            if (uint32 transmogrification = GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0))
-                return transmogrification;
-            return GetEntry();
-        }
+        uint16 GetVisibleAppearanceModID() const;
+        uint16 GetAppearanceModID() const;
+        uint32 GetVisibleEntry() const;
+        uint32 GetVisibleEnchantmentId() const;
+        uint16 GetVisibleItemVisual() const;
+
+        uint32 GetModifier(eItemModifiers p_Modifier) const { return m_Modifiers[p_Modifier]; }
+        void SetModifier(eItemModifiers p_Modifier, uint32 p_Value);
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
 
@@ -496,8 +520,6 @@ class Item : public Object
         uint32 GetItemLevelBonusFromItemBonuses() const;
         std::vector<uint32> const& GetAllItemBonuses() const;
 
-        uint32 GetAppearanceModID() const;
-
         static bool SubclassesCompatibleForRandomWeapon(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
         static bool CanTransmogrifyIntoRandomWeapon(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified);
         void RandomWeaponTransmogrificationFromPrimaryBag(Player* p_Player, Item* p_Transmogrified, bool p_Apply);
@@ -515,5 +537,7 @@ class Item : public Object
         uint32 m_paidExtendedCost;
         uint32 m_CustomFlags;
         AllowedLooterSet allowedGUIDs;
+
+        uint32 m_Modifiers[eItemModifiers::MaxItemModifiers];
 };
 #endif
