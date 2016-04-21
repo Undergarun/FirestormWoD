@@ -21820,7 +21820,8 @@ void Unit::SendTeleportPacket(Position &p_NewPosition)
 
     MovementInfo l_MovementInfo = m_movementInfo;
 
-    if (GetTypeId() != TYPEID_PLAYER)
+    /// Fix for near TP
+    ///if (GetTypeId() != TYPEID_PLAYER)
     {
         l_MovementInfo.guid = GetGUID();
         l_MovementInfo.pos.Relocate(p_NewPosition);
