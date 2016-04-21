@@ -23557,10 +23557,10 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, m_LastSummonedBattlePet);
 
         stmt->setFloat(index++, m_PersonnalXpRate);
+        stmt->setUInt32(index++, m_petSlotUsed);
 
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
-        stmt->setUInt32(index++, m_petSlotUsed);
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
