@@ -2663,7 +2663,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
-        void RepopAtGraveyard();
+        void RepopAtGraveyard(bool m_ForceGraveYard = false);
         void TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId);
         void TeleportToClosestGrave(WorldSafeLocsEntry const* p_WorldSafeLoc) { TeleportToClosestGrave(p_WorldSafeLoc->x, p_WorldSafeLoc->y, p_WorldSafeLoc->z, p_WorldSafeLoc->o, p_WorldSafeLoc->map_id);  }
         void SendCemeteryList(bool onMap);
