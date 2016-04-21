@@ -408,7 +408,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    float attPowerMultiplier = 1.0f;
+    if (ranged)
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT) - 1.0f;
+    else
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT) - 1.0f;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
