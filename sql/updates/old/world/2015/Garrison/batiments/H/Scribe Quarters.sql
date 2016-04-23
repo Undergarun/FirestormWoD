@@ -31,6 +31,21 @@
 
 	INSERT INTO gameobject_template (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `data24`, `data25`, `data26`, `data27`, `data28`, `data29`, `data30`, `data31`, `data32`, `unkInt32`, `BuildVerified`) VALUES(237063, 45, 20508, "Inscription Work Order", "", "", "", 0, 0, 1, 0, 0, 0, 0, 0, 0, 61, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19865) ON DUPLICATE KEY UPDATE `entry` = VALUES(`entry`), `type` = VALUES(`type`), `displayId` = VALUES(`displayId`), `name` = VALUES(`name`), `IconName` = VALUES(`IconName`), `castBarCaption` = VALUES(`castBarCaption`), `unk1` = VALUES(`unk1`), `faction` = VALUES(`faction`), `flags` = VALUES(`flags`), `size` = VALUES(`size`), `questItem1` = VALUES(`questItem1`), `questItem2` = VALUES(`questItem2`), `questItem3` = VALUES(`questItem3`), `questItem4` = VALUES(`questItem4`), `questItem5` = VALUES(`questItem5`), `questItem6` = VALUES(`questItem6`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`), `data8` = VALUES(`data8`), `data9` = VALUES(`data9`), `data10` = VALUES(`data10`), `data11` = VALUES(`data11`), `data12` = VALUES(`data12`), `data13` = VALUES(`data13`), `data14` = VALUES(`data14`), `data15` = VALUES(`data15`), `data16` = VALUES(`data16`), `data17` = VALUES(`data17`), `data18` = VALUES(`data18`), `data19` = VALUES(`data19`), `data20` = VALUES(`data20`), `data21` = VALUES(`data21`), `data22` = VALUES(`data22`), `data23` = VALUES(`data23`), `data24` = VALUES(`data24`), `data25` = VALUES(`data25`), `data26` = VALUES(`data26`), `data27` = VALUES(`data27`), `data28` = VALUES(`data28`), `data29` = VALUES(`data29`), `data30` = VALUES(`data30`), `data31` = VALUES(`data31`), `data32` = VALUES(`data32`), `unkInt32` = VALUES(`unkInt32`), `BuildVerified` = VALUES(`BuildVerified`);
 	UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_container" WHERE TYPE=45;
+	
+	REPLACE INTO spell_loot_template VALUE (176513, 119126, 100, 1, 0, 2, 2, '');
+	REPLACE INTO spell_script_names VALUES
+	(176791, "spell_garrison_combine_scribe_items"),
+	(176482, "spell_garrison_combine_scribe_items"),
+	(176483, "spell_garrison_combine_scribe_items"),
+	(176484, "spell_garrison_combine_scribe_items"),
+	(176485, "spell_garrison_combine_scribe_items"),
+	(176486, "spell_garrison_combine_scribe_items"),
+	(176487, "spell_garrison_combine_scribe_items"),
+	(176488, "spell_garrison_combine_scribe_items"),
+	(176489, "spell_garrison_combine_scribe_items"),
+	(176490, "spell_garrison_combine_scribe_items"),
+	(176491, "spell_garrison_combine_scribe_items"),
+	(176934, "spell_garrison_combine_scribe_items");
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-95 AND faction_index = 0;
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-95','0','-237063','8.97548','-7.91775','-0.081764','5.55271');
@@ -39,4 +54,15 @@
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-129 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','0','-237063','11.0751','-3.00836','0.001801','5.82474');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','0','79829','4.99838','-1.88636','1.31467','1.83491');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','0','79831','0.45661','3.05225','1.31467','5.36528');
+
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-130 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','0','79831','4.78171','3.20916','1.34547','3.93585');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','0','79829','-0.23023','3.17094','1.3157','5.73048');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','0','-237063','10.8117','-3.00342','0.00148','5.97788');

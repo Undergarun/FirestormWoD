@@ -311,7 +311,7 @@ namespace MS { namespace Garrison { namespace Sites
         }
         else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
         {
-            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1731 : 1708;
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
             FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
 
             if (l_Entry != nullptr)
