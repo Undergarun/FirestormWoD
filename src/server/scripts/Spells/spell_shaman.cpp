@@ -2759,7 +2759,7 @@ class spell_sha_lava_burst: public SpellScriptLoader
                 if (!l_Player)
                     return;
 
-                if (l_Player->HasAura(eSpells::LavaSurge) && !m_HasLavaSurge)
+                if (l_Player->HasAura(eSpells::LavaSurge))
                 {
                     if (SpellInfo const* l_LavaBurst = sSpellMgr->GetSpellInfo(eSpells::LavaBurst))
                         l_Player->RestoreCharge(l_LavaBurst->ChargeCategoryEntry);
@@ -3550,7 +3550,8 @@ class spell_sha_glyph_of_flame_shock : public SpellScriptLoader
                 if (!p_EventInfo.GetDamageInfo()->GetDamage())
                     return;
 
-                l_Caster->HealBySpell(l_Caster, p_EventInfo.GetDamageInfo()->GetSpellInfo(), CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount()), false);
+                if (l_Caster->IsValidAssistTarget(l_Caster))
+                    l_Caster->HealBySpell(l_Caster, p_EventInfo.GetDamageInfo()->GetSpellInfo(), CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount()), false);
             }
 
             void Register()

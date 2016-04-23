@@ -21,7 +21,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_OrgekIronhandAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetAIObstacleManagerEnabled(true);
             p_This->SetupActionSequence(OrgekIronhand_Level1::MovePointLoc, OrgekIronhand_Level1::Sequence, sizeof(OrgekIronhand_Level1::Sequence), OrgekIronhand_Level1::MovePointIDs::Anvil);
@@ -100,41 +100,17 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
         char ScriptName[] = "npc_OrgekIronhand_Garr";
-
-        std::vector<SkillNPC_RecipeEntry> Recipes
-        {
-            { 171692,     0 },
-            { 171693,     0 },
-            { 171691,     0 },
-            { 171694, 28366 },
-            { 171695, 28366 },
-            { 171696, 28366 },
-            { 171697, 28366 },
-            { 171698, 28366 },
-            { 171699, 28366 },
-            { 171700, 28367 },
-            { 171701, 28367 },
-            { 171702, 28367 },
-            { 171703, 28367 },
-            { 171704, 28367 },
-            { 171705, 28367 },
-            { 171706, 28367 },
-            { 171707, 28367 },
-            { 173355, 28366 },
-            { 178243, 28366 },
-            { 178245, 28366 },
-        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -142,7 +118,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_KinjaAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetAIObstacleManagerEnabled(true);
             p_This->SetupActionSequence(Kinja_Level1::MovePointLoc, Kinja_Level1::Sequence, sizeof(Kinja_Level1::Sequence), Kinja_Level1::MovePointIDs::Anvil);
@@ -212,12 +188,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
@@ -315,6 +291,7 @@ namespace MS { namespace Garrison
                             {
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                AddSummonGUID(l_Creature->GetGUID());
                             }
                             break;
                         default:

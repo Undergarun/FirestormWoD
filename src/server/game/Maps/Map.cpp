@@ -55,8 +55,6 @@ template void Map::AddToActive<Corpse>(Corpse* obj);
 
 Map::~Map()
 {
-    sLog->outAshran("Map::~Map(%u)", GetId());
-
     sScriptMgr->OnDestroyMap(this);
 
     // We need to depopulate WildBattlePet for respawn replaced creatures next time
@@ -837,7 +835,7 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
         AddToGrid(player, new_cell);
     }
 
-    player->OnRelocated();
+    player->UpdateObjectVisibility(false);
 }
 
 void Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail)
@@ -870,20 +868,8 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
         creature->Relocate(x, y, z, ang);
         if (creature->IsVehicle())
             creature->GetVehicleKit()->RelocatePassengers();
-        creature->OnRelocated();
+        creature->UpdateObjectVisibility(false);
         RemoveCreatureFromMoveList(creature);
-
-        // update movement flags
-        if (creature->IsInWater())
-        {
-            if (creature->canSwim())
-                creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-        }
-        else
-        {
-            if (creature->canWalk())
-                creature->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-        }
     }
 
     ASSERT(CheckGridIntegrity(creature, true));

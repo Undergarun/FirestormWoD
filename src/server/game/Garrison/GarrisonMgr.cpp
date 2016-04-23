@@ -2347,10 +2347,48 @@ namespace MS { namespace Garrison
         std::vector<GarrisonMission> l_Result;
 
         for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
             if (m_Missions[l_I].State >= MissionStates::CompleteSuccess)
                 l_Result.push_back(m_Missions[l_I]);
+        }
 
         return l_Result;
+    }
+
+    GarrisonMission* Manager::GetMissionWithID(uint32 p_MissionID)
+    {
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
+            if (m_Missions[l_I].MissionID == p_MissionID)
+                return &m_Missions[l_I];
+        }
+
+        return nullptr;
+    }
+
+    /// Get all completed missions
+    std::vector<GarrisonMission> Manager::GetPendingMissions() const
+    {
+        std::vector<GarrisonMission> l_Result;
+
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
+            if (m_Missions[l_I].State >= MissionStates::InProgress)
+                l_Result.push_back(m_Missions[l_I]);
+        }
+
+        return l_Result;
+    }
+
+    bool Manager::HasPendingMission(uint32 p_MissionID)
+    {
+        for (uint32 l_I = 0; l_I < m_Missions.size(); ++l_I)
+        {
+            if (m_Missions[l_I].State == MissionStates::InProgress && m_Missions[l_I].MissionID == p_MissionID)
+                return true;
+        }
+
+        return false;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2979,6 +3017,8 @@ namespace MS { namespace Garrison
                 m_LastPlotBuildingType.erase(l_PlotInstanceEntry->PlotID);
         }
 
+        AssignFollowerToBuilding(GetBuilding(p_PlotInstanceID).FollowerAssigned, 0);
+
         UpdatePlot(p_PlotInstanceID);
 
         GarrisonPlotInstanceInfoLocation l_PlotLocation = GetPlot(p_PlotInstanceID);
@@ -3031,7 +3071,7 @@ namespace MS { namespace Garrison
     }
 
     /// Get building with type
-    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType) const
+    GarrisonBuilding Manager::GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive) const
     {
         for (GarrisonBuilding l_Building : m_Buildings)
         {
@@ -3040,7 +3080,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->Type == p_BuildingType && l_Building.Active == true)
+            if (l_BuildingEntry->Type == p_BuildingType && (p_DontNeedActive ? true : l_Building.Active == true))
                 return l_Building;
         }
 
@@ -3789,7 +3829,7 @@ namespace MS { namespace Garrison
 
                     if (l_Contents[l_I].CreatureOrGob > 0)
                     {
-                        Creature * l_Creature = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, TEMPSUMMON_MANUAL_DESPAWN);
+                        Creature* l_Creature = m_Owner->SummonCreature(l_Contents[l_I].CreatureOrGob, l_Position.x, l_Position.y, l_Position.z, l_Contents[l_I].O + l_PlotInfo.O, TEMPSUMMON_MANUAL_DESPAWN);
 
                         if (l_Creature)
                         {
@@ -4268,7 +4308,10 @@ namespace MS { namespace Garrison
 
         }
 
-        if ((m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap) && HasBuildingType(BuildingType::Barracks))
+        bool l_Cond1 = m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap;
+        bool l_Cond2 = GetGarrisonSiteLevelEntry()->Level == 1 ? (m_Owner->IsQuestRewarded(Quests::Alliance_BuildYourBarracks) || m_Owner->IsQuestRewarded(Quests::Horde_BuildYourBarracks)) : true;
+
+        if (l_Cond1 && l_Cond2)
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);

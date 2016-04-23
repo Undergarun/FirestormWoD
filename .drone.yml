@@ -1,9 +1,11 @@
 branches:
   - wod
   - wod_ptr
+  - dev
 
 clone:
   depth: 20
+  tags: true
   recursive: true
   submodule_update_remote: true
 
@@ -29,7 +31,7 @@ build:
     pull: true
     commands:
       - cd build
-      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="" -DCMAKE_C_FLAGS="" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
       - make -j 32
       - make install
       - make clean
@@ -42,6 +44,7 @@ build:
     commands:
       - cp -p contrib/deploy/run-worldserver dist/bin
       - cp -p contrib/deploy/commands.gdb dist/etc
+      - sed -i "s~@REPO@~$DRONE_REPO~g; s~@COMMIT@~$DRONE_COMMIT~g" dist/bin/run-worldserver;
       - cp -rp sql/updates/characters dist/sql
       - cp -rp sql/updates/world dist/sql
       - cp -rp sql/updates/hotfix dist/sql
@@ -55,8 +58,6 @@ publish:
     tag: latest-ptr
     file: dist/Dockerfile
     context: dist/
-    build_args:
-      - COMMIT=$$COMMIT
     when:
       branch: wod_ptr
   docker:
@@ -67,8 +68,6 @@ publish:
     tag: latest
     file: dist/Dockerfile
     context: dist/
-    build_args:
-      - COMMIT=$$COMMIT
     when:
       branch: wod
 
@@ -78,4 +77,4 @@ notify:
     channel: wow-notification
     username: Drone
     template: >
-      Build <https://drone.firestorm-servers.com/MilleniumStudio/wod/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
+      Build <https://drone.firestorm-servers.com/{{ repo.full_name }}/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}

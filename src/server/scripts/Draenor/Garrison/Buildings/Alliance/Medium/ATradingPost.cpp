@@ -179,5 +179,46 @@ namespace MS { namespace Garrison
         }
     }
 
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////// PlayerScript ////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+
+    void playerScript_Garrison_TradingPost::OnReputationChange(Player* p_Player, uint32 p_FactionID, int32& p_Standing, bool p_Incremential)
+    {
+        switch (p_FactionID)
+        {
+            case 1708: ///< Launghing Skull, Horde rep
+                if (p_Player->GetTeamId() == TEAM_HORDE && CheckRequirements(p_Player))
+                    return;
+                break;
+            case 1710: ///< Sha'tari, Alliance rep
+                if (p_Player->GetTeamId() == TEAM_ALLIANCE && CheckRequirements(p_Player))
+                    return;
+                break;
+            default:
+                break;
+        }
+    }
+
+    bool playerScript_Garrison_TradingPost::CheckRequirements(Player* p_Player)
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison())
+        {
+            switch (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuildingWithType(MS::Garrison::BuildingType::TradingPost)))
+            {
+                case 0:
+                case 1:
+                    return false;
+                case 2:
+                case 3:
+                    return true;
+                default:
+                    break;
+            }
+        }
+
+        return false;
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS

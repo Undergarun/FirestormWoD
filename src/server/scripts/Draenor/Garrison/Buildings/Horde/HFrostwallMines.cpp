@@ -178,6 +178,11 @@ namespace MS { namespace Garrison
         }
     }
 
+    void npc_GorsolAI::OnPlotInstanceUnload()
+    {
+        me->DespawnCreaturesInArea({ NPCs::NpcFrostwallGorenHatchling, NPCs::NpcFrostwallGoren, NPCs::NpcStonetooth }, 200.0f);
+    }
+
     void npc_GorsolAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();

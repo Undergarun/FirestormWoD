@@ -1135,14 +1135,16 @@ class spell_amber_scalpel : public SpellScriptLoader
 
             void Summon()
             {
-                if (Unit* caster = GetCaster())
+                if (Creature* l_Caster = GetCaster()->ToCreature())
                 {
-                    Creature* scalpel = GetClosestCreatureWithEntry(caster, NPC_AMBER_SCALPEL, 200.0f);
-                    std::list<Creature*> amberList;
-                    GetCreatureListWithEntryInGrid(amberList, caster, NPC_LIVING_AMBER, 200.0f);
-                    if (amberList.size() < 7)
-                        if (urand(0, 1))
-                            caster->ToCreature()->SummonCreature(NPC_LIVING_AMBER, scalpel->GetPositionX(), scalpel->GetPositionY(), scalpel->GetPositionZ());
+                    if (Creature* l_Scalpel = GetClosestCreatureWithEntry(l_Caster, NPC_AMBER_SCALPEL, 200.0f))
+                    {
+                        std::list<Creature*> amberList;
+                        GetCreatureListWithEntryInGrid(amberList, l_Caster, NPC_LIVING_AMBER, 200.0f);
+                        if (amberList.size() < 7)
+                            if (urand(0, 1))
+                                l_Caster->SummonCreature(NPC_LIVING_AMBER, l_Scalpel->GetPositionX(), l_Scalpel->GetPositionY(), l_Scalpel->GetPositionZ());
+                    }
                 }
             }
 

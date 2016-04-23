@@ -330,6 +330,28 @@ class boss_the_butcher : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::EFFECT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == eSpells::BoundingCleaveCharg)
+                {
+                    me->CastSpell(me, eSpells::BoundingCleaveDmg, true);
+
+                    me->RemoveAura(eSpells::BoundingCleaveDummy);
+
+                    AddTimedDelayedOperation(50, [this]() -> void
+                    {
+                        if (Unit* l_Target = me->getVictim())
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveChase(l_Target);
+                        }
+                    });
+                }
+            }
+
             void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) override
             {
                 if (p_Target == nullptr)
@@ -492,7 +514,8 @@ class boss_the_butcher : public CreatureScript
                         me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
                         /// Charge on players after 8s
                         me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
-                        m_Events.DelayEvent(eEvents::EventMeatHook, 20 * TimeConstants::IN_MILLISECONDS);
+
+                        m_Events.DelayEvents(12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventMeatHook:
@@ -854,7 +877,21 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
             {
                 if (Unit* l_Target = GetTarget())
                 {
-                    if (p_AurEff->GetBase()->GetStackAmount() >= 5)
+                    Map* l_Map = l_Target->GetMap();
+                    Aura* l_Aura = p_AurEff->GetBase();
+
+                    if (l_Map->IsLFR())
+                    {
+                        l_Aura->SetDuration(10 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(10 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else
+                    {
+                        l_Aura->SetDuration(15 * TimeConstants::IN_MILLISECONDS);
+                        l_Aura->SetMaxDuration(15 * TimeConstants::IN_MILLISECONDS);
+                    }
+
+                    if (l_Aura->GetStackAmount() >= 5)
                         l_Target->CastSpell(l_Target, eSpell::GushingWoundsKill, true);
                 }
             }

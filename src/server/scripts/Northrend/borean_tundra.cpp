@@ -2433,8 +2433,7 @@ public:
             me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
             if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
             {
-                me->SetInFront(player);
-                me->SendMovementFlagUpdate();
+                me->SetFacingToObject(player);
             }
             uiEventTimer = 3000;
             uiEventPhase = 1;
@@ -2486,8 +2485,7 @@ public:
                                 DoScriptText(SAY_HIDDEN_CULTIST_4, me);
                                 if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
                                 {
-                                    me->SetInFront(player);
-                                    me->SendMovementFlagUpdate();
+                                    me->SetFacingToObject(player);
                                 }
                                 uiEventTimer = 3000;
                                 uiEventPhase = 3;

@@ -1210,8 +1210,8 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                         }
                         else
                         {
-                            l_Bp = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, HEAL);
-                            l_Bp = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Bp, HEAL);
+                            l_Bp = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, DOT);
+                            l_Bp = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Bp, DOT);
                         }
 
                         l_AuraEffect->SetAmount(l_Bp);
@@ -1424,6 +1424,7 @@ class spell_pal_holy_prism_visual: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// called by Holy Prism (visual damage) - 114862 or Holy Prism (visual heal) - 121551
 /// Holy Prism (damage) - 114852 or Holy Prism (heal) - 114871
 class spell_pal_holy_prism_effect: public SpellScriptLoader
@@ -1437,18 +1438,18 @@ class spell_pal_holy_prism_effect: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        // damage
-                        if (GetSpellInfo()->Id == 114862)
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_ENNEMIES, true);
-                        // heal
-                        else if (GetSpellInfo()->Id == 121551)
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_ALLIES, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// damage
+                if (GetSpellInfo()->Id == 114862)
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_ENNEMIES, true);
+                /// heal
+                else if (GetSpellInfo()->Id == 121551)
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_ALLIES, true);
             }
 
             void Register()
@@ -1463,6 +1464,7 @@ class spell_pal_holy_prism_effect: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Holy Prism - 114165
 class spell_pal_holy_prism: public SpellScriptLoader
 {
@@ -1475,21 +1477,24 @@ class spell_pal_holy_prism: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->IsValidAttackTarget(l_Target))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->IsValidAttackTarget(target))
-                        {
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL, true);
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
-                        }
-                        else
-                        {
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL, true);
-                            _player->CastSpell(target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
-                        }
-                    }
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL, true);
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_DAMAGE_VISUAL_2, true);
+                }
+                else
+                {
+                    if (!l_Caster->IsValidAssistTarget(l_Target))
+                        l_Target = l_Caster;
+
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL, true);
+                    l_Caster->CastSpell(l_Target, PALADIN_SPELL_HOLY_PRISM_HEAL_VISUAL_2, true);
                 }
             }
 

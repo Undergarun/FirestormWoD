@@ -360,9 +360,9 @@ class spell_warr_dragon_roar: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
+                if (Unit* l_Caster = GetCaster())
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
             }
 
             void Register()
@@ -2403,10 +2403,10 @@ class spell_warr_shield_slam : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Protection2P = 165338,
-                GladiatorStance = 156291,
-                ShieldBlock     = 2562,
-                ShieldCharge    = 156321
+                T17Protection2P     = 165338,
+                GladiatorStance     = 156291,
+                ShieldBlockTrigger  = 132404,
+                ShieldCharge        = 156321
             };
 
             static float gte(int32 p_Level, int32 p_MinLevel)
@@ -2435,11 +2435,6 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
-                /// Heavy Repercussions
-                if (l_Caster->HasAura(WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED) || l_Caster->HasAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
-                    if (Aura* l_HeavyRepercussions = l_Caster->GetAura(WARRIOR_HEAVY_REPERCUSSIONS))
-                        l_Damage += CalculatePct(l_Damage, l_HeavyRepercussions->GetEffect(0)->GetAmount());
-
                 /// Shield Charge
                 if (Aura* l_ShieldCharge = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER))
                 {
@@ -2456,9 +2451,21 @@ class spell_warr_shield_slam : public SpellScriptLoader
                     if (l_Caster->HasAura(l_T17Protection2P->Id) && roll_chance_i(l_T17Protection2P->ProcChance))
                     {
                         if (l_Caster->HasAura(eSpells::GladiatorStance))
-                            l_Caster->CastSpell(l_Target, eSpells::ShieldCharge, true);
+                        {
+                            int32 l_RemainingDuration = 0;
+
+                            l_Caster->CastSpell(l_Target, SPELL_WARR_SHIELD_CHARGE_CHARGE, true);
+                            if (Aura* l_OldChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                                l_RemainingDuration = l_OldChargeBuff->GetDuration();
+                            l_Caster->CastSpell(l_Caster, SPELL_WARR_SHIELD_CHARGE_MODIFIER, true);
+                            if (Aura* l_ChargeBuff = l_Caster->GetAura(SPELL_WARR_SHIELD_CHARGE_MODIFIER, l_Caster->GetGUID()))
+                            {
+                                l_ChargeBuff->SetMaxDuration(l_ChargeBuff->GetDuration() + l_RemainingDuration);
+                                l_ChargeBuff->RefreshDuration();
+                            }
+                        }
                         else
-                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlock, true);
+                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlockTrigger, true);
                     }
                 }
             }

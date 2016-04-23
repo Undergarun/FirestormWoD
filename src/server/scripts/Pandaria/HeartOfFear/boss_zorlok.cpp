@@ -326,7 +326,6 @@ class boss_zorlok : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
-                me->SendMovementFlagUpdate();
                 me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -352,7 +351,6 @@ class boss_zorlok : public CreatureScript
                 me->SetDisableGravity(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
                 me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_HOVER);
-                me->SendMovementFlagUpdate();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 events.ScheduleEvent(EVENT_INHALE, 15000);
 

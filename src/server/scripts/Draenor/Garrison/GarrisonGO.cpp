@@ -342,13 +342,17 @@ namespace MS { namespace Garrison
             bool l_CanGetItems = true;
             uint32 l_NoSpaceForCount = 0;
             uint8 l_Itr = 0;
+            std::vector<uint32> l_UniqueItems = { 113261, 113262, 113263, 113264 };
 
             for (auto l_RewardItem : l_RewardItems)
             {
                 if (!l_RewardItem.second)
                     continue;
 
-                uint32 l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+                uint32 l_ItemCount = 1;
+
+                if (std::find(l_UniqueItems.begin(), l_UniqueItems.end(), l_RewardItem.first) == l_UniqueItems.end())
+                    l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
 
                 /// check space and find places
                 ItemPosCountVec l_Destination;
@@ -369,7 +373,10 @@ namespace MS { namespace Garrison
                     if (!l_RewardItem.second)
                         continue;
 
-                    uint32 l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
+                    uint32 l_ItemCount = 1;
+
+                    if (std::find(l_UniqueItems.begin(), l_UniqueItems.end(), l_RewardItem.first) == l_UniqueItems.end())
+                        l_ItemCount = l_RewardItem.second * l_Garrison->CalculateAssignedFollowerShipmentBonus(l_ThisGobPlotInstanceID);
 
                     /// check space and find places
                     ItemPosCountVec l_Destination;
@@ -918,11 +925,32 @@ namespace MS { namespace Garrison
         return true;
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 192628                                                             ///
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    go_garrison_anvil::go_garrison_anvil()
+        : GameObjectScript("go_garrison_anvil")
+    {
+    }
+
+    void go_garrison_anvil::OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 p_State)
+    {
+        if (p_GameObject->IsInGarrison() && p_GameObject->GetGoState() != GO_STATE_ACTIVE_ALTERNATIVE)
+        {
+            const_cast<GameObject*>(p_GameObject)->EnableCollision(false);
+            const_cast<GameObject*>(p_GameObject)->SetDisplayId(9145);
+            const_cast<GameObject*>(p_GameObject)->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+        }
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison_GO()
 {
+    new MS::Garrison::go_garrison_anvil;
     new MS::Garrison::go_garrison_deactivated_mage_portal;
     new MS::Garrison::go_garrison_cache;
     new MS::Garrison::go_garrison_outhouse;

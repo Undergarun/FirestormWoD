@@ -186,6 +186,8 @@ class UnitAI
             UNUSED(id);
         }
 
+        virtual void DropCharge() {}
+
         virtual uint64 GetGUID(int32 id = 0) { return 0; } ///< id is unused
 
         virtual void SetDestTarget(WorldLocation const* dest) 
@@ -272,7 +274,7 @@ class UnitAI
         }
 
         /// In mostly cases, heals will be targeted too
-        Player* SelectRangedTarget(bool p_AllowHeal = true) const;
+        Player* SelectRangedTarget(bool p_AllowHeal = true, int32 p_CheckAura = 0) const;
         /// In mostly cases, tanks will not be targeted
         Player* SelectMeleeTarget(bool p_AllowTank = false) const;
 

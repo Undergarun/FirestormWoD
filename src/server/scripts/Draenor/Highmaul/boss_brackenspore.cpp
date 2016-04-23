@@ -417,7 +417,10 @@ class boss_brackenspore : public CreatureScript
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::BrackensporeBonus, true);
                 }
 
                 ResetPlayersPower(me);
@@ -1136,7 +1139,7 @@ class npc_highmaul_bfc9000 : public CreatureScript
                 if (!me->HasAura(eSpells::BFC9000) || p_Clicker->HasAura(eSpells::Flamethrower))
                     return;
 
-                p_Clicker->CastSpell(p_Clicker, eSpells::Flamethrower, true);
+                p_Clicker->CastSpell(p_Clicker, eSpells::Flamethrower, true, nullptr, nullptr, me->GetGUID());
                 me->RemoveAura(eSpells::BFC9000);
             }
         };
@@ -1572,6 +1575,49 @@ class spell_highmaul_spore_shot : public SpellScriptLoader
         }
 };
 
+/// Flamethrower (overrider) - 163663
+class spell_highmaul_flamethrower_overrider : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_flamethrower_overrider() : SpellScriptLoader("spell_highmaul_flamethrower_overrider") { }
+
+        enum eSpell
+        {
+            BFC9000 = 164175
+        };
+
+        class spell_highmaul_flamethrower_overrider_AuraScript: public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_flamethrower_overrider_AuraScript);
+
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH || GetCaster() == nullptr)
+                    return;
+
+                if (Creature* l_BFC9000 = GetCaster()->ToCreature())
+                {
+                    l_BFC9000->Respawn(true);
+                    l_BFC9000->CastSpell(l_BFC9000, eSpell::BFC9000, true);
+
+                    if (l_BFC9000->IsAIEnabled)
+                        l_BFC9000->AI()->Reset();
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_flamethrower_overrider_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ENABLE_ALT_POWER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_flamethrower_overrider_AuraScript();
+        }
+};
+
 /// Mind Fungus - 159489
 class areatrigger_highmaul_mind_fungus : public AreaTriggerEntityScript
 {
@@ -1832,6 +1878,7 @@ void AddSC_boss_brackenspore()
     new spell_highmaul_burning_infusion();
     new spell_highmaul_energy_regen();
     new spell_highmaul_spore_shot();
+    new spell_highmaul_flamethrower_overrider();
 
     /// AreaTriggers (Spells)
     new areatrigger_highmaul_mind_fungus();

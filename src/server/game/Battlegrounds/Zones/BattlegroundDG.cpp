@@ -1139,7 +1139,7 @@ class npc_dg_cart : public CreatureScript
                 if (me->GetOwner())
                 {
                     me->SetSpeed(MOVE_RUN, (me->GetOwner()->GetSpeed(MOVE_RUN) + 1.f) / playerBaseMoveSpeed[MOVE_RUN], true);
-                    if (!me->isMoving() && m_Events.Empty())
+                    if (!me->IsMoving() && m_Events.Empty())
                         m_Events.ScheduleEvent(EVENT_NEW_WAYPOINT, 700);
                     if (m_Events.ExecuteEvent() == EVENT_NEW_WAYPOINT)
                         me->GetMotionMaster()->MoveChase(me->GetOwner(), frand(0.5f, 1.f), frand(0.f, 2.f * M_PI));

@@ -191,15 +191,15 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         || opcode == CMSG_MOVE_STOP_ASCEND
         || opcode == CMSG_MOVE_STOP_PITCH
 
-        || opcode == CMSG_MOVE_SET_RUN_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_WALK_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_SWIM_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_TURN_SPEED_CHEAT
-        || opcode == CMSG_MOVE_SET_PITCH_SPEED_CHEAT
+        || opcode == CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK
+        || opcode == CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK
         || opcode == CMSG_MOVE_SET_CAN_FLY_ACK
         || opcode == CMSG_MOVE_FEATHER_FALL_ACK
         || opcode == CMSG_MOVE_WATER_WALK_ACK

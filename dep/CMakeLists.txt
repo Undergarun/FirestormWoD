@@ -14,9 +14,12 @@ else()
   add_definitions(-w)
 endif()
 
+add_subdirectory(threads)
+
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   if(SERVERS AND NOT NOJEM)
     add_subdirectory(jemalloc)
+    add_subdirectory(valgrind)
   endif()
 endif()
 

@@ -116,9 +116,29 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonAllianceLevel2::GetPhaseMask(Player* p_Owner)
     {
         uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
+        Manager* l_GarrisonMgr = p_Owner->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return 0;
 
         if (p_Owner->HasQuest(Quests::Alliance_LostInTransition) || p_Owner->HasQuest(Quests::Horde_LostInTransition))
             l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+
+        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        {
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestGorgrond))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalGorgrond;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestNagrand))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalNagrand;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestShadowmoon))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalShadowmoon;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestSpiresOfArak))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalSpiresOfArak;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestTalador))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalTalador;
+        }
 
         return l_PhaseMask;
     }
@@ -184,7 +204,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonAllianceLevel2::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
+        if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
 
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+        }
     }
     /// When a building is activated
     /// @p_Owner      : Garrison owner

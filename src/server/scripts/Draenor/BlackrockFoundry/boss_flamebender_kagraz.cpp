@@ -45,6 +45,7 @@ class boss_flamebender_kagraz : public CreatureScript
             LavaSlashMissileTriggered   = 155318,
             LavaSlashAreaTrigger        = 154915,
             /// Summon Enchanted Armaments
+            EnchantedArmamentsSearcher  = 163644,
             EnchantedArmamentsDummy     = 156725,
             /// Molten Torrent
             MoltenTorrentAura           = 154932,
@@ -282,7 +283,11 @@ class boss_flamebender_kagraz : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RisingFlames);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::Singe);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::FlamebenderKagrazBonusLoot, true);
 
                     if (Creature* l_Aknor = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::AknorSteelbringer)))
                     {
@@ -309,12 +314,24 @@ class boss_flamebender_kagraz : public CreatureScript
 
                 switch (p_SpellInfo->Id)
                 {
+                    case eSpells::EnchantedArmamentsSearcher:
+                    {
+                        me->CastSpell(p_Target, eSpells::EnchantedArmamentsDummy, true);
+                        break;
+                    }
                     case eSpells::EnchantedArmamentsDummy:
                     {
-                        me->SummonCreature(eCreatures::EnchantedArmament, *p_Target);
-
                         if (Creature* l_Old = p_Target->ToCreature())
-                            l_Old->DespawnOrUnsummon();
+                            l_Old->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+
+                        if (Creature* l_Armament = me->SummonCreature(eCreatures::EnchantedArmament, *p_Target))
+                        {
+                            if (l_Armament->IsAIEnabled)
+                            {
+                                if (Player* l_Target = SelectRangedTarget(true, -eSpells::MoltenTorrentAura))
+                                    l_Armament->AI()->SetGUID(l_Target->GetGUID(), 0);
+                            }
+                        }
 
                         break;
                     }
@@ -490,7 +507,7 @@ class boss_flamebender_kagraz : public CreatureScript
                 {
                     case eEvents::EventLavaSlash:
                     {
-                        if (Player* l_Target = SelectRangedTarget())
+                        if (Player* l_Target = SelectRangedTarget(true, -eSpells::MoltenTorrentAura))
                         {
                             me->CastSpell(l_Target, eSpells::LavaSlashMissile, false);
 
@@ -502,9 +519,8 @@ class boss_flamebender_kagraz : public CreatureScript
                     }
                     case eEvents::EventSummonEnchantedArmament:
                     {
-                        if (Player* l_Target = SelectRangedTarget())
-                            me->CastSpell(l_Target, eSpells::EnchantedArmamentsDummy, true);
-
+                        /// Find a spawned Enchanted Armament
+                        me->CastSpell(me, eSpells::EnchantedArmamentsSearcher, true);
                         m_Events.ScheduleEvent(eEvents::EventSummonEnchantedArmament, eTimers::TimerEnchantedArmamentAgain);
                         break;
                     }
@@ -907,9 +923,8 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
 
         enum eSpells
         {
-            SummonEnchantedArmament = 174217,
-            EnchantArmamentJump     = 163153,
-            UnquenchableFlame       = 156689
+            EnchantArmamentJump = 163153,
+            UnquenchableFlame   = 156689
         };
 
         enum eVisual
@@ -928,17 +943,6 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-
-                me->CastSpell(me, eSpells::SummonEnchantedArmament, true);
-            }
-
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
-            {
-                if (p_Target == nullptr)
-                    return;
-
-                if (p_SpellInfo->Id == eSpells::SummonEnchantedArmament)
-                    me->CastSpell(*p_Target, eSpells::EnchantArmamentJump, true);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -956,12 +960,24 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                 }
             }
 
+            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            {
+                AddTimedDelayedOperation(50, [this, p_Guid]() -> void
+                {
+                    if (Player* l_Player = Player::GetPlayer(*me, p_Guid))
+                        me->CastSpell(*l_Player, eSpells::EnchantArmamentJump, true);
+                });
+            }
+
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 p_Damage = 0;
             }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+            }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override

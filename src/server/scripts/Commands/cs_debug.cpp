@@ -126,71 +126,72 @@ class debug_commandscript: public CommandScript
             };
             static ChatCommand debugCommandTable[] =
             {
-                { "setbit",         SEC_ADMINISTRATOR,  false, &HandleDebugSet32BitCommand,        "", NULL },
-                { "threat",         SEC_ADMINISTRATOR,  false, &HandleDebugThreatListCommand,      "", NULL },
-                { "hostil",         SEC_ADMINISTRATOR,  false, &HandleDebugHostileRefListCommand,  "", NULL },
-                { "anim",           SEC_GAMEMASTER,     false, &HandleDebugAnimCommand,            "", NULL },
-                { "arena",          SEC_ADMINISTRATOR,  false, &HandleDebugArenaCommand,           "", NULL },
-                { "bg",             SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundCommand,    "", NULL },
-                { "getitemstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemStateCommand,    "", NULL },
-                { "lootrecipient",  SEC_GAMEMASTER,     false, &HandleDebugGetLootRecipientCommand,"", NULL },
-                { "getvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugGetValueCommand,        "", NULL },
-                { "getitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemValueCommand,    "", NULL },
-                { "Mod32Value",     SEC_ADMINISTRATOR,  false, &HandleDebugMod32ValueCommand,      "", NULL },
-                { "play",           SEC_MODERATOR,      false, NULL,              "", debugPlayCommandTable },
-                { "send",           SEC_ADMINISTRATOR,  false, NULL,              "", debugSendCommandTable },
-                { "setaurastate",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAuraStateCommand,    "", NULL },
-                { "setitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugSetItemValueCommand,    "", NULL },
-                { "setvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugSetValueCommand,        "", NULL },
-                { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugSpawnVehicleCommand,    "", NULL },
-                { "setvid",         SEC_ADMINISTRATOR,  false, &HandleDebugSetVehicleIdCommand,    "", NULL },
-                { "entervehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugEnterVehicleCommand,    "", NULL },
-                { "uws",            SEC_ADMINISTRATOR,  false, &HandleDebugUpdateWorldStateCommand,"", NULL },
-                { "update",         SEC_ADMINISTRATOR,  false, &HandleDebugUpdateCommand,          "", NULL },
-                { "itemexpire",     SEC_ADMINISTRATOR,  false, &HandleDebugItemExpireCommand,      "", NULL },
-                { "areatriggers",   SEC_ADMINISTRATOR,  false, &HandleDebugAreaTriggersCommand,    "", NULL },
-                { "los",            SEC_MODERATOR,      false, &HandleDebugLoSCommand,             "", NULL },
-                { "moveflags",      SEC_ADMINISTRATOR,  false, &HandleDebugMoveflagsCommand,       "", NULL },
-                { "phase",          SEC_MODERATOR,      false, &HandleDebugPhaseCommand,           "", NULL },
-                { "tradestatus",    SEC_ADMINISTRATOR,  false, &HandleSendTradeStatus,             "", NULL },
-                { "mailstatus",     SEC_ADMINISTRATOR,  false, &HandleSendMailStatus,              "", NULL },
-                { "jump",           SEC_ADMINISTRATOR,  false, &HandleDebugMoveJump,               "", NULL },
-                { "backward",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveBackward,           "", NULL },
-                { "load_z",         SEC_ADMINISTRATOR,  false, &HandleDebugLoadZ,                  "", NULL },
-                { "joinratedbg",    SEC_ADMINISTRATOR,  false, &HandleJoinRatedBg,                 "", NULL },
-                { "SetMaxMapDiff",  SEC_ADMINISTRATOR,  false, &HandleDebugSetMaxMapDiff,          "", NULL },
-                { "packet",         SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,          "", NULL },
-                { "guildevent",     SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,      "", NULL },
-                { "log",            SEC_ADMINISTRATOR,  false, &HandleDebugLogCommand,             "", NULL },
-                { "movement",       SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,            "", NULL },
-                { "boss",           SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,            "", NULL },
-                { "lfg",            SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,             "", NULL },
-                { "scaleitem",      SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,              "", NULL },
-                { "toy",            SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,             "", NULL },
-                { "charge",         SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,      "", NULL },
-                { "bgstart",        SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,      "", NULL },
-                { "criteria",       SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,        "", NULL },
-                { "crashtest",      SEC_ADMINISTRATOR,  true,  &HandleDebugCrashTest,              "", NULL },
-                { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
-                { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
-                { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
-                { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
-                { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
-                { "dumprewardlessmissions", SEC_CONSOLE, true, &HandleDebugDumpRewardlessMissions, "", NULL },
-                { "dumpspellrewardlessmissions", SEC_CONSOLE, true, &HandleSpellDebugDumpRewardlessMissions, "", NULL },
-                { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
-                { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
-                { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
-                { "adjustspline",   SEC_ADMINISTRATOR,  false, &HandleDebugAdjustSplineCommand,    "", NULL },
-                { "splinesync",     SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,      "", NULL },
-                { "mirror",         SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,          "", NULL },
-                { "pvelogs",        SEC_ADMINISTRATOR,  false, &HandleDebugPvELogsCommand,         "", NULL },
-                { "questlog",       SEC_ADMINISTRATOR,  false, &HandleDebugQuestLogsCommand,       "", NULL },
-                { "addunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugAddUnitStateCommand,    "", NULL },
-                { "getunitstate",   SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,   "", NULL },
-                { "removeunitstate",SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand, "", NULL },
-                { "stresstest",     SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,      "", NULL },
-                { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+                { "setbit",                      SEC_ADMINISTRATOR,  false, &HandleDebugSet32BitCommand,             "", NULL },
+                { "threat",                      SEC_ADMINISTRATOR,  false, &HandleDebugThreatListCommand,           "", NULL },
+                { "hostil",                      SEC_ADMINISTRATOR,  false, &HandleDebugHostileRefListCommand,       "", NULL },
+                { "anim",                        SEC_GAMEMASTER,     false, &HandleDebugAnimCommand,                 "", NULL },
+                { "arena",                       SEC_ADMINISTRATOR,  false, &HandleDebugArenaCommand,                "", NULL },
+                { "bg",                          SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundCommand,         "", NULL },
+                { "getitemstate",                SEC_ADMINISTRATOR,  false, &HandleDebugGetItemStateCommand,         "", NULL },
+                { "lootrecipient",               SEC_GAMEMASTER,     false, &HandleDebugGetLootRecipientCommand,     "", NULL },
+                { "getvalue",                    SEC_ADMINISTRATOR,  false, &HandleDebugGetValueCommand,             "", NULL },
+                { "getitemvalue",                SEC_ADMINISTRATOR,  false, &HandleDebugGetItemValueCommand,         "", NULL },
+                { "Mod32Value",                  SEC_ADMINISTRATOR,  false, &HandleDebugMod32ValueCommand,           "", NULL },
+                { "play",                        SEC_MODERATOR,      false, NULL,                                    "", debugPlayCommandTable },
+                { "send",                        SEC_ADMINISTRATOR,  false, NULL,                                    "", debugSendCommandTable },
+                { "setaurastate",                SEC_ADMINISTRATOR,  false, &HandleDebugSetAuraStateCommand,         "", NULL },
+                { "setitemvalue",                SEC_ADMINISTRATOR,  false, &HandleDebugSetItemValueCommand,         "", NULL },
+                { "setvalue",                    SEC_ADMINISTRATOR,  false, &HandleDebugSetValueCommand,             "", NULL },
+                { "spawnvehicle",                SEC_ADMINISTRATOR,  false, &HandleDebugSpawnVehicleCommand,         "", NULL },
+                { "setvid",                      SEC_ADMINISTRATOR,  false, &HandleDebugSetVehicleIdCommand,         "", NULL },
+                { "entervehicle",                SEC_ADMINISTRATOR,  false, &HandleDebugEnterVehicleCommand,         "", NULL },
+                { "uws",                         SEC_ADMINISTRATOR,  false, &HandleDebugUpdateWorldStateCommand,     "", NULL },
+                { "update",                      SEC_ADMINISTRATOR,  false, &HandleDebugUpdateCommand,               "", NULL },
+                { "itemexpire",                  SEC_ADMINISTRATOR,  false, &HandleDebugItemExpireCommand,           "", NULL },
+                { "areatriggers",                SEC_ADMINISTRATOR,  false, &HandleDebugAreaTriggersCommand,         "", NULL },
+                { "los",                         SEC_MODERATOR,      false, &HandleDebugLoSCommand,                  "", NULL },
+                { "moveflags",                   SEC_ADMINISTRATOR,  false, &HandleDebugMoveflagsCommand,            "", NULL },
+                { "phase",                       SEC_MODERATOR,      false, &HandleDebugPhaseCommand,                "", NULL },
+                { "tradestatus",                 SEC_ADMINISTRATOR,  false, &HandleSendTradeStatus,                  "", NULL },
+                { "mailstatus",                  SEC_ADMINISTRATOR,  false, &HandleSendMailStatus,                   "", NULL },
+                { "jump",                        SEC_ADMINISTRATOR,  false, &HandleDebugMoveJump,                    "", NULL },
+                { "backward",                    SEC_ADMINISTRATOR,  false, &HandleDebugMoveBackward,                "", NULL },
+                { "load_z",                      SEC_ADMINISTRATOR,  false, &HandleDebugLoadZ,                       "", NULL },
+                { "joinratedbg",                 SEC_ADMINISTRATOR,  false, &HandleJoinRatedBg,                      "", NULL },
+                { "SetMaxMapDiff",               SEC_ADMINISTRATOR,  false, &HandleDebugSetMaxMapDiff,               "", NULL },
+                { "packet",                      SEC_ADMINISTRATOR,  false, &HandleDebugPacketCommand,               "", NULL },
+                { "guildevent",                  SEC_ADMINISTRATOR,  false, &HandleDebugGuildEventCommand,           "", NULL },
+                { "log",                         SEC_ADMINISTRATOR,  false, &HandleDebugLogCommand,                  "", NULL },
+                { "movement",                    SEC_ADMINISTRATOR,  false, &HandleDebugMoveCommand,                 "", NULL },
+                { "boss",                        SEC_ADMINISTRATOR,  false, &HandleDebugBossCommand,                 "", NULL },
+                { "lfg",                         SEC_ADMINISTRATOR,  false, &HandleDebugLfgCommand,                  "", NULL },
+                { "scaleitem",                   SEC_ADMINISTRATOR,  true,  &HandleDebugScaleItem,                   "", NULL },
+                { "toy",                         SEC_ADMINISTRATOR,  false, &HandleDebugToyCommand,                  "", NULL },
+                { "charge",                      SEC_ADMINISTRATOR,  false, &HandleDebugClearSpellCharges,           "", NULL },
+                { "bgstart",                     SEC_ADMINISTRATOR,  false, &HandleDebugBattlegroundStart,           "", NULL },
+                { "criteria",                    SEC_ADMINISTRATOR,  false, &HandleDebugCriteriaCommand,             "", NULL },
+                { "crashtest",                   SEC_ADMINISTRATOR,  true,  &HandleDebugCrashTest,                   "", NULL },
+                { "bgaward",                     SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                     "", NULL },
+                { "heirloom",                    SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,                    "", NULL },
+                { "vignette",                    SEC_ADMINISTRATOR,  false, &HandleDebugVignette,                    "", NULL },
+                { "setaianimkit",                SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,                "", NULL },
+                { "dumpchartemplate",            SEC_CONSOLE,        true,  &HandleDebugDumpCharTemplate,            "", NULL },
+                { "dumprewardlessmissions",      SEC_CONSOLE,        true,  &HandleDebugDumpRewardlessMissions,      "", NULL },
+                { "dumpspellrewardlessmissions", SEC_CONSOLE,        true,  &HandleSpellDebugDumpRewardlessMissions, "", NULL },
+                { "playercondition",             SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,             "", NULL },
+                { "packetprofiler",              SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,              "", NULL },
+                { "hotfix",                      SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,                   "", NULL },
+                { "adjustspline",                SEC_ADMINISTRATOR,  false, &HandleDebugAdjustSplineCommand,         "", NULL },
+                { "splinesync",                  SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,           "", NULL },
+                { "mirror",                      SEC_ADMINISTRATOR,  false, &HandleDebugMirrorCommand,               "", NULL },
+                { "pvelogs",                     SEC_ADMINISTRATOR,  false, &HandleDebugPvELogsCommand,              "", NULL },
+                { "questlog",                    SEC_ADMINISTRATOR,  false, &HandleDebugQuestLogsCommand,            "", NULL },
+                { "addunitstate",                SEC_ADMINISTRATOR,  false, &HandleDebugAddUnitStateCommand,         "", NULL },
+                { "getunitstate",                SEC_ADMINISTRATOR,  false, &HandleDebugGetUnitStatesCommand,        "", NULL },
+                { "removeunitstate",             SEC_ADMINISTRATOR,  false, &HandleDebugRemoveUnitStateCommand,      "", NULL },
+                { "stresstest",                  SEC_ADMINISTRATOR,  false, &HandleDebugStressTestCommand,           "", NULL },
+                { "showequiperror",              SEC_ADMINISTRATOR,  false, &HandleDebugShowEquipErrorCommand,       "", NULL },
+                { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =
             {
@@ -199,6 +200,25 @@ class debug_commandscript: public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugShowEquipErrorCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+                return false;
+
+            uint32 l_ErrorID = (uint32)atoi((char*)p_Args);
+
+            Player* l_Target = p_Handler->getSelectedPlayer();
+            if (!l_Target)
+            {
+                p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            l_Target->SendEquipError((InventoryResult)l_ErrorID, nullptr, nullptr);
+            return true;
         }
 
         static bool HandleDebugStressTestCommand(ChatHandler* p_Handler, char const* p_Args)
@@ -2475,35 +2495,35 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* args)
         {
-            Unit* target = handler->getSelectedUnit();
-            if (!target)
-                target = handler->GetSession()->GetPlayer();
-
-            if (!*args)
-            {
-                //! Display case
-                handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
-            }
-            else
-            {
-                char* mask1 = strtok((char*)args, " ");
-                if (!mask1)
-                    return false;
-
-                char* mask2 = strtok(NULL, " \n");
-
-                uint32 moveFlags = (uint32)atoi(mask1);
-                target->SetUnitMovementFlags(moveFlags);
-
-                if (mask2)
-                {
-                    uint32 moveFlagsExtra = uint32(atoi(mask2));
-                    target->SetExtraUnitMovementFlags(moveFlagsExtra);
-                }
-
-                target->SendMovementFlagUpdate();
-                handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
-            }
+            handler->PSendSysMessage("Method depreciated, need update");
+            ///Unit* target = handler->getSelectedUnit();
+            ///if (!target)
+            ///    target = handler->GetSession()->GetPlayer();
+            ///
+            ///if (!*args)
+            ///{
+            ///    //! Display case
+            ///    handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+            ///}
+            ///else
+            ///{
+            ///    char* mask1 = strtok((char*)args, " ");
+            ///    if (!mask1)
+            ///        return false;
+            ///
+            ///    char* mask2 = strtok(NULL, " \n");
+            ///
+            ///    uint32 moveFlags = (uint32)atoi(mask1);
+            ///    target->SetUnitMovementFlags(moveFlags);
+            ///
+            ///    if (mask2)
+            ///    {
+            ///        uint32 moveFlagsExtra = uint32(atoi(mask2));
+            ///        target->SetExtraUnitMovementFlags(moveFlagsExtra);
+            ///    }
+            ///
+            ///    handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+            ///}
 
             return true;
         }

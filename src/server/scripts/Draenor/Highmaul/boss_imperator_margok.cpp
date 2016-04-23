@@ -261,6 +261,8 @@ class boss_imperator_margok : public CreatureScript
 
             void Reset() override
             {
+                ClearDelayedOperations();
+
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
@@ -517,14 +519,15 @@ class boss_imperator_margok : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FetterMarkOfChaosRootAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::OrbsOfChaosDummyAura);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::ImperatorMargokBonus, true);
                 }
             }
 
             void EnterEvadeMode() override
             {
-                ClearDelayedOperations();
-
                 me->SetAIAnimKitId(0);
                 me->SetAnimTier(0);
                 me->SetDisableGravity(false);
@@ -850,7 +853,7 @@ class boss_imperator_margok : public CreatureScript
                         m_InCombat = true;
 
                         uint64 l_Guid = l_Player->GetGUID();
-                        AddTimedDelayedOperation(500, [this, l_Guid]() -> void
+                        AddTimedDelayedOperation(50, [this, l_Guid]() -> void
                         {
                             if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
                                 AttackStart(l_Player);

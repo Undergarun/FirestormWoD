@@ -42,7 +42,7 @@ class playerScript_quests_custom_gestion : public PlayerScript
 
         void OnItemLooted(Player* p_Player, Item* p_Item)
         {
-            if (p_Item->GetVisibleEntry() == 112323)
+            if (p_Item && p_Item->GetVisibleEntry() == 112323)
                 p_Player->AddAura(162676, p_Player);
         }
 
@@ -2296,10 +2296,23 @@ class npc_shattered_hand_brawler : public CreatureScript
                     if (me->isInFront(l_Player) && l_Player->HasQuest(TanaanQuests::QuestKillYourHundred) && l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAdd) < 99)
                     {
                         if (!l_Player->isInCombat())
-                            AttackStart(l_Player);
+                        {
+                            uint64 l_Guid = l_Player->GetGUID();
+                            AddTimedDelayedOperation(50, [this, l_Guid]() -> void
+                            {
+                                if (Player* l_Player = Player::GetPlayer(*me, l_Guid))
+                                    AttackStart(l_Player);
+                            });
+                        }
+
                         break;
                     }
                 }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
             }
         };
 };

@@ -2396,7 +2396,11 @@ class npc_foundry_flame_vents : public CreatureScript
 
                     AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        me->CastSpell(me, eSpell::FlameVentCosmetics, true);
+                        Position l_SpawnPos = *me;
+
+                        l_SpawnPos.m_positionZ += 0.5f;
+
+                        me->CastSpell(l_SpawnPos, eSpell::FlameVentCosmetics, true);
                     });
                 }
             }
@@ -2458,8 +2462,8 @@ class npc_foundry_flame_vents : public CreatureScript
                         if (l_Player->GetDistance(me) >= l_MaxDist)
                             continue;
 
-                        if (l_Player->GetPositionY() <= me->GetPositionY() + 3.5f &&
-                            l_Player->GetPositionY() >= me->GetPositionY() - 3.0f)
+                        if (l_Player->GetPositionY() <= me->GetPositionY() + 4.0f &&
+                            l_Player->GetPositionY() >= me->GetPositionY() - 4.0f)
                             l_Targets.insert(l_Player->GetGUID());
                     }
                 }
@@ -2498,7 +2502,11 @@ class npc_foundry_flame_vents : public CreatureScript
                 {
                     AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        me->CastSpell(me, eSpell::FlameVentCosmetics, true);
+                        Position l_SpawnPos = *me;
+
+                        l_SpawnPos.m_positionZ += 0.5f;
+
+                        me->CastSpell(l_SpawnPos, eSpell::FlameVentCosmetics, true);
                     });
                 }
             }

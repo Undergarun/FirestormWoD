@@ -13,6 +13,7 @@
 #include "GameObjectAI.h"
 #include "Spell.h"
 #include "GarrisonScriptData.hpp"
+#include "Buildings/Alliance/Medium/ATradingPost.hpp"
 
 namespace MS { namespace Garrison 
 {
@@ -34,7 +35,7 @@ namespace MS { namespace Garrison
         uint32 l_NoSpaceForCount = 0;
         ItemPosCountVec l_Destination;
 
-        if (p_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
+        if (p_Player->HasQuest(Quests::Horde_BuildYourBarracks) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
         {
             p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
             return;
@@ -113,7 +114,59 @@ namespace MS { namespace Garrison
             case WorkshopGearworks::InventionItemIDs::ItemXD57BullseyeGuidedRocketKit:
             case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
             case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
-                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, 0);
+                p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges));
+                break;
+            case 119126:
+            {
+                uint64 l_PlayerGuid  = p_Player->GetGUID();
+                uint64 l_ItemGuid    = p_Item->GetGUID();
+                uint32 l_RewardCount = 1;
+
+                std::vector<uint32> l_Rewards = 
+                {
+                    118592,
+                    119094,
+                    119095,
+                    119096,
+                    119097,
+                    119098,
+                    119099,
+                    119100,
+                    119101,
+                    119102
+                };
+
+                p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                {
+                    if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                    {
+                        uint32 l_DestroyCount = 2;
+
+                        l_Player->DestroyItemCount(119126, l_DestroyCount, true, false);
+                    }
+
+                    return true;
+                });
+
+                for (int l_Itr = 0; l_Itr < 2; ++l_Itr)
+                {
+                    /// check space and find places
+                    ItemPosCountVec l_Dest;
+                    uint32 l_RewardID = l_Rewards[urand(0, l_Rewards.size() - 1)];
+
+                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
+
+                    if (l_Message == EQUIP_ERR_OK)
+                    {
+                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            p_Player->SendNewItem(l_Item, l_RewardCount, true, false, false);
+                    }
+                    else
+                        p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                }
+
+                break;
+            }
             default:
                 break;
         }
@@ -141,7 +194,7 @@ namespace MS { namespace Garrison
         {
             Player * l_Player = GetCaster()->ToPlayer();
 
-            if (l_Player->GetGarrison() && l_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+            if (l_Player->GetGarrison() && l_Player->HasQuest(Quests::Horde_BuildYourBarracks))
                 l_Player->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, l_Player->GetGUID());
         }
     }
@@ -325,17 +378,6 @@ namespace MS { namespace Garrison
             default:
                 break;
         }
-
-        if (!p_Player->IsInGarrison())
-            return;
-
-        Manager* l_GarrisonMgr = p_Player->GetGarrison();
-
-        if (l_GarrisonMgr == nullptr)
-            return;
-
-        if (p_Player->IsInGarrison())
-            UpdateGarrisonPhaseMask(p_Player);
     }
 
     void playerScript_Garrison_Portals_Phases::OnLogin(Player* p_Player)
@@ -352,7 +394,7 @@ namespace MS { namespace Garrison
                     p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomShipment, l_TradingPostShipments[urand(0, l_TradingPostShipments.size() - 1)]);
                 }
 
-                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader))
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader) || p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonTradingPostDailyRandomTrader) <= 196)
                 {
                     switch (p_Player->GetTeamId())
                     {
@@ -514,7 +556,7 @@ namespace MS { namespace Garrison
         {
             case Quests::Alliance_LostInTransition:
             case Quests::Horde_LostInTransition:
-                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
                 break;
             default:
                 break;
@@ -534,7 +576,7 @@ namespace MS { namespace Garrison
         {
             case Quests::Alliance_LostInTransition:
             case Quests::Horde_LostInTransition:
-                l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
+                l_PhaseMask &= ~GarrisonPhases::PhaseLostInTransitionQuest;
                 break;
             default:
                 break;
@@ -542,6 +584,30 @@ namespace MS { namespace Garrison
 
         p_Player->SetPhaseMask(l_PhaseMask, true);
     }
+
+    void playerScript_Garrison_Quests_Phases::OnItemDestroyed(Player* p_Player, Item* p_Item)
+    {
+        /// Check for Garrison Goblin Workshop Items
+        switch (p_Item->GetEntry())
+        {
+            /// Level 1
+            case 114983:
+            case 119158:
+            case 114974:
+            case 114246:
+            {
+                if (Manager* l_GarrisonMgr = p_Player->GetGarrison())
+                {
+                    p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, p_Item->GetSpellCharges());
+                    l_GarrisonMgr->UpdatePlot(p_Player->GetPlotInstanceID());
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -549,6 +615,7 @@ void AddSC_Garrison_Quest()
 {
     new MS::Garrison::GarrisonBuildingAuraPlayerScript;
     new MS::Garrison::GarrisonQuestPlayerScript;
+    new MS::Garrison::playerScript_Garrison_TradingPost;
     new MS::Garrison::playerScript_Garrison_Portals_Phases;
     new MS::Garrison::playerScript_Garrison_Quests_Phases;
     new MS::Garrison::spell_learning_blueprint;

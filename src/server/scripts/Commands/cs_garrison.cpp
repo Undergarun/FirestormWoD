@@ -17,7 +17,7 @@ class garrison_commandscript: public CommandScript
         }
 
         /// Get command table
-        ChatCommand * GetCommands() const
+        ChatCommand* GetCommands() const
         {
             static ChatCommand blueprintCommandTable[] =
             {
@@ -75,6 +75,7 @@ class garrison_commandscript: public CommandScript
                 { "info",      SEC_ADMINISTRATOR,  true,   &HandleGarrisonInfo,         "", NULL },
                 { "setlevel",  SEC_ADMINISTRATOR,  true,   &HandleGarrisonSetLevel,     "", NULL },
                 { "create",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonCreate,       "", NULL },
+                { "prepare",   SEC_ADMINISTRATOR,  true,   &HandleGarrisonPrepare,       "", NULL },
                 { "delete",    SEC_ADMINISTRATOR,  true,   &HandleGarrisonDelete,       "", NULL },
                 { "resetdata", SEC_ADMINISTRATOR,  true,   &HandleGarrisonResetDatas,   "", NULL },
                 { NULL,        0,                  false,  NULL,                        "", NULL }
@@ -95,9 +96,9 @@ class garrison_commandscript: public CommandScript
             return commandTable;
         }
 
-        static bool HandleGarrisonInfo(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleGarrisonInfo(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
             {
@@ -106,7 +107,7 @@ class garrison_commandscript: public CommandScript
                 return false;
             }
 
-            const GarrSiteLevelEntry * l_Entry = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry();
+            const GarrSiteLevelEntry* l_Entry = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry();
 
             if (!l_Entry)
             {
@@ -122,9 +123,9 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonSetLevel(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleGarrisonSetLevel(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
             {
@@ -146,9 +147,62 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonCreate(ChatHandler * p_Handler, char const* p_Args)
+        /// This is a debug command, only devs should use it
+        static bool HandleGarrisonPrepare(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+            Player* l_Target = p_Handler->getSelectedPlayer();
+            if (!l_Target)
+            {
+                p_Handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            /// check online security
+            if (p_Handler->HasLowerSecurity(l_Target, 0))
+                return false;
+
+            std::string targetNameLink = p_Handler->GetNameLink(l_Target);
+
+            if (l_Target->isInFlight())
+            {
+                p_Handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, targetNameLink.c_str());
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            p_Handler->PSendSysMessage(LANG_YOU_CHANGE_ASPEED, "5.0", targetNameLink.c_str());
+
+            if (p_Handler->needReportToTarget(l_Target))
+                (ChatHandler(l_Target)).PSendSysMessage(LANG_YOURS_ASPEED_CHANGED, p_Handler->GetNameLink().c_str(), 5.0f);
+
+            /// Set higher speed
+            l_Target->SetSpeed(MOVE_WALK, 5.0f, true);
+            l_Target->SetSpeed(MOVE_RUN, 5.0f, true);
+            l_Target->SetSpeed(MOVE_SWIM, 5.0f, true);
+            l_Target->SetSpeed(MOVE_FLIGHT, 5.0f, true);
+
+            /// Set fly
+            l_Target->SetCanFly(true);
+            p_Handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, p_Handler->GetNameLink(l_Target).c_str(), "ON");
+
+            /// Set Garrison resources + money at high values
+            l_Target->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_GARRISON_RESSOURCES, 10000, true, true);
+            l_Target->ModifyMoney(1000000000);
+
+            /// Set max level to be able to test everything
+            if (l_Target->getLevel() < 90)
+                l_Target->SetLevel(100);
+
+            /// Create Garrison if player doesn't have it
+            HandleGarrisonCreate(p_Handler, "");
+
+            return true;
+        }
+
+        static bool HandleGarrisonCreate(ChatHandler* p_Handler, char const* p_Args)
+        {
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer)
             {
@@ -196,9 +250,9 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonDelete(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleGarrisonDelete(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer)
             {
@@ -222,9 +276,9 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonResetDatas(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_TargetPlayer = p_Handler->getSelectedPlayer();
+            Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
             if (!l_TargetPlayer)
             {
@@ -245,7 +299,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleBlueprintLearnCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleBlueprintLearnCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -264,7 +318,7 @@ class garrison_commandscript: public CommandScript
                 {
                     for (uint32 l_I = 0; l_I < sGarrBuildingStore.GetNumRows(); ++l_I)
                     {
-                        const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_I);
+                        const GarrBuildingEntry* l_Entry = sGarrBuildingStore.LookupEntry(l_I);
 
                         if (l_Entry)
                             l_TargetPlayer->GetGarrison()->LearnBlueprint(l_Entry->ID);
@@ -286,9 +340,9 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotInfoCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandlePlotInfoCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_TargetPlayer = p_Handler->GetSession()->GetPlayer();
+            Player* l_TargetPlayer = p_Handler->GetSession()->GetPlayer();
 
             if (!l_TargetPlayer || !l_TargetPlayer->GetGarrison())
             {
@@ -312,7 +366,7 @@ class garrison_commandscript: public CommandScript
 
             if (l_Building.BuildingID)
             {
-                const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
+                const GarrBuildingEntry* l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
                 p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->ID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::FactionIndex::Alliance ? l_Entry->NameAlliance : l_Entry->NameHorde);
                 p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->Level);
@@ -337,7 +391,7 @@ class garrison_commandscript: public CommandScript
 
 #ifdef WIN32
             char   l_Buffer[120];
-            char * lPtrData = nullptr;
+            char* lPtrData = nullptr;
 
             sprintf(l_Buffer, "{ %.4ff, %.4ff, %.4ff, %.4ff },", l_ElementPosition.x, l_ElementPosition.y, l_ElementPosition.z, l_Orientation);
 
@@ -361,9 +415,9 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotAddCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandlePlotAddCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_Player = p_Handler->GetSession()->GetPlayer();
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
             if (!l_Player || !l_Player->GetGarrison())
             {
@@ -453,10 +507,10 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotDelCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandlePlotDelCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player      * l_Player = p_Handler->GetSession()->GetPlayer();
-            WorldObject * l_Target = nullptr;
+            Player* l_Player     = p_Handler->GetSession()->GetPlayer();
+            WorldObject* l_Target = nullptr;
             
             if (p_Handler->getSelectedCreature())
                 l_Target = p_Handler->getSelectedCreature();
@@ -527,9 +581,9 @@ class garrison_commandscript: public CommandScript
             return true;
         }
         
-        static bool HandlePlotImportCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandlePlotImportCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player * l_Player = p_Handler->GetSession()->GetPlayer();
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
             if (!l_Player || !l_Player->GetGarrison())
             {
@@ -561,7 +615,7 @@ class garrison_commandscript: public CommandScript
             float l_Z = 0;
             float l_O = 0;
 
-            Creature * l_Target = p_Handler->getSelectedCreature();
+            Creature* l_Target = p_Handler->getSelectedCreature();
 
             if (l_Target)
             {
@@ -582,7 +636,7 @@ class garrison_commandscript: public CommandScript
                     return false;
                 }
 
-                GameObject * l_GameObject = nullptr;
+                GameObject* l_GameObject = nullptr;
 
                 if (GameObjectData const* l_GameObjectData = sObjectMgr->GetGOData(l_GuidLow))
                     l_GameObject = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GameObjectData->id);
@@ -702,7 +756,7 @@ class garrison_commandscript: public CommandScript
                 {
                     for (uint32 l_I = 0; l_I < sGarrFollowerStore.GetNumRows(); ++l_I)
                     {
-                        const GarrFollowerEntry * l_Entry = sGarrFollowerStore.LookupEntry(l_I);
+                        const GarrFollowerEntry* l_Entry = sGarrFollowerStore.LookupEntry(l_I);
 
                         if (l_Entry)
                             l_TargetPlayer->GetGarrison()->AddFollower(l_Entry->ID);
@@ -786,7 +840,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleMissionAddCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleMissionAddCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -805,7 +859,7 @@ class garrison_commandscript: public CommandScript
                 {
                     for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
                     {
-                        const GarrMissionEntry * l_Entry = sGarrMissionStore.LookupEntry(l_I);
+                        const GarrMissionEntry* l_Entry = sGarrMissionStore.LookupEntry(l_I);
 
                         if (l_Entry)
                             l_TargetPlayer->GetGarrison()->AddMission(l_Entry->MissionRecID);
@@ -827,7 +881,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleMissionCompleteAllCommand(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleMissionCompleteAllCommand(ChatHandler* p_Handler, char const* p_Args)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 

@@ -155,6 +155,8 @@ class boss_beastlord_darmac : public CreatureScript
             bool m_RendAndTear;
             bool m_Tantrum;
 
+            uint32 m_MountID;
+
             bool CanRespawn() override
             {
                 if (m_Instance == nullptr)
@@ -190,11 +192,13 @@ class boss_beastlord_darmac : public CreatureScript
 
                 m_CosmeticMove = eMoves::MoveIronCrusher;
 
-                m_SwitchStatePct = 85.0f;
-                m_State = eStates::StateNone;
+                m_SwitchStatePct    = 85.0f;
+                m_State             = eStates::StateNone;
 
-                m_RendAndTear   = false;
-                m_Tantrum       = false;
+                m_RendAndTear       = false;
+                m_Tantrum           = false;
+
+                m_MountID           = 0;
 
                 uint32 l_Time = 100;
                 AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -378,6 +382,105 @@ class boss_beastlord_darmac : public CreatureScript
 
                         return;
                     }
+                    case eFoundryCreatures::BossIroncrusher:
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->SetFacingTo(me->GetAngle(l_Target));
+
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::TalkMountIroncrusher);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->CastSpell(l_Target, eSpells::RideVehicle, true);
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        return;
+                    }
+                    case eFoundryCreatures::BossDreadwing:
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->SetFacingTo(me->GetAngle(l_Target));
+
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::TalkMountDreadwing);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->CastSpell(l_Target, eSpells::RideVehicle, true);
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        return;
+                    }
+                    case eFoundryCreatures::BossCruelfang:
+                    {
+                        AddTimedDelayedOperation(50, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->SetFacingTo(me->GetAngle(l_Target));
+
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Talk(eTalks::TalkMountCruelfang);
+                        });
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                                me->CastSpell(l_Target, eSpells::RideVehicle, true);
+
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                        });
+
+                        return;
+                    }
+                    /* Mythic only
+                    case eFoundryCreatures::BossFaultline:
+                    {
+                        return;
+                    }
+                    */
                     default:
                         return;
                 }
@@ -410,56 +513,94 @@ class boss_beastlord_darmac : public CreatureScript
 
             void DoAction(int32 const p_Action) override
             {
-                switch (p_Action)
+                m_Events.DelayEvents(7 * TimeConstants::IN_MILLISECONDS);
+
+                uint32 l_Time = 2 * TimeConstants::IN_MILLISECONDS;
+                AddTimedDelayedOperation(l_Time, [this]() -> void
                 {
-                    case eActions::ActionIroncrusherKilled:
+                    if (m_Instance == nullptr)
+                        return;
+
+                    if (Creature* l_Target = Creature::GetCreature(*me, m_Instance->GetData64(m_MountID)))
+                        me->SetFacingTo(me->GetAngle(l_Target));
+
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                });
+
+                l_Time += 50;
+                AddTimedDelayedOperation(l_Time, [this]() -> void
+                {
+                    me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_KNEEL);
+                });
+
+                l_Time += 2 * TimeConstants::IN_MILLISECONDS;
+                AddTimedDelayedOperation(l_Time, [this, p_Action]() -> void
+                {
+                    switch (p_Action)
                     {
-                        Talk(eTalks::TalkIroncrushersRage);
+                        case eActions::ActionIroncrusherKilled:
+                        {
+                            Talk(eTalks::TalkIroncrushersRage);
 
-                        me->CastSpell(me, eSpells::FuryOfTheElekk, true);
+                            me->CastSpell(me, eSpells::FuryOfTheElekk, true);
 
-                        if (me->HasAura(eSpells::CunningOfTheWolf))
-                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                            if (me->HasAura(eSpells::CunningOfTheWolf))
+                                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
 
-                        if (me->HasAura(eSpells::SpiritOfTheRylak))
-                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                            if (me->HasAura(eSpells::SpiritOfTheRylak))
+                                m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
 
-                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
-                        break;
-                    }
-                    case eActions::ActionCruelfangKilled:
-                    {
-                        Talk(eTalks::TalkCruelfangsSwiftness);
-
-                        me->CastSpell(me, eSpells::CunningOfTheWolf, true);
-
-                        if (me->HasAura(eSpells::FuryOfTheElekk))
                             m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                            break;
+                        }
+                        case eActions::ActionCruelfangKilled:
+                        {
+                            Talk(eTalks::TalkCruelfangsSwiftness);
 
-                        if (me->HasAura(eSpells::SpiritOfTheRylak))
-                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                            me->CastSpell(me, eSpells::CunningOfTheWolf, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
-                        break;
-                    }
-                    case eActions::ActionDreadwingKilled:
-                    {
-                        Talk(eTalks::TalkDreadwingsFlame);
+                            if (me->HasAura(eSpells::FuryOfTheElekk))
+                                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
 
-                        me->CastSpell(me, eSpells::SpiritOfTheRylak, true);
+                            if (me->HasAura(eSpells::SpiritOfTheRylak))
+                                m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
 
-                        if (me->HasAura(eSpells::CunningOfTheWolf))
                             m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                            break;
+                        }
+                        case eActions::ActionDreadwingKilled:
+                        {
+                            Talk(eTalks::TalkDreadwingsFlame);
 
-                        if (me->HasAura(eSpells::FuryOfTheElekk))
-                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                            me->CastSpell(me, eSpells::SpiritOfTheRylak, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
-                        break;
+                            if (me->HasAura(eSpells::CunningOfTheWolf))
+                                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+
+                            if (me->HasAura(eSpells::FuryOfTheElekk))
+                                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+
+                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
-                }
+                });
+
+                l_Time += 2 * TimeConstants::IN_MILLISECONDS;
+                AddTimedDelayedOperation(l_Time, [this]() -> void
+                {
+                    me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
+
+                    me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_ROAR);
+
+                    if (Unit* l_Target = me->getVictim())
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(l_Target);
+                    }
+                });
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -476,35 +617,21 @@ class boss_beastlord_darmac : public CreatureScript
                     }
                     case eSpells::TargetVehicle:
                     {
-                        switch (p_Target->GetEntry())
-                        {
-                            case eFoundryCreatures::BossIroncrusher:
-                            {
-                                Talk(eTalks::TalkMountIroncrusher);
-                                break;
-                            }
-                            case eFoundryCreatures::BossDreadwing:
-                            {
-                                Talk(eTalks::TalkMountDreadwing);
-                                break;
-                            }
-                            case eFoundryCreatures::BossCruelfang:
-                            {
-                                Talk(eTalks::TalkMountCruelfang);
-                                break;
-                            }
-                            /* Mythic only
-                            case eFoundryCreatures::BossFaultline:
-                            {
-                                Talk(eTalks::TalkMountingFaultline);
-                                break;
-                            }
-                            */
-                            default:
-                                break;
-                        }
+                        m_MountID = p_Target->GetEntry();
 
-                        me->CastSpell(p_Target, eSpells::RideVehicle, true);
+                        /// Delay events for cosmetic moves
+                        m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
+
+                        float l_Orientation = me->GetAngle(p_Target);
+                        float l_Radius      = me->GetDistance(p_Target) - 1.5f;
+
+                        float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
+                        float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
+
+                        me->StopMoving();
+
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(m_MountID, { l_X, l_Y, me->m_positionZ, l_Orientation });
                         break;
                     }
                     case eSpells::RendAndTearSearcher:
@@ -561,6 +688,14 @@ class boss_beastlord_darmac : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void OnExitVehicle(Unit* p_Vehicle, Position& p_ExitPos) override
+            {
+                float l_X = me->m_positionX - 2.5f * cos(me->m_orientation);
+                float l_Y = me->m_positionY - 2.5f * cos(me->m_orientation);
+
+                p_ExitPos = { l_X, l_Y, me->m_positionZ, me->m_orientation };
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -836,6 +971,8 @@ class npc_foundry_cruelfang : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionCruelfangKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1086,6 +1223,8 @@ class npc_foundry_dreadwing : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionDreadwingKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
@@ -1308,6 +1447,8 @@ class npc_foundry_ironcrusher : public CreatureScript
                             l_Darmac->AI()->DoAction(eAction::ActionIroncrusherKilled);
                     }
                 }
+
+                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
@@ -1670,8 +1811,11 @@ class npc_foundry_pack_beast : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
+                /// Pack beasts despawns after 5 seconds if Dreadwing's alive, if not, 30 seconds.
                 if (me->HasAura(eSpells::FlameInfusionTriggered))
                     me->CastSpell(me, eSpells::FlameInfusionAreaTrigger, true);
+                else
+                    me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) override

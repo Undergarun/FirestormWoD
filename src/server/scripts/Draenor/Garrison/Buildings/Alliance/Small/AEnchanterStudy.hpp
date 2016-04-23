@@ -26,10 +26,10 @@ namespace MS { namespace Garrison
 
         extern char ScriptName[];
 
-        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+        extern std::vector<RecipesConditions> Recipes;
     }
 
-    using npc_AyadaTheWhite = ProfessionBuilding_SkillNPC<npc_AyadaTheWhiteAIData::ScriptName, SKILL_ENCHANTING, Quests::Alliance_YourFirstEnchantingWorkOrder, &npc_AyadaTheWhiteAIData::Recipes, &npc_AyadaTheWhiteAIData::FnLevel1, &npc_AyadaTheWhiteAIData::FnLevel2, &npc_AyadaTheWhiteAIData::FnLevel3>;
+    using npc_AyadaTheWhite = ProfessionBuilding_SkillNPC<npc_AyadaTheWhiteAIData::ScriptName, SKILL_ENCHANTING, Quests::Alliance_YourFirstEnchantingWorkOrder, 77354, &npc_AyadaTheWhiteAIData::FnLevel1, &npc_AyadaTheWhiteAIData::FnLevel2, &npc_AyadaTheWhiteAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77781 - Garn                                                      ////

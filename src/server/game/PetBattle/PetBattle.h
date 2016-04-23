@@ -25,6 +25,7 @@
 #include "Player.h"
 #include <ace/Singleton.h>
 #include "Player.h"
+#include <mutex>
 
 class Field;
 
@@ -39,6 +40,8 @@ class Field;
 #define PETBATTLE_NULL_SLOT -1
 #define PETBATTLE_UPDATE_INTERVAL 300
 #define PETBATTLE_DELETE_INTERVAL (1 * 30 * IN_MILLISECONDS)
+#define PETBATTLE_LFB_INTERVAL 500
+#define PETBATTLE_LFB_PROPOSAL_TIMEOUT (1 * MINUTE)
 
 #define PETBATTLE_TEAM_1 0
 #define PETBATTLE_TEAM_2 1
@@ -236,6 +239,7 @@ enum BattlePetState
     BATTLEPET_STATE_Passive_Boss                    = 162,
     BATTLEPET_STATE_Cosmetic_TreasureGoblin         = 176,
     BATTLEPET_STATE_Ignore_Damage_Below_Threshold   = 191,
+    BATTLEPET_STATE_Cosmetic_Spectral_Blue          = 196,
     NUM_BATTLEPET_STATES
 };
 
@@ -574,6 +578,7 @@ struct PetBattleRequest
     float TeamPosition[MAX_PETBATTLE_TEAM][3];  ///< Teams position
     float BattleFacing;                         ///< unk
     uint32 LocationResult;                      ///< unk
+    bool IsPvPReady[MAX_PETBATTLE_TEAM];        ///< Is PvP Team ready
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -666,7 +671,7 @@ class PetBattleTeam
 
         std::map<uint32, uint32> CapturedSpeciesCount;          ///< Captured species count
 
-        uint32 ActivePetID;                                     ///< Team active pet
+        int32 ActivePetID;                                     ///< Team active pet
 
         uint32 ActiveAbilityId;
         uint32 activeAbilityTurn;
@@ -700,7 +705,7 @@ class PetBattle
         void Update(uint32 p_TimeDiff);
         
         /// Swap pet
-        void SwapPet(uint32 p_TeamID, uint32 p_NewFrontPetID, bool p_Initial = false);
+        void SwapPet(uint32 p_TeamID, int32 p_NewFrontPetID, bool p_Initial = false);
         
         /// Check can cast
         bool CanCast(uint32 p_TeamID, uint32 p_AbilityID);
@@ -727,9 +732,10 @@ class PetBattle
     public:
         uint32 ID;                                                              ///< Battle global unique ID
         PetBattleType BattleType;                                               ///< Battle type (PETBATTLE_TYPE_PVE / PETBATTLE_TYPE_PVP_DUEL / PETBATTLE_TYPE_PVP_MATCHMAKING)
-        PvePetBattleType PveBattleType;                                         ///< Pve battle type (PVE_PETBATTLE_WILD / PVE_PETBATTLE_TRAINER)
+        PvePetBattleType PveBattleType;                                         ///< PVE battle type (PVE_PETBATTLE_WILD / PVE_PETBATTLE_TRAINER)
         uint32 Turn;                                                            ///< Battle current turn id
         PetBattleResult CombatResult;                                           ///< Combat result (PETBATTLE_RESULT_WON, PETBATTLE_RESULT_LOOSE, PETBATTLE_RESULT_ABANDON)
+        PetBattleRequest PvPMatchMakingRequest;                                 ///< PVP request
 
         uint32 BattleStatus;                                                    ///< PETBATTLE_STATUS_CREATION / PETBATTLE_STATUS_RUNNING / PETBATTLE_STATUS_FINISHED
 
@@ -760,6 +766,90 @@ class PetBattle
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+enum LFBUpdateStatus : uint32
+{
+    LFB_NONE                                    = 0,
+    LFB_JOIN_QUEUE                              = 1,
+    LFB_UPDATE_STATUS                           = 2,
+    LFB_ALREADY_QUEUED                          = 3,
+    LFB_CANT_JOIN_QUEUE                         = 4,
+    LFB_CANT_JOINT_QUEUE_DUE_TO_PET_STATUS      = 5,
+    LFB_PET_ATLAS_IS_UNAVAILABLE_DURING_BATTLE  = 6,
+    LFB_CANT_JOIN_DUE_TO_UNSELECTED_FACTION     = 7,
+    LFB_PROPOSAL_BEGIN                          = 8,
+    LFB_PROPOSAL_DECLINED                       = 9,
+    LFB_OPPONENT_PROPOSAL_DECLINED              = 10,
+    LFB_PROPOSAL_FAILED                         = 11,
+    LFB_LEAVE_QUEUE                             = 12,
+    LFB_QUEUE_ERROR                             = 13,
+    LFB_OPPONENT_IS_UNAVAILABLE                 = 14,
+    LFB_PET_BATTLE_IS_STARTED                   = 20,
+    LFB_INVALIDE_LOCATION                       = 21
+};
+
+enum LFBState : uint32
+{
+    LFB_STATE_NONE      = 0,
+    LFB_STATE_QUEUED    = 1,
+    LFB_STATE_PROPOSAL  = 2,
+    LFB_STATE_IN_COMBAT = 3,
+    LFB_STATE_FINISHED  = 4,
+};
+
+enum LFBProposalState : uint32
+{
+    LFB_PROPOSAL_STATE_INITIATING   = 0,
+    LFB_PROPOSAL_STATE_FAILED       = 1,
+    LFB_PROPOSAL_STATE_SUCCESS      = 2
+};
+
+enum LFBAnswer : int32
+{
+    LFB_ANSWER_PENDING  = -1,
+    LFB_ANSWER_DENY     = 0,
+    LFB_ANSWER_AGREE    = 1
+};
+
+struct LFBTicket
+{
+    LFBState State;
+    uint64 RequesterGUID;
+    uint32 JoinTime;
+    uint32 TicketID;
+    uint32 Weight;
+    uint32 TeamID;
+    LFBTicket * MatchingOpponent;
+    LFBAnswer ProposalAnswer;
+    uint32 ProposalTime;
+};
+
+struct PetBattleMembersPositions
+{
+    PetBattleMembersPositions(uint32 p_MapID, uint32 p_Team, G3D::Vector3 p_FirstPosition, G3D::Vector3 p_SecondPosition)
+        : MapID(p_MapID), Team(p_Team)
+    {
+        Positions[0] = p_FirstPosition;
+        Positions[1] = p_SecondPosition;
+    }
+
+    uint32 MapID;
+    uint32 Team;
+    G3D::Vector3 Positions[2];
+};
+
+const static PetBattleMembersPositions gPetBattlePositions[7] =
+{
+    PetBattleMembersPositions(0, TEAM_ALLIANCE,  G3D::Vector3( -9502.376f,  114.492f,   59.822f), G3D::Vector3( -9493.934f,   119.854f,  58.459f)),
+    PetBattleMembersPositions(0, TEAM_ALLIANCE,  G3D::Vector3(-10048.859f,  1231.028f,  40.881f), G3D::Vector3(-10054.330f,  1239.399f,  40.894f)),
+    PetBattleMembersPositions(0, TEAM_ALLIANCE,  G3D::Vector3(-10909.911f, -362.280f,   39.643f), G3D::Vector3(-10899.923f,  -362.773f,  39.265f)),
+    PetBattleMembersPositions(0, TEAM_ALLIANCE,  G3D::Vector3(-10439.142f, -1939.163f, 104.313f), G3D::Vector3(-10439.306f, -1949.162f, 103.763f)),
+
+    PetBattleMembersPositions(1, TEAM_HORDE,     G3D::Vector3(  -954.766f, -3255.210f,  95.645f), G3D::Vector3(  -958.212f, -3264.597f,  95.837f)),
+    PetBattleMembersPositions(1, TEAM_HORDE,     G3D::Vector3( -2285.038f, -2155.838f,  95.843f), G3D::Vector3( -2281.738f, -2146.397f,  95.843f)),
+    //PetBattleMembersPositions(1, TEAM_HORDE, G3D::Vector3(-1369.247f, -2716.736f, 253.246f), G3D::Vector3(-1359.747f, -2713.613f, 253.390f)),
+    PetBattleMembersPositions(1, TEAM_HORDE,     G3D::Vector3(  -127.255f, -4959.972f,  20.903f), G3D::Vector3(  -129.017f, -4950.128f,  21.378f))
+};
+
 /// Pet battle system main class (singleton)
 class PetBattleSystem
 {
@@ -788,6 +878,13 @@ class PetBattleSystem
         /// Remove an request and delete it
         void RemoveRequest(uint64 p_RequesterGuid);
 
+        /// Join queue for pvp matchmaking
+        void JoinQueue(Player* p_Player);
+        /// On proposal response
+        void ProposalResponse(Player* p_Player, bool p_Accept);
+        /// Leave queue for pvp matchmaking
+        void LeaveQueue(Player* p_Player);
+
         /// Update the whole pet battle system (request and battles)
         void Update(uint32 p_TimeDiff);
 
@@ -804,6 +901,12 @@ class PetBattleSystem
 
         IntervalTimer                               m_DeleteUpdateTimer;        ///< Deletion queue update timer
         std::queue<std::pair<uint64, PetBattle*>>   m_PetBbattlesDeleteQueue;   ///< Deletion queue
+
+        uint32                                      m_LFBAvgWaitTime;
+        uint32                                      m_LFBNumWaitTimeAvg;
+        std::map<uint64, LFBTicket*>                m_LFBRequests;
+        std::mutex                                  m_LFBRequestsMutex;
+        IntervalTimer                               m_LFBRequestsUpdateTimer;
 };
 
 /// Pet battle system class singleton init

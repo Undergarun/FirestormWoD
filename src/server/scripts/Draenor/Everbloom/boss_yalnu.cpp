@@ -155,7 +155,7 @@ public:
             uint32 l_Entries[6] =
             { eEverbloomCreature::CreatureKirinTorBattleMage, eEverbloomCreature::CreatureLadyBayeu, eYalnuCreatures::CreatureSwiftSproutling,
             eYalnuCreatures::CreatureViciousMandragora, eYalnuCreatures::CreatureGnarledAncient, eYalnuCreatures::CreatureFeralLasher };
-            for (uint8 l_I = 0; l_I < 7; l_I++)
+            for (uint8 l_I = 0; l_I < 5; l_I++)
                 DespawnCreaturesInArea(l_Entries[l_I], me);        
             if (!m_First)
             {
@@ -177,16 +177,11 @@ public:
             {
                 if (m_Instance->GetBossState(eEverbloomData::DataArchmageSol) == EncounterState::DONE)
                 {
-                    printf("fuck me i don't work niggggggggggggggggggga");
                     m_EncounterBegin = true;
                     me->RemoveAllAuras();
                     me->GetMotionMaster()->MovePoint(eYalnuMovementInformed::MovementYalnuPoint1, g_PositionYalnuMoveToPortal.GetPositionX(), g_PositionYalnuMoveToPortal.GetPositionY(), g_PositionYalnuMoveToPortal.GetPositionZ());
                 }
-                else
-                    printf("sol alive!!!!!");
             }
-            else
-                printf("no one is here!!!!!");
         }
 
         void MovementInform(uint32 p_Type, uint32 p_Id) override

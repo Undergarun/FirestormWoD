@@ -1489,10 +1489,14 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
 
             void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
+                Unit* l_Owner = GetCaster();
                 Unit* l_Caster = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
 
-                if (l_Attacker == nullptr || l_Caster == nullptr)
+                if (l_Attacker == nullptr || l_Caster == nullptr || l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetGUID() != l_Caster->GetGUID())
                     return;
 
                 Unit* l_Target = nullptr;
@@ -2820,6 +2824,41 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
             }
         };
 
+        class spell_monk_chi_torpedo_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_chi_torpedo_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if ((l_Player->IsFalling() || l_Player->m_movementInfo.fallTime != 0 || l_Player->m_movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_FALLING))
+                    && !l_Player->m_movementInfo.HasMovementFlag(MovementFlags::MOVEMENTFLAG_HOVER)
+                    && !l_Player->m_movementInfo.HasMovementFlag(MovementFlags2::MOVEMENTFLAG2_NO_JUMPING))
+                {
+                    p_Amount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_chi_torpedo_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_MINIMUM_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_chi_torpedo_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_chi_torpedo_SpellScript();
@@ -3105,7 +3144,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 {
                     if ((*itr)->GetEntry() == NPC_SNAKE_JADE_STATUE)
                     {
-                        if ((*itr)->GetDistance(p_Caster) <= 40.0f)
+                        if ((*itr)->GetDistance(p_Caster) <= 500.0f)
                             l_JadeStatue = (*itr);
                     }
                 }
@@ -3134,7 +3173,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
 
                 for (Unit* l_Target : l_PartyList)
                 {
-                    if (!l_Target->IsValidAssistTarget(l_Target))
+                    if (!l_Caster->IsValidAssistTarget(l_Target))
                         continue;
 
                     if (l_Target->GetDistance(l_JadeStatue) > 40.0f)
@@ -3202,11 +3241,6 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 Unit *l_JadeStatue = GetStatueOfUnit(l_Caster);
 
                 if (l_JadeStatue == nullptr)
-                    return;
-
-                Unit *l_TargetOfJadeStatue = GetRandomPartyMember(l_JadeStatue, l_Caster, l_Target);
-
-                if (l_TargetOfJadeStatue == nullptr)
                     return;
 
                 l_JadeStatue->CastStop();
@@ -5207,7 +5241,13 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                     return;
 
                 int32 l_Damage = GetHitDamage() * (l_Chi + 1);
-                if (GetHitUnit() != GetExplTargetUnit())
+                Unit* l_Target = GetHitUnit();
+                Unit* l_ExplTarget = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_ExplTarget == nullptr)
+                    return;
+
+                if (l_Target != l_ExplTarget)
                     l_Damage /= 3;
 
                 SetHitDamage(l_Damage);
@@ -5239,11 +5279,12 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
+
                 if (l_Caster->GetPower(POWER_CHI) <= 3)
                 {
                     p_Targets.clear();
 
-                    if (Unit* l_Target = GetHitUnit())
+                    if (Unit* l_Target = GetExplTargetUnit())
                         p_Targets.push_back(l_Target);
                 }
             }
@@ -5283,8 +5324,14 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
+                Unit* l_Target = GetHitUnit();
+                Unit* l_ExplTarget = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_ExplTarget == nullptr)
+                    return;
+
                 int32 l_Damage = GetHitDamage() * (l_Chi + 1);
-                if (GetHitUnit() != GetExplTargetUnit())
+                if (l_Target != l_ExplTarget)
                     l_Damage /= 3;
 
                 SetHitDamage(l_Damage);
@@ -5322,7 +5369,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 {
                     p_Targets.clear();
 
-                    if (Unit* l_Target = GetHitUnit())
+                    if (Unit* l_Target = GetExplTargetUnit())
                         p_Targets.push_back(l_Target);
                 }
             }

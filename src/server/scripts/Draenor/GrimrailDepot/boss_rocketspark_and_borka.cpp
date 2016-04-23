@@ -483,7 +483,6 @@ public:
                         events.ScheduleEvent(eBorkaEvents::EventMadDashActionDelayed, 0 * TimeConstants::IN_MILLISECONDS);
                     }
                     else
-                        printf("Error output: m_MadDashTargetGUID is not empty, cannot proceed with Mad Dash. Report to Davethebrave the king.");
                     break;
                 case eRocksparkAndBorkaActions::ActionBorkaUnmanagedAggression:
                     me->CastSpell(me, eBorkaSpells::SpellUnmanagedAggression);

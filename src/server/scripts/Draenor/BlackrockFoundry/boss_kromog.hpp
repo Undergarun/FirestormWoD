@@ -50,5 +50,3 @@ std::vector<Position> const g_GraspingEarthSpawnPos =
 /// Use for killing players who falls on Kromog's feet
 float g_AllowedDist = 22.0f;
 float g_FloorZ      = 65.0f;
-
-float g_KromogsO	= 2.92434f;

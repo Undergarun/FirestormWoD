@@ -768,7 +768,7 @@ namespace MS
                         if (BattlegroundType::IsArena(p_DecidedBg))
                             l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::TigersPeaks, BattlegroundType::NagrandArena));
                         else
-                            l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::Warsong, BattlegroundType::StrandOfTheAncients));
+                            l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::Warsong, BattlegroundType::BattleForGilneas));
 
                         bool l_IsRatedBattleground = !BattlegroundType::IsArena(p_DecidedBg);   ///< We talk about rated battleground here, not rated arena!
 

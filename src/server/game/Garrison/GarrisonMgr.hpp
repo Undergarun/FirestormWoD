@@ -143,6 +143,12 @@ namespace MS { namespace Garrison
             std::vector<GarrisonMission> GetMissions() const;
             /// Get all completed missions
             std::vector<GarrisonMission> GetCompletedMissions() const;
+            /// Get all missions in progress
+            std::vector<GarrisonMission> GetPendingMissions() const;
+            /// Check if player has pending mission
+            bool HasPendingMission(uint32 p_MissionID);
+            /// Get mission with mission ID
+            GarrisonMission* GetMissionWithID(uint32 p_MissionID);
 
         /// Follower section
         public:
@@ -209,7 +215,7 @@ namespace MS { namespace Garrison
             /// Has building type
             bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
-            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
+            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get Level of the building
             uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order

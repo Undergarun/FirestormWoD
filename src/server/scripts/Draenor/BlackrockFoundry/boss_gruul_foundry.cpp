@@ -232,7 +232,11 @@ class boss_gruul_foundry : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::PetrifiedStun);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CaveInDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
+                    /// Allow loots and bonus loots to be enabled/disabled with a simple reload
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
                 }
             }
 
@@ -889,7 +893,29 @@ class spell_foundry_petrifying_slam_aoe : public SpellScriptLoader
                     return false;
             }
 
-            void Register() override { }
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                /// Petrifying Slam cannot targets tanks.
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || !p_Object->IsPlayer())
+                        return true;
+
+                    Player* l_Player = p_Object->ToPlayer();
+                    if (l_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_petrifying_slam_aoe_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
         };
 
         SpellScript* GetSpellScript() const override

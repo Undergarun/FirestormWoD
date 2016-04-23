@@ -103,6 +103,10 @@ class ScriptMgr
 
     /// CreatureScript
     public:
+        /// Get Creature script by ScriptID
+        /// @p_ScriptID : ScriptID from the creature template
+        CreatureScript* GetCreatureScriptByID(uint32 p_ScriptID);
+
         /// Called when a dummy spell effect is triggered on the creature.
         /// @p_Caster      : Spell Caster
         /// @p_SpellID     : Casted spell ID
@@ -344,7 +348,7 @@ class ScriptMgr
         /// @p_ItemOrMoney    : Item entry or gold amount
         /// @p_ItemStackCount : Item stack count
         /// @p_DestTabID      : Destination tab ID
-        void OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint32 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID);
+        void OnGuildBankEvent(Guild* p_Guild, uint8 p_EventType, uint8 p_TabID, uint32 p_PlayerGUID, uint64 p_ItemOrMoney, uint16 p_ItemStackCount, uint8 p_DestTabID);
 
     /// ItemScript
     public:
@@ -586,11 +590,20 @@ class ScriptMgr
 
     /// PlayerScript
     public:
-        
+
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        void OnItemDestroyed(Player* p_Player, Item* p_Item);
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player* p_Killer, Player* p_Killed);
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        void OnKill(Player* p_Killer, Unit* p_Killed);
         
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance

@@ -860,7 +860,7 @@ enum MovementFlags
     MOVEMENTFLAG_WATERWALKING          = 0x04000000,               // prevent unit from falling through water
     MOVEMENTFLAG_FALLING_SLOW          = 0x08000000,               // active rogue safe fall spell (passive)
     MOVEMENTFLAG_HOVER                 = 0x10000000,               // hover, cannot jump
-    MOVEMENTFLAG_CAN_SAFE_FALL         = 0x20000000,
+    MOVEMENTFLAG_DISABLE_COLLISION     = 0x20000000,
 
     // TODO: Check if PITCH_UP and PITCH_DOWN really belong here..
     MOVEMENTFLAG_MASK_MOVING =
@@ -883,6 +883,11 @@ enum MovementFlags
     //! TODO if needed: add more flags to this masks that are exclusive to players
     MOVEMENTFLAG_MASK_PLAYER_ONLY =
         MOVEMENTFLAG_FLYING,
+
+    /// Movement flags that have change status opcodes associated for players
+    MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE = MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_ROOT |
+                                                 MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_WATERWALKING | MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_COLLISION
+
 };
 enum MovementFlags2
 {
@@ -1531,7 +1536,7 @@ class Unit : public WorldObject
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = WeaponAttackType::BaseAttack);
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
-        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] == 0; }
+        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] <= 0; }
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         void SetCanDualWield(bool value) { m_canDualWield = value; }
@@ -1958,25 +1963,8 @@ class Unit : public WorldObject
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
         //void SetFacing(float ori, WorldObject* obj = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
-        void SendMovementFlagUpdate(bool self = false);
 
-        /*! These methods send the same packet to the client in apply and unapply case.
-            The client-side interpretation of this packet depends on the presence of relevant movementflags
-            which are sent with movementinfo. Furthermore, these packets are broadcast to nearby players as well
-            as the current unit.
-        */
-        void SendMovementHover(bool apply);
-        void SendMovementFeatherFall();
-        void SendMovementWaterWalking();
-        void SendMovementCanFlyChange();
         void SendCanTurnWhileFalling(bool apply);
-
-        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
-        bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
-        virtual bool SetWalk(bool enable);
-        virtual bool SetFall(bool enable);
-        virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
-        bool SetHover(bool enable);
 
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori);
@@ -2618,11 +2606,24 @@ class Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
-        bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
-        bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
         virtual bool CanFly() const = 0;
-        bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
-        void SetCanFly(bool apply);
+
+        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
+        bool IsWalking()    const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
+        bool IsHovering()   const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
+        bool IsFlying()     const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
+        bool IsMoving()     const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
+        bool IsTurning()    const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
+        bool IsFalling()    const;
+        bool SetWalk(bool p_Apply);
+        bool SetDisableGravity(bool p_Disable, bool p_PacketOnly = false);
+        bool SetFall(bool p_Apply);
+        bool SetSwim(bool p_Apply);
+        bool SetCanFly(bool p_Apply);
+        bool SetWaterWalking(bool p_Apply, bool packetOnly = false);
+        bool SetFeatherFall(bool p_Apply, bool packetOnly = false);
+        bool SetHover(bool p_Apply, bool packetOnly = false);
+        bool SetCollision(bool p_Apply);
 
         void RewardRage(float baseRage);
 
@@ -2656,8 +2657,6 @@ class Unit : public WorldObject
 
         // Movement info
         Movement::MoveSpline * movespline;
-
-        void OnRelocated();
 
         // helper for dark simulacrum spell
         Unit* GetSimulacrumTarget();
@@ -2753,7 +2752,7 @@ class Unit : public WorldObject
 
         bool m_AutoRepeatFirstCast;
 
-        uint32 m_attackTimer[WeaponAttackType::MaxAttack];
+        int32 m_attackTimer[WeaponAttackType::MaxAttack];
 
         float m_createStats[MAX_STATS];
 

@@ -348,7 +348,7 @@ class mob_sha_of_anger_bunny : public CreatureScript
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                if (me->isMoving())
+                if (me->IsMoving())
                     me->StopMoving();
             }
         };

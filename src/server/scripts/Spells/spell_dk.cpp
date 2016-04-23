@@ -487,7 +487,6 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 chilblainsAura = 50435
             };
 
-            uint64 m_TargetGUID = 0;
             bool m_HasAuraFrog = false;
 
             void HandleBeforeCast()
@@ -498,8 +497,6 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 if (!l_Target)
                     return;
 
-                m_TargetGUID = l_Target->GetGUID();
-
                 if (l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
                     m_HasAuraFrog = true;
             }
@@ -509,11 +506,8 @@ class spell_dk_howling_blast: public SpellScriptLoader
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
 
-                if (!l_Target || !m_TargetGUID)
+                if (!l_Target)
                     return;
-
-                if (l_Target->GetGUID() != m_TargetGUID)
-                    SetHitDamage(GetHitDamage()/2);
 
                 l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
 
@@ -1408,7 +1402,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 uint32 l_MaxHealth = target->GetMaxHealth();
                 float l_AbsorbAmount = absorbAmount;
                 float l_Percent = (l_AbsorbAmount / l_MaxHealth) * 200.0f;
-                int32 bp = (int32)l_Percent * 10;
+                int32 bp = (int32)(l_Percent * 10);
                 target->EnergizeBySpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, bp, POWER_RUNIC_POWER);
             }
 
@@ -1460,7 +1454,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster || m_AmountAbsorb == 0 || m_Absorbed == 0)
+                if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
@@ -1474,7 +1468,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (m_Absorbed > m_AmountAbsorb)
                         m_Absorbed = m_AmountAbsorb;
 
-                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    float l_AbsorbedPct = 100.0f - (m_Absorbed / (m_AmountAbsorb / 100));  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
                     l_RemainingPct = CalculatePct(l_Amount, l_AbsorbedPct);
@@ -3447,7 +3441,12 @@ class spell_dk_army_of_the_death_taunt : public SpellScriptLoader
 
             void HandlePeriodicTrigger(SpellEffIndex /*p_EffIndex*/)
             {
-                if (GetCaster()->HasAura(eSpells::GlyphofArmyoftheDead))
+                Unit* l_Owner = GetCaster()->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(eSpells::GlyphofArmyoftheDead))
                     PreventHitAura();
             }
 

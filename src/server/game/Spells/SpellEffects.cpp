@@ -70,6 +70,8 @@
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 #include "PathGenerator.h"
+#include "Chat.h"
+#include "../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -287,7 +289,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.1.2
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectCreateGarrison,                                     //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS Unlocks boosted players' spells (ChrUpgrade*.db2)
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON        171905
@@ -316,10 +318,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
-    &Spell::EffectEnchantIllusion,                          //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectApplyEnchantIllusion,                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectLearnFollowerAbility,                     //244 SPELL_EFFECT_TEACH_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
-    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    &Spell::EffectFinishGarrisonMission,                    //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
@@ -4136,6 +4138,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     }
 
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
+
     int32 autoAttacksBonus = std::max(1 + (m_caster->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE) / 100), 1);
     weaponDamage /= autoAttacksBonus;
 
@@ -8046,7 +8049,8 @@ void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
             l_Pet->Health = l_Pet->InfoMaxHealth;
         }
 
-        m_caster->ToPlayer()->GetSession()->SendPetBattleJournal();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetsHealed();
+        m_caster->ToPlayer()->GetSession()->SendBattlePetUpdates(false);
     }
 }
 
@@ -8064,7 +8068,7 @@ void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    player->GetSession()->SendPetBattleJournalBattleSlotUpdate();
+    player->GetSession()->SendPetBattleSlotUpdates(false);
 }
 
 void Spell::EffectThreatAll(SpellEffIndex p_EffIndex)
@@ -8256,46 +8260,26 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectEnchantIllusion(SpellEffIndex effIndex)
+void Spell::EffectApplyEnchantIllusion(SpellEffIndex p_EffIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
     if (!itemTarget)
         return;
 
-    Player* p_caster = (Player*)m_caster;
-
-    uint32 l_EnchantId = m_spellInfo->Effects[effIndex].MiscValue;
-    if (!l_EnchantId)
+    Player* l_Player = m_caster->ToPlayer();
+    if (l_Player == nullptr || l_Player->GetGUID() != itemTarget->GetOwnerGUID())
         return;
 
-    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(l_EnchantId);
-    if (!pEnchant)
-        return;
-    /// If we don't have visual id for this enchant illusion - nothing to do
-    if (!pEnchant->itemVisualID)
-        return;
+    itemTarget->SetState(ItemUpdateState::ITEM_CHANGED, l_Player);
+    itemTarget->SetModifier(eItemModifiers::EnchantIllusion, m_spellInfo->Effects[p_EffIndex].MiscValue);
 
-    /// Item can be in trade slot and have owner diff. from caster
-    Player* l_ItemOwner = itemTarget->GetOwner();
-    if (!l_ItemOwner)
-        return;
+    if (itemTarget->IsEquipped())
+        l_Player->SetUInt16Value(EPlayerFields::PLAYER_FIELD_VISIBLE_ITEMS + (itemTarget->GetSlot() * 2) + 1, 1, itemTarget->GetVisibleItemVisual());
 
-    auto l_Enchant = BONUS_ENCHANTMENT_SLOT;
-
-    /// remove old enchanting before applying new if equipped
-    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, false);
-
-    itemTarget->SetEnchantment(l_Enchant, l_EnchantId, 0, 0);
-
-    /// add new enchant illusion effect on item
-    l_ItemOwner->ApplyEnchantment(itemTarget, l_Enchant, true);
-
-    l_ItemOwner->RemoveTradeableItem(itemTarget);
-    itemTarget->ClearSoulboundTradeable(l_ItemOwner);
+    l_Player->RemoveTradeableItem(itemTarget);
+    itemTarget->ClearSoulboundTradeable(l_Player);
 }
 
 void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
@@ -8365,6 +8349,32 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
         {
             l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS, l_I, l_UpgradeFlags);
             break;
+        }
+    }
+}
+
+void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    Unit* l_Target = GetUnitTarget();
+
+    if (l_Target == nullptr)
+        return;
+
+    if (Player* l_Player = l_Target->ToPlayer())
+    {
+        if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+        {
+            if (MS::Garrison::GarrisonMission* l_Mission = l_GarrisonMgr->GetMissionWithID(m_Misc[0]))
+            {
+                if (l_Mission->State == MS::Garrison::MissionStates::InProgress)
+                    l_Mission->StartTime = time(0) - (l_GarrisonMgr->GetMissionTravelDuration(l_Mission->MissionID) + l_GarrisonMgr->GetMissionDuration(l_Mission->MissionID));
+
+                WorldPacket l_PlaceHolder;
+                l_Player->GetSession()->HandleGetGarrisonInfoOpcode(l_PlaceHolder);
+            }
         }
     }
 }

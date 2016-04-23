@@ -110,7 +110,7 @@ namespace MS { namespace Garrison { namespace Sites
         }
 
         /// Build your Barracks quest
-        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             Manager* l_GarrisonMgr = p_Owner->GetGarrison();
 
@@ -186,9 +186,29 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonHordeLevel1::GetPhaseMask(Player* p_Owner)
     {
         uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
+        Manager* l_GarrisonMgr = p_Owner->GetGarrison();
 
-        if (p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (l_GarrisonMgr == nullptr)
+            return 0;
+
+        if (p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
             l_PhaseMask |= GarrisonPhases::PhaseBuildYourBarracks;
+
+        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        {
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestGorgrond))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalGorgrond;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestNagrand))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalNagrand;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestShadowmoon))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalShadowmoon;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestSpiresOfArak))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalSpiresOfArak;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestTalador))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalTalador;
+        }
 
         return l_PhaseMask;
     }
@@ -200,8 +220,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     bool InstanceScript_GarrisonHordeLevel1::CanUseGarrisonCache(Player* p_Owner)
     {
+        /// Horde
         if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
             || p_Owner->HasQuest(Quests::QUEST_WHAT_WE_GOT))
+            return true;
+
+        /// [FACTION CHANGE CASE] Alliance
+        if (p_Owner->GetQuestStatus(Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
+            || p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
             return true;
 
         return false;
@@ -259,7 +285,7 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonHordeLevel1::OnPrePurchaseBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BaseTime)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
             return 2;   ///< 2 second, unk retail value
 
         return p_BaseTime;
@@ -270,7 +296,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
 
@@ -289,6 +315,14 @@ namespace MS { namespace Garrison { namespace Sites
                 }
             }
         }
+        else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+        }
     }
     /// When a building is activated
     /// @p_Owner      : Garrison owner
@@ -296,7 +330,7 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonHordeLevel1::OnBuildingActivated(Player* p_Owner, uint32 p_BuildingID)
     {
         /// Build your Barracks quest
-        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
+        if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Horde_BuildYourBarracks))
         {
             p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
         }

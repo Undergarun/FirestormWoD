@@ -129,7 +129,7 @@ namespace MS { namespace Garrison
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
             QUEST_WHAT_WE_GOT                           = 34824,
-            QUEST_BUILD_YOUR_BARRACKS                   = 34461,
+            Horde_BuildYourBarracks                     = 34461,
             Horde_LostInTransition                      = 37060,
             Horde_BiggerIsBetter                        = 36567,
             Horde_MissionProbable                       = 34775,
@@ -1085,24 +1085,24 @@ namespace MS { namespace Garrison
         {
             ShipmentTest                    = 2, ///< Probably debug for Blizz
             ShipmentUnk1                    = 3, ///< Maybe fishing ? dunno yet
-            ShipmentFishingHut              = 30, ///< Fishing Hut building related
-            ShipmentAlchemyLab              = 31, ///< Alchemy Lab building related
-            ShipmentBarn                    = 32, ///< Barn building related
-            ShipmentLumberMill              = 36, ///< Lumber Mill building related
-            ShipmentTailoring               = 37, ///< Tailoring Emporium building related
-            ShipmentBlacksmitthing          = 49, ///< Blacksmitthing building related
+            ShipmentFishingHut              = 30,
+            ShipmentAlchemyLab              = 31,
+            ShipmentBarn                    = 32,
+            ShipmentLumberMill              = 36,
+            ShipmentTailoring               = 37,
+            ShipmentBlacksmitthing          = 49,
             ShipmentLeathorworking          = 50,
             ShipmentJewelCrafting           = 51,
             ShipmentEnchanting              = 52,
             ShipmentEngineering             = 53,
-            ShipmentInscription             = 54, ///< ?? Unk
+            ShipmentInscription             = 54,
             ShipmentHerbGarden              = 55,
             ShipmentMine                    = 56,
             ShipmentAlchemyUnk              = 57,
             ShipmentBlacksmitthingUnk       = 58,
             ShipmentEnchantingUnk           = 59,
             ShipmentEngineeringUnk          = 60,
-            ShipmentInscriptionUnk          = 61, ///< Unk
+            ShipmentInscriptionUnk          = 61,
             ShipmentJewelCraftingUnk        = 62,
             ShipmentLeathorworkingUnk       = 63,
             ShipmentTailoringUnk            = 64,

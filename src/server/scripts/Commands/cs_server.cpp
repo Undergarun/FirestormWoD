@@ -112,7 +112,6 @@ public:
         std::string l_Uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 l_UpdateTime           = sWorld->GetUpdateTime();
 
-        p_Handler->PSendSysMessage("Firestorm");
         p_Handler->PSendSysMessage(GitRevision::GetFullVersion());
         p_Handler->PSendSysMessage(GitRevision::GetDate());
         p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);

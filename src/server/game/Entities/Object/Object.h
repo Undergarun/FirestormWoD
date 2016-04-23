@@ -413,7 +413,7 @@ class Object
 
         void BuildMovementUpdate(ByteBuffer * data, uint32 flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
-        void BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const;
+        virtual void BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
@@ -743,6 +743,12 @@ struct MovementInfo
 
     void OutDebug();
     void Normalize();
+
+    void ResetJump()
+    {
+        fallTime = 0;
+        JumpVelocity = j_cosAngle = j_sinAngle = j_xyspeed = 0.0f;
+    }
 };
 
 #define MAPID_INVALID 0xFFFFFFFF

@@ -43,7 +43,7 @@ Log::Log() : worker(NULL)
     LoadFromConfig();
 
     std::string ashranLogPath = m_logsDir + "ashran.log";
-    ashranLog = fopen(ashranLogPath.c_str(), "w");
+    ashranLog = fopen(ashranLogPath.c_str(), "a");
 }
 
 Log::~Log()

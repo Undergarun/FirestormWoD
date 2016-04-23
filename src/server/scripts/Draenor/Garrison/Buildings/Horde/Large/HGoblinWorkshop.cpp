@@ -90,6 +90,7 @@ namespace MS { namespace Garrison
 
                 l_AI->SummonRelativeGameObject(WorkshopGearworks::InventionsGobIDs::GobStickyGrenades, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
                 p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, WorkshopGearworks::InventionsGobIDs::GobStickyGrenades);
+                p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, 25);
                 p_Player->SaveToDB();
             }
         }
@@ -116,7 +117,7 @@ namespace MS { namespace Garrison
 
         uint32 l_GobID = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
 
-        if (!l_GobID) ///< Quest or daily refill not done
+        if (!l_GobID) ///< Quest not done
             return;
 
         if (GameObject* l_Gob = me->FindNearestGameObject(l_GobID, 30.0f))
@@ -130,8 +131,10 @@ namespace MS { namespace Garrison
         else if (l_Owner->HasItemCount(WorkshopGearworks::g_GobItemRelations[l_GobID]))
             return;
 
+        if (!l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges))
+            return;
 
-        SequencePosition const l_GameObjectPos = { 7.4031f, -15.7592f, 1.6757f, 2.0719f };
+        SequencePosition const l_GameObjectPos = { -10.5838f, /*19.9354*/21.0f, 4.2703f, 1.5092f };
         SummonRelativeGameObject(l_GobID, l_GameObjectPos.X, l_GameObjectPos.Y, l_GameObjectPos.Z, l_GameObjectPos.O);
 
         l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_GobID);
@@ -147,27 +150,41 @@ namespace MS { namespace Garrison
             if (l_GarrisonMgr == nullptr || !l_Owner->IsQuestRewarded(Quests::Horde_UnconventionalInventions))
                 return;
 
+            uint32 l_Worldstate = l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention);
             uint32 l_Entry = 0;
 
             switch (l_GarrisonMgr->GetBuilding(GetPlotInstanceID()).BuildingID)
             {
                 case Buildings::GnomishGearworks_GoblinWorkshop_Level1:
-                    l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
+                    do
+                        l_Entry = WorkshopGearworks::g_FirstLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
+                    while (l_Worldstate != l_Entry);
                     break;
                 case Buildings::GnomishGearworks_GoblinWorkshop_Level2:
-                    l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
+                    do
+                        l_Entry = WorkshopGearworks::g_SecondLevelInventions[urand(0, WorkshopGearworks::g_FirstLevelInventions.size() - 1)];
+                    while (l_Worldstate != l_Entry);
                     break;
                 case Buildings::GnomishGearworks_GoblinWorkshop_Level3:
-                    l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
+                    do
+                        l_Entry = WorkshopGearworks::g_ThirdLevelInvention;
+                    while (l_Worldstate != l_Entry);
                     break;
                 default:
                     break;
             }
 
+            ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(WorkshopGearworks::g_GobItemRelations[l_Entry]);
+
+            if (l_ItemProto == nullptr)
+                return;
+
             l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInvention, l_Entry);
+            l_Owner->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges, l_ItemProto->Spells[0].SpellCharges);
             l_Owner->SaveToDB();
 
             OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
 }   ///< namespace Garrison

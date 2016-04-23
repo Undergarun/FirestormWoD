@@ -232,6 +232,9 @@ class CreatureAI : public UnitAI
 
         virtual void OnVehicleExited(Unit* p_Vehicle) { } ///< p_Vehicle is unused
 
+        /// Called before _ExitVehicle with ExitPos parameter
+        virtual void OnExitVehicle(Unit* p_Vehicle, Position& p_ExitPos) { }
+
         virtual void OnSpellClick(Unit* /*clicker*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }

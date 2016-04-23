@@ -1045,6 +1045,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_PERCENT_HEALTH, 3, animprogress); }
 
+        bool IsInGarrison() const { return GetMapId() == 1152 || GetMapId() == 1153 || GetMapId() == 1474 || GetMapId() == 1330 || GetMapId() == 1331 || GetMapId() == 1159; }
+
         void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
 
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);

@@ -1974,7 +1974,10 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
-                int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
+                int8 l_Stacks = havoc->GetStackAmount();
+
+                if (GetSpellInfo()->Id != 157736) ///< Dot of immolate should not drop a stack
+                    l_Stacks -= l_StacksToDrop;
 
                 if (l_Stacks > 0)
                 {
@@ -3720,7 +3723,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKINGeffect
-    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->IsPlayer() && m_caster->isMoving() &&
+    if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->IsPlayer() && m_caster->IsMoving() &&
         m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
         !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
@@ -4104,7 +4107,7 @@ void Spell::cast(bool skipCheck)
     }
 
     // Kil'Jaeden's Cunning - 10% speed less for each cast while moving (up to 2 charges) ///< @todo Kil'Jaeden's Cunning  is removed 
-    if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->isMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
+    if (m_caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && m_caster->IsMoving() && !m_caster->HasAura(119048) && m_spellInfo->CalcCastTime(m_caster) > 0)
         m_caster->CastSpell(m_caster, 119050, true);
 
     if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
@@ -4383,7 +4386,7 @@ void Spell::update(uint32 difftime)
     // check if the player caster has moved before the spell finished
     // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
     if ((m_caster->IsPlayer() && m_timer != 0) &&
-        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
+        m_caster->IsMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
         (m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
         !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) && !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
@@ -4545,7 +4548,8 @@ void Spell::finish(bool ok)
     // potions disabled by client, send event "not in combat" if need
     if (m_caster->IsPlayer() && !IsSpellTriggeredAfterCast())
     {
-        if (!m_triggeredByAuraSpell)
+        /// There is no cooldown to update for triggered spells
+        if (!m_triggeredByAuraSpell && !(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
             m_caster->ToPlayer()->UpdatePotionCooldown(this);
 
         // triggered spell pointer can be not set in some cases
@@ -4873,7 +4877,7 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
     data << uint32(m_spellInfo->Id);
-    data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
+    data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -5088,7 +5092,7 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
-    l_Data << uint32(m_spellInfo->FirstSpellXSpellVIsualID);
+    l_Data << uint32(m_spellInfo->FirstSpellXSpellVisualID);
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
@@ -6073,7 +6077,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
         {
             if (!l_InstanceScript->CanUseCombatResurrection())
-                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+                return SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED;
         }
 
         if (m_targets.GetUnitTarget() != nullptr)
@@ -6251,7 +6255,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
     // Do not cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING or SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING effect
-    if (m_caster->IsPlayer() && m_caster->ToPlayer()->isMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
+    if (m_caster->IsPlayer() && m_caster->ToPlayer()->IsMoving() && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo) &&
         !m_caster->HasAuraType(SPELL_AURA_ALLOW_ALL_CASTS_WHILE_WALKING))
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
@@ -6962,7 +6966,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!l_Garrison)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                printf("%i %i\n", m_Misc[0], m_Misc[1]);
                 SpellCastResult l_Result = l_Garrison->CanLearnTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), i);
                 if (l_Result != SPELL_CAST_OK)
                     return l_Result;

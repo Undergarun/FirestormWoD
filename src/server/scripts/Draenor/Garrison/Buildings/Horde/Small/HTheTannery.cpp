@@ -20,53 +20,22 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_MurneGreenhoofAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
         char ScriptName[] = "npc_MurneGreenhoof_Garr";
-
-        std::vector<SkillNPC_RecipeEntry> Recipes
-        {
-            { 171260,     0 },
-            { 171261,     0 },
-            { 171262,     0 },
-            { 171263,     0 },
-            { 171264,     0 },
-            { 171265,     0 },
-            { 171266, 28267 },
-            { 171267, 28267 },
-            { 171268, 28267 },
-            { 171269, 28267 },
-            { 171270, 28268 },
-            { 171271, 28268 },
-            { 171272, 28268 },
-            { 171273, 28268 },
-            { 171274, 28268 },
-            { 171275, 28268 },
-            { 171276, 28268 },
-            { 171277, 28268 },
-            { 171282, 28268 },
-            { 171284, 28268 },
-            { 171281, 28268 },
-            { 171279, 28268 },
-            { 171280, 28268 },
-            { 171278, 28268 },
-            { 171285, 28268 },
-            { 171283, 28268 },
-            { 178208,     0 },
-        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -160,6 +129,8 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                AddSummonGUID(l_Creature->GetGUID());
                             }
                         case Buildings::TheTannery_TheTannery_Level3:
                             if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -1.8697f, -0.5403f, 0.8097f, 0.2084f, TEMPSUMMON_MANUAL_DESPAWN))
@@ -167,6 +138,8 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                AddSummonGUID(l_Creature->GetGUID());
                             }
                             break;
                         default:

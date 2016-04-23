@@ -97,13 +97,13 @@ namespace MS { namespace Garrison
             if (l_GarrisonMgr == nullptr)
                 return;
 
+            l_GarrisonMgr->CleanGarrisonTavernData();
+
             if (roll_chance_i(50))
             {
                 uint32 l_Entry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
 
-                l_GarrisonMgr->CleanGarrisonTavernData();
                 l_GarrisonMgr->AddGarrisonTavernData(l_Entry);
-                OnSetPlotInstanceID(GetPlotInstanceID());
             }
             else
             {
@@ -114,11 +114,12 @@ namespace MS { namespace Garrison
                     l_SecondEntry = TavernDatas::g_QuestGiverEntries[urand(0, TavernDatas::g_QuestGiverEntries.size() - 1)];
                 while (l_SecondEntry == l_FirstEntry);
 
-                l_GarrisonMgr->CleanGarrisonTavernData();
                 l_GarrisonMgr->AddGarrisonTavernData(l_FirstEntry);
                 l_GarrisonMgr->AddGarrisonTavernData(l_SecondEntry);
-                OnSetPlotInstanceID(GetPlotInstanceID());
             }
+
+            OnSetPlotInstanceID(GetPlotInstanceID());
+            l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
         }
     }
 

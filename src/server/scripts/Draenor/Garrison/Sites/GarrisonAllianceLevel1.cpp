@@ -117,6 +117,10 @@ namespace MS { namespace Garrison { namespace Sites
     uint32 InstanceScript_GarrisonAllianceLevel1::GetPhaseMask(Player* p_Owner)
     {
         uint32 l_PhaseMask = GarrisonPhases::GarrisonPhaseBase;
+        Manager* l_GarrisonMgr = p_Owner->GetGarrison();
+
+        if (l_GarrisonMgr == nullptr)
+            return 0;
 
         if (p_Owner->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) == QUEST_STATUS_REWARDED)
             l_PhaseMask |= GarrisonPhases::GarrisonPhaseCompagnon;
@@ -130,6 +134,22 @@ namespace MS { namespace Garrison { namespace Sites
         if (p_Owner->GetQuestStatus(Quests::Alliance_QianaMoonshadow) == QUEST_STATUS_COMPLETE || p_Owner->IsQuestRewarded(Quests::Alliance_QianaMoonshadow))
             l_PhaseMask |= GarrisonQiannaMoonshadow;
 
+        if (l_GarrisonMgr->HasBuildingType(BuildingType::MageTower))
+        {
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestFrostfireRidge))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalFrostfireRidge;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestGorgrond))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalGorgrond;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestNagrand))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalNagrand;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestShadowmoon))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalShadowmoon;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestSpiresOfArak))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalSpiresOfArak;
+            if (p_Owner->IsQuestRewarded(GarrisonPortals::PortalsQuests::QuestTalador))
+                l_PhaseMask |= GarrisonPhases::PhaseMagePortalTalador;
+        }
+
         return l_PhaseMask;
     }
 
@@ -140,8 +160,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     bool InstanceScript_GarrisonAllianceLevel1::CanUseGarrisonCache(Player* p_Owner)
     {
+        /// Alliance
         if (p_Owner->GetQuestStatus(Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
             || p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
+            return true;
+
+        /// [FACTION CHANGE CASE] Horde
+        if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
+            || p_Owner->HasQuest(Quests::QUEST_WHAT_WE_GOT))
             return true;
 
         return false;
@@ -212,6 +238,14 @@ namespace MS { namespace Garrison { namespace Sites
         /// Build your Barracks quest
         if (p_BuildingID == Buildings::Barracks_Barracks_Level1 && p_Owner->HasQuest(Quests::Alliance_BuildYourBarracks))
             p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
+        else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
+        {
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+            if (l_Entry != nullptr)
+                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+        }
     }
     /// When a building is activated
     /// @p_Owner      : Garrison owner

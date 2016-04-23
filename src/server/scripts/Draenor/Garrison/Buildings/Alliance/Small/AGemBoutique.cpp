@@ -37,7 +37,7 @@ namespace MS { namespace Garrison
 
         char ScriptName[] = "npc_CostanHighwall_Garr";
 
-        std::vector<SkillNPC_RecipeEntry> Recipes
+        std::vector<RecipesConditions> Recipes
         {
             { 170701, 28179 },
             { 170706,     0 },
@@ -135,11 +135,28 @@ namespace MS { namespace Garrison
             {
                 if (l_GarrisonMgr->HasRequiredFollowerAssignedAbility(p_PlotInstanceID))
                 {
+                    GarrisonFollower* l_Follower = l_GarrisonMgr->GetAssignedFollower(p_PlotInstanceID);
+
+                    if (l_Follower == nullptr)
+                        return;
+
+                    GarrFollowerEntry const* l_GarrFollEntry = l_Follower->GetEntry();
+
+                    if (l_GarrFollEntry == nullptr)
+                        return;
+
                     switch (GetBuildingID())
                     {
                         case Buildings::GemBoutique_GemBoutique_Level2:
                         case Buildings::GemBoutique_GemBoutique_Level3:
-                            SummonRelativeCreature(NPCs::NpcAllianceJewelCraftingFollower, 1.2960f, 4.8436f, 0.7732f, 6.1639f, TEMPSUMMON_MANUAL_DESPAWN);
+                            if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[1], 1.2960f, 4.8436f, 0.7732f, 6.1639f, TEMPSUMMON_MANUAL_DESPAWN))
+                            {
+                                l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                                l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS + 1, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+                                AddSummonGUID(l_Creature->GetGUID());
+                            }
                             break;
                         default:
                             break;

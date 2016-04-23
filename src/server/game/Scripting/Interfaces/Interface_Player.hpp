@@ -141,10 +141,27 @@ class PlayerScript : public ScriptObjectImpl<false>
         PlayerScript(const char* p_Name);
 
     public:
+        /// Called just before item is destroyed
+        /// @p_Item        : Item to be destroyed
+        /// @p_Player      : Player level
+        virtual void OnItemDestroyed(Player* p_Player, Item* p_Item)
+        {
+            UNUSED(p_Item);
+            UNUSED(p_Player);
+        }
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         virtual void OnPVPKill(Player* p_Killer, Player* p_Killed)
+        {
+            UNUSED(p_Killer);
+            UNUSED(p_Killed);
+        }
+
+        /// Called when a player kills a Unit
+        /// @p_Killer : Killer instance
+        /// @p_Killed : Killed instance
+        virtual void OnKill(Player* p_Killer, Unit* p_Killed)
         {
             UNUSED(p_Killer);
             UNUSED(p_Killed);

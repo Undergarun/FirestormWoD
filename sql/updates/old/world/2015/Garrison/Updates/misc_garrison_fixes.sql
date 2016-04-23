@@ -393,3 +393,157 @@
 	(86108, 116434, -57, 1, 0, 1, 1, ''),
 	(85822, 116434, -52, 1, 0, 1, 1, ''),
 	(86106, 116434, -50, 1, 0, 1, 1, '');
+
+#192628/Object - Anvil
+
+	UPDATE gameobject_template SET data1 = 20, scriptname = "go_garrison_anvil" WHERE entry = 192628;
+
+#84217/NPC - Robot-coq
+
+	UPDATE creature_template SET dmg_multiplier = 8, scriptname = "npc_robot_rooster" WHERE entry = 84217;
+
+#/Gob - Mine deposits
+
+	DELETE FROM gameobject_loot_template WHERE entry IN ( 55500, 55519, 55521, 55524);
+	INSERT INTO gameobject_loot_template VALUES
+	(55500, 109118, 100, 1, 0, 2, 15, ''), -- blackrock ore
+	(55500, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55500, 115508, 100, 1, 0, 1, 3, ''), -- draenic stone
+	(55500, 120945, 15, 1, 0, 1, 1, ''); -- primal spirit
+
+	INSERT INTO gameobject_loot_template VALUES
+	(55519, 109118, 100, 1, 0, 2, 15, ''), -- blackrock ore
+	(55519, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55519, 115508, 100, 1, 0, 1, 5, ''), -- draenic stone
+	(55519, 120945, 28, 1, 0, 1, 1, ''); -- primal spirit
+
+	INSERT INTO gameobject_loot_template VALUES
+	(55521, 109119, 100, 1, 0, 2, 8, ''), -- true iron ore
+	(55521, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55521, 115508, 100, 1, 0, 1, 3, ''), -- draenic stone
+	(55521, 120945, 15, 1, 0, 1, 1, ''); -- primal spirit
+
+	INSERT INTO gameobject_loot_template VALUES
+	(55524, 109119, 100, 1, 0, 2, 15, ''), -- true iron ore
+	(55524, 111349, 1.5, 1, 0, 1, 1, ''), -- traité draenor
+	(55524, 115508, 100, 1, 0, 1, 5, ''), -- draenic stone
+	(55524, 120945, 28, 1, 0, 1, 1, ''); -- primal spirit
+
+#Items/Goblin workshop // Gnommish gearworks
+
+	REPLACE INTO item_template_addon VALUES
+	(114983, 0x0001, 0, 0, 0, 0),
+	(119158, 0x0001, 0, 0, 0, 0),
+	(114974, 0x0001, 0, 0, 0, 0),
+	(114246, 0x0001, 0, 0, 0, 0);
+
+#79862/NPC
+
+	DELETE FROM creature WHERE id = 79862;
+
+#168342/Spell
+
+	DELETE FROM spell_script_names WHERE spell_id = 168342;
+	INSERT INTO spell_script_names VALUE (168342, "spell_aura_garrison_skyterror_falling");
+
+#Stables mounts script
+
+	UPDATE creature_template SET vehicleid = 3889 WHERE entry = 87078;
+	UPDATE creature_template SET scriptname = "npc_StablesTrainingMounts_Garr" WHERE entry IN (87078, 87076, 87079, 87080, 87081, 87082);
+
+#86698/NPC - Kil Rip
+
+	DELETE FROM npc_vendor WHERE entry = 86698 AND item IN (117473, 117452, 115354, 117472, 117474);
+
+#trading post vendors conditions
+
+	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 77377;
+	INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, conditionvalue1, conditionvalue2, COMMENT) VALUES
+	(23, 77377, 113797, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113798, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113799, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113800, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113801, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113802, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113803, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113804, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113789, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113790, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113791, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113792, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113793, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113794, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113795, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113796, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113813, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113814, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113815, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113816, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113817, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113818, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113819, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113820, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113805, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113806, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113807, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113808, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113809, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113810, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113811, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 113812, 39, 6, 2, "this item needs trading post lvl 2 to be sold"),
+	(23, 77377, 127319, 39, 6, 2, "this item needs trading post lvl 2 to be sold");
+
+
+
+#84960/NPC - Lunarfall Arcanist
+
+	UPDATE creature_template SET minlevel = 90, maxlevel = 90 WHERE entry = 84960;
+
+#237257-237039/Gob - Crate of Surplus Material
+
+	UPDATE gameobject SET phasemask = 1024 WHERE id IN (237257, 237039);
+
+#78207/NPC
+
+	REPLACE INTO creature_questender VALUE (78207, 36642);
+
+#Quests that need garrison lvl 3
+
+	DELETE FROM conditions WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 77377;
+	INSERT INTO conditions (SourceTypeOrReferenceId, SourceEntry, ConditionTypeOrReference, conditionvalue1, COMMENT) VALUES
+	(19, 35186, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38253, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38561, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38421, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34409, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36134, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35837, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34026, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35861, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35185, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35985, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38560, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35679, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36163, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 37687, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34284, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36160, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38567, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38458, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34309, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 37688, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35843, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34034, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36136, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35876, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 32979, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36117, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36261, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38453, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 35680, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 34335, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 38415, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36282, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36281, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36280, 40, 3, "this quest needs garrison lvl 3 to be offered"),
+	(19, 36219, 40, 3, "this quest needs garrison lvl 3 to be offered");

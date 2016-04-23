@@ -253,7 +253,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer & p_Data, bool p_Remove, uint
         return;
 
     p_Data << uint32(p_OverrideSpellID ? p_OverrideSpellID : l_Base->GetId());                                  ///< SpellID
-    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVIsualID);                                         ///< SpellVisuals
+    p_Data << uint32(l_Base->GetSpellInfo()->FirstSpellXSpellVisualID);                                         ///< SpellVisuals
     p_Data << uint8(l_Flags);                                                                                   ///< Flags
     p_Data << uint32(l_Mask);                                                                                   ///< Active Flags
     p_Data << uint16(l_Base->GetCasterLevel());                                                                 ///< Cast Level
@@ -1146,7 +1146,7 @@ void Aura::RefreshTimers()
     }
 
     /// In WoD blizzards have made "Pandemic" system for all auras, check if we need to use it
-    if (GetSpellInfo() && GetSpellInfo()->IsAffectedByWodAuraSystem())
+    if (GetCaster() && GetCaster()->IsPlayer() && GetSpellInfo()->IsAffectedByWodAuraSystem())
     {
         for (uint8 i = 0; i < m_EffectCount; ++i)
         {
@@ -1757,35 +1757,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
-                        break;
-                    }
-                    case 44457: // Living Bomb
-                    {
-                        UnitList targets;
-                        JadeCore::AnyUnitHavingBuffInObjectRangeCheck u_check(caster, caster, 300.0f, 44457, false);
-                        JadeCore::UnitListSearcher<JadeCore::AnyUnitHavingBuffInObjectRangeCheck> searcher(caster, targets, u_check);
-                        caster->VisitNearbyObject(300.0f, searcher);
-                        if (targets.size() >= 4)
-                        {
-                            std::list<Aura*> auras;
-                            for (UnitList::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                                if (Aura* aur = (*itr)->GetAura(44457, caster->GetGUID()))
-                                    auras.push_back(aur);
-
-                            if (auras.size() >= 4)
-                            {
-                                auras.sort(JadeCore::DurationOrderPred(false));
-                                auras.pop_front();
-                                auras.pop_front();
-                                auras.pop_front();
-                                for (std::list<Aura*>::iterator itr = auras.begin(); itr != auras.end();)
-                                {
-                                    (*itr)->Remove();
-                                    itr = auras.erase(itr);
-                                }
-                            }
-                        }
-
                         break;
                     }
                     // Ring of Frost - 2.5 sec immune
@@ -2404,8 +2375,9 @@ bool Aura::CanStackWith(Aura const* existingAura) const
             return true;
     }
 
-    if (IsSameRaidBuff(existingAura))
-        return false;
+    /// Actually raid buff are stacking when it should not, we need to fine a better way to fix it
+    /*if (IsSameRaidBuff(existingAura))
+        return false;*/
 
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)

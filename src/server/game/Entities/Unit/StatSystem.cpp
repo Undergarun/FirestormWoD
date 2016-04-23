@@ -408,7 +408,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    float attPowerMultiplier = 1.0f;
+    if (ranged)
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT) - 1.0f;
+    else
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT) - 1.0f;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -971,6 +976,8 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, l_Value);
 
+    bool l_MasteryCache = false;
+
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
     for (auto l_Iter : l_AppliedAuras)
@@ -990,6 +997,12 @@ void Player::UpdateMasteryPercentage()
                     else
                     {
                         l_AurEff->ChangeAmount((int32)(l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+
+                        if (!l_MasteryCache)
+                        {
+                            m_MasteryCache = l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier;
+                            l_MasteryCache = true;
+                        }
                     }
                 }
             }
@@ -1066,48 +1079,97 @@ void Player::UpdateManaRegen()
     if (getPowerType() != POWER_MANA && !IsInFeralForm())
         return;
 
-    uint32 hp;
-    uint32 mana = 0;
-    float spiritRegen = OCTRegenMPPerSpirit();
-    float outOfCombatRegen;
-    float combatRegen;
+    /// See http://us.battle.net/wow/en/forum/topic/6794873160 .
 
-    sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), hp, mana);
-    mana *= GetTotalAuraMultiplier(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT);
+    uint8 l_PercentOfMana = 2;
+    float l_SpiritRegenIncrease = OCTRegenMPPerSpirit();   ///< Mana regen increase from spirit - per-point calculation * player stat.
 
-    if (GetRoleForGroup() != ROLE_HEALER)
+    float l_CombatRegenFromSpirit = 0;
+    float l_CombatRegenFromAurPct = 0;
+    float l_BaseRegenFromAurPct = 0;
+    float l_RegenFromModPowerRegen = /*GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f*/ 0.0f;
     {
-        combatRegen = 0.004f * mana + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-        outOfCombatRegen = 0.02f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+        std::map<SpellGroup, int32> l_SameEffectSpellGroup;
+
+        AuraEffectList const& l_List = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
+        for (auto const& l_Eff : l_List)
+        {
+            if (l_Eff->GetMiscValue() == POWER_MANA)
+            {
+                if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(l_Eff->GetSpellInfo(), l_Eff->GetAmount(), l_SameEffectSpellGroup))
+                {
+                    auto l_Base = l_Eff->GetBase();
+                    if (l_Base && l_Base->GetMaxDuration() == 3600000) ///< is one-hour aura
+                        l_RegenFromModPowerRegen += l_Eff->GetAmount();
+                    else
+                        l_RegenFromModPowerRegen += l_Eff->GetAmount() / 5.0f;
+                }
+            }
+        }
+
+        for (auto const& l_Kvp :l_SameEffectSpellGroup)
+        {
+            l_RegenFromModPowerRegen += l_Kvp.second / 5.0f;
+        }
     }
-    else
-    {
-        combatRegen = spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-        outOfCombatRegen = 0.02f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
-    }
 
-    /// Warlocks mana regen 5% of maximum mana - blizzlike
-    if (getClass() == CLASS_WARLOCK)
-    {
-        combatRegen *= 2.5f;
-        outOfCombatRegen *= 2.5f;
-    }
+    /// Warlocks and Mages have 5% of maximum mana in base mana regen - blizzlike
+    if (getClass() == CLASS_WARLOCK || getClass() == CLASS_MAGE)
+        l_PercentOfMana = 5;
 
-    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
-        combatRegen *= 1.5f; // Allows 50% of your mana regeneration from Spirit to continue while in combat.
+    /// 2% of base mana each 5 seconds.
+    float l_Combat_regen = float(CalculatePct(GetMaxPower(POWER_MANA), l_PercentOfMana));
+    float l_Base_regen = float(CalculatePct(GetMaxPower(POWER_MANA), l_PercentOfMana));
 
-    outOfCombatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-    combatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-
-    if (HasAuraType(AuraType::SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
     {
         float l_HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
-        outOfCombatRegen *= l_HastePct;
-        combatRegen *= l_HastePct;
+
+        l_Combat_regen *= l_HastePct;
+        l_Base_regen *= l_HastePct;
     }
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, combatRegen);
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, outOfCombatRegen);
+    /// Try to get aura with spirit addition to combat mana regen.
+    /// Meditation: Allows 50% of your mana regeneration from Spirit to continue while in combat.
+    int32 l_PercentAllowCombatRegenBySpirit = 0;
+    Unit::AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
+        l_PercentAllowCombatRegenBySpirit += (*i)->GetAmount();
+
+    if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT) && l_PercentAllowCombatRegenBySpirit != 0)
+        l_CombatRegenFromSpirit += (float(l_PercentAllowCombatRegenBySpirit) / 100) * l_SpiritRegenIncrease; ///< Allows you mana regeneration from Spirit to continue while in combat.
+
+    /// Increase mana regen.
+    int32 l_PercentIncreaseManaRegen = 0;
+    int32 l_IncreaseManaRegen = l_Combat_regen;
+
+    /// Increase mana from SPELL_AURA_MOD_POWER_REGEN_PERCENT
+    Unit::AuraEffectList const& ModRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator i = ModRegenPct.begin(); i != ModRegenPct.end(); ++i)
+        if (Powers((*i)->GetMiscValue()) == POWER_MANA)
+            l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
+
+    /// Increase mana from SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
+    Unit::AuraEffectList const& ModRegenPctUnk = GetAuraEffectsByType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT);
+    for (AuraEffectList::const_iterator i = ModRegenPctUnk.begin(); i != ModRegenPctUnk.end(); ++i)
+        l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
+
+    /// If IncreaseManaRegen is bigger then combat_regen we have increased mana regen by auras, so we should add it
+    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) || HasAuraType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT) && l_IncreaseManaRegen > l_Combat_regen)
+    {
+        l_IncreaseManaRegen -= l_Combat_regen;
+        l_BaseRegenFromAurPct = l_IncreaseManaRegen;
+        l_CombatRegenFromAurPct = l_IncreaseManaRegen;
+    }
+
+    /// Calculate for 1 second, the client multiplies the field values by 5.
+    l_Base_regen = ((l_Base_regen + l_BaseRegenFromAurPct + l_RegenFromModPowerRegen) / 5.0f) + l_SpiritRegenIncrease;
+    l_Combat_regen = ((l_Combat_regen + l_CombatRegenFromAurPct + l_RegenFromModPowerRegen) / 5.0f) + l_CombatRegenFromSpirit;
+
+    /// Out of Combat
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, l_Base_regen);
+    /// In Combat
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, l_Combat_regen);
 }
 
 void Player::UpdateEnergyRegen()

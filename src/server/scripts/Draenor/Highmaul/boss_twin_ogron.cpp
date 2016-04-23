@@ -305,7 +305,10 @@ class boss_twin_ogron_pol : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InjuredDoT);
 
-                    CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
+                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                        me->SetLootRecipient(nullptr);
+                    else
+                        CastSpellToPlayers(me->GetMap(), me, eSpells::TwinOgronBonus, true);
                 }
             }
 

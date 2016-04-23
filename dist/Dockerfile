@@ -1,9 +1,6 @@
 FROM milleniumstudio/drone-clang-mariadb-ace:latest
 MAINTAINER Millenium Studio <contact@millenium-studio.fr>
 
-ARG COMMIT
-ENV COMMIT $COMMIT
-
 RUN apt-get install -y \
     gdb \
     curl

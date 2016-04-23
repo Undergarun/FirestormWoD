@@ -1189,7 +1189,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
 
-                m_spells.erase(itr);
+                itr = m_spells.erase(itr);
                 continue;
             case PETSPELL_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);

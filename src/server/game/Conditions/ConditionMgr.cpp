@@ -312,12 +312,21 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                             break;
                         }
 
-                        if (l_GarrisonMgr->GetBuildingLevel(l_Building) == ConditionValue2)
+                        if (l_GarrisonMgr->GetBuildingLevel(l_Building) >= ConditionValue2)
                             condMeets = true;
                         else
                             condMeets = false;
                     }
                 }
+            }
+            break;
+        }
+        case CONDITION_HAS_GARRISON_LEVEL:
+        {
+            if (Player* l_Player = object->ToPlayer())
+            {
+                if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+                    condMeets = l_GarrisonMgr->GetGarrisonLevel() >= ConditionValue1;
             }
             break;
         }
@@ -484,6 +493,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_HAS_BUILDING_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_HAS_GARRISON_LEVEL:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -2051,6 +2063,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue3)
                 sLog->outError(LOG_FILTER_SQL, "HasBuilding condition has useless data in value3 (%u)!", cond->ConditionValue3);
+            break;
+        }
+        case CONDITION_HAS_GARRISON_LEVEL:
+        {
+            if (cond->ConditionValue2)
+                sLog->outError(LOG_FILTER_SQL, "HasGarrisonLevel condition has useless data in value3 (%u)!", cond->ConditionValue2);
+
+            if (cond->ConditionValue3)
+                sLog->outError(LOG_FILTER_SQL, "HasGarrisonLevel condition has useless data in value3 (%u)!", cond->ConditionValue3);
+
             break;
         }
         default:

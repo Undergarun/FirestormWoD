@@ -13,6 +13,8 @@
 #include "../../../game/AI/ScriptedAI/ScriptedEscortAI.h"
 #include <map>
 #include "ScriptedCosmeticAI.hpp"
+#include "Vehicle.h"
+#include "CombatAI.h"
 
 namespace MS { namespace Garrison 
 {
@@ -21,13 +23,6 @@ namespace MS { namespace Garrison
     {
         /// Position
         float X, Y, Z, O;
-    };
-
-    /// TradeSkill NPC recipes
-    struct SkillNPC_RecipeEntry
-    {
-        uint32 AbilitySpellID;
-        uint32 AbilitySpellIDPlayerCondition;
     };
 
     class GarrisonNPCAI : public AI::CosmeticAI
@@ -48,7 +43,7 @@ namespace MS { namespace Garrison
             /// Set NPC recipes
             /// @p_Recipes          : Recipes
             /// @p_RecipesSkillID   : Skill line ID
-            void SetRecipes(std::vector<SkillNPC_RecipeEntry> p_Recipes, uint32 p_RecipesSkillID);
+            void SetRecipes(std::vector<RecipesConditions> p_Recipes, uint32 p_RecipesSkillID);
 
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player* p_Player, uint32 p_ShipmentID = 0);
@@ -66,6 +61,8 @@ namespace MS { namespace Garrison
             /// @p_SequenceSize     : Size of sequence table,
             /// @p_FirstMovePointID : First move point ID
             void SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+
+            void AddSummonGUID(uint64 p_GUID) { m_Summons.push_back(p_GUID); }
             /// Do next sequence element
             virtual void DoNextSequenceAction();
 
@@ -139,7 +136,8 @@ namespace MS { namespace Garrison
             uint8 m_SequencePosition;
 
         private:
-            std::vector<SkillNPC_RecipeEntry> m_Recipes;
+            std::vector<uint64> m_Summons;
+            std::vector<RecipesConditions> m_Recipes;
             uint32 m_RecipesSkillID;
 
     };
@@ -201,7 +199,7 @@ namespace MS { namespace Garrison
     /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
     /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
     /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
-    template<const char * t_ScriptName, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    template<const char* t_ScriptName, InitSequenceFunction* t_SetupLevel1, InitSequenceFunction* t_SetupLevel2, InitSequenceFunction* t_SetupLevel3>
     class SimpleSequenceCosmeticScript : public CreatureScript
     {
         public:
@@ -267,7 +265,7 @@ namespace MS { namespace Garrison
                 /// @p_Diff : Time since last update
                 virtual void UpdateAI(const uint32 p_Diff) override;
 
-                Player * m_Owner;
+                Player* m_Owner;
                 bool m_Ranged;
             };
 
@@ -486,7 +484,7 @@ namespace MS { namespace Garrison
             struct npc_SeniorPeonIIAI : public CreatureAI
             {
                 /// Constructor
-                npc_SeniorPeonIIAI(Creature * p_Creature);
+                npc_SeniorPeonIIAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -549,7 +547,7 @@ namespace MS { namespace Garrison
             struct npc_FrostwallPeonAI : public CreatureAI
             {
                 /// Constructor
-                npc_FrostwallPeonAI(Creature * p_Creature);
+                npc_FrostwallPeonAI(Creature* p_Creature);
 
                 /// Called at waypoint reached or point movement finished
                 /// @p_Type : Movement Type
@@ -676,7 +674,7 @@ namespace MS { namespace Garrison
             struct npc_GarrisonStablesCreaturesAI : public npc_escortAI
             {
                 /// Constructor
-                npc_GarrisonStablesCreaturesAI(Creature * p_Creature);
+                npc_GarrisonStablesCreaturesAI(Creature* p_Creature);
 
                 enum eCreaturesEntries
                 {
@@ -773,6 +771,15 @@ namespace MS { namespace Garrison
             {
                 /// Constructor
                 npc_follower_generic_scriptAI(Creature* p_Creature);
+
+                uint32 m_UpdateTimer;
+                uint64 m_OwnerGUID;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+
+                virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
             };
     };
 
@@ -893,6 +900,89 @@ namespace MS { namespace Garrison
 
                 virtual void UpdateAI(uint32 const p_Diff) override;
             };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_StablesTrainingMounts_Garr : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_StablesTrainingMounts_Garr() : CreatureScript("npc_StablesTrainingMounts_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_StablesTrainingMounts_GarrAI : public VehicleAI
+            {
+                /// Constructor
+                npc_StablesTrainingMounts_GarrAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                }
+
+                enum eSpells
+                {
+                    SpellAuraRideVehicle = 178807
+                };
+
+                uint64 m_SummonerGUID;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
+
+                virtual void JustDied(Unit* p_Killer) override;
+            };            
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_robot_rooster : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_robot_rooster() : CreatureScript("npc_StablesTrainpc_robot_roosterningMounts_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_robot_roosterAI : public ScriptedAI
+            {
+                /// Constructor
+                npc_robot_roosterAI(Creature* creature) : ScriptedAI(creature)
+                {
+                    m_Events.Reset();
+                }
+
+                enum eDatas
+                {
+                    EventBerserk     = 1,
+                    EventNitroBoosts = 2,
+                    SpellBerserk     = 168458,
+                    SpellNitroBoosts = 133022
+                };
+
+                EventMap m_Events;
+
+                virtual void EnterCombat(Unit* p_Attacker) override;
+
+                virtual void EnterEvadeMode() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+            };            
 
     };
 
