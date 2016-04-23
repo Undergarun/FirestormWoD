@@ -11,7 +11,7 @@
 	INSERT INTO creature_model_info (`modelid`, `bounding_radius`, `combat_reach`, `gender`) VALUES(54627, 0.208, 1.5, 1) ON DUPLICATE KEY UPDATE `modelid` = VALUES(`modelid`), `bounding_radius` = VALUES(`bounding_radius`), `combat_reach` = VALUES(`combat_reach`), `gender` = VALUES(`gender`);
 
 	UPDATE creature_template SET npcFlag=131, npcFlag2=128, minlevel=90, maxlevel=90, gossip_menu_id = 0, ScriptName="npc_AuriaIrondreamer_Garr" WHERE entry = 77359;
-	UPDATE creature_template SET npcFlag=3, npcFlag2=32, minlevel=90, maxlevel=90, gossip_menu_id = 0, ScriptName="npc_YuliaSamras_Garr" WHERE entry = 77792;
+	UPDATE creature_template SET npcFlag=3, npcFlag2=32, minlevel=90, maxlevel=90, gossip_menu_id = 0, ScriptName="npc_YuliaSamras_Garr", IconName = "workorders" WHERE entry = 77792;
 
 	DELETE FROM `npc_vendor` WHERE `entry` = 77359 AND `type` = 1;
 	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
@@ -64,6 +64,7 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-60','1','-227916','-3.32278','-2.31376','0.701897','1.58929');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-60','1','77359','-2.07944','4.28341','1.27255','0.114686');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-60','1','77792','5.22097','-2.88356','1.30399','6.18021');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-60','1','-192628','1.63364','-1.04777','1.74815','2.40128');
 
 -- LEVEL 2
 
@@ -72,6 +73,7 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-117','1','-236640','7.18639','-3.83883','0.004173','6.09051');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-117','1','77359','0.657339','2.76521','1.29008','1.77082');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-117','1','77792','1.77735','-5.0696','1.27263','1.48022');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-117','1','-192628','-0.386163','-2.44214','0.763718','0.430717');
 
 -- LEVEL 3
 

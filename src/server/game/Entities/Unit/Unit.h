@@ -1536,7 +1536,7 @@ class Unit : public WorldObject
         void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
         void resetAttackTimer(WeaponAttackType type = WeaponAttackType::BaseAttack);
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
-        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] == 0; }
+        bool isAttackReady(WeaponAttackType type = WeaponAttackType::BaseAttack) const { return m_attackTimer[type] <= 0; }
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         void SetCanDualWield(bool value) { m_canDualWield = value; }
@@ -2752,7 +2752,7 @@ class Unit : public WorldObject
 
         bool m_AutoRepeatFirstCast;
 
-        uint32 m_attackTimer[WeaponAttackType::MaxAttack];
+        int32 m_attackTimer[WeaponAttackType::MaxAttack];
 
         float m_createStats[MAX_STATS];
 
