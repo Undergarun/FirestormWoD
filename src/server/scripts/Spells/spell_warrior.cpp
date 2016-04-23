@@ -2403,10 +2403,10 @@ class spell_warr_shield_slam : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Protection2P = 165338,
-                GladiatorStance = 156291,
-                ShieldBlock     = 2562,
-                ShieldCharge    = 156321
+                T17Protection2P     = 165338,
+                GladiatorStance     = 156291,
+                ShieldBlockTrigger  = 132404,
+                ShieldCharge        = 156321
             };
 
             static float gte(int32 p_Level, int32 p_MinLevel)
@@ -2465,7 +2465,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                             }
                         }
                         else
-                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlock, true);
+                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlockTrigger, true);
                     }
                 }
             }

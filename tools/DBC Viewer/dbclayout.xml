@@ -7059,4 +7059,21 @@
     <field type="int" name="field9" />
     <field type="int" name="field10" />
   </TaxiPathNode>
+  <VehicleUIIndicator build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </VehicleUIIndicator>
+  <VehicleUIIndSeat build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </VehicleUIIndSeat>
 </DBFilesClient>

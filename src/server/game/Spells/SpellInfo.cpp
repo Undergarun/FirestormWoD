@@ -4672,6 +4672,8 @@ bool SpellInfo::IsAffectedByWodAuraSystem() const
     switch (Id)
     {
         case 158831: ///< Devouring Plague DOT
+        case 124280: ///< Touch of Karma
+        case 114635: ///< Ember Tap
             return false;
         default:
             return true;

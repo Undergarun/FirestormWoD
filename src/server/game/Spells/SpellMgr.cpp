@@ -3396,6 +3396,28 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Scribe Quarters
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 176513:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
+            break;
+            case 176791:
+                spellInfo->Effects[1].Effect = 0;
+            case 176482:
+            case 176483:
+            case 176484:
+            case 176485:
+            case 176486:
+            case 176487:
+            case 176488:
+            case 176489:
+            case 176490:
+            case 176491:
+            case 176934:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 179244:    ///< Summon Chauffeur (Horde)
             case 179245:    ///< Summon Chauffeur (Alliance)
                 spellInfo->Effects[EFFECT_0].MiscValueB = 284;  ///< This will allow level 1 mounting at 160% normal speed
