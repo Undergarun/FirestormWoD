@@ -148,19 +148,16 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool 
     _logoutTime                         = 0;
     m_latency                           = 0;
     m_VoteTimePassed                    = 0;
-    m_InterRealmZoneId                  = 0;
 
-    m_IsStressTestSession   = false;
-    m_playerRecentlyLogout  = false;
-    m_playerSave            = false;
-    m_TutorialsChanged      = false;
-    m_playerLoading         = false;
-    m_playerLogout          = false;
-    m_inQueue               = false;
-    m_FirstPremadeMoney     = false;
-    m_BackFromCross         = false;
+    m_IsStressTestSession      = false;
+    m_playerRecentlyLogout     = false;
+    m_playerSave               = false;
+    m_TutorialsChanged         = false;
+    m_playerLoading            = false;
+    m_playerLogout             = false;
+    m_inQueue                  = false;
+    m_FirstPremadeMoney        = false;
     m_IsPetBattleJournalLocked = false;
-
     ///////////////////////////////////////////////////////////////////////////////
 
     _warden = NULL;

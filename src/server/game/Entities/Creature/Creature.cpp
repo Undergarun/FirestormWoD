@@ -177,6 +177,9 @@ m_creatureInfo(NULL), m_NativeCreatureInfo(nullptr), m_creatureData(NULL), m_pat
 
     m_StartEncounterTime = 0;
     m_DumpGroupTimer     = 0;
+
+    m_MovingUpdateTimer = 0;
+    m_NotMovingUpdateTimer = 0;
 }
 
 Creature::~Creature()
@@ -545,7 +548,18 @@ void Creature::Update(uint32 diff)
             m_vehicleKit->Reset();
     }
 
-    UpdateMovementFlags();
+    m_MovingUpdateTimer -= diff;
+    m_NotMovingUpdateTimer -= diff;
+
+    bool l_IsSplineMoving = IsMoving() || IsSplineEnabled() || IsFalling();
+
+    if ((l_IsSplineMoving && m_MovingUpdateTimer <= 0) || (!l_IsSplineMoving && m_NotMovingUpdateTimer <= 0))
+    {
+        UpdateMovementFlags();
+
+        m_MovingUpdateTimer = 500;
+        m_NotMovingUpdateTimer = 5000;
+    }
 
     switch (m_deathState)
     {

@@ -282,8 +282,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 item_guid    = fields[15].GetUInt32();
-        uint32 itemEntry    = fields[16].GetUInt32();
+        uint32 item_guid    = fields[16].GetUInt32();
+        uint32 itemEntry    = fields[17].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)

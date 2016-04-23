@@ -62,6 +62,27 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-91','1','77365','3.90686','-3.18817','1.25339','0.454497');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-91','1','77831','3.87628','0.647684','1.25339','6.07795');
 
+	-- @TODO : Script those items
+	UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=88607;
+	DELETE FROM `npc_vendor` WHERE `entry` = 88607 AND `type` = 1;
+	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
+	(88607, 0, 109574, 0, 0, 0, 1), 
+	(88607, 0, 109644, 0, 0, 0, 1), 
+	(88607, 0, 117402, 0, 0, 0, 1), 
+	(88607, 0, 117403, 0, 0, 0, 1), 
+	(88607, 0, 117438, 0, 0, 0, 1);
+	
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-123 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-123','1','-236646','7.39135','-3.44826','0.018898','6.16516');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-123','1','77365','2.46719','-4.8888','1.27384','1.6177');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-123','1','77831','3.16766','3.30218','1.27384','4.5865');
+
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-124 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-124','1','-236646','7.2709','-2.79264','0.015526','5.89812');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-124','1','77365','1.82788','-3.91057','1.27372','1.33102');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-124','1','77831','1.56945','3.08458','1.28252','4.61006');
