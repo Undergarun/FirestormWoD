@@ -577,11 +577,64 @@ namespace MS { namespace Garrison
             }
     };
 
+    /// Pneumatic Power Gauntlet - 168555
+    class spell_garrison_combine_scribe_items : public SpellScriptLoader
+    {
+        public:
+            spell_garrison_combine_scribe_items() : SpellScriptLoader("spell_garrison_combine_scribe_items") { }
+
+            class spell_garrison_combine_scribe_items_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript);
+
+                void OnSpellHit(SpellEffIndex)
+                {
+                    Unit* l_Caster = GetCaster();
+
+                    if (l_Caster == nullptr || l_Caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 l_RewardID = 119027;
+                    uint32 l_Chance = urand(0, 99);
+
+                    if (l_Chance <= 20)
+                        l_RewardID = 119028;
+                    else if (l_Chance > 20 && l_Chance <= 50)
+                        l_RewardID = 119023;
+
+                    /// check space and find places
+                    uint32 l_NoSpaceForCount = 0;
+                    ItemPosCountVec l_Destination;
+
+                    InventoryResult l_Message = l_Caster->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, l_RewardID, 1, &l_NoSpaceForCount);
+
+                    if (l_Message == EQUIP_ERR_OK)
+                    {
+                        if (Item* l_Item = l_Caster->ToPlayer()->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            l_Caster->ToPlayer()->SendNewItem(l_Item, 1, true, false, false);
+                    }
+                    else
+                        l_Caster->ToPlayer()->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                }
+
+                void Register()
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_garrison_combine_scribe_items_SpellScript::OnSpellHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+            };
+
+            SpellScript* GetSpellScript() const
+            {
+                return new spell_garrison_combine_scribe_items_SpellScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
 void AddSC_Garrison()
 {
+    new MS::Garrison::spell_garrison_combine_scribe_items();
     new MS::Garrison::spell_aura_garrison_skyterror_falling();
     new MS::Garrison::spell_garrison_stables_lasso();
     new MS::Garrison::spell_garrison_hearthstone();

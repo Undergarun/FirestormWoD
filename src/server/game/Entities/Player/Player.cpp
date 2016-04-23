@@ -17784,6 +17784,8 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
     if (!p_Item)
         return;
 
+    sScriptMgr->OnPlayerItemLooted(this, p_Item);
+
     WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT, 16 + 2 + 1 + 4 + 100 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 2 + 1);
 
     l_Data.appendPackGUID(GetGUID());                               ///< Player GUID
@@ -29983,9 +29985,6 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
 
         /// Complete the tracking quest if needed
         AddTrackingQuestIfNeeded(loot->source);
-
-        if (newitem)
-            sScriptMgr->OnPlayerItemLooted(this, newitem);
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);

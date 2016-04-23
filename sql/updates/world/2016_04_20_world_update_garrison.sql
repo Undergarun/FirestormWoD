@@ -17207,3 +17207,50 @@ UPDATE gameobject_template SET flags=0, ScriptName="go_garrison_shipment_contain
 	(19, 36281, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 36280, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 36219, 40, 3, "this quest needs garrison lvl 3 to be offered");
+	
+	-- LEVEL 2
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-129 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','1','-228662','-0.285361','3.72135','0.771797','4.78414');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','1','77372','1.18611','-3.3932','1.31962','1.69517');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','1','77777','1.05002','2.12137','1.27309','4.79357');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','1','-236648','7.06575','-2.94141','0.000389','0.093027');
+
+
+-- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-130 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','1','-228662','1.49985','6.83145','0.77285','4.71901');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','1','77372','0.573847','-2.9841','1.27418','1.52636');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','1','77777','0.822572','2.61035','1.31983','4.78184');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','1','-236648','7.05163','-2.90625','0.000145','0.0773');
+
+		REPLACE INTO spell_loot_template VALUE (176513, 119126, 100, 1, 0, 2, 2, '');
+	REPLACE INTO spell_script_names VALUES
+	(176791, "spell_garrison_combine_scribe_items"),
+	(176482, "spell_garrison_combine_scribe_items"),
+	(176483, "spell_garrison_combine_scribe_items"),
+	(176484, "spell_garrison_combine_scribe_items"),
+	(176485, "spell_garrison_combine_scribe_items"),
+	(176486, "spell_garrison_combine_scribe_items"),
+	(176487, "spell_garrison_combine_scribe_items"),
+	(176488, "spell_garrison_combine_scribe_items"),
+	(176489, "spell_garrison_combine_scribe_items"),
+	(176490, "spell_garrison_combine_scribe_items"),
+	(176491, "spell_garrison_combine_scribe_items"),
+	(176934, "spell_garrison_combine_scribe_items");
+	
+	-- LEVEL 2
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-129 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','0','-237063','11.0751','-3.00836','0.001801','5.82474');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','0','79829','4.99838','-1.88636','1.31467','1.83491');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-129','0','79831','0.45661','3.05225','1.31467','5.36528');
+
+
+-- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-130 AND faction_index = 0;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','0','79831','4.78171','3.20916','1.34547','3.93585');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','0','79829','-0.23023','3.17094','1.3157','5.73048');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-130','0','-237063','10.8117','-3.00342','0.00148','5.97788');

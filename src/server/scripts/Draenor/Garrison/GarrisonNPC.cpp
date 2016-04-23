@@ -1306,7 +1306,23 @@ namespace MS { namespace Garrison
                     /// There's also a SkillType SKILL_GARRENCHANTING, dunno what it's used for
                     l_GarrisonAI->SetRecipes(l_Recipes, SkillType::SKILL_ENCHANTING);
                     l_GarrisonAI->SendTradeSkillUI(p_Player);
+                    break;
+                }
+                case Buildings::ScribesQuarters_ScribesQuarters_Level2:
+                case Buildings::ScribesQuarters_ScribesQuarters_Level3:
+                {
+                    std::vector<RecipesConditions> l_Recipes =
+                    {
+                        { 176513, 0 }
+                    };
 
+                    GarrisonNPCAI* l_GarrisonAI = dynamic_cast<GarrisonNPCAI*>(p_Creature->AI());
+
+                    if (l_GarrisonAI == nullptr)
+                        return false;
+
+                    l_GarrisonAI->SetRecipes(l_Recipes, SkillType::SKILL_INSCRIPTION);
+                    l_GarrisonAI->SendTradeSkillUI(p_Player);
                     break;
                 }
                 default:

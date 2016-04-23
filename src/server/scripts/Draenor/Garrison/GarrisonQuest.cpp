@@ -115,6 +115,58 @@ namespace MS { namespace Garrison
             case WorkshopGearworks::InventionItemIDs::ItemGG117MicroJetpack:
             case WorkshopGearworks::InventionItemIDs::ItemSentryTurretDispenser:
                 p_Item->SetSpellCharges(0, p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonWorkshopGearworksInventionCharges));
+                break;
+            case 119126:
+            {
+                uint64 l_PlayerGuid  = p_Player->GetGUID();
+                uint64 l_ItemGuid    = p_Item->GetGUID();
+                uint32 l_RewardCount = 1;
+
+                std::vector<uint32> l_Rewards = 
+                {
+                    118592,
+                    119094,
+                    119095,
+                    119096,
+                    119097,
+                    119098,
+                    119099,
+                    119100,
+                    119101,
+                    119102
+                };
+
+                p_Player->AddCriticalOperation([l_PlayerGuid]() -> bool
+                {
+                    if (Player* l_Player = sObjectAccessor->FindPlayer(l_PlayerGuid))
+                    {
+                        uint32 l_DestroyCount = 2;
+
+                        l_Player->DestroyItemCount(119126, l_DestroyCount, true, false);
+                    }
+
+                    return true;
+                });
+
+                for (int l_Itr = 0; l_Itr < 2; ++l_Itr)
+                {
+                    /// check space and find places
+                    ItemPosCountVec l_Dest;
+                    uint32 l_RewardID = l_Rewards[urand(0, l_Rewards.size() - 1)];
+
+                    InventoryResult l_Message = p_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_RewardID, l_RewardCount, &l_NoSpaceForCount);
+
+                    if (l_Message == EQUIP_ERR_OK)
+                    {
+                        if (Item* l_Item = p_Player->StoreNewItem(l_Destination, l_RewardID, true, Item::GenerateItemRandomPropertyId(l_RewardID)))
+                            p_Player->SendNewItem(l_Item, l_RewardCount, true, false, false);
+                    }
+                    else
+                        p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardID);
+                }
+
+                break;
+            }
             default:
                 break;
         }
