@@ -4121,8 +4121,8 @@ void ObjectMgr::LoadQuests()
         Quest* qinfo = iter->second;
 
         // Additional quest integrity checks (GO, creature_template and item_template must be loaded already)
-        if (qinfo->GetQuestMethod() >= 3)
-            sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestMethod());
+        if (qinfo->GetQuestMethod() >= 4)
+            sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1, 2 or 3.", qinfo->GetQuestId(), qinfo->GetQuestMethod());
 
         if (qinfo->IsAutoComplete() && qinfo->IsRepeatable())
         {
@@ -4669,6 +4669,51 @@ void ObjectMgr::LoadQuests()
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadBonusQuests()
+{
+    std::map<uint32, const QuestPOIPointCliTaskEntry*> l_POIPerQuest;
+
+    for (uint32 l_I = 0; l_I < sQuestPOIPointCliTaskStore.GetNumRows(); ++l_I)
+    {
+        const QuestPOIPointCliTaskEntry * l_POIEntry = sQuestPOIPointCliTaskStore.LookupEntry(l_I);
+
+        if (l_POIEntry)
+            l_POIPerQuest[l_POIEntry->QuestID] = l_POIEntry;
+    }
+
+    for (uint32 l_I = 0; l_I < sCriteriaStore.GetNumRows(); ++l_I)
+    {
+        const CriteriaEntry * l_Criteria = sCriteriaStore.LookupEntry(l_I);
+
+        if (!l_Criteria || l_Criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST)
+            continue;
+
+        const QuestV2CliTaskEntry * l_QuestV2CliTask = sQuestV2CliTaskStore.LookupEntry(l_Criteria->complete_quest.questID);
+
+        if (!l_QuestV2CliTask)
+            continue;
+
+        const Quest * l_Quest = GetQuestTemplate(l_Criteria->complete_quest.questID);
+        
+        if (!l_Quest || l_Quest->Method != QUEST_METHOD_AUTO_SUBMITED || !(l_Quest->GetZoneOrSort() > 0))
+            continue;
+
+        if (l_POIPerQuest.find(l_Quest->GetQuestId()) == l_POIPerQuest.end())
+            continue;
+
+        const QuestPOIPointCliTaskEntry * l_POIEntry = l_POIPerQuest[l_Quest->GetQuestId()];
+
+        Map * l_Map = sMapMgr->FindBaseNonInstanceMap(l_POIEntry->MapID);
+
+        if (!l_Map)
+            l_Map = sMapMgr->CreateBaseMap(l_POIEntry->MapID);
+
+        uint32 l_Area = l_Map->GetAreaId(l_POIEntry->X, l_POIEntry->Y, l_Map->GetHeight(l_POIEntry->X, l_POIEntry->Y, MAX_HEIGHT));
+
+        BonusQuestPerArea[l_Area].emplace(l_Criteria->complete_quest.questID);
+    }
 }
 
 void ObjectMgr::LoadQuestLocales()

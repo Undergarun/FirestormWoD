@@ -2059,6 +2059,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
     sObjectMgr->LoadFollowerQuests();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Bonus quest...");
+    sObjectMgr->LoadBonusQuests();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading QuestForItem...");
     sObjectMgr->LoadQuestForItem();
 

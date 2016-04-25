@@ -45,6 +45,8 @@ extern DB2Storage <HeirloomEntry>                   sHeirloomStore;
 extern DB2Storage <PvpItemEntry>                    sPvpItemStore;
 extern std::map<uint32, uint32>                     g_PvPItemStoreLevels;
 
+extern DB2Storage <QuestV2CliTaskEntry>             sQuestV2CliTaskStore;
+extern DB2Storage <QuestPOIPointCliTaskEntry>       sQuestPOIPointCliTaskStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;

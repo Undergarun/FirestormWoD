@@ -1090,6 +1090,9 @@ class ObjectMgr
         void LoadFollowerQuests();
         std::vector<uint32> FollowerQuests;
 
+        void LoadBonusQuests();
+        std::map<uint32, std::set<uint32>> BonusQuestPerArea;
+
         void LoadQuestForItem();
         std::map<uint32, std::vector<std::pair<uint32, uint8>>> QuestForItem;    ///< <ItemID, [<QuestID, ObjectiveIndex>]>
 

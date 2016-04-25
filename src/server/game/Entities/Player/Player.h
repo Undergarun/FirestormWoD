@@ -1865,7 +1865,7 @@ class Player : public Unit, public GridObject<Player>
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
-        void RemoveActiveQuest(uint32 quest_id);
+        void RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest = false);
         void RemoveRewardedQuest(uint32 quest_id);
 
         void SetDailyQuestStatus(uint32 quest_id);
@@ -1888,7 +1888,7 @@ class Player : public Unit, public GridObject<Player>
         {
             SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
             SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 0);
-            SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, 0);
+            SetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, 0);
             SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
         }
         void SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)

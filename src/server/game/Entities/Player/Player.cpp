@@ -9821,6 +9821,48 @@ void Player::UpdateArea(uint32 newArea)
     // so apply them accordingly
     m_areaUpdateId    = newArea;
 
+    /// Bonus quest part
+    {
+        if (l_OldArea != 0)
+        {
+            /// Remove old area bonus quests
+            std::set<uint32> & l_OldAreaQuest = sObjectMgr->BonusQuestPerArea[l_OldArea];
+            for (uint32 l_QuestID : l_OldAreaQuest)
+            {
+                uint32 l_Slot = FindQuestSlot(l_QuestID);
+
+                if (l_Slot < MAX_QUEST_LOG_SIZE)
+                {
+                    SetQuestSlot(l_Slot, 0);
+                    RemoveActiveQuest(l_QuestID, true);
+                }
+            }
+        }
+
+        /// Add new area bonus quests
+        std::set<uint32> & l_NewAreaQuest = sObjectMgr->BonusQuestPerArea[newArea];
+        for (uint32 l_QuestID : l_NewAreaQuest)
+        {
+            if (HasQuest(l_QuestID))
+                continue;
+
+            if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID))
+            {
+                AddQuest(l_Quest, this);
+
+                uint32 l_Slot = FindQuestSlot(l_QuestID);
+
+                if (l_Slot < MAX_QUEST_LOG_SIZE)
+                {
+                    for (auto l_Objective : l_Quest->QuestObjectives)
+                    {
+                        SetQuestSlotCounter(l_Slot, l_Objective.Index, m_questObjectiveStatus[l_Objective.ID]);
+                    }
+                }
+            }
+        }
+    }
+
     phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
@@ -19601,17 +19643,16 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
     UpdateForQuestWorldObjects();
 }
 
-void Player::RemoveActiveQuest(uint32 quest_id)
+void Player::RemoveActiveQuest(uint32 quest_id, bool p_BonusQuest)
 {
     QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
     if (itr != m_QuestStatus.end())
     {
         m_QuestStatus.erase(itr);
-        m_QuestStatusSave[quest_id] = false;
 
         const Quest * l_Quest = sObjectMgr->GetQuestTemplate(quest_id);
 
-        if (l_Quest)
+        if (!p_BonusQuest)
         {
 // Not sure, need to find real flag value (LANG_CANT_ABANDON_QUEST_FLAGGED undefined in trinity_string)
 //             if ((l_Quest->GetFlags2() & QUEST_FLAGS2_NO_ABANDON_ON_ANY_OBJECTIVE_COMPLETE) != 0)
@@ -19627,13 +19668,17 @@ void Player::RemoveActiveQuest(uint32 quest_id)
 //                     }
 //                 }
 //             }
+            m_QuestStatusSave[quest_id] = false;
 
-            for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+            if (l_Quest)
             {
-                m_questObjectiveStatus[l_Objective.ID] = 0;
+                for (QuestObjective l_Objective : l_Quest->QuestObjectives)
+                {
+                    m_questObjectiveStatus[l_Objective.ID] = 0;
 
-                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
-                    DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                    if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_ITEM && !(l_Objective.Flags & QuestObjectiveFlags::QUEST_OBJECTIVE_FLAG_UNK_4))
+                        DestroyItemCount(l_Objective.ObjectID, l_Objective.Amount, true);
+                }
             }
         }
 

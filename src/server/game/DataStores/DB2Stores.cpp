@@ -46,6 +46,8 @@ DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
 DB2Storage <HeirloomEntry>                  sHeirloomStore(HeirloomFmt);
 DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
+DB2Storage <QuestV2CliTaskEntry>            sQuestV2CliTaskStore(QuestV2CliTaskFmt);
+DB2Storage <QuestPOIPointCliTaskEntry>      sQuestPOIPointCliTaskStore(QuestPOIPointCliTaskfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
 DB2Storage <SpellReagentsEntry>             sSpellReagentsStore(SpellReagentsEntryfmt);
@@ -322,7 +324,9 @@ void LoadDB2Stores(const std::string& dataPath)
     /// Quest DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2",            "quest_package_item",           "ID");
-
+    LoadDB2(bad_db2_files, sQuestV2CliTaskStore,            db2Path, "QuestV2CliTask.db2"                                                   );
+    LoadDB2(bad_db2_files, sQuestPOIPointCliTaskStore,      db2Path, "QuestPOIPointCliTask.db2"                                             );
+  
     //////////////////////////////////////////////////////////////////////////
     /// Scene Script DB2
     //////////////////////////////////////////////////////////////////////////
