@@ -234,7 +234,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
         GroupQueueInfo* ginfo = NULL;
         uint32 avgTime = 0;
 
-        if (!l_Error)
+        if (!l_Error && !l_InterRealmEnable)
         {
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: the following players are joining as group:");
             ginfo = l_Scheduler.AddGroup(m_Player, l_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, ArenaType::None, false, 0, 0, false);

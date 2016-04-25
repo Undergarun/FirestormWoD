@@ -249,7 +249,6 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_SET_ITEM_PURCHASE_DATA,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_SHOW_TRADE_SKILL_RESPONSE,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
         DEFINE_OPCODE_HANDLER(SMSG_FORCED_DEATH_UPDATE,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
->>>>>>> wod_fun
 
         /// Control Alert
         DEFINE_OPCODE_HANDLER(SMSG_LOSS_OF_CONTROL_AURA_UPDATE,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide,      PROCESS_LOCAL);
