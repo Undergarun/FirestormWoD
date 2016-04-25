@@ -200,6 +200,7 @@ enum Opcodes
         SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x035F, ///< 6.2.3 20726
         SMSG_SET_ITEM_PURCHASE_DATA                 = 0x165B, ///< 6.2.3 20726
         SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x0B77, ///< 6.2.3 20726
+        SMSG_FORCED_DEATH_UPDATE                    = 0x074C, ///< 6.2.3 20779
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0254, ///< 6.2.3 20726
@@ -1913,7 +1914,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
-    SMSG_FORCED_DEATH_UPDATE                            = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                         = 0x0000,
     SMSG_GAME_SPEED_SET                                 = 0x0000,
     SMSG_GAME_TIME_SET                                  = 0x0000,

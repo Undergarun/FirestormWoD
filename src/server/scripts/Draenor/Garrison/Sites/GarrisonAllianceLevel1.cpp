@@ -160,8 +160,14 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Garrison owner
     bool InstanceScript_GarrisonAllianceLevel1::CanUseGarrisonCache(Player* p_Owner)
     {
+        /// Alliance
         if (p_Owner->GetQuestStatus(Quests::QUEST_KEEPING_IT_TOGETHER) == QUEST_STATUS_REWARDED
             || p_Owner->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER))
+            return true;
+
+        /// [FACTION CHANGE CASE] Horde
+        if (p_Owner->GetQuestStatus(Quests::QUEST_WHAT_WE_GOT) == QUEST_STATUS_REWARDED
+            || p_Owner->HasQuest(Quests::QUEST_WHAT_WE_GOT))
             return true;
 
         return false;
@@ -234,7 +240,7 @@ namespace MS { namespace Garrison { namespace Sites
             p_Owner->CompleteQuest(Quests::Alliance_BuildYourBarracks);
         else if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
         {
-            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1731 : 1708;
+            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
             FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
 
             if (l_Entry != nullptr)

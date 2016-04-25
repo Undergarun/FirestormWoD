@@ -1454,7 +1454,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster || m_AmountAbsorb == 0 || m_Absorbed == 0)
+                if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
@@ -1468,7 +1468,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (m_Absorbed > m_AmountAbsorb)
                         m_Absorbed = m_AmountAbsorb;
 
-                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    float l_AbsorbedPct = 100.0f - (m_Absorbed / (m_AmountAbsorb / 100));  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
                     l_RemainingPct = CalculatePct(l_Amount, l_AbsorbedPct);

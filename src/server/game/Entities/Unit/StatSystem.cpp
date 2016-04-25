@@ -408,7 +408,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    float attPowerMultiplier = 1.0f;
+    if (ranged)
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT) - 1.0f;
+    else
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT) - 1.0f;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -971,6 +976,8 @@ void Player::UpdateMasteryPercentage()
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, l_Value);
 
+    bool l_MasteryCache = false;
+
     /// Update some mastery spells
     AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
     for (auto l_Iter : l_AppliedAuras)
@@ -990,6 +997,12 @@ void Player::UpdateMasteryPercentage()
                     else
                     {
                         l_AurEff->ChangeAmount((int32)(l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
+
+                        if (!l_MasteryCache)
+                        {
+                            m_MasteryCache = l_Value * l_SpellInfo->Effects[l_I].BonusMultiplier;
+                            l_MasteryCache = true;
+                        }
                     }
                 }
             }
