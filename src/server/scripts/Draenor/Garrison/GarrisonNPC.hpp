@@ -62,6 +62,8 @@ namespace MS { namespace Garrison
             /// @p_SequenceSize     : Size of sequence table,
             /// @p_FirstMovePointID : First move point ID
             void SetupActionSequence(SequencePosition* p_CoordTable, uint8* p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+
+            void AddSummonGUID(uint64 p_GUID) { m_Summons.push_back(p_GUID); }
             /// Do next sequence element
             virtual void DoNextSequenceAction();
 
@@ -135,6 +137,7 @@ namespace MS { namespace Garrison
             uint8 m_SequencePosition;
 
         private:
+            std::vector<uint64> m_Summons;
             std::vector<RecipesConditions> m_Recipes;
             uint32 m_RecipesSkillID;
 
@@ -769,6 +772,15 @@ namespace MS { namespace Garrison
             {
                 /// Constructor
                 npc_follower_generic_scriptAI(Creature* p_Creature);
+
+                uint32 m_UpdateTimer;
+                uint64 m_OwnerGUID;
+
+                virtual void Reset() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
+
+                virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
             };
     };
 
@@ -895,7 +907,6 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    /// Tent (86327, 86333, 86334, 86335, 86336, 86337, 86338, 86339, 86340, 86341, 86342, 86343, 86344, 86345, 86346, 86347, 86348, 86349, 86350, 86351, 86352, 86353, 86354
     class npc_StablesTrainingMounts_Garr : public CreatureScript
     {
         public:
@@ -929,6 +940,49 @@ namespace MS { namespace Garrison
                 virtual void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override;
 
                 virtual void JustDied(Unit* p_Killer) override;
+            };            
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_robot_rooster : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_robot_rooster() : CreatureScript("npc_StablesTrainpc_robot_roosterningMounts_Garr")
+            {
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_robot_roosterAI : public ScriptedAI
+            {
+                /// Constructor
+                npc_robot_roosterAI(Creature* creature) : ScriptedAI(creature)
+                {
+                    m_Events.Reset();
+                }
+
+                enum eDatas
+                {
+                    EventBerserk     = 1,
+                    EventNitroBoosts = 2,
+                    SpellBerserk     = 168458,
+                    SpellNitroBoosts = 133022
+                };
+
+                EventMap m_Events;
+
+                virtual void EnterCombat(Unit* p_Attacker) override;
+
+                virtual void EnterEvadeMode() override;
+
+                virtual void UpdateAI(uint32 const p_Diff) override;
             };            
 
     };

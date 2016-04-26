@@ -2398,6 +2398,7 @@ public:
         {
             Player* l_Caster = GetCaster()->ToPlayer();
             SpellInfo const* l_SpellInfo = GetSpellInfo();
+            SpellInfo const* l_GlyphSpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
             if (!l_Caster || !l_SpellInfo)
                 return;
 
@@ -2405,22 +2406,17 @@ public:
             if (!l_Aura)
                 return;
 
-            if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
+            if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap) || l_GlyphSpellInfo == nullptr)
                 return;
 
             uint8 l_AdditionalTick = 0;
-            int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
-
-            if (m_PreviousTotalHeal > 0)
-                l_AdditionalTick = 1;
-
-            if (AuraEffect* l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
-            {
-                float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
-                l_TotalHeal += CalculatePct(l_TotalHeal, l_MasteryPct);
-            }
+            float l_Pct = l_SpellInfo->Effects[EFFECT_0].BasePoints + l_GlyphSpellInfo->Effects[EFFECT_2].BasePoints;
             if (AuraEffect* l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
-                l_TotalHeal += CalculatePct(l_TotalHeal, l_SearingFlames->GetAmount());
+            {
+                l_Pct += CalculatePct(l_Pct, l_SearingFlames->GetAmount());
+            }
+
+            int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), l_Pct);
 
             l_TotalHeal += m_PreviousTotalHeal;
 

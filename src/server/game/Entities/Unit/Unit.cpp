@@ -414,11 +414,11 @@ void Unit::Update(uint32 p_time)
 
     // not implemented before 3.0.2
     if (uint32 base_att = getAttackTimer(WeaponAttackType::BaseAttack))
-        setAttackTimer(WeaponAttackType::BaseAttack, (p_time >= base_att ? 0 : base_att - p_time));
+        setAttackTimer(WeaponAttackType::BaseAttack, (base_att - p_time));
     if (uint32 ranged_att = getAttackTimer(WeaponAttackType::RangedAttack))
-        setAttackTimer(WeaponAttackType::RangedAttack, (p_time >= ranged_att ? 0 : ranged_att - p_time));
+        setAttackTimer(WeaponAttackType::RangedAttack, (ranged_att - p_time));
     if (uint32 off_att = getAttackTimer(WeaponAttackType::OffAttack))
-        setAttackTimer(WeaponAttackType::OffAttack, (p_time >= off_att ? 0 : off_att - p_time));
+        setAttackTimer(WeaponAttackType::OffAttack, (off_att - p_time));
 
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
@@ -519,7 +519,10 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
+    if (m_attackTimer[type] < 0 && uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) > m_attackTimer[type] * -1)
+        m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) + m_attackTimer[type];
+    else
+        m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
@@ -5353,9 +5356,18 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
 {
     float multiplier = 1.0f;
 
+    std::map<SpellGroup, int32> SameEffectSpellGroup;
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        AddPct(multiplier, (*i)->GetAmount());
+    {
+        /// Check if the Aura Effect has a the Same Effect Stack Rule and if so, use the highest amount of that SpellGroupSameEffectSpellGrou
+        /// If the Aura Effect does not have this Stack Rule, it returns false so we can add to the multiplier as usual
+        if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+            AddPct(multiplier, (*i)->GetAmount());
+    }
+    /// Add the highest of the Same Effect Stack Rule SpellGroups to the multiplier
+    for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+        AddPct(multiplier, itr->second);
 
     return multiplier;
 }
@@ -12077,10 +12089,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask p_SchoolMask) const
         if (GetPowerIndex(POWER_MANA, getClass()) != MAX_POWERS)
             l_DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));
 
-        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
-        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
-        for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
-            AddPct(l_DoneAdvertisedBenefit, (*i)->GetAmount());
+        /// Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        l_DoneAdvertisedBenefit *= GetTotalAuraMultiplier(SPELL_AURA_MOD_SPELL_POWER_PCT);
 
         // Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);

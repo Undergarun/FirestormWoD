@@ -1124,7 +1124,7 @@ class spell_amber_scalpel : public SpellScriptLoader
 
             void Summon()
             {
-                if (Creature* l_Caster = l_Caster->ToCreature())
+                if (Creature* l_Caster = GetCaster()->ToCreature())
                 {
                     if (Creature* l_Scalpel = GetClosestCreatureWithEntry(l_Caster, NPC_AMBER_SCALPEL, 200.0f))
                     {

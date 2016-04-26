@@ -147,17 +147,6 @@ namespace MS { namespace Garrison
             m_OwnerGuid = p_Guid;
     }
 
-    void npc_PeterKearie::npc_PeterKearieAI::OnPlotInstanceUnload()
-    {
-        for (std::vector<uint64>::iterator l_Guid = m_Summons.begin(); l_Guid != m_Summons.end(); ++l_Guid)
-        {
-            if (Creature* l_Creature = HashMapHolder<Creature>::Find(*l_Guid))
-                l_Creature->DespawnOrUnsummon();
-        }
-
-        m_Summons.clear();
-    }
-
     void npc_PeterKearie::npc_PeterKearieAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         if (Player* l_Owner = HashMapHolder<Player>::Find(m_OwnerGuid))
@@ -184,7 +173,13 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                                m_Summons.push_back(l_Creature->GetGUID());
+                                sObjectMgr->AddCreatureQuestRelationBounds(l_Creature->GetEntry(), 37270);
+                                sObjectMgr->AddCreatureQuestInvolvedRelationBounds(l_Creature->GetEntry(), 37270);
+                                AddSummonGUID(l_Creature->GetGUID());
+
+                                /// inform client about quest status
+                                if (l_Creature->AI())
+                                    l_Creature->AI()->SetGUID(m_OwnerGuid, 1);
                             }
                             break;
                         case Buildings::AlchemyLab_AlchemyLab_Level3:
@@ -193,7 +188,13 @@ namespace MS { namespace Garrison
                                 l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                                m_Summons.push_back(l_Creature->GetGUID());
+                                sObjectMgr->AddCreatureQuestRelationBounds(l_Creature->GetEntry(), 37270);
+                                sObjectMgr->AddCreatureQuestInvolvedRelationBounds(l_Creature->GetEntry(), 37270);
+                                AddSummonGUID(l_Creature->GetGUID());
+
+                                /// inform client about quest status
+                                if (l_Creature->AI())
+                                    l_Creature->AI()->SetGUID(m_OwnerGuid, 1);
                             }
                             break;
                         default:

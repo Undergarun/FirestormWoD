@@ -143,7 +143,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
-                _offtank = NULL;
+                m_OffTankGuid = 0;
                 _vampires.clear();
                 _creditBloodQuickening = false;
                 _killMinchar = false;
@@ -351,18 +351,25 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             if (me->getVictim())
                             {
                                 Player* newOfftank = SelectRandomTarget(true);
-                                if (_offtank != newOfftank)
+                                if (newOfftank != nullptr && m_OffTankGuid != newOfftank->GetGUID())
                                 {
-                                    _offtank = newOfftank;
-                                    if (_offtank)
+                                    m_OffTankGuid = newOfftank->GetGUID();
+                                    if (m_OffTankGuid)
                                     {
                                         // both spells have SPELL_ATTR5_SINGLE_TARGET_SPELL, no manual removal needed
-                                        _offtank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                        me->getVictim()->CastSpell(_offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
-                                        DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
-                                        if (Item* shadowsEdge = _offtank->GetWeaponForAttack(WeaponAttackType::BaseAttack, true))
-                                            if (!_offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !_offtank->HasAura(SPELL_GUSHING_WOUND))
-                                                _offtank->CastSpell(_offtank, SPELL_GUSHING_WOUND, true);
+                                        if (Player* l_OffTank = Player::GetPlayer(*me, m_OffTankGuid))
+                                        {
+                                            l_OffTank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                            me->getVictim()->CastSpell(l_OffTank, SPELL_BLOOD_MIRROR_DUMMY, true);
+
+                                            DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
+
+                                            if (Item* shadowsEdge = l_OffTank->GetWeaponForAttack(WeaponAttackType::BaseAttack, true))
+                                            {
+                                                if (!l_OffTank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !l_OffTank->HasAura(SPELL_GUSHING_WOUND))
+                                                    l_OffTank->CastSpell(l_OffTank, SPELL_GUSHING_WOUND, true);
+                                            }
+                                        }
 
                                     }
                                 }
@@ -371,8 +378,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
-                            if (_offtank && !me->HasByteFlag(UNIT_FIELD_ANIM_TIER, 3, 0x03))
-                                DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
+                            if (Player* l_OffTank = Player::GetPlayer(*me, m_OffTankGuid))
+                            {
+                                if (!me->HasByteFlag(UNIT_FIELD_ANIM_TIER, 3, 0x03))
+                                    DoCast(l_OffTank, SPELL_DELIRIOUS_SLASH);
+                            }
+
                             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_PACT_OF_THE_DARKFALLEN:
@@ -463,7 +474,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     if (Unit* refTarget = (*itr)->getTarget())
-                        if (refTarget != me->getVictim() && refTarget->IsPlayer() && (includeOfftank ? true : (refTarget != _offtank)))
+                        if (refTarget != me->getVictim() && refTarget->IsPlayer() && (includeOfftank ? true : (refTarget->GetGUID() != m_OffTankGuid)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())
@@ -486,7 +497,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             std::set<uint64> _vampires;
             std::set<uint64> _bloodboltedPlayers;
-            Player* _offtank;
+            uint64 m_OffTankGuid;
             bool _creditBloodQuickening;
             bool _killMinchar;
         };

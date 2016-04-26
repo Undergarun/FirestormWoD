@@ -67,11 +67,8 @@ namespace MS { namespace Garrison
                 npc_TurgaAI(Creature* p_Creature);
 
                 uint64 m_OwnerGuid = 0;
-                std::vector<uint64> m_Summons;
 
                 void SetGUID(uint64 p_Guid, int32 p_Id) override;
-
-                virtual void OnPlotInstanceUnload() override;
 
                 /// When the PlotInstance ID is set
                 /// @p_BuildingID : Set plot instance ID
