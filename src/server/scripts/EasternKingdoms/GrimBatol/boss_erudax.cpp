@@ -1,9 +1,6 @@
 #include "grim_batol.h"
 #include "ScriptPCH.h"
 
-
-//todo: щит ночных кошмаров, аое, евент с адами
-
 enum ScriptTexts
 {
     SAY_AGGRO    = 0,

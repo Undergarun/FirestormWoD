@@ -620,7 +620,7 @@ class npc_absolute_zero : public CreatureScript
                 creature->SetSpeed(MOVE_WALK, 0.5f);
             }
 
-            uint32 uiPauseTimer; //чтобы не срабатывало сразу при саммоне возле игрока
+            uint32 uiPauseTimer;
             uint32 uiDespawnTimer;
             bool bCanExplode; 
 
@@ -705,7 +705,7 @@ class npc_magma_jet : public CreatureScript
                     Position newPos;
                     me->GetNearPosition(newPos, 5.5f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                    if (creOwner->GetDistance(me) >= 50.0f) // спавнить разломы на расстоянии до 50 от босса
+                    if (creOwner->GetDistance(me) >= 50.0f)
                         me->DespawnOrUnsummon();
                     else
                     {

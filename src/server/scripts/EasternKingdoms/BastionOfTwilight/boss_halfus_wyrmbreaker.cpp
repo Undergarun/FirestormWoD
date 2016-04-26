@@ -212,11 +212,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 {
                     switch (urand(0, 9))
                     {
-                        //10 вариантов драконов
-                        //Двум неактивным раздаем баф нективности
-                        //Даем халфию + чудищу бафы от активных
                     case 0:
-                        //Сланцевый + штормокрыл + потомок пустоты
                         timewarden->CastSpell(timewarden, SPELL_UNRESPONSIVE_DRAKE, true);
                         for (uint8 i = 0; i < 8; i++)
                             whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true); 
@@ -225,7 +221,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         DoCast(me, SPELL_FRENZIED_ASSAULT);
                         break;
                     case 1:
-                        //Страж времени + штормокрыл + потомок пустоты
                         slatedrake->CastSpell(slatedrake, SPELL_UNRESPONSIVE_DRAKE, true);
                         for (uint8 i = 0; i < 8; i++)
                             whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true);
@@ -234,7 +229,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         DoCast(me, SPELL_FRENZIED_ASSAULT);
                         break;
                     case 2:
-                        //Сланцевый + потомок пустоты + дракончики
                         bWhelps = true;
                         timewarden->CastSpell(timewarden, SPELL_UNRESPONSIVE_DRAKE, true);
                         stormrider->CastSpell(stormrider, SPELL_UNRESPONSIVE_DRAKE, true);
@@ -243,7 +237,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);
                         break;
                     case 3:
-                        //Сланцевый + штормокрыл + страж времени
                         netherscion->CastSpell(netherscion, SPELL_UNRESPONSIVE_DRAKE, true);
                         for (uint8 i = 0; i < 8; i++)
                             whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true);
@@ -252,7 +245,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         DoCast(me, SPELL_SHADOW_WARPED);
                         break;
                     case 4:
-                        //Потомок пустоты + штормокрыл + дракончики
                         bWhelps = true;
                         slatedrake->CastSpell(slatedrake, SPELL_UNRESPONSIVE_DRAKE, true);
                         timewarden->CastSpell(timewarden, SPELL_UNRESPONSIVE_DRAKE, true);
@@ -261,7 +253,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);
                         break;
                     case 5:
-                        //Сланцевый + страж времени + потомок пустоты
                         stormrider->CastSpell(stormrider, SPELL_UNRESPONSIVE_DRAKE, true);
                         for (uint8 i = 0; i < 8; i++)
                             whelps[i]->CastSpell(whelps[i], SPELL_UNRESPONSIVE_WHELP, true);
@@ -270,7 +261,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         DoCast(me, SPELL_FRENZIED_ASSAULT);
                         break;
                     case 6:
-                        //Штормокрыл + страж времени + дракончики
                         bWhelps = true;
                         slatedrake->CastSpell(slatedrake, SPELL_UNRESPONSIVE_DRAKE, true);
                         netherscion->CastSpell(netherscion, SPELL_UNRESPONSIVE_DRAKE, true);
@@ -279,7 +269,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);                    
                         break;
                     case 7:
-                        //Сланцевый + страж времени + дракончики
                         bWhelps = true;
                         stormrider->CastSpell(stormrider, SPELL_UNRESPONSIVE_DRAKE, true);
                         netherscion->CastSpell(netherscion, SPELL_UNRESPONSIVE_DRAKE, true);
@@ -288,7 +277,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);                    
                         break;
                     case 8:
-                        //Потомок пустоты + страж времени + дракончики
                         bWhelps = true;
                         slatedrake->CastSpell(slatedrake, SPELL_UNRESPONSIVE_DRAKE, true);
                         stormrider->CastSpell(stormrider, SPELL_UNRESPONSIVE_DRAKE, true);
@@ -297,7 +285,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                         proto->CastSpell(proto, SPELL_SUPERHEATED_BREATH, true);
                         break;
                     case 9:
-                        //Сланцевый + штормокрыл + дракончики
                         bWhelps = true;
                         netherscion->CastSpell(netherscion, SPELL_UNRESPONSIVE_DRAKE, true);
                         timewarden->CastSpell(timewarden, SPELL_UNRESPONSIVE_DRAKE, true);

@@ -1034,16 +1034,16 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 switch ((Spells)p_AreaTrigger->GetSpellId())
                 {
                     case Spells::ShatterEarthNW:
-                        l_Orientation = M_PI / 4.0f; // 45°
+                        l_Orientation = M_PI / 4.0f; // 45
                         break;
                     case Spells::ShatterEarthSW:
-                        l_Orientation = M_PI / 4.0f * 3.0f; // 135°
+                        l_Orientation = M_PI / 4.0f * 3.0f; // 135
                         break;
                     case  Spells::ShatterEarthSE:
-                        l_Orientation = M_PI / 4.0f * 5.0f; // 225°
+                        l_Orientation = M_PI / 4.0f * 5.0f; // 225
                         break;
                     case Spells::ShatterEarthNE:
-                        l_Orientation = M_PI / 4.0f * 7.0f; // 315°
+                        l_Orientation = M_PI / 4.0f * 7.0f; // 315
                         break;
                     default:
                         l_Orientation = 0.0f;
@@ -1119,16 +1119,16 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 switch ((Spells)p_AreaTrigger->GetSpellId())
                 {
                     case Spells::VolcanicTrantrumNW:
-                        l_Orientation = M_PI / 4.0f; // 45°
+                        l_Orientation = M_PI / 4.0f; // 45
                         break;
                     case Spells::VolcanicTrantrumSW:
-                        l_Orientation = M_PI / 4.0f * 3.0f; // 135°
+                        l_Orientation = M_PI / 4.0f * 3.0f; // 135
                         break;
                     case Spells::VolcanicTrantrumSE:
-                        l_Orientation = M_PI / 4.0f * 5.0f; // 225°
+                        l_Orientation = M_PI / 4.0f * 5.0f; // 225
                         break;
                     case Spells::VolcanicTrantrumNE:
-                        l_Orientation = M_PI / 4.0f * 7.0f; // 315°
+                        l_Orientation = M_PI / 4.0f * 7.0f; // 315
                         break;
                     default:
                         l_Orientation = 0.0f;

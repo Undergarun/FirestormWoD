@@ -2,11 +2,6 @@
 #include"Spell.h"
 #include"bastion_of_twilight.h"
 
-//todo: разобраться с entry мобов у orders
-//todo: реализовать правильные absorb fire, absorb shadow
-//todo: сделать героик скиллы
-//todo: разобраться с таргетами fester blood
-
 enum ScriptTexts
 {
     SAY_KILL        = 1,

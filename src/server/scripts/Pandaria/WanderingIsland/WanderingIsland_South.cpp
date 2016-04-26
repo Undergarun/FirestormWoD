@@ -235,7 +235,7 @@ class npc_korga : public CreatureScript
 
         bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
         {
-            if (quest->GetQuestId() == 30589) // Détruire l'épave
+            if (quest->GetQuestId() == 30589) // Detruire l'epave
                 if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID()))
                     jiEscort->AI()->SetGUID(player->GetGUID());
 

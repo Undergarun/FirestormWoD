@@ -1,9 +1,6 @@
 #include "grim_batol.h"
 #include "ScriptPCH.h"
 
-
-//todo: реализовать адов и mighty stomp
-
 enum ScriptTexts
 {
     SAY_AGGRO    = 0,

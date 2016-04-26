@@ -2,7 +2,6 @@
 #include "Spell.h"
 #include "blackrock_caverns.h"
 
-//todo: реализовать нормальное превращение
 enum ScriptTexts
 {
     SAY_AGGRO       = 0,

@@ -1,9 +1,6 @@
 #include"ScriptPCH.h"
 #include "the_vortex_pinnacle.h"
 
-
-// Перепрыгивания в вихрях пока не реализованы
-
 enum Creatures
 {
     NPC_SLIPSTREAM                    = 45455,

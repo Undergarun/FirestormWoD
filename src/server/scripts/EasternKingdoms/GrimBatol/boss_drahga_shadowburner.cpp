@@ -3,11 +3,6 @@
 #include "ScriptPCH.h"
 #include "Vehicle.h"
 
-
-//todo: починить spell_flaming_fixate
-//todo: откорректировать координаты призыва валионы и перемещение босса
-//todo: сделать корректный not_selectable босса, когда он сидит на валионе
-
 enum ScriptTexts
 {
     //drahga

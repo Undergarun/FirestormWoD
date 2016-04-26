@@ -2436,7 +2436,7 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Sphère zen : Explosion (heal) - 124101
+/// Sphere zen: Explosion (heal) - 124101
 class spell_monk_zen_sphere_detonate_heal : public SpellScriptLoader
 {
     public:

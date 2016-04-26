@@ -801,7 +801,7 @@ class spell_soul_back : public SpellScriptLoader
                         target->AddAura(SPELL_FRAIL_SOUL, target);
                     target->SetHealth(target->CountPctFromCurHealth(30));
 
-                    // Todo : Jump le joueur là ou était son corps
+                    // Todo : Jump le joueur la ou etait son corps
                 }
             }
 

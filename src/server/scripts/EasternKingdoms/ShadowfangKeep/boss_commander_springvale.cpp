@@ -308,7 +308,6 @@ class npc_springvale_tormented_officer : public CreatureScript
                             DoCast(SPELL_SHIELD_WALL);
                             break;
                         case EVENT_FORSAKEN_ABILITY:
-                            //todo: реализовать спелл
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
                             if (pInstance)
