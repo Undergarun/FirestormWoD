@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cppcheck - HTML report - [project name]</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+.highlight .hll { background-color: #ffffcc }
+.highlight  { background: #ffffff; }
+.highlight .c { color: #888888 } /* Comment */
+.highlight .err { color: #FF0000; background-color: #FFAAAA } /* Error */
+.highlight .k { color: #008800; font-weight: bold } /* Keyword */
+.highlight .o { color: #333333 } /* Operator */
+.highlight .ch { color: #888888 } /* Comment.Hashbang */
+.highlight .cm { color: #888888 } /* Comment.Multiline */
+.highlight .cp { color: #557799 } /* Comment.Preproc */
+.highlight .cpf { color: #888888 } /* Comment.PreprocFile */
+.highlight .c1 { color: #888888 } /* Comment.Single */
+.highlight .cs { color: #cc0000; font-weight: bold } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #FF0000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #00A000 } /* Generic.Inserted */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #0044DD } /* Generic.Traceback */
+.highlight .kc { color: #008800; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008800; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008800; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #003388; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #008800; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #333399; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #6600EE; font-weight: bold } /* Literal.Number */
+.highlight .s { background-color: #fff0f0 } /* Literal.String */
+.highlight .na { color: #0000CC } /* Name.Attribute */
+.highlight .nb { color: #007020 } /* Name.Builtin */
+.highlight .nc { color: #BB0066; font-weight: bold } /* Name.Class */
+.highlight .no { color: #003366; font-weight: bold } /* Name.Constant */
+.highlight .nd { color: #555555; font-weight: bold } /* Name.Decorator */
+.highlight .ni { color: #880000; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #FF0000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #0066BB; font-weight: bold } /* Name.Function */
+.highlight .nl { color: #997700; font-weight: bold } /* Name.Label */
+.highlight .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #007700 } /* Name.Tag */
+.highlight .nv { color: #996633 } /* Name.Variable */
+.highlight .ow { color: #000000; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mb { color: #6600EE; font-weight: bold } /* Literal.Number.Bin */
+.highlight .mf { color: #6600EE; font-weight: bold } /* Literal.Number.Float */
+.highlight .mh { color: #005588; font-weight: bold } /* Literal.Number.Hex */
+.highlight .mi { color: #0000DD; font-weight: bold } /* Literal.Number.Integer */
+.highlight .mo { color: #4400EE; font-weight: bold } /* Literal.Number.Oct */
+.highlight .sb { background-color: #fff0f0 } /* Literal.String.Backtick */
+.highlight .sc { color: #0044DD } /* Literal.String.Char */
+.highlight .sd { color: #DD4422 } /* Literal.String.Doc */
+.highlight .s2 { background-color: #fff0f0 } /* Literal.String.Double */
+.highlight .se { color: #666666; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */
+.highlight .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */
+.highlight .si { background-color: #eeeeee } /* Literal.String.Interpol */
+.highlight .sx { color: #DD2200; background-color: #fff0f0 } /* Literal.String.Other */
+.highlight .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */
+.highlight .s1 { background-color: #fff0f0 } /* Literal.String.Single */
+.highlight .ss { color: #AA6600 } /* Literal.String.Symbol */
+.highlight .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #336699 } /* Name.Variable.Class */
+.highlight .vg { color: #dd7700; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #3333BB } /* Name.Variable.Instance */
+.highlight .il { color: #0000DD; font-weight: bold } /* Literal.Number.Integer.Long */
+    </style>
+    <script language="javascript">
+      function getStyle(el,styleProp) {
+        if (el.currentStyle)
+          var y = el.currentStyle[styleProp];
+        else if (window.getComputedStyle)
+          var y = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+        return y;
+      }
+      function toggle() {
+        var el = this.expandable_content;
+        var mark = this.expandable_marker;
+        if (el.style.display == "block") {
+          el.style.display = "none";
+          mark.innerHTML = "[+]";
+        } else {
+          el.style.display = "block";
+          mark.innerHTML = "[-]";
+        }
+      }
+      function init_expandables() {
+        var elts = document.getElementsByClassName("expandable");
+        for (var i = 0; i < elts.length; i++) {
+          var el = elts[i];
+          var clickable = el.getElementsByTagName("span")[0];
+          var marker = clickable.getElementsByClassName("marker")[0];
+          var content = el.getElementsByClassName("content")[0];
+          var width = clickable.clientWidth - parseInt(getStyle(content, "padding-left")) - parseInt(getStyle(content, "padding-right"));
+          content.style.width = width + "px";
+          clickable.expandable_content = content;
+          clickable.expandable_marker = marker;
+          clickable.onclick = toggle;
+        }
+      }
+      function set_class_display(c, st) {
+        var elements = document.querySelectorAll('.' + c),
+            len = elements.length;
+        for (i = 0; i < len; i++) {
+            elements[i].style.display = st;
+        }
+      }
+      function toggle_class_visibility(id) {
+        var box = document.getElementById(id);
+        set_class_display(id, box.checked ? '' : 'none');
+      }
+    </script>
+  </head>
+  <body onload="init_expandables()">
+      <div id="header">
+        <h1>Cppcheck report - [project name]: /Users/MilleniumStudio/Git/wod/src/server/scripts/Draenor/Garrison/Sites/GarrisonHordeLevel3.hpp </h1>
+      </div>
+      <div id="menu" dir="rtl">
+       <p id="filename"><a href="index.html">Defects:</a> GarrisonHordeLevel3.hpp</p>
+<a href='269.html#line-36'> noExplicitConstructor 36</a>
+      </div>
+      <div id="content">
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115</pre></div></td><td class="code"><div class="highlight"><pre><span></span><a name="line-1"></a><span class="c1">////////////////////////////////////////////////////////////////////////////////</span>
+<a name="line-2"></a><span class="c1">//</span>
+<a name="line-3"></a><span class="c1">//  MILLENIUM-STUDIO</span>
+<a name="line-4"></a><span class="c1">//  Copyright 2016 Millenium-studio SARL</span>
+<a name="line-5"></a><span class="c1">//  All Rights Reserved.</span>
+<a name="line-6"></a><span class="c1">//</span>
+<a name="line-7"></a><span class="c1">////////////////////////////////////////////////////////////////////////////////</span>
+<a name="line-8"></a><span class="cp">#ifndef GARRISON_HORDE_LEVEL_3_HPP_GARRISON</span>
+<a name="line-9"></a><span class="cp">#define GARRISON_HORDE_LEVEL_3_HPP_GARRISON</span>
+<a name="line-10"></a>
+<a name="line-11"></a><span class="cp">#include</span> <span class="cpf">&quot;../GarrisonScriptData.hpp&quot;</span><span class="cp"></span>
+<a name="line-12"></a><span class="cp">#include</span> <span class="cpf">&quot;GarrisonMgr.hpp&quot;</span><span class="cp"></span>
+<a name="line-13"></a><span class="cp">#include</span> <span class="cpf">&quot;GarrisonSiteBase.hpp&quot;</span><span class="cp"></span>
+<a name="line-14"></a>
+<a name="line-15"></a><span class="k">namespace</span> <span class="n">MS</span> <span class="p">{</span> <span class="k">namespace</span> <span class="n">Garrison</span> <span class="p">{</span> <span class="k">namespace</span> <span class="n">Sites</span>
+<a name="line-16"></a><span class="p">{</span>
+<a name="line-17"></a>    <span class="c1">/// Garrison horde site level 3 instance map script</span>
+<a name="line-18"></a>    <span class="k">class</span> <span class="nc">InstanceMapScript_GarrisonHordeLevel3</span> <span class="o">:</span> <span class="k">public</span> <span class="n">InstanceMapScript</span>
+<a name="line-19"></a>    <span class="p">{</span>
+<a name="line-20"></a>        <span class="k">public</span><span class="o">:</span>
+<a name="line-21"></a>            <span class="c1">/// Constructor</span>
+<a name="line-22"></a>            <span class="n">InstanceMapScript_GarrisonHordeLevel3</span><span class="p">();</span>
+<a name="line-23"></a>
+<a name="line-24"></a>            <span class="c1">/// Get an instance script instance</span>
+<a name="line-25"></a>            <span class="c1">/// @p_Map : Target map</span>
+<a name="line-26"></a>            <span class="n">InstanceScript</span> <span class="o">*</span> <span class="nf">GetInstanceScript</span><span class="p">(</span><span class="n">InstanceMap</span><span class="o">*</span> <span class="n">p_Map</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+<a name="line-27"></a>
+<a name="line-28"></a>    <span class="p">};</span>
+<a name="line-29"></a>
+<a name="line-30"></a>    <span class="c1">/// Garrison horde site level 3 instance script</span>
+<a name="line-31"></a>    <span class="k">class</span> <span class="nc">InstanceScript_GarrisonHordeLevel3</span> <span class="o">:</span> <span class="k">public</span> <span class="n">GarrisonSiteBase</span>
+<a name="line-32"></a>    <span class="p">{</span>
+<a name="line-33"></a>        <span class="k">public</span><span class="o">:</span>
+<a name="line-34"></a>            <span class="c1">/// Constructor</span>
+<a name="line-35"></a>            <span class="c1">/// @p_Map : Target map</span>
+<a name="line-36"></a><span class="hll">            <span class="n">InstanceScript_GarrisonHordeLevel3</span><span class="p">(</span><span class="n">Map</span><span class="o">*</span> <span class="n">p_Map</span><span class="p">);</span><div class='verbose expandable'><span class='error2'>&lt;--- Class 'InstanceScript_GarrisonHordeLevel3' has a constructor with 1 argument that is not explicit. <span class='marker'>[+]</span></span><div class='content'>Class &apos;InstanceScript_GarrisonHordeLevel3&apos; has a constructor with 1 argument that is not explicit. Such constructors should in general be explicit for type safety reasons. Using the explicit keyword in the constructor means some mistakes when using the class can be avoided.</div></div>
+</span><a name="line-37"></a>            <span class="c1">/// Destructor</span>
+<a name="line-38"></a>            <span class="o">~</span><span class="n">InstanceScript_GarrisonHordeLevel3</span><span class="p">();</span>
+<a name="line-39"></a>
+<a name="line-40"></a>            <span class="c1">/// When instance script is updated</span>
+<a name="line-41"></a>            <span class="c1">/// @p_Diff : Time since last update</span>
+<a name="line-42"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Update</span><span class="p">(</span><span class="n">uint32</span> <span class="n">p_Diff</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-43"></a>
+<a name="line-44"></a>        <span class="c1">/// Implementation for InstanceScript</span>
+<a name="line-45"></a>        <span class="k">public</span><span class="o">:</span>
+<a name="line-46"></a>            <span class="c1">/// When the owner enter in the garrison</span>
+<a name="line-47"></a>            <span class="c1">/// @p_Owner : Owner instance</span>
+<a name="line-48"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="n">OnOwnerEnter</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-49"></a>
+<a name="line-50"></a>        <span class="c1">/// Implementation for Interfaces::GarrisonSite</span>
+<a name="line-51"></a>        <span class="k">public</span><span class="o">:</span>
+<a name="line-52"></a>            <span class="c1">/// When the garrison owner started a quest</span>
+<a name="line-53"></a>            <span class="c1">/// @p_Owner : Garrison owner</span>
+<a name="line-54"></a>            <span class="c1">/// @p_Quest : Started quest</span>
+<a name="line-55"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="n">OnQuestStarted</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="k">const</span> <span class="n">Quest</span><span class="o">*</span> <span class="n">p_Quest</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-56"></a>            <span class="c1">/// When the garrison owner reward a quest</span>
+<a name="line-57"></a>            <span class="c1">/// @p_Owner : Garrison owner</span>
+<a name="line-58"></a>            <span class="c1">/// @p_Quest : Rewarded quest</span>
+<a name="line-59"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnQuestReward</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="k">const</span> <span class="n">Quest</span><span class="o">*</span> <span class="n">p_Quest</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-60"></a>            <span class="c1">/// When the garrison owner abandon a quest</span>
+<a name="line-61"></a>            <span class="c1">/// @p_Owner : Garrison owner</span>
+<a name="line-62"></a>            <span class="c1">/// @p_Quest : Abandoned quest</span>
+<a name="line-63"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnQuestAbandon</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="k">const</span> <span class="n">Quest</span><span class="o">*</span> <span class="n">p_Quest</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-64"></a>
+<a name="line-65"></a>            <span class="c1">/// Get phase mask</span>
+<a name="line-66"></a>            <span class="c1">/// @p_Owner : Garrison owner</span>
+<a name="line-67"></a>            <span class="k">virtual</span> <span class="n">uint32</span> <span class="nf">GetPhaseMask</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-68"></a>
+<a name="line-69"></a>            <span class="c1">/// Owner can use the garrison cache ?</span>
+<a name="line-70"></a>            <span class="c1">/// @p_Owner : Garrison owner</span>
+<a name="line-71"></a>            <span class="k">virtual</span> <span class="kt">bool</span> <span class="nf">CanUseGarrisonCache</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-72"></a>
+<a name="line-73"></a>            <span class="c1">/// Can upgrade the garrison</span>
+<a name="line-74"></a>            <span class="c1">/// @p_Owner                : Garrison owner</span>
+<a name="line-75"></a>            <span class="c1">/// @p_CurrentGarrisonLevel : Current garrison level</span>
+<a name="line-76"></a>            <span class="k">virtual</span> <span class="kt">bool</span> <span class="nf">CanUpgrade</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_CurrentGarrisonLevel</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-77"></a>            <span class="c1">/// On upgrade the garrison</span>
+<a name="line-78"></a>            <span class="c1">/// @p_Owner : Garrison owner</span>
+<a name="line-79"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnUpgrade</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-80"></a>
+<a name="line-81"></a>            <span class="c1">/// When a mission start</span>
+<a name="line-82"></a>            <span class="c1">/// @p_Owner     : Garrison owner</span>
+<a name="line-83"></a>            <span class="c1">/// @p_MissionID : Started mission ID</span>
+<a name="line-84"></a>            <span class="c1">/// @p_Followers : Followers on the mission</span>
+<a name="line-85"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnMissionStart</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_MissionID</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">uint32</span><span class="o">&gt;</span> <span class="n">p_Followers</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-86"></a>            <span class="c1">/// When a construction start, compute build time</span>
+<a name="line-87"></a>            <span class="c1">/// @p_Owner      : Garrison owner</span>
+<a name="line-88"></a>            <span class="c1">/// @p_BuildingID : Purchased building ID</span>
+<a name="line-89"></a>            <span class="c1">/// @p_BaseTime   : Default build time</span>
+<a name="line-90"></a>            <span class="k">virtual</span> <span class="n">uint32</span> <span class="nf">OnPrePurchaseBuilding</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BuildingID</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BaseTime</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-91"></a>            <span class="c1">/// When a construction start</span>
+<a name="line-92"></a>            <span class="c1">/// @p_Owner      : Garrison owner</span>
+<a name="line-93"></a>            <span class="c1">/// @p_BuildingID : Purchased building ID</span>
+<a name="line-94"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnPurchaseBuilding</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BuildingID</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-95"></a>            <span class="c1">/// When a building is activated</span>
+<a name="line-96"></a>            <span class="c1">/// @p_Owner      : Garrison owner</span>
+<a name="line-97"></a>            <span class="c1">/// @p_BuildingID : Purchased building ID</span>
+<a name="line-98"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnBuildingActivated</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BuildingID</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-99"></a>            <span class="c1">/// When a building from the same type with higher level is purchased</span>
+<a name="line-100"></a>            <span class="c1">/// @p_Owner      : Garrison owner</span>
+<a name="line-101"></a>            <span class="c1">/// @p_BuildingID : Purchased building ID</span>
+<a name="line-102"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnUpgradeBuilding</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BuildingID</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-103"></a>            <span class="c1">/// When a building is deleted</span>
+<a name="line-104"></a>            <span class="c1">/// @p_Owner        : Garrison owner</span>
+<a name="line-105"></a>            <span class="c1">/// @p_BuildingID   : Deleted building ID</span>
+<a name="line-106"></a>            <span class="c1">/// @p_BuildingType : Deleted Building Type</span>
+<a name="line-107"></a>            <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">OnDeleteBuilding</span><span class="p">(</span><span class="n">Player</span><span class="o">*</span> <span class="n">p_Owner</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BuildingID</span><span class="p">,</span> <span class="n">uint32</span> <span class="n">p_BuildingType</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">p_RemoveForUpgrade</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+<a name="line-108"></a>
+<a name="line-109"></a>    <span class="p">};</span>
+<a name="line-110"></a>
+<a name="line-111"></a><span class="p">}</span>   <span class="c1">///&lt; namespace Sites</span>
+<a name="line-112"></a><span class="p">}</span>   <span class="c1">///&lt; namespace Garrison</span>
+<a name="line-113"></a><span class="p">}</span>   <span class="c1">///&lt; namespace MS</span>
+<a name="line-114"></a>
+<a name="line-115"></a><span class="cp">#endif  </span><span class="c1">///&lt; GARRISON_HORDE_LEVEL_3_HPP_GARRISON</span>
+</pre></div>
+</td></tr></table>
+      </div>
+      <div id="footer">
+        <p>
+         Cppcheck 1.73 - a tool for static C/C++ code analysis</br>
+         </br>
+         Internet: <a href="http://cppcheck.sourceforge.net">http://cppcheck.sourceforge.net</a></br>
+         IRC: <a href="irc://irc.freenode.net/cppcheck">irc://irc.freenode.net/cppcheck</a></br>
+        <p>
+      </div>
+  </body>
+</html>

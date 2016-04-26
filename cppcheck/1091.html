@@ -1,0 +1,1963 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cppcheck - HTML report - [project name]</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+.highlight .hll { background-color: #ffffcc }
+.highlight  { background: #ffffff; }
+.highlight .c { color: #888888 } /* Comment */
+.highlight .err { color: #FF0000; background-color: #FFAAAA } /* Error */
+.highlight .k { color: #008800; font-weight: bold } /* Keyword */
+.highlight .o { color: #333333 } /* Operator */
+.highlight .ch { color: #888888 } /* Comment.Hashbang */
+.highlight .cm { color: #888888 } /* Comment.Multiline */
+.highlight .cp { color: #557799 } /* Comment.Preproc */
+.highlight .cpf { color: #888888 } /* Comment.PreprocFile */
+.highlight .c1 { color: #888888 } /* Comment.Single */
+.highlight .cs { color: #cc0000; font-weight: bold } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #FF0000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #00A000 } /* Generic.Inserted */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #0044DD } /* Generic.Traceback */
+.highlight .kc { color: #008800; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008800; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008800; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #003388; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #008800; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #333399; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #6600EE; font-weight: bold } /* Literal.Number */
+.highlight .s { background-color: #fff0f0 } /* Literal.String */
+.highlight .na { color: #0000CC } /* Name.Attribute */
+.highlight .nb { color: #007020 } /* Name.Builtin */
+.highlight .nc { color: #BB0066; font-weight: bold } /* Name.Class */
+.highlight .no { color: #003366; font-weight: bold } /* Name.Constant */
+.highlight .nd { color: #555555; font-weight: bold } /* Name.Decorator */
+.highlight .ni { color: #880000; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #FF0000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #0066BB; font-weight: bold } /* Name.Function */
+.highlight .nl { color: #997700; font-weight: bold } /* Name.Label */
+.highlight .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #007700 } /* Name.Tag */
+.highlight .nv { color: #996633 } /* Name.Variable */
+.highlight .ow { color: #000000; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mb { color: #6600EE; font-weight: bold } /* Literal.Number.Bin */
+.highlight .mf { color: #6600EE; font-weight: bold } /* Literal.Number.Float */
+.highlight .mh { color: #005588; font-weight: bold } /* Literal.Number.Hex */
+.highlight .mi { color: #0000DD; font-weight: bold } /* Literal.Number.Integer */
+.highlight .mo { color: #4400EE; font-weight: bold } /* Literal.Number.Oct */
+.highlight .sb { background-color: #fff0f0 } /* Literal.String.Backtick */
+.highlight .sc { color: #0044DD } /* Literal.String.Char */
+.highlight .sd { color: #DD4422 } /* Literal.String.Doc */
+.highlight .s2 { background-color: #fff0f0 } /* Literal.String.Double */
+.highlight .se { color: #666666; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */
+.highlight .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */
+.highlight .si { background-color: #eeeeee } /* Literal.String.Interpol */
+.highlight .sx { color: #DD2200; background-color: #fff0f0 } /* Literal.String.Other */
+.highlight .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */
+.highlight .s1 { background-color: #fff0f0 } /* Literal.String.Single */
+.highlight .ss { color: #AA6600 } /* Literal.String.Symbol */
+.highlight .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #336699 } /* Name.Variable.Class */
+.highlight .vg { color: #dd7700; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #3333BB } /* Name.Variable.Instance */
+.highlight .il { color: #0000DD; font-weight: bold } /* Literal.Number.Integer.Long */
+    </style>
+    <script language="javascript">
+      function getStyle(el,styleProp) {
+        if (el.currentStyle)
+          var y = el.currentStyle[styleProp];
+        else if (window.getComputedStyle)
+          var y = document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+        return y;
+      }
+      function toggle() {
+        var el = this.expandable_content;
+        var mark = this.expandable_marker;
+        if (el.style.display == "block") {
+          el.style.display = "none";
+          mark.innerHTML = "[+]";
+        } else {
+          el.style.display = "block";
+          mark.innerHTML = "[-]";
+        }
+      }
+      function init_expandables() {
+        var elts = document.getElementsByClassName("expandable");
+        for (var i = 0; i < elts.length; i++) {
+          var el = elts[i];
+          var clickable = el.getElementsByTagName("span")[0];
+          var marker = clickable.getElementsByClassName("marker")[0];
+          var content = el.getElementsByClassName("content")[0];
+          var width = clickable.clientWidth - parseInt(getStyle(content, "padding-left")) - parseInt(getStyle(content, "padding-right"));
+          content.style.width = width + "px";
+          clickable.expandable_content = content;
+          clickable.expandable_marker = marker;
+          clickable.onclick = toggle;
+        }
+      }
+      function set_class_display(c, st) {
+        var elements = document.querySelectorAll('.' + c),
+            len = elements.length;
+        for (i = 0; i < len; i++) {
+            elements[i].style.display = st;
+        }
+      }
+      function toggle_class_visibility(id) {
+        var box = document.getElementById(id);
+        set_class_display(id, box.checked ? '' : 'none');
+      }
+    </script>
+  </head>
+  <body onload="init_expandables()">
+      <div id="header">
+        <h1>Cppcheck report - [project name]: /Users/MilleniumStudio/Git/wod/src/server/worldserver/Master.cpp </h1>
+      </div>
+      <div id="menu" dir="rtl">
+       <p id="filename"><a href="index.html">Defects:</a> Master.cpp</p>
+<a href='1091.html#line-59'> unusedFunction 59</a>
+      </div>
+      <div id="content">
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+798
+799
+800
+801
+802
+803
+804
+805
+806
+807
+808
+809
+810
+811
+812
+813
+814
+815
+816
+817
+818
+819
+820
+821
+822
+823
+824
+825
+826
+827
+828
+829
+830
+831
+832
+833
+834
+835
+836
+837
+838
+839
+840
+841
+842
+843
+844
+845
+846
+847
+848
+849
+850
+851
+852
+853
+854
+855
+856
+857
+858
+859
+860
+861
+862
+863
+864
+865
+866
+867
+868
+869
+870
+871
+872
+873
+874
+875
+876
+877
+878
+879
+880
+881
+882
+883
+884
+885
+886
+887
+888
+889
+890
+891
+892
+893
+894
+895
+896
+897
+898
+899
+900
+901
+902
+903
+904
+905
+906
+907
+908
+909
+910
+911</pre></div></td><td class="code"><div class="highlight"><pre><span></span><a name="line-1"></a><span class="c1">////////////////////////////////////////////////////////////////////////////////</span>
+<a name="line-2"></a><span class="c1">//</span>
+<a name="line-3"></a><span class="c1">//  MILLENIUM-STUDIO</span>
+<a name="line-4"></a><span class="c1">//  Copyright 2016 Millenium-studio SARL</span>
+<a name="line-5"></a><span class="c1">//  All Rights Reserved.</span>
+<a name="line-6"></a><span class="c1">//</span>
+<a name="line-7"></a><span class="c1">////////////////////////////////////////////////////////////////////////////////</span>
+<a name="line-8"></a>
+<a name="line-9"></a><span class="cp">#include</span> <span class="cpf">&lt;ace/Sig_Handler.h&gt;</span><span class="cp"></span>
+<a name="line-10"></a>
+<a name="line-11"></a><span class="cp">#include</span> <span class="cpf">&quot;Common.h&quot;</span><span class="cp"></span>
+<a name="line-12"></a><span class="cp">#include</span> <span class="cpf">&quot;GitRevision.h&quot;</span><span class="cp"></span>
+<a name="line-13"></a><span class="cp">#include</span> <span class="cpf">&quot;SignalHandler.h&quot;</span><span class="cp"></span>
+<a name="line-14"></a><span class="cp">#include</span> <span class="cpf">&quot;World.h&quot;</span><span class="cp"></span>
+<a name="line-15"></a><span class="cp">#include</span> <span class="cpf">&quot;WorldRunnable.h&quot;</span><span class="cp"></span>
+<a name="line-16"></a><span class="cp">#include</span> <span class="cpf">&quot;WorldSocket.h&quot;</span><span class="cp"></span>
+<a name="line-17"></a><span class="cp">#include</span> <span class="cpf">&quot;WorldSocketMgr.h&quot;</span><span class="cp"></span>
+<a name="line-18"></a><span class="cp">#include</span> <span class="cpf">&quot;Configuration/Config.h&quot;</span><span class="cp"></span>
+<a name="line-19"></a><span class="cp">#include</span> <span class="cpf">&quot;Database/DatabaseEnv.h&quot;</span><span class="cp"></span>
+<a name="line-20"></a><span class="cp">#include</span> <span class="cpf">&quot;Database/DatabaseWorkerPool.h&quot;</span><span class="cp"></span>
+<a name="line-21"></a><span class="cp">#include</span> <span class="cpf">&quot;PlayerDump.h&quot;</span><span class="cp"></span>
+<a name="line-22"></a><span class="cp">#include</span> <span class="cpf">&quot;Player.h&quot;</span><span class="cp"></span>
+<a name="line-23"></a><span class="cp">#include</span> <span class="cpf">&quot;ObjectMgr.h&quot;</span><span class="cp"></span>
+<a name="line-24"></a><span class="cp">#include</span> <span class="cpf">&quot;CinematicPathMgr.h&quot;</span><span class="cp"></span>
+<a name="line-25"></a>
+<a name="line-26"></a><span class="cp">#include</span> <span class="cpf">&quot;CliRunnable.h&quot;</span><span class="cp"></span>
+<a name="line-27"></a><span class="cp">#include</span> <span class="cpf">&quot;Log.h&quot;</span><span class="cp"></span>
+<a name="line-28"></a><span class="cp">#include</span> <span class="cpf">&quot;Master.h&quot;</span><span class="cp"></span>
+<a name="line-29"></a><span class="cp">#include</span> <span class="cpf">&quot;RARunnable.h&quot;</span><span class="cp"></span>
+<a name="line-30"></a><span class="cp">#include</span> <span class="cpf">&quot;TCSoap.h&quot;</span><span class="cp"></span>
+<a name="line-31"></a><span class="cp">#include</span> <span class="cpf">&quot;Timer.h&quot;</span><span class="cp"></span>
+<a name="line-32"></a><span class="cp">#include</span> <span class="cpf">&quot;Util.h&quot;</span><span class="cp"></span>
+<a name="line-33"></a>
+<a name="line-34"></a><span class="cp">#include</span> <span class="cpf">&quot;BigNumber.h&quot;</span><span class="cp"></span>
+<a name="line-35"></a><span class="cp">#include</span> <span class="cpf">&quot;Reporter.hpp&quot;</span><span class="cp"></span>
+<a name="line-36"></a>
+<a name="line-37"></a><span class="cp">#ifdef _WIN32</span>
+<a name="line-38"></a><span class="cp">#include</span> <span class="cpf">&quot;ServiceWin32.h&quot;</span><span class="cp"></span>
+<a name="line-39"></a><span class="k">extern</span> <span class="kt">int</span> <span class="n">m_ServiceStatus</span><span class="p">;</span>
+<a name="line-40"></a><span class="cp">#endif</span>
+<a name="line-41"></a>
+<a name="line-42"></a><span class="k">enum</span> <span class="n">RealmFlags</span>
+<a name="line-43"></a><span class="p">{</span>
+<a name="line-44"></a>    <span class="n">REALM_FLAG_NONE</span>                              <span class="o">=</span> <span class="mh">0x00</span><span class="p">,</span>
+<a name="line-45"></a>    <span class="n">REALM_FLAG_INVALID</span>                           <span class="o">=</span> <span class="mh">0x01</span><span class="p">,</span>
+<a name="line-46"></a>    <span class="n">REALM_FLAG_OFFLINE</span>                           <span class="o">=</span> <span class="mh">0x02</span><span class="p">,</span>
+<a name="line-47"></a>    <span class="n">REALM_FLAG_SPECIFYBUILD</span>                      <span class="o">=</span> <span class="mh">0x04</span><span class="p">,</span>
+<a name="line-48"></a>    <span class="n">REALM_FLAG_UNK1</span>                              <span class="o">=</span> <span class="mh">0x08</span><span class="p">,</span>
+<a name="line-49"></a>    <span class="n">REALM_FLAG_UNK2</span>                              <span class="o">=</span> <span class="mh">0x10</span><span class="p">,</span>
+<a name="line-50"></a>    <span class="n">REALM_FLAG_RECOMMENDED</span>                       <span class="o">=</span> <span class="mh">0x20</span><span class="p">,</span>
+<a name="line-51"></a>    <span class="n">REALM_FLAG_NEW</span>                               <span class="o">=</span> <span class="mh">0x40</span><span class="p">,</span>
+<a name="line-52"></a>    <span class="n">REALM_FLAG_FULL</span>                              <span class="o">=</span> <span class="mh">0x80</span>
+<a name="line-53"></a><span class="p">};</span>
+<a name="line-54"></a>
+<a name="line-55"></a><span class="c1">/// Handle worldservers&#39;s termination signals</span>
+<a name="line-56"></a><span class="k">class</span> <span class="nc">WorldServerSignalHandler</span> <span class="o">:</span> <span class="k">public</span> <span class="n">JadeCore</span><span class="o">::</span><span class="n">SignalHandler</span>
+<a name="line-57"></a><span class="p">{</span>
+<a name="line-58"></a>    <span class="k">public</span><span class="o">:</span>
+<a name="line-59"></a><span class="hll">        <span class="k">virtual</span> <span class="kt">void</span> <span class="n">HandleSignal</span><span class="p">(</span><span class="kt">int</span> <span class="n">SigNum</span><span class="p">)</span><span class='error2'>&lt;--- The function 'HandleSignal' is never used.</span>
+</span><a name="line-60"></a>        <span class="p">{</span>
+<a name="line-61"></a>            <span class="k">switch</span> <span class="p">(</span><span class="n">SigNum</span><span class="p">)</span>
+<a name="line-62"></a>            <span class="p">{</span>
+<a name="line-63"></a>                <span class="k">case</span> <span class="nl">SIGINT</span><span class="p">:</span>
+<a name="line-64"></a>                    <span class="n">World</span><span class="o">::</span><span class="n">StopNow</span><span class="p">(</span><span class="n">RESTART_EXIT_CODE</span><span class="p">);</span>
+<a name="line-65"></a>                    <span class="k">break</span><span class="p">;</span>
+<a name="line-66"></a>                <span class="k">case</span> <span class="nl">SIGTERM</span><span class="p">:</span>
+<a name="line-67"></a>                <span class="cp">#ifdef _WIN32</span>
+<a name="line-68"></a>                <span class="k">case</span> <span class="nl">SIGBREAK</span><span class="p">:</span>
+<a name="line-69"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">m_ServiceStatus</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+<a name="line-70"></a>                <span class="cp">#endif </span><span class="cm">/* _WIN32 */</span><span class="cp"></span>
+<a name="line-71"></a>                    <span class="n">World</span><span class="o">::</span><span class="n">StopNow</span><span class="p">(</span><span class="n">SHUTDOWN_EXIT_CODE</span><span class="p">);</span>
+<a name="line-72"></a>                    <span class="k">break</span><span class="p">;</span>
+<a name="line-73"></a>            <span class="p">}</span>
+<a name="line-74"></a>        <span class="p">}</span>
+<a name="line-75"></a><span class="p">};</span>
+<a name="line-76"></a>
+<a name="line-77"></a><span class="k">class</span> <span class="nc">FreezeDetectorRunnable</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Runnable</span>
+<a name="line-78"></a><span class="p">{</span>
+<a name="line-79"></a><span class="k">public</span><span class="o">:</span>
+<a name="line-80"></a>    <span class="n">FreezeDetectorRunnable</span><span class="p">()</span>
+<a name="line-81"></a>    <span class="p">{</span>
+<a name="line-82"></a>        <span class="n">m_Delaytime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-83"></a>        <span class="n">m_CanStop</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-84"></a>    <span class="p">}</span>
+<a name="line-85"></a>
+<a name="line-86"></a>    <span class="n">uint32</span> <span class="n">m_loops</span><span class="p">,</span> <span class="n">m_lastchange</span><span class="p">;</span>
+<a name="line-87"></a>    <span class="n">uint32</span> <span class="n">w_loops</span><span class="p">,</span> <span class="n">w_lastchange</span><span class="p">;</span>
+<a name="line-88"></a>    <span class="n">uint32</span> <span class="n">m_Delaytime</span><span class="p">;</span>
+<a name="line-89"></a>
+<a name="line-90"></a>    <span class="kt">bool</span> <span class="n">m_CanStop</span><span class="p">;</span>
+<a name="line-91"></a>
+<a name="line-92"></a>    <span class="kt">void</span> <span class="nf">SetDelayTime</span><span class="p">(</span><span class="n">uint32</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_Delaytime</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span> <span class="p">}</span>
+<a name="line-93"></a>    <span class="kt">void</span> <span class="nf">SetCanStop</span><span class="p">()</span> <span class="p">{</span> <span class="n">m_CanStop</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>
+<a name="line-94"></a>
+<a name="line-95"></a>    <span class="kt">void</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<a name="line-96"></a>    <span class="p">{</span>
+<a name="line-97"></a>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">m_Delaytime</span><span class="p">)</span>
+<a name="line-98"></a>            <span class="k">return</span><span class="p">;</span>
+<a name="line-99"></a>
+<a name="line-100"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Starting up anti-freeze thread (%u seconds max stuck time)...&quot;</span><span class="p">,</span> <span class="n">m_Delaytime</span><span class="o">/</span><span class="mi">1000</span><span class="p">);</span>
+<a name="line-101"></a>
+<a name="line-102"></a>        <span class="n">m_loops</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-103"></a>        <span class="n">w_loops</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-104"></a>        <span class="n">m_lastchange</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-105"></a>        <span class="n">w_lastchange</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-106"></a>
+<a name="line-107"></a>        <span class="c1">/// Protect against freeze in world loop</span>
+<a name="line-108"></a>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">World</span><span class="o">::</span><span class="n">IsStopped</span><span class="p">())</span>
+<a name="line-109"></a>        <span class="p">{</span>
+<a name="line-110"></a>            <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">::</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<a name="line-111"></a>            <span class="n">uint32</span> <span class="n">curtime</span> <span class="o">=</span> <span class="n">getMSTime</span><span class="p">();</span>
+<a name="line-112"></a>            <span class="c1">// normal work</span>
+<a name="line-113"></a>            <span class="n">uint32</span> <span class="n">worldLoopCounter</span> <span class="o">=</span> <span class="n">World</span><span class="o">::</span><span class="n">m_worldLoopCounter</span><span class="p">;</span>
+<a name="line-114"></a>            <span class="k">if</span> <span class="p">(</span><span class="n">w_loops</span> <span class="o">!=</span> <span class="n">worldLoopCounter</span><span class="p">)</span>
+<a name="line-115"></a>            <span class="p">{</span>
+<a name="line-116"></a>                <span class="n">w_lastchange</span> <span class="o">=</span> <span class="n">curtime</span><span class="p">;</span>
+<a name="line-117"></a>                <span class="n">w_loops</span> <span class="o">=</span> <span class="n">worldLoopCounter</span><span class="p">;</span>
+<a name="line-118"></a>            <span class="p">}</span>
+<a name="line-119"></a>            <span class="c1">// possible freeze</span>
+<a name="line-120"></a>            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">getMSTimeDiff</span><span class="p">(</span><span class="n">w_lastchange</span><span class="p">,</span> <span class="n">curtime</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">m_Delaytime</span><span class="p">)</span>
+<a name="line-121"></a>            <span class="p">{</span>
+<a name="line-122"></a>                <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;World Thread hangs, kicking out server!&quot;</span><span class="p">);</span>
+<a name="line-123"></a>                <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<a name="line-124"></a>                <span class="n">abort</span><span class="p">();</span>
+<a name="line-125"></a>            <span class="p">}</span>
+<a name="line-126"></a>        <span class="p">}</span>
+<a name="line-127"></a>
+<a name="line-128"></a>        <span class="c1">/// Protect against freeze on shutdown</span>
+<a name="line-129"></a>        <span class="n">uint32</span> <span class="n">l_WorldStopTime</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="k">nullptr</span><span class="p">);</span>
+<a name="line-130"></a>
+<a name="line-131"></a>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">m_CanStop</span><span class="p">)</span>
+<a name="line-132"></a>        <span class="p">{</span>
+<a name="line-133"></a>            <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">::</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<a name="line-134"></a>
+<a name="line-135"></a>            <span class="k">if</span> <span class="p">((</span><span class="n">time</span><span class="p">(</span><span class="k">nullptr</span><span class="p">)</span> <span class="o">-</span> <span class="n">l_WorldStopTime</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">)</span>
+<a name="line-136"></a>            <span class="p">{</span>
+<a name="line-137"></a>                <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Freeze on shutdown, kill the server!&quot;</span><span class="p">);</span>
+<a name="line-138"></a>                <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<a name="line-139"></a>                <span class="n">abort</span><span class="p">();</span>
+<a name="line-140"></a>            <span class="p">}</span>
+<a name="line-141"></a>        <span class="p">}</span>
+<a name="line-142"></a>
+<a name="line-143"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Anti-freeze thread exiting without problems.&quot;</span><span class="p">);</span>
+<a name="line-144"></a>    <span class="p">}</span>
+<a name="line-145"></a><span class="p">};</span>
+<a name="line-146"></a>
+<a name="line-147"></a><span class="k">class</span> <span class="nc">GmLogToDBRunnable</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Runnable</span>
+<a name="line-148"></a><span class="p">{</span>
+<a name="line-149"></a><span class="k">public</span><span class="o">:</span>
+<a name="line-150"></a>
+<a name="line-151"></a>    <span class="kt">void</span> <span class="n">run</span> <span class="p">()</span>
+<a name="line-152"></a>    <span class="p">{</span>
+<a name="line-153"></a>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">World</span><span class="o">::</span><span class="n">IsStopped</span><span class="p">())</span>
+<a name="line-154"></a>        <span class="p">{</span>
+<a name="line-155"></a>            <span class="n">GmCommand</span> <span class="o">*</span> <span class="n">command</span><span class="p">;</span>
+<a name="line-156"></a>            <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">GmLogQueue</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-157"></a>            <span class="p">{</span>
+<a name="line-158"></a>                <span class="n">GmLogQueue</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">command</span><span class="p">);</span>
+<a name="line-159"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-160"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-161"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-162"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-163"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">command</span><span class="p">);</span>
+<a name="line-164"></a>                <span class="c1">//No sql injections. Strings are escaped.</span>
+<a name="line-165"></a>
+<a name="line-166"></a>                <span class="c1">//au cas ou on a pas les infos...</span>
+<a name="line-167"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-168"></a>                <span class="p">{</span>
+<a name="line-169"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT username FROM account WHERE id = %u&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-170"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-171"></a>                    <span class="p">{</span>
+<a name="line-172"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-173"></a>                        <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-174"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-175"></a>                    <span class="p">}</span>
+<a name="line-176"></a>                <span class="p">}</span>
+<a name="line-177"></a>
+<a name="line-178"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-179"></a>                <span class="p">{</span>
+<a name="line-180"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT username FROM account WHERE id = %u&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-181"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-182"></a>                    <span class="p">{</span>
+<a name="line-183"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-184"></a>                        <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-185"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-186"></a>                    <span class="p">}</span>
+<a name="line-187"></a>                <span class="p">}</span>
+<a name="line-188"></a>
+<a name="line-189"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-190"></a>                <span class="p">{</span>
+<a name="line-191"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT name FROM character WHERE guid = %u&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-192"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-193"></a>                    <span class="p">{</span>
+<a name="line-194"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-195"></a>                        <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-196"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-197"></a>                    <span class="p">}</span>
+<a name="line-198"></a>                <span class="p">}</span>
+<a name="line-199"></a>
+<a name="line-200"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-201"></a>                <span class="p">{</span>
+<a name="line-202"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT name FROM character WHERE guid = %u&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-203"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-204"></a>                    <span class="p">{</span>
+<a name="line-205"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-206"></a>                        <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-207"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-208"></a>                    <span class="p">}</span>
+<a name="line-209"></a>                <span class="p">}</span>
+<a name="line-210"></a>
+<a name="line-211"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-212"></a>                <span class="p">{</span>
+<a name="line-213"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT name FROM character WHERE guid = %u&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-214"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-215"></a>                    <span class="p">{</span>
+<a name="line-216"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-217"></a>                        <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-218"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-219"></a>                    <span class="p">}</span>
+<a name="line-220"></a>                <span class="p">}</span>
+<a name="line-221"></a>
+<a name="line-222"></a>                <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">last_ip</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
+<a name="line-223"></a>
+<a name="line-224"></a>                <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT last_ip FROM account WHERE id = %u&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-225"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-226"></a>                <span class="p">{</span>
+<a name="line-227"></a>                    <span class="n">Field</span> <span class="o">*</span><span class="n">fields_ip</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-228"></a>                    <span class="n">last_ip</span> <span class="o">=</span> <span class="n">fields_ip</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-229"></a>                <span class="p">}</span>
+<a name="line-230"></a>
+<a name="line-231"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="c1">///&lt; Comparison of array &#39;command-&gt;characterID&#39; equal to a null pointer is always false</span>
+<a name="line-232"></a>                <span class="p">{</span>
+<a name="line-233"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<a name="line-234"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<a name="line-235"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<a name="line-236"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<a name="line-237"></a>                <span class="p">}</span>
+<a name="line-238"></a>
+<a name="line-239"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PExecute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO log_gm(`date`, &quot;</span>
+<a name="line-240"></a>                    <span class="s">&quot;`gm_account_id`, `gm_account_name`, `gm_character_id`, `gm_character_name`, `gm_last_ip`,&quot;</span>
+<a name="line-241"></a>                    <span class="s">&quot;`sc_account_id`, `sc_account_name`, `sc_character_id`, `sc_character_name`,&quot;</span>
+<a name="line-242"></a>                    <span class="s">&quot;`command`)&quot;</span>
+<a name="line-243"></a>                    <span class="s">&quot;VALUES(NOW(),&quot;</span>
+<a name="line-244"></a>                    <span class="s">&quot;%u,&#39;%s&#39;,%u,&#39;%s&#39;,&#39;%s&#39;,&quot;</span>
+<a name="line-245"></a>                    <span class="s">&quot;%u,&#39;%s&#39;,%u,&#39;%s&#39;,&quot;</span>
+<a name="line-246"></a>                    <span class="s">&quot;&#39;%s&#39;)&quot;</span><span class="p">,</span>
+<a name="line-247"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">last_ip</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span>
+<a name="line-248"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">command</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span>
+<a name="line-249"></a>                    <span class="n">command</span><span class="o">-&gt;</span><span class="n">command</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-250"></a>                <span class="k">delete</span> <span class="n">command</span><span class="p">;</span>
+<a name="line-251"></a>            <span class="p">}</span>
+<a name="line-252"></a>            <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">::</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<a name="line-253"></a>        <span class="p">}</span>
+<a name="line-254"></a>    <span class="p">}</span>
+<a name="line-255"></a><span class="p">};</span>
+<a name="line-256"></a>
+<a name="line-257"></a><span class="k">class</span> <span class="nc">GmChatLogToDBRunnable</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Runnable</span>
+<a name="line-258"></a><span class="p">{</span>
+<a name="line-259"></a><span class="k">public</span><span class="o">:</span>
+<a name="line-260"></a>
+<a name="line-261"></a>    <span class="kt">void</span> <span class="n">run</span> <span class="p">()</span>
+<a name="line-262"></a>    <span class="p">{</span>
+<a name="line-263"></a>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">World</span><span class="o">::</span><span class="n">IsStopped</span><span class="p">())</span>
+<a name="line-264"></a>        <span class="p">{</span>
+<a name="line-265"></a>            <span class="n">GmChat</span> <span class="o">*</span> <span class="n">ChatLog</span><span class="p">;</span>
+<a name="line-266"></a>            <span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">GmChatLogQueue</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-267"></a>            <span class="p">{</span>
+<a name="line-268"></a>                <span class="n">GmChatLogQueue</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">ChatLog</span><span class="p">);</span>
+<a name="line-269"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-270"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-271"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-272"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-273"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">message</span><span class="p">);</span>
+<a name="line-274"></a>                <span class="c1">//No sql injections. Strings are escaped.</span>
+<a name="line-275"></a>
+<a name="line-276"></a>                <span class="c1">//au cas ou on a pas les infos...</span>
+<a name="line-277"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-278"></a>                <span class="p">{</span>
+<a name="line-279"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT username FROM account WHERE id = %u&quot;</span><span class="p">,</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-280"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-281"></a>                    <span class="p">{</span>
+<a name="line-282"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-283"></a>                        <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-284"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-285"></a>                    <span class="p">}</span>
+<a name="line-286"></a>                <span class="p">}</span>
+<a name="line-287"></a>
+<a name="line-288"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-289"></a>                <span class="p">{</span>
+<a name="line-290"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT username FROM account WHERE id = %u&quot;</span><span class="p">,</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-291"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-292"></a>                    <span class="p">{</span>
+<a name="line-293"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-294"></a>                        <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-295"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-296"></a>                    <span class="p">}</span>
+<a name="line-297"></a>                <span class="p">}</span>
+<a name="line-298"></a>
+<a name="line-299"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-300"></a>                <span class="p">{</span>
+<a name="line-301"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT name FROM character WHERE guid = %u&quot;</span><span class="p">,</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-302"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-303"></a>                    <span class="p">{</span>
+<a name="line-304"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-305"></a>                        <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-306"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<a name="line-307"></a>                    <span class="p">}</span>
+<a name="line-308"></a>                <span class="p">}</span>
+<a name="line-309"></a>
+<a name="line-310"></a>                <span class="k">if</span> <span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-311"></a>                <span class="p">{</span>
+<a name="line-312"></a>                    <span class="n">QueryResult</span> <span class="n">result</span> <span class="o">=</span> <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PQuery</span><span class="p">(</span><span class="s">&quot;SELECT name FROM character WHERE guid = %u&quot;</span><span class="p">,</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-313"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<a name="line-314"></a>                    <span class="p">{</span>
+<a name="line-315"></a>                        <span class="n">Field</span> <span class="o">*</span><span class="n">fields</span> <span class="o">=</span> <span class="n">result</span><span class="o">-&gt;</span><span class="n">Fetch</span><span class="p">();</span>
+<a name="line-316"></a>                        <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">GetString</span><span class="p">();</span>
+<a name="line-317"></a>                        <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">EscapeString</span><span class="p">(</span><span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<a name="line-318"></a>                    <span class="p">}</span>
+<a name="line-319"></a>                <span class="p">}</span>
+<a name="line-320"></a>
+<a name="line-321"></a>                <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">PExecute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO log_gm_chat(`type`, `date`, &quot;</span>
+<a name="line-322"></a>                    <span class="s">&quot;`from_account_id`, `from_account_name`, `from_character_id`, `from_character_name`,&quot;</span>
+<a name="line-323"></a>                    <span class="s">&quot;`to_account_id`, `to_account_name`, `to_character_id`, `to_character_name`,&quot;</span>
+<a name="line-324"></a>                    <span class="s">&quot;`message`)&quot;</span>
+<a name="line-325"></a>                    <span class="s">&quot;VALUES(%u, NOW(),&quot;</span>
+<a name="line-326"></a>                    <span class="s">&quot;%u,&#39;%s&#39;,%u,&#39;%s&#39;,&quot;</span>
+<a name="line-327"></a>                    <span class="s">&quot;%u,&#39;%s&#39;,%u,&#39;%s&#39;,&quot;</span>
+<a name="line-328"></a>                    <span class="s">&quot;&#39;%s&#39;)&quot;</span><span class="p">,</span>
+<a name="line-329"></a>                    <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">,</span>
+<a name="line-330"></a>                    <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span>
+<a name="line-331"></a>                    <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountID</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">accountName</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterID</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">characterName</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span>
+<a name="line-332"></a>                    <span class="n">ChatLog</span><span class="o">-&gt;</span><span class="n">message</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-333"></a>                <span class="k">delete</span> <span class="n">ChatLog</span><span class="p">;</span>
+<a name="line-334"></a>            <span class="p">}</span>
+<a name="line-335"></a>            <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">::</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<a name="line-336"></a>        <span class="p">}</span>
+<a name="line-337"></a>    <span class="p">}</span>
+<a name="line-338"></a><span class="p">};</span>
+<a name="line-339"></a>
+<a name="line-340"></a><span class="k">class</span> <span class="nc">ArenaLogToDBRunnable</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Runnable</span>
+<a name="line-341"></a><span class="p">{</span>
+<a name="line-342"></a><span class="k">public</span><span class="o">:</span>
+<a name="line-343"></a>
+<a name="line-344"></a>    <span class="kt">void</span> <span class="n">run</span> <span class="p">()</span>
+<a name="line-345"></a>    <span class="p">{</span>
+<a name="line-346"></a>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">World</span><span class="o">::</span><span class="n">IsStopped</span><span class="p">())</span>
+<a name="line-347"></a>        <span class="p">{</span>
+<a name="line-348"></a>            <span class="cm">/*ArenaLog * log;</span>
+<a name="line-349"></a><span class="cm">            while(!ArenaLogQueue.empty())</span>
+<a name="line-350"></a><span class="cm">            {</span>
+<a name="line-351"></a><span class="cm">                ArenaLogQueue.next(log);</span>
+<a name="line-352"></a><span class="cm">                CharacterDatabase.EscapeString(log-&gt;str);</span>
+<a name="line-353"></a><span class="cm">                //No sql injections. Strings are escaped.</span>
+<a name="line-354"></a>
+<a name="line-355"></a><span class="cm">                CharacterDatabase.PExecute(&quot;INSERT INTO log_arena (`id`, `timestamp`, `string`) VALUES (0, %u, &#39;%s&#39;);&quot;, log-&gt;timestamp, log-&gt;str.c_str());</span>
+<a name="line-356"></a><span class="cm">                delete log;</span>
+<a name="line-357"></a><span class="cm">            }*/</span>
+<a name="line-358"></a>            <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">::</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<a name="line-359"></a>        <span class="p">}</span>
+<a name="line-360"></a>    <span class="p">}</span>
+<a name="line-361"></a><span class="p">};</span>
+<a name="line-362"></a>
+<a name="line-363"></a><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">dumpTables</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">=</span>
+<a name="line-364"></a><span class="p">{</span>
+<a name="line-365"></a>    <span class="s">&quot;characters&quot;</span><span class="p">,</span>
+<a name="line-366"></a>    <span class="s">&quot;character_account_data&quot;</span><span class="p">,</span>
+<a name="line-367"></a>    <span class="s">&quot;character_achievement&quot;</span><span class="p">,</span>
+<a name="line-368"></a>    <span class="s">&quot;character_achievement_progress&quot;</span><span class="p">,</span>
+<a name="line-369"></a>    <span class="s">&quot;character_action&quot;</span><span class="p">,</span>
+<a name="line-370"></a>    <span class="s">&quot;character_aura&quot;</span><span class="p">,</span>
+<a name="line-371"></a>    <span class="s">&quot;character_aura_effect&quot;</span><span class="p">,</span>
+<a name="line-372"></a>    <span class="s">&quot;character_currency&quot;</span><span class="p">,</span>
+<a name="line-373"></a>    <span class="c1">//{ &quot;character_cuf_profiles&quot;,</span>
+<a name="line-374"></a>    <span class="s">&quot;character_declinedname&quot;</span><span class="p">,</span>
+<a name="line-375"></a>    <span class="s">&quot;character_equipmentsets&quot;</span><span class="p">,</span>
+<a name="line-376"></a>    <span class="s">&quot;character_gifts&quot;</span><span class="p">,</span>
+<a name="line-377"></a>    <span class="s">&quot;character_glyphs&quot;</span><span class="p">,</span>
+<a name="line-378"></a>    <span class="s">&quot;character_homebind&quot;</span><span class="p">,</span>
+<a name="line-379"></a>    <span class="s">&quot;character_inventory&quot;</span><span class="p">,</span>
+<a name="line-380"></a>    <span class="s">&quot;character_pet&quot;</span><span class="p">,</span>
+<a name="line-381"></a>    <span class="s">&quot;character_pet_declinedname&quot;</span><span class="p">,</span>
+<a name="line-382"></a>    <span class="s">&quot;character_queststatus&quot;</span><span class="p">,</span>
+<a name="line-383"></a>    <span class="s">&quot;character_queststatus_rewarded&quot;</span><span class="p">,</span>
+<a name="line-384"></a>    <span class="s">&quot;character_rates&quot;</span><span class="p">,</span>
+<a name="line-385"></a>    <span class="s">&quot;character_reputation&quot;</span><span class="p">,</span>
+<a name="line-386"></a>    <span class="s">&quot;character_skills&quot;</span><span class="p">,</span>
+<a name="line-387"></a>    <span class="s">&quot;character_spell&quot;</span><span class="p">,</span>
+<a name="line-388"></a>    <span class="s">&quot;character_spell_cooldown&quot;</span><span class="p">,</span>
+<a name="line-389"></a>    <span class="s">&quot;character_talent&quot;</span><span class="p">,</span>
+<a name="line-390"></a>    <span class="s">&quot;character_void_storage&quot;</span><span class="p">,</span>
+<a name="line-391"></a>    <span class="s">&quot;item_instance&quot;</span><span class="p">,</span>
+<a name="line-392"></a>    <span class="s">&quot;mail&quot;</span><span class="p">,</span>
+<a name="line-393"></a>    <span class="s">&quot;mail_items&quot;</span><span class="p">,</span>
+<a name="line-394"></a>    <span class="s">&quot;pet_aura&quot;</span><span class="p">,</span>
+<a name="line-395"></a>    <span class="s">&quot;pet_aura_effect&quot;</span><span class="p">,</span>
+<a name="line-396"></a>    <span class="s">&quot;pet_spell&quot;</span><span class="p">,</span>
+<a name="line-397"></a>    <span class="s">&quot;pet_spell_cooldown&quot;</span>
+<a name="line-398"></a><span class="p">};</span>
+<a name="line-399"></a>
+<a name="line-400"></a><span class="n">Master</span><span class="o">::</span><span class="n">Master</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+<a name="line-401"></a>
+<a name="line-402"></a><span class="n">Master</span><span class="o">::~</span><span class="n">Master</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+<a name="line-403"></a>
+<a name="line-404"></a><span class="c1">/// Main function</span>
+<a name="line-405"></a><span class="kt">int</span> <span class="n">Master</span><span class="o">::</span><span class="n">Run</span><span class="p">()</span>
+<a name="line-406"></a><span class="p">{</span>
+<a name="line-407"></a>    <span class="n">init_sfmt</span><span class="p">();</span>
+<a name="line-408"></a>    <span class="n">BigNumber</span> <span class="n">seed1</span><span class="p">;</span>
+<a name="line-409"></a>    <span class="n">seed1</span><span class="p">.</span><span class="n">SetRand</span><span class="p">(</span><span class="mi">16</span> <span class="o">*</span> <span class="mi">8</span><span class="p">);</span>
+<a name="line-410"></a>
+<a name="line-411"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;%s (worldserver-daemon)&quot;</span><span class="p">,</span> <span class="n">GitRevision</span><span class="o">::</span><span class="n">GetFullVersion</span><span class="p">());</span>
+<a name="line-412"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;&lt;Ctrl-C&gt; to stop.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<a name="line-413"></a>    
+<a name="line-414"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;               _                      _____                      &quot;</span><span class="p">);</span>
+<a name="line-415"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;     /</span><span class="se">\\</span><span class="s">       | |                    / ____|                    &quot;</span><span class="p">);</span>
+<a name="line-416"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;    /  </span><span class="se">\\</span><span class="s">   ___| |__  _ __ __ _ _ __ | |     ___  _ __ ___       &quot;</span><span class="p">);</span>
+<a name="line-417"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;   / /</span><span class="se">\\</span><span class="s"> </span><span class="se">\\</span><span class="s"> / __| &#39;_ </span><span class="se">\\</span><span class="s">| &#39;__/ _` | &#39;_ </span><span class="se">\\</span><span class="s">| |    / _ </span><span class="se">\\</span><span class="s">| &#39;__/ _ </span><span class="se">\\</span><span class="s"> &quot;</span><span class="p">);</span>
+<a name="line-418"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;  / ____ </span><span class="se">\\\\</span><span class="s">__ | | | | | | (_| | | | | |___| (_) | | |  __/     &quot;</span><span class="p">);</span>
+<a name="line-419"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot; /_/    </span><span class="se">\\</span><span class="s">_|___|_| |_|_|  </span><span class="se">\\</span><span class="s">__,_|_| |_|</span><span class="se">\\</span><span class="s">_____</span><span class="se">\\</span><span class="s">___/|_|  </span><span class="se">\\</span><span class="s">___|  &quot;</span><span class="p">);</span>
+<a name="line-420"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot; MILLENIUM STUDIO SARL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<a name="line-421"></a>
+<a name="line-422"></a>    <span class="c1">/// worldserver PID file creation</span>
+<a name="line-423"></a>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">pidfile</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;PidFile&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-424"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pidfile</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-425"></a>    <span class="p">{</span>
+<a name="line-426"></a>        <span class="n">uint32</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">CreatePIDFile</span><span class="p">(</span><span class="n">pidfile</span><span class="p">);</span>
+<a name="line-427"></a>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pid</span><span class="p">)</span>
+<a name="line-428"></a>        <span class="p">{</span>
+<a name="line-429"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot create PID file %s.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">pidfile</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-430"></a>            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<a name="line-431"></a>        <span class="p">}</span>
+<a name="line-432"></a>
+<a name="line-433"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Daemon PID: %u</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+<a name="line-434"></a>    <span class="p">}</span>
+<a name="line-435"></a>
+<a name="line-436"></a>    <span class="c1">///- Start the databases</span>
+<a name="line-437"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">_StartDB</span><span class="p">())</span>
+<a name="line-438"></a>        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<a name="line-439"></a>
+<a name="line-440"></a>    <span class="n">ExecutePendingRequests</span><span class="p">();</span>
+<a name="line-441"></a>
+<a name="line-442"></a>    <span class="c1">// set server offline (not connectable)</span>
+<a name="line-443"></a>    <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">DirectPExecute</span><span class="p">(</span><span class="s">&quot;UPDATE realmlist SET flag = (flag &amp; ~%u) | %u WHERE id = &#39;%d&#39;&quot;</span><span class="p">,</span> <span class="n">REALM_FLAG_OFFLINE</span><span class="p">,</span> <span class="n">REALM_FLAG_INVALID</span><span class="p">,</span> <span class="n">g_RealmID</span><span class="p">);</span>
+<a name="line-444"></a>
+<a name="line-445"></a>    <span class="c1">///- Initialize the World</span>
+<a name="line-446"></a>    <span class="n">sWorld</span><span class="o">-&gt;</span><span class="n">SetInitialWorldSettings</span><span class="p">();</span>
+<a name="line-447"></a>
+<a name="line-448"></a>    <span class="c1">///- Initialize the signal handlers</span>
+<a name="line-449"></a>    <span class="n">WorldServerSignalHandler</span> <span class="n">SignalINT</span><span class="p">,</span> <span class="n">SignalTERM</span><span class="p">;</span>
+<a name="line-450"></a>    <span class="cp">#ifdef _WIN32</span>
+<a name="line-451"></a>    <span class="n">WorldServerSignalHandler</span> <span class="n">SignalBREAK</span><span class="p">;</span>
+<a name="line-452"></a>    <span class="cp">#endif </span><span class="cm">/* _WIN32 */</span><span class="cp"></span>
+<a name="line-453"></a>
+<a name="line-454"></a>    <span class="c1">///- Register worldserver&#39;s signal handlers</span>
+<a name="line-455"></a>    <span class="n">ACE_Sig_Handler</span> <span class="n">Handler</span><span class="p">;</span>
+<a name="line-456"></a>    <span class="n">Handler</span><span class="p">.</span><span class="n">register_handler</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">SignalINT</span><span class="p">);</span>
+<a name="line-457"></a>    <span class="n">Handler</span><span class="p">.</span><span class="n">register_handler</span><span class="p">(</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">SignalTERM</span><span class="p">);</span>
+<a name="line-458"></a>    <span class="cp">#ifdef _WIN32</span>
+<a name="line-459"></a>    <span class="n">Handler</span><span class="p">.</span><span class="n">register_handler</span><span class="p">(</span><span class="n">SIGBREAK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">SignalBREAK</span><span class="p">);</span>
+<a name="line-460"></a>    <span class="cp">#endif </span><span class="cm">/* _WIN32 */</span><span class="cp"></span>
+<a name="line-461"></a>
+<a name="line-462"></a>    <span class="c1">///- Initializing the Reporter.</span>
+<a name="line-463"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Reporter: Initializing instance...&quot;</span><span class="p">);</span>
+<a name="line-464"></a>
+<a name="line-465"></a>    <span class="n">sReporter</span><span class="o">-&gt;</span><span class="n">SetAddress</span><span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;Reporting.Address&quot;</span><span class="p">,</span> <span class="s">&quot;http://127.0.0.1:9200/&quot;</span><span class="p">));</span>
+<a name="line-466"></a>    <span class="n">sReporter</span><span class="o">-&gt;</span><span class="n">SetIndex</span><span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;Reporting.Index&quot;</span><span class="p">,</span> <span class="s">&quot;firestorm/guild_ranking/?pretty&quot;</span><span class="p">));</span>
+<a name="line-467"></a>
+<a name="line-468"></a>    <span class="c1">/// Thread which repeat reporting.</span>
+<a name="line-469"></a>    <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">l_Reporter</span><span class="p">([]()</span>
+<a name="line-470"></a>    <span class="p">{</span>
+<a name="line-471"></a>        <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">World</span><span class="o">::</span><span class="n">IsStopped</span><span class="p">())</span>
+<a name="line-472"></a>        <span class="p">{</span>
+<a name="line-473"></a>            <span class="k">if</span> <span class="p">(</span><span class="n">sReporter</span><span class="o">-&gt;</span><span class="n">HasReports</span><span class="p">())</span>
+<a name="line-474"></a>                <span class="n">sReporter</span><span class="o">-&gt;</span><span class="n">ScheduleNextReport</span><span class="p">();</span>
+<a name="line-475"></a>
+<a name="line-476"></a>            <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">::</span><span class="n">current</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<a name="line-477"></a>        <span class="p">}</span>
+<a name="line-478"></a>    <span class="p">});</span>
+<a name="line-479"></a>
+<a name="line-480"></a>    <span class="c1">///- Launch WorldRunnable thread</span>
+<a name="line-481"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span> <span class="n">world_thread</span><span class="p">(</span><span class="k">new</span> <span class="n">WorldRunnable</span><span class="p">,</span> <span class="s">&quot;WorldRunnable&quot;</span><span class="p">);</span>
+<a name="line-482"></a>    <span class="n">world_thread</span><span class="p">.</span><span class="n">setPriority</span><span class="p">(</span><span class="n">ACE_Based</span><span class="o">::</span><span class="n">Highest</span><span class="p">);</span>
+<a name="line-483"></a>
+<a name="line-484"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">*</span> <span class="n">cliThread</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<a name="line-485"></a>
+<a name="line-486"></a><span class="cp">#ifdef _WIN32</span>
+<a name="line-487"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetBoolDefault</span><span class="p">(</span><span class="s">&quot;Console.Enable&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">m_ServiceStatus</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="cm">/* need disable console in service mode*/</span><span class="p">)</span>
+<a name="line-488"></a><span class="cp">#else</span>
+<a name="line-489"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetBoolDefault</span><span class="p">(</span><span class="s">&quot;Console.Enable&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">))</span>
+<a name="line-490"></a><span class="cp">#endif</span>
+<a name="line-491"></a>    <span class="p">{</span>
+<a name="line-492"></a>        <span class="c1">///- Launch CliRunnable thread</span>
+<a name="line-493"></a>        <span class="n">cliThread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="p">(</span><span class="k">new</span> <span class="n">CliRunnable</span><span class="p">,</span> <span class="s">&quot;CliRunnable&quot;</span><span class="p">);</span>
+<a name="line-494"></a>    <span class="p">}</span>
+<a name="line-495"></a>
+<a name="line-496"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span> <span class="n">rar_thread</span><span class="p">(</span><span class="k">new</span> <span class="n">RARunnable</span><span class="p">,</span> <span class="s">&quot;RARunnable&quot;</span><span class="p">);</span>
+<a name="line-497"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span> <span class="n">gmLogToDB_thread</span><span class="p">(</span><span class="k">new</span> <span class="n">GmLogToDBRunnable</span><span class="p">,</span> <span class="s">&quot;GmLogToDBRunnable&quot;</span><span class="p">);</span>
+<a name="line-498"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span> <span class="n">gmChatLogToDB_thread</span><span class="p">(</span><span class="k">new</span> <span class="n">GmChatLogToDBRunnable</span><span class="p">,</span> <span class="s">&quot;GmChatLogToDBRunnable&quot;</span><span class="p">);</span>
+<a name="line-499"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span> <span class="n">arenaLogToDB_thread</span><span class="p">(</span><span class="k">new</span> <span class="n">ArenaLogToDBRunnable</span><span class="p">,</span> <span class="s">&quot;ArenaLogToDBRunnable&quot;</span><span class="p">);</span>
+<a name="line-500"></a>
+<a name="line-501"></a>    <span class="c1">///- Handle affinity for multiple processors and process priority on Windows</span>
+<a name="line-502"></a>    <span class="cp">#ifdef _WIN32</span>
+<a name="line-503"></a>    <span class="p">{</span>
+<a name="line-504"></a>        <span class="n">HANDLE</span> <span class="n">hProcess</span> <span class="o">=</span> <span class="n">GetCurrentProcess</span><span class="p">();</span>
+<a name="line-505"></a>
+<a name="line-506"></a>        <span class="n">uint32</span> <span class="n">Aff</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;UseProcessors&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<a name="line-507"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">Aff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-508"></a>        <span class="p">{</span>
+<a name="line-509"></a>            <span class="n">ULONG_PTR</span> <span class="n">appAff</span><span class="p">;</span>
+<a name="line-510"></a>            <span class="n">ULONG_PTR</span> <span class="n">sysAff</span><span class="p">;</span>
+<a name="line-511"></a>
+<a name="line-512"></a>            <span class="k">if</span> <span class="p">(</span><span class="n">GetProcessAffinityMask</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">appAff</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sysAff</span><span class="p">))</span>
+<a name="line-513"></a>            <span class="p">{</span>
+<a name="line-514"></a>                <span class="n">ULONG_PTR</span> <span class="n">curAff</span> <span class="o">=</span> <span class="n">Aff</span> <span class="o">&amp;</span> <span class="n">appAff</span><span class="p">;</span>            <span class="c1">// remove non accessible processors</span>
+<a name="line-515"></a>
+<a name="line-516"></a>                <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">curAff</span><span class="p">)</span>
+<a name="line-517"></a>                <span class="p">{</span>
+<a name="line-518"></a>                    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Processors marked in UseProcessors bitmask (hex) %x are not accessible for the worldserver. Accessible processors bitmask (hex): %x&quot;</span><span class="p">,</span> <span class="n">Aff</span><span class="p">,</span> <span class="n">appAff</span><span class="p">);</span>
+<a name="line-519"></a>                <span class="p">}</span>
+<a name="line-520"></a>                <span class="k">else</span>
+<a name="line-521"></a>                <span class="p">{</span>
+<a name="line-522"></a>                    <span class="k">if</span> <span class="p">(</span><span class="n">SetProcessAffinityMask</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="n">curAff</span><span class="p">))</span>
+<a name="line-523"></a>                        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Using processors (bitmask, hex): %x&quot;</span><span class="p">,</span> <span class="n">curAff</span><span class="p">);</span>
+<a name="line-524"></a>                    <span class="k">else</span>
+<a name="line-525"></a>                        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Can&#39;t set used processors (hex): %x&quot;</span><span class="p">,</span> <span class="n">curAff</span><span class="p">);</span>
+<a name="line-526"></a>                <span class="p">}</span>
+<a name="line-527"></a>            <span class="p">}</span>
+<a name="line-528"></a>        <span class="p">}</span>
+<a name="line-529"></a>
+<a name="line-530"></a>        <span class="kt">bool</span> <span class="n">Prio</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetBoolDefault</span><span class="p">(</span><span class="s">&quot;ProcessPriority&quot;</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+<a name="line-531"></a>
+<a name="line-532"></a>        <span class="c1">//if (Prio &amp;&amp; (m_ServiceStatus == -1)  /* need set to default process priority class in service mode*/)</span>
+<a name="line-533"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">Prio</span><span class="p">)</span>
+<a name="line-534"></a>        <span class="p">{</span>
+<a name="line-535"></a>            <span class="k">if</span> <span class="p">(</span><span class="n">SetPriorityClass</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="n">HIGH_PRIORITY_CLASS</span><span class="p">))</span>
+<a name="line-536"></a>                <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;worldserver process priority class set to HIGH&quot;</span><span class="p">);</span>
+<a name="line-537"></a>            <span class="k">else</span>
+<a name="line-538"></a>                <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Can&#39;t set worldserver process priority class.&quot;</span><span class="p">);</span>
+<a name="line-539"></a>        <span class="p">}</span>
+<a name="line-540"></a>    <span class="p">}</span>
+<a name="line-541"></a>    <span class="cp">#endif</span>
+<a name="line-542"></a>    <span class="c1">//Start soap serving thread</span>
+<a name="line-543"></a>    <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="o">*</span> <span class="n">soap_thread</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<a name="line-544"></a>
+<a name="line-545"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetBoolDefault</span><span class="p">(</span><span class="s">&quot;SOAP.Enabled&quot;</span><span class="p">,</span> <span class="nb">false</span><span class="p">))</span>
+<a name="line-546"></a>    <span class="p">{</span>
+<a name="line-547"></a>        <span class="n">TCSoapRunnable</span><span class="o">*</span> <span class="n">runnable</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TCSoapRunnable</span><span class="p">();</span>
+<a name="line-548"></a>        <span class="n">runnable</span><span class="o">-&gt;</span><span class="n">setListenArguments</span><span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;SOAP.IP&quot;</span><span class="p">,</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">),</span> <span class="n">uint16</span><span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;SOAP.Port&quot;</span><span class="p">,</span> <span class="mi">7878</span><span class="p">)));</span>
+<a name="line-549"></a>        <span class="n">soap_thread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span><span class="p">(</span><span class="n">runnable</span><span class="p">,</span> <span class="s">&quot;SoapRunnable&quot;</span><span class="p">);</span>
+<a name="line-550"></a>    <span class="p">}</span>
+<a name="line-551"></a>
+<a name="line-552"></a>    <span class="n">FreezeDetectorRunnable</span><span class="o">*</span> <span class="n">fdr</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+<a name="line-553"></a>
+<a name="line-554"></a>    <span class="c1">///- Start up freeze catcher thread</span>
+<a name="line-555"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">uint32</span> <span class="n">freeze_delay</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;MaxCoreStuckTime&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<a name="line-556"></a>    <span class="p">{</span>
+<a name="line-557"></a>        <span class="n">fdr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FreezeDetectorRunnable</span><span class="p">();</span>
+<a name="line-558"></a>        <span class="n">fdr</span><span class="o">-&gt;</span><span class="n">SetDelayTime</span><span class="p">(</span><span class="n">freeze_delay</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">);</span>
+<a name="line-559"></a>        <span class="n">ACE_Based</span><span class="o">::</span><span class="n">Thread</span> <span class="n">freeze_thread</span><span class="p">(</span><span class="n">fdr</span><span class="p">,</span> <span class="s">&quot;FreezeDetector&quot;</span><span class="p">);</span>
+<a name="line-560"></a>        <span class="n">freeze_thread</span><span class="p">.</span><span class="n">setPriority</span><span class="p">(</span><span class="n">ACE_Based</span><span class="o">::</span><span class="n">Highest</span><span class="p">);</span>
+<a name="line-561"></a>    <span class="p">}</span>
+<a name="line-562"></a>
+<a name="line-563"></a>    <span class="c1">///- Launch the world listener socket</span>
+<a name="line-564"></a>    <span class="n">uint16</span> <span class="n">wsport</span> <span class="o">=</span> <span class="n">sWorld</span><span class="o">-&gt;</span><span class="n">getIntConfig</span><span class="p">(</span><span class="n">CONFIG_PORT_WORLD</span><span class="p">);</span>
+<a name="line-565"></a>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">bind_ip</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;BindIP&quot;</span><span class="p">,</span> <span class="s">&quot;0.0.0.0&quot;</span><span class="p">);</span>
+<a name="line-566"></a>
+<a name="line-567"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">sWorldSocketMgr</span><span class="o">-&gt;</span><span class="n">StartNetwork</span><span class="p">(</span><span class="n">wsport</span><span class="p">,</span> <span class="n">bind_ip</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<a name="line-568"></a>    <span class="p">{</span>
+<a name="line-569"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Failed to start network&quot;</span><span class="p">);</span>
+<a name="line-570"></a>        <span class="n">World</span><span class="o">::</span><span class="n">StopNow</span><span class="p">(</span><span class="n">ERROR_EXIT_CODE</span><span class="p">);</span>
+<a name="line-571"></a>        <span class="c1">// go down and shutdown the server</span>
+<a name="line-572"></a>    <span class="p">}</span>
+<a name="line-573"></a>
+<a name="line-574"></a>    <span class="c1">// set server online (allow connecting now)</span>
+<a name="line-575"></a>    <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">DirectPExecute</span><span class="p">(</span><span class="s">&quot;UPDATE realmlist SET flag = flag &amp; ~%u, population = 0 WHERE id = &#39;%u&#39;&quot;</span><span class="p">,</span> <span class="n">REALM_FLAG_INVALID</span><span class="p">,</span> <span class="n">g_RealmID</span><span class="p">);</span>
+<a name="line-576"></a>
+<a name="line-577"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;%s (worldserver-daemon) ready...&quot;</span><span class="p">,</span> <span class="n">GitRevision</span><span class="o">::</span><span class="n">GetFullVersion</span><span class="p">());</span>
+<a name="line-578"></a>
+<a name="line-579"></a>    <span class="c1">// when the main thread closes the singletons get unloaded</span>
+<a name="line-580"></a>    <span class="c1">// since worldrunnable uses them, it will crash if unloaded after master</span>
+<a name="line-581"></a>    <span class="n">world_thread</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span>
+<a name="line-582"></a>    <span class="n">rar_thread</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span>
+<a name="line-583"></a>    <span class="n">l_Reporter</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+<a name="line-584"></a>
+<a name="line-585"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">soap_thread</span><span class="p">)</span>
+<a name="line-586"></a>    <span class="p">{</span>
+<a name="line-587"></a>        <span class="n">soap_thread</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">();</span>
+<a name="line-588"></a>        <span class="n">soap_thread</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+<a name="line-589"></a>        <span class="k">delete</span> <span class="n">soap_thread</span><span class="p">;</span>
+<a name="line-590"></a>    <span class="p">}</span>
+<a name="line-591"></a>
+<a name="line-592"></a>    <span class="c1">// set server offline</span>
+<a name="line-593"></a>    <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">DirectPExecute</span><span class="p">(</span><span class="s">&quot;UPDATE realmlist SET flag = flag | %u WHERE id = &#39;%d&#39;&quot;</span><span class="p">,</span> <span class="n">REALM_FLAG_OFFLINE</span><span class="p">,</span> <span class="n">g_RealmID</span><span class="p">);</span>
+<a name="line-594"></a>
+<a name="line-595"></a>    <span class="c1">///- Clean database before leaving</span>
+<a name="line-596"></a>    <span class="n">ClearOnlineAccounts</span><span class="p">();</span>
+<a name="line-597"></a>
+<a name="line-598"></a>    <span class="n">_StopDB</span><span class="p">();</span>
+<a name="line-599"></a>
+<a name="line-600"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Halting process...&quot;</span><span class="p">);</span>
+<a name="line-601"></a>
+<a name="line-602"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">cliThread</span><span class="p">)</span>
+<a name="line-603"></a>    <span class="p">{</span>
+<a name="line-604"></a>        <span class="cp">#ifdef _WIN32</span>
+<a name="line-605"></a>
+<a name="line-606"></a>        <span class="c1">// this only way to terminate CLI thread exist at Win32 (alt. way exist only in Windows Vista API)</span>
+<a name="line-607"></a>        <span class="c1">//_exit(1);</span>
+<a name="line-608"></a>        <span class="c1">// send keyboard input to safely unblock the CLI thread</span>
+<a name="line-609"></a>        <span class="n">INPUT_RECORD</span> <span class="n">b</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+<a name="line-610"></a>        <span class="n">HANDLE</span> <span class="n">hStdIn</span> <span class="o">=</span> <span class="n">GetStdHandle</span><span class="p">(</span><span class="n">STD_INPUT_HANDLE</span><span class="p">);</span>
+<a name="line-611"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">EventType</span> <span class="o">=</span> <span class="n">KEY_EVENT</span><span class="p">;</span>
+<a name="line-612"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">bKeyDown</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">;</span>
+<a name="line-613"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">uChar</span><span class="p">.</span><span class="n">AsciiChar</span> <span class="o">=</span> <span class="sc">&#39;X&#39;</span><span class="p">;</span>
+<a name="line-614"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wVirtualKeyCode</span> <span class="o">=</span> <span class="sc">&#39;X&#39;</span><span class="p">;</span>
+<a name="line-615"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wRepeatCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<a name="line-616"></a>
+<a name="line-617"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">EventType</span> <span class="o">=</span> <span class="n">KEY_EVENT</span><span class="p">;</span>
+<a name="line-618"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">bKeyDown</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">;</span>
+<a name="line-619"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">uChar</span><span class="p">.</span><span class="n">AsciiChar</span> <span class="o">=</span> <span class="sc">&#39;X&#39;</span><span class="p">;</span>
+<a name="line-620"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wVirtualKeyCode</span> <span class="o">=</span> <span class="sc">&#39;X&#39;</span><span class="p">;</span>
+<a name="line-621"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wRepeatCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<a name="line-622"></a>
+<a name="line-623"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">EventType</span> <span class="o">=</span> <span class="n">KEY_EVENT</span><span class="p">;</span>
+<a name="line-624"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">bKeyDown</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">;</span>
+<a name="line-625"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">dwControlKeyState</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-626"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">uChar</span><span class="p">.</span><span class="n">AsciiChar</span> <span class="o">=</span> <span class="sc">&#39;\r&#39;</span><span class="p">;</span>
+<a name="line-627"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wVirtualKeyCode</span> <span class="o">=</span> <span class="n">VK_RETURN</span><span class="p">;</span>
+<a name="line-628"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wRepeatCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<a name="line-629"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wVirtualScanCode</span> <span class="o">=</span> <span class="mh">0x1c</span><span class="p">;</span>
+<a name="line-630"></a>
+<a name="line-631"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">EventType</span> <span class="o">=</span> <span class="n">KEY_EVENT</span><span class="p">;</span>
+<a name="line-632"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">bKeyDown</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">;</span>
+<a name="line-633"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">dwControlKeyState</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-634"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">uChar</span><span class="p">.</span><span class="n">AsciiChar</span> <span class="o">=</span> <span class="sc">&#39;\r&#39;</span><span class="p">;</span>
+<a name="line-635"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wVirtualKeyCode</span> <span class="o">=</span> <span class="n">VK_RETURN</span><span class="p">;</span>
+<a name="line-636"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wVirtualScanCode</span> <span class="o">=</span> <span class="mh">0x1c</span><span class="p">;</span>
+<a name="line-637"></a>        <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span><span class="n">Event</span><span class="p">.</span><span class="n">KeyEvent</span><span class="p">.</span><span class="n">wRepeatCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<a name="line-638"></a>        <span class="n">DWORD</span> <span class="n">numb</span><span class="p">;</span>
+<a name="line-639"></a>        <span class="n">WriteConsoleInput</span><span class="p">(</span><span class="n">hStdIn</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">numb</span><span class="p">);</span>
+<a name="line-640"></a>
+<a name="line-641"></a>        <span class="n">cliThread</span><span class="o">-&gt;</span><span class="n">wait</span><span class="p">();</span>
+<a name="line-642"></a>
+<a name="line-643"></a>        <span class="cp">#else</span>
+<a name="line-644"></a>
+<a name="line-645"></a>        <span class="n">cliThread</span><span class="o">-&gt;</span><span class="n">destroy</span><span class="p">();</span>
+<a name="line-646"></a>
+<a name="line-647"></a>        <span class="cp">#endif</span>
+<a name="line-648"></a>
+<a name="line-649"></a>        <span class="k">delete</span> <span class="n">cliThread</span><span class="p">;</span>
+<a name="line-650"></a>    <span class="p">}</span>
+<a name="line-651"></a>
+<a name="line-652"></a>    <span class="c1">// for some unknown reason, unloading scripts here and not in worldrunnable</span>
+<a name="line-653"></a>    <span class="c1">// fixes a memory leak related to detaching threads from the module</span>
+<a name="line-654"></a>    <span class="c1">//UnloadScriptingModule();</span>
+<a name="line-655"></a>
+<a name="line-656"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">fdr</span><span class="p">)</span>
+<a name="line-657"></a>        <span class="n">fdr</span><span class="o">-&gt;</span><span class="n">SetCanStop</span><span class="p">();</span>
+<a name="line-658"></a>
+<a name="line-659"></a>    <span class="c1">// Exit the process with specified return value</span>
+<a name="line-660"></a>    <span class="k">return</span> <span class="n">World</span><span class="o">::</span><span class="n">GetExitCode</span><span class="p">();</span>
+<a name="line-661"></a><span class="p">}</span>
+<a name="line-662"></a>
+<a name="line-663"></a><span class="c1">/// Initialize connection to the databases</span>
+<a name="line-664"></a><span class="kt">bool</span> <span class="n">Master</span><span class="o">::</span><span class="n">_StartDB</span><span class="p">()</span>
+<a name="line-665"></a><span class="p">{</span>
+<a name="line-666"></a>    <span class="n">MySQL</span><span class="o">::</span><span class="n">Library_Init</span><span class="p">();</span>
+<a name="line-667"></a>
+<a name="line-668"></a>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">dbstring</span><span class="p">;</span>
+<a name="line-669"></a>    <span class="n">uint8</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">;</span>
+<a name="line-670"></a>
+<a name="line-671"></a>    <span class="n">dbstring</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;WorldDatabaseInfo&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-672"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">dbstring</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-673"></a>    <span class="p">{</span>
+<a name="line-674"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;World database not specified in configuration file&quot;</span><span class="p">);</span>
+<a name="line-675"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-676"></a>    <span class="p">}</span>
+<a name="line-677"></a>
+<a name="line-678"></a>    <span class="n">async_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;WorldDatabase.WorkerThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-679"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">async_threads</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">async_threads</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+<a name="line-680"></a>    <span class="p">{</span>
+<a name="line-681"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;World database: invalid number of worker threads specified. &quot;</span>
+<a name="line-682"></a>            <span class="s">&quot;Please pick a value between 1 and 32.&quot;</span><span class="p">);</span>
+<a name="line-683"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-684"></a>    <span class="p">}</span>
+<a name="line-685"></a>
+<a name="line-686"></a>    <span class="n">synch_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;WorldDatabase.SynchThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-687"></a>    <span class="c1">///- Initialize the world database</span>
+<a name="line-688"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">WorldDatabase</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="n">dbstring</span><span class="p">,</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">))</span>
+<a name="line-689"></a>    <span class="p">{</span>
+<a name="line-690"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot connect to world database %s&quot;</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-691"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-692"></a>    <span class="p">}</span>
+<a name="line-693"></a>
+<a name="line-694"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-695"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-696"></a>
+<a name="line-697"></a>    <span class="c1">///- Get character database info from configuration file</span>
+<a name="line-698"></a>    <span class="n">dbstring</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;CharacterDatabaseInfo&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-699"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">dbstring</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-700"></a>    <span class="p">{</span>
+<a name="line-701"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Character database not specified in configuration file&quot;</span><span class="p">);</span>
+<a name="line-702"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-703"></a>    <span class="p">}</span>
+<a name="line-704"></a>
+<a name="line-705"></a>    <span class="n">async_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;CharacterDatabase.WorkerThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-706"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">async_threads</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">async_threads</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+<a name="line-707"></a>    <span class="p">{</span>
+<a name="line-708"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Character database: invalid number of worker threads specified. &quot;</span>
+<a name="line-709"></a>            <span class="s">&quot;Please pick a value between 1 and 32.&quot;</span><span class="p">);</span>
+<a name="line-710"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-711"></a>    <span class="p">}</span>
+<a name="line-712"></a>
+<a name="line-713"></a>    <span class="n">synch_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;CharacterDatabase.SynchThreads&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<a name="line-714"></a>
+<a name="line-715"></a>    <span class="c1">///- Initialize the Character database</span>
+<a name="line-716"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="n">dbstring</span><span class="p">,</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">))</span>
+<a name="line-717"></a>    <span class="p">{</span>
+<a name="line-718"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot connect to Character database %s&quot;</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-719"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-720"></a>    <span class="p">}</span>
+<a name="line-721"></a>
+<a name="line-722"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-723"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-724"></a>
+<a name="line-725"></a>    <span class="c1">///- Get login database info from configuration file</span>
+<a name="line-726"></a>    <span class="n">dbstring</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;LoginDatabaseInfo&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-727"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">dbstring</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-728"></a>    <span class="p">{</span>
+<a name="line-729"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Login database not specified in configuration file&quot;</span><span class="p">);</span>
+<a name="line-730"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-731"></a>    <span class="p">}</span>
+<a name="line-732"></a>
+<a name="line-733"></a>    <span class="n">async_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;LoginDatabase.WorkerThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-734"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">async_threads</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">async_threads</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+<a name="line-735"></a>    <span class="p">{</span>
+<a name="line-736"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Login database: invalid number of worker threads specified. &quot;</span>
+<a name="line-737"></a>            <span class="s">&quot;Please pick a value between 1 and 32.&quot;</span><span class="p">);</span>
+<a name="line-738"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-739"></a>    <span class="p">}</span>
+<a name="line-740"></a>
+<a name="line-741"></a>    <span class="n">synch_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;LoginDatabase.SynchThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-742"></a>    <span class="c1">///- Initialize the login database</span>
+<a name="line-743"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">LoginDatabase</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="n">dbstring</span><span class="p">,</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">))</span>
+<a name="line-744"></a>    <span class="p">{</span>
+<a name="line-745"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot connect to login database %s&quot;</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-746"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-747"></a>    <span class="p">}</span>
+<a name="line-748"></a>
+<a name="line-749"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-750"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-751"></a>
+<a name="line-752"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetBoolDefault</span><span class="p">(</span><span class="s">&quot;MopTransfer.enable&quot;</span><span class="p">,</span> <span class="nb">false</span><span class="p">))</span>
+<a name="line-753"></a>    <span class="p">{</span>
+<a name="line-754"></a>        <span class="c1">///- Get MoP login database info from configuration file</span>
+<a name="line-755"></a>        <span class="n">dbstring</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;LoginMoPDatabaseInfo&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-756"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">dbstring</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-757"></a>        <span class="p">{</span>
+<a name="line-758"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Login mop database not specified in configuration file&quot;</span><span class="p">);</span>
+<a name="line-759"></a>            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-760"></a>        <span class="p">}</span>
+<a name="line-761"></a>
+<a name="line-762"></a>        <span class="n">async_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;LoginMoPDatabaseInfo.WorkerThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-763"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">async_threads</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">async_threads</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+<a name="line-764"></a>        <span class="p">{</span>
+<a name="line-765"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Login mop database: invalid number of worker threads specified. &quot;</span>
+<a name="line-766"></a>                <span class="s">&quot;Please pick a value between 1 and 32.&quot;</span><span class="p">);</span>
+<a name="line-767"></a>            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-768"></a>        <span class="p">}</span>
+<a name="line-769"></a>
+<a name="line-770"></a>        <span class="n">synch_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;LoginMoPDatabaseInfo.SynchThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-771"></a>        <span class="c1">///- Initialize the login database</span>
+<a name="line-772"></a>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">LoginMopDatabase</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="n">dbstring</span><span class="p">,</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">))</span>
+<a name="line-773"></a>        <span class="p">{</span>
+<a name="line-774"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot connect to login mop database %s&quot;</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-775"></a>            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-776"></a>        <span class="p">}</span>
+<a name="line-777"></a>    <span class="p">}</span>
+<a name="line-778"></a>
+<a name="line-779"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetBoolDefault</span><span class="p">(</span><span class="s">&quot;WebDatabase.enable&quot;</span><span class="p">,</span> <span class="nb">false</span><span class="p">))</span>
+<a name="line-780"></a>    <span class="p">{</span>
+<a name="line-781"></a>        <span class="n">dbstring</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;WebDatabaseInfo&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-782"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">dbstring</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-783"></a>        <span class="p">{</span>
+<a name="line-784"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Web database not specified in configuration file&quot;</span><span class="p">);</span>
+<a name="line-785"></a>            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-786"></a>        <span class="p">}</span>
+<a name="line-787"></a>
+<a name="line-788"></a>        <span class="n">async_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;WebDatabaseInfo.WorkerThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-789"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">async_threads</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">async_threads</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+<a name="line-790"></a>        <span class="p">{</span>
+<a name="line-791"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Web database: invalid number of worker threads specified. &quot;</span>
+<a name="line-792"></a>                <span class="s">&quot;Please pick a value between 1 and 32.&quot;</span><span class="p">);</span>
+<a name="line-793"></a>            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-794"></a>        <span class="p">}</span>
+<a name="line-795"></a>
+<a name="line-796"></a>        <span class="n">synch_threads</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;WebDatabaseInfo.SynchThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-797"></a>        <span class="c1">///- Initialize the login database</span>
+<a name="line-798"></a>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">WebDatabase</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="n">dbstring</span><span class="p">,</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">))</span>
+<a name="line-799"></a>        <span class="p">{</span>
+<a name="line-800"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot connect to web database %s&quot;</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-801"></a>            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-802"></a>        <span class="p">}</span>
+<a name="line-803"></a>    <span class="p">}</span>
+<a name="line-804"></a>
+<a name="line-805"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-806"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-807"></a>
+<a name="line-808"></a>    <span class="n">dbstring</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetStringDefault</span><span class="p">(</span><span class="s">&quot;HotfixDatabaseInfo&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<a name="line-809"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">dbstring</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+<a name="line-810"></a>    <span class="p">{</span>
+<a name="line-811"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Hotfix database not specified in configuration file&quot;</span><span class="p">);</span>
+<a name="line-812"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-813"></a>    <span class="p">}</span>
+<a name="line-814"></a>
+<a name="line-815"></a>    <span class="n">async_threads</span> <span class="o">=</span> <span class="n">uint8</span><span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;HotfixDatabase.WorkerThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+<a name="line-816"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">async_threads</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">async_threads</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+<a name="line-817"></a>    <span class="p">{</span>
+<a name="line-818"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Hotfix database: invalid number of worker threads specified. &quot;</span>
+<a name="line-819"></a>                       <span class="s">&quot;Please pick a value between 1 and 32.&quot;</span><span class="p">);</span>
+<a name="line-820"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-821"></a>    <span class="p">}</span>
+<a name="line-822"></a>
+<a name="line-823"></a>    <span class="n">synch_threads</span> <span class="o">=</span> <span class="n">uint8</span><span class="p">(</span><span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;HotfixDatabase.SynchThreads&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+<a name="line-824"></a>
+<a name="line-825"></a>    <span class="c1">///- Initialize the hotfix database</span>
+<a name="line-826"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">HotfixDatabase</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="n">dbstring</span><span class="p">,</span> <span class="n">async_threads</span><span class="p">,</span> <span class="n">synch_threads</span><span class="p">))</span>
+<a name="line-827"></a>    <span class="p">{</span>
+<a name="line-828"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Cannot connect to Hotfix database %s&quot;</span><span class="p">,</span> <span class="n">dbstring</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+<a name="line-829"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-830"></a>    <span class="p">}</span>
+<a name="line-831"></a>
+<a name="line-832"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-833"></a>    <span class="c1">//////////////////////////////////////////////////////////////////////////</span>
+<a name="line-834"></a>
+<a name="line-835"></a>    <span class="c1">/// Get the realm Id from the configuration file</span>
+<a name="line-836"></a>    <span class="n">g_RealmID</span> <span class="o">=</span> <span class="n">ConfigMgr</span><span class="o">::</span><span class="n">GetIntDefault</span><span class="p">(</span><span class="s">&quot;RealmID&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<a name="line-837"></a>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">g_RealmID</span><span class="p">)</span>
+<a name="line-838"></a>    <span class="p">{</span>
+<a name="line-839"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outError</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Realm ID not defined in configuration file&quot;</span><span class="p">);</span>
+<a name="line-840"></a>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<a name="line-841"></a>    <span class="p">}</span>
+<a name="line-842"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Realm running as realm ID %d&quot;</span><span class="p">,</span> <span class="n">g_RealmID</span><span class="p">);</span>
+<a name="line-843"></a>
+<a name="line-844"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">SetRealmID</span><span class="p">(</span><span class="n">g_RealmID</span><span class="p">);</span>
+<a name="line-845"></a>
+<a name="line-846"></a>    <span class="c1">/// Clean the database before starting</span>
+<a name="line-847"></a>    <span class="n">ClearOnlineAccounts</span><span class="p">();</span>
+<a name="line-848"></a>
+<a name="line-849"></a>    <span class="c1">/// Insert version info into DB</span>
+<a name="line-850"></a>    <span class="n">WorldDatabase</span><span class="p">.</span><span class="n">PExecute</span><span class="p">(</span><span class="s">&quot;UPDATE version SET core_version = &#39;%s&#39;, core_revision = &#39;%s&#39;&quot;</span><span class="p">,</span> <span class="n">GitRevision</span><span class="o">::</span><span class="n">GetFullVersion</span><span class="p">(),</span> <span class="n">GitRevision</span><span class="o">::</span><span class="n">GetHash</span><span class="p">());</span>  <span class="c1">///&lt; One-time query</span>
+<a name="line-851"></a>
+<a name="line-852"></a>    <span class="n">sWorld</span><span class="o">-&gt;</span><span class="n">LoadDBVersion</span><span class="p">();</span>
+<a name="line-853"></a>
+<a name="line-854"></a>    <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Using World DB: %s&quot;</span><span class="p">,</span> <span class="n">sWorld</span><span class="o">-&gt;</span><span class="n">GetDBVersion</span><span class="p">());</span>
+<a name="line-855"></a>    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<a name="line-856"></a><span class="p">}</span>
+<a name="line-857"></a>
+<a name="line-858"></a><span class="kt">void</span> <span class="n">Master</span><span class="o">::</span><span class="n">_StopDB</span><span class="p">()</span>
+<a name="line-859"></a><span class="p">{</span>
+<a name="line-860"></a>    <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<a name="line-861"></a>    <span class="n">WorldDatabase</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<a name="line-862"></a>    <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<a name="line-863"></a>
+<a name="line-864"></a>    <span class="n">MySQL</span><span class="o">::</span><span class="n">Library_End</span><span class="p">();</span>
+<a name="line-865"></a><span class="p">}</span>
+<a name="line-866"></a>
+<a name="line-867"></a><span class="c1">/// Clear &#39;online&#39; status for all accounts with characters in this realm</span>
+<a name="line-868"></a><span class="kt">void</span> <span class="n">Master</span><span class="o">::</span><span class="n">ClearOnlineAccounts</span><span class="p">()</span>
+<a name="line-869"></a><span class="p">{</span>
+<a name="line-870"></a>    <span class="c1">// Reset online status for all accounts with characters on the current realm</span>
+<a name="line-871"></a>    <span class="n">LoginDatabase</span><span class="p">.</span><span class="n">DirectPExecute</span><span class="p">(</span><span class="s">&quot;UPDATE account SET online = 0 WHERE online &gt; 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)&quot;</span><span class="p">,</span> <span class="n">g_RealmID</span><span class="p">);</span>
+<a name="line-872"></a>
+<a name="line-873"></a>    <span class="c1">// Reset online status for all characters</span>
+<a name="line-874"></a>    <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">DirectExecute</span><span class="p">(</span><span class="s">&quot;UPDATE characters SET online = 0 WHERE online &lt;&gt; 0&quot;</span><span class="p">);</span>
+<a name="line-875"></a>
+<a name="line-876"></a>    <span class="c1">// Battleground instance ids reset at server restart</span>
+<a name="line-877"></a>    <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">DirectExecute</span><span class="p">(</span><span class="s">&quot;UPDATE character_battleground_data SET instanceId = 0&quot;</span><span class="p">);</span>
+<a name="line-878"></a><span class="p">}</span>
+<a name="line-879"></a>
+<a name="line-880"></a><span class="c1">/// Execute pending SQL requests</span>
+<a name="line-881"></a><span class="cp">#define PENDING_SQL_FILENAME &quot;PendingSQL_Characters.sql&quot;</span>
+<a name="line-882"></a>
+<a name="line-883"></a><span class="kt">void</span> <span class="n">Master</span><span class="o">::</span><span class="n">ExecutePendingRequests</span><span class="p">()</span>
+<a name="line-884"></a><span class="p">{</span>
+<a name="line-885"></a>    <span class="k">if</span> <span class="p">(</span><span class="kt">FILE</span><span class="o">*</span> <span class="n">l_PendingRequestsFile</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">PENDING_SQL_FILENAME</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">))</span>
+<a name="line-886"></a>    <span class="p">{</span>
+<a name="line-887"></a>        <span class="n">fseek</span><span class="p">(</span><span class="n">l_PendingRequestsFile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SEEK_END</span><span class="p">);</span>
+<a name="line-888"></a>        <span class="kt">long</span> <span class="n">l_Size</span> <span class="o">=</span> <span class="n">ftell</span><span class="p">(</span><span class="n">l_PendingRequestsFile</span><span class="p">);</span>
+<a name="line-889"></a>        <span class="n">rewind</span><span class="p">(</span><span class="n">l_PendingRequestsFile</span><span class="p">);</span>
+<a name="line-890"></a>
+<a name="line-891"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">l_Size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<a name="line-892"></a>        <span class="p">{</span>
+<a name="line-893"></a>            <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">l_Content</span><span class="p">(</span><span class="n">l_Size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<a name="line-894"></a>            <span class="n">fread</span><span class="p">(</span><span class="n">l_Content</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">l_Size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">l_PendingRequestsFile</span><span class="p">);</span>
+<a name="line-895"></a>            <span class="n">l_Content</span><span class="p">[</span><span class="n">l_Size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<a name="line-896"></a>
+<a name="line-897"></a>            <span class="n">CharacterDatabase</span><span class="p">.</span><span class="n">DirectExecute</span><span class="p">(</span><span class="n">l_Content</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+<a name="line-898"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="n">PENDING_SQL_FILENAME</span> <span class="s">&quot; has been executed with success&quot;</span><span class="p">);</span> <span class="c1">///&lt; Because if the above failed, the core would crash</span>
+<a name="line-899"></a>        <span class="p">}</span>
+<a name="line-900"></a>        <span class="k">else</span>
+<a name="line-901"></a>            <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="n">PENDING_SQL_FILENAME</span> <span class="s">&quot; is empty, ignoring.&quot;</span><span class="p">);</span>
+<a name="line-902"></a>
+<a name="line-903"></a>        <span class="n">fclose</span><span class="p">(</span><span class="n">l_PendingRequestsFile</span><span class="p">);</span>
+<a name="line-904"></a>
+<a name="line-905"></a>        <span class="c1">/// Clear file</span>
+<a name="line-906"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">l_PendingRequestsFile</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">PENDING_SQL_FILENAME</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">))</span> <span class="c1">///&lt; Using the result of an assignment as a condition without parentheses</span>
+<a name="line-907"></a>            <span class="n">fclose</span><span class="p">(</span><span class="n">l_PendingRequestsFile</span><span class="p">);</span>
+<a name="line-908"></a>    <span class="p">}</span>
+<a name="line-909"></a>    <span class="k">else</span>
+<a name="line-910"></a>        <span class="n">sLog</span><span class="o">-&gt;</span><span class="n">outInfo</span><span class="p">(</span><span class="n">LOG_FILTER_WORLDSERVER</span><span class="p">,</span> <span class="s">&quot;Unable to open &quot;</span> <span class="n">PENDING_SQL_FILENAME</span> <span class="s">&quot;, ignoring.&quot;</span><span class="p">);</span>
+<a name="line-911"></a><span class="p">}</span>
+</pre></div>
+</td></tr></table>
+      </div>
+      <div id="footer">
+        <p>
+         Cppcheck 1.73 - a tool for static C/C++ code analysis</br>
+         </br>
+         Internet: <a href="http://cppcheck.sourceforge.net">http://cppcheck.sourceforge.net</a></br>
+         IRC: <a href="irc://irc.freenode.net/cppcheck">irc://irc.freenode.net/cppcheck</a></br>
+        <p>
+      </div>
+  </body>
+</html>
