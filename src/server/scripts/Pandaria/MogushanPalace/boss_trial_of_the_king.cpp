@@ -65,7 +65,7 @@ class mob_xian_the_weaponmaster_trigger : public CreatureScript
             void MoveInLineOfSight(Unit* who)
             {
                 // If Lorewalker stonestep sees a player, launch the speech.
-                if (!event_go && who->IsPlayer() && who->GetAreaId() == 6471)//Salle de l'assemblée cramoisie
+                if (!event_go && who->IsPlayer() && who->GetAreaId() == 6471)//Salle de l'assemblee cramoisie
                 {
                     if (me->GetInstanceScript())
                         me->GetInstanceScript()->SetData(TYPE_MING_INTRO, 0);
@@ -450,7 +450,7 @@ class mob_adepts : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who->IsPlayer() && who->GetAreaId() == 6471//Salle de l'assemblée cramoisie
+                if (who->IsPlayer() && who->GetAreaId() == 6471//Salle de l'assemblee cramoisie
                     && me->GetDistance2d(who) < 2.0f
                     && who->isInFront(me)
                     && status != STATUS_ATTACK_GRUNTS)
