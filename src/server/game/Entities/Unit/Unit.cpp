@@ -16880,7 +16880,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Death Siphon
-    if (procSpell && procSpell->Id == 108196)
+    if (procSpell && procSpell->Id == 108196 && !isVictim)
     {
         int32 bp = l_TotalDamage * 4;
         CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
