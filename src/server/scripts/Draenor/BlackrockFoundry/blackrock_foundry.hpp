@@ -204,6 +204,7 @@ enum eFoundryDatas
     MaxPrimalElementalists  = 4,
     /// Kromog
     MaxReverberationSpawns  = 15,
+    MaxGraspingEarthHands   = 10,
     /// Beastlord Darmac
     DataDreadwingFirst      = 1,
     DataIronCrusherFirst    = 2,

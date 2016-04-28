@@ -731,7 +731,10 @@ class npc_foundry_grasping_earth : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
-                    l_Instance->SetData(eFoundryDatas::GraspingEarthTime, (uint32)time(nullptr));
+                {
+                    if (p_Killer != me)
+                        l_Instance->SetData(eFoundryDatas::GraspingEarthTime, (uint32)time(nullptr));
+                }
 
                 me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }

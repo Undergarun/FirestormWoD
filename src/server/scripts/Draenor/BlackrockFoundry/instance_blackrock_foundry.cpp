@@ -70,6 +70,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_MoltenTorrentStalkerGuid  = 0;
 
                 m_WouldYouGiveMeAHand       = false;
+                m_GraspingEarthHandsCount   = 0;
                 m_GraspingEarthHandsTime    = 0;
                 m_KromogGuid                = 0;
 
@@ -124,6 +125,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             /// The Great Anvil
             bool m_WouldYouGiveMeAHand;
+            uint32 m_GraspingEarthHandsCount;
             uint32 m_GraspingEarthHandsTime;
             uint64 m_KromogGuid;
 
@@ -469,7 +471,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                             }
                             case EncounterState::NOT_STARTED:
                             {
-                                m_WouldYouGiveMeAHand = false;
+                                m_WouldYouGiveMeAHand       = false;
+                                m_GraspingEarthHandsCount   = 0;
+                                m_GraspingEarthHandsTime    = 0;
                                 break;
                             }
                             default:
@@ -564,14 +568,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                         if (instance->IsLFR())
                             break;
 
+                        /// Requirements are already completed, doesn't need to update
+                        if (m_WouldYouGiveMeAHand)
+                            break;
+
+                        ++m_GraspingEarthHandsCount;
+
+                        /// Register first time kill
                         if (!m_GraspingEarthHandsTime)
                             m_GraspingEarthHandsTime = p_Data;
-                        else
+
+                        if (m_GraspingEarthHandsCount >= eFoundryDatas::MaxGraspingEarthHands)
                         {
-                            /// Defeat 10 Grasping Earth hands within 5 seconds and then defeat Kromog in Blackrock Foundry on Normal difficulty or higher.
-                            if (p_Data > (m_GraspingEarthHandsTime + 5))
-                                m_WouldYouGiveMeAHand = false;
-                            else
+                            if (p_Data < (m_GraspingEarthHandsTime + 5))
                                 m_WouldYouGiveMeAHand = true;
                         }
 
