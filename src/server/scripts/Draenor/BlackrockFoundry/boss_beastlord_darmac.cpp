@@ -297,6 +297,8 @@ class boss_beastlord_darmac : public CreatureScript
             {
                 me->RemoveAllAreasTrigger();
 
+                me->InterruptNonMeleeSpells(true);
+
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea({ eCreatures::PackBeast });
@@ -1665,8 +1667,15 @@ class npc_foundry_heavy_spear : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
-                me->CastSpell(me, eSpells::PinDownVisualAura, true);
-                me->CastSpell(me, eSpells::PinnedDownDamage, true);
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    /// Summoning spell has a delay, prevent auras from being applied after death/reset
+                    if (l_Instance->GetBossState(eFoundryDatas::DataBeastlordDarmac) == EncounterState::IN_PROGRESS)
+                    {
+                        me->CastSpell(me, eSpells::PinDownVisualAura, true);
+                        me->CastSpell(me, eSpells::PinnedDownDamage, true);
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
