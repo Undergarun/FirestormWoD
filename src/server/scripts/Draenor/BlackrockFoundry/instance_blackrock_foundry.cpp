@@ -227,6 +227,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BurningFrontDoor:
                     case eFoundryGameObjects::KromogsDoorSouth:
                     case eFoundryGameObjects::KromogsDoorEast:
+                    case eFoundryGameObjects::KromogDoor:
                     case eFoundryGameObjects::BlackForgePortcullis:
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
@@ -296,6 +297,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BurningFrontDoor:
                     case eFoundryGameObjects::KromogsDoorSouth:
                     case eFoundryGameObjects::KromogsDoorEast:
+                    case eFoundryGameObjects::KromogDoor:
                     case eFoundryGameObjects::BlackForgePortcullis:
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
