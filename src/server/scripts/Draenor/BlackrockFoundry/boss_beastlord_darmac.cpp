@@ -619,6 +619,30 @@ class boss_beastlord_darmac : public CreatureScript
                     {
                         m_MountID = p_Target->GetEntry();
 
+                        if (m_Instance != nullptr)
+                        {
+                            switch (m_MountID)
+                            {
+                                case eFoundryCreatures::BossDreadwing:
+                                {
+                                    m_Instance->SetData(eFoundryDatas::DarmacBeastMountedFirst, eFoundryDatas::DataDreadwingFirst);
+                                    break;
+                                }
+                                case eFoundryCreatures::BossIroncrusher:
+                                {
+                                    m_Instance->SetData(eFoundryDatas::DarmacBeastMountedFirst, eFoundryDatas::DataIronCrusherFirst);
+                                    break;
+                                }
+                                case eFoundryCreatures::BossCruelfang:
+                                {
+                                    m_Instance->SetData(eFoundryDatas::DarmacBeastMountedFirst, eFoundryDatas::DataCruelfangFirst);
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+
                         /// Delay events for cosmetic moves
                         m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
 

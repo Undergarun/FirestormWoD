@@ -487,8 +487,27 @@ class instance_blackrock_foundry : public InstanceMapScript
                         switch (p_State)
                         {
                             case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
                             {
+                                SendUpdateWorldState(eFoundryWorldState::WorldStateDarmacAchievement, 0);
                                 m_DarmacBeastMountedFirst = 0;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (m_DarmacBeastMountedFirst < eFoundryDatas::DataDreadwingFirst)
+                                    break;
+
+                                std::vector<uint32> l_Criterias =
+                                {
+                                    eFoundryCriterias::DreadwingMountedFirst,
+                                    eFoundryCriterias::IroncrusherMountedFirst,
+                                    eFoundryCriterias::CruelfangMountedFirst
+                                };
+
+                                if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_Criterias[m_DarmacBeastMountedFirst - 1]))
+                                    SetCriteriaProgressOnPlayers(l_Criteria, 1, ProgressType::PROGRESS_ACCUMULATE);
+
                                 break;
                             }
                             default:
@@ -591,7 +610,12 @@ class instance_blackrock_foundry : public InstanceMapScript
                         if (instance->IsLFR())
                             break;
 
+                        /// Already set
+                        if (m_DarmacBeastMountedFirst > 0)
+                            break;
+
                         m_DarmacBeastMountedFirst = p_Data;
+                        SendUpdateWorldState(eFoundryWorldState::WorldStateDarmacAchievement, p_Data);
                         break;
                     }
                     default:
@@ -661,25 +685,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                 }
 
                 return 0;
-            }
-
-            bool CheckAchievementCriteriaMeet(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue1) override
-            {
-                bool l_DifficultyOK = !instance->IsLFR();
-
-                switch (p_CriteriaID)
-                {
-                    case eFoundryCriterias::DreadwingMountedFirst:
-                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataDreadwingFirst);
-                    case eFoundryCriterias::IroncrusherMountedFirst:
-                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataIronCrusherFirst);
-                    case eFoundryCriterias::CruelfangMountedFirst:
-                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataCruelfangFirst);
-                    default:
-                        break;
-                }
-
-                return false;
             }
 
             bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = nullptr) const override
