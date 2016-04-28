@@ -149,6 +149,7 @@ enum eFoundryGameObjects
     BurningFrontDoor            = 236842,
     KromogsDoorSouth            = 236839,
     KromogsDoorEast             = 236840,
+    KromogDoor                  = 234029,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     TheBeastGate                = 231841,
