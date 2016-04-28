@@ -3791,9 +3791,11 @@ class spell_hun_adaptation : public SpellScriptLoader
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
                     {
-                        if (l_Pet->HasAura(eSpells::CombatExperience))
+                        if (l_Pet->HasSpell(eSpells::CombatExperience))
+                        {
                             l_Pet->RemoveAura(eSpells::CombatExperience);
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                            l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                        }
                     }
                 }
             }
@@ -3810,7 +3812,8 @@ class spell_hun_adaptation : public SpellScriptLoader
                     if (Pet* l_Pet = l_Player->GetPet())
                     {
                         l_Pet->RemoveAura(eSpells::CombatExperienceAdaptation);
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                        if (l_Pet->HasSpell(eSpells::CombatExperience))
+                            l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
                     }
                 }
             }
