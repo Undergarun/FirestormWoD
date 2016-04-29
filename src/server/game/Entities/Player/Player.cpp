@@ -8514,6 +8514,47 @@ int8 Player::GetFreeActionButton()
 
 bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
+    for (auto l_Current : sObjectMgr->BonusQuestsRects)
+    {
+        if (IsQuestRewarded(l_Current.first))
+            continue;
+
+        bool l_HasOneIn = false;
+
+        for (uint32 l_I = 0; l_I < l_Current.second.size(); ++l_I)
+        {
+            if (l_Current.second[l_I].IsIn(GetMapId(), x, y))
+                l_HasOneIn = true;
+        }
+
+        uint32 l_Slot = FindQuestSlot(l_Current.first);
+
+        if (!l_HasOneIn && l_Slot < MAX_QUEST_LOG_SIZE)
+        {
+            SetQuestSlot(l_Slot, 0);
+            RemoveActiveQuest(l_Current.first, true);
+        }
+        else if (l_HasOneIn && l_Slot >= MAX_QUEST_LOG_SIZE)
+        {
+            if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_Current.first))
+            {
+                AddQuest(l_Quest, this);
+
+                l_Slot = FindQuestSlot(l_Current.first);
+
+                if (l_Slot < MAX_QUEST_LOG_SIZE)
+                {
+                    for (auto l_Objective : l_Quest->QuestObjectives)
+                    {
+                        SetQuestSlotCounter(l_Slot, l_Objective.Index, m_questObjectiveStatus[l_Objective.ID]);
+                    }
+                }
+            }
+        }
+    }
+
+
+
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
@@ -9823,44 +9864,44 @@ void Player::UpdateArea(uint32 newArea)
 
     /// Bonus quest part
     {
-        if (l_OldArea != 0)
-        {
-            /// Remove old area bonus quests
-            std::set<uint32> & l_OldAreaQuest = sObjectMgr->BonusQuestPerArea[l_OldArea];
-            for (uint32 l_QuestID : l_OldAreaQuest)
-            {
-                uint32 l_Slot = FindQuestSlot(l_QuestID);
-
-                if (l_Slot < MAX_QUEST_LOG_SIZE)
-                {
-                    SetQuestSlot(l_Slot, 0);
-                    RemoveActiveQuest(l_QuestID, true);
-                }
-            }
-        }
-
-        /// Add new area bonus quests
-        std::set<uint32> & l_NewAreaQuest = sObjectMgr->BonusQuestPerArea[newArea];
-        for (uint32 l_QuestID : l_NewAreaQuest)
-        {
-            if (HasQuest(l_QuestID))
-                continue;
-
-            if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID))
-            {
-                AddQuest(l_Quest, this);
-
-                uint32 l_Slot = FindQuestSlot(l_QuestID);
-
-                if (l_Slot < MAX_QUEST_LOG_SIZE)
-                {
-                    for (auto l_Objective : l_Quest->QuestObjectives)
-                    {
-                        SetQuestSlotCounter(l_Slot, l_Objective.Index, m_questObjectiveStatus[l_Objective.ID]);
-                    }
-                }
-            }
-        }
+        /// if (l_OldArea != 0)
+        /// {
+        ///     /// Remove old area bonus quests
+        ///     std::set<uint32> & l_OldAreaQuest = sObjectMgr->BonusQuestPerArea[l_OldArea];
+        ///     for (uint32 l_QuestID : l_OldAreaQuest)
+        ///     {
+        ///         uint32 l_Slot = FindQuestSlot(l_QuestID);
+        /// 
+        ///         if (l_Slot < MAX_QUEST_LOG_SIZE)
+        ///         {
+        ///             SetQuestSlot(l_Slot, 0);
+        ///             RemoveActiveQuest(l_QuestID, true);
+        ///         }
+        ///     }
+        /// }
+        /// 
+        /// /// Add new area bonus quests
+        /// std::set<uint32> & l_NewAreaQuest = sObjectMgr->BonusQuestPerArea[newArea];
+        /// for (uint32 l_QuestID : l_NewAreaQuest)
+        /// {
+        ///     if (HasQuest(l_QuestID))
+        ///         continue;
+        /// 
+        ///     if (const Quest * l_Quest = sObjectMgr->GetQuestTemplate(l_QuestID))
+        ///     {
+        ///         AddQuest(l_Quest, this);
+        /// 
+        ///         uint32 l_Slot = FindQuestSlot(l_QuestID);
+        /// 
+        ///         if (l_Slot < MAX_QUEST_LOG_SIZE)
+        ///         {
+        ///             for (auto l_Objective : l_Quest->QuestObjectives)
+        ///             {
+        ///                 SetQuestSlotCounter(l_Slot, l_Objective.Index, m_questObjectiveStatus[l_Objective.ID]);
+        ///             }
+        ///         }
+        ///     }
+        /// }
     }
 
     phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
@@ -18540,10 +18581,12 @@ void Player::CompleteQuest(uint32 quest_id)
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
             if (qInfo->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
+            {
+                SendQuestComplete(qInfo);
                 RewardQuest(qInfo, 0, this, false);
+            }
             else
                 SendQuestComplete(qInfo);
-
 
             sScriptMgr->OnQuestComplete(this, qInfo);
         }

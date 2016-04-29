@@ -4673,16 +4673,6 @@ void ObjectMgr::LoadQuests()
 
 void ObjectMgr::LoadBonusQuests()
 {
-    std::map<uint32, const QuestPOIPointCliTaskEntry*> l_POIPerQuest;
-
-    for (uint32 l_I = 0; l_I < sQuestPOIPointCliTaskStore.GetNumRows(); ++l_I)
-    {
-        const QuestPOIPointCliTaskEntry * l_POIEntry = sQuestPOIPointCliTaskStore.LookupEntry(l_I);
-
-        if (l_POIEntry)
-            l_POIPerQuest[l_POIEntry->QuestID] = l_POIEntry;
-    }
-
     for (uint32 l_I = 0; l_I < sCriteriaStore.GetNumRows(); ++l_I)
     {
         const CriteriaEntry * l_Criteria = sCriteriaStore.LookupEntry(l_I);
@@ -4700,19 +4690,62 @@ void ObjectMgr::LoadBonusQuests()
         if (!l_Quest || l_Quest->Method != QUEST_METHOD_AUTO_SUBMITED || !(l_Quest->GetZoneOrSort() > 0))
             continue;
 
-        if (l_POIPerQuest.find(l_Quest->GetQuestId()) == l_POIPerQuest.end())
-            continue;
+        QuestPOIVector const* l_POIs = GetQuestPOIVector(l_Quest->Id);
 
-        const QuestPOIPointCliTaskEntry * l_POIEntry = l_POIPerQuest[l_Quest->GetQuestId()];
+        if (l_POIs)
+        {
+            for (QuestPOIVector::const_iterator l_It = l_POIs->begin(); l_It != l_POIs->end(); ++l_It)
+            {
+                const QuestObjective * l_Objective = l_Quest->GetQuestObjectiveXIndex(l_It->ObjectiveIndex);
 
-        Map * l_Map = sMapMgr->FindBaseNonInstanceMap(l_POIEntry->MapID);
+                int32 l_MinX, l_MinY, l_MaxX, l_MaxY;
+                bool l_FirstIter = true;
 
-        if (!l_Map)
-            l_Map = sMapMgr->CreateBaseMap(l_POIEntry->MapID);
+                for (std::vector<QuestPOIPoint>::const_iterator l_PointIT = l_It->Points.begin(); l_PointIT != l_It->Points.end(); ++l_PointIT)
+                {
+                    if (l_FirstIter)
+                    {
+                        l_MinX = l_PointIT->x;
+                        l_MinY = l_PointIT->y;
+                        l_MaxX = l_PointIT->x;
+                        l_MaxY = l_PointIT->y;
+                        l_FirstIter = false;
+                    }
+                    else
+                    {
+                        if (l_PointIT->x > l_MaxX)
+                            l_MaxX = l_PointIT->x;
 
-        uint32 l_Area = l_Map->GetAreaId(l_POIEntry->X, l_POIEntry->Y, l_Map->GetHeight(l_POIEntry->X, l_POIEntry->Y, MAX_HEIGHT));
+                        if (l_PointIT->y > l_MaxY)
+                            l_MaxY = l_PointIT->y;
 
-        BonusQuestPerArea[l_Area].emplace(l_Criteria->complete_quest.questID);
+                        if (l_PointIT->x < l_MinX)
+                            l_MinX = l_PointIT->x;
+
+                        if (l_PointIT->y < l_MinY)
+                            l_MinY = l_PointIT->y;
+                    }
+                }
+
+                int32 l_AreaWidth   = std::abs(l_MaxX - l_MinX);
+                int32 l_AreaHeight  = std::abs(l_MaxY - l_MinY);
+
+                l_MinX -= (0.25f * float(l_AreaWidth)) / 2.0f;
+                l_MinY -= (0.25f * float(l_AreaHeight)) / 2.0f;
+
+                l_MaxX += (0.25f * float(l_AreaWidth)) / 2.0f;
+                l_MaxY += (0.25f * float(l_AreaHeight)) / 2.0f;
+
+                BonusQuestRectEntry l_Rect;
+                l_Rect.X = l_MinX;
+                l_Rect.Y = l_MinY;
+                l_Rect.XMax = l_MaxX;
+                l_Rect.YMax = l_MaxY;
+                l_Rect.MapID = l_It->MapID;
+
+                BonusQuestsRects[l_Quest->Id].push_back(l_Rect);
+            }
+        }
     }
 }
 
