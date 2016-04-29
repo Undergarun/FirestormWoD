@@ -1591,7 +1591,8 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             enum eDatas
             {
-                FandralsFlamescythe = 69897
+                FandralsFlamescythe         = 69897,
+                FandralsFlamescytheHeroic   = 71466
             };
 
             void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
@@ -1619,7 +1620,7 @@ class spell_dru_cat_form: public SpellScriptLoader
 
                 Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
-                if (l_Player->HasAura(eSpells::BurningEssence) || (l_Weapon && l_Weapon->GetTemplate() && l_Weapon->GetTemplate()->ItemId == eDatas::FandralsFlamescythe))
+                if (l_Player->HasAura(eSpells::BurningEssence) || (l_Weapon && l_Weapon->GetTemplate() && (l_Weapon->GetTemplate()->ItemId == eDatas::FandralsFlamescythe || l_Weapon->GetTemplate()->ItemId == eDatas::FandralsFlamescytheHeroic)))
                     l_Player->SetDisplayId(eSpells::BurningEssenceModel);
             }
 
