@@ -319,7 +319,15 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                     l_It = m_TargetList.erase(l_It);
                 }
                 else
+                {
+                    if (!l_Target->HasAura(eSpells::solarBeamSilence, l_Caster->GetGUID()))
+                    {
+                        l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
+                        if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
+                            l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
+                    }
                     ++l_It;
+                }
             }
         }
 
