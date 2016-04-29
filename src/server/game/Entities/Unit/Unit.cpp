@@ -530,7 +530,7 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    if (m_attackTimer[type] < 0 && uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) > m_attackTimer[type] * -1)
+    if (m_attackTimer[type] < 0 && int32(GetAttackTime(type) * m_modAttackSpeedPct[type]) > m_attackTimer[type] * -1)
         m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]) + m_attackTimer[type];
     else
         m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
