@@ -150,7 +150,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 LoadDoorData(g_DoorData);
 
-                instance->SetObjectVisibility(300.0f);
+                instance->SetObjectVisibility(150.0f);
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
