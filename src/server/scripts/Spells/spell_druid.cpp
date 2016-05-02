@@ -1116,6 +1116,8 @@ class spell_dru_wild_growth : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_wild_growth_SpellScript);
 
+            bool m_HasSoulOfTheForest = false;
+
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints + 1; ///< +1 = Main Target
@@ -1131,8 +1133,29 @@ class spell_dru_wild_growth : public SpellScriptLoader
                     JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// If soul of the forest is activated we increase the heal by 50%
+                if (AuraEffect* l_AuraEffet = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0, l_Caster->GetGUID()))
+                {
+                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO) || m_HasSoulOfTheForest)
+                    {
+                        l_AuraEffet->SetAmount(l_AuraEffet->GetAmount() + CalculatePct(l_AuraEffet->GetAmount(), 50));
+                        m_HasSoulOfTheForest = true;
+                        l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                    }
+                }
+            }
+
             void Register()
             {
+                AfterHit += SpellHitFn(spell_dru_wild_growth_SpellScript::HandleAfterHit);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
@@ -1151,13 +1174,6 @@ class spell_dru_wild_growth : public SpellScriptLoader
                     return;
 
                 uint32 l_TickNumber = p_AurEff->GetTickNumber();
-
-                /// If soul of the forest is activated we increase the heal by 50%
-                if (l_TickNumber == 0 && l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
-                {
-                    AddPct(p_Amount, 50);
-                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
-                }
 
                 m_TooltipAmount = 7*p_Amount; ///< The base healing is split among the ticks with the first tick getting (6%+1/7) of the tooltip heal
                 p_Amount += CalculatePct(m_TooltipAmount, 6);
@@ -1575,7 +1591,8 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             enum eDatas
             {
-                FandralsFlamescythe = 69897
+                FandralsFlamescythe         = 69897,
+                FandralsFlamescytheHeroic   = 71466
             };
 
             void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
@@ -1603,7 +1620,7 @@ class spell_dru_cat_form: public SpellScriptLoader
 
                 Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
 
-                if (l_Player->HasAura(eSpells::BurningEssence) || (l_Weapon && l_Weapon->GetTemplate() && l_Weapon->GetTemplate()->ItemId == eDatas::FandralsFlamescythe))
+                if (l_Player->HasAura(eSpells::BurningEssence) || (l_Weapon && l_Weapon->GetTemplate() && (l_Weapon->GetTemplate()->ItemId == eDatas::FandralsFlamescythe || l_Weapon->GetTemplate()->ItemId == eDatas::FandralsFlamescytheHeroic)))
                     l_Player->SetDisplayId(eSpells::BurningEssenceModel);
             }
 
