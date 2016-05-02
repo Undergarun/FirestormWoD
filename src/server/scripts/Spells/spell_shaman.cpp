@@ -2105,17 +2105,6 @@ class spell_sha_lava_lash: public SpellScriptLoader
 
                 if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
                     l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                
-                if (l_Caster->HasAura(eSpells::FlameAura))
-                {
-                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(eSpells::FlameAura);
-
-                    if (l_UnleashFlame == nullptr)
-                        return;
-
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(eSpells::FlameAura);
-                }
             }
 
             void Register()
