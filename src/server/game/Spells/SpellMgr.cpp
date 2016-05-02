@@ -4490,6 +4490,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
             case 152150:///< Death from Above (periodic dummy)
+                spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;

@@ -30,12 +30,6 @@ INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Condi
 UPDATE instance_disabled_rankings SET Comment = "Beastlord Darmac - Normal - Tests in progress" WHERE EncounterID = 1694 AND DifficultyID = 14;
 UPDATE instance_disabled_rankings SET Comment = "Beastlord Darmac - Heroic - Tests in progress" WHERE EncounterID = 1694 AND DifficultyID = 15;
 
-DELETE FROM achievement_criteria_data WHERE criteria_id IN (24675, 24676, 24677);
-INSERT INTO achievement_criteria_data VALUES
-(24675, 18, 0, 0, ""),
-(24676, 18, 0, 0, ""),
-(24677, 18, 0, 0, "");
-
 SET @REF_DARMAC = 76865;
 
 DELETE FROM creature_text WHERE entry IN (80400, 80409, @REF_DARMAC, 76945, 76874);
