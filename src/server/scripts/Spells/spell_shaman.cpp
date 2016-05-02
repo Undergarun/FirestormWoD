@@ -2077,6 +2077,7 @@ class spell_sha_healing_wave : public SpellScriptLoader
         }
 };
 
+/// last Update 6.2.3
 /// Lava Lash - 60103
 class spell_sha_lava_lash: public SpellScriptLoader
 {
