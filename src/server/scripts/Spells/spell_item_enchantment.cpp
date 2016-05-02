@@ -156,8 +156,8 @@ class spell_enchantment_mark : public SpellScriptLoader
                 /// Check if we have this enchant on that weapon
                 for (uint32 l_Slot = EnchantmentSlot::PERM_ENCHANTMENT_SLOT; l_Slot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_Slot)
                 {
-                    if (l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(l_Slot)) ||
-                        l_GloryEnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(l_Slot)))
+                    if ((l_EnchantId && l_EnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(l_Slot))) ||
+                        (l_GloryEnchantId && l_GloryEnchantId == l_Item->GetEnchantmentId(EnchantmentSlot(l_Slot))))
                         l_HasEnchant = true;
                 }
 

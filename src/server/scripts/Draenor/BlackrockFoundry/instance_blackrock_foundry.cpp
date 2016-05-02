@@ -22,6 +22,7 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::KromogsDoorEast,             eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::BlackForgePortcullis,        eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::BlackForgeGate,              eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::KromogDoor,                  eFoundryDatas::DataKromog,              DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TheBeastGate,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::TerminusDoor,                eFoundryDatas::DataBeastlordDarmac,     DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
@@ -69,6 +70,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_MoltenTorrentStalkerGuid  = 0;
 
                 m_WouldYouGiveMeAHand       = false;
+                m_GraspingEarthHandsCount   = 0;
                 m_GraspingEarthHandsTime    = 0;
                 m_KromogGuid                = 0;
 
@@ -123,6 +125,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
             /// The Great Anvil
             bool m_WouldYouGiveMeAHand;
+            uint32 m_GraspingEarthHandsCount;
             uint32 m_GraspingEarthHandsTime;
             uint64 m_KromogGuid;
 
@@ -147,7 +150,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                 LoadDoorData(g_DoorData);
 
-                instance->SetObjectVisibility(300.0f);
+                instance->SetObjectVisibility(150.0f);
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
@@ -224,6 +227,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BurningFrontDoor:
                     case eFoundryGameObjects::KromogsDoorSouth:
                     case eFoundryGameObjects::KromogsDoorEast:
+                    case eFoundryGameObjects::KromogDoor:
                     case eFoundryGameObjects::BlackForgePortcullis:
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
@@ -293,6 +297,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::BurningFrontDoor:
                     case eFoundryGameObjects::KromogsDoorSouth:
                     case eFoundryGameObjects::KromogsDoorEast:
+                    case eFoundryGameObjects::KromogDoor:
                     case eFoundryGameObjects::BlackForgePortcullis:
                     case eFoundryGameObjects::BlackForgeGate:
                     case eFoundryGameObjects::TheBeastGate:
@@ -468,7 +473,9 @@ class instance_blackrock_foundry : public InstanceMapScript
                             }
                             case EncounterState::NOT_STARTED:
                             {
-                                m_WouldYouGiveMeAHand = false;
+                                m_WouldYouGiveMeAHand       = false;
+                                m_GraspingEarthHandsCount   = 0;
+                                m_GraspingEarthHandsTime    = 0;
                                 break;
                             }
                             default:
@@ -482,8 +489,27 @@ class instance_blackrock_foundry : public InstanceMapScript
                         switch (p_State)
                         {
                             case EncounterState::FAIL:
+                            case EncounterState::NOT_STARTED:
                             {
+                                SendUpdateWorldState(eFoundryWorldState::WorldStateDarmacAchievement, 0);
                                 m_DarmacBeastMountedFirst = 0;
+                                break;
+                            }
+                            case EncounterState::DONE:
+                            {
+                                if (m_DarmacBeastMountedFirst < eFoundryDatas::DataDreadwingFirst)
+                                    break;
+
+                                std::vector<uint32> l_Criterias =
+                                {
+                                    eFoundryCriterias::DreadwingMountedFirst,
+                                    eFoundryCriterias::IroncrusherMountedFirst,
+                                    eFoundryCriterias::CruelfangMountedFirst
+                                };
+
+                                if (CriteriaEntry const* l_Criteria = sCriteriaStore.LookupEntry(l_Criterias[m_DarmacBeastMountedFirst - 1]))
+                                    SetCriteriaProgressOnPlayers(l_Criteria, 1, ProgressType::PROGRESS_ACCUMULATE);
+
                                 break;
                             }
                             default:
@@ -563,14 +589,19 @@ class instance_blackrock_foundry : public InstanceMapScript
                         if (instance->IsLFR())
                             break;
 
+                        /// Requirements are already completed, doesn't need to update
+                        if (m_WouldYouGiveMeAHand)
+                            break;
+
+                        ++m_GraspingEarthHandsCount;
+
+                        /// Register first time kill
                         if (!m_GraspingEarthHandsTime)
                             m_GraspingEarthHandsTime = p_Data;
-                        else
+
+                        if (m_GraspingEarthHandsCount >= eFoundryDatas::MaxGraspingEarthHands)
                         {
-                            /// Defeat 10 Grasping Earth hands within 5 seconds and then defeat Kromog in Blackrock Foundry on Normal difficulty or higher.
-                            if (p_Data > (m_GraspingEarthHandsTime + 5))
-                                m_WouldYouGiveMeAHand = false;
-                            else
+                            if (p_Data < (m_GraspingEarthHandsTime + 5))
                                 m_WouldYouGiveMeAHand = true;
                         }
 
@@ -581,7 +612,12 @@ class instance_blackrock_foundry : public InstanceMapScript
                         if (instance->IsLFR())
                             break;
 
+                        /// Already set
+                        if (m_DarmacBeastMountedFirst > 0)
+                            break;
+
                         m_DarmacBeastMountedFirst = p_Data;
+                        SendUpdateWorldState(eFoundryWorldState::WorldStateDarmacAchievement, p_Data);
                         break;
                     }
                     default:
@@ -651,25 +687,6 @@ class instance_blackrock_foundry : public InstanceMapScript
                 }
 
                 return 0;
-            }
-
-            bool CheckAchievementCriteriaMeet(uint32 p_CriteriaID, Player const* p_Source, Unit const* p_Target, uint64 p_MiscValue1) override
-            {
-                bool l_DifficultyOK = !instance->IsLFR();
-
-                switch (p_CriteriaID)
-                {
-                    case eFoundryCriterias::DreadwingMountedFirst:
-                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataDreadwingFirst);
-                    case eFoundryCriterias::IroncrusherMountedFirst:
-                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataIronCrusherFirst);
-                    case eFoundryCriterias::CruelfangMountedFirst:
-                        return l_DifficultyOK && (m_DarmacBeastMountedFirst == eFoundryDatas::DataCruelfangFirst);
-                    default:
-                        break;
-                }
-
-                return false;
             }
 
             bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = nullptr) const override

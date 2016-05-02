@@ -1494,7 +1494,7 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
                 std::list<Unit*> l_TargetList;
                 m_TotalAbsorbAmount += p_DmgInfo.GetDamage();
 
-                l_Caster->GetAttackableUnitListInRange(l_TargetList, 20.0f);
+                l_Caster->GetAttackableUnitListInRange(l_TargetList, 500.0f);
 
                 for (auto l_Itr : l_TargetList)
                 {

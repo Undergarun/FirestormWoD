@@ -149,6 +149,7 @@ enum eFoundryGameObjects
     BurningFrontDoor            = 236842,
     KromogsDoorSouth            = 236839,
     KromogsDoorEast             = 236840,
+    KromogDoor                  = 234029,
     /// Iron Assembly - Part 3
     IronAssembleyGate           = 238837,
     TheBeastGate                = 231841,
@@ -203,6 +204,7 @@ enum eFoundryDatas
     MaxPrimalElementalists  = 4,
     /// Kromog
     MaxReverberationSpawns  = 15,
+    MaxGraspingEarthHands   = 10,
     /// Beastlord Darmac
     DataDreadwingFirst      = 1,
     DataIronCrusherFirst    = 2,

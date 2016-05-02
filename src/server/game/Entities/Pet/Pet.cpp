@@ -1023,12 +1023,13 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
             CastSpell(this, 147157, true);
     }
 
-    if (l_PetType == HUNTER_PET)
+    if (l_PetType == HUNTER_PET && HasAura(20782))
     {
         if (l_Owner && l_Owner->HasAura(152244))
+        {
+            RemoveAura(20782);
             CastSpell(this, 156843, true); ///<  Adaptation
-        else
-            CastSpell(this, 20782, true); ///< Combat Experience
+        }
         CastSpell(this, 88680, true, nullptr, nullptr, l_Owner ? l_Owner->GetGUID() : 0); ///< Kindred Spirits
     }
 

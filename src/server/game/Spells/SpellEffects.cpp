@@ -3153,6 +3153,10 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         }
     }
 
+    /// Shield Slam should dispel 1 magic effect only warrior has Glyph of Shield Slam and are in Defensive stance
+    if (m_spellInfo->Id == 23922 && GetCaster() && (!GetCaster()->HasAura(58375) || !GetCaster()->HasAura(71)))
+        return;
+
     /// Mass Dispel should dispel Cyclone, if priest has Glyph of Mass Dispell
     if (m_spellInfo->Id == 32375 && GetCaster() && GetCaster()->HasAura(55691) && unitTarget->HasAura(33786))
         unitTarget->RemoveAura(33786);

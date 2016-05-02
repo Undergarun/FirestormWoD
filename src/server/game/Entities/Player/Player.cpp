@@ -7600,6 +7600,29 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
     return TotalCost;
 }
 
+class DelayedResurrection : public BasicEvent
+{
+    public:
+        DelayedResurrection(uint64 p_Guid) : m_Guid(p_Guid), BasicEvent() { }
+        virtual ~DelayedResurrection() { }
+
+        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
+        {
+            if (Player* l_Player = HashMapHolder<Player>::Find(m_Guid))
+            {
+                l_Player->ResurrectPlayer(1.0f);
+                l_Player->SpawnCorpseBones();
+            }
+
+            return true;
+        }
+
+        virtual void Abort(uint64 p_EndTime) { }
+
+    private:
+        uint64 m_Guid;
+};
+
 void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
 {
     // note: this can be called also when the player is alive
@@ -7629,7 +7652,7 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
     {
         l_ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
-    // Since Wod, when you die in Dungeon and you release your spirit, you are teleport alived at the entrance of the dungeon.
+    /// Since WoD, when you die in a dungeon and you release your spirit, you are teleported alive at the entrance of the dungeon.
     else if (GetMap()->IsDungeon() && !p_ForceGraveyard)
     {
         AreaTriggerStruct const* l_AreaTrigger = sObjectMgr->GetMapEntranceTrigger(GetMapId());
@@ -7639,12 +7662,11 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
                 l_AreaTrigger->target_X,
                 l_AreaTrigger->target_Y,
                 l_AreaTrigger->target_Z,
-                GetOrientation(),
+                m_orientation,
                 l_AreaTrigger->target_mapId);
 
-            // Since Wod, you are resurected in Dungeon with 100% life.
-            ResurrectPlayer(1.0f);
-            SpawnCorpseBones();
+            /// Since WoD, you are resurrected in Dungeon with 100% life.
+            m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
         }
     }
     else

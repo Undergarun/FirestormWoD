@@ -1850,7 +1850,7 @@ class npc_foundry_forge_overdrive : public CreatureScript
             {
                 UpdateOperations(p_Diff);
 
-                float l_CheckX = 5.0f;
+                float l_CheckX = 4.5f;
                 float l_CheckY = 7.5f;
 
                 std::set<uint64> l_Targets;

@@ -3336,7 +3336,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         SpellInfo const* l_Frenzy = sSpellMgr->GetSpellInfo(HUNTER_SPELL_FRENZY);
 
                         /// Increases the damage done by your pet's Basic Attacks by 10%
-                        if (l_Hunter->HasAura(HUNTER_SPELL_SPIKED_COLLAR) && l_SpikedCollar != nullptr)
+                        if (l_Pet->HasAura(HUNTER_SPELL_SPIKED_COLLAR) && l_SpikedCollar != nullptr)
                             AddPct(l_Damage, l_SpikedCollar->Effects[EFFECT_0].BasePoints);
 
                         bool l_FreeCostSpell = l_Pet->HasAura(eSpells::EnhancedBasicAttacksProc);
@@ -3782,9 +3782,11 @@ class spell_hun_adaptation : public SpellScriptLoader
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
                     {
-                        if (l_Pet->HasAura(eSpells::CombatExperience))
+                        if (l_Pet->HasSpell(eSpells::CombatExperience))
+                        {
                             l_Pet->RemoveAura(eSpells::CombatExperience);
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                            l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                        }
                     }
                 }
             }
@@ -3801,7 +3803,8 @@ class spell_hun_adaptation : public SpellScriptLoader
                     if (Pet* l_Pet = l_Player->GetPet())
                     {
                         l_Pet->RemoveAura(eSpells::CombatExperienceAdaptation);
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                        if (l_Pet->HasSpell(eSpells::CombatExperience))
+                            l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
                     }
                 }
             }

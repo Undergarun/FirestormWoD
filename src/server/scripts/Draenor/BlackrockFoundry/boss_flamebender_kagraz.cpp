@@ -687,7 +687,15 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Kagraz = Creature::GetCreature(*me, m_Instance->GetData64(eFoundryCreatures::BossFlamebenderKagraz)))
+                    {
+                        if (l_Kagraz->IsAIEnabled && !l_Kagraz->isInCombat())
+                            l_Kagraz->AI()->AttackStart(p_Attacker);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+                }
 
                 m_Events.ScheduleEvent(eEvents::EventDevastatingSlam, eTimers::TimerDevastatingSlam);
                 m_Events.ScheduleEvent(eEvents::EventDropTheHammer, eTimers::TimerDropTheHammer);

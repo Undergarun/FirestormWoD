@@ -750,6 +750,22 @@ void InstanceScript::DoCombatStopOnPlayers()
     }
 }
 
+void InstanceScript::SetCriteriaProgressOnPlayers(CriteriaEntry const* p_Criteria, uint64 p_ChangeValue, ProgressType p_Type)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            l_Player->GetAchievementMgr().SetCriteriaProgress(p_Criteria, p_ChangeValue, l_Player, p_Type);
+            l_Player->GetAchievementMgr().SetCompletedAchievementsIfNeeded(p_Criteria, l_Player);
+        }
+    }
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",

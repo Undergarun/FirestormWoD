@@ -5611,6 +5611,43 @@ public:
 };
 
 /// Last Update 6.2.3
+/// Nullification Barrier - 115817
+class spell_nullification_barrier : public SpellScriptLoader
+{
+    public:
+        spell_nullification_barrier() : SpellScriptLoader("spell_nullification_barrier") { }
+
+        class spell_nullification_barrier_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_nullification_barrier_SpellScript);
+
+            SpellCastResult CheckMap()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetMapId() != 1008)
+                        return SPELL_FAILED_INCORRECT_AREA;
+                    else
+                        return SPELL_CAST_OK;
+                }
+                else
+                    return SPELL_FAILED_CASTER_DEAD;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_nullification_barrier_SpellScript::CheckMap);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_nullification_barrier_SpellScript();
+        }
+};
+
+
+/// Last Update 6.2.3
 /// Transmorphose - 162313
 class spell_gen_transmorphose : public SpellScriptLoader
 {
@@ -5835,6 +5872,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_elixir_of_wandering_spirits();
     new spell_gen_service_uniform();
     new spell_legendary_cloaks();
+    new spell_nullification_barrier();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

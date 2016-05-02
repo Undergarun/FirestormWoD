@@ -534,16 +534,18 @@ class boss_the_butcher : public CreatureScript
                         ++m_AddCount;
                         uint8 l_Count = floor(float(m_AddCount) / 4.0f) + 1;
 
-                        float l_Radius = 50.0f;
-                        float l_PosX = me->GetPositionX();
-                        float l_PosY = me->GetPositionY();
+                        float l_Radius  = 50.0f;
+                        float l_PosX    = me->GetHomePosition().m_positionX;
+                        float l_PosY    = me->GetHomePosition().m_positionY;
+                        float l_PosZ    = me->GetHomePosition().m_positionZ;
 
                         for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                         {
                             float l_Orientation = frand(0, 2 * M_PI);
                             float l_X = l_PosX + (l_Radius * cos(l_Orientation));
                             float l_Y = l_PosY + (l_Radius * sin(l_Orientation));
-                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, me->GetPositionZ());
+
+                            me->SummonCreature(eCreatures::NightTwistedCadaver, l_X, l_Y, l_PosZ);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventCadaver, 14 * TimeConstants::IN_MILLISECONDS);
