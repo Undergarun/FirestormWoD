@@ -1007,6 +1007,7 @@ void AddSC_WanderingIsland_South();
 void AddSC_tanaan_jungle();
 void AddSC_spires_of_arak();
 void AddSC_frostfire_ridge();
+void AddSC_draenor_shadowmoon_valley();
 void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
@@ -1987,6 +1988,7 @@ void AddDraenorScripts()
     AddSC_tanaan_jungle();
     AddSC_spires_of_arak();
     AddSC_frostfire_ridge();
+    AddSC_draenor_shadowmoon_valley();
     AddSC_gorgrond();
 
     /// Garrison
