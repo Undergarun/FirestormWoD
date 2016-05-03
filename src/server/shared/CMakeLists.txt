@@ -26,13 +26,6 @@ file(GLOB sources_localdir *.cpp *.h)
 # Build shared sourcelist
 #
 
-if( USE_COREPCH AND MSVC )
-  set(shared_STAT_SRCS
-    PrecompiledHeaders/sharedPCH.cpp
-    PrecompiledHeaders/sharedPCH.h
-  )
-endif()
-
 set(shared_STAT_SRCS
   ${shared_STAT_SRCS}
   ${sources_Configuration}

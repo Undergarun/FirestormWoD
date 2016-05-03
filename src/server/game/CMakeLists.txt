@@ -111,7 +111,7 @@ set(game_STAT_SRCS
   ${sources_Cinematic}
   ${sources_PetBattle}
   ${sources_Garrison}
-  ${sources_shared_ptrs}
+  ${sources_SharedPtrs}
   ${sources_Vignette}
 )
 

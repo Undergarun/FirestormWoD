@@ -4,7 +4,7 @@
 #  All Rights Reserved.
 #
 
-# Enable precompiled headers when using the GCC compiler.
+# Enable precompiled headers
 if (USE_SCRIPTPCH)
   set(scripts_STAT_PCH_HDR PrecompiledHeaders/ScriptPCH.h)
   set(scripts_STAT_PCH_SRC PrecompiledHeaders/ScriptPCH.cpp)
@@ -32,6 +32,7 @@ if(SCRIPTS)
   include(Kalimdor/CMakeLists.txt)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
+  include(Cataclysm/CMakeLists.txt)
   include(Pandaria/CMakeLists.txt)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
