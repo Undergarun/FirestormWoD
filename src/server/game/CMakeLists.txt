@@ -279,8 +279,6 @@ include_directories(
 
 add_definitions("-DGAME_SERVER_PROJECTS")
 
-GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
-
 add_library(game STATIC
   ${game_STAT_SRCS}
   ${game_STAT_PCH_SRC}
