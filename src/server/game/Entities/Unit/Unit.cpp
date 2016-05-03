@@ -58,6 +58,8 @@
 #include "Guild.h"
 #include "DB2Stores.h"
 #include "../../Garrison/GarrisonMgr.hpp"
+#include "../../../scripts/Draenor/Garrison/GarrisonScriptData.hpp"
+
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
