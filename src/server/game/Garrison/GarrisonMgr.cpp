@@ -817,7 +817,7 @@ namespace MS { namespace Garrison
     void Manager::RewardGarrisonCache()
     {
         m_Owner->SendDisplayToast(Globals::CurrencyID, m_CacheLastTokenAmount, DISPLAY_TOAST_METHOD_GARRISON_CACHE, TOAST_TYPE_NEW_CURRENCY, false, false);
-        m_Owner->ModifyCurrency(Globals::CurrencyID, m_CacheLastTokenAmount);
+        m_Owner->ModifyCurrency(Globals::CurrencyID, m_CacheLastTokenAmount, false);
 
         m_CacheLastTokenAmount  = 0;
         m_CacheLastUsage        = time(0);
@@ -975,6 +975,9 @@ namespace MS { namespace Garrison
     /// Get plot by position
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(float p_X, float p_Y, float p_Z)
     {
+		if (m_Owner && !m_Owner->IsInGarrison())
+			return;
+
         Position                            l_Position;
         GarrisonPlotInstanceInfoLocation    l_Plot;
 
@@ -1698,7 +1701,7 @@ namespace MS { namespace Garrison
             CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
 
             if (l_CurrencyEntry)
-                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second, false);
         }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
@@ -3688,8 +3691,10 @@ namespace MS { namespace Garrison
                         if (!l_CurrentEntry || l_CurrentEntry->Type != l_BuildingEntry->Type || l_CurrentEntry->Level != l_TargetLevel)
                             continue;
 
-                        l_GobEntry          = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
-                        l_SpanwActivateGob  = true;
+                        l_GobEntry = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
+
+						if (time(0) > l_Building.TimeBuiltEnd)
+							l_SpanwActivateGob  = true;
 
                         break;
                     }
