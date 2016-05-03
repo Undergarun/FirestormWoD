@@ -56,7 +56,6 @@ find_package(OpenSSL REQUIRED)
 find_package(curl REQUIRED)
 find_package(EasyJSon REQUIRED)
 # FIND_PACKAGE(msFramework REQUIRED)
-find_package(MySQL REQUIRED)
 
 if( UNIX )
   find_package(Readline)

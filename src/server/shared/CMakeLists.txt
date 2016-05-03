@@ -4,8 +4,9 @@
 #  All Rights Reserved.
 #
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+if (USE_COREPCH)
+  set(shared_STAT_PCH_HDR PrecompiledHeaders/sharedPCH.h)
+  set(shared_STAT_PCH_SRC PrecompiledHeaders/sharedPCH.cpp)
 endif()
 
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
@@ -24,10 +25,6 @@ file(GLOB sources_localdir *.cpp *.h)
 #
 # Build shared sourcelist
 #
-if (USE_COREPCH)
-  set(shared_STAT_PCH_HDR PrecompiledHeaders/sharedPCH.h)
-  set(shared_STAT_PCH_SRC PrecompiledHeaders/sharedPCH.cpp)
-endif()
 
 set(shared_STAT_SRCS
   ${shared_STAT_SRCS}
@@ -43,6 +40,27 @@ set(shared_STAT_SRCS
   ${sources_Reporting}
   ${sources_localdir}
   Debugging/Errors.h
+)
+
+MACRO( auto_group ProjectDirectory ProjectSources )
+    SET( DirectorySources "${ProjectSources}" )
+    FOREACH( Source ${DirectorySources} )
+        if ("${Source}" MATCHES "(/)+")
+            STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+            STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+            SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+        else()
+            SOURCE_GROUP( "" FILES ${Source} )
+        endif()
+    ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${shared_STAT_SRCS}")
+
+set(shared_STAT_SRCS
+  ${shared_STAT_SRCS}
 )
 
 include_directories(

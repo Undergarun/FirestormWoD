@@ -5,7 +5,6 @@
 #
 
 # Enable precompiled headers
-
 if (USE_SCRIPTPCH)
   set(scripts_STAT_PCH_HDR PrecompiledHeaders/ScriptPCH.h)
   set(scripts_STAT_PCH_SRC PrecompiledHeaders/ScriptPCH.cpp)
@@ -42,6 +41,27 @@ if(SCRIPTS)
   include(Firestorm/CMakeLists.txt)
   include(Toys/CMakeLists.txt)
 endif()
+
+MACRO( auto_group ProjectDirectory ProjectSources )
+    SET( DirectorySources "${ProjectSources}" )
+    FOREACH( Source ${DirectorySources} )
+        if ("${Source}" MATCHES "(/)+")
+            STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+            STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+            SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+        else()
+            SOURCE_GROUP( "" FILES ${Source} )
+        endif()
+    ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${scripts_STAT_SRCS}")
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+)
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
 message("")
@@ -166,6 +186,9 @@ add_library(scripts STATIC
   ${scripts_STAT_SRCS}
   ${scripts_STAT_PCH_SRC}
 )
+
+add_definitions("-DGAME_SERVER_PROJECTS")
+set_property(TARGET scripts PROPERTY FOLDER "server")
 
 add_dependencies(scripts revision_data.h)
 

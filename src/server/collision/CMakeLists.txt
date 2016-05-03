@@ -4,9 +4,10 @@
 #  All Rights Reserved.
 #
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-endif()
+if (USE_COREPCH)
+  set(collision_STAT_PCH_HDR PrecompiledHeaders/collisionPCH.h)
+  set(collision_STAT_PCH_SRC PrecompiledHeaders/collisionPCH.cpp)
+endif ()
 
 file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
 file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
@@ -26,6 +27,27 @@ set(collision_STAT_SRCS
   ${sources_Models}
   ${sources_Pathfinding}
   ${sources_localdir}
+)
+
+MACRO( auto_group ProjectDirectory ProjectSources )
+	SET( DirectorySources "${ProjectSources}" )
+	FOREACH( Source ${DirectorySources} )
+		if ("${Source}" MATCHES "(/)+")
+			STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+			STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+			STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+			SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+		else()
+			SOURCE_GROUP( "" FILES ${Source} )
+		endif()
+	ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${collision_STAT_SRCS}")
+
+set(collision_STAT_SRCS
+  ${collision_STAT_SRCS}
 )
 
 include_directories(
@@ -87,6 +109,7 @@ add_library(collision STATIC
   ${collision_STAT_SRCS}
   ${collision_STAT_PCH_SRC}
 )
+set_property(TARGET collision PROPERTY FOLDER "server")
 
 target_link_libraries(collision
   shared

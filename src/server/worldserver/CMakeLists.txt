@@ -15,6 +15,13 @@ if (USE_COREPCH)
   set(worldserver_PCH_SRC PrecompiledHeaders/worldPCH.cpp)
 endif()
 
+if ( USE_COREPCH AND MSVC )
+  set(worldserver_SRCS
+    PrecompiledHeaders/worldPCH.cpp
+    PrecompiledHeaders/worldPCH.h
+  )
+endif()
+
 set(worldserver_SRCS
   ${worldserver_SRCS}
   ${sources_CommandLine}
@@ -24,17 +31,33 @@ set(worldserver_SRCS
   ${sources_localdir}
 )
 
+MACRO( auto_group ProjectDirectory ProjectSources )
+    SET( DirectorySources "${ProjectSources}" )
+    FOREACH( Source ${DirectorySources} )
+        if ("${Source}" MATCHES "(/)+")
+            STRING( REGEX REPLACE "${ProjectDirectory}" "" RelativePath "${Source}" )
+            STRING( REGEX REPLACE "[\\\\/][^\\\\/]*$" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "^[\\\\/]" "" RelativePath "${RelativePath}" )
+            STRING( REGEX REPLACE "/" "\\\\\\\\" RelativePath "${RelativePath}" )
+            SOURCE_GROUP( "${RelativePath}" FILES ${Source} )
+        else()
+            SOURCE_GROUP( "" FILES ${Source} )
+        endif()
+    ENDFOREACH( Source )
+ENDMACRO( auto_group )
+
+auto_group("${CMAKE_CURRENT_SOURCE_DIR}" "${worldserver_SRCS}")
+
+set(worldserver_SRCS
+  ${worldserver_SRCS}
+)
+
 if( WIN32 )
   set(worldserver_SRCS
     ${worldserver_SRCS}
-    ${sources_windows_Debugging}
+    ${sources_Debugging}
+    worldserver.rc
   )
-  if ( MSVC )
-    set(worldserver_SRCS
-      ${worldserver_SRCS}
-      worldserver.rc
-    )
-  endif()
 endif()
 
 include_directories(
@@ -155,6 +178,7 @@ add_executable(worldserver
   ${worldserver_SRCS}
   ${worldserver_PCH_SRC}
 )
+set_property(TARGET worldserver PROPERTY FOLDER "server")
 
 if( NOT WIN32 )
   set_target_properties(worldserver PROPERTIES
@@ -165,7 +189,7 @@ endif()
 add_dependencies(worldserver revision_data.h)
 
 if( UNIX AND NOT NOJEM AND NOT APPLE )
-  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
+  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
 endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
