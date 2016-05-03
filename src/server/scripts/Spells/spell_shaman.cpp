@@ -3354,7 +3354,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 Unit* l_Target = GetTarget();
                 ///< Should proc only when the target pass from > 50% health to < 50% health
-                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
+                if (l_Target->GetHealthPct() > l_HealthPct && (100.f * (float)(l_Target->GetHealth() - (float)p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) <= l_HealthPct)
                 {
                     if (AuraEffect* l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {
