@@ -579,6 +579,59 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         }
 };
 
+/// Free Prisoners - 172113
+class spell_quest_spires_of_arak_free_prisoners : public SpellScriptLoader
+{
+    public:
+        /// Constructor
+        spell_quest_spires_of_arak_free_prisoners()
+            : SpellScriptLoader("spell_quest_spires_of_arak_free_prisoners")
+        {
+
+        }
+
+        class spell_quest_spires_of_arak_free_prisoners_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_spires_of_arak_free_prisoners_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == SpiresOfArakCreatures::PrisonerPost)
+                    {
+                        Creature * l_Creature = l_Target->FindNearestCreature(SpiresOfArakCreatures::RavenspeakerInitiate, 1.2f);
+
+                        if (l_Creature)
+                        {
+                            l_Creature->CastStop(SpiresOfArakSpells::Rope);
+                            l_Creature->RemoveAura(SpiresOfArakSpells::Rope);
+                            l_Creature->GetMotionMaster()->MoveFleeing(l_Caster, 5 * TimeConstants::IN_MILLISECONDS);
+                            l_Creature->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+                        }
+ 
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_spires_of_arak_free_prisoners_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_spires_of_arak_free_prisoners_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_spires_of_arak()
 {
@@ -587,5 +640,6 @@ void AddSC_spires_of_arak()
     new spell_rukhmar_blaze_of_glory();
     new spell_rukhmar_loose_quills();
     new spell_aura_pierced_armor();
+    new spell_quest_spires_of_arak_free_prisoners();
 }
 #endif

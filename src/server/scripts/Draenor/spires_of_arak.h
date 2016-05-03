@@ -26,7 +26,9 @@ namespace SpiresOfArakSpells
         SpellFixateSkyReach         = 176544, ///< skyreach spell, may be useful
         SpellSunburst               = 169810, ///< Explodes when killed by players (unused yet, maybe simply related to skyreach)
         SpellSunStrike              = 153828, ///< Explodes when reaches a player (unused yet, maybe simply related to skyreach)
-        SouthshoreMobScalingAura    = 169704
+        SouthshoreMobScalingAura    = 169704,
+
+        Rope                        = 171935
     };
 }
 
@@ -78,7 +80,9 @@ namespace SpiresOfArakCreatures
     {
         CreatureEnergizedPhoenix = 83769,
         CreaturePileOfAsh        = 83768,
-        CreatureDepletedPhoenix  = 83783 ///< Seems to be used, but didn't find anything about its abilities, needs reports/precisions
+        CreatureDepletedPhoenix  = 83783, ///< Seems to be used, but didn't find anything about its abilities, needs reports/precisions
+        RavenspeakerInitiate     = 86161,
+        PrisonerPost             = 86159
     };
 }
 
