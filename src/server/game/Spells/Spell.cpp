@@ -6203,8 +6203,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         if (checkForm)
         {
+            SpellCastResult shapeError = SPELL_CAST_OK;
             // Cannot be used in this stance/form
-            SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
+            if (!IsDarkSimulacrum())
+                SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
             if (shapeError != SPELL_CAST_OK)
                 return shapeError;
 
