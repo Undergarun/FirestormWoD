@@ -689,7 +689,7 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::GlyphOfShamanisticRage))
                 {
                     DispelChargesList l_DispelList;
-                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
+                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_MAGIC, l_DispelList);
 
                     for (auto itr : l_DispelList)
                     {

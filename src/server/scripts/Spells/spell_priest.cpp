@@ -1445,7 +1445,7 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
                 if (l_Caster->GetTypeId() != TYPEID_UNIT || !l_Caster->ToCreature()->isSummon())
                     return;
 
-                if (Aura* l_ChargesAura = l_Caster->GetAura(LIGHTWELL_CHARGES))
+                if (l_Caster->HasAura(LIGHTWELL_CHARGES))
                 {
                     if (!l_Target->HasAura(LIGHTSPRING_RENEW))
                         l_Caster->CastSpell(l_Target, LIGHTSPRING_RENEW, true, NULL, nullptr, l_Caster->ToTempSummon()->GetSummonerGUID());
