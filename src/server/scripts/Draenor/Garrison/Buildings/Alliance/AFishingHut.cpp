@@ -307,15 +307,15 @@ namespace MS { namespace Garrison
 
     bool npc_RonAshton::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
     {
-		Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_Creature->GetInstanceScript();
+        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)p_Creature->GetInstanceScript();
 
-		if (!l_GarrisonSite)
-			return true;
+        if (!l_GarrisonSite)
+        return true;
 
-		Player* l_Owner = l_GarrisonSite->GetOwner();
+        Player* l_Owner = l_GarrisonSite->GetOwner();
 
-		if (l_Owner != p_Player)
-			return true;
+        if (l_Owner != p_Player)
+            return true;
 
         if (p_Quest->GetQuestId() == Quests::Alliance_AnglinInOurGarrison)
         {
@@ -333,11 +333,11 @@ namespace MS { namespace Garrison
                     p_Player->RewardQuest(l_Quest, 0, p_Creature, false);
                 }
 
-				GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(BuildingType::Fishing).BuildingID);
-				Position l_Pos = *l_Owner;
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuildingWithType(BuildingType::Fishing).BuildingID);
+                Position l_Pos = *l_Owner;
 
-				if (l_BuildingEntry)
-					l_Owner->PlayStandaloneScene(l_Owner->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
+                if (l_BuildingEntry)
+                    l_Owner->PlayStandaloneScene(l_Owner->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
 
                 l_GarrisonMgr->ActivateBuilding(l_AI->GetPlotInstanceID());
             }

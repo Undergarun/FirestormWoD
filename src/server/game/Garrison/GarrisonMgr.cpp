@@ -975,8 +975,8 @@ namespace MS { namespace Garrison
     /// Get plot by position
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(float p_X, float p_Y, float p_Z)
     {
-		if (m_Owner && !m_Owner->IsInGarrison())
-			return;
+        if (m_Owner && !m_Owner->IsInGarrison())
+            return;
 
         Position                            l_Position;
         GarrisonPlotInstanceInfoLocation    l_Plot;
@@ -3693,8 +3693,8 @@ namespace MS { namespace Garrison
 
                         l_GobEntry = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
 
-						if (time(0) > l_Building.TimeBuiltEnd)
-							l_SpanwActivateGob  = true;
+                        if (time(0) > l_Building.TimeBuiltEnd)
+                            l_SpanwActivateGob  = true;
 
                         break;
                     }
