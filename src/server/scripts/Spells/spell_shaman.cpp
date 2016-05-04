@@ -3295,8 +3295,8 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                 if (l_Player->HasSpellCooldown(eSpells::NaturesGuardian))
                     return;
 
-                if ((int32)l_Player->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
-                    (int32)(100.f * (l_Player->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) >= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                if ((int32)l_Player->GetHealthPct() > GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
+                    (int32)(100.f * (l_Player->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                 {
                     l_Player->CastSpell(l_Player, eSpells::NaturesGuardian, true);
                     l_Player->AddSpellCooldown(eSpells::NaturesGuardian, 0, 30 * IN_MILLISECONDS);

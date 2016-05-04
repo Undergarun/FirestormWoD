@@ -820,8 +820,9 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                         me->CastSpell(me, eSpells::FeralSpiritWindfuryDriver, true);
                 }
 
-                me->CastSpell(me, eSpells::SpiritWalk, true);
                 me->CastSpell(me, eSpells::SpiritHunt, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -862,7 +863,7 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                         else
                             l_OwnerTarget = l_Owner->getVictim();
 
-                        if (l_OwnerTarget)
+                        if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
                             AttackStart(l_OwnerTarget);
                     }
 
