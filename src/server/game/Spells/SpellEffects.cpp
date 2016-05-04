@@ -1873,8 +1873,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift and Frenzied Regeneration
-            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift, Frenzied Regeneration and Tranquility
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && m_spellInfo->Id != 157982 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
