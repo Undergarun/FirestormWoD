@@ -60,7 +60,7 @@ void BattlegroundNA::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void BattlegroundNA::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
+void BattlegroundNA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -92,7 +92,7 @@ bool BattlegroundNA::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundNA::HandleAreaTrigger(Player* /*Source*/, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

@@ -898,10 +898,10 @@ class AuraScript : public _SpellScript
         bool HasEffectType(AuraType type) const;
 
         // Permit to communicate some data with the script
-        virtual void SetData(uint32 type, uint32 data) {}
+        virtual void SetData(uint32 /*type*/, uint32 /*data*/) {}
 
         // Permit to communicate some uint64 data with the script
-        virtual void SetGuid(uint32 type, uint64 data) {}
+        virtual void SetGuid(uint32 /*type*/, uint64 /*data*/) {}
 
         // AuraScript interface - functions which are redirecting to AuraApplication class
         // Do not call these in hooks in which AuraApplication is not avalible, otherwise result will differ from expected (the functions will return NULL)

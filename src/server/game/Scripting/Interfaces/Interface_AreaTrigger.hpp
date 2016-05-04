@@ -5,8 +5,9 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-#ifndef SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
+# ifndef SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
 #define SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
@@ -32,10 +33,10 @@ class AreaTriggerScript : public ScriptObjectImpl<true>
         }
 
         /// Called when a player enters the AreaTrigger
-        virtual void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { } ///< p_Player & p_AreaTrigger is unused
+        virtual void OnEnter(Player* /*p_Player*/, AreaTriggerEntry const* /*p_AreaTrigger*/) { }
 
         /// Called when a player exits the AreaTrigger
-        virtual void OnExit(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) { } ///< p_Player & p_AreaTrigger is unused
+        virtual void OnExit(Player* /*p_Player*/, AreaTriggerEntry const* /*p_AreaTrigger*/) { }
 
         /// Called on each update of AreaTriggers.
         /// @p_AreaTrigger : Area Trigger instance

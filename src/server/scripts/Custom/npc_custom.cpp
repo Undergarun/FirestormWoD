@@ -212,7 +212,7 @@ class npc_world_boss_gossip : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_world_boss_gossipAI(creature);
         }

@@ -69,7 +69,7 @@ class instance_heart_of_fear : public InstanceMapScript
 
             bool m_SecondPartInitialized;
 
-            void Initialize()
+            void Initialize() override
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
                 LoadDoorData(doorData);
@@ -92,7 +92,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 m_SecondPartInitialized = false;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -119,7 +119,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -174,7 +174,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectRemove(GameObject* go)
+            void OnGameObjectRemove(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
@@ -197,22 +197,15 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 id, EncounterState state)
+            bool SetBossState(uint32 id, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(id, state))
                     return false;
-                /*
-                switch (id)
-                {
 
-                    default:
-                        break;
-                }
-                */
                 return true;
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) override
             {
                 switch (type)
                 {
@@ -255,7 +248,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 return 0;
             }
 
-            bool IsWipe()
+            bool IsWipe() override
             {
                 Map::PlayerList const& PlayerList = instance->GetPlayers();
 
@@ -287,7 +280,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 return true;
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const override
             {
                 if (!InstanceScript::CheckRequiredBosses(bossId, player))
                     return false;
@@ -348,7 +341,7 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
             }
 
-            void OnPlayerExit(Player* p_Player)
+            void OnPlayerExit(Player* p_Player) override
             {
                 if (p_Player->HasAura(SPELL_RESHAPE_LIFE))
                     p_Player->RemoveAura(SPELL_RESHAPE_LIFE);

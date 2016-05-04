@@ -468,7 +468,7 @@ bool BattlegroundDG::CanSeeSpellClick(Player const* p_Player, Unit const* p_Clic
     return false;
 }
 
-void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
+void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* /*p_Flag*/)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -1015,7 +1015,7 @@ void BattlegroundDG::UpdateCartState(uint32 p_Team, uint32 p_Value)
 /************************************************************************/
 /*                        ENDING BATTLEGROUND                           */
 /************************************************************************/
-void BattlegroundDG::RemovePlayer(Player* p_Player, uint64 p_Guid, uint32 p_Team)
+void BattlegroundDG::RemovePlayer(Player* p_Player, uint64 p_Guid, uint32 /*p_Team*/)
 {
     // Sometimes flag aura not removed :(
     if (IsAllianceFlagPickedup() && m_FlagKeepers[TEAM_ALLIANCE] == p_Guid)

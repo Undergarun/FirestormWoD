@@ -1182,7 +1182,7 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
 }
 
-void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet) ///< p_Packet is unused
+void WorldSession::HandleCompleteMovieOpcode(WorldPacket & /*p_Packet*/)
 {
     if (!m_Player || m_Player->CurrentPlayedMovie == 0)
         return;
@@ -1604,7 +1604,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleComplainOpcode(WorldPacket& recvData) ///< recvData is unused
+void WorldSession::HandleComplainOpcode(WorldPacket& /*recvData*/)
 {
     // recvData is not empty, but all data are unused in core
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
@@ -2200,7 +2200,7 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     m_Player->SendMovieStart(116);
 }
 
-void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& recvPacket) ///< recvPacket is unused
+void WorldSession::HandleCategoryCooldownOpcode(WorldPacket& /*recvPacket*/)
 {
     Unit::AuraEffectList const& list = GetPlayer()->GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
 
@@ -2324,7 +2324,7 @@ void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
     m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
 }
 
-void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData) ///< p_RecvData is unused 
+void WorldSession::HandleRequestTwitterStatus(WorldPacket& /*p_RecvData*/)
 {
     SendTwitterStatus(true);
 }

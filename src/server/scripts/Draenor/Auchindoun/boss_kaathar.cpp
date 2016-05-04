@@ -710,7 +710,7 @@ class auchindon_kaathar_areatrigger_fissure : public AreaTriggerEntityScript
         uint32 m_Diff = 2 * TimeConstants::IN_MILLISECONDS;
         std::list<uint64> m_Targets;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (m_Diff <= p_Time)
             {
@@ -901,7 +901,7 @@ class auchindon_trigger_holy_shield : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 events.Update(p_Diff);
             }

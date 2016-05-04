@@ -34,7 +34,7 @@ void BattlegroundRBG::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundRBG::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
+void BattlegroundRBG::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
 }
 

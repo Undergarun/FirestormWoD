@@ -591,7 +591,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value)
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
             {
                 /// Hans'gar only regens by script
                 p_Value = 0;
@@ -1483,7 +1483,7 @@ class boss_franzok : public CreatureScript
                 return 0;
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value)
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
             {
                 /// Hans'gar only regens by script
                 p_Value = 0;

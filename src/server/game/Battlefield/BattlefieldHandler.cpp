@@ -207,7 +207,7 @@ void WorldSession::HandleBfExitQueueRequest(WorldPacket & p_Packet)
         l_Battlefield->AskToLeaveQueue(m_Player);
 }
 
-void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
+void WorldSession::HandleBfExitRequest(WorldPacket& /*recv_data*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest");
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId());
@@ -232,7 +232,7 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
     l_ReportedPlayer->ReportedAfkBy(m_Player);
 }
 
-void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
+void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
 {
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
@@ -252,7 +252,7 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
 
 void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 {
-    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * (4+4+4+4+4+4+4+4));
+    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * (4 + 4 + 4 + 4 + 4 + 4 + 4 + 4));
 
     for (int i = 0; i < MAX_PVP_SLOT; i++)
     {

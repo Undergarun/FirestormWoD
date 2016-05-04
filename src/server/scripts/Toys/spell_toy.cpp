@@ -23,7 +23,7 @@ class spell_toy_stonebound : public SpellScriptLoader
 
             uint32 m_Update;
 
-            bool Load()
+            bool Load() override
             {
                 m_Update = 500;
                 return true;
@@ -83,7 +83,7 @@ class spell_toy_warsong_orc_costume : public SpellScriptLoader
         {
             PrepareSpellScript(spell_toy_warsong_orc_costume_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex p_EffIndex)
+            void HandleScriptEffect(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -122,7 +122,7 @@ class spell_toy_flippable_table : public SpellScriptLoader
         {
             PrepareSpellScript(spell_toy_flippable_table_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -159,7 +159,7 @@ class spell_toy_leyaras_locket : public SpellScriptLoader
         {
             PrepareSpellScript(spell_toy_leyaras_locket_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)

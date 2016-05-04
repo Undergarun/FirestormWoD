@@ -379,7 +379,7 @@ class InstanceScript : public ZoneScript
         virtual void OnGameObjectRemove(GameObject* p_Go);
 
         /// Called when falling damage are calculated for player
-        virtual bool IsPlayerImmuneToFallDamage(Player* p_Player) const { return false; }
+        virtual bool IsPlayerImmuneToFallDamage(Player* /*p_Player*/) const { return false; }
 
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time
@@ -557,7 +557,7 @@ class InstanceScript : public ZoneScript
         //////////////////////////////////////////////////////////////////////////
 
         // Called when a creature is killed by a player
-        virtual void OnCreatureKilled(Creature* p_Creature, Player* p_Player) { } ///< p_Creature & p_Player is unused
+        virtual void OnCreatureKilled(Creature* /*p_Creature*/, Player* /*p_Player*/) { }
 
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe();

@@ -21,15 +21,15 @@ class PetAI : public CreatureAI
 
         explicit PetAI(Creature* c);
 
-        void UpdateAI(const uint32);
+        void UpdateAI(const uint32) override;
         static int Permissible(const Creature*);
 
-        void KilledUnit(Unit* /*victim*/);
-        void AttackStart(Unit* target);
-        void MovementInform(uint32 moveType, uint32 data);
+        void KilledUnit(Unit* /*victim*/) override;
+        void AttackStart(Unit* target) override;
+        void MovementInform(uint32 moveType, uint32 data) override;
         void OwnerAttackedBy(Unit* attacker);
-        void OwnerAttacked(Unit* target);
-        void ReceiveEmote(Player* player, uint32 textEmote);
+        void OwnerAttacked(Unit* target) override;
+        void ReceiveEmote(Player* player, uint32 textEmote) override;
 
         // The following aren't used by the PetAI but need to be defined to override
         //  default CreatureAI functions which interfere with the PetAI

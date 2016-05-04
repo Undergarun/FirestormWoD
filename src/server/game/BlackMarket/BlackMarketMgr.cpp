@@ -321,7 +321,7 @@ std::string BMAuctionEntry::BuildAuctionMailBody(uint32 lowGuid)
     return strm.str();
 }
 
-void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_NewPrice, Player* p_NewBidder, SQLTransaction& p_Transaction) ///< p_NewPrice & p_NewBidder is unused
+void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 /*p_NewPrice*/, Player* /*p_NewBidder*/, SQLTransaction& p_Transaction)
 {
     Player* l_Bidder = sObjectAccessor->FindPlayer(MAKE_NEW_GUID(p_Auction->bidder, 0, HIGHGUID_PLAYER));
     ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(p_Auction->bm_template->itemEntry);

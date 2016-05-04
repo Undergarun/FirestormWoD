@@ -87,7 +87,7 @@ namespace MS
                             LoadScenariosInfos(g_BossScenarios, p_Map->IsChallengeMode() ? eScenarioDatas::BloodmaulChallengeID : eScenarioDatas::BloodmaulScenarioID);
                         }
 
-                        void OnCreatureCreate(Creature* p_Creature)
+                        void OnCreatureCreate(Creature* p_Creature) override
                         {
                             switch (p_Creature->GetEntry())
                             {
@@ -110,7 +110,7 @@ namespace MS
                                     break;
                                 case uint32(MobEntries::BloodmaulWarder):
                                 {
-                                    static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.0f };
+                                    static const Position k_CrushtoPosition = { 2038.51f, -361.126f, 223.0f, 0.0f };
 
                                     if (k_CrushtoPosition.GetExactDist2d(p_Creature) < 50.0f)
                                         m_NearestWarderGuids.emplace_back(p_Creature->GetGUID());
@@ -134,7 +134,7 @@ namespace MS
                             }
                         }
 
-                        void OnGameObjectCreate(GameObject* p_GameObject)
+                        void OnGameObjectCreate(GameObject* p_GameObject) override
                         {
                             switch (p_GameObject->GetEntry())
                             {
@@ -168,7 +168,7 @@ namespace MS
                             }
                         }
 
-                        void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+                        void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
                         {
                             switch (p_Creature->GetEntry())
                             {
@@ -229,7 +229,7 @@ namespace MS
                                 m_ConditionCompleted = true;
                         }
 
-                        bool SetBossState(uint32 p_ID, EncounterState p_State)
+                        bool SetBossState(uint32 p_ID, EncounterState p_State) override
                         {
                             if (!InstanceScript::SetBossState(p_ID, p_State))
                                 return false;
@@ -314,7 +314,7 @@ namespace MS
                             return true;
                         }
 
-                        void SetData(uint32 p_Type, uint32 p_Data)
+                        void SetData(uint32 p_Type, uint32 /*p_Data*/) override
                         {
                             switch (p_Type)
                             {
@@ -338,7 +338,7 @@ namespace MS
                                     if (m_SlagnaSpawned)
                                         break;
 
-                                    static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f };
+                                    static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f, 0.0f};
                                     if (Creature* l_Slagna = instance->SummonCreature(uint32(MobEntries::Slagna), k_SpawnSlagna))
                                     {
                                         m_SlagnaSpawned = true;
@@ -351,7 +351,7 @@ namespace MS
                             }
                         }
 
-                        void SetData64(uint32 p_Type, uint64 p_Data)
+                        void SetData64(uint32 p_Type, uint64 p_Data) override
                         {
                             switch (p_Type)
                             {
@@ -368,7 +368,7 @@ namespace MS
                             }
                         }
 
-                        uint64 GetData64(uint32 p_Type)
+                        uint64 GetData64(uint32 p_Type) override
                         {
                             switch (p_Type)
                             {
@@ -387,7 +387,7 @@ namespace MS
                             return 0;
                         }
 
-                        void Update(uint32 p_Diff)
+                        void Update(uint32 p_Diff) override
                         {
                             UpdateOperations(p_Diff);
 

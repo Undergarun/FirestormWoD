@@ -3283,7 +3283,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;
@@ -3500,7 +3500,7 @@ class spell_foundry_shattering_charge : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;

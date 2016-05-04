@@ -481,7 +481,7 @@ class spell_pri_spectral_guise_charges: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_spectral_guise_charges_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -501,7 +501,7 @@ class spell_pri_spectral_guise_charges: public SpellScriptLoader
                         spectralGuiseCharges->DropCharge();
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (caster->ToCreature())
@@ -544,7 +544,7 @@ class spell_pri_spirit_of_redemption: public SpellScriptLoader
                 p_Amount = -1;
             }
 
-            void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& /*p_AbsorbAmount*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (!l_Caster)
@@ -839,7 +839,7 @@ class spell_pri_surge_of_light : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::SurgeOfLightVisualUI, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -878,7 +878,7 @@ class spell_pri_surge_of_light_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_surge_of_light_aura_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& procInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
             {
                 PreventDefaultAction();
 
@@ -1117,7 +1117,7 @@ class spell_pri_holy_word_sanctuary: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_holy_word_sanctuary_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
@@ -1329,7 +1329,7 @@ public:
             }
         }
 
-        void AfterAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
+        void AfterAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo& p_DmgInfo, uint32& /*p_ShieldValue*/)
         {
             Unit* l_Target = GetTarget();
             Unit* l_Owner = GetUnitOwner();
@@ -2121,7 +2121,6 @@ class spell_pri_cascade_heal : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                Unit* l_FirstCaster = GetCaster();
                 Unit* l_Target = GetHitUnit();
                 float l_Radius = 40.0f;
 
@@ -2535,7 +2534,7 @@ class spell_pri_guardian_spirit: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL))
                     return false;
@@ -2682,7 +2681,7 @@ class spell_pri_vampiric_touch: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3215,7 +3214,7 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                 }
             }
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
 

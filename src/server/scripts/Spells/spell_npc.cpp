@@ -41,7 +41,7 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
 
             uint64 m_Owner = 0;
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* p_Summoner) override
             {
                 m_Owner = p_Summoner->GetGUID();
 
@@ -69,7 +69,7 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 ///< No evade mode for Prismatic Crystal
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Attacker->GetGUID() != m_Owner)
                 {
@@ -87,7 +87,7 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
                 }
             }
 
-            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target)
+            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) override
             {
                 if (m_Owner == p_Target->GetGUID())
                     p_FactionID = eDatas::FactionHostile;
@@ -1550,7 +1550,7 @@ class spell_npc_treant_balance : public CreatureScript
                 m_Rooted = false;
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!UpdateVictim() && me->getVictim() == nullptr)
                 {

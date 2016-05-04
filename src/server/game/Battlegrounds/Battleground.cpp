@@ -694,7 +694,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* context) const ///< context is unused
+inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const char* /*context*/) const
 {
     Player* player = NULL;
     if (!offlineRemove)

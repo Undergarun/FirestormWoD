@@ -1136,7 +1136,7 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
                 StayOfExecution = 114917
             };
 
-            void HandleDispel(DispelInfo* dispelData)
+            void HandleDispel(DispelInfo* /*dispelData*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetAura()->GetOwner()->ToUnit();
@@ -1520,7 +1520,7 @@ class spell_pal_word_of_glory_heal: public SpellScriptLoader
                 LawfulWords             = 166780
             };
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1594,7 +1594,7 @@ class spell_pal_word_of_glory_damage: public SpellScriptLoader
                 LawfulWords = 166780
             };
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1650,7 +1650,7 @@ class spell_pal_word_of_glory: public SpellScriptLoader
 
             int32 m_HolyPower = 0;
 
-            bool Validate(SpellInfo const* p_SpellInfo)
+            bool Validate(SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_WORD_OF_GLORY))
                     return false;
@@ -1899,7 +1899,7 @@ class spell_pal_ardent_defender: public SpellScriptLoader
                 return GetUnitOwner()->IsPlayer();
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 // Set absorbtion amount to unlimited
                 amount = -1;
@@ -2239,7 +2239,7 @@ class spell_pal_eternal_flame : public SpellScriptLoader
                 }
             }
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2512,7 +2512,7 @@ class spell_pal_seal_of_justice : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_seal_of_justice_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2706,7 +2706,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
                 }
             }
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {

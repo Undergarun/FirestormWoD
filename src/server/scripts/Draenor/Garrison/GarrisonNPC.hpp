@@ -479,7 +479,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Creature AI
             struct npc_SeniorPeonIIAI : public CreatureAI
@@ -612,7 +612,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const; ///< 'GetAI' overrides a member function but is not marked 'override'
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
     class npc_garrison_atheeru_palestarAI : public GarrisonNPCAI

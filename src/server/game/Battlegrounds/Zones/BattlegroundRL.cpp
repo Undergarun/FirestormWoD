@@ -60,7 +60,7 @@ void BattlegroundRL::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void BattlegroundRL::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
+void BattlegroundRL::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -92,7 +92,7 @@ bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundRL::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundRL::HandleAreaTrigger(Player* /*Source*/, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)

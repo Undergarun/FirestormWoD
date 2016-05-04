@@ -629,6 +629,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
             UNUSED(p_DamageEffectType);
             UNUSED(p_Damage);
+            UNUSED(p_SchoolMask);
             UNUSED(p_CleanDamage);
         }
 

@@ -39,7 +39,7 @@ class PlayerScriptPetBattle : public PlayerScript
         /// Called when a update() of a player is done
         /// @p_Player : Player instance
         /// @p_Diff : diff time
-        void OnUpdate(Player* p_Player, uint32 p_Diff)
+        void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
         {
             m_Mutex.lock();
 

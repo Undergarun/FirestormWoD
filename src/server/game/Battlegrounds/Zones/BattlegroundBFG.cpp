@@ -27,8 +27,8 @@ uint32 GILNEAS_BG_HonorScoreTicks[BG_HONOR_MODE_NUM] = ///< this is unused !
 
 uint32 GILNEAS_BG_Reputation[BG_HONOR_MODE_NUM][GILNEAS_BG_REWARD_NUM] = ///< this is unused !
 {
-    200, // normal honor
-    150  // holiday
+    {200}, // normal honor
+    {150}  // holiday
 };
 
 BattlegroundBFG::BattlegroundBFG()
@@ -207,7 +207,7 @@ void BattlegroundBFG::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = score;
 }
 
-void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 guid)
+void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/)
 {
 }
 

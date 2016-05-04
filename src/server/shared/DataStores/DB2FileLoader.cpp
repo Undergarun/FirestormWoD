@@ -296,7 +296,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
     return dataTable;
 }
 
-char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* dataTable, uint32 p_Locale)
+char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* /*dataTable*/, uint32 /*p_Locale*/)
 {
     if (strlen(format) != fieldCount)
         return NULL;

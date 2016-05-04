@@ -144,7 +144,7 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
     GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
 
-void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleArcheologyRequestHistory(WorldPacket& /*p_RecvData*/) ///< p_RecvData is unused
 {
     WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY, 2048);
 

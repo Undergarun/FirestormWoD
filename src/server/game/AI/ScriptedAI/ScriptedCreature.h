@@ -78,7 +78,7 @@ struct ScriptedAI : public CreatureAI
     void AttackStartNoMove(Unit* target);
 
     // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) {}
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*p_SpellInfo*/) {}
 
     //Called at World update tick
     virtual void UpdateAI(uint32 const p_Diff);
@@ -103,10 +103,10 @@ struct ScriptedAI : public CreatureAI
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
     /// Called when spell miss a target
-    void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
+    void SpellMissTarget(Unit* /*p_Target*/, SpellInfo const* /*p_SpellInfo*/, SpellMissInfo /*p_MissInfo*/) { }
 
     //Called at waypoint reached or PointMovement end
-    void MovementInform(uint32 /*type*/, uint32 id) {}
+    void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
 
     // Called when AI is temporarily replaced or put back when possess is applied or removed
     void OnPossess(bool /*apply*/) {}

@@ -488,7 +488,7 @@ void BattlegroundAV::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-void BattlegroundAV::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
+void BattlegroundAV::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
 {
    if (!player)
     {
@@ -1563,7 +1563,7 @@ class npc_regzar : public CreatureScript
 public:
     npc_regzar() : CreatureScript("npc_regzar") { }
 
-    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         Battleground* l_BattleGround = p_Player->GetBattleground();
         if (l_BattleGround == nullptr || l_BattleGround->GetTypeID(true) != BattlegroundTypeId::BATTLEGROUND_AV)

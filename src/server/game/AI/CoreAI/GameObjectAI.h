@@ -31,7 +31,7 @@ class GameObjectAI
 
         // Pass parameters between AI
         virtual void DoAction(const int32 /*param = 0 */) {}
-        virtual void SetGUID(const uint64& guid, int32 /*id = 0 */) {}
+        virtual void SetGUID(const uint64& /*guid*/, int32 /*id = 0 */) {}
         virtual uint64 GetGUID(int32 /*id = 0 */) { return 0; }
 
         static int Permissible(GameObject const* go);
@@ -42,15 +42,15 @@ class GameObjectAI
         virtual bool QuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
         virtual bool QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
         virtual uint32 GetDialogStatus(Player* /*player*/) { return 100; }
-        virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
-        virtual uint32 GetData(uint32 id) { return 0; }
-        virtual void SetData64(uint32 id, uint64 value) {}
-        virtual uint64 GetData64(uint32 id) { return 0; }
-        virtual void SetData(uint32 id, uint32 value) {}
-        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
-        virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) {}
+        virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
+        virtual uint32 GetData(uint32 /*id*/) { return 0; }
+        virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
+        virtual uint64 GetData64(uint32 /*id*/) { return 0; }
+        virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
+        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+        virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void OnStateChanged(uint32 /*p_State*/) { }
-        virtual void EventInform(uint32 /*eventId*/) {}
+        virtual void EventInform(uint32 /*eventId*/) { }
 
         /// Add timed delayed operation
         /// @p_Timeout  : Delay time

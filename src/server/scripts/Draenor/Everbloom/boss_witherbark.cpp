@@ -38,14 +38,6 @@ enum eWitherbarkTalks
 };
 
 ///< Positions
-Position const g_PositionAqueoursMobs[4] =
-{
-    { 410.45f, 1588.56f, 89.078f, 5.205070f },
-    { 474.81f, 1638.33f, 87.651f, 0.382940f },
-    { 434.33f, 1661.58f, 87.561f, 1.227150f },
-    { 387.49f, 1650.11f, 87.651f, 2.288160f }
-};
-
 Position const g_PositionEnchantedMobs[10] =
 {
     { 474.81f, 1638.33f, 87.567f, 0.000000f },
@@ -253,7 +245,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who)
+        void EnterCombat(Unit* /*p_Who*/)
         {
             _EnterCombat();
             Talk(eWitherbarkTalks::WitherbarkAggro);
@@ -302,7 +294,7 @@ public:
             DespawnCreaturesInArea(eEverbloomCreature::CreatureEnchanctedWater, me);
         }
 
-        void RegeneratePower(Powers p_Power, int32& p_Value)
+        void RegeneratePower(Powers /*p_Power*/, int32& /*p_Value*/)
         {
             if (!me->GetPower(Powers::POWER_MANA))
                 return;
@@ -455,7 +447,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             /// Cosmetic Aquous burst.
             if (Creature* l_NearestAquousGlobule = me->FindNearestCreature(eWitherbarkCreatures::CreatureWaterGlobule, 3.0f, true))
@@ -955,7 +947,7 @@ public:
     {
         PrepareSpellScript(the_everbloom_spell_living_leaves_dummy_SpellScript);
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster())
                 return;
@@ -998,7 +990,7 @@ public:
     uint32 p_Diff = 1 * TimeConstants::IN_MILLISECONDS;
     std::list<uint64> m_Targets;
 
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
     {
         if (p_Diff <= p_Time)
         {
@@ -1024,7 +1016,7 @@ public:
             p_Diff -= p_Time;
     }
 
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
     {
         if (m_Targets.empty())
             return;

@@ -1887,7 +1887,7 @@ class npc_mirror_image : public CreatureScript
                 me->UpdateAttackPowerAndDamage();
             }
 
-            void EnterCombat(Unit* p_Who) override
+            void EnterCombat(Unit* /*p_Who*/) override
             {
                 if (!me->GetOwner())
                     return;
@@ -2288,7 +2288,7 @@ class npc_training_dummy : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 resetTimer = 5000;
                 damage = 0;
@@ -3135,7 +3135,7 @@ class npc_rate_xp_modifier : public CreatureScript
         {
             npc_rate_xp_modifierAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_MenuID*/, uint32 p_Action) override
             {
                 switch (p_Action)
                 {
@@ -3337,7 +3337,7 @@ class npc_dire_beast : public CreatureScript
                         AttackStart(me->GetOwner()->getVictim() ? me->GetOwner()->getVictim() : me->GetOwner()->getAttackerForHelper());
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (me->GetReactState() != REACT_DEFENSIVE)
                     me->SetReactState(REACT_DEFENSIVE);
@@ -3432,7 +3432,7 @@ class npc_ring_of_frost : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 /// Find all the enemies
                 std::list<Unit*> l_Targets;
@@ -3541,7 +3541,7 @@ class npc_fungal_growth : public CreatureScript
                 me->CastSpell(me, FUNGAL_GROWTH_AREA, true);        // Persistent Area
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!me->HasAura(FUNGAL_GROWTH_PERIODIC))
                     me->CastSpell(me, FUNGAL_GROWTH_PERIODIC, true);
@@ -3587,7 +3587,7 @@ class npc_bloodworm : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 Burst();
             }
@@ -3853,7 +3853,7 @@ class npc_void_tendrils : public CreatureScript
                     me->CastSpell(l_Target, SPELL_VOID_TENDRILS_GRASP, true);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Unit* m_target = ObjectAccessor::FindUnit(targetGUID))
                 {
@@ -3882,7 +3882,7 @@ class npc_void_tendrils : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (!(ObjectAccessor::FindUnit(targetGUID)))
                     me->DespawnOrUnsummon();
@@ -4028,7 +4028,7 @@ class npc_force_of_nature : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 switch (me->GetEntry())
                 {
@@ -4205,7 +4205,7 @@ class npc_monk_spirit : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 data /*= 0*/)
+            void SetGUID(uint64 guid, int32 /*data*/ /*= 0*/)
             {
                 targetGuid = guid;
 
@@ -4217,7 +4217,7 @@ class npc_monk_spirit : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 data /*= 0*/)
+            uint64 GetGUID(int32 /*data*/ /*= 0*/)
             {
                 return targetGuid;
             }
@@ -4259,13 +4259,13 @@ class npc_monk_spirit : public CreatureScript
                     DoAction(ACTION_DESPAWN_SPIRIT);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id == MOVE_DESPAWN)
                     me->DespawnOrUnsummon(500);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (targetGuid)
                 {
@@ -4325,7 +4325,7 @@ class npc_rogue_decoy : public CreatureScript
                 me->AddAura(SPELL_ROOT_FOR_EVER, me);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 if (m_DespawnTimer)
                 {
@@ -4405,12 +4405,12 @@ class npc_training_dummy_healing : public CreatureScript
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
             }
 
-            void HealReceived(Unit* p_Healer, uint32& p_HealAmount) override
+            void HealReceived(Unit* /*p_Healer*/, uint32& /*p_HealAmount*/) override
             {
                 m_ResetTimer = 20 * TimeConstants::IN_MILLISECONDS;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }
@@ -4475,7 +4475,7 @@ class npc_training_dummy_damage : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 m_ResetTimer = 10 * TimeConstants::IN_MILLISECONDS;
                 p_Damage = 0;
@@ -4535,7 +4535,7 @@ class npc_training_dummy_tanking : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   ///< Immune to knock back effects like Whiplash
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* /*p_Victim*/, uint32& /*p_Damage*/, DamageEffectType /*p_DamageType*/) override
             {
                 m_ResetTimer = 10 * TimeConstants::IN_MILLISECONDS;
             }
@@ -4706,7 +4706,7 @@ class npc_frozen_trail_packer : public CreatureScript
         {
             npc_frozen_trail_packerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_MenuID*/, uint32 /*p_Action*/) override
             {
                 if (p_Player->AddItem(86125, 1)) ///< Kafa Press
                     me->DespawnOrUnsummon();
@@ -4752,12 +4752,12 @@ class npc_ethereal_soul_trader : public CreatureScript
                     l_Owner->RemoveAura(eSpells::EtherealPetAura);
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_PendingTargets.push(p_Guid);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const /*p_Diff*/) override
             {
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_PendingTargets.empty())
                     return;
@@ -4793,7 +4793,7 @@ class spell_ethereal_pet_aura : public SpellScriptLoader
                 EtherealSoulTrader = 27914
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4837,7 +4837,7 @@ class spell_ethereal_pet_onkill_steal_essence : public SpellScriptLoader
                 EtherealPetOnKillGiveToken = 50063
             };
 
-            void HandleRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void HandleRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eData::EtherealPetOnKillGiveToken, true);

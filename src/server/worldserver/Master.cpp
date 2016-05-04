@@ -903,7 +903,7 @@ void Master::ExecutePendingRequests()
         fclose(l_PendingRequestsFile);
 
         /// Clear file
-        if (l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w")) ///< Using the result of an assignment as a condition without parentheses
+        if ((l_PendingRequestsFile = fopen(PENDING_SQL_FILENAME, "w"))) ///< Using the result of an assignment as a condition without parentheses
             fclose(l_PendingRequestsFile);
     }
     else

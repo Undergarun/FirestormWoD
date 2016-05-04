@@ -584,7 +584,7 @@ class auchindon_nyami_spiteful_arbitrer : public CreatureScript
             bool m_Radiant;
             uint32 m_RadiantDiff;
 
-            void Reset()
+            void Reset() override
             {
                 events.Reset();
 

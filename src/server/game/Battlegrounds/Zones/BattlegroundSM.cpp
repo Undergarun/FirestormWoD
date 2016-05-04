@@ -226,7 +226,7 @@ void BattlegroundSM::CheckTrackSwitch()
     }
 }
 
-void BattlegroundSM::FirstMineCartSummon(uint32 p_Diff) ///< p_Diff is unused
+void BattlegroundSM::FirstMineCartSummon(uint32 /*p_Diff*/)
 {
     for (uint32 l_Cart = 0; l_Cart < BG_SM_MINE_CART_3; l_Cart++)
     {
@@ -253,7 +253,7 @@ void BattlegroundSM::StartingEventOpenDoors()
         SpawnBGObject(l_Iter, RESPAWN_IMMEDIATELY);
 }
 
-void BattlegroundSM::SummonMineCart(uint32 p_Diff) ///< p_Diff is unused
+void BattlegroundSM::SummonMineCart(uint32 /*p_Diff*/)
 {
     for (int l_I = 0; l_I < BG_SM_MINE_CART_3; ++l_I)
     {

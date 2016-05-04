@@ -641,7 +641,7 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
     }
     else
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Creature (Entry: %u %llu) attempt taxi to (Path %u node %u)",
+        sLog->outError(LOG_FILTER_GENERAL, "Creature (Entry: %u %lu attempt taxi to (Path %u node %u)",
             _owner->GetEntry(), _owner->GetGUID(), path, pathnode);
     }
 }

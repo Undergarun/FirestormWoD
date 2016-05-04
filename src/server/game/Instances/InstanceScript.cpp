@@ -788,7 +788,7 @@ bool InstanceScript::CheckRequiredBosses(uint32 p_ID, Player const* p_Player) co
     return true;
 }
 
-void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, uint8 p_Param1 /*= 0*/, uint8 p_Param2 /*= 0*/)
+void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, uint8 p_Param1 /*= 0*/, uint8 /*p_Param2*/ /*= 0*/)
 {
     WorldPacket l_Data;
 

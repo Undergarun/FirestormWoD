@@ -136,7 +136,7 @@ public:
         return new spell_areatrigger_mage_wod_frost_2p_bonus();
     }
 
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
     {
         std::list<Unit*> targetList;
         float l_Radius = 20.0f;
@@ -188,7 +188,7 @@ class spell_mage_arcane_charge : public SpellScriptLoader
                 EnhancedArcaneBlast = 157595
             };
 
-            void CalulcateSpellMod(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalulcateSpellMod(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1340,7 +1340,6 @@ class spell_mage_inferno_blast: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         std::list<Unit*> l_TargetList;
-                        int32 l_CombustionBP = 0;
 
                         l_Caster->CastSpell(l_Target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
@@ -1454,7 +1453,7 @@ class spell_mage_evocation : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mage_evocation_SpellScript();
         }
@@ -1469,7 +1468,7 @@ class spell_mage_evocation : public SpellScriptLoader
                 ArcaneAffinity  = 166871
             };
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1555,7 +1554,7 @@ class spell_mage_time_warp : public SpellScriptLoader
             }
 
 
-            void HandleImmunity(SpellEffIndex p_EffIndex)
+            void HandleImmunity(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
 
@@ -1726,7 +1725,7 @@ class spell_mage_living_bomb: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_living_bomb_AuraScript);
 
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                 if (removeMode != AURA_REMOVE_BY_DEATH && removeMode != AURA_REMOVE_BY_EXPIRE)
@@ -1761,7 +1760,7 @@ class spell_mage_mirror_image_summon: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_mirror_image_summon_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1793,7 +1792,7 @@ class spell_mage_ice_barrier: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     amount = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 4.95f;
@@ -2126,7 +2125,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_ring_of_frost_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2263,7 +2262,7 @@ class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_enhanced_pyrotechnics_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2315,7 +2314,7 @@ class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
                 ConeOfCold              = 120
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
             }
@@ -2482,7 +2481,7 @@ class spell_mage_blink : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleImmunity(SpellEffIndex p_EffIndex)
+            void HandleImmunity(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2778,7 +2777,7 @@ class spell_mage_flameglow : public SpellScriptLoader
                     p_AurEff->SetAmount(p_AbsorbAmount + ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * GetSpellInfo()->Effects[EFFECT_1].BasePoints) / 100));
             }
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
+            void OnAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
             {
                 if (Unit* l_Attacker = p_DmgInfo.GetAttacker())
                     p_AbsorbAmount = std::min(p_AbsorbAmount, CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
@@ -2869,7 +2868,7 @@ class spell_ring_of_frost_freeze : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ring_of_frost_freeze_AuraScript);
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEATH)
@@ -2942,7 +2941,7 @@ class spell_mage_item_t17_fire_4p_bonus : public SpellScriptLoader
                 Pyromaniac              = 166868
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2985,7 +2984,7 @@ class spell_mage_item_t17_arcane_4p_bonus : public SpellScriptLoader
                 ArcaneInstability   = 166872
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3125,7 +3124,7 @@ class spell_mage_arcane_missiles_visual : public SpellScriptLoader
                 ArcaneMissilesVisualUI = 79808
             };
 
-            void OnRemove(AuraEffect const* p_Aura, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_Aura*/, AuraEffectHandleModes p_Mode)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3135,7 +3134,7 @@ class spell_mage_arcane_missiles_visual : public SpellScriptLoader
                 l_Caster->RemoveAura(eSpells::ArcaneMissilesVisualUI);
             }
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 Unit* l_Caster = GetCaster();
 

@@ -423,7 +423,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
             switch (p_Id)
             {

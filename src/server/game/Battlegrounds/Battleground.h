@@ -1193,7 +1193,7 @@ class Battleground
         BGHonorMode m_HonorMode;
 
         virtual uint32 GetMaxScore() const { return 0; }
-        virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; } ///< p_Team is unused
+        virtual uint32 GetTeamScore(uint32 /*p_Team*/) const { return 0; }
         virtual bool IsScoreIncremental() const { return true; }
 
         void ApplyDampeningIfNeeded();

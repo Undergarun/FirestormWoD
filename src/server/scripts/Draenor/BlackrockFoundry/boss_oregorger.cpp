@@ -464,7 +464,7 @@ class boss_oregorger : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value)
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
             {
                 /// Oregorger only regens by script
                 p_Value = 0;
@@ -1344,7 +1344,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 if (Unit* l_Caster = GetCaster())
                 {

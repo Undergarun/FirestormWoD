@@ -577,7 +577,7 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     SendPacket(&l_Data);
 }
 
-void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest* p_Quest) ///< done & reward is unused
+void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 /*done*/, const LfgReward* /*reward*/, const Quest* p_Quest)
 {
     if (!rdungeonEntry || !sdungeonEntry || !p_Quest)
         return;

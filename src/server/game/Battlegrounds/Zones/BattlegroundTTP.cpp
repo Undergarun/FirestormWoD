@@ -60,7 +60,7 @@ void BattlegroundTTP::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void BattlegroundTTP::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
+void BattlegroundTTP::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;

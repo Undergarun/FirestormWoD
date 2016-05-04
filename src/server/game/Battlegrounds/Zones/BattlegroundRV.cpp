@@ -103,7 +103,7 @@ void BattlegroundRV::AddPlayer(Player* player)
     UpdateWorldState(BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
 }
 
-void BattlegroundRV::RemovePlayer(Player* /*player*/, uint64 guid, uint32 /*team*/)
+void BattlegroundRV::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -139,7 +139,7 @@ bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundRV::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundRV::HandleAreaTrigger(Player* /*Source*/, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

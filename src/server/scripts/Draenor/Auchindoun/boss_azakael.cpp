@@ -233,7 +233,7 @@ public:
                 DespawnCreaturesInArea(l_Entry, me);
         }
 
-        void MoveInLineOfSight(Unit* p_Who)
+        void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 18.0f) && !m_Intro)
             {
@@ -242,7 +242,7 @@ public:
             }
         }
 
-        void DoAction(int32 const p_Action)
+        void DoAction(int32 const p_Action) override
         {
             switch (p_Action)
             {

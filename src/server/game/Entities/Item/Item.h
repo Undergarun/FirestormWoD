@@ -433,8 +433,8 @@ class Item : public Object
             uState = state;
         }
 
-        bool hasQuest(uint32 quest_id) const { return GetTemplate()->StartQuest == quest_id; }
-        bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
+        bool hasQuest(uint32 quest_id) const override { return GetTemplate()->StartQuest == quest_id; }
+        bool hasInvolvedQuest(uint32 /*quest_id*/) const override { return false; }
         bool HasStats() const;
         bool HasSpells() const;
         bool IsPotion() const;
@@ -461,7 +461,7 @@ class Item : public Object
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
-        void BuildUpdate(UpdateDataMapType&);
+        void BuildUpdate(UpdateDataMapType&) override;
         void BuildDynamicValuesUpdate(uint8 p_UpdateType, ByteBuffer* p_Data, Player* p_Target) const override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }

@@ -408,7 +408,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_leeching_swarm_AuraScript);
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
                     return false;
@@ -450,7 +450,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 }
             }
 
-            void CheckSpell(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude)
+            void CheckSpell(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& /*amplitude*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = GetUnitOwner();
@@ -3005,7 +3005,7 @@ class spell_gen_gift_of_the_naaru: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_gift_of_the_naaru_AuraScript);
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 if (!GetCaster())
                     return;
@@ -3230,7 +3230,7 @@ class spell_gen_gobelin_gumbo: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
             {
                 if (GetCaster())
                 {
@@ -3333,7 +3333,7 @@ class spell_gen_hardened_shell: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_hardened_shell_AuraScript);
 
-            void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -3489,7 +3489,7 @@ class spell_vote_buff: public SpellScriptLoader
         {
             PrepareAuraScript(spell_vote_buff_AuraScript);
 
-            void CalculateEffectAmount(AuraEffect const* p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateEffectAmount(AuraEffect const* /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (!GetUnitOwner())
                     return;
@@ -3523,7 +3523,7 @@ class PlayerScript_Touch_Of_Elune: public PlayerScript
             EventNight  = 25 // Id on game_event
         };
 
-        void OnUpdate(Player* p_Player, uint32 p_Diff)
+        void OnUpdate(Player* p_Player, uint32 /*p_Diff*/)
         {
             if (p_Player->getRace() != Races::RACE_NIGHTELF || !p_Player->HasSpell(TouchOfELuneSpell::Racial))
                 return;
@@ -3762,7 +3762,7 @@ namespace Resolve
         {
             PrepareAuraScript(spell_resolve_passive_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
                 if (l_Target == nullptr)
@@ -3835,7 +3835,7 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 Fatigued = 160455
             };
 
-            void HandleImmunity(SpellEffIndex p_EffIndex)
+            void HandleImmunity(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
 
@@ -3891,7 +3891,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                 VisualKit       = 54168
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /* p_Mode */)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4180,7 +4180,7 @@ class spell_taunt_flag_targeting : public SpellScriptLoader
                 return SpellCastResult::SPELL_CAST_OK;
             }
 
-            void HandleCast(SpellEffIndex p_Index)
+            void HandleCast(SpellEffIndex /*p_Index*/)
             {
                 if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
@@ -4420,7 +4420,7 @@ class spell_dru_touch_of_the_grave : public SpellScriptLoader
                 TouchoftheGraveEffect = 127802
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4654,7 +4654,7 @@ class spell_gen_draenic_philosophers : public SpellScriptLoader
 
             int32 m_Value = 1414;
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4850,7 +4850,7 @@ class spell_gen_power_handler : public PlayerScript
     public:
         spell_gen_power_handler() : PlayerScript("spell_gen_power_handler") {}
 
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
         {
             if (p_Player->isInCombat())
                 return;
@@ -4996,7 +4996,7 @@ class spell_gen_inge_trigger_enchant : public SpellScriptLoader
                 OglethorpesMissile      = 156055
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
                 
@@ -5136,7 +5136,7 @@ class spell_gen_kilroggs_dead_eye : public SpellScriptLoader
                 p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), l_Multiplier);
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 amount = -1;
             }
@@ -5516,7 +5516,7 @@ class spell_gen_service_uniform : public SpellScriptLoader
                 l_Player->RestoreDisplayId();
             }
             
-            void Register()
+            void Register() override
             {
                 AfterEffectApply += AuraEffectRemoveFn(spell_gen_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
@@ -5587,7 +5587,7 @@ public:
     {
         PrepareAuraScript(spell_legendary_cloaks_AuraScript);
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
         {
             Unit* l_Attacker = p_EventInfo.GetDamageInfo()->GetAttacker();
             if (l_Attacker == nullptr)

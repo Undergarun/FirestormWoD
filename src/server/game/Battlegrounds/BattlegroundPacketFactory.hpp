@@ -40,7 +40,7 @@ namespace MS
         class PacketFactory
         {
         public:
-            static void Status(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint8 p_QueueSlot, uint8 p_StatusID, uint32 p_Time1, uint32 p_Time2, uint8 p_Arenatype, bool p_IsSkirmish) ///< p_Arenatype is unused
+            static void Status(WorldPacket* p_Data, Battleground* p_BG, Player* p_Player, uint8 p_QueueSlot, uint8 p_StatusID, uint32 p_Time1, uint32 p_Time2, uint8 /*p_Arenatype*/, bool p_IsSkirmish)
             {
                 /// we can be in 2 queues in same time...
                 if (!p_BG)
@@ -484,7 +484,7 @@ namespace MS
                     if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false))) ///< l_BGTemplate is unused
                     {
                         /// Expected bracket entry
-                        if (l_Bracket = Brackets::FindForLevel(p_Player->getLevel()))
+                        if ((l_Bracket = Brackets::FindForLevel(p_Player->getLevel())))
                         {
                             auto l_ClientBattlegroundIds = sBattlegroundMgr->GetClientBattlegroundIds(GetSchedulerType(p_BGTypeID), l_Bracket->m_Id);
                             for (std::set<uint32>::iterator l_It = l_ClientBattlegroundIds.begin(); l_It != l_ClientBattlegroundIds.end(); ++l_It)

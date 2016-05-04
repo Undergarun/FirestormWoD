@@ -13,7 +13,7 @@ AnticheatMgr::~AnticheatMgr()
     m_Players.clear();
 }
 
-void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& movementInfo, uint32 opcode)
+void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& /*movementInfo*/, uint32 opcode)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & JUMP_HACK_DETECTION) == 0)
         return;
@@ -27,7 +27,7 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo const& movemen
     }
 }
 
-void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& movementInfo)
+void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& /*movementInfo*/)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & WALK_WATER_HACK_DETECTION) == 0)
         return;
@@ -50,7 +50,7 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo const& 
 
 }
 
-void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo const& movementInfo)
+void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo const& /*movementInfo*/)
 {
     if ((sWorld->getIntConfig(CONFIG_ANTICHEAT_DETECTIONS_ENABLED) & FLY_HACK_DETECTION) == 0)
         return;

@@ -43,13 +43,6 @@ Position const g_StatuesPos[4] =
     { 5839.0f, 6211.5f, 158.083f, 0.781267f }  // SE
 };
 
-Position const g_EntrancePos[3] =
-{
-    { 6043.42f, 5072.73f, -45.33f, 4.712389f }, // Near Tortos
-    { 6054.05f, 4454.875f, -12.175f, 1.19332f }, // Near Durumu
-    { 6045.56f, 4836.12f, 148.78f, 4.712389f }  // Near Iron Qon
-};
-
 class instance_throne_of_thunder : public InstanceMapScript
 {
 public:
@@ -141,7 +134,7 @@ public:
         /// Ra-den - Boss #13 - HM only
         uint64 m_RadenIrisGuid;
 
-        void Initialize()
+        void Initialize() override
         {
             SetBossNumber(DATA_MAX_BOSS_DATA);
             LoadDoorData(doorData);
@@ -215,7 +208,7 @@ public:
             m_RadenIrisGuid = 0;
         }
 
-        void OnCreatureCreate(Creature* p_Creature)
+        void OnCreatureCreate(Creature* p_Creature) override
         {
             switch (p_Creature->GetEntry())
             {
@@ -334,7 +327,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* p_GameObject)
+        void OnGameObjectCreate(GameObject* p_GameObject) override
         {
             switch (p_GameObject->GetEntry())
             {
@@ -529,7 +522,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 p_ID, EncounterState p_State)
+        bool SetBossState(uint32 p_ID, EncounterState p_State) override
         {
             if (!InstanceScript::SetBossState(p_ID, p_State))
                 return false;
@@ -537,7 +530,7 @@ public:
             return true;
         }
 
-        void SetData(uint32 p_Type, uint32 p_Data)
+        void SetData(uint32 p_Type, uint32 p_Data) override
         {
             switch (p_Type)
             {
@@ -561,7 +554,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 p_Type)
+        uint32 GetData(uint32 p_Type) override
         {
             switch (p_Type)
             {
@@ -574,7 +567,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 p_Type)
+        uint64 GetData64(uint32 p_Type) override
         {
             switch (p_Type)
             {
@@ -742,7 +735,7 @@ public:
             return 0;
         }
 
-        bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = NULL) const
+        bool CheckRequiredBosses(uint32 p_BossID, Player const* p_Player = NULL) const override
         {
             if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                 return false;

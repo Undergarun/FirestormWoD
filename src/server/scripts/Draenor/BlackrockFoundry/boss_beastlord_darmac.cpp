@@ -1799,7 +1799,7 @@ class npc_foundry_thunderlord_pack_pens : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* p_Summon)
+            void JustSummoned(Creature* p_Summon) override
             {
                 if (m_Instance == nullptr)
                     return;

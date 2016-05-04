@@ -231,8 +231,8 @@ class OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject* p_GameObject);
         void OnGameObjectRemove(GameObject* p_GameObject);
-        void OnCreatureCreate(Creature* p_Creature) { }
-        void OnCreatureRemove(Creature* p_Creature) { }
+        void OnCreatureCreate(Creature* /*p_Creature*/) { }
+        void OnCreatureRemove(Creature* /*p_Creature*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -242,11 +242,11 @@ class OutdoorPvP : public ZoneScript
 
         // handle npc/player kill
         virtual void HandleKill(Player* killer, Unit* killed);
-        virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
-        virtual void HandlePlayerKilled(Player* p_Player) { }
+        virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) { }
+        virtual void HandlePlayerKilled(Player* /*p_Player*/) { }
 
         /// Handle some custom PvP loots
-        virtual void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container) { }
+        virtual void FillCustomPvPLoots(Player* /*p_Looter*/, Loot& /*p_Loot*/, uint64 /*p_Container*/) { }
 
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
@@ -264,7 +264,7 @@ class OutdoorPvP : public ZoneScript
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
-        virtual void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player) { }
+        virtual void HandleBFMGREntryInviteResponse(bool /*p_Accepted*/, Player* /*p_Player*/) { }
 
         virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* p_Player);
 
@@ -305,13 +305,13 @@ class OutdoorPvP : public ZoneScript
         virtual void HandlePlayerEnterZone(Player* p_Player, uint32 p_ZoneID);
         virtual void HandlePlayerLeaveZone(Player* p_Player, uint32 p_ZoneID);
 
-        virtual void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) { }
-        virtual void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) { }
+        virtual void HandlePlayerEnterMap(Player* /*p_Player*/, uint32 /*p_MapID*/) { }
+        virtual void HandlePlayerLeaveMap(Player* /*p_Player*/, uint32 /*p_MapID*/) { }
 
-        virtual void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID) { }
-        virtual void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID) { }
+        virtual void HandlePlayerEnterArea(Player* /*p_Player*/, uint32 /*p_AreaID*/) { }
+        virtual void HandlePlayerLeaveArea(Player* /*p_Player*/, uint32 /*p_AreaID*/) { }
 
-        virtual void HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID) { }
+        virtual void HandlePlayerResurrects(Player* /*p_Player*/, uint32 /*p_ZoneID*/) { }
 
         void AddCapturePoint(OPvPCapturePoint* cp)
         {

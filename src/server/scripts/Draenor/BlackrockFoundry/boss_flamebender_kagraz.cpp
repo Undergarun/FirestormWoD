@@ -448,7 +448,7 @@ class boss_flamebender_kagraz : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value)
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
             {
                 /// Flamebender Ka'graz only regens by script
                 p_Value = 0;

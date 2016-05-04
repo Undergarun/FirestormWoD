@@ -587,7 +587,7 @@ class boss_spirit_kings_controler : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -642,7 +642,7 @@ class boss_spirit_kings : public CreatureScript
             uint8 shadowCount;
             uint8 maxShadowCount;
 
-            void Reset()
+            void Reset() override
             {
                 shadowCount = 0;
                 maxShadowCount = 3;
@@ -680,7 +680,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void JustReachedHome()
+            void JustReachedHome() override
             {
                 if (me->GetEntry() != NPC_QIANG)
                 {
@@ -703,7 +703,7 @@ class boss_spirit_kings : public CreatureScript
                     return NULL;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (me->IsWithinDistInMap(who, 50.0f, false) && !_introQiangDone && me->GetEntry() == NPC_QIANG)
                 {
@@ -716,7 +716,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/) override
             {
 
                 if (pInstance)
@@ -785,7 +785,7 @@ class boss_spirit_kings : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 action) override
             {
                 switch (action)
                 {
@@ -864,7 +864,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
 
@@ -872,7 +872,7 @@ class boss_spirit_kings : public CreatureScript
                     ++shadowCount;
             }
 
-            void SummonedCreatureDespawn(Creature* summon)
+            void SummonedCreatureDespawn(Creature* summon) override
             {
                 summons.Despawn(summon);
 
@@ -880,7 +880,7 @@ class boss_spirit_kings : public CreatureScript
                     --shadowCount;
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == POINT_MOTION_TYPE)
                 {
@@ -891,14 +891,14 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value) override
             {
                 // Any regeneration for Meng, except with Crazed or Cowardice
                 if (me->GetEntry() == NPC_MENG)
                     value = 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->GetEntry() == NPC_QIANG)
                 {
@@ -1008,7 +1008,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* who) override
             {
                 if (who->IsPlayer())
                 {
@@ -1032,7 +1032,7 @@ class boss_spirit_kings : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (!UpdateVictim() && preEventDone)
                     return;
@@ -1285,7 +1285,7 @@ class mob_pinning_arrow : public CreatureScript
                 victim->RemoveAurasDueToSpell(SPELL_PINNED_DOWN_DOT);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*attacker*/)
             {
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
@@ -1296,7 +1296,7 @@ class mob_pinning_arrow : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (me->HasUnitState(UNIT_STATE_UNATTACKABLE))
                     me->ClearUnitState(UNIT_STATE_UNATTACKABLE);
@@ -1351,7 +1351,7 @@ class mob_undying_shadow : public CreatureScript
                 phase = PHASE_UNDYING_SHADOW;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (phase == PHASE_UNDYING_SHADOW)
                 {
@@ -1557,7 +1557,7 @@ class spell_maddening_shout : public SpellScriptLoader
         {
             PrepareAuraScript(spell_maddening_shout_AuraScript);
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* attacker = dmgInfo.GetAttacker())
                     if (attacker->GetTypeId() != TYPEID_PLAYER)
@@ -1702,7 +1702,7 @@ class spell_crazy_thought : public SpellScriptLoader
         {
             PrepareSpellScript(spell_crazy_thought_SpellScript);
 
-            void HandleEffect(SpellEffIndex effIndex)
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {

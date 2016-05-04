@@ -384,7 +384,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             // this is probably an error state, but we'll leave it
             // and hopefully recover on the next Update
             // we still need to copy our preffix
-            sLog->outError(LOG_FILTER_MAPS, "%llu's Path Build failed: 0 length path", _sourceUnit->GetGUID());
+            sLog->outError(LOG_FILTER_MAPS, "%lu's Path Build failed: 0 length path", _sourceUnit->GetGUID());
         }
 
         //sLog->outDebug(LOG_FILTER_MAPS, "++  m_polyLength=%u prefixPolyLength=%u suffixPolyLength=%u \n", _polyLength, prefixPolyLength, suffixPolyLength);
@@ -445,7 +445,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (!_polyLength || dtStatusFailed(dtResult))
         {
             // only happens if we passed bad data to findPath(), or navmesh is messed up
-            sLog->outError(LOG_FILTER_MAPS, "%llu's Path Build failed: 0 length path", _sourceUnit->GetGUID());
+            sLog->outError(LOG_FILTER_MAPS, "%lu's Path Build failed: 0 length path", _sourceUnit->GetGUID());
             BuildShortcut();
             _type = PATHFIND_NOPATH;
             return;

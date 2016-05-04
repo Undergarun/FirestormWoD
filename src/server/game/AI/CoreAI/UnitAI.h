@@ -123,7 +123,7 @@ class UnitAI
         explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(Unit const* target) const { return true; } ///< target is unused
+        virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
         virtual void AttackStart(Unit* target);
         virtual void UpdateAI(uint32 const p_Diff) = 0;
 
@@ -178,7 +178,7 @@ class UnitAI
 
         virtual void DropCharge() {}
 
-        virtual uint64 GetGUID(int32 id = 0) { return 0; } ///< id is unused
+        virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; } ///< id is unused
 
         virtual void SetDestTarget(WorldLocation const* dest) 
         {
@@ -274,15 +274,15 @@ class UnitAI
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) { } ///< p_SpellInfo is unused
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*p_SpellInfo*/) { }
 
         // Called when we calculate hit result of a spell or a melee attack
         // Note: it allows to put some conditions to change the result of melee/spell attacks on the Unit
-        virtual void CheckHitResult(MeleeHitOutcome& /*p_MeleeResult*/, SpellMissInfo& /*p_SpellResult*/, Unit* /*p_Attacker*/, SpellInfo const* const p_SpellInfo = nullptr) { } ///< p_SpellInfo is unused
+        virtual void CheckHitResult(MeleeHitOutcome& /*p_MeleeResult*/, SpellMissInfo& /*p_SpellResult*/, Unit* /*p_Attacker*/, SpellInfo const* const p_SpellInfo = nullptr) { }
 
         /// Called when Unit::BuildValuesUpdate is called
         /// Used for send differents factions for players for a same unit
-        virtual void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target) { } ///< p_FactionID is unused
+        virtual void OnSendFactionTemplate(uint32& /*p_FactionID*/, Player* /*p_Target*/) { }
 
         // Called when the creature receives heal
         virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }

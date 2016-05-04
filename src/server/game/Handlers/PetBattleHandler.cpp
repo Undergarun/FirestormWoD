@@ -647,7 +647,7 @@ void WorldSession::SendPetBattleFinalRound(PetBattle* p_Battle)
     SendPacket(&l_Packet);
 }
 
-void WorldSession::SendPetBattleFinished(PetBattle* battle) ///< battle is unused
+void WorldSession::SendPetBattleFinished(PetBattle* /*battle*/)
 {
     WorldPacket l_Packet(SMSG_PET_BATTLE_FINISHED, 0);
     SendPacket(&l_Packet);
@@ -709,7 +709,7 @@ void WorldSession::SendPetBattleDebugQueueDumpResponse()
 //////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void WorldSession::HandlePetBattleJoinQueue(WorldPacket& p_RecvData)
+void WorldSession::HandlePetBattleJoinQueue(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player || !m_Player->IsInWorld())
         return;
@@ -776,7 +776,7 @@ void WorldSession::HandlePetBattleJoinQueue(WorldPacket& p_RecvData)
     sPetBattleSystem->JoinQueue(m_Player);
 }
 
-void WorldSession::HandlePetBattleLeaveQueue(WorldPacket& p_RecvData)
+void WorldSession::HandlePetBattleLeaveQueue(WorldPacket& /*p_RecvData*/)
 {
     if (!m_Player || !m_Player->IsInWorld())
         return;
@@ -989,7 +989,7 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& p_RecvData)
     l_WildBattlePet = nullptr;
 }
 
-void WorldSession::HandlePetBattleWildLocationFail(WorldPacket& p_RecvData)
+void WorldSession::HandlePetBattleWildLocationFail(WorldPacket& /*p_RecvData*/)
 {
 
 }
