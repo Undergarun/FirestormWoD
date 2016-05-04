@@ -975,11 +975,12 @@ namespace MS { namespace Garrison
     /// Get plot by position
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(float p_X, float p_Y, float p_Z)
     {
+        GarrisonPlotInstanceInfoLocation    l_Plot;
+
         if (m_Owner && !m_Owner->IsInGarrison())
-            return;
+            return l_Plot;
 
         Position                            l_Position;
-        GarrisonPlotInstanceInfoLocation    l_Plot;
 
         memset(&l_Plot, 0, sizeof(GarrisonPlotInstanceInfoLocation));
 
