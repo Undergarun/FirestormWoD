@@ -864,7 +864,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Death Grip
+                /// Death Grip
                 case 49576:
                 {
                     if (!unitTarget)
@@ -874,7 +874,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!m_UniqueTargetInfo.empty())
                     {
                         if (m_UniqueTargetInfo.front().missCondition == SPELL_MISS_REFLECT)
+                        {
                             caster = m_targets.GetUnitTarget();
+                        }
                     }
                     caster->CastSpell(unitTarget, 49560, true);
                     break;

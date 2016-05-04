@@ -1794,7 +1794,7 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             enum ImprovedDeathGrip
             {
-                Spell = 157367,
+                SpellId = 157367,
                 ChainsOfIce = 45524
             };
 
