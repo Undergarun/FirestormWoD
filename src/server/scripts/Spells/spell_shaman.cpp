@@ -2077,6 +2077,7 @@ class spell_sha_healing_wave : public SpellScriptLoader
         }
 };
 
+/// last Update 6.2.3
 /// Lava Lash - 60103
 class spell_sha_lava_lash: public SpellScriptLoader
 {
@@ -2105,17 +2106,6 @@ class spell_sha_lava_lash: public SpellScriptLoader
 
                 if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
                     l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                
-                if (l_Caster->HasAura(eSpells::FlameAura))
-                {
-                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(eSpells::FlameAura);
-
-                    if (l_UnleashFlame == nullptr)
-                        return;
-
-                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
-                    l_Caster->RemoveAurasDueToSpell(eSpells::FlameAura);
-                }
             }
 
             void Register()
@@ -3305,8 +3295,8 @@ class spell_sha_natures_guardian : public SpellScriptLoader
                 if (l_Player->HasSpellCooldown(eSpells::NaturesGuardian))
                     return;
 
-                if ((int32)l_Player->GetHealthPct() < GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
-                    (int32)(100.f * (l_Player->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) >= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                if ((int32)l_Player->GetHealthPct() > GetSpellInfo()->Effects[EFFECT_1].BasePoints &&
+                    (int32)(100.f * (l_Player->GetHealth() - p_EventInfo.GetDamageInfo()->GetDamage()) / l_Player->GetMaxHealth()) <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
                 {
                     l_Player->CastSpell(l_Player, eSpells::NaturesGuardian, true);
                     l_Player->AddSpellCooldown(eSpells::NaturesGuardian, 0, 30 * IN_MILLISECONDS);
@@ -3364,7 +3354,7 @@ class spell_sha_pvp_restoration_4p_bonus : public SpellScriptLoader
 
                 Unit* l_Target = GetTarget();
                 ///< Should proc only when the target pass from > 50% health to < 50% health
-                if (l_Target->GetHealthPct() <= l_HealthPct && (100.f * (l_Target->GetHealth() + p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) > l_HealthPct)
+                if (l_Target->GetHealthPct() > l_HealthPct && (100.f * (float)(l_Target->GetHealth() - (float)p_EventInfo.GetDamageInfo()->GetDamage()) / l_Target->GetMaxHealth()) <= l_HealthPct)
                 {
                     if (AuraEffect* l_AuraEffectNbrProc = l_AuraSetBonus->GetEffect(EFFECT_1))
                     {

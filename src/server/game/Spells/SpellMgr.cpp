@@ -4510,11 +4510,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137641: ///< Soul Fragment
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
                 break;
-            case 14161: ///< Ruthlessness
-                spellInfo->Effects[1].ApplyAuraName = 0;
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->ProcChance = 20;
-                break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
                 break;

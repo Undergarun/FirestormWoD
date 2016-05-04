@@ -4094,8 +4094,8 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
             (spellProto->Id == 146739 && i->second->GetBase()->GetId() == 27243))
             continue;
 
-        /// Hack fix for Sunfire and Rising Sun Kick
-        if (spellProto->Id == 164815 || spellProto->Id == 130320)
+        /// Hack fix for Sunfire, Rising Sun Kick and Stormstrike
+        if (spellProto->Id == 164815 || spellProto->Id == 130320 || spellProto->Id == 17364)
             continue;
 
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
@@ -13418,21 +13418,19 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     if (spellProto)
     {
-        if (!(spellProto->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && !spellProto->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE) &&
-            !spellProto->HasEffect(SPELL_EFFECT_WEAPON_PERCENT_DAMAGE) && !spellProto->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)) ///< Already apply on CalculateDamage by TOTAL_PCT
+        AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
         {
-            AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+            if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
             {
-                if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
-                {
-                    if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
-                    else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
-                    else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
-                        AddPct(DoneTotalMod, (*i)->GetAmount());
-                }
+                if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+                    continue;
+                if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
+                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
+                    AddPct(DoneTotalMod, (*i)->GetAmount());
             }
         }
     }

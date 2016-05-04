@@ -6732,6 +6732,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
             arcaneMissiles->ModCharges(1);
             arcaneMissiles->RefreshDuration();
         }
+        else
+        {
+            m_caster->CastSpell(m_caster, 79683, true);
+        }
     }
 }
 
