@@ -1518,7 +1518,7 @@ bool Guild::SwitchGuildLeader(uint64 newLeaderGuid)
     return false;
 }
 
-void Guild::HandleSetBankTabInfo(WorldSession* p_Session, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon) ///< p_Session is unused
+void Guild::HandleSetBankTabInfo(WorldSession* /*p_Session*/, uint8 p_TabID, const std::string& p_Name, const std::string& p_Icon)
 {
     if (BankTab* pTab = GetBankTab(p_TabID))
     {
@@ -2600,7 +2600,7 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
-void Guild::MassInviteToEvent(WorldSession* p_Session, uint32 p_MinLevel, uint32 p_MaxLevel, uint32 p_MinRank) ///< p_Session is unused
+void Guild::MassInviteToEvent(WorldSession* /*p_Session*/, uint32 /*p_MinLevel*/, uint32 /*p_MaxLevel*/, uint32 /*p_MinRank*/)
 {
     // Finish me. Thank still not done in 2016 !
     /*uint32 count = 0;

@@ -294,7 +294,7 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const ///< p_OnDeath is unused
+void Object::DestroyForPlayer(Player* p_Target, bool /*p_OnDeath*/) const
 {
     ASSERT(p_Target);
 

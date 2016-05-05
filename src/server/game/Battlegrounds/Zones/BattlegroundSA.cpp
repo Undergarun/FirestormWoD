@@ -1082,7 +1082,7 @@ class go_sa_boat : public GameObjectScript
     public:
         go_sa_boat() : GameObjectScript("go_sa_boat") {}
 
-        bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const
+        bool OnGameObjectElevatorCheck(GameObject const* /*p_GameObject*/) const
         {
             return false;
         }

@@ -456,6 +456,8 @@ namespace MS
                                 case ArenaType::Arena5v5:
                                     l_MaxPlayerPerTeam = 5;
                                     break;
+                                default:
+                                    return;
                             }
 
                             /// Arena type couldn't be deduced.

@@ -665,7 +665,7 @@ SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent)
 }
 
 /// still usefull ?
-TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
+TalentSpellPos const* GetTalentSpellPos(uint32 /*spellId*/)
 {
     return NULL;
     /*TalentSpellPosMap::const_iterator itr = sTalentSpellPosMap.find(spellId);

@@ -855,9 +855,6 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
     if (!l_Group->IsLeader(GetPlayer()->GetGUID()) && !l_Group->IsAssistant(GetPlayer()->GetGUID()) && !(l_Group->GetPartyFlags() & PARTY_FLAG_EVERYONE_IS_ASSISTANT))
         return;
 
-    ObjectGuid groupGUID = l_Group->GetGUID(); ///< is unused
-    ObjectGuid leaderGUID = GetPlayer()->GetGUID(); ///< is unused
-
     l_Group->SetReadyCheckCount(1);
 
     WorldPacket l_Response(SMSG_READY_CHECK_STARTED);
@@ -907,7 +904,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 p_Mask, bool p_Ennemy /*= false*/) ///< p_Mask is unused
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 /*p_Mask*/, bool p_Ennemy /*= false*/)
 {
     assert(p_Player && p_Data);
 

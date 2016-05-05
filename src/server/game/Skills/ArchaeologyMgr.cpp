@@ -398,7 +398,6 @@ namespace MS { namespace Skill { namespace Archaeology
             return;
 
         uint8 l_Count = 0;
-        uint32 l_NewValue = 0;
 
         ResearchSiteSet l_TempSet;
         for (ResearchSitesMap::const_iterator l_Iterator = m_ResearchSites.begin(); l_Iterator != m_ResearchSites.end(); ++l_Iterator)

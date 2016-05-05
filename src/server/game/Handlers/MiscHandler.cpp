@@ -1975,10 +1975,7 @@ void WorldSession::HandleUndeleteCharacter(WorldPacket& /*p_RecvData*/)
 ///< @todo refactor me with new data stillnot done 22/02/16
 void WorldSession::SendSetPhaseShift(const std::set<uint32> & p_PhaseIds, const std::set<uint32> & p_TerrainSwaps, const std::set<uint32> & p_InactiveTerrainSwap)
 {
-    ObjectGuid guid = m_Player->GetGUID(); ///< guid is unused
     uint32 unkValue = 0;
-
-    uint32 inactiveSwapsCount = 0; ///< inactiveSwapsCount is unused
 
     WorldPacket l_ShiftPacket(SMSG_SET_PHASE_SHIFT, 500);
     l_ShiftPacket.appendPackGUID(m_Player->GetGUID());      ///< CLientGUID

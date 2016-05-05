@@ -4650,8 +4650,6 @@ void Unit::RemoveEffectsWithMechanic(uint32 mechanic_mask, AuraRemoveMode remove
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
-        uint8 aurasCount = 0; ///< aurasCount is unused
-
         Aura const* aura = iter->second->GetBase();
 
         if (!except || aura->GetId() != except)
@@ -6052,7 +6050,7 @@ void Unit::SendSpellDamageResist(Unit * p_Target, uint32 p_SpellID)
 
 // Do not use this function
 // We need to analyze UnfriendlyMessageDistDeliverer, because it's use delete pointer in somes cases
-void Unit::SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist) ///< fist is unused
+void Unit::SendMessageUnfriendlyToSetInRange(WorldPacket* data, float /*fist*/)
 {
     JadeCore::UnfriendlyMessageDistDeliverer notifier(this, data, GetVisibilityRange());
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
@@ -11625,8 +11623,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
             victim->RemoveAurasDueToSpell(victim->getTransForm());
     }
 
-    uint32 creatureTypeMask = victim->GetCreatureTypeMask(); ///> creatureTypeMask is unused
-
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
     AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -11923,7 +11919,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     return DoneTotalMod;
 }
 
-uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack) ///< stack is unused
+uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 /*stack*/)
 {
     if (!spellProto || damagetype == DIRECT_DAMAGE)
         return pdamage;
@@ -12152,7 +12148,7 @@ uint32 Unit::GetMultistrikeBasePoints(uint32 p_Damage) const
     return (p_Damage * GetSpellModOwner()->GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT));
 }
 
-void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int32& p_Amount) ///< p_Target is unused
+void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*/, int32& p_Amount)
 {
     Player* l_ModOwner = GetSpellModOwner();
 
@@ -12172,7 +12168,7 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, int
     }
 }
 
-uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target) ///< p_Target is unused
+uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*/)
 {
     Player* l_ModOwner = GetSpellModOwner();
 
@@ -12338,7 +12334,7 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
-bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask p_SchoolMask) const ///< p_SchoolMask is unused
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* p_SpellProto, SpellSchoolMask /*p_SchoolMask*/) const
 {
     if (p_SpellProto->SpellFamilyName != SPELLFAMILY_PRIEST
         && p_SpellProto->Id != 65148) ///< Sacred Shield is able to crit
@@ -12973,7 +12969,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     return DoneTotalMod;
 }
 
-uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack) ///< stack is unused
+uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 /*stack*/)
 {
     float TakenTotalMod = 1.0f;
 
@@ -18371,7 +18367,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     return roll_chance_f(chance);
 }
 
-bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura) ///< triggeredByAura is unused
+bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffect* /*triggeredByAura*/)
 {
     /// Currently doesn't use by any spell
     return false;

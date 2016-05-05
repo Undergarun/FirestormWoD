@@ -92,7 +92,7 @@ bool BattlegroundTTP::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundTTP::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundTTP::HandleAreaTrigger(Player* /*Source*/, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

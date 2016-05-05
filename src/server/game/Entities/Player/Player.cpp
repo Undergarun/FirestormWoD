@@ -1140,7 +1140,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // start with every map explored
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
     {
-        for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
+        for (uint16 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
             SetFlag(PLAYER_FIELD_EXPLORED_ZONES +i, 0xFFFFFFFF);
     }
 
@@ -3659,7 +3659,7 @@ enum
     LOGIC_FLAG_COL_3_XOR_RESULT_TRUE    = 0x00080000,
 };
 
-std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound) ///< p_FailIfConditionNotFound is unused
+std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool /*p_FailIfConditionNotFound*/)
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
@@ -20269,7 +20269,7 @@ void Player::KilledPlayerCredit()
     }
 }
 
-void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id) ///< entry is unused
+void Player::CastedCreatureOrGO(uint32 /*entry*/, uint64 guid, uint32 spell_id)
 {
     QuestObjectiveSatisfy(spell_id, 1, QUEST_OBJECTIVE_TYPE_SPELL, guid);
 }
@@ -24546,7 +24546,7 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
     CharacterDatabase.Execute(stmt);
 }
 
-void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value) ///< value is unused
+void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 /*value*/)
 {
     char buf[11];
 
@@ -29753,7 +29753,7 @@ void Player::UpdateCharmedAI()
     }
 }
 
-uint32 Player::GetRuneTypeBaseCooldown(RuneType runeType) const ///< runeType is unused
+uint32 Player::GetRuneTypeBaseCooldown(RuneType /*runeType*/) const
 {
     float l_Cooldown = RUNE_BASE_COOLDOWN * GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
     float l_Modifier = 1.0f;
@@ -32390,7 +32390,7 @@ void Player::HandleStoreTitleCallback(PreparedQueryResult p_Result)
     }
 }
 
-void Player::HandleStoreItemCallback(PreparedQueryResult result) ///< result is unused
+void Player::HandleStoreItemCallback(PreparedQueryResult /*result*/)
 {
 }
 
@@ -32801,7 +32801,6 @@ void Player::SendRefreshSpellMods()
     uint32 l_MaskIndex;
     ByteBuffer l_PctBuffer;
     ByteBuffer l_FlatBuffer;
-    int i = 0; ///< i is unused
 
     for (int l_SpellModOp = 0; l_SpellModOp < MAX_SPELLMOD; ++l_SpellModOp)
     {

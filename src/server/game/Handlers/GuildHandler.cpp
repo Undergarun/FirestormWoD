@@ -78,7 +78,7 @@ void WorldSession::HandleGuildOfficierRemoveMemberOpcode(WorldPacket& p_Packet)
         l_Guild->HandleRemoveMember(this, l_Removee);
 }
 
-void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& p_Packet) ///< p_Packet is unused
+void WorldSession::HandleGuildMasterReplaceOpcode(WorldPacket& /*p_Packet*/)
 {
     Guild* l_Guild = _GetPlayerGuild(this, true);
     if (!l_Guild)

@@ -624,7 +624,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_DamageEffectTyp : Damage type
         /// @p_Damage          : Amount of damage taken
         /// @p_SchoolMask      : school mask of the damage
-        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage) ///< p_SchoolMask is unused
+        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
         {
             UNUSED(p_Player);
             UNUSED(p_DamageEffectType);

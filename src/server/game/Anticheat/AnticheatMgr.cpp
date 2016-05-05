@@ -216,7 +216,7 @@ void AnticheatMgr::StartScripts()
 }
 #endif
 
-void AnticheatMgr::HandlePlayerLogin(Player* player)
+void AnticheatMgr::HandlePlayerLogin(Player* /*player*/)
 {
     /*
     // we must delete this to prevent errors in case of crash

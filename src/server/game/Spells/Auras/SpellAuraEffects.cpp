@@ -900,7 +900,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                                 modifier += (devouringPlague->GetAmount() * 0.33f);
 
                                 int32 temp_damage = amount;
-                                float temp_crit = 0.0f;
 
                                 temp_damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), temp_damage, devouringPlague->GetEffIndex(), DOT, GetBase()->GetStackAmount());
                                 //temp_crit = caster->GetSpellCrit(target, GetSpellInfo(), SpellSchoolMask(GetSpellInfo()->SchoolMask));

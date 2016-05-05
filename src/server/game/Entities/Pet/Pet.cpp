@@ -146,7 +146,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback) ///< petnumber is unused
+void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bool current, PetSlot slotID, bool stampeded, PetQueryHolder* holder, std::function<void(Pet*, bool)> p_Callback)
 {
     m_loading = true;
 
@@ -1692,7 +1692,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number) ///< pet_number is unused
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 /*pet_number*/)
 {
     ASSERT(map);
     SetMap(map);

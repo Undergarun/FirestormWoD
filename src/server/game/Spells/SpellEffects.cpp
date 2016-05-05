@@ -1889,7 +1889,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         {
             // http://fr.wowhead.com/spell=117549#english-comments
             // uint32 targetSpec = unitTarget->ToPlayer()->GetSpecializationId(unitTarget->ToPlayer()->GetActiveSpec());
-            uint32 innervationId = 0;
 
             if (unitTarget == caster)
             {

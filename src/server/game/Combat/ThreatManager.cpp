@@ -476,7 +476,7 @@ void ThreatManager::tauntApply(Unit* taunter)
     HostileReference* ref = iThreatContainer.getReferenceByTarget(taunter);
     if (getCurrentVictim() && ref && (ref->getThreat() < getCurrentVictim()->getThreat()))
     {
-        if (ref->getTempThreatModifier() == 0.0f) // Ok, temp threat is unused
+        if (ref->getTempThreatModifier() == 0.0f)
             ref->setTempThreat(getCurrentVictim()->getThreat());
     }
 }

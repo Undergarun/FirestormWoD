@@ -398,7 +398,6 @@ namespace MS { namespace Utilities
     {
         bool l_Cond1 = p_Left <= p_Right;
         bool l_Cond2 = *this >= p_Left;
-        bool l_Result = false;
 
         if (!l_Cond1)
         {

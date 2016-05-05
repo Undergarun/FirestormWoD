@@ -35,7 +35,6 @@ bool LFGListMgr::Insert(LFGListEntry* p_LFGEntry, Player* p_Requester)
         return false;
     }
 
-    uint32 l_GroupId = 0; ///< l_GroupId is unused
     Group* l_Group = p_Requester->GetGroup();
     if (l_Group && l_Group->isBGGroup())
         l_Group = p_Requester->GetOriginalGroup();
@@ -293,7 +292,7 @@ void LFGListEntry::BroadcastApplicantUpdate(LFGListApplicationEntry const* l_App
     BroadcastPacketToGrop(&l_Data);
 }
 
-void LFGListEntry::InviteApplicant(LFGListApplicationEntry const* l_Applicant)
+void LFGListEntry::InviteApplicant(LFGListApplicationEntry const* /*l_Applicant*/)
 {
 }
 
@@ -458,7 +457,7 @@ bool LFGListEntry::Update(uint32 const p_Diff)
     return m_Timeout > time(nullptr);
 }
 
-bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const p_Diff) ///< p_Diff is unused
+bool LFGListEntry::LFGListApplicationEntry::Update(uint32 const /*p_Diff*/)
 {
     return m_Timeout > time(nullptr); ///< Bye bye
 }

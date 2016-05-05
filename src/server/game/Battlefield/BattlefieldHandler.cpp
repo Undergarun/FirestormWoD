@@ -245,12 +245,12 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
+void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
 {
     m_Player->SendPvpRewards();
 }
 
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
+void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
 {
     WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * (4 + 4 + 4 + 4 + 4 + 4 + 4 + 4));
 
@@ -269,7 +269,7 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleRequestConquestFormulaConstants(WorldPacket& p_RecvData)
+void WorldSession::HandleRequestConquestFormulaConstants(WorldPacket& /*p_RecvData*/)
 {
     WorldPacket l_Data(SMSG_CONQUEST_FORMULA_CONSTANTS, 5 * 4);
     l_Data << uint32(Arena::g_PvpMinCPPerWeek);

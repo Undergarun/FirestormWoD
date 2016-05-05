@@ -321,7 +321,6 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & p_Packet)
     uint64 l_PetitionGUID = 0;
 
     uint32 l_NewGuildNameLenght = 0;
-    uint32 l_Type = 0; ///< l_Type is unused
 
     std::string l_NewGuildName;
 

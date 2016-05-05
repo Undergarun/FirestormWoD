@@ -2202,7 +2202,7 @@ void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& /*p_RecvData*/)
 
     /// Third pass to swap all the items correctly.
     auto l_BankItr = std::begin(l_BankResultMap);
-    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot) ///< p_Item is unused
+    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* /*p_Item*/, uint8 p_BagSlot, uint8 p_ItemSlot)
     {
         if (l_BankItr == std::end(l_BankResultMap))
             return false;

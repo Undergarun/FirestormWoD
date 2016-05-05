@@ -4830,17 +4830,11 @@ void Spell::SendSpellStart()
 
     WorldPacket data(SMSG_SPELL_START);
 
-    uint32 unkStringLength = 0;
-    uint32 powerCount = 0;
-    uint32 unkCounter1 = 0;
-    uint32 unkCounter2 = 0;
     uint32 l_ExtraTargetsCount = m_targets.GetExtraTargetsCount();
 
     uint64 l_PredicOverrideTarget = 0;
     uint32 l_PredictAmount = 0;
     uint8 l_PredicType = 0;
-
-    uint32 unkCounter4 = 0;
 
     uint64 l_CasterGuid1    = m_CastItem ? m_CastItem->GetGUID() : m_caster->GetGUID();
     uint64 l_CasterGuid2    = m_caster->GetGUID();

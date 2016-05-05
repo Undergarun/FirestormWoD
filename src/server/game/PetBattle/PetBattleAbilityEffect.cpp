@@ -1133,8 +1133,6 @@ bool PetBattleAbilityEffect::HandleWeatherAura()
 
 bool PetBattleAbilityEffect::HandleAuraCondAccuracyState()
 {
-    uint32 flags = 0;
-
     // Chain Failure
     if (EffectInfo->prop[4] && AbilityTurn->ChainFailure)
         return false;

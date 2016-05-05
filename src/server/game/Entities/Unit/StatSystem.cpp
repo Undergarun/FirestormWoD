@@ -556,7 +556,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 }
 
-void Player::CalculateNormalizedWeaponDamage(WeaponAttackType attType, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon) ///< attType is unused
+void Player::CalculateNormalizedWeaponDamage(WeaponAttackType /*attType*/, float& min_damage, float& max_damage, float attackPower, float weapon_mindamage, float weapon_maxdamage, Item* l_UsedWeapon)
 {
     float l_NormalizedSpeedCoef = 1.0f;
 
@@ -769,7 +769,6 @@ static float k_constantVHorizontalShift[MAX_CLASSES] =
 void Player::UpdateParryPercentage()
 {
     /// No parry
-    float value = 0.0f;
     float l_Total = 0.0f;
     uint32 pClass = getClass() - 1;
 
@@ -1145,7 +1144,7 @@ void Player::UpdateManaRegen()
         l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
 
     /// If IncreaseManaRegen is bigger then combat_regen we have increased mana regen by auras, so we should add it
-    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) || HasAuraType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT) && l_IncreaseManaRegen > l_Combat_regen)
+    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) || (HasAuraType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT) && l_IncreaseManaRegen > l_Combat_regen))
     {
         l_IncreaseManaRegen -= l_Combat_regen;
         l_BaseRegenFromAurPct = l_IncreaseManaRegen;
@@ -1362,7 +1361,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool /*l_NoLongerDualWields*/)
 {
     float l_Variance = 1.0f;
     UnitMods l_UnitMod;
@@ -1746,7 +1745,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 }
 
 /// WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields) ///< l_NoLongerDualWields is unused
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool /*l_NoLongerDualWields*/)
 {
     UnitMods l_UnitMod;
     switch (p_AttType)
