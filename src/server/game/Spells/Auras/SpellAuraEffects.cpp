@@ -8453,7 +8453,7 @@ void AuraEffect::HandleAuraModifyManaPoolPct(AuraApplication const* p_AurApp, ui
 
 void AuraEffect::HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
 {
-    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK))
         return;
 
     if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())

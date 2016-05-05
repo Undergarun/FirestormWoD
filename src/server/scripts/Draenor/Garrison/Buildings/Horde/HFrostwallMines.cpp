@@ -172,8 +172,14 @@ namespace MS { namespace Garrison
                         l_Creature->GetMotionMaster()->MoveRandom(7.0f);
                 }
 
-                if (Manager* l_Garrison = p_Player->GetGarrison())
-                    l_Garrison->ActivateBuilding(GetPlotInstanceID());
+                    GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
+                    Position l_Pos = *p_Player;
+
+                    if (l_BuildingEntry)
+                        p_Player->PlayStandaloneScene(p_Player->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
+
+                    if (Manager* l_Garrison = p_Player->GetGarrison())
+                        l_Garrison->ActivateBuilding(GetPlotInstanceID());
             }
             InitGatheringPlots(0);
         }

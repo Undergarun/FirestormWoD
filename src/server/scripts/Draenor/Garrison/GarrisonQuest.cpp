@@ -415,6 +415,13 @@ namespace MS { namespace Garrison
                             break;
                     }
                 }
+
+                /// Fix old wrong reputations handling
+                uint32 l_FactionID = p_Player->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+                FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+                if (l_Entry != nullptr && !p_Player->GetReputation(l_FactionID))
+                    p_Player->GetReputationMgr().SetReputation(l_Entry, 1);
             }
         }
 

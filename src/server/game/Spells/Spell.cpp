@@ -1508,7 +1508,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                         break;
                     /// Tranquility
                     case 157982:
-                        l_MaxSize = 5;
                         l_Power = POWER_HEALTH;
                         break;
 
@@ -6187,8 +6186,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         if (checkForm)
         {
+            SpellCastResult shapeError = SPELL_CAST_OK;
             // Cannot be used in this stance/form
-            SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
+            if (!IsDarkSimulacrum())
+                SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
             if (shapeError != SPELL_CAST_OK)
                 return shapeError;
 
@@ -8571,7 +8572,9 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         unit = m_caster->GetGUID() == targetInfo.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, targetInfo.targetGUID);
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.missCondition == SPELL_MISS_REFLECT && targetInfo.reflectResult == SPELL_MISS_NONE)
+    {
         unit = m_caster;
+    }
     if (!unit)
         return;
 

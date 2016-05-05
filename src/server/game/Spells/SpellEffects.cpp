@@ -854,7 +854,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Death Grip
+                /// Death Grip
                 case 49576:
                 {
                     if (!unitTarget)
@@ -864,7 +864,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!m_UniqueTargetInfo.empty())
                     {
                         if (m_UniqueTargetInfo.front().missCondition == SPELL_MISS_REFLECT)
+                        {
                             caster = m_targets.GetUnitTarget();
+                        }
                     }
                     caster->CastSpell(unitTarget, 49560, true);
                     break;
@@ -1861,8 +1863,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         /// 77495 - Mastery : Harmony
         if (caster && caster->IsPlayer() && caster->getClass() == CLASS_DRUID)
         {
-            /// Can't proc from Ysera's Gift and Frenzied Regeneration
-            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift, Frenzied Regeneration and Tranquility
+            if (m_spellInfo && m_spellInfo->Id != 145109 && m_spellInfo->Id != 22842 && m_spellInfo->Id != 157982 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -7929,7 +7931,7 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!m_CastItem || !unitTarget || !unitTarget->IsInWorld())
+    if (!unitTarget || !unitTarget->IsInWorld())
         return;
 
     Player* l_Player = unitTarget->ToPlayer();

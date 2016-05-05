@@ -2710,7 +2710,7 @@ class spell_pal_light_of_dawn : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (!l_Caster->HasAura(eSpells::LightsFavor))
+                    if (!l_Caster->HasAura(eSpells::LightsFavor) && !m_AlreadyModufyPower)
                         l_Caster->SetPower(POWER_HOLY_POWER, m_HolyPower);
 
                     if (m_HolyPower > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))

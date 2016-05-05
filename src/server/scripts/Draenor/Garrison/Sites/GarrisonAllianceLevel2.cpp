@@ -205,14 +205,6 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_BuildingID : Purchased building ID
     void InstanceScript_GarrisonAllianceLevel2::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
     {
-        if (p_BuildingID == Buildings::TradingPost_TradingPost_Level2)
-        {
-            uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
-            FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
-
-            if (l_Entry != nullptr)
-                p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
-        }
     }
     /// When a building is activated
     /// @p_Owner      : Garrison owner
@@ -244,6 +236,16 @@ namespace MS { namespace Garrison { namespace Sites
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
+                    case Buildings::TradingPost_TradingPost_Level2:
+                    {
+                        uint32 l_FactionID = p_Owner->GetTeamId() == TEAM_ALLIANCE ? 1710 : 1708;
+                        FactionEntry const* l_Entry = sFactionStore.LookupEntry(l_FactionID);
+
+                        if (l_Entry != nullptr)
+                            p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+
+                        break;
+                    }
                     default:
                         break;
                 }

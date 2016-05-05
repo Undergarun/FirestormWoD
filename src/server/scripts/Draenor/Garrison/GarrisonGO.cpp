@@ -399,7 +399,7 @@ namespace MS { namespace Garrison
                 }
 
                 if (l_ShipmentCurrency.CurrencyID && l_ShipmentCurrency.CurrencyAmount)
-                    p_Player->ModifyCurrency(l_ShipmentCurrency.CurrencyID, l_ShipmentCurrency.CurrencyAmount);
+                    p_Player->ModifyCurrency(l_ShipmentCurrency.CurrencyID, l_ShipmentCurrency.CurrencyAmount, false);
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }
