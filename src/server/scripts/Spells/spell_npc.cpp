@@ -331,7 +331,6 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
 
                 if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
                 {
-                    Unit* l_OwnerTarget = nullptr;
                     if (Player* l_Player = l_Owner->ToPlayer())
                     {
                         if (l_Player->GetSelectedUnit())

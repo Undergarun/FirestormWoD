@@ -1319,7 +1319,7 @@ class go_seaforium_charge : public GameObjectScript
     public:
         go_seaforium_charge() : GameObjectScript("go_seaforium_charge") { }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
             if (player->HasAura(52418))
                 return true;
@@ -1350,7 +1350,7 @@ class go_challenge_orb : public GameObjectScript
     public:
         go_challenge_orb() : GameObjectScript("go_challenge_orb") { }
 
-        bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 p_Sender, uint32 p_Action)
+        bool OnGossipSelect(Player* p_Player, GameObject* p_GameObject, uint32 /*p_Sender*/, uint32 /*p_Action*/)
         {
             if (InstanceScript* l_Instance = p_GameObject->GetInstanceScript())
             {

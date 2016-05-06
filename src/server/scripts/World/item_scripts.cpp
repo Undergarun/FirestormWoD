@@ -407,7 +407,7 @@ class item_sylvanas_music_box : public ItemScript
     public:
         item_sylvanas_music_box() : ItemScript("item_sylvanas_music_box") { }
 
-        bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/)
+        bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/)
         {
             Map* map = player->GetMap();
             if (!map)
@@ -708,7 +708,7 @@ class item_script_clinking_present : public ItemScript
             AllianceChauffeuredChopper  = 122703
         };
 
-        bool OnOpen(Player* p_Player, Item* p_Item) override
+        bool OnOpen(Player* p_Player, Item* /*p_Item*/) override
         {
             if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
                 p_Player->AddItem(eItemIDs::AllianceChauffeuredChopper, 1);
@@ -738,7 +738,7 @@ class item_script_chauffeured_chopper : public ItemScript
             SummonChauffeurAlliance = 179245
         };
 
-        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& p_Targets) override
+        bool OnUse(Player* p_Player, Item* p_Item, SpellCastTargets const& /*p_Targets*/) override
         {
             switch (p_Item->GetEntry())
             {

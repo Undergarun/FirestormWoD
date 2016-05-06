@@ -3919,8 +3919,8 @@ class spell_gen_selfie_camera : public SpellScriptLoader
                     }
                 }
             }
-
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /* p_Mode */)
             {
                 Creature* l_PhotoBomber = ObjectAccessor::FindCreature(m_PhotoBinberGUID);
 

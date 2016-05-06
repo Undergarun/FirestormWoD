@@ -90,7 +90,7 @@ class spell_rog_anticipation : public SpellScriptLoader
                 MutilateOffHand         = 27576
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -398,7 +398,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
                 SpellRogueEviscerate = 2098
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -439,7 +439,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
             }
 
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Target = GetTarget();
 
@@ -653,7 +653,7 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
             uint64 m_TargetGUID = 0;
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -864,7 +864,7 @@ class spell_rog_marked_for_death: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_marked_for_death_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1032,7 +1032,7 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1130,7 +1130,7 @@ class spell_rog_combat_readiness: public SpellScriptLoader
             uint32 update;
             bool hit;
 
-            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                 {
@@ -1178,7 +1178,7 @@ class spell_rog_nerve_strike: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_combat_readiness_AuraScript);
 
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetTarget())
@@ -2050,7 +2050,7 @@ public:
     {
         PrepareAuraScript(spell_rog_vanish_AuraScript);
 
-        void CalculateAmount(AuraEffect const* p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -2296,7 +2296,7 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                 RevealingStrike        = 84617
             };
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -2816,7 +2816,7 @@ class spell_rog_find_weakness : public SpellScriptLoader
                 CheapShot = 1833
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3195,7 +3195,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
                 ShadowStrikes = 166881
             };
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpells::ShadowStrikes, true);

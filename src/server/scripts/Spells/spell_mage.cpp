@@ -3124,7 +3124,7 @@ class spell_mage_arcane_missiles_visual : public SpellScriptLoader
                 ArcaneMissilesVisualUI = 79808
             };
 
-            void OnRemove(AuraEffect const* /*p_Aura*/, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_Aura*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 

@@ -1957,7 +1957,7 @@ class spell_item_enohar_explosive_arrows: public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_enohar_explosive_arrows_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetHitUnit();
@@ -1980,7 +1980,7 @@ class spell_item_enohar_explosive_arrows: public SpellScriptLoader
 
 enum HolyThurible
 {
-    NPC_WITHDRAWN_SOUL           = 45166
+    NPC_WITHDRAWN_SOUL = 45166
 };
 
 class spell_item_holy_thurible: public SpellScriptLoader
@@ -2024,7 +2024,7 @@ class spell_item_holy_thurible: public SpellScriptLoader
 
 enum bandage
 {
-    NPC_WOUNDED_DEFENDER      = 38805
+    NPC_WOUNDED_DEFENDER = 38805
 };
 
 class spell_item_bandage_q24944: public SpellScriptLoader
@@ -2338,7 +2338,7 @@ class spell_item_pot_of_fire: public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_pot_of_fire_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
                 Unit* caster = GetCaster();
@@ -2564,7 +2564,7 @@ class spell_item_ancient_knowledge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_ancient_knowledge_AuraScript);
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -2595,7 +2595,7 @@ class spell_item_sky_golem : public SpellScriptLoader
         {
             PrepareAuraScript(spell_item_sky_golem_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2604,7 +2604,7 @@ class spell_item_sky_golem : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2699,7 +2699,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 AllianceChauffeur   = 89715
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2717,7 +2717,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2726,7 +2726,7 @@ class spell_item_summon_chauffeur : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2783,7 +2783,7 @@ class spell_item_forgemasters_vigor : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::HammerBlows);
@@ -2817,7 +2817,7 @@ class spell_item_hammer_blows : public SpellScriptLoader
                 ForgemastersVigor = 177096
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -2872,7 +2872,7 @@ class spell_item_detonation : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Detonating);
@@ -2906,7 +2906,7 @@ class spell_item_detonating : public SpellScriptLoader
                 Detonation = 177067
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -2961,7 +2961,7 @@ class spell_item_battering : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::Cracks);
@@ -2995,7 +2995,7 @@ class spell_item_cracks : public SpellScriptLoader
                 Battering = 177102
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -3050,7 +3050,7 @@ class spell_item_sanatizing : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::CleansingSteam);
@@ -3084,7 +3084,7 @@ class spell_item_cleansing_steam : public SpellScriptLoader
                 Sanitizing = 177086
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -3139,7 +3139,7 @@ class spell_item_molten_metal : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpell::PouringSlag);
@@ -3173,7 +3173,7 @@ class spell_item_pouring_slag : public SpellScriptLoader
                 MoltenMetal = 177081
             };
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -3239,7 +3239,7 @@ class spell_item_legs_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178228
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3395,7 +3395,7 @@ class spell_item_chest_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178227
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3551,7 +3551,7 @@ class spell_item_helm_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178226
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3707,7 +3707,7 @@ class spell_item_shoulders_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178230
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
@@ -3863,7 +3863,7 @@ class spell_item_gauntlets_of_iron : public SpellScriptLoader
                 MythicQuestToken    = 178229
             };
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {

@@ -1640,7 +1640,7 @@ class spell_q12512_resuscitate: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12512_resuscitate_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster() && GetHitUnit())
                 {
@@ -1719,7 +1719,7 @@ class spell_q28334_darla_box_megaflares: public SpellScriptLoader
                 return true;
             }
 
-            void OnUpdate(uint32 diff)
+            void OnUpdate(uint32 /*diff*/)
             {
                 if (!removed)
                 {
@@ -1759,7 +1759,7 @@ class spell_q31112_ping_bunny: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q31112_ping_bunny_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     caster->GetMotionMaster()->MoveJump(2390.78f, -226.66f, 303.89f, 40.0f, 40.0f);

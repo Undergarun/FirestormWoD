@@ -3805,8 +3805,6 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                 WildImp = 55659
             };
 
-            int8 m_Charges = 10;
-
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -4040,7 +4038,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
             ChaoticInfusion     = 170000
         };
 
-        void OnModifyHealth(Player* p_Player, int32 p_Value) override
+        void OnModifyHealth(Player* p_Player, int32 /*p_Value*/) override
         {
             if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
             {
@@ -4142,7 +4140,7 @@ class spell_warl_healthstone : public SpellScriptLoader
                 GlyphOfHealthstone = 56224
             };
 
-            void HandleHeal(SpellEffIndex p_EffIndex)
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GetCaster()->HasAura(eSpells::GlyphOfHealthstone))
                     PreventHitHeal();
@@ -4194,7 +4192,7 @@ public:
     }
 
     /// Override
-    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
     {
         ///< Works only in Afflication spec and if warlock doesn't have Glyph of Subtlety
         if (p_Power == POWER_SOUL_SHARDS && p_Player->GetSpecializationId() == SPEC_WARLOCK_AFFLICTION)
@@ -4450,7 +4448,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonbolt_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& /*p_Amount*/, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 

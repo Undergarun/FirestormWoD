@@ -391,7 +391,7 @@ class spell_mastery_icicles_proc : public SpellScriptLoader
                 FrostfireBolt   = 44614
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
 
@@ -559,7 +559,7 @@ class spell_mastery_icicles_periodic : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {

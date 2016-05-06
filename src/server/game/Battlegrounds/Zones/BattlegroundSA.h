@@ -558,7 +558,7 @@ class BattlegroundSA : public Battleground
         TeamId Attackers;
 
         /// No Clue how to award this ???? give silver to looser and gold to winner
-        uint32 GetTeamScore(uint32 p_TeamID) const { return 2; } ///< p_TeamID is unused 22/02/16
+        uint32 GetTeamScore(uint32 /*p_TeamID*/) const { return 2; }
         uint32 GetMaxScore() const { return 3; }
         bool IsScoreIncremental() const { return true; }
 

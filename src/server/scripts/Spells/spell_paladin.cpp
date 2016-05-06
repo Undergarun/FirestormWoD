@@ -2561,7 +2561,7 @@ class spell_pal_holy_shield: public SpellScriptLoader
                 HolyShieldDamage = 157122
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2765,7 +2765,7 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
                 HolyLight       = 82326
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2919,7 +2919,7 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_selfless_healer_proc_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3273,7 +3273,7 @@ class spell_pal_shining_protector : public SpellScriptLoader
                 ShiningProtectorHeal = 159375
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
                 Unit* l_Caster = GetCaster();
@@ -3325,7 +3325,7 @@ class spell_pal_glyph_of_flash_of_light : public SpellScriptLoader
                 GlyphOfLightAura = 54957
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3453,7 +3453,7 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
                 return l_Percent;
             }
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3558,7 +3558,7 @@ class spell_pal_t17_protection_4p : public SpellScriptLoader
                 DefenderOfTheLight = 167742
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3714,7 +3714,7 @@ public:
             GlyphOfPillarofLightVisual = 148064
         };
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
         {
             PreventDefaultAction();
 

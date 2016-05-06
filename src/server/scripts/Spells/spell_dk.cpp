@@ -161,7 +161,7 @@ class spell_dk_plague_strike: public SpellScriptLoader
                 chilblainsAura = 50435
             };
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
                 Unit* l_Caster = GetCaster();
@@ -209,7 +209,7 @@ class spell_dk_gorefiends_grasp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_gorefiends_grasp_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -338,7 +338,7 @@ class spell_dk_desecrated_ground: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_desecrated_ground_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetCaster())
                     if (DynamicObject* dynObj = GetCaster()->GetDynObject(DK_SPELL_DESECRATED_GROUND))
@@ -830,7 +830,6 @@ class spell_dk_blood_tap: public SpellScriptLoader
                     if (l_Player == nullptr)
                         return SPELL_FAILED_DONT_REPORT;
 
-                    bool cooldown = false;
                     uint8 l_Counter = 0;
                     RuneType l_RuneOnCooldown = RuneType::NUM_RUNE_TYPES;
                     l_Player->SetCurrentRuneForBloodTap(l_RuneOnCooldown);
@@ -1388,12 +1387,12 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 }
             }
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
             {
                 m_Absorbed += dmgInfo.GetDamage();
             }
 
-            void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
+            void Trigger(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
                 /// damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.

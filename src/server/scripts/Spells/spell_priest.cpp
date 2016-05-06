@@ -3415,7 +3415,7 @@ public:
     {
         PrepareAuraScript(spell_pri_shadow_word_pain_AuraScript);
 
-        void OnTick(AuraEffect const* aurEff)
+        void OnTick(AuraEffect const* /*aurEff*/)
         {
             if (Unit *l_Caster = GetCaster())
             {
@@ -3512,7 +3512,7 @@ class spell_pri_glyphe_of_mind_blast : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3766,7 +3766,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 DivineAegisAura  = 47753
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -4122,7 +4122,7 @@ class spell_pri_focused_will : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_focused_will_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4180,7 +4180,7 @@ class spell_pri_focused_will : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();

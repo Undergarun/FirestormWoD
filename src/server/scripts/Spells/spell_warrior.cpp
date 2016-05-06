@@ -72,7 +72,7 @@ class spell_warr_ravager : public SpellScriptLoader
                 RavagerDamage = 156287
             };
 
-            void CalculateParryPCT(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateParryPCT(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -84,7 +84,7 @@ class spell_warr_ravager : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -236,7 +236,7 @@ class spell_warr_shield_block_aura : public SpellScriptLoader
                 ShieldMastery   = 169688
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -246,7 +246,7 @@ class spell_warr_shield_block_aura : public SpellScriptLoader
                 }
             }
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->RemoveAura(eSpells::ShieldMastery);
@@ -422,7 +422,7 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_second_wind_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*l_ProcInfo*/)
             {
                 PreventDefaultAction();
 
@@ -433,7 +433,7 @@ class spell_warr_second_wind: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -461,7 +461,7 @@ class PlayerScript_second_wind : public PlayerScript
 public:
     PlayerScript_second_wind() :PlayerScript("PlayerScript_second_wind") {}
 
-    void OnModifyHealth(Player * p_Player, int32 p_Value)
+    void OnModifyHealth(Player * p_Player, int32 /*p_Value*/)
     {
         if (p_Player->getClass() == CLASS_WARRIOR && p_Player->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
         {
@@ -615,7 +615,7 @@ class spell_warr_raging_blow: public SpellScriptLoader
                 }
             }
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -988,7 +988,7 @@ class spell_warr_shockwave: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shockwave_SpellScript);
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetHitUnit())
@@ -2086,7 +2086,7 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
                 Rend = 772
             };
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& l_ProcInfo)
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2365,7 +2365,7 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
                 Whirlwind = 1680
             };
 
-            void HandleOnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfo)
+            void HandleOnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
@@ -2425,7 +2425,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 return (float)p_Level / 100;
             }
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -2684,7 +2684,7 @@ class spell_warr_single_minded_fury : public SpellScriptLoader
                 CrazedBerserker = 23588
             };
 
-            void CalculateFirstEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateFirstEffect(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2704,7 +2704,7 @@ class spell_warr_single_minded_fury : public SpellScriptLoader
                 }
             }
 
-            void CalculateSecondEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateSecondEffect(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2754,7 +2754,7 @@ class spell_warr_crazed_berserker : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_crazed_berserker_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2996,7 +2996,7 @@ class spell_warr_revenge : public SpellScriptLoader
                 Revenger = 6572
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 

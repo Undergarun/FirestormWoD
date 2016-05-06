@@ -496,7 +496,7 @@ class AreaTrigger_at_bael_modan : public AreaTriggerScript
     public:
         AreaTrigger_at_bael_modan() : AreaTriggerScript("AreaTrigger_at_bael_modan") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(SABOTAGE_QUEST) == QUEST_STATUS_INCOMPLETE)
                 player->KilledMonsterCredit(KILL_CREDIT, 0);
@@ -512,7 +512,7 @@ class AreaTrigger_at_klaxxi_vess : public AreaTriggerScript
     public:
         AreaTrigger_at_klaxxi_vess() : AreaTriggerScript("AreaTrigger_at_klaxxi_vess") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(KLAXXI_COUNCIL_QUEST) == QUEST_STATUS_INCOMPLETE)
                 player->KilledMonsterCredit(62538);
@@ -526,7 +526,7 @@ class AreaTrigger_at_farmer_fung : public AreaTriggerScript
     public:
         AreaTrigger_at_farmer_fung() : AreaTriggerScript("AreaTrigger_at_farmer_fung") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(30518) == QUEST_STATUS_INCOMPLETE)
                 if (player->IsOnVehicle())
@@ -548,7 +548,7 @@ class areatrigger_at_serpent_nests : public AreaTriggerScript
     public:
         areatrigger_at_serpent_nests() : AreaTriggerScript("areatrigger_at_serpent_nests") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(30136) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(30157) == QUEST_STATUS_INCOMPLETE)
             {
@@ -583,7 +583,7 @@ class AreaTrigger_at_mason_s_folly : public AreaTriggerScript
     public:
         AreaTrigger_at_mason_s_folly() : AreaTriggerScript("AreaTrigger_at_mason_s_folly") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(31482) == QUEST_STATUS_INCOMPLETE)
             {

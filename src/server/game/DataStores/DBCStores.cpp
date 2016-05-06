@@ -922,7 +922,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_
     return l_MapDifficulty;
 }
 
-std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
+std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 /*talentTree*/)
 {
     return NULL;
     /*TalentTreePrimarySpellsMap::const_iterator itr = sTalentTreePrimarySpellsMap.find(talentTree);
@@ -1090,17 +1090,17 @@ namespace WorldStateExpressionFunctions
 static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunction[] =
 {
     /// WorldStateExpressionFunctions::None
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::Random
-    [](Player* p_Player, int32 p_Min, int32 p_Max) -> int32
+    [](Player* /*p_Player*/, int32 p_Min, int32 p_Max) -> int32
     {
         return urand(p_Min, p_Max);
     },
     /// WorldStateExpressionFunctions::Month
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1108,7 +1108,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_Time.Month + 1;
     },
     /// WorldStateExpressionFunctions::Day
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1116,7 +1116,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_Time.MonthDay + 1;
     },
     /// WorldStateExpressionFunctions::TimeOfDay
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1124,12 +1124,12 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_Time.GetHourAndMinutes();
     },
     /// WorldStateExpressionFunctions::Region
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return sWorld->GetServerRegionID();
     },
     /// WorldStateExpressionFunctions::ClockHour
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         MS::Utilities::WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
@@ -1143,12 +1143,12 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return 12;
     },
     /// WorldStateExpressionFunctions::Region
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return sWorld->GetServerRegionID();
     },
     /// WorldStateExpressionFunctions::DifficultyID
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* p_Player, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         if (!p_Player)
             return 0;
@@ -1156,7 +1156,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return p_Player->GetMap()->GetDifficultyID();
     },
     /// WorldStateExpressionFunctions::HolidayStart
-    [](Player* p_Player, int32 p_HolidayID, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 p_HolidayID, int32 p_Arg2) -> int32
     {
         HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
 
@@ -1258,7 +1258,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
     },
     /// WorldStateExpressionFunctions::HolidayLeft
-    [](Player* p_Player, int32 p_HolidayID, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 p_HolidayID, int32 p_Arg2) -> int32
     {
         HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
 
@@ -1363,7 +1363,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
     },
     /// WorldStateExpressionFunctions::HolidayActive
-    [](Player* p_Player, int32 p_HolidayID, int32 p_Arg2) -> int32
+    [](Player* p_Player, int32 p_HolidayID, int32 /*p_Arg2*/) -> int32
     {
         HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
 
@@ -1392,58 +1392,58 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
         return 0;
     },
     /// WorldStateExpressionFunctions::TimerCurrentTime
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return time(nullptr);
     },
     /// WorldStateExpressionFunctions::WeekNumber
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         time_t l_Time = sWorld->GetGameTime();
         return (l_Time - sWorld->GetServerRaidOrigin()) / WEEK;
     },
     /// WorldStateExpressionFunctions::None2
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None3
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None4
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None5
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None6
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None7
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None8
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None9
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     },
     /// WorldStateExpressionFunctions::None10
-    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    [](Player* /*p_Player*/, int32 /*p_Arg1*/, int32 /*p_Arg2*/) -> int32
     {
         return 0;
     }
@@ -1549,7 +1549,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
 #undef UNPACK_UINT8
 }
 
-int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool p_ForA)
+int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool /*p_ForA*/)
 {
 #define UNPACK_UINT8(x) { x = *(uint8_t*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8_t);} 
     int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
