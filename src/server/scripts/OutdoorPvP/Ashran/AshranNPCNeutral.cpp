@@ -205,17 +205,14 @@ class npc_faction_boss : public CreatureScript
                     return false;
                 });
 
-                if (!sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
-                {
-                    for (Player* l_Player : l_PlayerList)
-                        l_Player->RewardHonor(l_Player, 1, 50 * 100);
+                for (Player* l_Player : l_PlayerList)
+                    l_Player->RewardHonor(l_Player, 1, 50 * 100);
 
-                    /// Trigger strongboxes loot for near players
-                    if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
-                        p_Killer->CastSpell(p_Killer, eAshranSpells::SpellAllianceReward, true);
-                    else
-                        p_Killer->CastSpell(p_Killer, eAshranSpells::SpellHordeReward, true);
-                }
+                /// Trigger strongboxes loot for near players
+                if (me->GetEntry() == eCreatures::GrandMarshalTremblade)
+                    p_Killer->CastSpell(p_Killer, eAshranSpells::SpellAllianceReward, true);
+                else
+                    p_Killer->CastSpell(p_Killer, eAshranSpells::SpellHordeReward, true);
             }
 
             void DoAction(int32 const p_Action) override

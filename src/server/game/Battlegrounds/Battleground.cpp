@@ -2372,9 +2372,6 @@ void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, Battle
 
 uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
 {
-    if (sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
-        return 0;
-
     switch (p_Award)
     {
         case AWARD_GOLD:
