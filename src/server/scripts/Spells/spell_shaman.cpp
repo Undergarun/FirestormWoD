@@ -2672,7 +2672,10 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
                             {
                                 if (!l_Map->IsBattlegroundOrArena())
                                 {
-                                    p_Amount += l_GhostlySpeed->Effects[EFFECT_0].BasePoints;
+                                    if (l_Owner->IsOutdoors())
+                                    {
+                                        p_Amount += l_GhostlySpeed->Effects[EFFECT_0].BasePoints;
+                                    }
                                 }
                             }
                         }
@@ -2682,7 +2685,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_ghost_wolf_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_ghost_wolf_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_MOD_INCREASE_SPEED);
             }
         };
 
