@@ -96,7 +96,7 @@ class garrison_commandscript: public CommandScript
             return commandTable;
         }
 
-        static bool HandleGarrisonInfo(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonInfo(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -148,7 +148,7 @@ class garrison_commandscript: public CommandScript
         }
 
         /// This is a debug command, only devs should use it
-        static bool HandleGarrisonPrepare(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonPrepare(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Target = p_Handler->getSelectedPlayer();
             if (!l_Target)
@@ -200,7 +200,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonCreate(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonCreate(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -276,7 +276,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonResetDatas(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -340,7 +340,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotInfoCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandlePlotInfoCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->GetSession()->GetPlayer();
 
@@ -881,7 +881,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleMissionCompleteAllCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleMissionCompleteAllCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -913,7 +913,7 @@ class garrison_commandscript: public CommandScript
             return true;
          }
 
-        static bool HandleBuildingCompleteCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleBuildingCompleteCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -938,7 +938,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleShipmentCompleteCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleShipmentCompleteCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -969,7 +969,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleShipyardOpen(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleShipyardOpen(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 

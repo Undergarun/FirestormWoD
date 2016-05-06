@@ -345,7 +345,7 @@ public:
         return HandleRemoveDisables(handler, args, DISABLE_TYPE_VMAP);
     }
 
-    static bool HandleAddDisableItemSellCommand(ChatHandler* p_Handler, char const* p_Args)
+    static bool HandleAddDisableItemSellCommand(ChatHandler* /*p_Handler*/, char const* p_Args)
     {
         if (!p_Args)
             return false;

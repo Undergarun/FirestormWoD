@@ -363,7 +363,7 @@ namespace MS { namespace Garrison
         p_Player->SetPhaseMask(l_PhaseMask, true);
     }
 
-    void playerScript_Garrison_Portals_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
+    void playerScript_Garrison_Portals_Phases::OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 /*p_OldZoneID*/, uint32 /*p_NewAreaId*/)
     {
         /// World Map Phases
         switch (p_NewZoneId)
@@ -460,7 +460,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Portals_Phases::OnQuestCleared(Player* p_Player, Quest const* p_Quest)
+    void playerScript_Garrison_Portals_Phases::OnQuestCleared(Player* p_Player, Quest const* /*p_Quest*/)
     {
         switch (p_Player->GetMapId())
         {
@@ -493,7 +493,7 @@ namespace MS { namespace Garrison
         }
     }
 
-    void playerScript_Garrison_Portals_Phases::OnQuestReward(Player* p_Player, const Quest* p_Quest)
+    void playerScript_Garrison_Portals_Phases::OnQuestReward(Player* p_Player, const Quest* /*p_Quest*/)
     {
         switch (p_Player->GetMapId())
         {

@@ -40,13 +40,13 @@ class hotfix_commandscript : public CommandScript
             return commandTable;
         }
 
-        static bool HandleReloadBlob(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleReloadBlob(ChatHandler * /*p_Handler*/, char const* /*p_Args*/)
         {
             sObjectMgr->LoadHotfixData(true);
             return true;
         }
 
-        static bool HandleReloadHash(ChatHandler * p_Handler, char const* p_Args)
+        static bool HandleReloadHash(ChatHandler * /*p_Handler*/, char const* /*p_Args*/)
         {
             sObjectMgr->LoadHotfixTableHashs();
             return true;

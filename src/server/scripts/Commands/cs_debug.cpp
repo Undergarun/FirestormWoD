@@ -881,7 +881,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleJoinRatedBg(ChatHandler* handler, char const* args)
+        static bool HandleJoinRatedBg(ChatHandler* handler, char const* /*args*/)
         {
             // ignore if we already in BG or BG queue
             if (handler->GetSession()->GetPlayer()->InBattleground())
@@ -2588,7 +2588,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* args)
+        static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* /*args*/)
         {
             handler->PSendSysMessage("Method depreciated, need update");
             ///Unit* target = handler->getSelectedUnit();
@@ -2633,7 +2633,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* args)
+        static bool HandleDebugPhaseCommand(ChatHandler* handler, char const* /*args*/)
         {
             Unit* unit = handler->getSelectedUnit();
             Player* player = handler->GetSession()->GetPlayer();
@@ -2696,15 +2696,10 @@ class debug_commandscript: public CommandScript
             if (!cx || !cy || !cz)
                 return false;
 
-            float x         = (float)atof(cx);
-            float y         = (float)atof(cy);
-            float z         = (float)atof(cz);
-
-           // target->ToUnit()->GetMotionMaster()->MoveBackward(0, x, y,z);
             return true;
         }
 
-        static bool HandleDebugLoadZ(ChatHandler* handler, char const* args)
+        static bool HandleDebugLoadZ(ChatHandler* handler, char const* /*args*/)
         {
             for (auto gameobject: sObjectMgr->_gameObjectDataStore)
             {
@@ -2783,7 +2778,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugBattlegroundStart(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
             if (l_Battleground == nullptr)
@@ -2797,7 +2792,7 @@ class debug_commandscript: public CommandScript
         }
 
         /// This can be reported by static analyse, yes l_Pig is free and make it crash that the point !
-        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugCrashTest(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             p_Handler->PSendSysMessage("You've crash the server by adding pigs in farm that doesn't exists!");
 
@@ -2809,7 +2804,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugBgAward(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
 
@@ -3305,7 +3300,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugDumpRewardlessMissions(ChatHandler* /*p_Handler*/, char const* p_Args)
         {
             if (!p_Args)
                 return false;
@@ -3353,7 +3348,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleSpellDebugDumpRewardlessMissions(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleSpellDebugDumpRewardlessMissions(ChatHandler* /*p_Handler*/, char const* p_Args)
         {
             if (!p_Args)
                 return false;
@@ -3441,7 +3436,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             gPacketProfilerMutex.lock();
             p_Handler->PSendSysMessage("----------------");
@@ -3535,7 +3530,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugMirrorCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugMirrorCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player*   l_Player = p_Handler->GetSession()->GetPlayer();
             Creature* l_Target = p_Handler->getSelectedCreature();
@@ -3642,7 +3637,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugPvELogsCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugPvELogsCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -3677,7 +3672,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugQuestLogsCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleDebugQuestLogsCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -3752,7 +3747,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugGetUnitStatesCommand(ChatHandler* p_Handler, const char* p_Args)
+        static bool HandleDebugGetUnitStatesCommand(ChatHandler* p_Handler, const char* /*p_Args*/)
         {
             Unit* l_Unit = p_Handler->getSelectedUnit();
             if (!l_Unit)

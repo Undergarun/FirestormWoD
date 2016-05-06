@@ -65,7 +65,7 @@ public:
         return true;
     }
 
-    static bool HandleAchievementGenerateRewardCommand(ChatHandler* p_ChatHandler, char const* p_Args)
+    static bool HandleAchievementGenerateRewardCommand(ChatHandler* /*p_ChatHandler*/, char const* /*p_Args*/)
     {
         FILE* l_File = fopen("AchievementReward.sql", "w+");
         if (l_File == nullptr)

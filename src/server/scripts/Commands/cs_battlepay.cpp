@@ -39,7 +39,7 @@ class battlepay_commandscript: public CommandScript
             return g_CommandTable;
         }
 
-        static bool HandleDumpWebShopCategory(ChatHandler* p_ChatHandler, char const* p_Args)
+        static bool HandleDumpWebShopCategory(ChatHandler* /*p_ChatHandler*/, char const* p_Args)
         {
             uint32 l_Category = atoi(strtok((char*)p_Args, " "));
             if (!l_Category)
@@ -152,7 +152,7 @@ class battlepay_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDumpWebShopPackCategory(ChatHandler* p_ChatHandler, char const* p_Args)
+        static bool HandleDumpWebShopPackCategory(ChatHandler* /*p_ChatHandler*/, char const* p_Args)
         {
             uint32 l_Category = atoi(strtok((char*)p_Args, " "));
             if (!l_Category)
@@ -234,13 +234,13 @@ class battlepay_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleReloadBattlePay(ChatHandler* p_ChatHandler, char const* p_Args)
+        static bool HandleReloadBattlePay(ChatHandler* /*p_ChatHandler*/, char const* /*p_Args*/)
         {
             sBattlepayMgr->LoadFromDatabase();
             return true;
         }
 
-        static bool HandleDumpItemInfo(ChatHandler* p_ChatHandler, char const* p_Args)
+        static bool HandleDumpItemInfo(ChatHandler* /*p_ChatHandler*/, char const* /*p_Args*/)
         {
             FILE* l_Output = fopen("./iteminfo.sql", "w+");
             if (!l_Output)

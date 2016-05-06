@@ -47,7 +47,7 @@ template<AtLoginFlags t_AtLogin> class BattlePay_CharacterService : BattlePayPro
     public:
         BattlePay_CharacterService(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product)
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -57,7 +57,7 @@ template<AtLoginFlags t_AtLogin> class BattlePay_CharacterService : BattlePayPro
             l_Player->SaveToDB();
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason)
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/, std::string& p_Reason)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -82,12 +82,12 @@ template <uint32 t_AccountServiceFlag> class BattlePay_AccountService : BattlePa
     public:
         BattlePay_AccountService(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product) override
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/) override
         {
             p_Session->SetServiceFlags(t_AccountServiceFlag);
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason) override
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/, std::string& p_Reason) override
         {
             if (p_Session->HasServiceFlags(t_AccountServiceFlag))
             {

@@ -71,8 +71,8 @@ Position const g_PositionGuards2nd[2] =
 /// Warden Patrol, and Warden position to be spawned at
 Position const g_PositionWardenPatrol[2] =
 {
-    { 1609.98f, 2955.21f, 35.238f },
-    { 1508.82f, 2954.96f, 35.238f }
+    { 1609.98f, 2955.21f, 35.238f, 0.0f },
+    { 1508.82f, 2954.96f, 35.238f, 0.0f }
 };
 
 /// Middle
@@ -98,8 +98,8 @@ Position const g_PositionCircularHolies[2] =
 /// Left Hallway
 Position const g_PositionWardenPatrol2nd[2] =
 {
-    { 1672.66f, 3022.84f, 35.140f },
-    { 1673.99f, 3033.03f, 35.236f }
+    { 1672.66f, 3022.84f, 35.140f, 0.0f },
+    { 1673.99f, 3033.03f, 35.236f, 0.0f }
 };
 
 Position const g_PositionAuchenaiMagus2nd[2] =
@@ -131,12 +131,12 @@ Position const g_PositionWardenAndGuards           = { 1666.69f, 3015.78f, 35.14
 Position const g_PositionMagusp_WhoControlFootmans = { 1708.01f, 3107.09f, 35.139f, 6.217793f };
 Position const g_PositionWallInMiddleFromNyami     = { 1689.59f, 2953.11f, 35.613f, 3.139696f };
 Position const g_PositionWallInBackFromNyami       = { 1628.76f, 2952.63f, 35.613f, 6.231408f };
-Position const g_PositionNyamiEscape05             = { 1801.23f, 3178.36f, 35.139f };
-Position const g_PositionNyamiEscape04             = { 1912.99f, 3165.06f, 48.221f };
-Position const g_PositionNyamiEscape03             = { 1891.66f, 3184.09f, 49.976f };
-Position const g_PositionNyamiEscape02             = { 1911.14f, 3211.44f, 51.915f };
-Position const g_PositionNyamiEscape01             = { 1935.88f, 3185.43f, 44.528f };
-Position const g_PositionMageMoveTo                = { 1895.09f, 3183.77f, 30.799f };
+Position const g_PositionNyamiEscape05             = { 1801.23f, 3178.36f, 35.139f, 0.0f };
+Position const g_PositionNyamiEscape04             = { 1912.99f, 3165.06f, 48.221f, 0.0f };
+Position const g_PositionNyamiEscape03             = { 1891.66f, 3184.09f, 49.976f, 0.0f };
+Position const g_PositionNyamiEscape02             = { 1911.14f, 3211.44f, 51.915f, 0.0f };
+Position const g_PositionNyamiEscape01             = { 1935.88f, 3185.43f, 44.528f, 0.0f };
+Position const g_PositionMageMoveTo                = { 1895.09f, 3183.77f, 30.799f, 0.0f };
 
 Position const g_PositionThreeCorpses[2] =
 {
@@ -194,10 +194,10 @@ Position const g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[5] =
 
 Position const g_PositionAfterKaatharDeathForFourMages[4] =
 {
-    { 1879.55f, 3201.58f, 34.418f },
-    { 1876.59f, 3191.82f, 31.418f },
-    { 1876.75f, 3171.40f, 31.418f },
-    { 1877.25f, 3165.11f, 31.418f }
+    { 1879.55f, 3201.58f, 34.418f, 0.0f },
+    { 1876.59f, 3191.82f, 31.418f, 0.0f },
+    { 1876.75f, 3171.40f, 31.418f, 0.0f },
+    { 1877.25f, 3165.11f, 31.418f, 0.0f }
 };
 
 Position const g_PositionGuardsAndWardens[2] =
@@ -220,16 +220,16 @@ Position const g_PositionDefenderBehindBackWallOfNyami[2] =
     { 1621.33f, 2958.54f, 35.612f, 6.217269f }
 };
 
-Position const g_PositionFirstPlatformFirstMove   = { 1910.91f, 2810.94f, 119.795f }; ///< DURAG
-Position const g_PositionFirstPlatormSecondMove   = { 1959.16f, 2907.14f, 41.030f };
-Position const g_PositionFirstPlatformThirdMove   = { 2003.36f, 2863.18f, 35.212f };
-Position const g_PositionSecondPlatformFirstMove  = { 1981.34f, 2877.99f, 53.373f }; ///< GULKOSH
-Position const g_PositionSecondPlatformSecondMove = { 1959.05f, 2999.68f, 75.242f };
-Position const g_PositionSecondPlatformThirdMove  = { 2003.70f, 3043.89f, 35.212f };
-Position const g_PositionThirdPlatformFirstMove   = { 2003.70f, 3043.89f, 56.912f }; ///< GROMTASH
-Position const g_PositionThirdPlatformsSecondMove = { 1914.66f, 2991.45f, 77.863f };
-Position const g_PositionThirdPlatformThirdMove   = { 1817.49f, 3046.65f, 35.212f };
-Position const g_PositionFourthMovement           = { 1846.60f, 2950.43f, 15.170f };
+Position const g_PositionFirstPlatformFirstMove   = { 1910.91f, 2810.94f, 119.795f, 0.0f }; ///< DURAG
+Position const g_PositionFirstPlatormSecondMove   = { 1959.16f, 2907.14f, 41.030f, 0.0f };
+Position const g_PositionFirstPlatformThirdMove   = { 2003.36f, 2863.18f, 35.212f, 0.0f };
+Position const g_PositionSecondPlatformFirstMove  = { 1981.34f, 2877.99f, 53.373f, 0.0f }; ///< GULKOSH
+Position const g_PositionSecondPlatformSecondMove = { 1959.05f, 2999.68f, 75.242f, 0.0f };
+Position const g_PositionSecondPlatformThirdMove  = { 2003.70f, 3043.89f, 35.212f, 0.0f };
+Position const g_PositionThirdPlatformFirstMove   = { 2003.70f, 3043.89f, 56.912f, 0.0f }; ///< GROMTASH
+Position const g_PositionThirdPlatformsSecondMove = { 1914.66f, 2991.45f, 77.863f, 0.0f };
+Position const g_PositionThirdPlatformThirdMove   = { 1817.49f, 3046.65f, 35.212f, 0.0f };
+Position const g_PositionFourthMovement           = { 1846.60f, 2950.43f, 15.170f, 0.0f };
 Position const g_PositionPlatform_3               = { 1838.42f, 3027.05f, 35.283f, 2.149401f }; ///< CREATURE_GROMTASH_THE_DESTRUCTOR
 Position const g_PositionDrain                    = { 1960.20f, 3000.69f, 16.236f, 0.847815f };
 
@@ -268,7 +268,7 @@ Position const g_Positiondead_souls[3] =
 Position const g_PositionSafeZoneVessel    = { 1658.81f, 2957.50f, 34.291f, 5.099889f };
 Position const g_PositionBubble            = { 1660.65f, 2953.06f, 34.291f, 1.542292f };
 Position const g_PositionWardenSpawnPoint  = { 1660.96f, 2918.35f, 48.036f, 1.672848f };
-Position const g_PositionWardenPosition1st = { 1686.05f, 2840.95f, 35.140f };
+Position const g_PositionWardenPosition1st = { 1686.05f, 2840.95f, 35.140f , 0.0f };
 
 Position const g_PositionDeadGuards[4] =
 {

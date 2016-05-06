@@ -55,7 +55,7 @@ namespace MS { namespace Garrison
     }
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_GarrisonCartRope::npc_GarrisonCartRopeAI::UpdateAI(const uint32 p_Diff)
+    void npc_GarrisonCartRope::npc_GarrisonCartRopeAI::UpdateAI(const uint32 /*p_Diff*/)
     {
         if (me->GetEntry() == NPCs::NPC_GARRISON_ALLIANCE_CART && !HasRope)
         {
@@ -116,7 +116,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_AssistantBrightstone::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_AssistantBrightstone::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_Player->GetQuestObjectiveCounter(273535) != 1)
         {
@@ -150,7 +150,7 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Accepted quest
-    bool npc_VindicatorMaraad::OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+    bool npc_VindicatorMaraad::OnQuestAccept(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
     {
         if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_PALE_MOONLIGHT)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_START_CHAT);
@@ -161,7 +161,7 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Completed quest
-    bool npc_VindicatorMaraad::OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+    bool npc_VindicatorMaraad::OnQuestComplete(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
     {
         if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_PALE_MOONLIGHT)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_VINDICATOR_MARAAD_PALE_MOONLIGHT_END_CHAT);
@@ -201,7 +201,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_ShellyHamby::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_ShellyHamby::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
     {
         p_Player->CLOSE_GOSSIP_MENU();
         p_Creature->AI()->Talk(0);
@@ -231,7 +231,7 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Accepted quest
-    bool npc_BarosAlexsom::OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+    bool npc_BarosAlexsom::OnQuestAccept(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
     {
         if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_KEEPING_IT_TOGETHER)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_KEEPING_IT_TOGETHER_START_CHAT);
@@ -244,7 +244,7 @@ namespace MS { namespace Garrison
     /// @p_Player   : Source player instance
     /// @p_Creature : Target creature instance
     /// @p_Quest    : Completed quest
-    bool npc_BarosAlexsom::OnQuestComplete(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+    bool npc_BarosAlexsom::OnQuestComplete(Player * /*p_Player*/, Creature * p_Creature, const Quest * p_Quest)
     {
         if (p_Quest && p_Quest->GetQuestId() == Quests::QUEST_ETABLISH_YOUR_GARRISON_A)
             p_Creature->AI()->Talk(CreatureTexts::CREATURE_TEXT_BAROS_ETABLISH_YOUR_GARRISON_CHAT);
@@ -293,14 +293,14 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_LunarfallLaborer::npc_LunarfallLaborerAI::UpdateAI(const uint32 p_Diff)
+    void npc_LunarfallLaborer::npc_LunarfallLaborerAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }
     /// Set UInt32 value
     /// @p_ID    : Value ID
     /// @p_Value : Value
-    void npc_LunarfallLaborer::npc_LunarfallLaborerAI::SetData(uint32 p_ID, uint32 p_Value)
+    void npc_LunarfallLaborer::npc_LunarfallLaborerAI::SetData(uint32 p_ID, uint32 /*p_Value*/)
     {
         if (p_ID == CreatureAIDataIDs::Builder)
         {

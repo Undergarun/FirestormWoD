@@ -30,7 +30,7 @@ namespace MS { namespace Garrison
 
     /// Function called on server startup, if returns false script won't be used in core
     /// use for: dbc/template data presence/correctness checks
-    bool spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::Validate(SpellInfo const* p_SpellEntry)
+    bool spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::Validate(SpellInfo const* /*p_SpellEntry*/)
     {
         if (!sSpellMgr->GetSpellInfo(Spells::SPELL_GARRISON_HEARTHSTONE))
             return false;
@@ -63,7 +63,7 @@ namespace MS { namespace Garrison
 
     /// On spell EFFECT_0 dummy proc
     /// @p_EffectIndex : Effect index
-    void spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::HandleDummy(SpellEffIndex p_EffectIndex)
+    void spell_garrison_hearthstone::spell_garrison_hearthstone_SpellScript::HandleDummy(SpellEffIndex /*p_EffectIndex*/)
     {
         Player * l_Player = GetCaster()->ToPlayer();
 
@@ -120,7 +120,7 @@ namespace MS { namespace Garrison
 
     /// Function called on server startup, if returns false script won't be used in core
     /// use for: dbc/template data presence/correctness checks
-    bool spell_garrison_portal::spell_garrison_portal_SpellScript::Validate(SpellInfo const* p_SpellEntry)
+    bool spell_garrison_portal::spell_garrison_portal_SpellScript::Validate(SpellInfo const* /*p_SpellEntry*/)
     {
         if (!sSpellMgr->GetSpellInfo(Spells::SpellGarrisonPortal))
             return false;
@@ -178,7 +178,7 @@ namespace MS { namespace Garrison
 
     /// On spell EFFECT_0 dummy proc
     /// @p_EffectIndex : Effect index
-    void spell_garrison_portal::spell_garrison_portal_SpellScript::HandleDummy(SpellEffIndex p_EffectIndex)
+    void spell_garrison_portal::spell_garrison_portal_SpellScript::HandleDummy(SpellEffIndex /*p_EffectIndex*/)
     {
         if (!GetCaster())
             return;
@@ -237,7 +237,7 @@ namespace MS { namespace Garrison
         return new spell_garrison_portal_SpellScript();
     }
 
-    void spell_garrison_shipyard::spell_garrison_shipyard_SpellScript::HandleDummy(SpellEffIndex p_EffectIndex)
+    void spell_garrison_shipyard::spell_garrison_shipyard_SpellScript::HandleDummy(SpellEffIndex /*p_EffectIndex*/)
     {
         Player * l_Player = GetCaster()->ToPlayer();
 
@@ -275,7 +275,7 @@ namespace MS { namespace Garrison
             {
                 PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
 
-                void OnTick(AuraEffect const* p_AurEff)
+                void OnTick(AuraEffect const* /*p_AurEff*/)
                 {
                     Unit* l_Caster = GetCaster();
                     WorldObject* l_Target = GetOwner();
@@ -290,7 +290,7 @@ namespace MS { namespace Garrison
                     }
                 }
 
-                void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
                 {
                     WorldObject* l_Target = GetOwner();
 
@@ -489,7 +489,7 @@ namespace MS { namespace Garrison
                     SpellWellRestedTrackingAura = 172424
                 };
 
-                void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+                void OnAuraApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
                 {
                     Unit* l_Owner = GetUnitOwner();
 
@@ -554,7 +554,7 @@ namespace MS { namespace Garrison
             {
                 PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript);
 
-                void OnUpdate(uint32 p_Diff)
+                void OnUpdate(uint32 /*p_Diff*/)
                 {
                     Unit* l_Owner = GetUnitOwner();
 

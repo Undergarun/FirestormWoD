@@ -61,7 +61,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature* p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Owner(nullptr)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_Owner(nullptr), m_SequenceSize(0)
     {
 
     }
