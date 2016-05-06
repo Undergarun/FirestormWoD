@@ -1141,6 +1141,7 @@ class spell_sha_spirit_link: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Fire Nova - 1535
 class spell_sha_fire_nova: public SpellScriptLoader
 {
@@ -1153,10 +1154,14 @@ class spell_sha_fire_nova: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                    if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                        caster->CastSpell(target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK, l_Caster->GetGUID()))
+                    l_Caster->CastSpell(l_Target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
             }
 
             SpellCastResult HandleCheckCast()
