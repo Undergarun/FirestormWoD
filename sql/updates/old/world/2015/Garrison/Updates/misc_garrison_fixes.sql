@@ -547,3 +547,8 @@
 	(19, 36281, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 36280, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 36219, 40, 3, "this quest needs garrison lvl 3 to be offered");
+
+-- Spell loots : 178444, 178445
+
+	UPDATE spell_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance + 7 WHERE entry = 178445;
+	UPDATE spell_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance + 4.6 WHERE entry = 178444;

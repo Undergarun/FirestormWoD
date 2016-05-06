@@ -3686,17 +3686,60 @@ class spell_hun_explosive_shot : public SpellScriptLoader
                 HeavyShot       = 167165
             };
 
+            uint32 l_ReminingAmount = 0;
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, l_Caster->GetGUID()))
+                    l_ReminingAmount = (l_AuraEffect->GetAmount() * l_AuraEffect->GetBase()->GetDuration()) / l_AuraEffect->GetBase()->GetMaxDuration();
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
                 if (l_Caster->HasAura(eSpells::T17Survival4P))
                     l_Caster->CastSpell(l_Caster, eSpells::HeavyShot, true);
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, l_Caster->GetGUID()))
+                {
+                    int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
+                    l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, DOT, l_AuraEffect->GetBase()->GetStackAmount());
+                    l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, DOT, l_AuraEffect->GetBase()->GetStackAmount());
+
+                    l_AuraEffect->SetAmount(l_Damage + l_ReminingAmount);
+                }
+            }
+
             void Register()
             {
+                BeforeHit += SpellHitFn(spell_hun_explosive_shot_SpellScript::HandleBeforeHit);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                AfterHit += SpellHitFn(spell_hun_explosive_shot_SpellScript::HandleAfterHit);
             }
         };
 
