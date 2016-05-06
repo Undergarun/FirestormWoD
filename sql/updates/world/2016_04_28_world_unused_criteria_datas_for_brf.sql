@@ -1,1 +1,0 @@
-DELETE FROM achievement_criteria_data WHERE criteria_id IN (24675, 24676, 24677);

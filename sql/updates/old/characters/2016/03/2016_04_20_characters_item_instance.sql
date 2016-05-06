@@ -1,0 +1,1 @@
+ALTER TABLE `item_instance` ADD COLUMN `enchantIllusionId` INT(10) UNSIGNED DEFAULT 0 NOT NULL AFTER `custom_flags`;
