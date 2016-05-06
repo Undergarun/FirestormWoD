@@ -828,21 +828,6 @@ void Player::UpdateParryPercentage()
 
 void Player::UpdateDodgePercentage()
 {
-    const float dodgeCap[MAX_CLASSES] =
-    {
-        90.6425f,     // Warrior
-        66.5675f,     // Paladin
-        145.5604f,    // Hunter
-        145.5604f,    // Rogue
-        150.3759f,    // Priest
-        90.6425f,     // DK
-        145.5604f,    // Shaman
-        150.3759f,    // Mage
-        150.3759f,    // Warlock
-        501.2531f,    // Monk
-        150.3759f     // Druid
-    };
-
     /*
         3.36 + 1.25 (3.36 + 1.25 from 221 agi) on offi -- enhancement shaman -- ask sovak if you dont understand
 

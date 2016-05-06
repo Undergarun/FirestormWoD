@@ -689,11 +689,11 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::GlyphOfShamanisticRage))
                 {
                     DispelChargesList l_DispelList;
-                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
+                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_MAGIC, l_DispelList);
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()))
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                             l_Caster->RemoveAura(itr.first);
                     }
                 }
@@ -1141,6 +1141,7 @@ class spell_sha_spirit_link: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Fire Nova - 1535
 class spell_sha_fire_nova: public SpellScriptLoader
 {
@@ -1153,10 +1154,14 @@ class spell_sha_fire_nova: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                    if (target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                        caster->CastSpell(target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK, l_Caster->GetGUID()))
+                    l_Caster->CastSpell(l_Target, SPELL_SHA_FIRE_NOVA_TRIGGERED, true);
             }
 
             SpellCastResult HandleCheckCast()
@@ -3600,8 +3605,52 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Stormstrike - 17364, Windstrike - 115356
+class spell_sha_stormstrike_windstrike : public SpellScriptLoader
+{
+    public:
+        spell_sha_stormstrike_windstrike() : SpellScriptLoader("spell_sha_stormstrike_windstrike") { }
+
+        class spell_sha_stormstrike_windstrike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_stormstrike_windstrike_AuraScript);
+
+            enum eSpells
+            {
+                Stormstrike = 17364,
+                Windstrike  = 115356
+            };
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::Stormstrike && l_Target->HasAura(eSpells::Windstrike, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::Windstrike, l_Caster->GetGUID());
+                else if (GetSpellInfo()->Id == eSpells::Windstrike && l_Target->HasAura(eSpells::Stormstrike, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::Stormstrike, l_Caster->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_sha_stormstrike_windstrike_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_stormstrike_windstrike_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_stormstrike_windstrike();
     new spell_sha_glyph_of_ascendance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();

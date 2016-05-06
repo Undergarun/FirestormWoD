@@ -975,7 +975,7 @@ namespace MS { namespace Garrison
     /// Get plot by position
     GarrisonPlotInstanceInfoLocation Manager::GetPlot(float p_X, float p_Y, float p_Z)
     {
-        GarrisonPlotInstanceInfoLocation    l_Plot;
+        GarrisonPlotInstanceInfoLocation l_Plot = { 0, 0, 0.0f, 0.0f, 0.0f, 0.0f} ;
 
         if (m_Owner && !m_Owner->IsInGarrison())
             return l_Plot;
@@ -4621,9 +4621,7 @@ namespace MS { namespace Garrison
             while ((1 /* ship type */ + 1 /* crew */ + l_AbilityCount) > p_Follower.Abilities.size())
             {
                 if (uint32 l_NewAbility = GenerateRandomTrait(FollowerType::Ship, p_Follower.Abilities))
-                {
                     p_Follower.Abilities.push_back(l_NewAbility);
-                }
             }
         }
         else if (p_Follower.IsNPC())
@@ -4633,9 +4631,7 @@ namespace MS { namespace Garrison
                 if ((CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) + CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2)) < 2)
                 {
                     if (uint32 l_NewAbility = GenerateRandomAbility(&p_Follower))
-                    {
                         p_Follower.Abilities.push_back(l_NewAbility);
-                    }
                 }
             }
 

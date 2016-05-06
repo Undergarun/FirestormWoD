@@ -1794,7 +1794,7 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             enum ImprovedDeathGrip
             {
-                Spell = 157367,
+                SpellId = 157367,
                 ChainsOfIce = 45524
             };
 
@@ -3483,10 +3483,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
 
             enum eSpells
             {
-                DeathCoilDamage     = 47632,
-                DeathCoilHeal       = 47633,
-                ShadowInfusion      = 91342,
-                DarkTransformation  = 93426
+                DeathCoilDamage         = 47632,
+                DeathCoilHeal           = 47633,
+                ShadowInfusion          = 91342,
+                DarkTransformation      = 93426,
+                DarkTranformationAura   = 63560
             };
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
@@ -3505,6 +3506,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                     return;
 
                 if (l_Player->HasAura(eSpells::DarkTransformation))
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr && l_Pet->HasAura(eSpells::DarkTranformationAura))
                     return;
 
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);

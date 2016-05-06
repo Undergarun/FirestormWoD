@@ -5206,6 +5206,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 17076: ///< Glyph of Rejuvenation
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
+            case 77495: ///< Mastery : Harmony
+                spellInfo->Effects[0].SpellClassMask[0] |= 0x80;
+                break;
             case 118047: ///< Pillage
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
                 spellInfo->Effects[0].TriggerSpell = 0;
