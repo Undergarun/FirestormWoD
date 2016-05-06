@@ -5254,6 +5254,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 break;
+            case 114925: ///< Demonic Calling
+                spellInfo->ProcFlags = 0;
+                break;
+            case 104317: ///< Wild Imp
+                spellInfo->CasterAuraState = 0;
+                break;
             case 51699:  ///< Honor Among Thieves (triggered)
             case 57934:  ///< Tricks of the Trade
             case 138275: ///< Cosmetic Visual (Lei Shen - Throne of Thunder)
@@ -5569,9 +5575,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 104316: ///< Imp Swarm
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 114736: ///< Disrupted Nether
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
                 break;
             case 126309: ///< Still Water
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
