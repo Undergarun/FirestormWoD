@@ -2701,6 +2701,7 @@ class Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
+        bool m_IsOutdoors;
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }

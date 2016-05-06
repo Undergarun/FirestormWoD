@@ -604,21 +604,28 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             l_Player->GetSession()->SendPacket(&l_Data);
                         }
                     }
+                    std::list<Unit*> l_ListUnit;
+                    l_ListUnit.push_back(l_Player);
+                    if (Pet* l_Pet = l_Player->GetPet())
+                        l_ListUnit.push_back(l_Pet);
 
-                    // remove auras with duration lower than 30s
-                    Unit::AuraApplicationMap & auraMap = l_Player->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                    for (Unit* l_Unit : l_ListUnit)
                     {
-                        AuraApplication * aurApp = iter->second;
-                        Aura* aura = aurApp->GetBase();
-                        if (!aura->IsPermanent()
-                            && aura->GetDuration() <= 30*IN_MILLISECONDS
-                            && aurApp->IsPositive()
-                            && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
-                            && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                            l_Player->RemoveAura(iter);
-                        else
-                            ++iter;
+                        // remove auras with duration lower than 30s
+                        Unit::AuraApplicationMap & auraMap = l_Unit->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        {
+                            AuraApplication * aurApp = iter->second;
+                            Aura* aura = aurApp->GetBase();
+                            if (!aura->IsPermanent()
+                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
+                                && aurApp->IsPositive()
+                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
+                                l_Unit->RemoveAura(iter);
+                            else
+                                ++iter;
+                        }
                     }
                 }
 

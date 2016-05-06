@@ -1276,6 +1276,7 @@ public:
             WordOfMendingAura = 152117,
             WordOfMendingProc = 155363,
             WordOfMendingStack = 155362,
+            Archangel           = 81700
         };
 
         void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
@@ -1285,6 +1286,9 @@ public:
                 return;
 
             p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+
+            if (AuraEffect* l_AuraEffect = l_Caster->GetAuraEffect(eSpells::Archangel, EFFECT_0))
+                p_Amount += CalculatePct(p_Amount, l_AuraEffect->GetAmount());
 
             if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
             {
