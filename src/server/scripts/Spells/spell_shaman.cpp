@@ -3597,8 +3597,52 @@ public:
     }
 };
 
+/// Last Update 6.2.3
+/// Stormstrike - 17364, Windstrike - 115356
+class spell_sha_stormstrike_windstrike : public SpellScriptLoader
+{
+    public:
+        spell_sha_stormstrike_windstrike() : SpellScriptLoader("spell_sha_stormstrike_windstrike") { }
+
+        class spell_sha_stormstrike_windstrike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_stormstrike_windstrike_AuraScript);
+
+            enum eSpells
+            {
+                Stormstrike = 17364,
+                Windstrike  = 115356
+            };
+
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == eSpells::Stormstrike && l_Target->HasAura(eSpells::Windstrike, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::Windstrike, l_Caster->GetGUID());
+                else if (GetSpellInfo()->Id == eSpells::Windstrike && l_Target->HasAura(eSpells::Stormstrike, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(eSpells::Stormstrike, l_Caster->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_sha_stormstrike_windstrike_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_stormstrike_windstrike_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
+    new spell_sha_stormstrike_windstrike();
     new spell_sha_glyph_of_ascendance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_glyph_of_flame_shock();
