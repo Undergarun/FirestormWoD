@@ -680,6 +680,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_zoneUpdateTimer = 0;
 
     m_areaUpdateId = 0;
+    m_IsOutdoors = false;
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
