@@ -74,7 +74,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature* p_Creature) const;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
     };
 
 }   ///< namespace Garrison

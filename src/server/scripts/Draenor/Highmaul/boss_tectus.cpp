@@ -896,7 +896,7 @@ class npc_highmaul_night_twisted_supplicant : public CreatureScript
                 return false;
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr || p_SpellInfo->Id != eSpell::NightTwistedCovenant)
                     return;
@@ -1692,7 +1692,7 @@ class spell_highmaul_accretion : public SpellScriptLoader
 
             uint32 m_DamageTaken;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTaken = 0;
                 return true;
@@ -1919,7 +1919,7 @@ class spell_highmaul_raving_assault : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;

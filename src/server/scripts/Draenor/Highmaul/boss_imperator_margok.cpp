@@ -1674,7 +1674,7 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 MS::AI::CosmeticAI::UpdateAI(p_Diff);
 
@@ -2018,7 +2018,7 @@ class npc_highmaul_destructive_resonance_replication : public CreatureScript
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 MS::AI::CosmeticAI::UpdateAI(p_Diff);
 
@@ -2246,7 +2246,7 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
                 me->CastSpell(me, eSpells::AlphaFadeOut, true);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 MS::AI::CosmeticAI::UpdateAI(p_Diff);
 
@@ -2395,7 +2395,7 @@ class npc_highmaul_arcane_remnant : public CreatureScript
                 });
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 MS::AI::CosmeticAI::UpdateAI(p_Diff);
 
@@ -3091,7 +3091,7 @@ class spell_highmaul_dominance_aura : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;

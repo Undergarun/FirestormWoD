@@ -813,7 +813,7 @@ class shadowmoon_burial_grounds_sadana_creature_falling_dagger : public Creature
             events.ScheduleEvent(eSadanaEvents::EventDaggerFallMovement, 2 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
             switch (p_Id)
             {

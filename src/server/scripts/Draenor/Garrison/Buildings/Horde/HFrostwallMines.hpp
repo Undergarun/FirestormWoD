@@ -194,7 +194,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature * p_Creature) const;
+            CreatureAI* GetAI(Creature * p_Creature) const override;
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance

@@ -67,7 +67,7 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 return false;
             }
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 if (p_Action == eAction::ActionMove)
                 {
@@ -79,7 +79,7 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -4010,7 +4010,7 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;

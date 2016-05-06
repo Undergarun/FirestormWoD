@@ -752,7 +752,7 @@ class auchindon_kaathar_areatrigger_fissure : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             for (auto l_Guid : m_Targets)
             {

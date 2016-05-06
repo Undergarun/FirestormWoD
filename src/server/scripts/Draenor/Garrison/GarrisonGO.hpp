@@ -175,7 +175,7 @@ namespace MS { namespace Garrison
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance
             /// @p_GameObject : Target GameObject instance
-            bool OnGossipHello(Player * p_Player, GameObject * p_GameObject);
+            bool OnGossipHello(Player * p_Player, GameObject * p_GameObject) override;
 
             struct go_garrison_timberAI : public GameObjectAI
             {

@@ -45,7 +45,7 @@ class boss_rukhmar : public CreatureScript
             float m_ZRef;
             float m_ZNew;
 
-            void Reset()
+            void Reset() override
             {
                 m_ZRef               = 0.0f;
                 me->m_CombatDistance = 90.0f;
@@ -91,7 +91,7 @@ class boss_rukhmar : public CreatureScript
                   m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 38000);
             }
 
-            void EnterCombat(Unit* p_Who) override
+            void EnterCombat(Unit* /*p_Who*/) override
             {
                 me->SetHomePosition(*me);
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
@@ -149,7 +149,7 @@ class boss_rukhmar : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_MoveType, uint32 p_ID) override
+            void MovementInform(uint32 /*p_MoveType*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -449,8 +449,6 @@ class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript);
 
-            uint64 m_MainTarget;
-
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -545,7 +543,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
         {
             PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 WorldObject* l_Owner = GetOwner();
 

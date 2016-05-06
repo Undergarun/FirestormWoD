@@ -51,7 +51,7 @@ namespace MS { namespace Garrison
 
             /// On AI Update
             /// @p_Diff : Time since last update
-            virtual void UpdateAI(const uint32 p_Diff)
+            virtual void UpdateAI(const uint32 p_Diff) override
             {
                 m_NextUpdate -= p_Diff;
 

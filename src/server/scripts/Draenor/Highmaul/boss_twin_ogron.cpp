@@ -1326,7 +1326,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;
@@ -1391,7 +1391,7 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
 
             uint32 m_CheckTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_CheckTimer = 200;
                 return true;

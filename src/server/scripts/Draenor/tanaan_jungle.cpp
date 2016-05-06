@@ -310,7 +310,7 @@ class playerScript_cavern_teleport : public PlayerScript
 
         void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
         {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde || p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly)
+            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde || (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly))
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
@@ -331,7 +331,7 @@ class playerScript_cavern_teleport : public PlayerScript
 
         void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
         {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde || p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly)
+            if ((p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde) || (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly))
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
@@ -374,7 +374,7 @@ class playerScript_map_shift : public PlayerScript
 
         void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
         {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde || p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly)
+            if ((p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde) || (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly))
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
@@ -399,7 +399,7 @@ class playerScript_map_shift : public PlayerScript
 
         void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
         {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde || p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly)
+            if ((p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde) || (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly))
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
@@ -456,7 +456,7 @@ class playerScript_gunpowder_plot : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string /*p_Event*/) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -568,7 +568,7 @@ class playerScript_the_home_stretch : public PlayerScript
 
         void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
         {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
+            if ((p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly) || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
@@ -577,7 +577,7 @@ class playerScript_the_home_stretch : public PlayerScript
 
         void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
         {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
+            if ((p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly) || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
             {
                 if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
                     p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
@@ -786,7 +786,7 @@ class playerScript_a_potential_ally : public PlayerScript
                 p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
         }
 
-        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
         {
             switch (p_Quest->GetQuestId())
             {
@@ -1112,7 +1112,7 @@ class playerScript_enter_tanaan : public PlayerScript
                 UpdatePhaseMask(p_Player);
         }
 
-        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+        void OnQuestAbandon(Player* p_Player, const Quest* /*p_Quest*/) override
         {
             if (p_Player->GetZoneId() == TanaanZones::ZoneTanaanJungle)
                 UpdatePhaseMask(p_Player);
@@ -1181,7 +1181,7 @@ class npc_archmage_khadgar : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/) override
         {
             switch (p_Quest->GetQuestId())
             {
@@ -1309,7 +1309,7 @@ class npc_archmage_khadgar : public CreatureScript
             return true;
         }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_archmage_khadgarAI(creature);
         }
@@ -1328,7 +1328,7 @@ class npc_archmage_khadgar : public CreatureScript
             std::map<uint64, uint32> m_PlayerTimers;
             std::set<uint64> m_PlayerGuids;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
             }
@@ -1405,7 +1405,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
 
             clock_t m_LastVictimSearch;
 
-            void Reset()
+            void Reset() override
             {
                 m_LastVictimSearch = clock() + Constants::SearchVictimInterval + urand(100, 1654);  ///< Dont make all attacker sync
                 me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -1509,7 +1509,7 @@ class npc_iron_grunt : public CreatureScript
                 Mumper     = 2
             };
 
-            void Reset()
+            void Reset() override
             {
                 m_HasReset = false;
 
@@ -1568,7 +1568,7 @@ class npc_iron_grunt : public CreatureScript
                 return false;
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
                 m_HasReset = true;
                 CreatureAI::EnterEvadeMode();
@@ -1712,7 +1712,7 @@ class npc_tormented_soul : public CreatureScript
         {
             npc_tormented_soulAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 me->setFaction(eFactions::FactionAggressive);
                 me->AddAura(TanaanSpells::SpellAuraTormentedSoul, me);
@@ -1779,7 +1779,7 @@ class npc_tanaan_ariok : public CreatureScript
             bool m_IsSummoned;
             uint64 m_PlayerGuid;
 
-            void Reset()
+            void Reset() override
             {
                 m_IsSummoned = false;
                 m_PlayerGuid = 0;
@@ -1836,7 +1836,7 @@ class npc_tanaan_ariok : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_tanaan_ariokAI(creature);
         }
@@ -1924,7 +1924,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestKargatharProvingGrounds)
             {
@@ -1940,7 +1940,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
             return true;
         }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_archmage_khadgar_bridgeAI(creature);
         }
@@ -1954,7 +1954,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
             uint64 m_PlayerForSceneGuid;
             uint32 m_SceneTimer;
 
-            void Reset()
+            void Reset() override
             {
                 m_DestroyTimer       = 0;
                 m_PlayerAltarGuid    = 0;
@@ -2169,7 +2169,7 @@ class npc_kargath_bladefist : public CreatureScript
         {
             npc_kargath_bladefistAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
@@ -2346,7 +2346,7 @@ class npc_archmage_khadgar_shadowmoon : public CreatureScript
             return true;
         }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_archmage_khadgar_shadowmoonAI(creature);
         }
@@ -2358,7 +2358,7 @@ class npc_archmage_khadgar_shadowmoon : public CreatureScript
             uint16 m_SceneTimer;
             uint64 p_PlayerGuid;
 
-            void Reset()
+            void Reset() override
             {
                 p_PlayerGuid = 0;
                 m_SceneTimer = 0;
@@ -2552,7 +2552,7 @@ class npc_tanaan_yrel_summon : public CreatureScript
             EventMap m_Events;
             uint64 m_PlayerGuid;
 
-            void Reset()
+            void Reset() override
             {
                 me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             }
@@ -2655,7 +2655,7 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
         {
         }
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_exarch_maladaar_tanaan_caveAI(p_Creature);
         }
@@ -2774,7 +2774,7 @@ class npc_cordana_felsong_blackrock : public CreatureScript
             return false;
         }
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_cordana_felsong_blackrockAI(p_Creature);
         }
@@ -2790,7 +2790,7 @@ class npc_cordana_felsong_blackrock : public CreatureScript
             uint64 m_PlayerGuid;
             bool m_Summoned;
 
-            void Reset()
+            void Reset() override
             {
                 me->AddAura(TanaanSpells::SpellCoverOfElune, me);
             }
@@ -2861,7 +2861,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
             return false;
         }
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_lady_liadrin_blackrockAI(p_Creature);
         }
@@ -2985,7 +2985,7 @@ class npc_ogron_warcrusher : public CreatureScript
                 EventAddaura = 1
             };
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
                 m_Events.ScheduleEvent(EventAddaura, 3000);
@@ -3139,7 +3139,7 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
             return true;
         }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_thaelin_darkanvil_tanaanAI(creature);
         }
@@ -3160,7 +3160,7 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
             uint64 m_PlayerGuid;
             bool m_Summoned;
 
-            void Reset()
+            void Reset() override
             {
                 m_Summoned = false;
                 m_Events.Reset();
@@ -3291,7 +3291,7 @@ class npc_tanaan_gogluk : public CreatureScript
         {
             npc_tanaan_goglukAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 Position l_Pos;
                 me->GetPosition(&l_Pos);
@@ -3341,7 +3341,7 @@ class npc_tanaan_gogluk : public CreatureScript
                 }
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
                 if (me->IsVehicle())
                 {
@@ -3383,7 +3383,7 @@ class npc_tanaan_gogluk_adds : public CreatureScript
                 EventMachineGun    = 2
             };
 
-            void DoAction(int32 const p_Action)
+            void DoAction(int32 const p_Action) override
             {
                 switch (me->GetEntry())
                 {
@@ -3460,7 +3460,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
             return false;
         }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_thaelin_tanaan_questgiverAI(creature);
         }
@@ -3617,7 +3617,7 @@ class npc_black_rock_trigger : public CreatureScript
             std::map<uint64, uint32> m_PlayerTimers;
             std::set<uint64> m_PlayerGuids;
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
             }
@@ -3773,7 +3773,7 @@ class npc_tanaan_napestone_riverbeast : public CreatureScript
                 SpellWhipSplash = 167439
             };
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
             }
@@ -3824,7 +3824,7 @@ class npc_tanaan_mandragora : public CreatureScript
                 SpellImpactSplit = 161299
             };
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
             }
@@ -3882,7 +3882,7 @@ class npc_tanaan_overseer_gotrigg : public CreatureScript
                 SpellBurningRadiance = 166403
             };
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
             }
@@ -3938,7 +3938,7 @@ class npc_tanaan_arena_helper : public CreatureScript
                 EventCheckEnnemies = 1
             };
 
-            void Reset()
+            void Reset() override
             {
                 m_Events.Reset();
 
@@ -3951,7 +3951,7 @@ class npc_tanaan_arena_helper : public CreatureScript
                 m_Events.CancelEvent(EventCheckEnnemies);
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
                 m_Events.ScheduleEvent(eDatas::EventCheckEnnemies, 1000);
             }
@@ -4183,7 +4183,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
             gob_worldbreaker_side_turretAI(GameObject* p_Go) : GameObjectAI(p_Go) { go->SetCancelAnim(true); }
         };
 
-        GameObjectAI* GetAI(GameObject* p_Go) const
+        GameObjectAI* GetAI(GameObject* p_Go) const override
         {
             return new gob_worldbreaker_side_turretAI(p_Go);
         }

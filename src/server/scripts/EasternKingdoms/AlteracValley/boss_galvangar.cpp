@@ -81,7 +81,7 @@ public:
             return true;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim() || !CheckInRoom())
                 return;

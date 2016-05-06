@@ -492,7 +492,7 @@ class spell_ashran_vile_blood : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_vile_blood_AuraScript);
 
-            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 

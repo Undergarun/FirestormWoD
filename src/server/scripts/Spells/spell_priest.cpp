@@ -3214,7 +3214,7 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                 }
             }
 
-            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 

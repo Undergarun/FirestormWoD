@@ -1283,7 +1283,7 @@ class spell_highmaul_flamethrower_aura : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_flamethrower_aura_SpellScript();
         }

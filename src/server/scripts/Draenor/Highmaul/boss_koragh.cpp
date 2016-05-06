@@ -741,7 +741,7 @@ class npc_highmaul_breaker_of_fel : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventFelNova, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -848,7 +848,7 @@ class npc_highmaul_breaker_of_fire : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -986,7 +986,7 @@ class npc_highmaul_breaker_of_frost : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventFrozenCore, 4 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* p_Killer) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -1148,7 +1148,7 @@ class spell_highmaul_frozen_core : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 200;
                 return true;
@@ -1208,7 +1208,7 @@ class spell_highmaul_wild_flames_areatrigger : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 500;
                 return true;
@@ -1286,7 +1286,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
 
             int32 m_AbsorbAmount;
 
-            bool Load()
+            bool Load() override
             {
                 m_AbsorbAmount = 0;
                 return true;
@@ -1374,7 +1374,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
 
             uint32 m_DamageTimer;
 
-            bool Load()
+            bool Load() override
             {
                 m_DamageTimer = 200;
                 return true;
