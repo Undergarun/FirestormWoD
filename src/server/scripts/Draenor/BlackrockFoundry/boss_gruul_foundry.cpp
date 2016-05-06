@@ -190,7 +190,7 @@ class boss_gruul_foundry : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -215,7 +215,7 @@ class boss_gruul_foundry : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -353,7 +353,7 @@ class boss_gruul_foundry : public CreatureScript
                 }
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* /*p_Victim*/, uint32& /*p_Damage*/, DamageEffectType p_DamageType) override
             {
                 if (p_DamageType != DamageEffectType::DIRECT_DAMAGE)
                     return;
@@ -362,13 +362,13 @@ class boss_gruul_foundry : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventOverwhelmingBlows, 3 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Gruul only regens by script
                 p_Value = 0;
             }
 
-            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask p_SchoolMask, SpellInfo const* p_SpellInfo) override
+            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const* p_SpellInfo) override
             {
                 if (me->HasAura(eSpells::SpellDestructiveRampage))
                     p_Threat = 0;
@@ -625,7 +625,7 @@ class npc_foundry_pristine_true_iron_ore : public CreatureScript
                 }
             }
 
-            void OnSpellClick(Unit* p_Clicker) override
+            void OnSpellClick(Unit* /*p_Clicker*/) override
             {
                 if (m_Instance != nullptr && !m_Clicked)
                 {
@@ -712,7 +712,7 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
                 m_TargetCount = (uint8)p_Targets.size();
             }
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (m_TargetCount)
                     SetHitDamage(GetHitDamage() / m_TargetCount);
@@ -761,7 +761,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
 
             std::set<uint64> m_AffectedPlayers;
 
-            void OnUpdate(uint32 p_Diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -806,7 +806,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -981,7 +981,7 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
                 });
             }
 
-            void HandleKnockBack(SpellEffIndex p_EffIndex)
+            void HandleKnockBack(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Boss = GetCaster())
                 {

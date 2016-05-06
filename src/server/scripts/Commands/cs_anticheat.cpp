@@ -245,7 +245,7 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatGlobalCommand(ChatHandler* handler, const char* args)
+    static bool HandleAntiCheatGlobalCommand(ChatHandler* handler, const char* /*args*/)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         {

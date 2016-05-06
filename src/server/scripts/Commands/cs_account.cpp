@@ -591,7 +591,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountUpdateBalanceCommand(ChatHandler* p_Handler, const char* p_Args)
+    static bool HandleAccountUpdateBalanceCommand(ChatHandler* /*p_Handler*/, const char* p_Args)
     {
         uint32 l_AccountID  = 0;
         uint32 l_NewBalance = 0;

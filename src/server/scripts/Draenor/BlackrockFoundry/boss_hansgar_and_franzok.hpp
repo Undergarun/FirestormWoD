@@ -396,7 +396,7 @@ class StampingPressActivation : public BasicEvent
         StampingPressActivation(uint64 p_Guid, uint32 p_AnimID, bool p_Maintain) : m_Guid(p_Guid), m_AnimID(p_AnimID), m_Maintain(p_Maintain), BasicEvent() { }
         virtual ~StampingPressActivation() { }
 
-        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
+        virtual bool Execute(uint64 /*p_EndTime*/, uint32 /*p_Time*/)
         {
             if (GameObject* l_GameObject = HashMapHolder<GameObject>::Find(m_Guid))
             {
@@ -409,7 +409,7 @@ class StampingPressActivation : public BasicEvent
             return true;
         }
 
-        virtual void Abort(uint64 p_EndTime) { }
+        virtual void Abort(uint64 /*p_EndTime*/) { }
 
     private:
         uint64 m_Guid;

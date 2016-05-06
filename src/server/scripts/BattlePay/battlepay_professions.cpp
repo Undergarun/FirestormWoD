@@ -65,7 +65,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
     public:
         BattlePay_Profession(std::string p_ScriptName) : BattlePayProductScript(p_ScriptName) {}
 
-        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& p_Product)
+        void OnProductDelivery(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)
@@ -96,7 +96,7 @@ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePa
             l_Player->SaveToDB();
         }
 
-        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& p_Product, std::string& p_Reason)
+        bool CanBuy(WorldSession* p_Session, Battlepay::Product const& /*p_Product*/, std::string& p_Reason)
         {
             Player* l_Player = p_Session->GetPlayer();
             if (l_Player == nullptr)

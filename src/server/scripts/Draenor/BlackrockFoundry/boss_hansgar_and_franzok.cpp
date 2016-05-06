@@ -220,7 +220,7 @@ class boss_hansgar : public CreatureScript
                 RespawnBrothers(me, m_Instance);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
@@ -312,7 +312,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::NotReady))
                     return;
@@ -387,7 +387,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 /// Handle Crippling Suplex
                 if (p_Apply && (m_State == eStates::FranzokOut))
@@ -486,7 +486,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -553,7 +553,7 @@ class boss_hansgar : public CreatureScript
                 return 0;
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 if (m_IntroTrashs.find(p_Guid) != m_IntroTrashs.end())
                     m_IntroTrashs.erase(p_Guid);
@@ -591,7 +591,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Hans'gar only regens by script
                 p_Value = 0;
@@ -1192,7 +1192,7 @@ class boss_franzok : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
@@ -1259,7 +1259,7 @@ class boss_franzok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::NotReady))
                     return;
@@ -1350,7 +1350,7 @@ class boss_franzok : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 /// Handle Crippling Suplex
                 if (p_Apply && (m_State == eStates::HansgarOut1 || m_State == eStates::HansgarOut2))
@@ -1423,7 +1423,7 @@ class boss_franzok : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 switch (p_ID)
                 {
@@ -1483,7 +1483,7 @@ class boss_franzok : public CreatureScript
                 return 0;
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Hans'gar only regens by script
                 p_Value = 0;
@@ -1966,7 +1966,7 @@ class npc_foundry_scorching_burns : public CreatureScript
                 ClearDelayedOperations();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }
@@ -2140,7 +2140,7 @@ class npc_foundry_stamping_presses : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }
@@ -2225,7 +2225,7 @@ class spell_foundry_pumped_up : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_pumped_up_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2267,7 +2267,7 @@ class spell_foundry_crippling_suplex : public SpellScriptLoader
         {
             PrepareSpellScript(spell_foundry_crippling_suplex_SpellScript);
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -2319,7 +2319,7 @@ class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
                 BodySlam = 155747
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)

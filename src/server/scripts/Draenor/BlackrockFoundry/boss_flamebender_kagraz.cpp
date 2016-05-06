@@ -260,7 +260,7 @@ class boss_flamebender_kagraz : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 Talk(eTalks::TalkDeath);
 
@@ -448,7 +448,7 @@ class boss_flamebender_kagraz : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Flamebender Ka'graz only regens by script
                 p_Value = 0;
@@ -710,7 +710,7 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (p_ID == eSpells::DropTheHammerJump)
                     me->CastSpell(me, eSpells::DropTheHammerAoE, false);
@@ -743,7 +743,7 @@ class npc_foundry_aknor_steelbringer : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -837,7 +837,7 @@ class npc_foundry_flamebender_kagraz_trigger : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_LavaSlashTarget = p_Guid;
 
@@ -968,7 +968,7 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 AddTimedDelayedOperation(50, [this, p_Guid]() -> void
                 {
@@ -977,7 +977,7 @@ class npc_foundry_kagraz_enchanted_armament : public CreatureScript
                 });
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }
@@ -1186,12 +1186,12 @@ class npc_foundry_molten_torrent_stalker : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->RemoveAura(eSpells::PrefightCosmeticsStalker);
             }
 
-            void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) override
+            void AreaTriggerDespawned(AreaTrigger* /*p_AreaTrigger*/) override
             {
                 if (Unit* l_Target = Unit::GetUnit(*me, m_MoltenTorrentTarget))
                     me->CastSpell(l_Target, eSpells::MoltenTorrentVisual, true);
@@ -1214,7 +1214,7 @@ class npc_foundry_molten_torrent_stalker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
             {
                 switch (p_SpellInfo->Id)
                 {
@@ -1247,7 +1247,7 @@ class npc_foundry_molten_torrent_stalker : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_MoltenTorrentTarget = p_Guid;
             }
@@ -1299,7 +1299,7 @@ class npc_foundry_firestorm_stalker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
             {
                 switch (p_SpellInfo->Id)
                 {
@@ -1445,13 +1445,13 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_Rekindle)
                 {
@@ -1499,7 +1499,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1631,7 +1631,7 @@ class npc_foundry_cinder_wolf : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_OtherWolf = p_Guid;
             }
@@ -1704,7 +1704,7 @@ class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
                 DropTheHammer = 1
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetCaster() == nullptr)
