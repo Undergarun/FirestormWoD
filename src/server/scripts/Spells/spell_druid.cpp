@@ -5828,7 +5828,7 @@ class spell_dru_living_seed : public SpellScriptLoader
 
                 l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
                 if (AuraEffect* l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
-                    l_HealAmount = l_LivingSeed->GetAmount();
+                    l_HealAmount += l_LivingSeed->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Target, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);
             }
