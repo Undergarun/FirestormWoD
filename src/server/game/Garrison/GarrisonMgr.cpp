@@ -4760,7 +4760,7 @@ namespace MS { namespace Garrison
             {
                 if ((CountFollowerAbilitiesByType(p_Follower.DatabaseID, 0) + CountFollowerAbilitiesByType(p_Follower.DatabaseID, 2)) < 2)
                 {
-                    if (uint32 l_NewAbility = GenerateRandomAbility(&p_Follower))
+                    if (uint32 l_NewAbility = GenerateRandomAbility())
                         p_Follower.Abilities.push_back(l_NewAbility);
                 }
             }
