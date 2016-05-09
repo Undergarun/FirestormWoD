@@ -683,8 +683,6 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         }
     }
 
-    uint32 channelLength = 0; ///< channelLength is unused
-
     Player* speakerPlayer = NULL;
     if (speaker && speaker->IsPlayer())
         speakerPlayer = speaker->ToPlayer();

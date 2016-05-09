@@ -7353,7 +7353,7 @@ void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
     m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true);
 }
 
-void Spell::EffectUnlearnTalent(SpellEffIndex p_EffIndex)
+void Spell::EffectUnlearnTalent(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -7510,7 +7510,7 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     SendResurrectRequest(target);
 }
 
-void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
+void Spell::EffectTeleportToDigsite(SpellEffIndex /*p_EffectIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7905,7 +7905,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
 
 }
 
-void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
+void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7926,7 +7926,7 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo());
 }
 
-void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
+void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7948,7 +7948,7 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
         l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
 }
 
-void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
+void Spell::EffectGiveExperience(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -7983,7 +7983,7 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
     m_CastItem = nullptr;
 }
 
-void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
+void Spell::EffectGarrisonFinalize(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8031,7 +8031,7 @@ void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
     l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
 }
 
-void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
+void Spell::EffectResurectPetBattles(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -8053,12 +8053,12 @@ void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
     }
 }
 
-void Spell::EffectUncagePetBattle(SpellEffIndex effIndex)
+void Spell::EffectUncagePetBattle(SpellEffIndex /*effIndex*/)
 {
 
 }
 
-void Spell::EffectCanPetBattle(SpellEffIndex effIndex)
+void Spell::EffectCanPetBattle(SpellEffIndex /*effIndex*/)
 {
     if (!unitTarget)
         return;
@@ -8101,7 +8101,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     m_caster->CastSpell(l_Target, l_SpellInfo->Id, false);
 }
 
-void Spell::EffectBecomeUntargettable(SpellEffIndex p_EffIndex)
+void Spell::EffectBecomeUntargettable(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -8223,7 +8223,7 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
+void Spell::EffectCreateHeirloom(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -8299,7 +8299,7 @@ void Spell::EffectLearnFollowerAbility(SpellEffIndex p_EffIndex)
     l_Garrison->LearnFollowerTrait(m_Misc[0], m_Misc[1], GetSpellInfo(), p_EffIndex);
 }
 
-void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
+void Spell::EffectUpgradeHeirloom(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -8352,7 +8352,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     }
 }
 
-void Spell::EffectFinishGarrisonMission(SpellEffIndex p_EffIndex)
+void Spell::EffectFinishGarrisonMission(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;

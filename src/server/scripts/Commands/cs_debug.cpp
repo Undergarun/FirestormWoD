@@ -2736,7 +2736,7 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugLfgCommand(ChatHandler* p_Handler, char const * p_Args)
+        static bool HandleDebugLfgCommand(ChatHandler* p_Handler, char const * /*p_Args*/)
         {
             if (sLFGMgr->IsInDebug())
             {

@@ -17345,8 +17345,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         SetCantProc(false);
 }
 
-bool Unit::IsNoBreakingCC(bool isVictim, Unit* target, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellInfo const* procSpell,
-                          uint32 damage, uint32 absorb /* = 0 */, SpellInfo const* procAura /* = NULL */, SpellInfo const* spellInfo ) const ///< isVictim & procExtra & attType & damage & absorb & procAura are unused
+bool Unit::IsNoBreakingCC(bool /*isVictim*/, Unit* target, uint32 procFlag, uint32 /*procExtra*/, WeaponAttackType /*attType*/, SpellInfo const* procSpell,
+                          uint32 /*damage*/, uint32 /*absorb*/ /* = 0 */, SpellInfo const* /*procAura*/ /* = NULL */, SpellInfo const* spellInfo ) const
 {
     // Dragon Breath & Living Bomb
     if (spellInfo->GetCategory() == 1215 && procSpell &&

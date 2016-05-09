@@ -173,7 +173,6 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
     if (slotID == PET_SLOT_ACTUAL_PET_SLOT)
         slotID = owner->m_currentPetSlot;
 
-    uint32 ownerid = owner->GetGUIDLow(); ///< ownerID is never read 01/18/16
 
     PreparedQueryResult result = holder->GetPetResult();
 
@@ -272,10 +271,10 @@ void Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 /*petnumber*/, bo
     switch (cinfo->unit_class)
     {
         case CLASS_WARRIOR:
-            powerType = POWER_RAGE;  ///< powertype is never read 01/18/16
+            powerType = POWER_RAGE;
             break;
         case CLASS_ROGUE:
-            powerType = POWER_ENERGY; ///< powertype is never read 01/18/16
+            powerType = POWER_ENERGY;
             break;
     }
 
