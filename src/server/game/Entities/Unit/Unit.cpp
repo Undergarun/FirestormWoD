@@ -2092,7 +2092,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     newdamage = std::max((int)(damage - (damage * tmpvalue)), 1);
 
     if (spellInfo)
-        LOG_SPELL(this, spellInfo->Id, (char*) "Spell %s: CalcArmorReducedDamage(): %i - %f = %i", spellInfo->GetNameForLogging().c_str(), damage, tmpvalue * 100.0f, newdamage); ///<  ISO C++11 does not allow conversion from string literal to 'char *'
+        LOG_SPELL(this, spellInfo->Id, "Spell %s: CalcArmorReducedDamage(): %i - %f = %i", spellInfo->GetNameForLogging().c_str(), damage, tmpvalue * 100.0f, newdamage); ///<  ISO C++11 does not allow conversion from string literal to 'char *'
 
     return newdamage;
 }
@@ -11715,7 +11715,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
 
-    LOG_SPELL(this, spellProto->Id, (char*) "SpellDamageBonusDone(): Spell %s: ((%i + %i (DoneTotal)) * %f (SpellDamagePctDone)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneTotal, l_Multiplier, tempTmpDamage, tmpDamage - tempTmpDamage, tmpDamage); ///< ISO C++11 does not allow conversion from string literal to 'char *'
+    LOG_SPELL(this, spellProto->Id, "SpellDamageBonusDone(): Spell %s: ((%i + %i (DoneTotal)) * %f (SpellDamagePctDone)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneTotal, l_Multiplier, tempTmpDamage, tmpDamage - tempTmpDamage, tmpDamage); ///< ISO C++11 does not allow conversion from string literal to 'char *'
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
@@ -13460,7 +13460,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
 
     if (spellProto)
-        LOG_SPELL(this, spellProto->Id, (char*) "MeeleDamageBonusDone(): Spell %s: ((%i + %i (DoneFlatBenefit)) * %f (DoneTotalMod)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneFlatBenefit, DoneTotalMod, preTmpDamage, tmpDamage - preTmpDamage, tmpDamage); ///< ISO C++11 does not allow conversion from string literal to 'char *'
+        LOG_SPELL(this, spellProto->Id, "MeeleDamageBonusDone(): Spell %s: ((%i + %i (DoneFlatBenefit)) * %f (DoneTotalMod)) = %f + %f (Mods) = %f", spellProto->GetNameForLogging().c_str(), pdamage, DoneFlatBenefit, DoneTotalMod, preTmpDamage, tmpDamage - preTmpDamage, tmpDamage); ///< ISO C++11 does not allow conversion from string literal to 'char *'
 
     // bonus result can be negative
     return uint32(std::max(tmpDamage, 0.0f));
