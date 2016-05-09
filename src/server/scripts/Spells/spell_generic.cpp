@@ -5772,8 +5772,53 @@ class spell_gen_transmorphose : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Pvp Trinket - 42292
+class spell_gen_pvp_trinket : public SpellScriptLoader
+{
+    public:
+        spell_gen_pvp_trinket() : SpellScriptLoader("spell_gen_pvp_trinket") { }
+
+        class spell_gen_pvp_trinket_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_pvp_trinket_SpellScript);
+
+            enum eSpells 
+            {
+                AllianceTinketVisual    = 97403,
+                HordeTinketVisual       = 97404
+            };
+
+            void TriggerAnimation()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                switch (caster->GetTeam())
+                {
+                case ALLIANCE:
+                    caster->CastSpell(caster, eSpells::AllianceTinketVisual, TRIGGERED_FULL_MASK);
+                    break;
+                case HORDE:
+                    caster->CastSpell(caster, eSpells::HordeTinketVisual, TRIGGERED_FULL_MASK);
+                    break;
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_pvp_trinket_SpellScript::TriggerAnimation);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_pvp_trinket_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_pvp_trinket();
     new spell_gen_ironbeards_hat();
     new spell_gen_coin_of_many_faces();
     new spell_gen_jewel_of_hellfire();
