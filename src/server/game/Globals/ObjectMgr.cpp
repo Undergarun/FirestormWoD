@@ -10556,15 +10556,20 @@ void ObjectMgr::LoadQuestObjectives()
         if (_questTemplates.find(l_ObjectiveQuestId) == _questTemplates.end())
         {
             sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Quest Id %u! Skipping.", l_ObjectiveID, l_ObjectiveQuestId);
+            m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
             continue;
         }
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, l_ObjectiveQuestId, NULL))
+        {
+            m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
             continue;
+        }
 
         if (l_ObjectiveType >= QUEST_OBJECTIVE_TYPE_END)
         {
             sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid type %u! Skipping.", l_ObjectiveID, l_ObjectiveType);
+            m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
             continue;
         }
 
@@ -10585,6 +10590,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Creature Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10595,12 +10601,14 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!GetItemTemplate(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Item Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10611,12 +10619,14 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!GetGameObjectTemplate(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant GameObject Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid GameObject Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10627,6 +10637,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!sCurrencyTypesStore.LookupEntry(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Currency Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10645,12 +10656,14 @@ void ObjectMgr::LoadQuestObjectives()
                 else if (!SpellMgr::IsSpellValid(l_Spell))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Spell Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Spell Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10662,6 +10675,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!sFactionStore.LookupEntry(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Faction Id %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10672,6 +10686,7 @@ void ObjectMgr::LoadQuestObjectives()
                 if (l_Quest->GetQuestObjectiveCountType(l_ObjectiveType) >= 1)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", l_ObjectiveID, l_ObjectiveQuestId, l_ObjectiveType);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10682,18 +10697,21 @@ void ObjectMgr::LoadQuestObjectives()
                 if (!sBattlePetSpeciesStore.LookupEntry(l_ObjectiveObjectID))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has non existant Battle Pet Species %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
-                //if (!BattlePetSpeciesHasFlag(objectId, BATTLE_PET_FLAG_ELITE))
-                //{
-                //    sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Battle Pet Species %u, it doesn't have BATTLE_PET_FLAG_ELITE flag! Skipping.", id, objectId);
-                //    continue;
-                //}
+                ///if (!BattlePetSpeciesHasFlag(objectId, BATTLE_PET_FLAG_ELITE))
+                ///{
+                ///    sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Battle Pet Species %u, it doesn't have BATTLE_PET_FLAG_ELITE flag! Skipping.", id, objectId);
+                ///    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
+                ///    continue;
+                ///}
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has valid Item Id %u but amount %u is invalid! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10704,12 +10722,14 @@ void ObjectMgr::LoadQuestObjectives()
                 if (l_Quest->GetQuestObjectiveCountType(l_ObjectiveType) >= 1)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u is invalid, Quest %u already has the max amount of Quest Objective type %u! Skipping.", l_ObjectiveID, l_ObjectiveQuestId, l_ObjectiveType);
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
                 if (l_ObjectiveAmount <= 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Quest Objective %u has invalid Pet Battle PvP win amount %u! Skipping.", l_ObjectiveID, l_ObjectiveObjectID, l_ObjectiveAmount); ///< Data argument not used by format string
+                    m_IgnoredQuestObjectives.push_back(l_ObjectiveID);
                     continue;
                 }
 
@@ -10771,6 +10791,9 @@ void ObjectMgr::LoadQuestObjectiveLocales()
         uint32 l_ObjectiveID = l_Fields[0].GetUInt32();
         uint8 l_Locale = l_Fields[1].GetUInt8();
         std::string l_Description = l_Fields[2].GetString();
+
+        if (std::find(m_IgnoredQuestObjectives.begin(), m_IgnoredQuestObjectives.end(), l_ObjectiveID) != m_IgnoredQuestObjectives.end())
+            continue;
 
         if (!QuestObjectiveExists(l_ObjectiveID))
         {

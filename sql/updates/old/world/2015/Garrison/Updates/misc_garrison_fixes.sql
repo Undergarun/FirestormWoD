@@ -544,5 +544,18 @@
 
 -- Spell loots : 178444, 178445
 
-	UPDATE spell_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance + 7 WHERE entry = 178445;
-	UPDATE spell_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance + 4.6 WHERE entry = 178444;
+	DELETE FROM spell_loot_template WHERE entry = 178444;
+	INSERT INTO spell_loot_template VALUES
+	(178444, 114745, 50, 1, 1, 1, 1, ''),
+	(178444, 114808, 35, 1, 1, 1, 1, ''),
+	(178444, 114822, 15, 1, 1, 1, 1, '');
+
+	DELETE FROM spell_loot_template WHERE entry = 178444;
+	INSERT INTO spell_loot_template VALUES
+	(178444, 114128, 50, 1, 1, 1, 1, ''),
+	(178444, 114129, 35, 1, 1, 1, 1, ''),
+	(178444, 114131, 15, 1, 1, 1, 1, '');
+
+#85048/NPC - Farmer LokLub
+
+	UPDATE creature_template SET name = "Farmer Lok'Lub" WHERE entry = 85048;
