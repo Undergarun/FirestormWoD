@@ -4126,7 +4126,8 @@ namespace MS { namespace Garrison
                     l_CurrentAvailableMission++;
             });
 
-            if (l_CurrentAvailableMission < l_MaxMissionCount)
+            /// Temp cancel changes due to 79f3871dfffa4181fdcc739285da84c7fffbefa4
+            /*if (l_CurrentAvailableMission < l_MaxMissionCount)
             {
                 uint32 l_AVGFollowerLevel = 0;
                 uint32 l_MaxFollowerItemLevel = 600;
@@ -4284,7 +4285,109 @@ namespace MS { namespace Garrison
                         AddMission(l_Candidates[l_I]->MissionRecID);
                 }
             }
+            */
 
+            if (l_CurrentAvailableMission < l_MaxMissionCount)
+            {
+                uint32 l_MaxFollowerLevel = 90;
+                uint32 l_MaxFollowerItemLevel = 600;
+
+                std::for_each(m_Followers.begin(), m_Followers.end(), [&l_MaxFollowerLevel, &l_MaxFollowerItemLevel](const GarrisonFollower & p_Follower) -> void
+                {
+                    if (!p_Follower.IsNPC())
+                        return;
+
+                    l_MaxFollowerLevel      = std::max(l_MaxFollowerLevel, (uint32)p_Follower.Level);
+                    l_MaxFollowerItemLevel  = std::max(l_MaxFollowerItemLevel, (uint32)((p_Follower.ItemLevelArmor + p_Follower.ItemLevelWeapon) / 2));
+                });
+
+                std::vector<const GarrMissionEntry*> l_Candidates;
+
+                for (uint32 l_I = 0; l_I < sGarrMissionStore.GetNumRows(); ++l_I)
+                {
+                    GarrMissionEntry const* l_Entry = sGarrMissionStore.LookupEntry(l_I);
+
+                    if (!l_Entry)
+                        continue;
+
+                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
+                    {
+                        return p_Mission.MissionID == l_Entry->MissionRecID;
+                    });
+
+                    if (l_Count)
+                        continue;
+
+                    if (l_Entry->RequiredFollowersCount > m_Followers.size())
+                        continue;
+
+                    if (l_Entry->Duration <= 10)
+                        continue;
+
+                    if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
+                        continue;
+
+                    uint32 l_RewardCount = 0;
+                    for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
+                    {
+                        GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
+
+                        if (!l_RewardEntry)
+                            continue;
+
+                        if (l_RewardEntry->MissionID != l_Entry->MissionRecID)
+                            continue;
+
+                        /// Elemental Rune & Abrogator Stone - Legendary Questline  NYI
+                        if (l_RewardEntry->ItemID == 115510 || l_RewardEntry->ItemID == 115280)
+                        {
+                            l_RewardCount = 0;
+                            break;
+                        }
+
+                        ++ l_RewardCount;
+                    }
+
+                    /// All missions should have a reward
+                    if (!l_RewardCount)
+                        continue;
+
+                    /// Max Level cap : 2
+                    if (l_Entry->RequiredLevel > (int32)(l_MaxFollowerLevel + 2))
+                        continue;
+
+                    if (l_Entry->RequiredItemLevel > (int32)l_MaxFollowerItemLevel)
+                        continue;
+
+                    /// Ships NYI
+                    if (l_Entry->FollowerType != MS::Garrison::FollowerType::NPC)
+                        continue;
+
+                    /// We are getting too many rare missions compared to retail
+                    if (l_Entry->Flags & MS::Garrison::MissionFlags::Rare)
+                    {
+                        if (urand(0, 100) >= 15)
+                            continue;
+                    }
+
+                    l_Candidates.push_back(l_Entry);
+                }
+
+                uint32 l_ShuffleCount = std::rand() % 4;
+
+                for (uint32 l_I = 0; l_I < l_ShuffleCount; ++l_I)
+                    std::random_shuffle(l_Candidates.begin(), l_Candidates.end());
+
+                int32 l_MissionToAddCount = (int32)l_MaxMissionCount - (int32)l_CurrentAvailableMission;
+
+                if (l_MissionToAddCount > 0)
+                {
+                    l_MissionToAddCount = std::min(l_MissionToAddCount, (int32)l_Candidates.size());
+
+                    for (int32 l_I = 0; l_I < l_MissionToAddCount; ++l_I)
+                        AddMission(l_Candidates[l_I]->MissionRecID);
+                }
+            }
             m_MissionDistributionLastUpdate = time(0);
         }
     }
@@ -4502,7 +4605,34 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
+    /// TODO: Only class specific - not fully random
+    uint32 Manager::GenerateRandomAbility()
+    {
+        std::vector<uint32> l_PossibleEntiers;
+
+        for (uint32 l_ID = 0; l_ID < sGarrAbilityStore.GetNumRows(); ++l_ID)
+        {
+            GarrAbilityEntry const* l_Entry = sGarrAbilityStore.LookupEntry(l_ID);
+
+            if (!l_Entry)
+                continue;
+
+            if (l_Entry->FollowerType != FollowerType::NPC)
+                continue;
+
+            if (l_Entry->AbilityType != 0)
+                continue;
+
+            l_PossibleEntiers.push_back(l_Entry->ID);
+        }
+
+        if (!l_PossibleEntiers.size())
+            return 0;
+
+        return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
+    }
+
+    /*uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
     {
         std::vector<uint32> l_PossibleEntiers;
 
@@ -4534,7 +4664,7 @@ namespace MS { namespace Garrison
             return 0;
 
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
-    }
+    }*/
 
     uint32 Manager::GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities)
 {
