@@ -541,3 +541,21 @@
 	(19, 36281, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 36280, 40, 3, "this quest needs garrison lvl 3 to be offered"),
 	(19, 36219, 40, 3, "this quest needs garrison lvl 3 to be offered");
+
+-- Spell loots : 178444, 178445
+
+	DELETE FROM spell_loot_template WHERE entry = 178444;
+	INSERT INTO spell_loot_template VALUES
+	(178444, 114745, 50, 1, 1, 1, 1, ''),
+	(178444, 114808, 35, 1, 1, 1, 1, ''),
+	(178444, 114822, 15, 1, 1, 1, 1, '');
+
+	DELETE FROM spell_loot_template WHERE entry = 178444;
+	INSERT INTO spell_loot_template VALUES
+	(178444, 114128, 50, 1, 1, 1, 1, ''),
+	(178444, 114129, 35, 1, 1, 1, 1, ''),
+	(178444, 114131, 15, 1, 1, 1, 1, '');
+
+#85048/NPC - Farmer LokLub
+
+	UPDATE creature_template SET name = "Farmer Lok'Lub" WHERE entry = 85048;

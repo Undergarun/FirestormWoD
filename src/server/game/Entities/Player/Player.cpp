@@ -681,6 +681,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_zoneUpdateTimer = 0;
 
     m_areaUpdateId = 0;
+    m_IsOutdoors = false;
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
@@ -28269,7 +28270,7 @@ void Player::ResetGarrisonDatas()
     using namespace MS::Garrison;
     if (Manager* l_Garrison = GetGarrison())
     {
-        if (l_Garrison->HasActiveBuilding(Buildings::LunarfallInn_FrostwallTavern_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasBuildingType(BuildingType::Inn))
         {
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Inn);
 
@@ -28283,7 +28284,7 @@ void Player::ResetGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasActiveBuilding(Buildings::Stables_Stables_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasBuildingType(BuildingType::Stable))
         {
             if (uint64 l_Value = GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest))
                 SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesFirstQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
@@ -28292,7 +28293,7 @@ void Player::ResetGarrisonDatas()
                 SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonStablesSecondQuest, l_Value &= ~StablesData::g_PendingQuestFlag);
         }
 
-        if (l_Garrison->HasActiveBuilding(Buildings::GnomishGearworks_GoblinWorkshop_Level1) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasBuildingType(BuildingType::Workshop))
         {
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Workshop);
 
@@ -28306,7 +28307,7 @@ void Player::ResetGarrisonDatas()
             }
         }
 
-        if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost) && l_Garrison->GetPlot(m_positionX, m_positionY, m_positionZ).PlotInstanceID != 0)
+        if (l_Garrison->HasBuildingType(BuildingType::Type::TradingPost))
         {
             std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(BuildingType::Type::TradingPost);
             std::vector<uint32> l_TradingPostShipments = { 138, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 196 };

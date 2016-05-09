@@ -4510,11 +4510,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137641: ///< Soul Fragment
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
                 break;
-            case 14161: ///< Ruthlessness
-                spellInfo->Effects[1].ApplyAuraName = 0;
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->ProcChance = 20;
-                break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
                 break;
@@ -5211,6 +5206,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 17076: ///< Glyph of Rejuvenation
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
+            case 77495: ///< Mastery : Harmony
+                spellInfo->Effects[0].SpellClassMask[0] |= 0x80;
+                break;
             case 118047: ///< Pillage
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
                 spellInfo->Effects[0].TriggerSpell = 0;
@@ -5258,6 +5256,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
+                break;
+            case 114925: ///< Demonic Calling
+                spellInfo->ProcFlags = 0;
+                break;
+            case 104317: ///< Wild Imp
+                spellInfo->CasterAuraState = 0;
                 break;
             case 51699:  ///< Honor Among Thieves (triggered)
             case 57934:  ///< Tricks of the Trade
@@ -5574,9 +5578,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 104316: ///< Imp Swarm
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 114736: ///< Disrupted Nether
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
                 break;
             case 126309: ///< Still Water
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;

@@ -5845,8 +5845,142 @@ class spell_dru_living_seed : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// One With Nature - 147420
+class spell_dru_one_with_nature : public SpellScriptLoader
+{
+public:
+    spell_dru_one_with_nature() : SpellScriptLoader("spell_dru_one_with_nature") { }
+
+    class spell_dru_one_with_nature_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_one_with_nature_SpellScript);
+
+        enum eSpells
+        {
+            OneWithNature = 147420
+        };
+
+        void HandleAfterHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+            
+            int ZoneId[8] = { 85, 4, 493, 148, 331, 3711, 5805, 5785 };
+            uint8 l_nbrDest = 0;
+            uint32 l_minLevel = 0;
+            for (uint8 i = 0; i < 8; ++i)
+            {
+                if (WorldMapAreaEntry const* l_wma = sWorldMapAreaStore.LookupEntry(ZoneId[i]))
+                {
+                    switch (ZoneId[i])
+                    {
+                        case 4: ///< minRecommendedLevel for Blasted land is 0
+                            l_minLevel = 55;
+                            break;
+                        case 493: ///< minRecommendedLevel for Moonglade is 55 
+                            l_minLevel = 15;
+                            break;
+                        default:
+                            l_minLevel = l_wma->minRecommendedLevel;
+                            break;
+                    }
+                    if (l_Player->getLevel() >= l_minLevel)
+                        ++l_nbrDest;
+                }
+            }
+
+            uint8 l_dest = urand(0, l_nbrDest-1);
+
+            switch (l_dest)
+            {
+                case 0: ///< Tirisfal Glades
+                    l_Player->TeleportTo(0, 1800.0f, 2239.0f, 148.88f, 0.0f);
+                    break;
+                case 1: ///< Darkshore
+                    l_Player->TeleportTo(1, 4987.0f, 143.0f, 50.32f, 4.86f);
+                    break;
+                case 2: ///< Moonglade
+                    l_Player->TeleportTo(1, 7372.0f, -2630.0f, 464.67f, 6.17f);
+                    break;
+                case 3: ///< Ashenvale
+                    l_Player->TeleportTo(1, 3824.0f, 88.0f, 13.1f, 1.6f);
+                    break;
+                case 4: ///< Blasted Lands
+                    l_Player->TeleportTo(0, -12338.0f, -2376.0f, 21.79f, 3.38f);
+                    break;
+                case 5: ///< Sholazar Basin
+                    l_Player->TeleportTo(571, 6338.0f, 5189.0f, -75.7f, 2.78f);
+                    break;
+                case 6: ///< The Jade Forest
+                    l_Player->TeleportTo(870, 262.0f, 1981.0f, 162.67f, 5.45f);
+                    break;
+                case 7: ///< Valley Of The Four Winds
+                    l_Player->TeleportTo(870, 1104.0f, -1896.0f, 132.96f, 3.11f);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_dru_one_with_nature_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_one_with_nature_SpellScript();
+    }
+};
+
+class spell_dru_one_with_nature_glyph : public SpellScriptLoader
+{
+public:
+    spell_dru_one_with_nature_glyph() : SpellScriptLoader("spell_dru_one_with_nature_glyph") { }
+
+    class spell_dru_one_with_nature_glyph_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_one_with_nature_glyph_AuraScript);
+
+        enum eSpells
+        {
+            OneWithNatureGlyph = 146656,
+            OneWithNature = 147420
+        };
+
+        void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->learnSpell(OneWithNature, true);
+        }
+
+        void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->removeSpell(OneWithNature);
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dru_one_with_nature_glyph_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_dru_one_with_nature_glyph_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_one_with_nature_glyph_AuraScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_one_with_nature_glyph();
+    new spell_dru_one_with_nature();
     new spell_dru_living_seed();
     new spell_dru_guardian_of_elune();
     new spell_dru_glyph_of_savagery();

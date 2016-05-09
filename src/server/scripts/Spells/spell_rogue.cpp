@@ -3222,7 +3222,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
         }
 };
 
-/// Called by Kidney Shot 408, Eviscerate 2098, Recuperate 73651, Slice and Dice 5171, Deadly Throw 26679, Rupture 1943, Envenom 32645, Crimson Tempest 121411
+/// Called by Envenom 32645
 /// Ruthlessness - 14161 and Relentless Strikes - 58423
 class spell_rog_ruthlessness_and_relentless_strikes : public SpellScriptLoader
 {
