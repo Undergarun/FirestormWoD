@@ -17,8 +17,6 @@ include(Spells/CMakeLists.txt)
 include(World/CMakeLists.txt)
 include(Commands/CMakeLists.txt)
 
-# include(Examples/CMakeLists.txt)
-
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
