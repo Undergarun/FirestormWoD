@@ -2072,7 +2072,7 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
         }
 
         void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
-        {/
+        {
             if (AreaTrigger* l_Visual = p_AreaTrigger->FindNearestAreaTrigger(eSpells::GroundMarker, 2.0f))
                 l_Visual->Remove(0);
         }

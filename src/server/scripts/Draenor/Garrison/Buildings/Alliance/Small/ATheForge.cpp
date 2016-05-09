@@ -124,7 +124,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_YuliaSamrasAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * /*p_This*/, Creature * /*p_Me*/)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * /*p_Me*/)
         {
             p_This->SetAIObstacleManagerEnabled(true);
             p_This->SetupActionSequence(YuliaSamras_Level1::MovePointLoc, YuliaSamras_Level1::Sequence, sizeof(YuliaSamras_Level1::Sequence), YuliaSamras_Level1::MovePointIDs::Workorder);

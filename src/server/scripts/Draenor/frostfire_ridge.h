@@ -1,4 +1,4 @@
-/*
+
 namespace FrostfireRidgeSpells
 {
     enum
@@ -16,7 +16,7 @@ namespace FrostfireRidgeEvents
         EventRampage          = 2,
     };
 }
-
+/*
 namespace FrostfireRidgeQuests
 {
     enum
@@ -38,4 +38,3 @@ namespace FrostfireRidgeCreatures
     };
 }*/
 
-#endif
