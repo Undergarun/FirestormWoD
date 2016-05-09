@@ -79,9 +79,11 @@ public:
     }
 };
 
+#ifndef __clang_analyzer__
 void AddSC_deepholm()
 {
     new boss_aeonaxx();
 
     new spell_deepholm_kill_all_constructs();
 }
+#endif
