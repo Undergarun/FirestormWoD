@@ -45,7 +45,7 @@ Position const g_Position[3] =
     { 6504.740f, -1131.180f, 4.958000f, 2.120224f }
 };
 
-static void GrimailEnforcersStart(InstanceScript* p_Instance, Creature* p_Me)
+static void GrimailEnforcersStart(InstanceScript* p_Instance, Creature* /*p_Me*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -434,7 +434,7 @@ class boss_grimrail_makogg : public CreatureScript
                     GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -737,7 +737,7 @@ class iron_docks_grimrail_mob_ogre_trap : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);          
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const /*p_Diff*/) override
             {
                 if (!m_Activated)
                 {
@@ -927,7 +927,7 @@ public:
     {
     }
 
-    void OnEnter(Player* p_Player, AreaTriggerEntry const* p_AreaTrigger) 
+    void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/)
     {
         if (p_Player)
         {

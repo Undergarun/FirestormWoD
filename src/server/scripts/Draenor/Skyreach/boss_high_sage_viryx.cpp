@@ -43,7 +43,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     me->RemoveAura(uint32(Spells::Submerged));
                     m_events.ScheduleEvent(uint32(Events::Shielding), 5000);
@@ -80,19 +80,19 @@ namespace MS
         static const std::size_t k_NumFallPoints = 13;
         static const Position k_FallPoints[k_NumFallPoints] =
         {
-            { 1094.775f, 1715.610f, 275.72f },
-            { 1094.993f, 1721.900f, 263.72f },
-            { 1104.928f, 1724.705f, 263.72f },
-            { 1141.754f, 1729.700f, 263.72f },
-            { 1123.270f, 1735.448f, 263.72f },
-            { 1132.028f, 1744.517f, 263.72f },
-            { 1138.780f, 1753.942f, 263.72f },
-            { 1144.525f, 1764.297f, 263.72f },
-            { 1147.478f, 1773.486f, 263.72f },
-            { 1149.241f, 1785.068f, 263.72f },
-            { 1148.452f, 1798.171f, 263.72f },
-            { 1146.030f, 1811.055f, 263.72f },
-            { 1140.494f, 1822.770f, 263.72f }
+            { 1094.775f, 1715.610f, 275.72f, 0.0f },
+            { 1094.993f, 1721.900f, 263.72f, 0.0f },
+            { 1104.928f, 1724.705f, 263.72f, 0.0f },
+            { 1141.754f, 1729.700f, 263.72f, 0.0f },
+            { 1123.270f, 1735.448f, 263.72f, 0.0f },
+            { 1132.028f, 1744.517f, 263.72f, 0.0f },
+            { 1138.780f, 1753.942f, 263.72f, 0.0f },
+            { 1144.525f, 1764.297f, 263.72f, 0.0f },
+            { 1147.478f, 1773.486f, 263.72f, 0.0f },
+            { 1149.241f, 1785.068f, 263.72f, 0.0f },
+            { 1148.452f, 1798.171f, 263.72f, 0.0f },
+            { 1146.030f, 1811.055f, 263.72f, 0.0f },
+            { 1140.494f, 1822.770f, 263.72f, 0.0f }
         };
 
         class mob_SolarZealot : public CreatureScript
@@ -136,7 +136,7 @@ namespace MS
                     m_Reset = true;
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                 }
 
@@ -339,7 +339,7 @@ namespace MS
                     if (instance)
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* p_Me, Player* p_Plr) {
+                    ScriptUtils::ApplyOnEveryPlayer(me, [](Unit* /*p_Me*/, Player* p_Plr) {
                         if (p_Plr)
                             p_Plr->RemoveAura(uint32(Spells::LensFlare_Dmg));
                     });
@@ -353,7 +353,7 @@ namespace MS
                         DoScriptText(int32(Texts::KilledUnitB), me);
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     _EnterCombat();
 

@@ -344,7 +344,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 0.7f);
                 }
 
-                void SetGUID(uint64 p_GUID, int32 p_ID)
+                void SetGUID(uint64 p_GUID, int32 /*p_ID*/)
                 {
                     m_FollowingSLG = p_GUID;
 

@@ -7858,7 +7858,7 @@ void Spell::EffectObtainFollower(SpellEffIndex p_EffIndex)
         SendCastResult(SPELL_FAILED_FOLLOWER_KNOWN);
 }
 
-void Spell::EffectCreateGarrison(SpellEffIndex p_EffIndex)
+void Spell::EffectCreateGarrison(SpellEffIndex /*p_EffIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;

@@ -1899,11 +1899,11 @@ void WorldSession::HandleChangeCurrencyFlags(WorldPacket& recvPacket)
         GetPlayer()->ModifyCurrencyFlags(currencyId, uint8(flags));
 }
 
-void WorldSession::SendItemUpgradeResult(bool success)
+void WorldSession::SendItemUpgradeResult(bool /*success*/)
 {
 }
 
-void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleUpgradeItemOpcode(WorldPacket& /*recvData*/)
 {
     /// Upgrade system will be implemented back because of WoD 6.1.2
     /*sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
@@ -2054,20 +2054,6 @@ namespace
     {
         ItemPosCountVec l_Dest;
         InventoryResult l_Msg = p_Player->CanBankItem(p_BagSlot, NULL_SLOT, l_Dest, p_Item, false);
-
-        if (l_Msg != EQUIP_ERR_OK)
-            return false;
-
-        p_Player->RemoveItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
-        p_Player->BankItem(l_Dest, p_Item, true);
-
-        return true;
-    }
-
-    bool ReagentBankItemAndStack(Player* p_Player, Item* p_Item, uint8 p_BagSlot)
-    {
-        ItemPosCountVec l_Dest;
-        InventoryResult l_Msg = p_Player->CanReagentBankItem(p_BagSlot, NULL_SLOT, l_Dest, p_Item, false);
 
         if (l_Msg != EQUIP_ERR_OK)
             return false;

@@ -981,7 +981,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_
     }
 }
 
-void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool p_CanNeed, Roll const& p_Roll) ///< p_CanNeed is unused
+void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool /*p_CanNeed*/, Roll const& p_Roll) ///< p_CanNeed is unused
 {
     if (!p_Player || !p_Player->GetSession())
         return;
@@ -1007,7 +1007,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     p_Player->GetSession()->SendPacket(&l_Data);
 }
 
-void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_TargetGUID is unused
+void Group::SendLootRoll(uint64 /*p_TargetGUID*/, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_TargetGUID is unused
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);

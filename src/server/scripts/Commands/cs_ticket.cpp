@@ -220,7 +220,7 @@ public:
         return true;
     }
     
-    static bool FSCHandleGMTicketEnd(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMTicketEnd(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
         if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
@@ -240,7 +240,7 @@ public:
         return true;
     }
 
-    static bool FSCHandleGMTicketDelete(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMTicketDelete(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -260,7 +260,7 @@ public:
         return true;
     }
 
-    static bool FSCHandleGMTicketGet(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMTicketGet(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         Player* l_Player = p_Handler->GetSession()->GetPlayer();
 
@@ -272,7 +272,7 @@ public:
         return true;
     }
 
-    static bool FSCHandleGMResponseResolve(ChatHandler* p_Handler, char const* p_Args)
+    static bool FSCHandleGMResponseResolve(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         Player* l_Player = p_Handler->GetSession()->GetPlayer();
 

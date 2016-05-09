@@ -126,7 +126,7 @@ enum eTeronogorTransformations
 class EventTeronogorTransform : public BasicEvent
 {
     public:
-        explicit EventTeronogorTransform(Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType), BasicEvent()
+        explicit EventTeronogorTransform( Unit* p_Unit, int32 p_Value, int32 p_TransformationType) : BasicEvent(), m_Obj(p_Unit), m_Modifier(p_Value), m_tType(p_TransformationType)
         {
         }
 
@@ -1174,7 +1174,6 @@ class auchindon_soul_transportation_event : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int m_Event;
 };
 
 /// Soul Transport Object I

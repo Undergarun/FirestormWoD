@@ -46,7 +46,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
     }
 }
 
-MailSender::MailSender(CalendarEvent* sender)
+MailSender::MailSender(CalendarEvent* /*sender*/)
 : m_messageType(MAIL_AUCTION), m_senderId(BLACKMARKET_AUCTION_HOUSE), m_stationery(MAIL_STATIONERY_AUCTION)
 {
 }
@@ -56,7 +56,7 @@ MailSender::MailSender(AuctionEntry* sender)
 {
 }
 
-MailSender::MailSender(BMAuctionEntry* sender)
+MailSender::MailSender(BMAuctionEntry* /*sender*/)
     : m_messageType(MAIL_AUCTION), m_senderId(BLACKMARKET_AUCTION_HOUSE), m_stationery(MAIL_STATIONERY_AUCTION)
 {
 }

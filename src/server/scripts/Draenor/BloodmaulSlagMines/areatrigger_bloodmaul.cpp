@@ -38,7 +38,7 @@ namespace MS
                     return new AreaTrigger_SuppresionField();
                 }
 
-                void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+                void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
                 {
                     // If We are on the last tick.
                     if (p_AreaTrigger->GetDuration() < 100)
@@ -53,7 +53,7 @@ namespace MS
                     }
                 }
 
-                void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+                void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
                 {
                     std::list<Unit*> l_TargetList;
                     float l_Radius = 5.0f;

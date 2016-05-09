@@ -119,7 +119,7 @@ namespace MS
                                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                         }
 
-                        void MovementInform(uint32 p_Type, uint32 p_Id)
+                        void MovementInform(uint32 p_Type, uint32 /*p_Id*/)
                         {
                             switch (p_Type)
                             {

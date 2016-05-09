@@ -86,14 +86,6 @@ Position const g_PositionSpawningFlyCoords[2] =
     { 1911.65f, 2757.73f, 30.799f, 4.748000f }
 };
 
-Position const g_PositionAzzakel_Blackgate_little[4] =
-{
-    { 1911.90f, 2680.62f, 31.418f, 1.450705f },
-    { 1911.79f, 2764.35f, 31.418f, 4.721891f },
-    { 1953.55f, 2722.47f, 31.418f, 3.139304f },
-    { 1869.70f, 2722.45f, 31.418f, 0.001632f }
-};
-
 static void HandleDoors(Unit* me)
 {
     std::list<GameObject*> l_ListGameObjects;
@@ -474,7 +466,7 @@ class auchindon_azzakel_spell_curtain_flames : public SpellScriptLoader
         {
             PrepareAuraScript(spell_auras)
 
-                void OnPeriodic(AuraEffect const* p_AurEff)
+                void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -642,7 +634,7 @@ class auchindon_azzakel_fel_spark_area_trigger : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/) override
         {
             /// No usage, duration = 1
         }
@@ -668,7 +660,7 @@ class auchindon_azzakel_fel_pool_trigger : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void UpdateAI(const uint32 p_Diff) override
+            void UpdateAI(const uint32 /*p_Diff*/) override
             {
                 std::list<Player*> l_ListPlayers;
                 JadeCore::AnyPlayerInObjectRangeCheck check(me, 15.0f);

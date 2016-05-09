@@ -52,23 +52,11 @@ Position const g_PositionEnchantedMobs[10] =
     { 349.98f, 1594.22f, 87.567f, 0.000000f }
 };
 
-Position const g_PositionWitherbark = { 417.79f, 1615.38f, 89.377f, 4.825330f }; ///< Witherbark
-
-Position const g_PositionUnchekedGrowth = { 418.44f, 1616.12f, 89.292f, 4.434609f }; ///< UNCHECKED_GROWTH
-
-Position const g_PositionNaturalistFollower = { 440.251f, 1574.739f, 88.130f, 3.615971f };
-
 Position const g_PositionCosmeticGlobules[3] =
 {
     { 408.211f, 1589.37f, 87.908f, 0.988586f },
     { 440.903f, 1609.97f, 88.661f, 2.791076f },
     { 404.258f, 1628.98f, 88.034f, 5.571381f }
-};
-
-Position const g_PositionNaturalistFollowerMov[2] =
-{
-    { 403.718f, 1563.935f, 88.180f, 2.955451f },
-    { 457.685f, 1591.681f, 86.146f, 1.012375f }
 };
 
 /// Witherbark - 81522

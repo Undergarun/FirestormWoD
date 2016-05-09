@@ -1192,20 +1192,15 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        int64 addmoney = 0;
+        uint64 addmoney = 0;
 
-// strtoull doesn't exist on WIN
-#if PLATFORM == PLATFORM_WINDOWS
-        addmoney = _strtoui64((char*)args, NULL, 10);
-#else
         addmoney = strtoull((char*)args, NULL, 10);
-#endif
 
         uint64 moneyuser = target->GetMoney();
 
         if (addmoney < 0)
         {
-            int64 newmoney = int64(moneyuser) + addmoney;
+            uint64 newmoney = uint64(moneyuser) + addmoney;
 
             sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
             if (newmoney <= 0)
@@ -1236,7 +1231,7 @@ public:
             if (addmoney >=MAX_MONEY_AMOUNT)
                 target->SetMoney(MAX_MONEY_AMOUNT);
             else
-                target->ModifyMoney(int64(addmoney));
+                target->ModifyMoney(uint64(addmoney));
         }
 
         sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_NEW_MONEY), moneyuser, uint32(addmoney), target->GetMoney());

@@ -105,7 +105,7 @@ class mob_master_shang_xi : public CreatureScript
     public:
         mob_master_shang_xi() : CreatureScript("mob_master_shang_xi") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
         {
             if (quest->GetQuestId() == 29408) // La lecon du parchemin brulant
             {
@@ -192,7 +192,7 @@ class go_wandering_weapon_rack : public GameObjectScript
 public:
     go_wandering_weapon_rack() : GameObjectScript("go_wandering_weapon_rack") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->GetQuestStatus(30027) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(73209))
         {
@@ -290,7 +290,7 @@ class mob_tushui_trainee : public CreatureScript
                 me->SetFullHealth();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -308,7 +308,7 @@ class mob_tushui_trainee : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*unit*/)
             {
                 isInCombat = true;
             }
@@ -394,7 +394,7 @@ public:
         bool m_HasScheduledFalcon;
         uint64 m_PlayerGuid;
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             m_Events.ScheduleEvent(EVENT_JAOMIN_JUMP, 1000);
             m_Events.ScheduleEvent(EVENT_JAOMIN_BUMP, 3200);
@@ -425,8 +425,8 @@ public:
                 p_Summoned->DespawnOrUnsummon();
             }
         }
-        
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (Player* l_Player = p_Attacker->ToPlayer())
             {
@@ -572,13 +572,13 @@ public:
     {
         mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
             if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
                 uiDamage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (me->GetPositionX() == 1403.440430f && me->GetPositionY() == 3566.382568f)
                 me->DespawnOrUnsummon();
@@ -616,7 +616,7 @@ public:
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
         }
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
             if(me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
                 uiDamage = 0;
@@ -840,7 +840,7 @@ public:
             EVENT_END           = 4,
         };
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage, SpellInfo const* /*p_SpellInfo*/)
         {
             if(me->HealthBelowPctDamaged(5, uiDamage))
             {
@@ -1059,7 +1059,7 @@ public:
         
         EventMap events;
         
-        void EnterCombat(Unit* unit)
+        void EnterCombat(Unit* /*unit*/)
         {
             events.ScheduleEvent(1, 3000);
             events.ScheduleEvent(2, 7000);
@@ -1191,7 +1191,7 @@ public:
             playerGuid = guid;
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (me->HealthBelowPctDamaged(10, damage))
             {
@@ -1237,8 +1237,6 @@ public:
                 {
                     case EVENT_CHECK_PLAYER:
                     {
-                        bool checkPassed = true;
-                        
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 30.0f);
                         for (auto player: playerList)
@@ -1354,7 +1352,7 @@ class AreaTrigger_at_temple_entrance : public AreaTriggerScript
         AreaTrigger_at_temple_entrance() : AreaTriggerScript("AreaTrigger_at_temple_entrance")
         {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(29423) == QUEST_STATUS_INCOMPLETE)
             {
@@ -1414,7 +1412,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 15.0f);
@@ -1582,7 +1580,7 @@ class mob_huojin_trainee : public CreatureScript
                 isInCombat = false;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -1599,7 +1597,7 @@ class mob_huojin_trainee : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*unit*/)
             {
                 isInCombat = true;
             }
@@ -1674,7 +1672,7 @@ class npc_merchant_lorvo : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
 
                 std::list<Player*> playerList;
@@ -1730,7 +1728,7 @@ class mob_ji_firepaw : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 3.0f);
@@ -1782,7 +1780,7 @@ class mob_huojin_monk : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 10.0f);
@@ -1834,7 +1832,7 @@ class mob_chia_hui_autumnleaf : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 12.0f);
@@ -1888,7 +1886,7 @@ class mob_brewer_lin : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 4.0f);

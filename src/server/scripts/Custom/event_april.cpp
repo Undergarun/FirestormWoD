@@ -26,7 +26,7 @@ class PlayerScript_Event_April: public PlayerScript
         Player->SetDisplayId(tabFish[idFish]);
     }
 
-    void OnPVPKill(Player* Killer, Player* Killed)
+    void OnPVPKill(Player* Killer, Player* /*Killed*/)
     {
         int32 tabFish[14] = {32263,40855,32646,42160,42161,42162,42163,44563,42808,44562,33312,42836,39936,45246};
         if (Killer->GetMap()->IsBattlegroundOrArena() || Killer->GetMap()->IsRaid())

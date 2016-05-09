@@ -58,7 +58,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
         }
 
@@ -113,7 +113,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs,    0 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eGrimrailBombadierEvents::EventDoubleSlash,       0 * TimeConstants::IN_MILLISECONDS);
@@ -179,7 +179,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGrimrailLaborerEvents::EventHaymaker, 6 * TimeConstants::IN_MILLISECONDS);
         }
@@ -245,7 +245,7 @@ public:
             m_DashEffect = false;
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGrimrailOverseerEvents::EventDash, 15 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eGrimrailOverseerEvents::EventHewingSwipe, 6 * TimeConstants::IN_MILLISECONDS);
@@ -360,7 +360,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGrimrailScoutEvents::EventArcaneBlitz,0 * TimeConstants::IN_MILLISECONDS);
         }
@@ -421,7 +421,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGrimrailTechnicianEvents::Event50kVolts,0 * TimeConstants::IN_MILLISECONDS);
         }
@@ -482,7 +482,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 0 * TimeConstants::IN_MILLISECONDS);
         }
@@ -540,7 +540,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
         }
@@ -605,7 +605,7 @@ public:
            events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue,0 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 0 * TimeConstants::IN_MILLISECONDS);
@@ -676,7 +676,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarFarSeerEvents::EventStormShiled, 0*TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 0*TimeConstants::IN_MILLISECONDS);
@@ -746,7 +746,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade,0 *TimeConstants::IN_MILLISECONDS);
         }
@@ -804,7 +804,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 0*TimeConstants::IN_MILLISECONDS);
         }
@@ -862,7 +862,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGromkarHulkEvents::EventGettingAngry, 0*TimeConstants::IN_MILLISECONDS);
         }
@@ -920,7 +920,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
         }
 

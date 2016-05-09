@@ -11,7 +11,7 @@ class AreaTrigger_at_mandori : public AreaTriggerScript
         AreaTrigger_at_mandori() : AreaTriggerScript("AreaTrigger_at_mandori")
         {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
            if (player->GetPositionX() < 710.0f)
                return true;
@@ -233,7 +233,7 @@ class npc_korga : public CreatureScript
     public:
         npc_korga() : CreatureScript("npc_korga") { }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == 30589) // Detruire l'epave
                 if (Creature* jiEscort = player->SummonCreature(60900, 424.71f, 3635.59f, 92.70f, 2.498430f, TEMPSUMMON_MANUAL_DESPAWN, 0, player->GetGUID()))
@@ -264,12 +264,12 @@ public:
             IntroTimer      = 100;
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 /*type*/)
         {
             playerGuid = guid;
         }
         
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 /*waypointId*/)
         {}
 
         void LastWaypointReached()
@@ -308,7 +308,7 @@ class AreaTrigger_at_rescue_soldiers : public AreaTriggerScript
         AreaTrigger_at_rescue_soldiers() : AreaTriggerScript("AreaTrigger_at_rescue_soldiers")
         {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
            if (player->GetQuestStatus(29794) != QUEST_STATUS_INCOMPLETE)
                return true;
@@ -484,7 +484,7 @@ class mob_aysa_gunship_crash : public CreatureScript
             mob_aysa_gunship_crashAI(Creature* creature) : ScriptedAI(creature)
             {}
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* /*_SpellInfo*/)
             {
                 if (HealthBelowPct(70))
                     damage = 0;
@@ -528,7 +528,7 @@ public:
             discussEvent    = 0;
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 /*type*/)
         {
             playerGuid = guid;
 
@@ -647,8 +647,8 @@ public:
 
 Position ennemiesPositions[MAX_ENNEMIES_POS] =
 {
-    {215.0f, 3951.0f, 71.4f},
-    {290.0f, 3939.0f, 86.7f}
+    {215.0f, 3951.0f, 71.4f, 0.0f},
+    {290.0f, 3939.0f, 86.7f, 0.0f}
 };
 
 enum eEnums

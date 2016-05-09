@@ -59,7 +59,7 @@ namespace MS
                         m_instance->DoCompleteAchievement(uint32(InstanceSkyreach::Achievements::MagnifyEnhance));
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(2500, 7500));
                     m_events.ScheduleEvent(uint32(Events::SOLAR_STORM), urand(5000, 10000));
@@ -197,7 +197,7 @@ namespace MS
                     }
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     _EnterCombat();
                     events.ScheduleEvent(uint32(Events::MELEE), 2000);

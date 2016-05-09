@@ -8,7 +8,7 @@
 
 #include "instance_bloodmaul.hpp"
 
-Position const g_CromanExitPos = { 1998.86f, -392.345f, 222.9501f };
+Position const g_CromanExitPos = { 1998.86f, -392.345f, 222.9501f, 0.0f };
 Position const g_CromanSwordPos = { 2082.09f, 120.2452f, 224.828f, 1.5189f };
 Position const g_CromanEndPos = { 2400.616f, -455.1502f, 198.1855f, 2.461f };
 
@@ -557,7 +557,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     events.ScheduleEvent(uint32(Events::LumberingLeap), urand(15000, 17000));
                 }
 
-                void MovementInform(uint32 p_Type, uint32 p_Id)
+                void MovementInform(uint32 p_Type, uint32 /*p_Id*/)
                 {
                     switch (p_Type)
                     {
@@ -777,7 +777,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
                 }
 
-                void UpdateAI(uint32 const p_Diff) { }
+                void UpdateAI(uint32 const /*p_Diff*/) { }
             };
 
             CreatureAI* GetAI(Creature* p_Creature) const
@@ -1105,7 +1105,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 ActionExitWheel
             };
 
-            bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+            bool OnGossipHello(Player* /*p_Player*/, Creature* p_Creature) override
             {
                 if (p_Creature->IsAIEnabled)
                 {
@@ -1416,7 +1416,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void EnterCombat(Unit* p_Attacker) override
+                void EnterCombat(Unit* /*p_Attacker*/) override
                 {
                     Talk(eTalks::Aggro);
                 }
@@ -1447,7 +1447,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                     }
                 }
 
-                void SetGUID(uint64 p_Guid, int32 p_ID /*= 0 */) override
+                void SetGUID(uint64 p_Guid, int32 /*p_ID*/ /*= 0 */) override
                 {
                     if (Player* l_Player = Player::GetPlayer(*me, p_Guid))
                     {

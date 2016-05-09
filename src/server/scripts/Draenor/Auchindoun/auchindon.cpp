@@ -16,7 +16,7 @@
 class EventTuulaniIntroduction : public BasicEvent
 {
     public:
-        explicit EventTuulaniIntroduction(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
+        explicit EventTuulaniIntroduction(Unit* unit, int value) : BasicEvent(), m_Obj(unit), m_Modifier(value)
         {
         }
 
@@ -187,14 +187,13 @@ class EventTuulaniIntroduction : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int m_Event;
 };
 
 /// Clapping Event
 class ClappingEvent : public BasicEvent
 {
     public:
-        explicit ClappingEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
+        explicit ClappingEvent(Unit* unit, int value) : BasicEvent(),  m_Obj(unit), m_Modifier(value)
         {
         }
 
@@ -229,14 +228,13 @@ class ClappingEvent : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int m_Event;
 };
 
 /// Arcane Bomb
 class ArcaneBombEvent : public BasicEvent
 {
     public:
-        explicit ArcaneBombEvent(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
+        explicit ArcaneBombEvent(Unit* unit, int value) : BasicEvent(), m_Obj(unit), m_Modifier(value)
         {
         }
 
@@ -264,7 +262,6 @@ class ArcaneBombEvent : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int Event;
 };
 
 /// Talador Portal - 236689
@@ -273,7 +270,7 @@ class gob_talador_portal : public GameObjectScript
     public:
         gob_talador_portal() : GameObjectScript("gob_talador_portal") { }
 
-        bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+        bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
         {
             p_Player->TeleportTo(1116, 1488.52f, 3077.65f, 108.920f, 4.653427f);
             return true;
@@ -532,7 +529,7 @@ class auchindon_creature_sargerei_soulbinder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventMindShear, 8 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eAuchindonEvents::EventBendWill, 18 * TimeConstants::IN_MILLISECONDS);
@@ -603,7 +600,7 @@ class auchindon_creature_sargerei_cleric : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventVoidShell, 15 * TimeConstants::IN_MILLISECONDS);
             }
@@ -670,7 +667,7 @@ class auchindon_creature_sargerei_ritualist : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->CastStop();
                 me->RemoveAllAuras();
@@ -737,7 +734,7 @@ class auchindon_creature_sargerei_zealot : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventSeverTendom, 5 * TimeConstants::IN_MILLISECONDS);
             }
@@ -801,7 +798,7 @@ class auchindon_creature_sargerei_spirit_tender : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eAuchindonEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
@@ -870,7 +867,7 @@ class auchindon_creature_sargerei_hopilite : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                 events.ScheduleEvent(eAuchindonEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
@@ -941,7 +938,7 @@ class auchindon_creature_sargerei_defender : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                 events.ScheduleEvent(eAuchindonEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
@@ -1006,7 +1003,7 @@ class auchindon_creature_sargerei_magus : public CreatureScript
                 me->CastSpell(me, eAuchindonSpells::SpellArcaneChanneling);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->RemoveAura(eAuchindonSpells::SpellArcaneChanneling);
                 events.ScheduleEvent(eAuchindonEvents::EventArcaneBomb, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
@@ -1074,7 +1071,7 @@ class auchindon_creature_soul_priest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
                 events.ScheduleEvent(eAuchindonEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
@@ -1136,7 +1133,7 @@ class auchindon_creature_sargeri_warden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                 events.ScheduleEvent(eAuchindonEvents::EventWardenChain, 5 * TimeConstants::IN_MILLISECONDS);
@@ -1203,7 +1200,7 @@ class auchindon_creature_felborne_abyssal : public CreatureScript
                 m_FixatedTargetGUID = NULL;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             }
@@ -1218,7 +1215,7 @@ class auchindon_creature_felborne_abyssal : public CreatureScript
                 }
             }
 
-            void OnAddThreat(Unit* p_Victim, float& p_fThreat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const /*p_ThreatSpell*/)
+            void OnAddThreat(Unit* /*p_Victim*/, float& p_fThreat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const /*p_ThreatSpell*/)
             {
                 if (m_Fixated)
                     p_fThreat = 0;
@@ -1234,7 +1231,7 @@ class auchindon_creature_felborne_abyssal : public CreatureScript
 
                 if (m_Fixated)
                 {
-                    if (m_FixatedTargetGUID != NULL)
+                    if (m_FixatedTargetGUID != 0)
                     {
                         if (Unit* l_Target = sObjectAccessor->GetUnit(*me, m_FixatedTargetGUID))
                         {
@@ -1290,7 +1287,7 @@ class auchindon_creature_cackling_pyromaniac : public CreatureScript
                 me->CastSpell(me, eAuchindonSpells::SpellAbyssalVisual);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventFelblast, 10 * TimeConstants::IN_MILLISECONDS);
             }
@@ -1412,7 +1409,7 @@ class auchindon_creature_felguard : public CreatureScript
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventFelStomp, 10 * TimeConstants::IN_MILLISECONDS);
             }
@@ -1623,7 +1620,7 @@ class auchindon_warden_chain_aura : public SpellScriptLoader
         {
             PrepareAuraScript(auchindon_auras);
 
-            void HandlePeriodic(AuraEffect const* p_AurEff)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1653,7 +1650,7 @@ class auchindoun_void_shift : public SpellScriptLoader
         {
             PrepareSpellScript(auchindoun_spells);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
                     return;
@@ -1983,7 +1980,7 @@ class auchindon_areatrigger_arcane_bomb : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/) override
         {
             /// Does nothing.
         }

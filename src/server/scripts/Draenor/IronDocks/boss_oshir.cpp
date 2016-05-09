@@ -81,8 +81,8 @@ Position const g_NpcMovePos[3] =
 }; 
 
 ///< Wandlering Thundlers
-Position const g_MoveToDoorPos = { 6970.82f, -1090.432f, 4.962442f };
-Position const g_FleePosition = {6931.40f, -1113.588f, 4.603908f };
+Position const g_MoveToDoorPos = { 6970.82f, -1090.432f, 4.962442f, 0.0f };
+Position const g_FleePosition = {6931.40f, -1113.588f, 4.603908f, 0.0f };
 
 class basicevent_before_oshir : public BasicEvent
 {
@@ -324,7 +324,7 @@ class boss_oshir : public CreatureScript
                 events.ScheduleEvent(eOshirEvents::EventPrimalAssault, 36 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (p_Damage && p_Damage > 0)
                 {
@@ -760,7 +760,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eThunderWandlerEvents::EventCultTraps, 18 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eThunderWandlerEvents::EventSpearThrow, 18 * TimeConstants::IN_MILLISECONDS);
@@ -1264,7 +1264,7 @@ public:
             SpellAcidSpitTriggerMissile = 178155
         };
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
             {

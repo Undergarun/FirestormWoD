@@ -250,10 +250,10 @@ class HighmaulTestEnable : public BasicEvent
     };
 
     public:
-        HighmaulTestEnable(uint64 p_Guid) : m_Guid(p_Guid), BasicEvent() { }
+        HighmaulTestEnable(uint64 p_Guid) : BasicEvent(), m_Guid(p_Guid) { }
         virtual ~HighmaulTestEnable() {}
 
-        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
+        virtual bool Execute(uint64 /*p_EndTime*/, uint32 /*p_Time*/)
         {
             if (Player* l_Player = HashMapHolder<Player>::Find(m_Guid))
             {
@@ -269,22 +269,12 @@ class HighmaulTestEnable : public BasicEvent
             return true;
         }
 
-        virtual void Abort(uint64 p_EndTime) { }
+        virtual void Abort(uint64 /*p_EndTime*/) { }
 
     private:
         uint64 m_Guid;
 };
 
-/// 300008 - Highmaul Tests Manager
-/// No SQL commit with this script, must stay on PTR.
-/// REPLACE INTO creature_template VALUE ('300008','0','0','35231','0','0','0','PvE Tests Manager','','','','0','103','103','6','0','35','1','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','1','518','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','0','0','1','0','0','0','npc_pve_tests_manager','1');
-/// DELETE FROM creature WHERE id = 300008;
-/// INSERT INTO creature (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUES
-/// ('300008','0','12','7486','1','4294967295','0','0','-8932.997','537.873413','94.678825','0.676821','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1','1637','5170','1','4294967295','0','0','1606.946167','-4384.196289','20.702406','3.469189','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1116','6755','7367','1','4294967295','0','0','3477.581543','7437.905762','31.542486','4.521338','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL),
-/// ('300008','1228','6996','7395','1','4294967295','0','0','3486.217041','7592.922852','10.485300','1.551457','300','0','0','0','0','0','0','0','0','2048','0','0','0','0',NULL);
-/// REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc2`) VALUE ('20000','Hey, great adventurer, come to me in your faction capital, to access fastly our last testable content! Newest raids, bosses, get directly teleported to the destination you are looking for.','H�, cher aventurier, venez me voir dans la capitale de votre faction, pour acceder rapidement a notre dernier contenu testable ! Derniers raids, boss, soyez directement teleporte a la destination de votre choix.');
 class npc_pve_tests_manager : public CreatureScript
 {
     public:
@@ -579,7 +569,7 @@ class npc_season_2_premade_master : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void sGossipSelect(Player* p_Player, uint32 p_MenuID, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_MenuID*/, uint32 /*p_Action*/) override
             {
                 if (p_Player->GetSession()->HasServiceFlags(ServiceFlags::Season2Gold))
                 {

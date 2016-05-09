@@ -34,7 +34,7 @@ class npc_groog : public CreatureScript
                 me->setFaction(14);
             }
 
-            void EnterCombat(Unit* p_Victim)
+            void EnterCombat(Unit* /*p_Victim*/)
             {
                 m_Events.Reset();
 
@@ -76,7 +76,7 @@ class spell_groog_rampage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_groog_rampage_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
 

@@ -78,7 +78,7 @@ enum eKaatharTriggers
 class EventNyamiEscape : public BasicEvent
 {
     public:
-        explicit EventNyamiEscape(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+        explicit EventNyamiEscape(Unit* p_Unit, int p_Value) : BasicEvent(), m_Obj(p_Unit), m_Modifier(p_Value)
         {
         }
 
@@ -180,13 +180,12 @@ class EventNyamiEscape : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int m_Event;
 };
 
 class EventPostKaathar : public BasicEvent
 {
     public:
-        explicit EventPostKaathar(Unit* unit, int value) : m_Obj(unit), m_Modifier(value), BasicEvent()
+        explicit EventPostKaathar(Unit* unit, int value) : BasicEvent(), m_Obj(unit), m_Modifier(value)
         {
         }
 
@@ -354,7 +353,6 @@ class EventPostKaathar : public BasicEvent
       private:
           Unit* m_Obj;
           int m_Modifier;
-          int m_Event;
           std::list<Creature*> l_Dispeonsor;
 };
 
@@ -492,7 +490,7 @@ class auchindon_boss_kaathar : public CreatureScript
                     Talk(eKaatharTalks::VigilantKaatherKill);
             }
 
-            void EnterCombat(Unit* p_Who) override
+            void EnterCombat(Unit* /*p_Who*/) override
             {
                 _EnterCombat();
                 Talk(eKaatharTalks::VigilantKaatherAgro);
@@ -1048,7 +1046,7 @@ class auchindon_spell_sanctified_ground_periodic_dummy : public SpellScriptLoade
         {
             PrepareAuraScript(auchindon_spells);
 
-            void HandlePeriodic(AuraEffect const* p_AurEff)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 

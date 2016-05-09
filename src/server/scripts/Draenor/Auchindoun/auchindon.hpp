@@ -6,7 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+inline void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
 {
     std::list<Creature*> creatures;
     GetCreatureListWithEntryInGrid(creatures, object, entry, 5000.0f);

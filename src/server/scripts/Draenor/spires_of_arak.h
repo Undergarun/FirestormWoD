@@ -47,12 +47,12 @@ namespace SpiresOfArakEvents
     };
 }
 
-namespace SpiresOfArakQuests
+/*namespace SpiresOfArakQuests
 {
     enum
     {
     };
-}
+}*/
 
 namespace SpiresOfArakDatas
 {

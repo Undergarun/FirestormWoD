@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
         return new npc_FannyFirebeardAI(p_Creature);
     }
 
-    bool npc_FannyFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_FannyFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Alliance::FannyQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();
@@ -183,7 +183,7 @@ namespace MS { namespace Garrison
         me->DespawnCreaturesInArea(m_SummonsEntries, 20.0f);
     }
 
-    void npc_FannyFirebeardAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_FannyFirebeardAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Player* l_Owner = GetOwner();
 

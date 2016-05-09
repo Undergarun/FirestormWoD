@@ -150,7 +150,7 @@ class boss_kromog : public CreatureScript
                 me->RemoveAllAreasTrigger();
 
                 me->DespawnCreaturesInArea({ eCreatures::StoneWallRight, eCreatures::StoneWallLeft });
-                me->DespawnAreaTriggersInArea({ eSpells::ReverberationsAreaTrigger });
+                me->DespawnAreaTriggersInArea( eSpells::ReverberationsAreaTrigger );
 
                 m_Events.Reset();
 
@@ -208,7 +208,7 @@ class boss_kromog : public CreatureScript
                 Talk(eTalks::TalkSlay);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -244,14 +244,14 @@ class boss_kromog : public CreatureScript
                 Reset();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
                 summons.DespawnAll();
 
                 me->DespawnCreaturesInArea({ eCreatures::StoneWallRight, eCreatures::StoneWallLeft });
-                me->DespawnAreaTriggersInArea({ eSpells::ReverberationsAreaTrigger });
+                me->DespawnAreaTriggersInArea( eSpells::ReverberationsAreaTrigger );
 
                 Talk(eTalks::TalkDeath);
 
@@ -313,7 +313,7 @@ class boss_kromog : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HealthBelowPctDamaged(m_FrenzyHealthPct, p_Damage) && !me->HasAura(eSpells::Frenzy))
                 {
@@ -669,7 +669,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffects::SPELL_EFFECT_KNOCK_BACK_DEST, true);
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
             {
                 switch (p_SpellInfo->Id)
                 {
@@ -866,7 +866,7 @@ class npc_foundry_rune_of_crushing_earth : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply)
                 {
@@ -1027,7 +1027,7 @@ class spell_foundry_slam : public SpellScriptLoader
         {
             PrepareSpellScript(spell_foundry_slam_SpellScript);
 
-            void HandleDamage(SpellEffIndex p_EffIndex)
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Boss = GetCaster())
                 {
@@ -1080,7 +1080,7 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1265,7 +1265,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedTargets;
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             float l_Orientation = p_Caster->GetOrientation();
 
@@ -1273,7 +1273,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
             p_DestinationPosition.m_positionY = p_Caster->GetPositionY() + 60.0f * sin(l_Orientation);
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1332,7 +1332,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
             ReverberationsDamage = 157247
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {

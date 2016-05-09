@@ -563,7 +563,7 @@ bool OutdoorPvP::HandleDropFlag(Player* player, uint32 id)
     return false;
 }
 
-bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, uint64 guid, uint32 id)
+bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, uint64 /*guid*/, uint32 /*id*/)
 {
     return false;
 }
@@ -573,7 +573,7 @@ bool OPvPCapturePoint::CanTalkTo(Player* /*player*/, Creature* /*c*/, GossipMenu
     return false;
 }
 
-bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 id)
+bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 /*id*/)
 {
     return false;
 }

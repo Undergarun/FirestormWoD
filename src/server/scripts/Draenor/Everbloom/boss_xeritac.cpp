@@ -34,10 +34,6 @@ enum eXeritacMovementInformed
     MovementInformedXeritacMovementHappenedTopWaypoint
 };
 
-Position const g_PositionHomePoint = { 923.86f, 1455.56f, 90.867f, 5.414306f };
-
-Position const g_PositionMotionStart = { 934.475f, 1430.094f, 85.754f };
-
 Position const g_PositionRandomMovements[5] =
 {
     { 931.20f, 1441.587f, 85.600f, 3.289805f },
@@ -496,7 +492,7 @@ public:
             me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eVenomSprayerEvents::EventVenomSprayers, urand(7 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
         }
@@ -570,7 +566,7 @@ public:
                 me->Attack(l_Target, true);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eCrazedPaleOrcEvents::EventSwipe, 2 * TimeConstants::IN_MILLISECONDS);
         }
@@ -692,7 +688,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             me->CastSpell(me, eToxicSpiderlingsSpells::SpellToxicBlood);
             events.ScheduleEvent(eToxicSpiderlingEvents::EventToxicBolt, 8 * TimeConstants::IN_MILLISECONDS);
@@ -852,7 +848,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 p_Diff) override
+        void UpdateAI(const uint32 /*p_Diff*/) override
         {
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.3f, true);
 

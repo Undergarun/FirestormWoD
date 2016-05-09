@@ -85,7 +85,7 @@ enum eNyamiCreatures
 class EventPostNyamiFight : public BasicEvent
 {
     public:
-        explicit EventPostNyamiFight(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+        explicit EventPostNyamiFight(Unit* p_Unit, int p_Value) : BasicEvent(), m_Obj(p_Unit), m_Modifier(p_Value)
         {
         }
 
@@ -159,7 +159,6 @@ class EventPostNyamiFight : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int m_Event;
 };
 
 /// Warden - 76572
@@ -506,7 +505,7 @@ class auchindon_nyami_radiant_star : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* /*p_AreaTrigger*/, uint32 /*p_Time*/) override
         {
             /// Does nothing.
         }
@@ -532,7 +531,7 @@ class auchindon_nyami_malefic_defender : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eAuchindonEvents::EventCrusaderStirke, 5 * TimeConstants::IN_MILLISECONDS);
             }
@@ -773,7 +772,7 @@ class auchindon_nyami_torn_spirits : public SpellScriptLoader
         {
             PrepareSpellScript(auchindon_spells);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 uint32 l_Entries[3] = { eNyamiCreatures::CreatureMaleficDefender, eNyamiCreatures::CreatureTwistedMagus, eNyamiCreatures::CreatureSpitefulArbitrer };
 

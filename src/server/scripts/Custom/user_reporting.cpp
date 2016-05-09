@@ -57,7 +57,7 @@ namespace MS { namespace UserReporting
         public :
             ServerUserReporting() : ServerScript("ServerUserReporting") {}
 
-            void OnPacketReceive(WorldSocket* p_Socket, WorldPacket& p_Packet, WorldSession* p_Session) override
+            void OnPacketReceive(WorldSocket* /*p_Socket*/, WorldPacket& p_Packet, WorldSession* p_Session) override
             {
                 if (p_Session != nullptr && p_Packet.GetOpcode() == CMSG_LOAD_SCREEN)
                     UpdateUserStep(p_Session, State::LoadScreen);

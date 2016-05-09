@@ -104,12 +104,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -134,7 +134,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    void npc_HomerStonefield_Garr::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+    void npc_HomerStonefield_Garr::OnShipmentCreated(Player* p_Player, Creature* /*p_Creature*/, uint32 p_BuildingID)
     {
         switch (p_BuildingID)
         {
@@ -205,7 +205,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_HomerStonefield_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_HomerStonefield_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         p_Player->PlayerTalkClass->ClearMenus();
         GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;

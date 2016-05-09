@@ -298,7 +298,7 @@ class boss_sinestra : public CreatureScript
                 pInstance->SetBossState(DATA_SINESTRA, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 if (pInstance)
                 {
@@ -392,7 +392,7 @@ class boss_sinestra : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*who*/)
             {
                 Talk(SAY_SINESTRA_KILL);
             }
@@ -625,7 +625,7 @@ class npc_sinestra_calen : public CreatureScript
                 events.Reset();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 bEventDeath = false;
                 bLowHealth = false;
@@ -643,7 +643,7 @@ class npc_sinestra_calen : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell)
+            void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_TWILIGHT_BLAST_DUMMY)
                 {
@@ -653,7 +653,7 @@ class npc_sinestra_calen : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 summons.DespawnAll();
                 
@@ -730,13 +730,13 @@ class npc_sinestra_twilight_whelp : public CreatureScript
                 events.Reset();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 bDead = false;
                 events.ScheduleEvent(EVENT_TWILIGHT_SPIT, urand(7000, 15000));
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth() && !bDead)
                 {
@@ -802,7 +802,7 @@ class npc_sinestra_twilight_flames : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spellEntry)
+            void SpellHit(Unit* /*caster*/, const SpellInfo* spellEntry)
             {
                 if (spellEntry->Id == SPELL_CALL_FLAMES)
                     DoCast(me, SPELL_TWILIGHT_FLAMES, true);
@@ -835,7 +835,7 @@ class npc_sinestra_twilight_essence : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 DoCast(me, SPELL_TWILIGHT_ESSENCE, true);
                 events.ScheduleEvent(EVENT_ESSENCE_GROW, 30000);
@@ -885,12 +885,12 @@ class npc_sinestra_barrier_stalker : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 me->NearTeleportTo(addsPos[14].GetPositionX(), addsPos[14].GetPositionY(), addsPos[14].GetPositionZ(), addsPos[14].GetOrientation());
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
@@ -924,7 +924,7 @@ class npc_sinestra_shadow_orb : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 events.ScheduleEvent(EVENT_SELECT_TARGET, 2000);
             }
@@ -998,7 +998,7 @@ class npc_sinestra_pulsing_twilight_egg : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 if (Creature* pSinestra = me->FindNearestCreature(NPC_SINESTRA, 200.0f))
                     pSinestra->AI()->DoAction(ACTION_EGG);
@@ -1029,7 +1029,7 @@ class npc_sinestra_twilight_spitecaller : public CreatureScript{
                 events.Reset();
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_INDOMITABLE_DUMMY, true);
                 events.ScheduleEvent(EVENT_UNLEASH_ESSENCE, 8000);
@@ -1094,17 +1094,17 @@ class npc_sinestra_twilight_drake : public CreatureScript{
             {
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
 
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->SetCanFly(false);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 events.ScheduleEvent(EVENT_TWILIGHT_BREATH, urand(12000, 15000));
             }
@@ -1144,7 +1144,7 @@ class spell_sinestra_wrack: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_wrack_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1197,7 +1197,7 @@ class spell_sinestra_twilight_extinction: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_twilight_extinction_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -1269,7 +1269,7 @@ class spell_sinestra_indomitable_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_indomitable_aura_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1277,7 +1277,7 @@ class spell_sinestra_indomitable_aura: public SpellScriptLoader
                 GetTarget()->ApplyUberImmune(0, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1430,7 +1430,7 @@ class spell_sinestra_twilight_essence: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sinestra_twilight_essence_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || GetTarget())
                     return;
@@ -1461,7 +1461,7 @@ class achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am : public Ac
     public:
         achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am() : AchievementCriteriaScript("achievement_i_cant_hear_you_over_the_sound_of_how_awesome_i_am") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

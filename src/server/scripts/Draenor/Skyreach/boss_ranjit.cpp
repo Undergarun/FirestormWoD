@@ -142,7 +142,7 @@ namespace MS
                         DoScriptText(int32(Texts::KILL_PLAYER_2), me);
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     _EnterCombat();
 

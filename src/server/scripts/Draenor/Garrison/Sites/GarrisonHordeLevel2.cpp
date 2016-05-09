@@ -68,7 +68,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// When instance script is updated
     /// @p_Diff : Time since last update
-    void InstanceScript_GarrisonHordeLevel2::Update(uint32 p_Diff)
+    void InstanceScript_GarrisonHordeLevel2::Update(uint32 /*p_Diff*/)
     {
 
     }
@@ -108,20 +108,20 @@ namespace MS { namespace Garrison { namespace Sites
     /// When the garrison owner started a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Started quest
-    void InstanceScript_GarrisonHordeLevel2::OnQuestStarted(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonHordeLevel2::OnQuestStarted(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Rewarded quest
-    void InstanceScript_GarrisonHordeLevel2::OnQuestReward(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonHordeLevel2::OnQuestReward(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
     /// When the garrison owner abandon a quest
     /// @p_Owner : Garrison owner
     /// @p_Quest : Abandoned quest
-    void InstanceScript_GarrisonHordeLevel2::OnQuestAbandon(Player* p_Owner, const Quest* p_Quest)
+    void InstanceScript_GarrisonHordeLevel2::OnQuestAbandon(Player* /*p_Owner*/, const Quest* /*p_Quest*/)
     {
 
     }
@@ -166,7 +166,7 @@ namespace MS { namespace Garrison { namespace Sites
 
     /// Owner can use the garrison cache ?
     /// @p_Owner : Garrison owner
-    bool InstanceScript_GarrisonHordeLevel2::CanUseGarrisonCache(Player* p_Owner)
+    bool InstanceScript_GarrisonHordeLevel2::CanUseGarrisonCache(Player* /*p_Owner*/)
     {
         return true;
     }
@@ -177,7 +177,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// Can upgrade the garrison
     /// @p_Owner                : Garrison owner
     /// @p_CurrentGarrisonLevel : Current garrison level
-    bool InstanceScript_GarrisonHordeLevel2::CanUpgrade(Player* p_Owner, uint32 p_CurrentGarrisonLevel)
+    bool InstanceScript_GarrisonHordeLevel2::CanUpgrade(Player* /*p_Owner*/, uint32 p_CurrentGarrisonLevel)
     {
         if (p_CurrentGarrisonLevel != 2)
             return false;
@@ -204,7 +204,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonHordeLevel2::OnMissionStart(Player* p_Owner, uint32 p_MissionID, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonHordeLevel2::OnMissionStart(Player* p_Owner, uint32 /*p_MissionID*/, std::vector<uint32> p_Followers)
     {
         if (p_Owner->HasQuest(Quests::Horde_MissionProbable))
         {
@@ -231,7 +231,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// When a construction start
     /// @p_Owner      : Garrison owner
     /// @p_BuildingID : Purchased building ID
-    void InstanceScript_GarrisonHordeLevel2::OnPurchaseBuilding(Player* p_Owner, uint32 p_BuildingID)
+    void InstanceScript_GarrisonHordeLevel2::OnPurchaseBuilding(Player* /*p_Owner*/, uint32 /*p_BuildingID*/)
     {
 
     }
@@ -308,7 +308,7 @@ namespace MS { namespace Garrison { namespace Sites
         }
     }
 
-    void InstanceScript_GarrisonHordeLevel2::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    void InstanceScript_GarrisonHordeLevel2::OnDeleteBuilding(Player* p_Owner, uint32 /*p_BuildingID*/, uint32 p_BuildingType, bool p_RemoveForUpgrade)
     {
         if (p_RemoveForUpgrade)
             return;

@@ -42,13 +42,13 @@ public:
         return commandTable;
     }
 
-    static bool HandleSpellogEnableCommand(ChatHandler* p_Handler, char const* p_Args)
+    static bool HandleSpellogEnableCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         sSpellLogMgr->AddOrSetListener(p_Handler->GetSession()->GetPlayer(), 0);
         return true;
     }
 
-    static bool HandleSpellogDisableCommand(ChatHandler* p_Handler, char const* p_Args)
+    static bool HandleSpellogDisableCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
     {
         sSpellLogMgr->RemoveListener(p_Handler->GetSession()->GetPlayer());
         return true;

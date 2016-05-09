@@ -234,7 +234,7 @@ class boss_the_butcher : public CreatureScript
                 m_MaggotSpawned.clear();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -275,7 +275,7 @@ class boss_the_butcher : public CreatureScript
                 return false;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::SpellFrenzy))
                     return;
@@ -301,13 +301,13 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossTheButcher, EncounterState::FAIL);
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// The Butcher only regens by script
                 p_Value = 0;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -678,7 +678,7 @@ class npc_highmaul_maggot : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -712,7 +712,7 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -875,7 +875,7 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
                 GushingWoundsKill = 156153
             };
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -921,7 +921,7 @@ class areatrigger_highmaul_pale_vitriol : public AreaTriggerEntityScript
             PaleVitriol = 163046
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {

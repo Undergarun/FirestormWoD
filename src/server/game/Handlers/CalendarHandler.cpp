@@ -538,7 +538,7 @@ void WorldSession::HandleCalendarGetNumPending(WorldPacket& /*p_RecvData*/)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& p_RecvData) ///< p_RecvData is unused
+void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& /*p_RecvData*/)
 {
     /*uint32 mapId, difficulty;
     uint8 toggleExtend;
@@ -554,7 +554,7 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& p_RecvData) ///< p_
 }
 
 // ----------------------------------- SEND ------------------------------------
-void WorldSession::SendCalendarRaidLockout(InstanceSave const* save, bool add) ///< is unused
+void WorldSession::SendCalendarRaidLockout(InstanceSave const* /*save*/, bool /*add*/)
 {
     /*uint32 currTime = time(NULL);
 

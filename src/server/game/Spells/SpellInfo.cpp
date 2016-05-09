@@ -4259,6 +4259,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         case SpellSpecificType::SpellSpecificFoodAndDrink:
         case SpellSpecificType::SpellSpecificWellFed:
             return true;
+        default:
+            break;
     }
 
     bool callSubterfuge = true;

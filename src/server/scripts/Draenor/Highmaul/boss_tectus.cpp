@@ -344,7 +344,7 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (!AllGardiansDead())
                 {
@@ -390,7 +390,7 @@ class boss_tectus : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
@@ -519,7 +519,7 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 /// Prevent bug when boss instakills himself
                 if (p_Attacker == me)
@@ -580,7 +580,7 @@ class boss_tectus : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            void RegeneratePower(Powers /*p_Power*/, int32& p_Value) override
             {
                 /// Tectus only regens by script
                 p_Value = 0;
@@ -1025,7 +1025,7 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventMeteoricEarthspire, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_Events.HasEvent(eEvents::EventReconstitution) || me->HasAura(eSpells::ReconstitutionScale))
                     return;
@@ -1050,7 +1050,7 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (Creature* l_Tectus = me->FindNearestCreature(eHighmaulCreatures::Tectus, 100.0f))
                     l_Tectus->AI()->DoAction(eActions::GuardianDead);
@@ -1195,7 +1195,7 @@ class npc_highmaul_oro : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_Events.HasEvent(eEvents::EventReconstitution) || me->HasAura(eSpells::ReconstitutionScale))
                     return;
@@ -1204,7 +1204,7 @@ class npc_highmaul_oro : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventReconstitution, 100);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (Creature* l_Tectus = me->FindNearestCreature(eHighmaulCreatures::Tectus, 100.0f))
                     l_Tectus->AI()->DoAction(eActions::GuardianDead);
@@ -1357,7 +1357,7 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Talk(eTalk::Aggro);
 
@@ -1377,7 +1377,7 @@ class npc_highmaul_night_twisted_berserker : public CreatureScript
                 me->GetMotionMaster()->MoveCharge(&l_Pos, SPEED_CHARGE, eSpells::RavingAssault);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (p_ID != eSpells::RavingAssault)
                     return;
@@ -1455,7 +1455,7 @@ class npc_highmaul_night_twisted_earthwarper : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Talk(eTalk::Aggro);
 
@@ -1602,7 +1602,7 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
                 ScheduleTectonicUpheaval
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
@@ -1659,7 +1659,7 @@ class spell_highmaul_earthen_pillar_timer : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Creature* l_Target = GetTarget()->ToCreature())
                 {
@@ -1741,13 +1741,13 @@ class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, -10, Powers::POWER_ENERGY);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1782,7 +1782,7 @@ class spell_highmaul_spawn_dust_cloud : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -1874,7 +1874,7 @@ class spell_highmaul_petrification : public SpellScriptLoader
                 Petrification = 163809
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -1976,7 +1976,7 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2021,7 +2021,7 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2051,7 +2051,7 @@ class areatrigger_highmaul_gift_of_earth : public AreaTriggerEntityScript
             Petrification   = 162892
         };
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* /*p_AreaTrigger*/, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             if (p_Caster == nullptr)
                 return;
@@ -2060,7 +2060,7 @@ class areatrigger_highmaul_gift_of_earth : public AreaTriggerEntityScript
                 p_DestinationPosition = *l_Tectus;
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {

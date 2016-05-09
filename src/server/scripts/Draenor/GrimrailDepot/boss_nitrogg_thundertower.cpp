@@ -84,7 +84,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*p_Who*/) override
         {
             if (m_Instance != nullptr)
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);

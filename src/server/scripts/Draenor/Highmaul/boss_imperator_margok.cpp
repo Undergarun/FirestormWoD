@@ -409,7 +409,7 @@ class boss_imperator_margok : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -430,7 +430,7 @@ class boss_imperator_margok : public CreatureScript
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType) override
             {
                 /// Accelerated Assault Icon Accelerated Assault is a stacking buff that Mar'gok applies to himself each time he performs consecutive attacks against the same target.
                 /// Each stack of the buff increases Mar'gok's attack speed by 8%.
@@ -448,7 +448,7 @@ class boss_imperator_margok : public CreatureScript
                     me->CastSpell(me, eSpells::AcceleratedAssault, true);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 /// -1 means transition phase, 0 means last phase, until Mar'gok's death
                 if (g_SwitchPhasePcts[m_Phase - 1] == 255 || !g_SwitchPhasePcts[m_Phase - 1])
@@ -489,7 +489,7 @@ class boss_imperator_margok : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -1503,7 +1503,7 @@ class npc_highmaul_rune_of_displacement : public CreatureScript
 
             void Reset() override { }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const /*p_Diff*/) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -1643,13 +1643,13 @@ class npc_highmaul_arcane_aberration : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -2113,7 +2113,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                     AttackStart(l_Target);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
@@ -2128,7 +2128,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvent::EventCheckRune, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -2238,7 +2238,7 @@ class npc_highmaul_volatile_anomaly : public CreatureScript
                     AttackStart(l_Target);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->SetAIAnimKitId(eVisual::AnimKit);
 
@@ -2300,7 +2300,7 @@ class npc_highmaul_gorian_reaver : public CreatureScript
                     AttackStart(l_Target);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
@@ -2312,7 +2312,7 @@ class npc_highmaul_gorian_reaver : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventDevastatingShockwave, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -2431,7 +2431,7 @@ class spell_highmaul_mark_of_chaos : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_mark_of_chaos_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
@@ -2466,7 +2466,7 @@ class spell_highmaul_destructive_resonance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_destructive_resonance_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2522,7 +2522,7 @@ class spell_highmaul_branded : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2622,7 +2622,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
             Position m_MarkPos;
 
-            void OnAuraApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnAuraApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2632,7 +2632,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                 }
             }
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -2643,7 +2643,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
                 }
             }
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2741,7 +2741,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_fortification_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -2837,7 +2837,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_branded_replication_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT || GetCaster() == nullptr)
@@ -3016,7 +3016,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_transition_visuals_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3166,7 +3166,7 @@ class spell_highmaul_force_nova_fortified : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_force_nova_fortified_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::ForceNovaFortificationDummy, true);
@@ -3262,7 +3262,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_force_nova_dot_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3317,7 +3317,7 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_orbs_of_chaos_aura_AuraScript);
 
-            void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterAuraRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEFAULT)
@@ -3388,7 +3388,7 @@ class spell_highmaul_volatile_anomalies : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_volatile_anomalies_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3453,7 +3453,7 @@ class areatrigger_highmaul_orb_of_chaos : public AreaTriggerEntityScript
 
         uint32 m_DamageTimer;
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             p_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
 

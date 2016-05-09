@@ -115,18 +115,6 @@ Position const g_PositionCircles[8] =
     {1795.574f, -12.252f, 261.308f, 4.767466f}
 };
 
-Position const g_PositionDefiledSpiritsMovement[8] =
-{
-    {1817.100f, -26.563f, 276.406f, 4.329479f},
-    {1817.556f, -49.306f, 300.783f, 2.829369f},
-    {1794.627f, -57.390f, 289.405f, 2.762329f},
-    {1773.798f, -52.632f, 278.439f, 1.855194f},
-    {1787.415f, -34.515f, 289.940f, 0.099829f},
-    {1819.107f, -6.276f, 273.476f,  4.141892f},
-    {1789.199f, -9.896f, 270.591f,  3.336035f},
-    {1797.886f, -20.040f, 281.501f, 5.166008f}
-};
-
 uint32 g_LunarRuneEntries[3] = { eSadanaSpells::SpellLunarRuneVisual, eSadanaSpells::SpellLunarRuneVisual01, eSadanaSpells::SpellLunarRuneVisual02 };
 uint32 g_ShadowRuneEntries[3] = { eSadanaSpells::SpellShadowRuneVisual, eSadanaSpells::SpellShadowRuneVisual01, eSadanaSpells::SpellShadowRuneVisual02 };
 
@@ -385,7 +373,7 @@ class boss_sadana_bloodfury : public CreatureScript
                 me->SummonCreature(eShadowmoonBurialGroundsCreatures::CreatureEclipseTrigger, g_PositionCircles[l_I], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*p_Who*/) override
         {
             if (m_Instance != nullptr)
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
@@ -709,7 +697,7 @@ class shadowmoon_burial_grounds_sadana_creature_defiled_spirit : public Creature
             }
         }
 
-        void FillCirclePath(Position const& p_CenterPos, float p_Radius, float p_Z, Movement::PointsArray& p_Path, bool p_Clockwise)
+        void FillCirclePath(Position const& p_CenterPos, float p_Radius, float /*p_Z*/, Movement::PointsArray& p_Path, bool p_Clockwise)
         {
             float m_Step   =  p_Clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
             float m_Angle  =  p_CenterPos.GetAngle(me->GetPositionX(), me->GetPositionY());
@@ -1171,7 +1159,7 @@ class shadowmoon_burial_grounds_sadana_spell_dark_eclipse : public SpellScriptLo
             GetCaster()->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             PreventDefaultAction();
             if (GetCaster())

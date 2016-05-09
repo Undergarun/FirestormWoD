@@ -344,7 +344,7 @@ class boss_feludius : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (Creature* _ignacious = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_IGNACIOUS) : 0))
                     if (!_ignacious->isInCombat())
@@ -380,12 +380,12 @@ class boss_feludius : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_FELUDIUS_KILL);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spell)
+            void SpellHit(Unit* /*attacker*/, const SpellInfo* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_HYDROLANCE ||
@@ -565,7 +565,7 @@ class boss_ignacious : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 if (Creature* _feludius = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_FELUDIUS) : 0))
                     if (!_feludius->isInCombat())
@@ -598,12 +598,12 @@ class boss_ignacious : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_IGNACIOUS_KILL);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spell)
+            void SpellHit(Unit* /*attacker*/, const SpellInfo* spell)
             {
                 if (me->HasAura(RAID_MODE(SPELL_AEGIS_OF_FLAMES, SPELL_AEGIS_OF_FLAMES_25, SPELL_AEGIS_OF_FLAMES_10H, SPELL_AEGIS_OF_FLAMES_25H)))
                     return;
@@ -843,7 +843,7 @@ class boss_arion : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {                
             }
 
@@ -859,12 +859,12 @@ class boss_arion : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_ARION_KILL);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spell)
+            void SpellHit(Unit* /*attacker*/, const SpellInfo* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_LIGHTNING_BLAST ||
@@ -1036,7 +1036,7 @@ class boss_terrastra : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
             }
 
@@ -1052,7 +1052,7 @@ class boss_terrastra : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_TERRASTRA_KILL);
             }
@@ -1194,7 +1194,7 @@ class boss_elementium_monstrosity : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_MONSTROSITY_AGGRO);
                 DoCast(me, SPELL_CRYOGENIC_AURA);
@@ -1215,12 +1215,12 @@ class boss_elementium_monstrosity : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_MONSTROSITY_KILL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();
@@ -1345,11 +1345,11 @@ public:
             DoCast(me, SPELL_LASHING_WINDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
         };
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon();
         }
@@ -1402,7 +1402,7 @@ public:
             }
         };
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon();
         }
@@ -1431,7 +1431,7 @@ class npc_ignacious_inferno_leap : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!pInstance)
                     me->DespawnOrUnsummon();
@@ -1448,7 +1448,7 @@ class npc_ignacious_inferno_leap : public CreatureScript
                         me->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1477,7 +1477,7 @@ class npc_ignacious_inferno_rush : public CreatureScript
                 DoCast(me, SPELL_INFERNO_RUSH_AURA);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1501,13 +1501,13 @@ class npc_feludius_water_bomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spell)
+            void SpellHit(Unit* /*attacker*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_WATER_BOMB)
                     DoCastAOE(SPELL_WATER_BOMB_1);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1536,7 +1536,7 @@ class npc_ignacious_flame_strike : public CreatureScript
                 DoCast(SPELL_FLAME_STRIKE);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spell)
+            void SpellHit(Unit* /*attacker*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_FLAME_STRIKE_DUMMY)
                 {
@@ -1545,7 +1545,7 @@ class npc_ignacious_flame_strike : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (me->HasAura(SPELL_FLAME_STRIKE_AURA))
                 {
@@ -1557,7 +1557,7 @@ class npc_ignacious_flame_strike : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1591,11 +1591,11 @@ class npc_liquid_ice : public CreatureScript
                 DoCast(me, SPELL_LIQUID_ICE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             };
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1648,7 +1648,7 @@ class npc_ascendant_council_plume_stalker : public CreatureScript
                 }
             };
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1700,7 +1700,7 @@ class npc_eruption_target : public CreatureScript
                 }
             };
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1755,7 +1755,7 @@ class spell_ignis_rising_flames: public SpellScriptLoader
         {
             PrepareAuraScript(spell_ignis_rising_flames_AuraScript)
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -1816,7 +1816,7 @@ class spell_arion_lashing_winds: public SpellScriptLoader
         {
             PrepareSpellScript(spell_arion_lashing_winds_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if(!GetCaster() || !GetHitUnit())
                     return;
@@ -1845,7 +1845,7 @@ class spell_arion_chain_lightning: public SpellScriptLoader
         {
             PrepareSpellScript(spell_arion_chain_lightning_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if(!GetCaster() || !GetHitUnit())
                     return;
@@ -1878,7 +1878,7 @@ class spell_arion_disperse: public SpellScriptLoader
         {
             PrepareSpellScript(spell_arion_disperse_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if(!GetCaster())
                     return;
@@ -1909,7 +1909,7 @@ class spell_terrastra_eruption: public SpellScriptLoader
         {
             PrepareSpellScript(spell_terrastra_eruption_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if(!GetCaster())
                     return;
@@ -2003,7 +2003,7 @@ class spell_terrastra_harden_skin: public SpellScriptLoader
         {
             PrepareAuraScript(spell_terrastra_harden_skin_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -2015,7 +2015,7 @@ class spell_terrastra_harden_skin: public SpellScriptLoader
                 }
             }
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & /*absorbAmount*/)
             {
                 dmgInfo.ModifyDamage(-(int32)(dmgInfo.GetDamage()/2));
             }
@@ -2042,7 +2042,7 @@ class spell_monstrosity_cryogenic_aura: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monstrosity_cryogenic_aura_AuraScript)
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -2078,7 +2078,7 @@ class spell_elemental_statis: public SpellScriptLoader
         {
             PrepareAuraScript(spell_elemental_statis_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
             {
                 if (!GetCaster() || !GetTarget())
                     return;

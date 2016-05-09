@@ -1097,6 +1097,9 @@ class playerScript_enter_tanaan : public PlayerScript
                                 }
                                 break;
                             }
+                            /// This can be happens
+                            case TEAM_NEUTRAL:
+                                break;
                         }
                         break;
                     }
@@ -1333,7 +1336,7 @@ class npc_archmage_khadgar : public CreatureScript
                 m_Events.Reset();
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_Id) override
+            void SetGUID(uint64 p_Guid, int32 /*p_Id*/) override
             {
                 if (std::find(m_PlayerGuids.begin(), m_PlayerGuids.end(), p_Guid) == m_PlayerGuids.end())
                     m_PlayerTimers.insert(std::make_pair(p_Guid, 32000));
@@ -1427,7 +1430,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
                 me->SetAttackTime(WeaponAttackType::BaseAttack, 1800 + urand(0, 400));
             }
 
-            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage, const SpellInfo* l_Spellinfo) override
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage, const SpellInfo* /*l_Spellinfo*/) override
             {
                 if (p_DoneBy->ToCreature())
                 {
@@ -1436,7 +1439,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const /*p_Diff*/) override
             {
                 bool l_HasVictim = me->isInCombat();
 
@@ -1810,7 +1813,7 @@ class npc_tanaan_ariok : public CreatureScript
                 m_IsSummoned = true;
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const /*p_Diff*/) override
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -1924,7 +1927,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestKargatharProvingGrounds)
             {
@@ -2283,7 +2286,7 @@ class npc_shattered_hand_brawler : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id) override
+            void MovementInform(uint32 p_Type, uint32 /*p_Id*/) override
             {
                 if (p_Type != EFFECT_MOTION_TYPE)
                     return;
@@ -2325,7 +2328,7 @@ class npc_archmage_khadgar_shadowmoon : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/) override
         {
             switch (p_Quest->GetQuestId())
             {
@@ -2364,12 +2367,12 @@ class npc_archmage_khadgar_shadowmoon : public CreatureScript
                 m_SceneTimer = 0;
             }
 
-            void SetData(uint32 p_Id, uint32 p_Value) override
+            void SetData(uint32 /*p_Id*/, uint32 p_Value) override
             {
                 m_SceneTimer = (uint16)p_Value;
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_Id) override
+            void SetGUID(uint64 p_Guid, int32 /*p_Id*/) override
             {
                 p_PlayerGuid = p_Guid;
             }
@@ -2418,7 +2421,7 @@ class npc_tanaan_ungra : public CreatureScript
         {
             npc_tanaan_ungraAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 20.0f);
@@ -2449,7 +2452,7 @@ class npc_taskmaster_gurran : public CreatureScript
         {
             npc_taskmaster_gurranAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 20.0f);
@@ -2480,7 +2483,7 @@ class npc_ankova_the_fallen : public CreatureScript
         {
             npc_ankova_the_fallenAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 20.0f);
@@ -2569,7 +2572,7 @@ class npc_tanaan_yrel_summon : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
             {
                 switch (p_Id)
                 {
@@ -2683,12 +2686,12 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
 
             uint64 m_PlayerGuid;
 
-            void SetGUID(uint64 p_Guid, int32 p_Id) override
+            void SetGUID(uint64 p_Guid, int32 /*p_Id*/) override
             {
                 m_PlayerGuid = p_Guid;
             }
 
-            void DoAction(int32 const p_Id) override
+            void DoAction(int32 const /*p_Id*/) override
             {
                 Talk(0);
 
@@ -2721,7 +2724,7 @@ class npc_keli_dan_the_breaker : public CreatureScript
         {
             npc_keli_dan_the_breakerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void EnterCombat(Unit* p_Victim) override
+            void EnterCombat(Unit* /*p_Victim*/) override
             {
                 if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 40.0f))
                 {
@@ -2730,7 +2733,7 @@ class npc_keli_dan_the_breaker : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 36.0f);
@@ -2758,7 +2761,7 @@ class npc_cordana_felsong_blackrock : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
             {
@@ -2808,7 +2811,7 @@ class npc_cordana_felsong_blackrock : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(l_Player, 0.2f, 0.3f);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 /*diff*/) override
             {
                 if (!m_Summoned)
                     return;
@@ -2848,7 +2851,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+        bool OnQuestAccept(Player* /*p_Player*/, Creature* p_Creature, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde)
             {
@@ -2876,7 +2879,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
 
             uint64 m_PlayerGuid;
             bool m_Summoned;
-            void DoAction(int32 const p_Id) override
+            void DoAction(int32 const /*p_Id*/) override
             {
                 /// TALK
                 Talk(0);
@@ -2898,7 +2901,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(l_Player, 0.2f, 5.7f);
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 /*diff*/) override
             {
                 if (!m_Summoned)
                     return;
@@ -2947,7 +2950,7 @@ class npc_blackrock_grunt : public CreatureScript
         {
             npc_lady_liadrin_blackrockAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 3.0f);
@@ -2991,7 +2994,7 @@ class npc_ogron_warcrusher : public CreatureScript
                 m_Events.ScheduleEvent(EventAddaura, 3000);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 3.0f);
@@ -3029,7 +3032,7 @@ class npc_farseer_drek_thar : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, Quest const* p_Quest) override
         {
             uint64 l_PlayerPhase = p_Player->GetPhaseMask();
 
@@ -3051,7 +3054,7 @@ class npc_farseer_drek_thar : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge && g_MapShiftPlayerScript)
             {
@@ -3186,13 +3189,13 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventCheckTalk, 5000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, const SpellInfo* l_Spellinfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, const SpellInfo* /*l_Spellinfo*/) override
             {
                 if (p_Damage >= me->GetHealth())
                     me->SetFullHealth();
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id) override
+            void MovementInform(uint32 p_Type, uint32 /*p_Id*/) override
             {
                 if (p_Type == FOLLOW_MOTION_TYPE)
                 {
@@ -3329,7 +3332,7 @@ class npc_tanaan_gogluk : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (me->IsVehicle())
                 {
@@ -3383,7 +3386,7 @@ class npc_tanaan_gogluk_adds : public CreatureScript
                 EventMachineGun    = 2
             };
 
-            void DoAction(int32 const p_Action) override
+            void DoAction(int32 const /*p_Action*/) override
             {
                 switch (me->GetEntry())
                 {
@@ -3446,7 +3449,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
             return false;
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* /*p_Player*/, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/) override
         {
             if (p_Quest->GetQuestId() != TanaanQuests::QuestTakingATripToTheTopOfTheTank)
                 return true;
@@ -3510,7 +3513,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
             std::vector<uint32> m_Auras;
             uint8 l_UpdateCounter;
 
-            void SetGUID(uint64 p_Guid, int32 p_Id) override
+            void SetGUID(uint64 p_Guid, int32 /*p_Id*/) override
             {
                 if (std::find(m_GuidList.begin(), m_GuidList.end(), p_Guid) != m_GuidList.end())
                     return;
@@ -3622,7 +3625,7 @@ class npc_black_rock_trigger : public CreatureScript
                 m_Events.Reset();
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_Id) override
+            void SetGUID(uint64 p_Guid, int32 /*p_Id*/) override
             {
                 if (std::find(m_PlayerGuids.begin(), m_PlayerGuids.end(), p_Guid) == m_PlayerGuids.end())
                     m_PlayerTimers.insert(std::make_pair(p_Guid, 22000));
@@ -3778,7 +3781,7 @@ class npc_tanaan_napestone_riverbeast : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Target) override
+            void EnterCombat(Unit* /*p_Target*/) override
             {
                 m_Events.ScheduleEvent(eDatas::EventWhipSplash, 3000);
             }
@@ -3829,7 +3832,7 @@ class npc_tanaan_mandragora : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Target) override
+            void EnterCombat(Unit* /*p_Target*/) override
             {
                 m_Events.ScheduleEvent(eDatas::EventChomp, 3000);
                 m_Events.ScheduleEvent(eDatas::EventImpactSplit, 10000);
@@ -3887,7 +3890,7 @@ class npc_tanaan_overseer_gotrigg : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Target) override
+            void EnterCombat(Unit* /*p_Target*/) override
             {
                 /// TALK
 
@@ -3946,7 +3949,7 @@ class npc_tanaan_arena_helper : public CreatureScript
                     m_Events.ScheduleEvent(eDatas::EventCheckEnnemies, 1000);
             }
 
-            void EnterCombat(Unit* p_Target) override
+            void EnterCombat(Unit* /*p_Target*/) override
             {
                 m_Events.CancelEvent(EventCheckEnnemies);
             }
@@ -3956,7 +3959,7 @@ class npc_tanaan_arena_helper : public CreatureScript
                 m_Events.ScheduleEvent(eDatas::EventCheckEnnemies, 1000);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_Id) override
+            void MovementInform(uint32 p_Type, uint32 /*p_Id*/) override
             {
                 if (p_Type != DISTRACT_MOTION_TYPE)
                     return;
@@ -4131,7 +4134,7 @@ class gob_makeshift_plunger : public GameObjectScript
     public:
         gob_makeshift_plunger() : GameObjectScript("gob_makeshift_plunger") { }
 
-        bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+        bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
         {
             if (p_Player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
             {
@@ -4157,7 +4160,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+        bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
         {
             if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && !p_Player->GetQuestObjectiveCounter(273388))
             {
@@ -4197,7 +4200,7 @@ class gob_main_cannon_trigger : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+        bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
         {
             if (p_Player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) >= 200)
             {
@@ -4224,7 +4227,7 @@ class spell_tanaan_inferno : public SpellScriptLoader
         {
             PrepareSpellScript(spell_tanaan_inferno_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
 

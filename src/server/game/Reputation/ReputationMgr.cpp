@@ -157,7 +157,7 @@ void ReputationMgr::SendForceReactions()
     _player->SendDirectMessage(&l_Data);
 }
 
-void ReputationMgr::SendState(FactionState const* faction)
+void ReputationMgr::SendState(FactionState const* /*faction*/)
 {
     uint32 count = 0;
 

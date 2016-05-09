@@ -61,12 +61,12 @@ class boss_argaloth : public CreatureScript
                 Phase = PHASE_1;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 instance->SetBossState(DATA_ARGALOTH, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
             }

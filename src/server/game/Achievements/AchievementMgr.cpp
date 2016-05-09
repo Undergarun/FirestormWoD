@@ -1663,6 +1663,8 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
                 break;                                   // Not implemented yet :(
+            default:
+                break;
         }
         
         SetCompletedAchievementsIfNeeded(l_AchievementCriteria, p_ReferencePlayer, p_LoginCheck);
@@ -3596,6 +3598,8 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(uint32 p_Type)
             return "GUILD_CHALLENGE";
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
             return "COLLECT_TOYS";
+        default:
+            break;
     }
     return "MISSING_TYPE";
 }

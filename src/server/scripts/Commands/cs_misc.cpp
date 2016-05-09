@@ -128,7 +128,7 @@ class misc_commandscript: public CommandScript
             return commandTable;
         }
 
-        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleInitializeLFGCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player = p_Handler->getSelectedPlayer();
 
@@ -140,7 +140,7 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleToggleChatFiltering(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleToggleChatFiltering(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             WorldSession* l_PlayerSession = p_Handler->GetSession();
 

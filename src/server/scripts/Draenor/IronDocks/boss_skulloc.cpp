@@ -214,7 +214,7 @@ private:
     int m_Modifier;
 };
 
-static void SkullocEnforcersStart(InstanceScript* p_Instance, Creature* p_Me)
+static void SkullocEnforcersStart(InstanceScript* p_Instance, Creature* /*p_Me*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -544,7 +544,7 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                 events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 20 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -869,7 +869,7 @@ class iron_docks_skulloc_spell_gronn_smash : public SpellScriptLoader
         {
             PrepareSpellScript(iron_docks_skulloc_spell_gronn_smash_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex p_EffIndex)
+            void HandleScriptEffect(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {

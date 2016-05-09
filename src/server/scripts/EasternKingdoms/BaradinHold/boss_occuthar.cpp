@@ -82,7 +82,7 @@ class boss_occuthar : public CreatureScript
                 _JustReachedHome();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_EYE_OF_OCCUTHAR, 59000);
@@ -91,7 +91,7 @@ class boss_occuthar : public CreatureScript
                 instance->SetBossState(DATA_OCCUTHAR, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
             }
@@ -153,7 +153,7 @@ class npc_occuthar_eyestalk : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (Creature* pOccuthar = me->FindNearestCreature(NPC_OCCUTHAR, 200.0f))
                 {

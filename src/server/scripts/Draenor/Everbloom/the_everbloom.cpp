@@ -40,7 +40,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             events.ScheduleEvent(eDreadpetalEvents::EventDreadpetalToxin, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
         }
@@ -111,7 +111,7 @@ public:
             me->CastSpell(me, eTenderSpells::SpellSolarChannel);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eTenderEvents::EventDancingThorns, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTenderEvents::EventEnragedGrowth, urand(7 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
@@ -281,7 +281,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGnarlrootEvents::EventGasp, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eGnarlrootEvents::EventBarrageOfLeaves, 15 * TimeConstants::IN_MILLISECONDS);
@@ -353,7 +353,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eMandragoraEvents::EventVirulendGasp, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }
@@ -422,7 +422,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eEverbloomMenderEvents::EventChokingVines, 18 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eEverbloomMenderEvents::EventHealingWaters, 10 * TimeConstants::IN_MILLISECONDS);
@@ -501,7 +501,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eTwistedAbominationEvents::EventNoxiousEruption, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eTwistedAbominationEvents::EventPoisonousClaws, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
@@ -582,7 +582,7 @@ public:
             me->AddAura(eInfestedIcecallerSpells::SpellMindRoot, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eInfestedIcecallerEvents::EventFrozenSnap, urand(10 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eInfestedIcecallerEvents::EventFrostbolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -661,7 +661,7 @@ public:
             me->AddAura(eAddledArcanmoacerSpells::SpellMindRoot, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eAddledArcanonmacerEvents::EventArcaneBlast, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
         }
@@ -731,7 +731,7 @@ public:
             me->AddAura(ePutridPyromancerSpells::SpellMindRoot, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(ePutridPyromancerEvents::EventDragonsBreath, urand(14 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(ePutridPyromancerEvents::EventFireball, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -790,7 +790,7 @@ public:
             SpellBoundingWhirlJump = 172577
         };
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster() && !GetHitUnit())
                 return;

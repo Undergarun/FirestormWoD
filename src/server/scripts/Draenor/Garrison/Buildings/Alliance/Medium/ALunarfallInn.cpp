@@ -42,7 +42,7 @@ namespace MS { namespace Garrison
         return new npc_MadisonClarkAI(p_Creature);
     }
 
-    void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_MadisonClarkAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         if (Player* l_Player = GetOwner())
         {

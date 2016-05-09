@@ -404,7 +404,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 }
             }
 
-            int l_StringCount = 0;
+            uint32 l_StringCount = 0;
 
             for (uint32 l_I = 0; l_I < strlen(m_Format); ++l_I)
             {
@@ -424,7 +424,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 if (l_SQLQueryResult)
                 {
                     /// All locales (but not us), Index & BuildVerified
-                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2)) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
+                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2))
                     {
                         sLog->outError(LOG_FILTER_GENERAL, "SQL format invalid for table : '%s_locale'", p_SQL->m_SQLTableName.c_str());
                         return false;
@@ -637,7 +637,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 } while (l_SQLQueryResult->NextRow());
             }
 
-            int l_StringCount = 0;
+            uint32 l_StringCount = 0;
 
             for (uint32 l_I = 0; l_I < strlen(m_Format); ++l_I)
             {
@@ -657,7 +657,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 if (l_SQLQueryResult)
                 {
                     /// All locales (but not us), Index & BuildVerified
-                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2)) ///< Comparison of integers of different signs: 'uint32' (aka 'unsigned int') and 'int'
+                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2))
                     {
                         p_OutMessage = "SQL format invalid for table : '" + m_SQL->m_SQLTableName + "_locale'";
                         return false;

@@ -368,7 +368,7 @@ class boss_gruul_foundry : public CreatureScript
                 p_Value = 0;
             }
 
-            void OnAddThreat(Unit* p_Attacker, float& p_Threat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const* p_SpellInfo) override
+            void OnAddThreat(Unit* /*p_Attacker*/, float& p_Threat, SpellSchoolMask /*p_SchoolMask*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->HasAura(eSpells::SpellDestructiveRampage))
                     p_Threat = 0;

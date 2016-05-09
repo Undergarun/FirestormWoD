@@ -112,7 +112,7 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
     CheckUnique("spell", "character_spell", &SpellCheck);
 }
 
-bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
+bool CharacterDatabaseCleaner::TalentCheck(uint32 /*talent_id*/)
 {
     return false;
     /*

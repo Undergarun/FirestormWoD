@@ -68,12 +68,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -117,7 +117,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 p_Diff)
+    void npc_FrostWallGrunt::npc_FrostWallGruntAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }
@@ -170,7 +170,7 @@ namespace MS { namespace Garrison
 
     /// On AI Update
     /// @p_Diff : Time since last update
-    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 p_Diff)
+    void npc_FrostWallSmith::npc_FrostWallSmithAI::UpdateAI(const uint32 /*p_Diff*/)
     {
 
     }

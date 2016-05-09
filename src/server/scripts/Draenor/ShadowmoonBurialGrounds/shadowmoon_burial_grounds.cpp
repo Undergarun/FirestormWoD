@@ -239,7 +239,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eMonstrousCorpseSpiderEvents::EventDeathVenom, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eMonstrousCorpseSpiderEvents::EventNecroticBurst, 25 * TimeConstants::IN_MILLISECONDS);
@@ -347,7 +347,7 @@ public:
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(ePlagueBatEvents::EventPlagueSpit, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
         }
@@ -419,7 +419,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eShadowmoonBoneMenderEvents::EventRattlingBones, 16 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eShadowmoonBoneMenderEvents::EventFratlity, 10 * TimeConstants::IN_MILLISECONDS);
@@ -505,7 +505,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             me->CastSpell(me, eExhumerSpells::SpellExhumeTheCryptsScriptEffect);
             events.ScheduleEvent(eExhumerEvents::EventVoidBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -649,7 +649,7 @@ public:
             me->setFaction(HostileFaction);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             if (!m_Intro)
             {
@@ -773,7 +773,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             ActivateDefiledSpirits();
             events.ScheduleEvent(eLoyalistEvents::EventShadowBolt, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
@@ -889,7 +889,7 @@ public:
             me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellVioletLook);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             me->RemoveAura(eShadowmoonBurialGroundsSpells::SpellStrangulate);
         }
@@ -995,7 +995,7 @@ public:
             me->AddAura(eRitualOfBonesSpells::SpellShadowRitualBonesAuraCosmetic, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eRitualOfBonesEvents::EventVoidCleave, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
         }

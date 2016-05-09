@@ -2160,7 +2160,7 @@ void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
 
 /// Should return a fully valid Battleground object for the type ID.
 /// @p_TypeID : Battleground Type ID
-Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId p_TypeID)
+Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*p_TypeID*/)
 {
     // TODO: Implement script-side battlegrounds.
     ASSERT(false);

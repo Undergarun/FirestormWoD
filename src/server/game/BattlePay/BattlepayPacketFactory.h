@@ -79,7 +79,7 @@ namespace Battlepay
                 "ASHRAN_STORE_BUY_FAILED"
             };
 
-            static const char* GetCustomMessage(uint8 p_ID)
+            inline const char* GetCustomMessage(uint8 p_ID)
             {
                 return g_CustomMessage[p_ID];
             }

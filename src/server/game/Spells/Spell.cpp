@@ -5344,7 +5344,7 @@ void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 at
     m_effectExecuteData[effIndex].AddExtraAttack(victim->GetGUID(), attCount);
 }
 
-void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId)
+void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* /*victim*/, uint32 /*spellId*/)
 {
     /// Why is commented ?
     /*InitEffectExecuteData(effIndex);
@@ -8775,7 +8775,7 @@ void Spell::FinishTargetProcessing()
     SendLogExecute();
 }
 
-void Spell::InitEffectExecuteData(uint8 effIndex)
+void Spell::InitEffectExecuteData(uint8 /*effIndex*/)
 {
 }
 

@@ -43,7 +43,7 @@ namespace MS { namespace Garrison
         return new npc_MurgAI(p_Creature);
     }
 
-    void npc_MurgAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_MurgAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         if (Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript())
         {

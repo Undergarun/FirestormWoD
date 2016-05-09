@@ -30,7 +30,7 @@ enum eAncientProtectorsCreatrues
 
 enum eAncientProtectorsTalks
 {
-    ///> Life Warden Gola
+    /// Life Warden Gola
     TalkXelaIntro = 10, ///> The forest closes in around you.(46135)
     TalkXelaAggro = 11, ///> You are not welcome here!(46133)
     TalkXelaSpell02 = 12, ///> Grow! (46139)
@@ -39,7 +39,7 @@ enum eAncientProtectorsTalks
     TalkXelaKill01 = 15, ///> You are warned...(46136)
     TalkXelaDeath = 35, ///> I return... to the soil...(46134)
 
-    ///> Earthshaper Telu
+    /// Earthshaper Telu
     TalkLuenaAggro = 17, ///> You will never escape...(46209)
     TalkLuenaSpell01 = 18, ///> You will be purged!(46212)
     TalkLuenaSpell02 = 19, ///> The forst shield us.(46213)
@@ -49,7 +49,7 @@ enum eAncientProtectorsTalks
     TalkLuenaKill02 = 24  ///> Life ends.(46211)
 };
 
-static void StartAncientProtectors(InstanceScript* p_Instance, Creature* p_Me, Unit* /*p_Target*/)
+static void StartAncientProtectors(InstanceScript* p_Instance, Creature* /*p_Me*/, Unit* /*p_Target*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -603,7 +603,7 @@ public:
             events.Update(p_Diff);
 
             // Handle grasping Vine.
-            if (m_GraspingVineTargetGUID != NULL)
+            if (m_GraspingVineTargetGUID != 0)
             {
                 if (Unit* l_GraspingVineTarget = sObjectAccessor->GetUnit(*me, m_GraspingVineTargetGUID))
                 {
@@ -778,7 +778,7 @@ public:
     {
         PrepareAuraScript(the_everbloom_ancient_protectors_spell_rapid_tides_AuraScript);
 
-        void AfterApply(AuraEffect const*p_AurEff, AuraEffectHandleModes p_Mode)
+        void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Target = GetTarget())
             {
@@ -787,7 +787,7 @@ public:
             }
         }
 
-        void OnRemove(AuraEffect const*p_AurEff, AuraEffectHandleModes p_Mode)
+        void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
             if (Unit* l_Target = GetTarget())
             {

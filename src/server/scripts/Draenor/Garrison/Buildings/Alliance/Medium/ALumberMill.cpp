@@ -19,16 +19,16 @@ namespace MS { namespace Garrison
 
     namespace npc_JustinTimberLordData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -90,7 +90,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_JustinTimberLord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_JustinTimberLord::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
@@ -105,14 +105,14 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_JustinTimberLord::OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest)
+    bool npc_JustinTimberLord::OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, const Quest* /*p_Quest*/)
     {
         p_Player->CastSpell(p_Player, Spells::SpellApprenticeLogging, true);
 
         return true;
     }
 
-    void npc_JustinTimberLord::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+    void npc_JustinTimberLord::OnShipmentCreated(Player* p_Player, Creature* /*p_Creature*/, uint32 p_BuildingID)
     {
         if (p_BuildingID == Buildings::LumberMill_LumberMill_Level1)
         {

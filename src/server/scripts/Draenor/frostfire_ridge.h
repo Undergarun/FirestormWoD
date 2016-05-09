@@ -1,6 +1,4 @@
-#ifndef JADE_FOREST_H
-#define JADE_FOREST_H
-
+/*
 namespace FrostfireRidgeSpells
 {
     enum
@@ -38,6 +36,6 @@ namespace FrostfireRidgeCreatures
     enum
     {
     };
-}
+}*/
 
 #endif

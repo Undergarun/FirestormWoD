@@ -393,7 +393,7 @@ void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instanc
 class StampingPressActivation : public BasicEvent
 {
     public:
-        StampingPressActivation(uint64 p_Guid, uint32 p_AnimID, bool p_Maintain) : m_Guid(p_Guid), m_AnimID(p_AnimID), m_Maintain(p_Maintain), BasicEvent() { }
+        StampingPressActivation(uint64 p_Guid, uint32 p_AnimID, bool p_Maintain) : BasicEvent(), m_Guid(p_Guid), m_AnimID(p_AnimID), m_Maintain(p_Maintain) { }
         virtual ~StampingPressActivation() { }
 
         virtual bool Execute(uint64 /*p_EndTime*/, uint32 /*p_Time*/)

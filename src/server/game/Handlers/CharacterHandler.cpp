@@ -944,7 +944,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
      // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar);
 
-    uint32 time0 = getMSTime();
+    //uint32 time0 = getMSTime();
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), l_CharacterHolder, l_LoginHolder))
@@ -958,7 +958,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         return;
     }
 
-    uint32 time1 = getMSTime() - time0;
+    //uint32 time1 = getMSTime() - time0;
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
@@ -982,7 +982,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     SendAccountDataTimes(pCurrChar->GetGUID());
     SendFeatureSystemStatus();
 
-    uint32 time2 = getMSTime() - time1;
+    //uint32 time2 = getMSTime() - time1;
 
     /// Send MOTD
     {
@@ -1088,7 +1088,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     SendPacket(&l_Data);
 
-    uint32 time3 = getMSTime() - time2;
+    //uint32 time3 = getMSTime() - time2;
 
     // Send item extended costs hotfix
     std::set<uint32> extendedCostHotFix = sObjectMgr->GetOverwriteExtendedCosts();
@@ -1153,7 +1153,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         }
     }
 
-    uint32 time4 = getMSTime() - time3;
+    //uint32 time4 = getMSTime() - time3;
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar) || !pCurrChar->CheckInstanceLoginValid())
     {
@@ -1179,7 +1179,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         }
     }
 
-    uint32 time5 = getMSTime() - time4;
+    //uint32 time5 = getMSTime() - time4;
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
@@ -1187,7 +1187,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = '%u'", GetAccountId());
     pCurrChar->SetInGameTime(getMSTime());
 
-    uint32 time6 = getMSTime() - time5;
+    //uint32 time6 = getMSTime() - time5;
 
     // announce group about member online (must be after add to player list to receive announce to self)
     if (Group* group = pCurrChar->GetGroup())
@@ -1216,7 +1216,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     pCurrChar->ContinueTaxiFlight();
     //pCurrChar->LoadPet();
-    uint32 time7 = getMSTime() - time6;
+    //uint32 time7 = getMSTime() - time6;
 
     // Set FFA PvP for non GM in non-rest mode
     if (sWorld->IsFFAPvPRealm() && !pCurrChar->isGameMaster() && !pCurrChar->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
@@ -1273,7 +1273,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     pCurrChar->SendCUFProfiles();
     pCurrChar->SendToyBox();
 
-    uint32 time8 = getMSTime() - time7;
+    //uint32 time8 = getMSTime() - time7;
 
     // Hackfix Remove Talent spell - Remove Glyph spell
     pCurrChar->learnSpell(111621, false); // Reset Glyph
@@ -1303,9 +1303,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     else
         pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
-    uint32 time9 = getMSTime() - time8; ///> time9 is never read 01/18/16
+    //uint32 time9 = getMSTime() - time8; ///> time9 is never read 01/18/16
 
-    uint32 totalTime = getMSTime() - time0; ///< totaltime is never read 01/18/16
+    //uint32 totalTime = getMSTime() - time0; ///< totaltime is never read 01/18/16
     //if (totalTime > 50)
     //    sLog->outAshran("HandlePlayerLogin |****---> time1 : %u | time 2 : %u | time 3 : %u | time 4 : %u | time 5: %u | time 6 : %u | time 7 : %u | time 8 : %u | time 9 : %u | totaltime : %u", time1, time2, time3, time4, time5, time6, time7, time8, time9, totalTime);
 

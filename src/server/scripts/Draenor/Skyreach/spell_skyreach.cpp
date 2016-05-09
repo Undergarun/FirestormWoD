@@ -58,9 +58,9 @@ namespace MS
                     ///      \
                     ///       \
                     ///        R
-                    static const Position s_OriginPosition = { 918.919f, 1913.459f, 213.0f };
-                    static const Position s_RightPosition = { 936.999f, 1872.137f, 213.0f };
-                    static const Position s_LeftPosition = { 951.305f, 1882.338f, 213.0f };
+                    static const Position s_OriginPosition = { 918.919f, 1913.459f, 213.0f, 0.0f};
+                    static const Position s_RightPosition = { 936.999f, 1872.137f, 213.0f, 0.0f };
+                    static const Position s_LeftPosition = { 951.305f, 1882.338f, 213.0f, 0.0f };
 
                     Position l_RefLeftVect = s_LeftPosition - s_OriginPosition;
                     Position l_RefRightVect = s_RightPosition - s_OriginPosition;
@@ -150,7 +150,7 @@ namespace MS
             return new AreaTrigger_LensFlare();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_Targets)
             {
@@ -160,7 +160,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.5f;
@@ -230,7 +230,7 @@ namespace MS
             return new AreaTrigger_ProtectiveBarrier();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_Targets)
             {
@@ -240,7 +240,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 30.0f;
@@ -303,11 +303,11 @@ namespace MS
             return new AreaTrigger_Smash();
         }
 
-        void OnCreate(AreaTrigger* p_AreaTrigger)
+        void OnCreate(AreaTrigger* /*p_AreaTrigger*/)
         {
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             static const float k_Radius = 10.0f;
@@ -592,7 +592,7 @@ namespace MS
             return new AreaTrigger_SolarStorm();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_Targets)
             {
@@ -602,7 +602,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 4.0f;
@@ -703,8 +703,8 @@ namespace MS
     public:
         AreaTrigger_FourWinds()
             : AreaTriggerEntityScript("at_FourWinds"),
-            m_targets(),
             m_angle(0),
+            m_targets(),
             m_Last(60000),
             m_IsSpellAt2(0)
         {
@@ -742,7 +742,7 @@ namespace MS
             return l_b1 || l_b2;
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_targets)
             {
@@ -760,7 +760,7 @@ namespace MS
             m_angle = (m_IsSpellAt2 ? M_PI / + 72 : M_PI / 7) + (m_IsSpellAt2 ? M_PI / 36 : -M_PI / 72); // Magic values ! Taken from tests IG.
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             static const float k_RotSpeed[2] =
             {
@@ -920,8 +920,8 @@ namespace MS
     public:
         AreaTrigger_WindWall()
             : AreaTriggerEntityScript("at_WindWall"),
-            m_targets(),
             m_angle(0),
+            m_targets(),
             m_Last(60000),
             m_IsSpellAt2(0)
         {
@@ -947,7 +947,7 @@ namespace MS
             return std::abs(l_dy * p_Unit->GetPositionX() - l_dx * p_Unit->GetPositionY() - l_x1 * l_y2 + l_x2 * l_y1) / std::sqrt(l_dx * l_dx + l_dy * l_dy) < k_Radius;
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_targets)
             {
@@ -965,7 +965,7 @@ namespace MS
             m_IsSpellAt2 = p_AreaTrigger->GetSpellId() == uint32(Spells::WINDWALL_AT_2);
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             static const float k_RotSpeed[2] =
             {
@@ -1113,7 +1113,7 @@ namespace MS
             return new AreaTrigger_spinning_blade();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_targets)
             {
@@ -1125,7 +1125,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 4.0f;
@@ -1196,7 +1196,7 @@ namespace MS
             return new AreaTrigger_solar_zone();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_Targets)
             {
@@ -1209,7 +1209,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 6.0f;
@@ -1287,7 +1287,7 @@ namespace MS
             return new AreaTrigger_storm_zone();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_Targets)
             {
@@ -1297,7 +1297,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 4.0f;
@@ -1364,7 +1364,7 @@ namespace MS
             return new AreaTrigger_dervish();
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             for (auto l_Guid : m_Targets)
             {
@@ -1374,7 +1374,7 @@ namespace MS
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 4.0f;

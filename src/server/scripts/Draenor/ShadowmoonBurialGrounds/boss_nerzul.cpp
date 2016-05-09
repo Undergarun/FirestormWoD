@@ -125,7 +125,7 @@ public:
             DespawnCreaturesInArea(eNerzulCreatures::CreatureRitualOfBonesDarknessTrigger, me);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*p_Who*/) override
         {
             _EnterCombat();
             Talk(eNerzulTalks::TalkAggro);
@@ -321,7 +321,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eVoidSpawnEvents::EventVoidPulse, 15 * TimeConstants::IN_MILLISECONDS);
         }
@@ -497,7 +497,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_Id) override
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
         {
             if (p_Id == eNerzulMovementInformed::MovementInformedRitualOfBonesReachEndPoint)
             {
@@ -1022,7 +1022,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 /*p_Diff*/) override
         {
             if (!m_ListVoidSpawnsGuid.empty())
             {

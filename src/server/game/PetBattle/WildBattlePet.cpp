@@ -468,7 +468,7 @@ void WildBattlePetMgr::EnterInBattle(Creature* p_Creature)
     p_Creature->SetRespawnTime(MONTH);
     p_Creature->RemoveCorpse(false);
 }
-void WildBattlePetMgr::LeaveBattle(Creature* p_Creature, bool p_Defeated)
+void WildBattlePetMgr::LeaveBattle(Creature* p_Creature, bool /*p_Defeated*/)
 {
     if (!IsWildPet(p_Creature))
         return;
@@ -478,7 +478,6 @@ void WildBattlePetMgr::LeaveBattle(Creature* p_Creature, bool p_Defeated)
 
     WildBattlePetZonePools* l_Pools = &m_PoolsByMap[l_MapID][l_ZoneID];
 
-    Creature* l_ReplacedCreature = NULL;
 
     for (size_t l_I = 0; l_I < l_Pools->m_Templates.size(); l_I++)
     {

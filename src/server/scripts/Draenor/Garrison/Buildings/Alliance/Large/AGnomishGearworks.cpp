@@ -20,15 +20,15 @@ namespace MS {
 
         namespace npc_ZeeData
         {
-            InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+            InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
             {
             };
 
-            InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+            InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
             {
             };
 
-            InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+            InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
             {
             };
         }
@@ -57,7 +57,7 @@ namespace MS {
             return new npc_Zee_GarrisonAI(p_Creature);
         }
 
-        bool npc_Zee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+        bool npc_Zee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
         {
             if (p_Quest->GetQuestId() == Quests::Alliance_UnconventionalInventions)
             {
@@ -105,7 +105,7 @@ namespace MS {
                 m_OwnerGUID = p_Guid;
         }
 
-        void npc_Zee_GarrisonAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+        void npc_Zee_GarrisonAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
         {
             Player* l_Owner = ObjectAccessor::GetPlayer(*me, m_OwnerGUID);
 

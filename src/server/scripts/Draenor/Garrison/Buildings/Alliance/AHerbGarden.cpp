@@ -44,17 +44,17 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_OllyNimkipAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
 
         };
@@ -120,7 +120,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_NaronBloomthistle::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_NaronBloomthistle::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
         CreatureAI* l_AI = p_Creature->AI();
@@ -192,7 +192,7 @@ namespace MS { namespace Garrison
 
     /// When the PlotInstance ID is set
     /// @p_BuildingID : Set plot instance ID
-    void npc_NaronBloomthistleAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_NaronBloomthistleAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -251,7 +251,7 @@ namespace MS { namespace Garrison
     /// @p_Player : Subject
     /// @p_Quest  : Rewarded quest template
     /// @p_Opt    : Quest reward option (eg: Loot choose)
-    void npc_NaronBloomthistleAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Opt)
+    void npc_NaronBloomthistleAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 /*p_Opt*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 

@@ -212,7 +212,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*p_Who*/) override
         {
             _EnterCombat();
             Talk(eNhallishTalks::TalkAggro);
@@ -575,7 +575,7 @@ public:
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);       
         }
 
-        void UpdateAI(uint32 const p_Diff) override
+        void UpdateAI(uint32 const /*p_Diff*/) override
         {
             if (m_Instance != nullptr)
             {
@@ -810,7 +810,7 @@ public:
             SpellSoulless = 15497
         };
 
-        void HandleForceCast(SpellEffIndex p_EffIndex)
+        void HandleForceCast(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster())
                 return;

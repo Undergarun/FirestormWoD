@@ -444,7 +444,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData) ///< recvData is unused
+void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& /*recvData*/)
 {
     if (m_Player->InArena())
         if (m_Player->GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
@@ -825,7 +825,7 @@ void WorldSession::HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_Packet)
     //sBattlegroundMgr->ScheduleQueueUpdate(0, l_ArenaType, l_BGQueueTypeID, l_BGTypeId, l_BracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet) ///< p_Packet is unused
+void WorldSession::HandleBattlemasterJoinRated(WorldPacket & /*p_Packet*/)
 {
     // ignore if we already in BG or BG queue
     if (m_Player->InBattleground())
@@ -925,7 +925,7 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket &p_Packet) ///< p_Pac
     }
 }
 
-void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet) ///< p_Packet is unused
+void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & /*p_Packet*/) ///< p_Packet is unused
 {
     if (!m_Player || !m_Player->GetBattleground())
         return;

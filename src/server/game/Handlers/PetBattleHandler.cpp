@@ -37,7 +37,7 @@ void WorldSession::SendPetBattleSlotUpdates(bool p_NewSlotUnlocked)
     {
         uint64 l_Guid = 0;
 
-        bool l_IsLocked = false;
+        //bool l_IsLocked = false;
 
         //if (m_Player->HasBattlePetTraining() && (l_I + 1) <= l_UnlockedSlotCount)
         //    l_IsLocked = false;

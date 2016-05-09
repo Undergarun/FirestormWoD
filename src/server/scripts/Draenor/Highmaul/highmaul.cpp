@@ -441,7 +441,7 @@ class npc_highmaul_gorian_guardsman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventBloodyCleave, urand(4000, 7000));
                 m_Events.ScheduleEvent(eEvents::EventChainGrip, urand(3000, 8000));
@@ -550,7 +550,7 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                     me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
@@ -657,7 +657,7 @@ class npc_highmaul_gorian_runemaster : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventRuneOfDestruction, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventRuneOfDisintegration, urand(9000, 12000));
@@ -732,7 +732,7 @@ class npc_highmaul_gorian_enforcer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventMeatGrinder, urand(6000, 8000));
             }
@@ -802,7 +802,7 @@ class npc_highmaul_underbelly_vagrant : public CreatureScript
                 AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SpellLooting, false); });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
 
@@ -872,7 +872,7 @@ class npc_highmaul_gorian_sorcerer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventArcaneForce, urand(6000, 8000));
                 m_Events.ScheduleEvent(eEvents::EventArcaneBolt, urand(7000, 10000));
@@ -1028,7 +1028,7 @@ class npc_highmaul_night_twisted_soothsayer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventVoidStorm, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventVoidBolt, urand(4000, 7000));
@@ -1097,7 +1097,7 @@ class npc_highmaul_void_aberration : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventVoidSoul, urand(8000, 12000));
             }
@@ -1161,7 +1161,7 @@ class npc_highmaul_krush : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventBoarsRush, 5000);
             }
@@ -1282,7 +1282,7 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_IsCosmetic)
                     return;
@@ -1326,7 +1326,7 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 p_ID) override
+            uint64 GetGUID(int32 /*p_ID*/) override
             {
                 return m_ChargeTarget;
             }
@@ -1445,7 +1445,7 @@ class npc_highmaul_iron_warmaster : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_IsCosmetic)
                     return;
@@ -1597,7 +1597,7 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(4000, 7000));
@@ -1698,14 +1698,14 @@ class npc_highmaul_night_twisted_ritualist : public CreatureScript
                 me->CastSpell(me, eSpells::VoidChannel, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->RemoveAura(eSpells::VoidChannel);
 
                 m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(3000, 6000));
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (Creature* l_Aberration = Creature::GetCreature(*me, m_Aberration))
                     l_Aberration->AI()->DoAction(eAction::RitualistDied);
@@ -1798,7 +1798,7 @@ class npc_highmaul_greater_void_aberration : public CreatureScript
                 });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(6000, 9000));
             }
@@ -1889,7 +1889,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                 me->CastSpell(me, eSpells::AtArms, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 13 * TimeConstants::IN_MILLISECONDS);
@@ -1897,7 +1897,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                 me->RemoveAura(eSpells::AtArms);
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (p_ID != EVENT_CHARGE)
                     return;
@@ -1907,7 +1907,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -2039,7 +2039,7 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                 m_SlamCount = 0;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 6 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 17 * TimeConstants::IN_MILLISECONDS);
@@ -2065,7 +2065,7 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -2179,7 +2179,7 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 6 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 10 * TimeConstants::IN_MILLISECONDS);
@@ -2204,7 +2204,7 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -2289,12 +2289,12 @@ class npc_highmaul_ogron_brute : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventDecimate, 6 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -2627,14 +2627,14 @@ class npc_highmaul_warden_thultok : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
                 me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, 0.0f, 0.0f, 0.0f, 0.0f, 0);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
@@ -2710,7 +2710,7 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventRampage, 10 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2748,7 +2748,7 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (p_ID == eSpells::RampageAura)
                 {
@@ -2827,7 +2827,7 @@ class npc_highmaul_gorian_high_sorcerer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventNetherFont, 10 * TimeConstants::IN_MILLISECONDS);
@@ -2916,7 +2916,7 @@ class npc_highmaul_ogron_mauler : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 5 * TimeConstants::IN_MILLISECONDS);
             }
@@ -3009,14 +3009,14 @@ class npc_highmaul_guard_captain_thag : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventGroundStomp, 7 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRendingThrow, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (GameObject* l_Door = GameObject::GetGameObject(*me, m_DoorGuid))
                     l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
@@ -3108,7 +3108,7 @@ class npc_highmaul_councilor_daglat : public CreatureScript
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 1 * TimeConstants::IN_MILLISECONDS);
             }
@@ -3203,7 +3203,7 @@ class npc_highmaul_councilor_magknor : public CreatureScript
                 m_Summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->CastSpell(me, eSpells::ArcaneTorrentSummon, true);
 
@@ -3289,7 +3289,7 @@ class npc_highmaul_arcane_torrent : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (p_ID == eSpell::ArcaneTorrentMoveSearcher)
                     me->CastSpell(me, eSpell::ArcaneTorrentMoveSearcher, true);
@@ -3333,7 +3333,7 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
             }
@@ -3447,7 +3447,7 @@ class npc_highmaul_councilor_nouk : public CreatureScript
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->CastSpell(me, eSpells::TimeStop, false);
 
@@ -3531,7 +3531,7 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
             }
@@ -3556,7 +3556,7 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -3614,7 +3614,7 @@ class go_highmaul_arena_elevator : public GameObjectScript
     public:
         go_highmaul_arena_elevator() : GameObjectScript("go_highmaul_arena_elevator") { }
 
-        bool OnGameObjectElevatorCheck(GameObject const* p_GameObject) const override
+        bool OnGameObjectElevatorCheck(GameObject const* /*p_GameObject*/) const override
         {
             return false;
         }
@@ -4072,7 +4072,7 @@ class spell_highmaul_earthdevastating_slam : public SpellScriptLoader
                 ActionSlam
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (GetTarget() == nullptr)
                     return;
@@ -4169,7 +4169,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_arcane_barrage_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eSpells::ArcaneBarrageFirst, true);
@@ -4190,7 +4190,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_arcane_barrage_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpells::ArcaneBarrageSecond, true);
@@ -4223,7 +4223,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_decimate_SpellScript);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -4247,7 +4247,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_decimate_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -4350,7 +4350,7 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -4395,7 +4395,7 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScri
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -4424,7 +4424,7 @@ class areatrigger_highmaul_arcane_residue : public AreaTriggerEntityScript
             ArcaneResidue = 175056
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {

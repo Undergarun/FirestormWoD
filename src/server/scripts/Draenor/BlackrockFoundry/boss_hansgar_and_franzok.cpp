@@ -1817,7 +1817,7 @@ class npc_foundry_forge_overdrive : public CreatureScript
                 m_AffectedPlayers.clear();
             }
             
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 p_Damage = 0;
             }

@@ -278,7 +278,7 @@ class boss_koragh : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void SetGUID(uint64 p_Guid, int32 p_ID) override
+            void SetGUID(uint64 p_Guid, int32 /*p_ID*/) override
             {
                 m_RitualistGuids.erase(p_Guid);
 
@@ -426,7 +426,7 @@ class boss_koragh : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 _EnterCombat();
 
@@ -461,7 +461,7 @@ class boss_koragh : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 _JustDied();
 
@@ -736,12 +736,12 @@ class npc_highmaul_breaker_of_fel : public CreatureScript
                 me->CastSpell(me, eSpells::FelBreakerFelChannel, false);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventFelNova, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -821,7 +821,7 @@ class npc_highmaul_breaker_of_fire : public CreatureScript
                 me->CastSpell(me, eSpells::FelBreakerFireChannel, false);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventWildFlames, 4 * TimeConstants::IN_MILLISECONDS);
             }
@@ -848,7 +848,7 @@ class npc_highmaul_breaker_of_fire : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -981,12 +981,12 @@ class npc_highmaul_breaker_of_frost : public CreatureScript
                 me->CastSpell(me, eSpells::FelBreakerFrostChannel, false);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventFrozenCore, 4 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance == nullptr)
                     return;
@@ -1058,7 +1058,7 @@ class npc_highmaul_koragh_volatile_anomaly : public CreatureScript
                     AttackStart(l_Target);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_Exploded)
                     return;
@@ -1292,7 +1292,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 return true;
             }
 
-            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 m_AbsorbAmount = p_AurEff->GetAmount();
             }
@@ -1312,7 +1312,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (GetUnitOwner() == nullptr)
                     return;
@@ -1462,7 +1462,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                 {
@@ -1513,7 +1513,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                 DataRunicPlayersCount = 1
             };
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1523,7 +1523,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1588,7 +1588,7 @@ class spell_highmaul_expel_magic_fire : public SpellScriptLoader
                 ExpelMagicFireAoE = 172685
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::ExpelMagicFireAoE, true);
@@ -1621,7 +1621,7 @@ class spell_highmaul_expel_magic_arcane : public SpellScriptLoader
                 ExpelMagicArcaneMissile = 162398
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpell::ExpelMagicArcaneMissile, true);
@@ -1654,7 +1654,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
                 NullificationBarrierPower = 163612
             };
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& /*p_DmgInfo*/, uint32& /*p_AbsorbAmount*/)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -1666,7 +1666,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Target = GetUnitOwner())
                     l_Target->RemoveAura(eSpell::NullificationBarrierPower);
@@ -1756,7 +1756,7 @@ class spell_highmaul_suppression_field_aura : public SpellScriptLoader
                 SuppressionField = 1
             };
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
                 if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_EXPIRE || GetTarget() == nullptr)
@@ -1848,7 +1848,7 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedTargets;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -1912,7 +1912,7 @@ class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2004,7 +2004,7 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
 
         bool m_FirstMove;
 
-        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& /*p_SourcePosition*/, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/) override
         {
             float l_Rotation = frand(0.0f, 2 * M_PI);
             float l_Range = frand(10.0f, 30.0f);
@@ -2027,7 +2027,7 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
             }
         }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2071,8 +2071,8 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
-        {
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {/
             if (AreaTrigger* l_Visual = p_AreaTrigger->FindNearestAreaTrigger(eSpells::GroundMarker, 2.0f))
                 l_Visual->Remove(0);
         }

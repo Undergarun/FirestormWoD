@@ -67,28 +67,17 @@ enum eYalnuActions
     ActionAchievementWeedWhacker = 1
 };
 
-Position const g_PositionYalnuMoveToPortal = { 623.67f, 1730.01f, 143.357f };
+Position const g_PositionYalnuMoveToPortal = { 623.67f, 1730.01f, 143.357f, 0.0f };
 
 Position const g_PositionPortalToOverLook = { 876.61f, -1221.62f, 196.700f, 0.076986f };
 
-Position const g_PositionYalnuMoveToMiddle = { 963.22f, -1229.370f, 181.250f };
+Position const g_PositionYalnuMoveToMiddle = { 963.22f, -1229.370f, 181.250f, 0.0f };
 
 Position const g_PositionBaihuSpawn = { 955.670f, -1239.352f, 181.249f, 0.920571f };
 
-Position const g_PositionLadyBayeu = { 693.75f, -1227.05f, 181.249f, 6.011444f };
+Position const g_PositionLadyBayeu = { 693.75f, -1227.05f, 181.249f, 6.011444f};
 
-Position const g_PositionMoveToVineWallKealson = { 635.642f, 1640.213f, 124.989f };
-
-Position const g_PositionWallPos[7] =
-{
-    {659.50f, 1677.284f, 133.746f, 1.980766f},
-    {651.77f, 1674.292f, 133.555f, 1.910080f},
-    {645.53f, 1671.924f, 132.954f, 4.796197f},
-    {639.40f, 1670.620f, 131.356f, 1.780489f},
-    {634.46f, 1670.076f, 130.416f, 1.658752f},
-    {629.35f, 1669.642f, 130.290f, 1.639117f},
-    {622.48f, 1670.313f, 131.578f, 1.466329f}
-};
+Position const g_PositionMoveToVineWallKealson = { 635.642f, 1640.213f, 124.989f, 0.0f };
 
 Position const g_PositionMages[6] =
 {
@@ -184,7 +173,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_Id)
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
         {
             switch (p_Id)
             {
@@ -506,7 +495,7 @@ public:
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             switch (urand(0, 2))
             {
@@ -633,7 +622,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eSwiftSproutlingEvents::EventTendonRip, urand(7 * TimeConstants::IN_MILLISECONDS, 11 * TimeConstants::IN_MILLISECONDS));
         }
@@ -701,7 +690,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eYalnuEvents::EventNoxiousBreath, 12 * TimeConstants::IN_MILLISECONDS);
         }
@@ -769,7 +758,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eGnarledAncientEvents::EventLumberingSwipe, urand(11 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
         }
@@ -1049,7 +1038,7 @@ public:
             SpellFontOfLifeSummon = 169121
         };
 
-        void HandleSummon(SpellEffIndex p_EffIndex)
+        void HandleSummon(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster())
                 return;

@@ -19,15 +19,15 @@ namespace MS { namespace Garrison
 
     namespace npc_VeeData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
     }
@@ -56,7 +56,7 @@ namespace MS { namespace Garrison
         return new npc_Vee_GarrisonAI(p_Creature);
     }
 
-    bool npc_Vee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_Vee_Garrison::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         if (p_Quest->GetQuestId() == Quests::Horde_UnconventionalInventions)
         {
@@ -104,7 +104,7 @@ namespace MS { namespace Garrison
             m_OwnerGUID = p_Guid;
     }
 
-    void npc_Vee_GarrisonAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_Vee_GarrisonAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Player* l_Owner = ObjectAccessor::GetPlayer(*me, m_OwnerGUID);
 

@@ -113,12 +113,12 @@ public:
             summons.Despawn(summon);
         }
 
-        void JustDied(Unit* who)
+        void JustDied(Unit* /*who*/)
         {
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
             events.ScheduleEvent(EVENT_SHAPE_PORTAL, urand(10000, 15000));
@@ -175,7 +175,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_TWILIGHT_SHIFT, urand(5000, 15000));
         }
@@ -236,7 +236,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_SHADOW_MENDING);
             events.ScheduleEvent(EVENT_UMBRAL_FLAMES, urand(10000, 13000));

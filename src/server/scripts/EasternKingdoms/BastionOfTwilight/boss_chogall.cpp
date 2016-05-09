@@ -306,7 +306,7 @@ class boss_chogall : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoCorruption(CORRUPTION_CLEAR);
                 DoCorruption(CORRUPTION_INIT);
@@ -332,7 +332,7 @@ class boss_chogall : public CreatureScript
                     instance->SetBossState(DATA_CHOGALL, FAIL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();
@@ -521,7 +521,7 @@ class npc_chogall_fire_portal : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 events.ScheduleEvent(EVENT_ORDER_SUM, 3000);
             }
@@ -572,7 +572,7 @@ class npc_chogall_shadow_portal : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 events.ScheduleEvent(EVENT_ORDER_SUM, 3000);
             }
@@ -581,7 +581,7 @@ class npc_chogall_shadow_portal : public CreatureScript
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
             }
 
@@ -630,7 +630,7 @@ class npc_chogall_fire_elemental : public CreatureScript
             Creature* pChogall;
             bool bNear;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (!pInstance)
                     return;
@@ -701,7 +701,7 @@ class npc_chogall_shadow_lord : public CreatureScript
             Creature* pChogall;
             bool bNear;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (!pInstance)
                     return;
@@ -766,7 +766,7 @@ class npc_chogall_blaze : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_BLAZE_PERIODIC_TRIGGER);
             }
@@ -775,11 +775,11 @@ class npc_chogall_blaze : public CreatureScript
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
@@ -804,7 +804,7 @@ class npc_chogall_corruption : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_CORRUPTION_OF_THE_OLD_GOD_VISUAL);
             }
@@ -813,11 +813,11 @@ class npc_chogall_corruption : public CreatureScript
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };
@@ -843,7 +843,7 @@ class npc_chogall_darkened_creation : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoZoneInCombat(me);
                 events.ScheduleEvent(EVENT_DEBILITATING_BEAM, 2000);
@@ -853,7 +853,7 @@ class npc_chogall_darkened_creation : public CreatureScript
             {
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEBILITATING_BEAM ||
@@ -865,7 +865,7 @@ class npc_chogall_darkened_creation : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -919,7 +919,7 @@ class npc_chogall_malformation : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoZoneInCombat(me);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
@@ -929,7 +929,7 @@ class npc_chogall_malformation : public CreatureScript
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -1004,7 +1004,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 events.ScheduleEvent(EVENT_DEPRAVITY, urand(19000, 21000));
                 events.ScheduleEvent(EVENT_CORRUPTING_CRASH, urand(5000, 8000));
@@ -1015,7 +1015,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                 events.Reset();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEPRAVITY ||
@@ -1027,7 +1027,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1134,7 +1134,7 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
             }
 
@@ -1142,13 +1142,13 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
             {
             }
 
-            void DamageDealt(Unit* victim, uint32& damage, DamageEffectType type)
+            void DamageDealt(Unit* victim, uint32& /*damage*/, DamageEffectType type)
             {
                 if (type == DIRECT_DAMAGE)
                     AddCorruption(victim, 2);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                     me->DespawnOrUnsummon();

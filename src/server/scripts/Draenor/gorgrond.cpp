@@ -62,7 +62,7 @@ class boss_tarlna_the_ageless : public CreatureScript
                 SetEquipmentSlots(false, eDatas::MainHandEquipID);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 summons.DespawnAll();
             }
@@ -231,7 +231,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 me->RemoveAura(eSpells::SouthshoreMobScalingAura);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 summons.DespawnAll();
                 m_GorenList.clear();
@@ -377,7 +377,7 @@ class npc_untamed_mandragora : public CreatureScript
                 me->RemoveAllAreasTrigger();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(eEvents::EventNoxiousSpit, 8 * TimeConstants::IN_MILLISECONDS);
             }
@@ -446,7 +446,7 @@ class npc_giant_lasher : public CreatureScript
                 me->CastSpell(me, eSpells::SpellSubmerged, true);
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == eSpells::SpellGenesisAwake)
                 {
@@ -622,7 +622,7 @@ class npc_drov_frenzied_rumbler : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvent::EventAcidBreath, 5000);
             }
@@ -682,7 +682,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, p_AurEff->GetAmount(), true);
             }
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (!GetCaster())
                     return;
@@ -835,7 +835,7 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
             SpellNoxiousSpitDot = 176037
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             if (p_AreaTrigger->GetCaster() == nullptr)
                 return;

@@ -236,7 +236,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                         instance->SetBossState(BossIds::BossForgemasterGogduh, EncounterState::TO_BE_DECIDED);
                 }
 
-                void DoAction(const int32 p_Action)
+                void DoAction(const int32 /*p_Action*/)
                 {
                     Talk((uint8)Yells::Release);
                     me->SetControlled(false, UNIT_STATE_ROOT);
@@ -827,17 +827,17 @@ namespace MS { namespace Instances { namespace Bloodmaul
             {
                 PrepareAuraScript(spell_dancing_flames_AuraScript);
 
-                void HandleApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+                void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
                 {
                     m_Dispelled = false;
                 }
 
-                void HandleDispel(DispelInfo* dispelInfo)
+                void HandleDispel(DispelInfo* /*dispelInfo*/)
                 {
                     m_Dispelled = true;
                 }
 
-                void HandleRemoveEffect(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+                void HandleRemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
                 {
                     if (m_Dispelled || !GetCaster())
                         return;
@@ -1025,7 +1025,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
         public:
             areatrigger_shatter_earth() : AreaTriggerEntityScript("areatrigger_shatter_earth") { }
 
-            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/)
             {
                 if (!p_Caster)
                     return;
@@ -1062,7 +1062,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 p_DestinationPosition.SetOrientation(l_Orientation);
             }
 
-            void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+            void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
             {
                 Unit* l_Caster = p_AreaTrigger->GetCaster();
                 std::list<Unit*> l_TargetList;
@@ -1110,7 +1110,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
         public:
             areatrigger_volcanic_trantum() : AreaTriggerEntityScript("areatrigger_volcanic_trantum") { }
 
-            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+            void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& /*p_PathToLinearDestination*/)
             {
                 if (!p_Caster)
                     return;
@@ -1147,7 +1147,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
                 p_DestinationPosition.SetOrientation(l_Orientation);
             }
 
-            void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+            void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
             {
                 Unit* l_Caster = p_AreaTrigger->GetCaster();
                 Unit* l_Target = nullptr;
@@ -1191,7 +1191,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
         public:
             areatrigger_magma_barrage() : AreaTriggerEntityScript("areatrigger_magma_barrage") { }
 
-            void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+            void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
             {
                 Unit* l_Caster = p_AreaTrigger->GetCaster();
                 std::list<Unit*> l_TargetList;

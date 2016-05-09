@@ -250,7 +250,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleGarrisonDelete(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandleGarrisonDelete(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_TargetPlayer = p_Handler->getSelectedPlayer();
 
@@ -507,7 +507,7 @@ class garrison_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandlePlotDelCommand(ChatHandler* p_Handler, char const* p_Args)
+        static bool HandlePlotDelCommand(ChatHandler* p_Handler, char const* /*p_Args*/)
         {
             Player* l_Player     = p_Handler->GetSession()->GetPlayer();
             WorldObject* l_Target = nullptr;

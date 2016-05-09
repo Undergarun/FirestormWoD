@@ -228,7 +228,7 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply p_Reply)
     SendPacket(&l_Data);
 }
 
-void WorldSession::HandleTaxiRequestEarlyLandingOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleTaxiRequestEarlyLandingOpcode(WorldPacket & /*p_Packet*/)
 {
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
     {

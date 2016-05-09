@@ -66,7 +66,7 @@ Position const g_PostionRocketSparkHigherPlatform[2]= /// X21-01A Missile Barrag
     { 1726.215f, 1580.797f, 14.062f, 4.130380f }
 };
 
-static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me, Unit* /*p_Target*/)
+static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* /*p_Me*/, Unit* /*p_Target*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -78,7 +78,7 @@ static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me,
         l_Rocketspark->SetInCombatWithZone();
 }
 
-static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me)
+static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creature* /*p_Me*/)
 {
     if (p_Instance == nullptr)
         return;
@@ -96,7 +96,7 @@ static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creat
     }
 }
 
-static void WiningConditionRocketsparkAndBurka(InstanceScript* p_Instance, Creature* p_Me, Unit* l_Killer)
+static void WiningConditionRocketsparkAndBurka(InstanceScript* p_Instance, Creature* /*p_Me*/, Unit* l_Killer)
 {
     if (p_Instance == nullptr)
         return;
@@ -407,7 +407,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+        void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
         {
             if (p_Damage && p_Damage > 0)
             {
@@ -604,7 +604,7 @@ public:
     {
         PrepareSpellScript(grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript);
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (GetCaster())
             {
@@ -641,11 +641,11 @@ public:
             SpellX2101AMissileBarrage01 = 162423
         };
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             PreventDefaultAction();
 
-            ///< There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
+            /// There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
             uint32 l_Entries[2] = { eSpells::SpellX2101AMissileBarrage01, eSpells::SpellX2101AMissileBarrage };
 
             if (GetCaster())
@@ -692,11 +692,11 @@ public:
             SpellNewPlanMissile01 = 163930
         };
 
-        void HandlePeriodic(AuraEffect const* p_AurEff)
+        void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
         {
             PreventDefaultAction();
 
-            ///< There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
+            /// There are two entries, both must be casted at once. (It seems like a pretty tough fight for dem scrubs).
             uint32 l_Entries[2] = { eSpells::SpellNewPlanMissile, eSpells::SpellNewPlanMissile01 };
 
             if (GetCaster())

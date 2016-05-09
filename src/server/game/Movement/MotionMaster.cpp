@@ -209,7 +209,7 @@ void MotionMaster::MoveTargetedHome()
     }
     else
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Player (%llu) attempt targeted home", _owner->GetGUID());
+        sLog->outError(LOG_FILTER_GENERAL, "Player (%lu) attempt targeted home", _owner->GetGUID());
     }
 }
 
@@ -572,7 +572,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Player (GUID: %llu) attempt to seek assistance", _owner->GetGUID());
+        sLog->outError(LOG_FILTER_GENERAL, "Player (GUID: %lu) attempt to seek assistance", _owner->GetGUID());
     }
     else
     {
@@ -588,7 +588,7 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Player (%llu) attempt to call distract after assistance", _owner->GetGUID());
+        sLog->outError(LOG_FILTER_GENERAL, "Player (%lu) attempt to call distract after assistance", _owner->GetGUID());
     }
     else
     {

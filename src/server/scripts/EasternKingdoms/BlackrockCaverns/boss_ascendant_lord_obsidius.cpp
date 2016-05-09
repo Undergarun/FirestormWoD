@@ -148,7 +148,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                     pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, DONE);
             }
      
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }

@@ -73,7 +73,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_outhouse::OnGossipHello(Player * p_Player, GameObject * p_GameObject)
+    bool go_garrison_outhouse::OnGossipHello(Player * p_Player, GameObject * /*p_GameObject*/)
     {
         p_Player->CastSpell(p_Player, MS::Garrison::Spells::SPELL_RELIEVED);
 
@@ -342,7 +342,6 @@ namespace MS { namespace Garrison
             /// Adding items
             bool l_CanGetItems = true;
             uint32 l_NoSpaceForCount = 0;
-            uint8 l_Itr = 0;
             std::vector<uint32> l_UniqueItems = { 113261, 113262, 113263, 113264 };
 
             for (auto l_RewardItem : l_RewardItems)
@@ -832,7 +831,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    bool go_garrison_deactivated_mage_portal::OnGameObjectSpellCasterUse(const GameObject* p_GameObject, Player* p_User) const
+    bool go_garrison_deactivated_mage_portal::OnGameObjectSpellCasterUse(const GameObject* /*p_GameObject*/, Player* p_User) const
     {
         uint8 l_BuildingLevel = 0;
 
@@ -915,7 +914,7 @@ namespace MS { namespace Garrison
     /// Called when a player opens a gossip dialog with the GameObject.
     /// @p_Player     : Source player instance
     /// @p_GameObject : Target GameObject instance
-    bool go_garrison_essence_font::OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+    bool go_garrison_essence_font::OnGossipHello(Player* p_Player, GameObject* /*p_GameObject*/)
     {
         if (p_Player)
         {
@@ -936,7 +935,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    void go_garrison_anvil::OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 p_State)
+    void go_garrison_anvil::OnGameObjectStateChanged(const GameObject* p_GameObject, uint32 /*p_State*/)
     {
         if (p_GameObject->IsInGarrison() && p_GameObject->GetGoState() != GO_STATE_ACTIVE_ALTERNATIVE)
         {

@@ -16,7 +16,7 @@
 class EventTeleportPlayer : public BasicEvent
 {
     public:
-        explicit EventTeleportPlayer(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+        explicit EventTeleportPlayer(Unit* p_Unit, int p_Value) : BasicEvent(), m_Obj(p_Unit), m_Modifier(p_Value)
         {
         }
 
@@ -40,7 +40,6 @@ class EventTeleportPlayer : public BasicEvent
     private:
         Unit* m_Obj;
         int m_Modifier;
-        int m_Event;
 };
 
 class instance_auchindon : public InstanceMapScript

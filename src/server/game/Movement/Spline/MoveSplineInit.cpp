@@ -528,7 +528,7 @@ namespace Movement
         return l_MoveSpline.Duration();
     }
 
-    void MoveSplineInit::Stop(bool force)
+    void MoveSplineInit::Stop(bool /*force*/)
     {
         MoveSpline& move_spline = *unit->movespline;
 

@@ -274,7 +274,7 @@ class boss_beastlord_darmac : public CreatureScript
                     }
                 }
 
-                me->DespawnCreaturesInArea({ eCreatures::PackBeast });
+                me->DespawnCreaturesInArea( eCreatures::PackBeast );
 
                 if (m_Instance != nullptr)
                 {
@@ -293,7 +293,7 @@ class boss_beastlord_darmac : public CreatureScript
                 CreatureAI::EnterEvadeMode();
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 me->RemoveAllAreasTrigger();
 
@@ -301,7 +301,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                 summons.DespawnAll();
 
-                me->DespawnCreaturesInArea({ eCreatures::PackBeast });
+                me->DespawnCreaturesInArea( eCreatures::PackBeast );
 
                 _JustDied();
 
@@ -716,7 +716,7 @@ class boss_beastlord_darmac : public CreatureScript
                 }
             }
 
-            void OnExitVehicle(Unit* p_Vehicle, Position& p_ExitPos) override
+            void OnExitVehicle(Unit* /*p_Vehicle*/, Position& p_ExitPos) override
             {
                 float l_X = me->m_positionX - 2.5f * cos(me->m_orientation);
                 float l_Y = me->m_positionY - 2.5f * cos(me->m_orientation);
@@ -724,7 +724,7 @@ class boss_beastlord_darmac : public CreatureScript
                 p_ExitPos = { l_X, l_Y, me->m_positionZ, me->m_orientation };
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (m_SwitchStatePct <= 0.0f)
                     return;
@@ -961,7 +961,7 @@ class npc_foundry_cruelfang : public CreatureScript
                 m_RendAndTear = false;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
@@ -985,7 +985,7 @@ class npc_foundry_cruelfang : public CreatureScript
                 m_IsEvadeMode = false;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -1062,7 +1062,7 @@ class npc_foundry_cruelfang : public CreatureScript
                 }
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply)
                 {
@@ -1213,7 +1213,7 @@ class npc_foundry_dreadwing : public CreatureScript
                 m_IsEvadeMode = false;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
@@ -1237,7 +1237,7 @@ class npc_foundry_dreadwing : public CreatureScript
                 m_IsEvadeMode = false;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -1253,7 +1253,7 @@ class npc_foundry_dreadwing : public CreatureScript
                 me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply)
                 {
@@ -1436,7 +1436,7 @@ class npc_foundry_ironcrusher : public CreatureScript
                 m_Tantrum       = false;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
@@ -1461,7 +1461,7 @@ class npc_foundry_ironcrusher : public CreatureScript
                 m_IsEvadeMode = false;
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -1477,7 +1477,7 @@ class npc_foundry_ironcrusher : public CreatureScript
                 me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
             {
                 if (p_Apply)
                 {
@@ -1700,7 +1700,7 @@ class npc_foundry_heavy_spear : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 for (std::set<uint64>::iterator l_Guid = m_AffectedTargets.begin(); l_Guid != m_AffectedTargets.end();)
                 {
@@ -1728,7 +1728,7 @@ class npc_foundry_heavy_spear : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
             {
                 if (p_SpellInfo->Id == eSpells::FlameInfusion)
                     me->CastSpell(me, eSpells::SeekingEmbersSearch, true);
@@ -1842,7 +1842,7 @@ class npc_foundry_pack_beast : public CreatureScript
         {
             npc_foundry_pack_beastAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 /// Pack beasts despawns after 5 seconds if Dreadwing's alive, if not, 30 seconds.
                 if (me->HasAura(eSpells::FlameInfusionTriggered))
@@ -2091,7 +2091,7 @@ class areatrigger_foundry_inferno_breath : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2136,7 +2136,7 @@ class areatrigger_foundry_inferno_breath : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2167,7 +2167,7 @@ class areatrigger_foundry_superheated_shrapnel : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2212,7 +2212,7 @@ class areatrigger_foundry_superheated_shrapnel : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2243,7 +2243,7 @@ class areatrigger_foundry_flame_infusion : public AreaTriggerEntityScript
 
         std::set<uint64> m_AffectedPlayers;
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
@@ -2288,7 +2288,7 @@ class areatrigger_foundry_flame_infusion : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {

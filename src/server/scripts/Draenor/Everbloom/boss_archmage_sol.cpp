@@ -289,7 +289,7 @@ public:
                 m_TimerToDisablePreevent -= p_Diff;
         }
 
-        void SpawnNoxiousBomb(uint32 const p_Diff)
+        void SpawnNoxiousBomb(uint32 const /*p_Diff*/)
         {
             for (uint8 l_I = 0; l_I < 8; l_I++)
             {
@@ -414,7 +414,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             events.ScheduleEvent(eSporeImageEvents::EventFireBall, urand(10 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eSporeImageEvents::EventFrostbolt, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));

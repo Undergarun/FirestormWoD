@@ -19,15 +19,15 @@ namespace MS { namespace Garrison
 
     namespace npc_ApprenticeVarNathAIData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* /*p_This*/, Creature* /*p_Me*/)
         {
         };
     }
@@ -73,7 +73,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    void npc_ApprenticeVarNathAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_ApprenticeVarNathAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         using namespace MS::Garrison::GarrisonPortals;
 

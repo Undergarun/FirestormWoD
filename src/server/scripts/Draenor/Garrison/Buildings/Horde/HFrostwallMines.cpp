@@ -119,7 +119,7 @@ namespace MS { namespace Garrison
     /// @p_Creature : Target creature instance
     /// @p_Sender   : Sender menu
     /// @p_Action   : Action
-    bool npc_Gorsol::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_Gorsol::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         GarrisonNPCAI* l_AI = p_Creature->AI() ? static_cast<GarrisonNPCAI*>(p_Creature->AI()) : nullptr;
 
@@ -154,7 +154,7 @@ namespace MS { namespace Garrison
         SetAIObstacleManagerEnabled(true);
     }
 
-    void npc_GorsolAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 p_Option)
+    void npc_GorsolAI::sQuestReward(Player* p_Player, Quest const* p_Quest, uint32 /*p_Option*/)
     {
         if (p_Quest->GetQuestId() == Quests::Horde_ThingsAreNotGorenOurWay)
         {
@@ -190,7 +190,7 @@ namespace MS { namespace Garrison
         me->DespawnCreaturesInArea({ NPCs::NpcFrostwallGorenHatchling, NPCs::NpcFrostwallGoren, NPCs::NpcStonetooth }, 200.0f);
     }
 
-    void npc_GorsolAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
+    void npc_GorsolAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -242,7 +242,7 @@ namespace MS { namespace Garrison
 
     /// Select game object entry for a fresh gathering spawn
     /// @p_MiscData : Misc data
-    uint32 npc_GorsolAI::SelectGameObjectEntryForGatheringSpawn(uint32 p_MiscData)
+    uint32 npc_GorsolAI::SelectGameObjectEntryForGatheringSpawn(uint32 /*p_MiscData*/)
     {
         uint32 l_Entry = 0;
 

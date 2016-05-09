@@ -34,7 +34,7 @@ namespace MS
                 Teleport = 1,
             };
 
-            bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+            bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
             {
                 player->PlayerTalkClass->ClearMenus();
                 switch (action)
@@ -87,7 +87,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::Smash), urand(5000, 7000));
                     m_events.ScheduleEvent(uint32(Events::Burn), urand(10000, 12000));
@@ -178,11 +178,11 @@ namespace MS
                     m_events.ScheduleEvent(uint32(Events::Pierce), 500);
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                 }
 
-                void MovementInform(uint32 p_TypeId, uint32 p_PointId)
+                void MovementInform(uint32 /*p_TypeId*/, uint32 p_PointId)
                 {
                     switch (p_PointId)
                     {
@@ -273,7 +273,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1000, 2000));
                     m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
@@ -355,7 +355,7 @@ namespace MS
                     me->AddAura(uint32(Spells::Submerge), me);
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     me->RemoveAura(uint32(Spells::Submerge));
                     m_events.ScheduleEvent(uint32(Events::ProtectiveBarrier), urand(5000, 7000));
@@ -443,7 +443,7 @@ namespace MS
                     me->AddAura(uint32(Spells::Submerge), me);
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     me->RemoveAura(uint32(Spells::Submerge));
                     m_events.ScheduleEvent(uint32(Events::Empower), urand(4000, 5000));
@@ -527,7 +527,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                 }
 
@@ -601,7 +601,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::CHANGE_TARGET), 6000);
                     m_events.ScheduleEvent(uint32(Events::EXPOSE_WEAKNESS), 10000);
@@ -687,7 +687,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::SLASH), urand(0, 4000));
                     m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 7000));
@@ -765,7 +765,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
                 }
@@ -837,7 +837,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     // FIXME: Script Sun trinket.
                     //m_events.ScheduleEvent(uint32(Events::CRAFT_SUN_TRINCKET), urand(3000, 5000));
@@ -915,7 +915,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), urand(1000, 3000));
                 }
@@ -1003,7 +1003,7 @@ namespace MS
                     }
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
                 }
@@ -1079,7 +1079,7 @@ namespace MS
                     me->CastSpell(me, uint32(Spells::FLASH_BANG));
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));
                     m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
@@ -1160,7 +1160,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
                     m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
@@ -1257,7 +1257,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
                     m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
@@ -1341,7 +1341,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
                     m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
@@ -1417,7 +1417,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
                 }
@@ -1491,7 +1491,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::SOLAR_SHOWER), urand(8000, 13000));
                     m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
@@ -1571,7 +1571,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
                     m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
@@ -1666,7 +1666,7 @@ namespace MS
                     m_events.Reset();
                 }
 
-                void EnterCombat(Unit* who)
+                void EnterCombat(Unit* /*who*/)
                 {
                     m_events.ScheduleEvent(uint32(Events::SOLAR_WRATH), urand(3000, 5000));
                     m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));

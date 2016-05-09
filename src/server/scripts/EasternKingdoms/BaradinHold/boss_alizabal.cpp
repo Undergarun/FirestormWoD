@@ -99,13 +99,13 @@ class boss_alizabal : public CreatureScript
                 Talk(SAY_WIPE);
             }
 
-            void MovementInform(uint32 type, uint32 data)
+            void MovementInform(uint32 /*type*/, uint32 data)
             {
                 if (data == EVENT_CHARGE)
                     events.ScheduleEvent(EVENT_BLADE_DANCE_AURA, 500);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 uiCharges = 0;
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
@@ -130,7 +130,7 @@ class boss_alizabal : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);

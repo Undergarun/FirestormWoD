@@ -77,12 +77,12 @@ namespace MS
                     m_SolarConstructorsGuid(),
                     m_SelectedSolarConstructorGuid(0),
                     m_InteriorFocusGuid(0),
+                    m_SolarConstructorEnergizerGuid(0),
                     m_RukhranGuid(0),
                     m_SkyreachRavenWhispererGuid(0),
                     m_PileOfAshesGuid(),
                     m_SolarFlaresGuid(),
                     m_CacheOfArakoanTreasuresGuid(0),
-                    m_SolarConstructorEnergizerGuid(0),
                     m_PlayerGuidToBlockId(),
                     m_WindMazeBlockGuids(),
                     m_MagnifyingGlassFocusGuids(),
@@ -261,7 +261,7 @@ namespace MS
                     }
                 }
 
-                void OnCreatureKilled(Creature* p_Creature, Player* p_Player)
+                void OnCreatureKilled(Creature* p_Creature, Player* /*p_Player*/)
                 {
                     if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
                         return;

@@ -188,7 +188,7 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID
     /// @p_Followers : Followers on the mission
-    void InstanceScript_GarrisonAllianceLevel2::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> p_Followers)
+    void InstanceScript_GarrisonAllianceLevel2::OnMissionStart(Player* /*p_Owner*/, uint32 /*p_MissionID*/, std::vector<uint32> /*p_Followers*/)
     {
 
     }
@@ -289,7 +289,7 @@ namespace MS { namespace Garrison { namespace Sites
         }
     }
 
-    void InstanceScript_GarrisonAllianceLevel2::OnDeleteBuilding(Player* p_Owner, uint32 p_BuildingID, uint32 p_BuildingType, bool p_RemoveForUpgrade)
+    void InstanceScript_GarrisonAllianceLevel2::OnDeleteBuilding(Player* p_Owner, uint32 /*p_BuildingID*/, uint32 p_BuildingType, bool p_RemoveForUpgrade)
     {
         if (p_RemoveForUpgrade)
             return;
