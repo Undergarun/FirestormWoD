@@ -220,7 +220,7 @@ void Thread::setPriority(Priority type)
     //remove this ASSERT in case you don't want to know is thread priority change was successful or not
     ASSERT (_ok == 0);
 }
-void Thread::setName(char* p_Name)
+void Thread::setName(const char* p_Name)
 {
 #ifdef _MSC_VER
     typedef struct tagTHREADNAME_INFO

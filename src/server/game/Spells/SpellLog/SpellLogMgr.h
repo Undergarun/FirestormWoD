@@ -23,8 +23,8 @@ public:
     void AddOrSetListener(Player* p_Player, uint32 p_SpellID);
     void RemoveListener(Player* p_Player);
     void RemoveSpellFromListener(Player* p_Player, uint32 p_SpellID);
-    void LogSpell(Unit const* p_Caster, uint32 p_SpellID, char* p_String, ...);
-    void LogSpell(Unit const* p_Caster, uint32 p_SpellID, uint32 p_SpellID2, char* p_String, ...);
+    void LogSpell(Unit const* p_Caster, uint32 p_SpellID, const char* p_String, ...);
+    void LogSpell(Unit const* p_Caster, uint32 p_SpellID, uint32 p_SpellID2, const char* p_String, ...);
 
 private:
     std::unordered_map<Player*, std::list<uint32>> m_Listeners;

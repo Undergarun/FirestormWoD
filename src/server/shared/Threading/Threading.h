@@ -71,7 +71,7 @@ namespace ACE_Based
             void resume();
 
             void setPriority(Priority type);
-            void setName(char* p_Name);
+            void setName(const char* p_Name);
 
             static void Sleep(unsigned long msecs);
             static ACE_thread_t currentId();
