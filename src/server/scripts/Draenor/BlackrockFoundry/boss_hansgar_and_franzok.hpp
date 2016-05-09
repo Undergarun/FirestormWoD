@@ -389,6 +389,18 @@ void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instanc
     }
 }
 
+Creature* GetBrother(Creature* p_Source, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Instance == nullptr)
+        return;
+
+    uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok;
+    if (Creature* l_Other = Creature::GetCreature(*p_Source, p_Instance->GetData64(l_Entry)))
+        return l_Other;
+
+    return nullptr;
+}
+
 /// This class is used to activate Stamping Press
 class StampingPressActivation : public BasicEvent
 {

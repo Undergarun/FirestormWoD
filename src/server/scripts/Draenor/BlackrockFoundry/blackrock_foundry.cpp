@@ -617,7 +617,7 @@ class npc_foundry_slagshop_worker : public CreatureScript
             {
                 m_Events.Reset();
 
-                if (Creature* l_Brute = me->FindNearestCreature(eCreature::SlagshopBrute, 10.0f))
+                if (me->FindNearestCreature(eCreature::SlagshopBrute, 10.0f) != nullptr)
                 {
                     AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
                     {
