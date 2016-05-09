@@ -986,6 +986,56 @@ namespace MS { namespace Garrison
 
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    class npc_GarrisonWalter : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_GarrisonWalter() : CreatureScript("npc_GarrisonWalter")
+            {
+            }
+
+            enum eData
+            {
+                DataOwnerGUID = 1
+            };
+
+            /// Called when a player opens a gossip dialog with the creature.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
+
+            /// Called when a player selects a gossip item in the creature's gossip menu.
+            /// @p_Player   : Source player instance
+            /// @p_Creature : Target creature instance
+            /// @p_Sender   : Sender menu
+            /// @p_Action   : Action
+            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI* GetAI(Creature* p_Creature) const;
+
+            /// Creature AI
+            struct npc_GarrisonWalterAI : public VehicleAI
+            {
+                /// Constructor
+                npc_GarrisonWalterAI(Creature* creature) : VehicleAI(creature)
+                {
+                    m_SummonerGUID = 0;
+                }
+
+                uint64 m_SummonerGUID;
+
+                virtual void IsSummonedBy(Unit* p_Summoner) override;
+
+                virtual uint64 GetGUID(int32 p_ID) override;
+            };            
+
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
