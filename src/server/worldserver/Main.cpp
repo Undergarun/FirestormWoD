@@ -74,7 +74,7 @@ void usage(const char *prog)
 /// Launch the Trinity server
 extern int main(int argc, char **argv)
 {
-    ACE_Based::Thread::current()->setName("MainThread");
+    ACE_Based::Thread::current()->setName((char*) "MainThread");
 
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
