@@ -3687,7 +3687,10 @@ class spell_hun_explosive_shot : public SpellScriptLoader
                     return;
 
                 if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, l_Caster->GetGUID()))
-                    l_ReminingAmount = (l_AuraEffect->GetAmount() * l_AuraEffect->GetBase()->GetDuration()) / l_AuraEffect->GetBase()->GetMaxDuration();
+                {
+                    if (l_AuraEffect->GetAmplitude() && l_AuraEffect->GetBase()->GetMaxDuration())
+                        l_ReminingAmount = (l_AuraEffect->GetAmount() * (l_AuraEffect->GetBase()->GetDuration() / l_AuraEffect->GetAmplitude()) / (l_AuraEffect->GetBase()->GetMaxDuration() / l_AuraEffect->GetAmplitude()));
+                }
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)

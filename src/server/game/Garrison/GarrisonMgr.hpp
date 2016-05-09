@@ -215,7 +215,7 @@ namespace MS { namespace Garrison
             /// Has building type
             bool HasBuildingType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get building with type
-            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType) const;
+            GarrisonBuilding GetBuildingWithType(BuildingType::Type p_BuildingType, bool p_DontNeedActive = false) const;
             /// Get Level of the building
             uint32 GetBuildingLevel(GarrisonBuilding p_Building) const;
             /// Get building max work order

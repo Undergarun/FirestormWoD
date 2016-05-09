@@ -365,8 +365,8 @@ void GuildMgr::LoadGuilds()
 
                                                      //          0            1                2      3         4        5      6                  7                 8           9      10
         QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, transmogrifyId, bonuses, upgradeId, "
-                                                     //   11       12           13      14          15     16      17       18        19
-                                                     "durability, playedTime, text, custom_flags, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
+                                                     //   11       12           13      14          15                   16      17       18        19    20
+                                                     "durability, playedTime, text, custom_flags, enchantIllusionId, guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
 
         if (!result)
         {
@@ -378,7 +378,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[15].GetUInt32();
+                uint32 guildId = fields[16].GetUInt32();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);
