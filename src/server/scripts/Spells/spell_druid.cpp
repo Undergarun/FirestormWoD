@@ -3122,6 +3122,17 @@ class spell_dru_savage_roar: public SpellScriptLoader
                     l_Target->CastSpell(l_Target, SPELL_DRUID_SAVAGE_ROAR_CAST, true, NULL, p_AurEff, GetCasterGUID());
             }
 
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffect* p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->GetShapeshiftForm() == FORM_CAT && !l_Caster->HasAura(SPELL_DRUID_SAVAGE_ROAR_CAST))
+                    l_Caster->CastSpell(l_Caster, SPELL_DRUID_SAVAGE_ROAR_CAST, true, NULL, p_AurEff, GetCasterGUID());
+            }
+
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Target = GetTarget())
@@ -3131,6 +3142,7 @@ class spell_dru_savage_roar: public SpellScriptLoader
             void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_dru_savage_roar_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_dru_savage_roar_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_DUMMY);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_savage_roar_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -5817,7 +5829,7 @@ class spell_dru_living_seed : public SpellScriptLoader
 
                 l_HealAmount = CalculatePct(l_HealAmount, p_AurEff->GetAmount());
                 if (AuraEffect* l_LivingSeed = l_Caster->GetAuraEffect(eSpells::LivingSeedAura, EFFECT_0))
-                    l_HealAmount = l_LivingSeed->GetAmount();
+                    l_HealAmount += l_LivingSeed->GetAmount();
 
                 l_Caster->CastCustomSpell(l_Target, eSpells::LivingSeedAura, &l_HealAmount, NULL, NULL, true);
             }

@@ -1,0 +1,1 @@
+UPDATE `pet_stats` SET armor_coef=1.70 WHERE entry=1;
