@@ -801,8 +801,8 @@ class playerScript_AutoAcceptQuest: public PlayerScript
 #ifndef __clang_analyzer__
 void AddSC_WanderingIsland_East()
 {
-    new AreaTrigger_at_bassin_curse();
-    new vehicle_balance_pole();
+///    new AreaTrigger_at_bassin_curse();
+///    new vehicle_balance_pole();
     new mob_tushui_monk();
     new spell_rock_jump();
     new mob_shu_water_spirit();

@@ -1731,6 +1731,7 @@ class ObjectMgr
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
+        std::vector<uint32> m_IgnoredQuestObjectives;
 
         typedef std::unordered_map<uint32, GossipText> GossipTextContainer;
         typedef std::unordered_map<uint32, uint32> QuestAreaTriggerContainer;

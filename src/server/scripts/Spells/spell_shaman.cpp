@@ -3642,6 +3642,35 @@ class spell_sha_stormstrike_windstrike : public SpellScriptLoader
         }
 };
 
+class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
+{
+    public:
+        PlayerScript_glyph_of_ghostly_speed() : PlayerScript("PlayerScript_glyph_of_ghostly_speed") { }
+
+        enum eSpells
+        {
+            GlyphOfGhostlySpeed = 159642,
+            GhostWolf           = 2645
+        };
+
+        void OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoor)
+        {
+            if (p_Player->getClass() == Classes::CLASS_SHAMAN && p_Player->HasAura(eSpells::GhostWolf) && p_Player->HasAura(eSpells::GlyphOfGhostlySpeed))
+            {
+                SpellInfo const* l_GhostlySpeed = sSpellMgr->GetSpellInfo(eSpells::GlyphOfGhostlySpeed);
+                if (l_GhostlySpeed == nullptr)
+                    return;
+
+                AuraEffect* l_AuraEffect = p_Player->GetAuraEffect(eSpells::GhostWolf, SpellEffIndex::EFFECT_3);
+                if (l_AuraEffect == nullptr)
+                    return;
+
+                int32 l_Amount = p_IsOutdoor ? l_GhostlySpeed->Effects[SpellEffIndex::EFFECT_0].BasePoints : 0;
+                l_AuraEffect->SetAmount(l_Amount);
+            }
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_shaman_spell_scripts()
 {
