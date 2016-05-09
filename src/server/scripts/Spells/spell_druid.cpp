@@ -5317,7 +5317,7 @@ class spell_dru_treant_wrath : public SpellScriptLoader
 class PlayerScript_soul_of_the_forest : public PlayerScript
 {
     public:
-        PlayerScript_soul_of_the_forest() : PlayerScript("PlayerScript_ruthlessness") { }
+        PlayerScript_soul_of_the_forest() : PlayerScript("PlayerScript_soul_of_the_forest") { }
 
         enum eSpells
         {

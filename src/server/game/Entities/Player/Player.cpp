@@ -9009,6 +9009,11 @@ void Player::CheckAreaExploreAndOutdoor()
     bool isOutdoor;
     uint16 areaFlag = GetBaseMap()->GetAreaFlag(GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
 
+    if (isOutdoor != m_IsOutdoors)
+        sScriptMgr->OnSwitchOutdoorsState(this, isOutdoor);
+
+    m_IsOutdoors = isOutdoor;
+
     if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)
         RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
 

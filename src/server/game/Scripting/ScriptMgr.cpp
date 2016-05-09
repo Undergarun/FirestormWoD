@@ -1742,6 +1742,14 @@ void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue
     FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
 }
 
+/// Called when the player switch from indoors to outdoors or from outdoors to indoors
+/// @p_Player : Player instance
+/// @p_IsOutdoors : Bool setting whether player is indoors or outdoors
+void ScriptMgr::OnSwitchOutdoorsState(Player* p_Player, bool p_IsOutdoors)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSwitchOutdoorsState(p_Player, p_IsOutdoors);
+}
+
 /// Called when specialisation is modify (SetSpecializationId)
 /// @p_Player : Player instance
 /// @p_NewSpec  : New Specialisation
