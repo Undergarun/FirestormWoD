@@ -65,7 +65,7 @@ class boss_golemagg : public CreatureScript
                 events.ScheduleEvent(EVENT_PYROBLAST, 7000);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
                     return;
@@ -129,7 +129,7 @@ class mob_core_rager : public CreatureScript
                 mangleTimer = 7*IN_MILLISECONDS;                 // These times are probably wrong
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (HealthAbovePct(50) || !instance)
                     return;

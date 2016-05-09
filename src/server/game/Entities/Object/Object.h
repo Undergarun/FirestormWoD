@@ -632,7 +632,7 @@ static float dotProductXY(Position const& p_Pos1, Position const& p_Pos2)
     return p_Pos1.m_positionX * p_Pos2.m_positionX + p_Pos1.m_positionY * p_Pos2.m_positionY;
 }
 
-static Position& normalizeXY(Position& p_Pos)
+inline Position& normalizeXY(Position& p_Pos)
 {
     float l_Norme = std::sqrt(dotProductXY(p_Pos, p_Pos));
     p_Pos.m_positionX /= l_Norme;
@@ -641,7 +641,7 @@ static Position& normalizeXY(Position& p_Pos)
     return p_Pos;
 }
 
-static float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
+inline float DistanceFromLine(Position const& p_PointLine1, Position const& p_PointLine2, Position const& p_Point3)
 {
     float l_x1 = p_PointLine1.GetPositionX();
     float l_x2 = p_PointLine2.GetPositionX();

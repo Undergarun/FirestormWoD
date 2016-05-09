@@ -255,7 +255,7 @@ namespace MS
             { 0, 46, 45, 43, 44, 1 } // 27
         };
 
-        static Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
+        inline Position CalculateForceVectorFromBlockId(uint32 p_BlockId, float& p_Magnitude)
         {
             assert(p_BlockId != Blocks::ConvexHull);
 
@@ -295,7 +295,7 @@ namespace MS
             return l_ForceDir;
         }
 
-        static bool IsPointInBlock(uint32 p_BlockId, Position const& p_Point)
+        inline bool IsPointInBlock(uint32 p_BlockId, Position const& p_Point)
         {
             /// p_Ref and p_Point should be vectors.
             auto l_IsToTheRightFromRef = [](Position const& p_Ref, Position const& p_Point) -> bool {
