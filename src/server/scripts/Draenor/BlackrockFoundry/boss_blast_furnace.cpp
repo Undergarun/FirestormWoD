@@ -2194,6 +2194,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                 m_Target = 0;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
             }
 
             void EnterCombat(Unit* p_Attacker) override
