@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_STABLES_ALLIANCE_HPP_GARRISON
 #define GARRISON_STABLES_ALLIANCE_HPP_GARRISON
 

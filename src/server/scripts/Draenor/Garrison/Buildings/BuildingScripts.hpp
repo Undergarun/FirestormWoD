@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
 # define GARRISON_BUILDING_SCRIPTS_HPP_GARRISON
 

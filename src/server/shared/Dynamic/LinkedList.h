@@ -12,7 +12,6 @@
 #include "Define.h"
 #include <iterator>
 
-//============================================
 class LinkedListHead;
 
 class LinkedListElement
@@ -64,8 +63,6 @@ class LinkedListElement
             iNext = pElem;
         }
 };
-
-//============================================
 
 class LinkedListHead
 {
@@ -237,5 +234,4 @@ class LinkedListHead
         typedef Iterator<LinkedListElement> iterator;
 };
 
-//============================================
 #endif

@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_WAR_MILL_LEVEL_1_DATA_HORDE_HPP_GARRISON
 #define GARRISON_WAR_MILL_LEVEL_1_DATA_HORDE_HPP_GARRISON
 

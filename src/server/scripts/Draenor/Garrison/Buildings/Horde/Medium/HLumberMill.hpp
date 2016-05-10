@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_LUMBER_MILL_HORDE_HPP_GARRISON
 #define GARRISON_LUMBER_MILL_HORDE_HPP_GARRISON
 

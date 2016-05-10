@@ -11,8 +11,6 @@
 
 #include "Dynamic/LinkedList.h"
 
-//=====================================================
-
 template <class TO, class FROM> class Reference : public LinkedListElement
 {
     private:
@@ -85,5 +83,4 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         FROM* getSource() const { return iRefFrom; }
 };
 
-//=====================================================
 #endif

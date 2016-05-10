@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_LUNARFALL_INN_ALLIANCE_HPP_GARRISON
 #define GARRISON_LUNARFALL_INN_ALLIANCE_HPP_GARRISON
 

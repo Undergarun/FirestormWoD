@@ -46,3 +46,4 @@ class SQLQueryHolderTask : public SQLOperation
 };
 
 #endif
+

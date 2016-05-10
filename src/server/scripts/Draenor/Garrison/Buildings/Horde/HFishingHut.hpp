@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_FISHING_HUT_HORDE_HPP_GARRISON
 #define GARRISON_FISHING_HUT_HORDE_HPP_GARRISON
 

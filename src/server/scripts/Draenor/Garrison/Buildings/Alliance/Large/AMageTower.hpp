@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_MAGE_TOWER_ALLIANCE_HPP_GARRISON
 #define GARRISON_MAGE_TOWER_ALLIANCE_HPP_GARRISON
 

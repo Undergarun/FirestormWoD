@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_FROSTWALL_TAVERN_HORDE_HPP_GARRISON
 #define GARRISON_FROSTWALL_TAVERN_HORDE_HPP_GARRISON
 

@@ -5,11 +5,12 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef HOTFIXDATABASE_H_INCLUDED
-#define HOTFIXDATABASE_H_INCLUDED
 
-#include "DatabaseWorkerPool.h"
-#include "MySQLConnection.h"
+#ifndef HOTFIXDATABASE_H_INCLUDED
+# define HOTFIXDATABASE_H_INCLUDED
+
+# include "DatabaseWorkerPool.h"
+# include "MySQLConnection.h"
 
 enum HotfixDatabaseStatements
 {

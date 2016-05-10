@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_GEM_BOUTIQUE_HORDE_HPP_GARRISON
 #define GARRISON_GEM_BOUTIQUE_HORDE_HPP_GARRISON
 

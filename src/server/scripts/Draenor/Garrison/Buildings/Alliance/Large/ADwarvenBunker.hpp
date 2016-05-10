@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_DWARVEN_BUNKER_ALLIANCE_HPP_GARRISON
 #define GARRISON_DWARVEN_BUNKER_ALLIANCE_HPP_GARRISON
 

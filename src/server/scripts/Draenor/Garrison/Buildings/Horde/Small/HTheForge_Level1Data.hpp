@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_THE_FORGE_LEVEL_1_DATA_HORDE_HPP_GARRISON
 #define GARRISON_THE_FORGE_LEVEL_1_DATA_HORDE_HPP_GARRISON
 

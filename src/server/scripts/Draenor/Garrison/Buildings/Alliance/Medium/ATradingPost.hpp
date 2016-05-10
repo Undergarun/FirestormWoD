@@ -5,6 +5,7 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifndef GARRISON_TRADING_POST_ALLIANCE_HPP_GARRISON
 #define GARRISON_TRADING_POST_ALLIANCE_HPP_GARRISON
 

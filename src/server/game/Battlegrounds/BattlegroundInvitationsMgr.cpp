@@ -400,4 +400,4 @@ namespace MS
             /// Do nothing.
         }
     } ///< namespace Battlegrounds.
-} ///< namespace MS.
+} ///< namespace MS
