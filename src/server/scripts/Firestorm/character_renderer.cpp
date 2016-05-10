@@ -42,6 +42,7 @@ class CharacterRenderer : public PlayerScript
             l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE));
             l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE));
             l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE));
+            l_Stmt->setUInt32(l_Idx++, p_Player->GetAverageItemLevelEquipped());
 
             CharacterDatabase.Execute(l_Stmt);
         }
