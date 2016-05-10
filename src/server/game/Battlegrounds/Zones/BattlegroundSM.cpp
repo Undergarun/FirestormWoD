@@ -632,7 +632,7 @@ void BattlegroundSM::EventTeamCapturedMineCart(uint32 p_Team, uint8 p_MineCart)
                     l_Player->FindNearestCreature(NPC_MINE_CART_2, 22.0f, true) ||
                     l_Player->FindNearestCreature(NPC_MINE_CART_3, 22.0f, true))
                 {
-                    UpdatePlayerScore(l_Player, SCORE_CART_CONTROLLED, 1);
+                    UpdatePlayerScore(l_Player, nullptr, SCORE_CART_CONTROLLED, 1);
                     l_Player->RewardHonor(l_Player, 1, irand(10, 12));
                 }
         }
@@ -1156,7 +1156,7 @@ void BattlegroundSM::HandleKillPlayer(Player* p_Player, Player* p_Killer)
     EventPlayerDroppedFlag(p_Player);
 }
 
-void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p_Value, bool p_AddHonor)
+void BattlegroundSM::UpdatePlayerScore(Player* p_Player, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_AddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
     BattlegroundScoreMap::iterator l_Iter = PlayerScores.find(p_Player->GetGUID());
     if (l_Iter == PlayerScores.end())                         // player not found
@@ -1168,7 +1168,7 @@ void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p
             ((BattlegroundSMScore*)l_Iter->second)->MineCartCaptures += p_Value;
             break;
         default:
-            Battleground::UpdatePlayerScore(p_Player, NULL, p_Type, p_Value, p_AddHonor);
+            Battleground::UpdatePlayerScore(p_Player, p_Victim, p_Type, p_Value, p_AddHonor, p_RewardType);
             break;
     }
 }

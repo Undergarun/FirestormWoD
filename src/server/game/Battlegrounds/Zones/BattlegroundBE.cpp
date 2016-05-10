@@ -149,15 +149,14 @@ bool BattlegroundBE::SetupBattleground()
     return true;
 }
 
-void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundBE::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
-
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(p_Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
     //there is nothing special in this score
-    Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
+    Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_DoAddHonor, p_RewardType);
 
 }
 

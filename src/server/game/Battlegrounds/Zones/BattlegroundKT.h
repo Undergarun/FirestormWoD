@@ -210,7 +210,7 @@ class BattlegroundKT : public Battleground
 
         void UpdateOrbState(Team team, uint32 value);
         void UpdateTeamScore(Team team);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundKT::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         virtual void FillInitialWorldStates(ByteBuffer& p_Data);
 
         /* Scorekeeping */

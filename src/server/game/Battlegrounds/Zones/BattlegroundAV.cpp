@@ -535,42 +535,41 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
         Source->CastSpell(Source, SpellId, true);
 }
 
-void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundAV::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
-
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(p_Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
-    switch (type)
+    switch (p_Type)
     {
         case SCORE_GRAVEYARDS_ASSAULTED:
-            ((BattlegroundAVScore*)itr->second)->GraveyardsAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
+            ((BattlegroundAVScore*)itr->second)->GraveyardsAssaulted += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
             break;
         case SCORE_GRAVEYARDS_DEFENDED:
-            ((BattlegroundAVScore*)itr->second)->GraveyardsDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
+            ((BattlegroundAVScore*)itr->second)->GraveyardsDefended += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
             break;
         case SCORE_TOWERS_ASSAULTED:
-            ((BattlegroundAVScore*)itr->second)->TowersAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
+            ((BattlegroundAVScore*)itr->second)->TowersAssaulted += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
             break;
         case SCORE_TOWERS_DEFENDED:
-            ((BattlegroundAVScore*)itr->second)->TowersDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
+            ((BattlegroundAVScore*)itr->second)->TowersDefended += p_Value;
+            p_Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
             break;
         case SCORE_MINES_CAPTURED:
-            ((BattlegroundAVScore*)itr->second)->MinesCaptured += value;
+            ((BattlegroundAVScore*)itr->second)->MinesCaptured += p_Value;
             break;
         case SCORE_LEADERS_KILLED:
-            ((BattlegroundAVScore*)itr->second)->LeadersKilled += value;
+            ((BattlegroundAVScore*)itr->second)->LeadersKilled += p_Value;
             break;
         case SCORE_SECONDARY_OBJECTIVES:
-            ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += value;
+            ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += p_Value;
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, NULL, type, value, doAddHonor);
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_DoAddHonor, p_RewardType);
             break;
     }
 }
@@ -955,7 +954,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     if (creature)
         YellToAll(creature, buf, LANG_UNIVERSAL);
     //update the statistic for the defending player
-    UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_DEFENDED : SCORE_GRAVEYARDS_DEFENDED, 1);
+    UpdatePlayerScore(player, nullptr, (IsTower(node)) ? SCORE_TOWERS_DEFENDED : SCORE_GRAVEYARDS_DEFENDED, 1);
     if (IsTower(node))
         PlaySoundToAll(AV_SOUND_BOTH_TOWER_DEFEND);
     else
@@ -1052,7 +1051,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     if (creature)
         YellToAll(creature, buf, LANG_UNIVERSAL);
     //update the statistic for the assaulting player
-    UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
+    UpdatePlayerScore(player, nullptr, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
     PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_ASSAULTS:AV_SOUND_HORDE_ASSAULTS);
 }
 

@@ -267,7 +267,7 @@ void BattlegroundDG::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(WORLDSTATE_DG_CART_STATE_HORDE) << uint32((_flagState[TEAM_HORDE] == BG_DG_CART_STATE_ON_PLAYER) ? 2 : 1);
 }
 
-void BattlegroundDG::UpdatePlayerScore(Player* p_Source, uint32 p_Type, uint32 p_Value, bool p_AddHonor)
+void BattlegroundDG::UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_AddHonor, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -292,7 +292,7 @@ void BattlegroundDG::UpdatePlayerScore(Player* p_Source, uint32 p_Type, uint32 p
             ((BattlegroundDGScore*)l_Iter->second)->m_DefendedMines += p_Value;
             break;
         default:
-            Battleground::UpdatePlayerScore(p_Source, NULL, p_Type, p_Value, p_AddHonor);
+            Battleground::UpdatePlayerScore(p_Source, p_Victim, p_Type, p_Value, p_AddHonor, p_RewardType);
             break;
     }
 }
@@ -498,7 +498,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* /*p_Flag*/
     // If node is neutral, change to contested
     if (m_Nodes[l_Node] == BG_DG_NODE_TYPE_NEUTRAL)
     {
-        UpdatePlayerScore(p_Source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[l_Node] = m_Nodes[l_Node];
         m_Nodes[l_Node] = BG_DG_NODE_TYPE_CONTESTED + l_TeamIndex;
         // Create new contested banner
@@ -515,7 +515,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* /*p_Flag*/
         // If last state is NOT occupied, change node to enemy-contested
         if (m_prevNodes[l_Node] < BG_DG_NODE_TYPE_OCCUPIED)
         {
-            UpdatePlayerScore(p_Source, SCORE_BASES_ASSAULTED, 1);
+            UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_ASSAULTED, 1);
             m_prevNodes[l_Node] = m_Nodes[l_Node];
             m_Nodes[l_Node] = BG_DG_NODE_TYPE_CONTESTED + l_TeamIndex;
             // Create new contested banner
@@ -528,7 +528,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* /*p_Flag*/
         // If contested, change back to occupied
         else
         {
-            UpdatePlayerScore(p_Source, SCORE_BASES_DEFENDED, 1);
+            UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_DEFENDED, 1);
             m_prevNodes[l_Node] = m_Nodes[l_Node];
             m_Nodes[l_Node] = BG_DG_NODE_TYPE_OCCUPIED + l_TeamIndex;
             // Create new occupied banner
@@ -543,7 +543,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* /*p_Flag*/
     // If node is occupied, change to enemy-contested
     else
     {
-        UpdatePlayerScore(p_Source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(p_Source, nullptr, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[l_Node] = m_Nodes[l_Node];
         m_Nodes[l_Node] = l_TeamIndex + BG_DG_NODE_TYPE_CONTESTED;
         // Create new contested banner
@@ -708,7 +708,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Player, GameObject* p_Ga
             _flagState[TEAM_ALLIANCE] = BG_DG_CART_STATE_ON_BASE;
             SpawnBGObject(BG_DG_OBJECT_CART_ALLIANCE, RESPAWN_IMMEDIATELY);
             PlaySoundToAll(BG_DG_SOUND_CART_RETURNED);
-            UpdatePlayerScore(p_Player, SCORE_CART_RETURNS, 1);
+            UpdatePlayerScore(p_Player, nullptr, SCORE_CART_RETURNS, 1);
             _UpdateTeamScore(TEAM_ALLIANCE, _flagGold[TEAM_ALLIANCE]);
             _flagGold[TEAM_ALLIANCE] = 0;
         }
@@ -740,7 +740,7 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Player, GameObject* p_Ga
             _flagState[TEAM_HORDE] = BG_DG_CART_STATE_ON_BASE;
             SpawnBGObject(BG_DG_OBJECT_CART_HORDE, RESPAWN_IMMEDIATELY);
             PlaySoundToAll(BG_DG_SOUND_CART_RETURNED);
-            UpdatePlayerScore(p_Player, SCORE_CART_RETURNS, 1);
+            UpdatePlayerScore(p_Player, nullptr, SCORE_CART_RETURNS, 1);
             _UpdateTeamScore(TEAM_HORDE, _flagGold[TEAM_HORDE]);
             _flagGold[TEAM_HORDE] = 0;
         }
@@ -900,7 +900,7 @@ void BattlegroundDG::EventPlayerCapturedFlag(Player* p_Player)
 
     UpdateCartState(p_Player->GetBGTeam(), 1);                  // Flag state none
     // Only flag capture should be updated
-    UpdatePlayerScore(p_Player, SCORE_CART_CAPTURES, 1);      // +1 flag captures
+    UpdatePlayerScore(p_Player, nullptr, SCORE_CART_CAPTURES, 1);      // +1 flag captures
 
     // Update last flag capture to be used if team score is equal
     SetLastFlagCapture(p_Player->GetBGTeam());

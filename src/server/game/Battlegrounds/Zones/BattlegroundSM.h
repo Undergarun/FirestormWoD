@@ -235,7 +235,7 @@ class BattlegroundSM : public Battleground
         void PostUpdateImpl(uint32 p_Diff);
         void UpdateTeamScore(uint32 p_Team);
         void EndBattleground(uint32 p_Winner);
-        void UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p_Value, bool p_AddHonor = true); ///< 'BattlegroundSM::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void FillInitialWorldStates(ByteBuffer& p_Data);
         void EventPlayerClickedOnFlag(Player* p_Player, Unit* p_Target);
 

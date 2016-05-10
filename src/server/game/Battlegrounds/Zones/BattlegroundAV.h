@@ -1551,7 +1551,7 @@ class BattlegroundAV : public Battleground
 
         /*general stuff*/
         void UpdateScore(uint16 team, int16 points);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) ; ///< 'BattlegroundAV::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
 
         /*handlestuff*/ //these are functions which get called from extern
         virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);

@@ -212,7 +212,7 @@ class BattlegroundBFG : public Battleground
         void EndBattleground(uint32 winner);
 
         /* Score-keeping */
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundRBG::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void FillInitialWorldStates(ByteBuffer& data);
 
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);

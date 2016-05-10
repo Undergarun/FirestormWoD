@@ -362,7 +362,7 @@ class BattlegroundEY : public Battleground
         virtual void Reset();
         void UpdateTeamScore(uint32 Team);
         void EndBattleground(uint32 winner);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true); ///< 'BattlegroundEY::UpdatePlayerScore' hides overloaded virtual function
+        void UpdatePlayerScore(Player* p_Source, Player* p_Victim, uint32 p_Type, uint32 p_Value, bool p_DoAddHonor = true, MS::Battlegrounds::RewardCurrencyType::Type p_RewardType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         virtual void FillInitialWorldStates(ByteBuffer& data);
         void SetDroppedFlagGUID(uint64 guid)       { m_DroppedFlagGUID = guid;}
         uint64 GetDroppedFlagGUID() const          { return m_DroppedFlagGUID;}
