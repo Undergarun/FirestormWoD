@@ -223,15 +223,15 @@ void Thread::setPriority(Priority type)
 void Thread::setName(const char* p_Name)
 {
 #ifdef _MSC_VER
-    typedef struct tagTHREADNAME_INFO
+    struct THREADNAME_INFO
     {
         DWORD dwType; // must be 0x1000
         LPCSTR szName; // pointer to name (in user addr space)
         DWORD dwThreadID; // thread ID (-1=caller thread)
         DWORD dwFlags; // reserved for future use, must be zero
-    } THREADNAME_INFO;
+    };
 
-    auto _SetName = [](char* p_Name)
+    __try
     {
         THREADNAME_INFO l_Info;
         {
@@ -240,16 +240,12 @@ void Thread::setName(const char* p_Name)
             l_Info.dwThreadID = GetCurrentThreadId();
             l_Info.dwFlags = 0;
         }
-        __try
-        {
-            RaiseException(0x406D1388, 0, sizeof(l_Info) / sizeof(DWORD), (ULONG_PTR*)&l_Info);
-        }
-        __except (EXCEPTION_CONTINUE_EXECUTION)
-        {
-        }
-    };
 
-    _SetName(p_Name);
+        RaiseException(0x406D1388, 0, sizeof(l_Info) / sizeof(DWORD), (ULONG_PTR*) &l_Info);
+    }
+    __except (EXCEPTION_CONTINUE_EXECUTION)
+    {
+    }
 #elif PLATFORM == PLATFORM_UNIX
     pthread_setname_np(pthread_self(), p_Name);
 #elif PLATFORM == PLATFORM_APPLE

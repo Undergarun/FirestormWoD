@@ -1549,8 +1549,10 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
 #undef UNPACK_UINT8
 }
 
-int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool /*p_ForA*/)
+int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool p_ForA)
 {
+    UNUSED(p_ForA);
+
 #define UNPACK_UINT8(x) { x = *(uint8_t*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8_t);} 
     int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
     char l_Opperand;
