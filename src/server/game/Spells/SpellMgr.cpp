@@ -472,6 +472,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Faerie Swarm - 8 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x100)
                 return 8 * IN_MILLISECONDS;
+            /// Faerie Swarm (Decrease Speed) - 8 seconds in Pvp
+            if (spellproto->Id == 102354)
+                return 8 * IN_MILLISECONDS;
             /// Faerie Fire - 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return 20 * IN_MILLISECONDS;
