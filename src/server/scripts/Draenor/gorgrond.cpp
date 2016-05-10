@@ -874,6 +874,55 @@ class areatrigger_tarlna_noxious_spit : public AreaTriggerEntityScript
         }
 };
 
+/// Punt Podling - 174732
+class spell_quest_gorgrond_punt_podling : public SpellScriptLoader
+{
+    enum
+    {
+        ThornyLeafling      = 85809,
+        PodlingPuntCredit   = 85815
+    };
+    public:
+        /// Constructor
+        spell_quest_gorgrond_punt_podling()
+            : SpellScriptLoader("spell_quest_gorgrond_punt_podling")
+        {
+
+        }
+
+        class spell_quest_gorgrond_punt_podling_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_punt_podling_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == ThornyLeafling)
+                    {
+                        l_Caster->ToPlayer()->KilledMonsterCredit(PodlingPuntCredit);
+                        l_Target->ToCreature()->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_punt_podling_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_punt_podling_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -891,6 +940,7 @@ void AddSC_gorgrond()
     new spell_drov_call_of_earth();
     new spell_drov_colossal_slam();
     new spell_drov_acid_breath();
+    new spell_quest_gorgrond_punt_podling();
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
