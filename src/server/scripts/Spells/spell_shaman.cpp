@@ -689,12 +689,12 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
                 if (l_Caster->HasAura(eSpells::GlyphOfShamanisticRage))
                 {
                     DispelChargesList l_DispelList;
-                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_MAGIC, l_DispelList);
+                    l_Caster->GetDispellableAuraList(l_Caster, DISPEL_ALL, l_DispelList);
 
                     for (auto itr : l_DispelList)
                     {
-                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_SCHOOL_MASK_MAGIC)
-                            l_Caster->RemoveAura(itr.first);
+                        if (!itr.first->GetSpellInfo()->IsPositive() && GetSpellInfo()->CanDispelAura(itr.first->GetSpellInfo()) && GetSpellInfo()->SchoolMask & SPELL_DAMAGE_CLASS_MAGIC)
+							l_Caster->RemoveAura(itr.first);
                     }
                 }
             }
@@ -3648,6 +3648,9 @@ class spell_sha_stormstrike_windstrike : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Glyph of ghostly speed
+/// Doesn't work...
 class PlayerScript_glyph_of_ghostly_speed : public PlayerScript
 {
     public:
@@ -3741,4 +3744,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_WoDPvPEnhancement2PBonus();
     new spell_sha_improved_chain_heal();
     new spell_sha_glyph_of_rain_of_frogs();
+
+    /// PlayerScript
+    new PlayerScript_glyph_of_ghostly_speed();
 }
