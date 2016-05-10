@@ -389,7 +389,7 @@ class boss_freya : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1091,7 +1091,7 @@ class boss_elder_stonebark : public CreatureScript
                     Talk(SAY_STONEBARK_AGGRO);
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (who == me)
                     return;
@@ -1309,7 +1309,7 @@ class npc_detonating_lasher : public CreatureScript
                 _events.ScheduleEvent(EVENT_CHANGE_TARGET, 12.5 * IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo) // TODO: Check possible double-call
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/) // TODO: Check possible double-call
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1660,7 +1660,7 @@ class npc_ancient_conservator : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {

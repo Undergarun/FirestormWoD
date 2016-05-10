@@ -129,12 +129,12 @@ class boss_asaad : public CreatureScript
                 DoZoneInCombat();
                 instance->SetBossState(DATA_ASAAD, IN_PROGRESS);
             }    
-            void KilledUnit(Unit* killer)
+            void KilledUnit(Unit* /*p_Killer*/)
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*p_Who*/)
             {
                 _JustDied();
                 me->SetCanFly(false);
@@ -274,7 +274,7 @@ class npc_unstable_grounding_field : public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
      };

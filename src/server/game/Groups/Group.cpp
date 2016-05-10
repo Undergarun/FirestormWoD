@@ -1039,7 +1039,7 @@ void Group::SendLootRoll(uint64 /*p_TargetGUID*/, uint64 targetGuid, uint8 p_Rol
     }
 }
 
-void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll) ///< p_SourceGUID is unused
+void Group::SendLootRollWon(uint64 /*p_SourceGUID*/, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL_WON, 200);
 

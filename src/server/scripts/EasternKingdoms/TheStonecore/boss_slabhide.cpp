@@ -76,7 +76,7 @@ class boss_slabhide : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_FLY, 50000);
                 events.ScheduleEvent(EVENT_SAND_BLAST, 10000);
@@ -84,7 +84,7 @@ class boss_slabhide : public CreatureScript
                 instance->SetBossState(DATA_SLABHIDE, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 me->SetCanFly(false);

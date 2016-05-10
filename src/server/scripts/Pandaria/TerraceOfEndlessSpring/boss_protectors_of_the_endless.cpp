@@ -174,7 +174,7 @@ void RespawnProtectors(InstanceScript* instance, Creature* me)
     }
 }
 
-bool StartProtectors(InstanceScript* instance, Creature* me, Unit* target)
+bool StartProtectors(InstanceScript* instance, Creature* /*me*/, Unit* target)
 {
     if (!instance)
         return false;
@@ -327,7 +327,7 @@ class boss_ancient_regail : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
@@ -507,7 +507,7 @@ class boss_ancient_regail : public CreatureScript
                 }
             }
 
-            void SetData(uint32 type, uint32 value)
+            void SetData(uint32 type, uint32 /*value*/)
             {
                 switch (type)
                 {
@@ -671,7 +671,7 @@ class boss_ancient_asani : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
@@ -860,7 +860,7 @@ class boss_ancient_asani : public CreatureScript
                 }
             }
             
-            void SetData(uint32 type, uint32 value)
+            void SetData(uint32 type, uint32 /*value*/)
             {
                 switch (type)
                 {
@@ -1023,7 +1023,7 @@ class boss_protector_kaolan : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (pInstance)
                 {
@@ -1221,7 +1221,7 @@ class boss_protector_kaolan : public CreatureScript
                 }
             }
             
-            void SetData(uint32 type, uint32 value)
+            void SetData(uint32 type, uint32 /*value*/)
             {
                 switch (type)
                 {
@@ -1339,7 +1339,7 @@ class mob_defiled_ground : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(const uint32 diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1435,7 +1435,7 @@ class mob_corrupting_waters : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me, SPELL_PURIFIED, true);
             }
@@ -1499,14 +1499,14 @@ class mob_minion_of_fear : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me, SPELL_CORRUPTED_ESSENCE, true);
                 me->DespawnOrUnsummon(3000);
                 me->GetMotionMaster()->Clear();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (pInstance)
                     if (pInstance->IsWipe())

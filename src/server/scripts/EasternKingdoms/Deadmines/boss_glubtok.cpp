@@ -108,7 +108,7 @@ class boss_glubtok : public CreatureScript
                 instance->SetBossState(DATA_GLUBTOK, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }

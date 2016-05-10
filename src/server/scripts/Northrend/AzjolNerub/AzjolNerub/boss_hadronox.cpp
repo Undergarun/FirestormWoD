@@ -418,7 +418,7 @@ class npc_hadronox_nerubian : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (_wpReached && !me->isInCombat())
                 {
@@ -449,7 +449,6 @@ class npc_hadronox_nerubian : public CreatureScript
             InstanceScript* _instance;
             uint8 _wpCount;
             bool _wpReached;
-            bool _movementStarted;
         };
 
         CreatureAI* GetAI(Creature* creature) const

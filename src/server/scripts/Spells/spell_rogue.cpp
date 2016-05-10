@@ -2778,7 +2778,7 @@ public:
             GLYPH_OF_ENERGY_FLOWS_PROC = 159637
         };
 
-        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
         {
             PreventDefaultAction();
 
@@ -3091,7 +3091,7 @@ class spell_rog_item_t17_assassination_2p_bonus : public SpellScriptLoader
                 MutilateEnergizer   = 166885
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3153,7 +3153,7 @@ class spell_rog_item_t17_subtlety_2p_bonus : public SpellScriptLoader
                 QuickBlades = 165509
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 

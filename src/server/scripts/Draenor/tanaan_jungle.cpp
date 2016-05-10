@@ -3719,7 +3719,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/) override
         {
             switch (p_Quest->GetQuestId())
             {

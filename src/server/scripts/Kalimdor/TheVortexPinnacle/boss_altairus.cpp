@@ -95,7 +95,7 @@ class boss_altairus : public CreatureScript
                 instance->SetBossState(DATA_ALTAIRUS, IN_PROGRESS);
             }    
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*p_Who*/)
             {
                 _JustDied();
             }
@@ -217,7 +217,7 @@ class npc_air_current : public CreatureScript
                 //DoCast(me, SPELL_CALL_OF_WIND);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
      };

@@ -100,17 +100,17 @@ class boss_sha_of_doubt : public CreatureScript
                 _Reset();
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_SLAY_01 + urand(0, 1));
             }
 
-            void JustDied(Unit* u)
+            void JustDied(Unit* /*p_Unit*/)
             {
                 Talk(TALK_DEATH);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_WITHER_WILL, 5000);
@@ -214,7 +214,7 @@ class mob_figment_of_doubt : public CreatureScript
             EventMap events;
             Classes _class;
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me, SPELL_DROWNED_STATE, false);
                 me->RemoveAura(SPELL_GATHERING_DOUBT);
@@ -222,7 +222,7 @@ class mob_figment_of_doubt : public CreatureScript
                 me->GetInstanceScript()->SetData(TYPE_CLASS_FIGMENT_DIE, _class);
             }
 
-            void EnterCombat(Unit* u)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 me->CastSpell(me, SPELL_GATHERING_DOUBT, false);
                 events.ScheduleEvent(EVENT_GATHERING_DOUBT, 1000);

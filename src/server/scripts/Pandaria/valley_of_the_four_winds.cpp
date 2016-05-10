@@ -302,7 +302,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* /*p_Creature*/)
     {
         if (player->GetQuestStatus(QUEST_OH_SHEEPIE) == QUEST_STATUS_INCOMPLETE)
             player->KilledMonsterCredit(NPC_SHEEPIE);
@@ -769,7 +769,7 @@ class mob_second_sheepie : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* /*p_Creature*/)
         {
             if (player->GetQuestStatus(QUEST_LOST_SHEEPIE) == QUEST_STATUS_INCOMPLETE)
                 player->AddItem(ITEM_SHEEPIE, 1);
@@ -828,7 +828,7 @@ class mob_jin_jao : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* /*p_Creature*/)
         {
             if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
             {
@@ -850,7 +850,7 @@ class mob_jambeezi : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* /*p_Creature*/)
         {
             if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
             {
@@ -872,7 +872,7 @@ class mob_lei_lan : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* /*p_Creature*/)
         {
             if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
             {
@@ -894,7 +894,7 @@ class mob_lolo_lio : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* /*p_Creature*/)
         {
             if (player->GetQuestStatus(30322) == QUEST_STATUS_INCOMPLETE)
             {

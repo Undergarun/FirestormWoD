@@ -181,7 +181,7 @@ class boss_raigonn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (Phase != PHASE_VULNERABILITY)
                     return;
@@ -438,7 +438,7 @@ class npc_raigonn_weak_spot : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                     if (pInstance)
@@ -479,7 +479,7 @@ class npc_krikthik_protectorat : public CreatureScript
                 hasCastHiveMind = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!hasCastHiveMind && me->HealthBelowPctDamaged(20, damage))
                     me->CastSpell(me, SPELL_HIVE_MIND, true);
@@ -605,7 +605,7 @@ class vehicle_artillery : public VehicleScript
                 launchEventTimer = 0;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 const /*p_Action*/)
             {
                 launchEventTimer = 2500;
             }

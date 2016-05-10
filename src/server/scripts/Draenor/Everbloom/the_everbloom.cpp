@@ -189,7 +189,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* /*p_Attacker*/) override
         {
             me->CastSpell(me, eMeldedBerserkerSpells::SpellEnrage);
             events.ScheduleEvent(eMeldedBerserkerEvents::EventVileBreath, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));

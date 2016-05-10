@@ -111,7 +111,7 @@ class boss_commander_springvale : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_ADDS, 45000);
@@ -122,7 +122,7 @@ class boss_commander_springvale : public CreatureScript
                 DoZoneInCombat();
             }
             
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WORD_OF_SHAME);
@@ -217,7 +217,7 @@ class npc_springvale_wailing_guardsman : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, 3000);
                 events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));    
@@ -283,7 +283,7 @@ class npc_springvale_tormented_officer : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                 events.ScheduleEvent(EVENT_FORSAKEN_ABILITY, urand(10000, 30000));

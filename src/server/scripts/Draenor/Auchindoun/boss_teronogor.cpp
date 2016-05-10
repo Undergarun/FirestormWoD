@@ -205,13 +205,12 @@ class EventTeronogorTransform : public BasicEvent
         Unit* m_Obj;
         int32 m_Modifier;
         int32 m_tType;
-        int32 m_Event;
 };
 
 class EventTeronogorPostDeath : public BasicEvent
 {
     public:
-        explicit EventTeronogorPostDeath(Unit* p_Unit, int32 p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+        explicit EventTeronogorPostDeath(Unit* p_Unit, int32 p_Value) : BasicEvent(), m_Obj(p_Unit), m_Modifier(p_Value)
         {
         }
 
@@ -291,7 +290,6 @@ class EventTeronogorPostDeath : public BasicEvent
     private:
         Unit* m_Obj;
         int32 m_Modifier;
-        int32 m_Event;
 };
 
 /// Teron'gor <Shadow Council> - 77734
@@ -365,7 +363,7 @@ class auchindon_boss_terongor : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32 & /*p_Damage*/, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (me->GetHealthPct() <= 75 && !m_SecondPhase)
                 {
@@ -692,7 +690,7 @@ class auchindon_teronogor_durag : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             { 
                 me->CastSpell(me, 159021);
 
@@ -772,7 +770,7 @@ class auchindon_teronogor_gulkosh : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->CastStop();
                 me->RemoveAllAuras();
@@ -835,7 +833,7 @@ class auchindon_teronogor_shaadum : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eTerongorEvents::EventWrathcleave, 10 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eTerongorEvents::EventWrathstorm, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
@@ -911,7 +909,7 @@ class auchindon_teronogor_gromkash : public CreatureScript
                     l_Zashoo->Respawn(true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 me->CastStop();
                 me->RemoveAllAuras();
@@ -924,7 +922,7 @@ class auchindon_teronogor_gromkash : public CreatureScript
                     me->CastSpell(l_Zashoo, 159024); // GOS
             }
 
-            void JustDied(Unit* p_Killer) override
+            void JustDied(Unit* /*p_Killer*/) override
             {
                 if (m_Instance != nullptr)
                 {
@@ -1049,7 +1047,7 @@ class auchindon_teronogor_spell_chaos_wave : public SpellScriptLoader
         {
             PrepareSpellScript(auchindon_spells);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (!GetCaster() && !GetExplTargetUnit())
                     return;
@@ -1103,7 +1101,7 @@ class auchindon_teronogor_spell_demonic_leap : public SpellScriptLoader
 class auchindon_soul_transportation_event : public BasicEvent
 {
     public:
-        explicit auchindon_soul_transportation_event(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
+        explicit auchindon_soul_transportation_event(Unit* p_Unit, int p_Value) : BasicEvent(), m_Obj(p_Unit), m_Modifier(p_Value)
         {
         }
 

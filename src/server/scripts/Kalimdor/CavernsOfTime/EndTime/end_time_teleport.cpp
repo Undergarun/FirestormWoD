@@ -95,7 +95,7 @@ class go_end_time_teleport : public GameObjectScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) 
+        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 /*p_Sender*/, uint32 action)
         {
             //player->PlayerTalkClass->ClearMenus();
             if (player->isInCombat())

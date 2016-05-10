@@ -456,7 +456,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             DoCast(me, SPELL_DROP_CRATE, true);
         }

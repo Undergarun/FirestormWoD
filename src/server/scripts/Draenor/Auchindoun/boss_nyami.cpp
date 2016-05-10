@@ -591,7 +591,7 @@ class auchindon_nyami_spiteful_arbitrer : public CreatureScript
                 m_RadiantDiff = 500;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eNyamiEvents::EventRadiantFury, 8 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eNyamiEvents::EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
@@ -723,7 +723,7 @@ class auchindon_nyami_twisted_magus : public CreatureScript
 
             InstanceScript* m_Instance;
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 events.ScheduleEvent(eNyamiEvents::EventArcaneBolt, 4 * TimeConstants::IN_MILLISECONDS);
                 events.ScheduleEvent(eNyamiEvents::EventArcaneBombNyami, 10 * TimeConstants::IN_MILLISECONDS);

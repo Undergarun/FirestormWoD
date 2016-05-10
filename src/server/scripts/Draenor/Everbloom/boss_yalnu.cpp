@@ -75,8 +75,6 @@ Position const g_PositionYalnuMoveToMiddle = { 963.22f, -1229.370f, 181.250f, 0.
 
 Position const g_PositionBaihuSpawn = { 955.670f, -1239.352f, 181.249f, 0.920571f };
 
-Position const g_PositionLadyBayeu = { 693.75f, -1227.05f, 181.249f, 6.011444f};
-
 Position const g_PositionMoveToVineWallKealson = { 635.642f, 1640.213f, 124.989f, 0.0f };
 
 Position const g_PositionMages[6] =

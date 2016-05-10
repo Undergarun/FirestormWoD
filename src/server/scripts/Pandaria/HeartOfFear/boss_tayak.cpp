@@ -245,7 +245,7 @@ class boss_tayak : public CreatureScript
                 return true;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 /// P2 first part
                 if (me->HealthBelowPctDamaged(20, p_Damage) && Phase == PHASE_NORMAL)
@@ -827,7 +827,7 @@ class npc_storm_unleashed_tornado : public CreatureScript
             bool storm1;
             Position m_ReachPoint;
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_Events.Reset();
                 storm1 = true;
@@ -1010,7 +1010,7 @@ class mob_gale_winds_stalker : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 // Check force
                 if (!pInstance || !isActive)
@@ -1205,7 +1205,7 @@ class spell_tayak_storms_vehicle: public SpellScriptLoader
                     targets.push_back(target);
             }
 
-            void EffectScriptEffect(SpellEffIndex effIndex)
+            void EffectScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;

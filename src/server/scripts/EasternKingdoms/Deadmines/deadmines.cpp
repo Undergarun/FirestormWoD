@@ -14,7 +14,7 @@ class go_defias_cannon : public GameObjectScript
     public:
         go_defias_cannon() : GameObjectScript("go_defias_cannon") { }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
             if (!pInstance)

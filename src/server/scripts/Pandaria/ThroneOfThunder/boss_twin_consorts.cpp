@@ -585,7 +585,7 @@ class boss_lulin : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance)
                     return;
@@ -629,7 +629,7 @@ class boss_lulin : public CreatureScript
                     Talk(TALK_LULIN_SLAY);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_LULIN_DEATH);
 
@@ -666,7 +666,7 @@ class boss_lulin : public CreatureScript
                 }
             }
 
-            void CheckHitResult(MeleeHitOutcome &p_MeleeHitResult, SpellMissInfo &p_SpellResult, Unit* p_Attacker)
+            void CheckHitResult(MeleeHitOutcome &p_MeleeHitResult, SpellMissInfo &p_SpellResult, Unit* /*p_Attacker*/)
             {
                 if (me->HasAura(SPELL_TIDAL_FORCE))
                 {
@@ -935,7 +935,7 @@ class boss_suen : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance)
                     return;
@@ -979,7 +979,7 @@ class boss_suen : public CreatureScript
                     Talk(TALK_SUEN_SLAY);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_SUEN_DEATH);
 
@@ -2597,7 +2597,7 @@ class at_flames_of_passion : public AreaTriggerEntityScript
     public:
         at_flames_of_passion() : AreaTriggerEntityScript("at_flames_of_passion") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2623,7 +2623,7 @@ class at_flames_of_passion : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2649,7 +2649,7 @@ class at_icy_shadows : public AreaTriggerEntityScript
     public:
         at_icy_shadows() : AreaTriggerEntityScript("at_icy_shadows") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)

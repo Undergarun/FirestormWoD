@@ -30,7 +30,7 @@ class boss_ook_ook : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {}
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 /*p_Action*/)
             {
             }
 
@@ -43,15 +43,15 @@ class boss_ook_ook : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
 
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* /*p_Who*/)
             {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {}
         };
 };
@@ -82,7 +82,7 @@ class npc_barrel : public CreatureScript
                 me->GetMotionMaster()->MovePoint(100, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id != 100)
                     return;
@@ -121,7 +121,7 @@ class npc_barrel : public CreatureScript
                 me->CastSpell(me, SPELL_BAREL_EXPLOSION, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (CheckIfAgainstWall() || CheckIfAgainstUnit())
                     DoExplode();
@@ -185,7 +185,7 @@ class spell_ook_ook_barrel: public SpellScriptLoader
                 return false;
             }
 
-            void OnUpdate(uint32 diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)

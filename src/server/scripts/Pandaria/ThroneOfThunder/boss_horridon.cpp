@@ -366,7 +366,7 @@ class boss_horridon : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!pInstance)
                     return;
@@ -392,7 +392,7 @@ class boss_horridon : public CreatureScript
                     events.ScheduleEvent(EVENT_DIRE_CALL, 60000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 CleanUpZone();
@@ -414,7 +414,7 @@ class boss_horridon : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (jalakSpawned)
                     return;
@@ -426,7 +426,7 @@ class boss_horridon : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 switch (id)
                 {
@@ -1027,13 +1027,13 @@ class boss_war_god_jalak : public CreatureScript
                 Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_BESTIAL_CRY, 5000);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id == MOVE_JALAK_JUMP)
                 {
@@ -1045,12 +1045,12 @@ class boss_war_god_jalak : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(uint64 guid, int32 /*type*/)
             {
                 targetGuid = guid;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_DEATH);
 
@@ -1184,7 +1184,7 @@ class mob_sul_lithuz_stonegazer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_STONE_GAZE, 10000);
             }
@@ -1236,7 +1236,7 @@ class mob_farraki_skirmisher : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1271,7 +1271,7 @@ class mob_farraki_wastewalker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_BLAZING_SUNLIGHT, 5000);
                 events.ScheduleEvent(EVENT_SAND_TRAP, 10000);
@@ -1369,12 +1369,12 @@ class mob_zandalari_dinomancer : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_DINO_MENDING, 10000);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id == MOVE_DINOMANCER_JUMP)
                 {
@@ -1383,12 +1383,12 @@ class mob_zandalari_dinomancer : public CreatureScript
                 }
             }
 
-            void SetData(uint32 id, uint32 value)
+            void SetData(uint32 /*id*/, uint32 value)
             {
                 canEnterCombat = value != 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (transformed)
                     return;
@@ -1510,7 +1510,7 @@ class mob_gurubashi_bloodlord : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_RENDING_CHARGE, 2000);
             }
@@ -1568,7 +1568,7 @@ class mob_gurubashi_venom_priest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_VENOM_BOLT_VOLLEY, 5000);
                 events.ScheduleEvent(EVENT_VENOMOUS_EFFUSION, 10000);
@@ -1676,7 +1676,7 @@ class mob_risen_drakkari_warrior : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_SWITCH_TARGET, 5000);
             }
@@ -1733,7 +1733,7 @@ class mob_risen_drakkari_champion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_SWITCH_TARGET, 5000);
             }
@@ -1788,7 +1788,7 @@ class mob_drakkari_frozen_warlord : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, 5000);
                 events.ScheduleEvent(EVENT_FROZEN_ORB, 10000);
@@ -1872,7 +1872,7 @@ class mob_amani_shi_protector : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1907,7 +1907,7 @@ class mob_amani_shi_flame_caster : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_FIREBALL, 5000);
             }
@@ -1967,7 +1967,7 @@ class mob_amani_warbear : public CreatureScript
                 events.Reset();
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(uint64 guid, int32 /*type*/)
             {
                 shamanGuid = guid;
 
@@ -1975,12 +1975,12 @@ class mob_amani_warbear : public CreatureScript
                     shaman->EnterVehicle(me, 0);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_SWIPE, 5000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Creature* shaman = Creature::GetCreature(*me, shamanGuid))
                     shaman->AI()->DoAction(ACTION_DISMOUNT_SHAMAN);
@@ -2038,7 +2038,7 @@ class mob_amani_shi_beast_shaman : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
                 events.ScheduleEvent(EVENT_HEX_OF_CONFUSION, 8000);
@@ -2180,7 +2180,7 @@ class mob_direhorn_spirit : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -2205,7 +2205,7 @@ class spell_control_of_horridon: public SpellScriptLoader
         {
             PrepareAuraScript(spell_control_of_horridon_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;
@@ -2236,7 +2236,7 @@ class spell_headache: public SpellScriptLoader
         {
             PrepareAuraScript(spell_headache_AuraScript);
 
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->GetMotionMaster()->MoveChase(GetTarget()->getVictim());
             }

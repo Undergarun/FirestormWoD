@@ -49,14 +49,15 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* /*go*/)
         {
         }
 
-        void SetData(uint32 type, uint32 data)
-        {}
+        void SetData(uint32 /*type*/, uint32 /*p_Data*/)
+        {
+        }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 /*type*/)
         {
             return 0;
         }

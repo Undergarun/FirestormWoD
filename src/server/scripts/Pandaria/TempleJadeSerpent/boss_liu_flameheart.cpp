@@ -143,7 +143,7 @@ class boss_liu_flameheart : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 if (urand(0, 1))
                     Talk(TALK_KILL_01);
@@ -151,7 +151,7 @@ class boss_liu_flameheart : public CreatureScript
                     Talk(TALK_KILL_02);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO_01);
                 events.ScheduleEvent(EVENT_SERPENT_STRIKE, 5000);
@@ -368,12 +368,12 @@ class boss_yu_lon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(EVENT_JADE_FIRE, 100);
             }
 
-            void JustDied(Unit* died)
+            void JustDied(Unit* /*died*/)
             {
                 me->CastSpell(me, 132387, false);
             }
@@ -455,7 +455,7 @@ class mob_minion_of_doubt : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -507,7 +507,7 @@ class mob_lesser_sha : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }

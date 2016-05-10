@@ -64,7 +64,7 @@ public:
                 DoPlaySoundToSet(me, SOUND_SLAY);
         }
 
-        void DamageTaken(Unit* pDone_by, uint32& uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDone_by, uint32& uiDamage, SpellInfo const*  /*p_SpellInfo*/)
         {
             // Damage done by the controlled Death Knight understudies should also count toward damage done by players
             if (pDone_by->GetTypeId() == TYPEID_UNIT && (pDone_by->GetEntry() == 16803 || pDone_by->GetEntry() == 29941))

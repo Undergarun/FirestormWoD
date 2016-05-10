@@ -168,7 +168,7 @@ class boss_daakara : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(Unit* attacker, const SpellInfo* spellInfo)
+            void SpellHit(Unit* /*p_Attacker*/, const SpellInfo* spellInfo)
             {
                 if (spellInfo->HasEffect(SPELL_EFFECT_ATTACK_ME) ||
                     spellInfo->HasAura(SPELL_AURA_MOD_TAUNT))
@@ -391,7 +391,7 @@ class npc_daakara_vortex : public CreatureScript
             {
             }
             
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 guid, int32 /*p_Data*/)
             {
                 victimGUID = guid;
             }
@@ -483,7 +483,7 @@ class npc_daakara_amani_lynx : public CreatureScript
                 events.Reset();
             }
             
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_FERAL_SWIPE, urand(6000, 9000));
             }
@@ -521,7 +521,7 @@ class spell_daakara_claw_rage_charge: public SpellScriptLoader
         {
             PrepareSpellScript(spell_daakara_claw_rage_charge_SpellScript);
 
-            void HandleCharge(SpellEffIndex effIndex)
+            void HandleCharge(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster() && GetHitUnit())
                 {
@@ -552,7 +552,7 @@ class spell_daakara_sweeping_winds: public SpellScriptLoader
         {
             PrepareSpellScript(spell_daakara_sweeping_winds_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit() && GetHitUnit()->GetEntry() == NPC_FEATHER_VORTEX)
                     GetHitUnit()->GetAI()->DoAction(ACTION_MOVE_TO_PLAYER);
@@ -577,7 +577,7 @@ class achievement_ring_out : public AchievementCriteriaScript
     public:
         achievement_ring_out() : AchievementCriteriaScript("achievement_ring_out") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

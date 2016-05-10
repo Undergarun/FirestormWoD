@@ -56,7 +56,7 @@ class boss_jinbak : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {}
 
             void JustSummoned(Creature* summoned)
@@ -64,7 +64,7 @@ class boss_jinbak : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 DoMeleeAttackIfReady();
             }
@@ -104,7 +104,7 @@ class npc_sap_puddle : public CreatureScript
                 _events.ScheduleEvent(EVENT_GROW, 1000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 switch(_events.ExecuteEvent())
                 {

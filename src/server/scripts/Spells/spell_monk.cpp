@@ -3756,7 +3756,7 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_spinning_crane_kick_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;
@@ -5388,7 +5388,7 @@ class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_WoDPvPBrewmaster2PBonus_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_ProcInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_ProcInfo*/)
             {
                 PreventDefaultAction();
             }

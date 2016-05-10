@@ -1156,7 +1156,7 @@ class mob_young_egg_of_jikun : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_HATCH, 10000);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &/*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32 &/*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 m_Events.CancelEvent(EVENT_HATCH);
                 DoAction(ACTION_HATCH);
@@ -1757,7 +1757,7 @@ class mob_jikun_exit_chamber : public CreatureScript
                 me->CastSpell(me, SPELL_DROP_FEATHERS_GOB, false);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!GetClosestGameObjectWithEntry(me, GOB_FEATHER_OF_JI_KUN, 10.0f))
                     me->CastSpell(me, SPELL_DROP_FEATHERS_GOB, false);
@@ -2177,7 +2177,7 @@ class at_down_draft : public AreaTriggerEntityScript
     public:
         at_down_draft() : AreaTriggerEntityScript("at_down_draft") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2203,7 +2203,7 @@ class at_down_draft : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);

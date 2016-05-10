@@ -74,7 +74,7 @@ class boss_saboteur_kiptilak : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 switch (attacker->GetEntry())
                 {
@@ -211,12 +211,12 @@ public:
             me->AddAura(SPELL_MUNITION_EXPLOSION_AURA, me);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             damage = 0;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             if (id == 1)
                 me->DespawnOrUnsummon();

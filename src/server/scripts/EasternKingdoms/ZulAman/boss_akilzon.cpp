@@ -202,7 +202,7 @@ class npc_akilzon_soaring_eagle : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_EAGLE_SWOOP, urand(100, 6000));
             }
@@ -294,7 +294,7 @@ class spell_akilzon_electrical_storm: public SpellScriptLoader
                 }
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;

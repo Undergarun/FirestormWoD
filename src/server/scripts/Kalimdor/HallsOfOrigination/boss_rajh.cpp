@@ -243,7 +243,7 @@ class achievement_sun_of_a : public AchievementCriteriaScript
     public:
         achievement_sun_of_a() : AchievementCriteriaScript("achievement_sun_of_a") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

@@ -218,15 +218,9 @@ class instance_deadmines : public InstanceMapScript
             uint64 uiAdmiralGUID;
             uint64 uiCaptainGUID;
 
-            uint64 FactoryDoorGUID;
-            uint64 FoundryDoorGUID;
-            uint64 MastRoomDoorGUID;
             uint64 IronCladDoorGUID;
             uint64 DefiasCannonGUID;
             uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
 
             uint32 State;
             uint32 uiVanessaEvent;

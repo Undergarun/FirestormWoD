@@ -314,7 +314,7 @@ class boss_warlord_zaela : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (m_Phase == eMisc::PhaseAir)
                 {
@@ -664,7 +664,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID)
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID)
             {
                 if (p_ID == 999)
                 {
@@ -730,7 +730,7 @@ class mob_zaela_emberscale_ironfight : public CreatureScript
                 }
             }
 
-            void SetData(uint32 p_ID, uint32 p_Value)
+            void SetData(uint32 /*p_ID*/, uint32 p_Value)
             {
                 m_BurningBreathCount = p_Value;
             }

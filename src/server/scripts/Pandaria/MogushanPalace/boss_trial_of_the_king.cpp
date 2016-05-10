@@ -172,7 +172,7 @@ class boss_ming_the_cunning : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 me->CastSpell(me, SPELL_GUARDIAN_GRUNT, false);
@@ -181,7 +181,7 @@ class boss_ming_the_cunning : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGNETIC_FIELD, 30000);
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
@@ -204,7 +204,7 @@ class boss_ming_the_cunning : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -322,7 +322,7 @@ class mob_whirling_dervish : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -442,7 +442,7 @@ class mob_adepts : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 motionType, uint32 pointId)
+            void MovementInform(uint32 /*motionType*/, uint32 pointId)
             {
                 if (pointId == 1)
                     me->SetFacingTo(me->GetOrientation() - M_PI);
@@ -555,7 +555,7 @@ class boss_kuai_the_brute : public CreatureScript
                 _Reset();
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
@@ -575,7 +575,7 @@ class boss_kuai_the_brute : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_SHOCKWAVE, 3000);
@@ -584,7 +584,7 @@ class boss_kuai_the_brute : public CreatureScript
                     mu_shiba->AI()->DoAction(ACTION_ATTACK);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)
@@ -691,7 +691,7 @@ class mob_mu_shiba : public CreatureScript
                 DoAction(ACTION_ATTACK_STOP);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -795,7 +795,7 @@ class boss_haiyan_the_unstoppable : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
                 events.ScheduleEvent(EVENT_TRAUMATIC_BLOW, 3000);
@@ -825,12 +825,12 @@ class boss_haiyan_the_unstoppable : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* u)
+            void KilledUnit(Unit* /*p_Unit*/)
             {
                 Talk(TALK_KILLING);
             }
 
-            void DamageTaken(Unit* killer, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 //We need to retire Ming and let the next boss enter combat.
                 if (int(me->GetHealth()) - int(damage) <= 0)

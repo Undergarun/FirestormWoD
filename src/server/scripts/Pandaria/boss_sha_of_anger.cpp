@@ -122,7 +122,7 @@ class boss_sha_of_anger : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_AGGRO);
             }
@@ -144,7 +144,7 @@ class boss_sha_of_anger : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (p_Damage >= me->GetHealth())
                 {
@@ -157,7 +157,7 @@ class boss_sha_of_anger : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 for (uint64 l_Guid : m_LootersGuids)
                 {
@@ -329,7 +329,7 @@ class mob_sha_of_anger_bunny : public CreatureScript
                     who->RemoveAura(SPELL_OVERCOME_BY_ANGER);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (me->AI() && !me->AI()->CanSeeEvenInPassiveMode())
                     me->AI()->SetCanSeeEvenInPassiveMode(true);
@@ -412,7 +412,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_of_anger_overcome_by_anger_AuraScript);
  
-            void OnUpdate(uint32 diff)
+            void OnUpdate(uint32 /*p_Diff*/)
             {
                 if (Unit* target = GetUnitOwner())
                 {

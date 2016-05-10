@@ -7604,10 +7604,10 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
 class DelayedResurrection : public BasicEvent
 {
     public:
-        DelayedResurrection(uint64 p_Guid) : m_Guid(p_Guid), BasicEvent() { }
+        DelayedResurrection(uint64 p_Guid) : BasicEvent(), m_Guid(p_Guid) { }
         virtual ~DelayedResurrection() { }
 
-        virtual bool Execute(uint64 p_EndTime, uint32 p_Time)
+        virtual bool Execute(uint64 /*p_EndTime*/, uint32 /*p_Time*/)
         {
             if (Player* l_Player = HashMapHolder<Player>::Find(m_Guid))
             {

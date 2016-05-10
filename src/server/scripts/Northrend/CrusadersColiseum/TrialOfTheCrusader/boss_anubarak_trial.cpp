@@ -426,8 +426,6 @@ class boss_anubarak_trial : public CreatureScript
                 uint64 _sphereGUID[6];
                 bool _intro;
                 bool _reachedPhase3;
-                uint32 _frostSphereTimer;
-                uint32 _berserkTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -592,7 +590,6 @@ class mob_nerubian_burrower : public CreatureScript
 
             private:
                 uint32 _submergeTimer;
-                Phases _phase;
                 EventMap _events;
                 InstanceScript* _instance;
         };
@@ -622,7 +619,7 @@ class mob_frost_sphere : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(20.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealth() <= damage)
                 {
@@ -709,7 +706,7 @@ class mob_anubarak_spike : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& uiDamage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& uiDamage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 uiDamage = 0;
             }

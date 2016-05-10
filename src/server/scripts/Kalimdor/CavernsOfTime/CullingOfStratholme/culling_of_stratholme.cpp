@@ -1325,7 +1325,7 @@ class npc_chromie : public CreatureScript
 public:
     npc_chromie() : CreatureScript("npc_chromie") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -1379,7 +1379,7 @@ class npc_cos_zombie : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;

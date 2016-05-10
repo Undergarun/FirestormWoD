@@ -79,7 +79,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
                 pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who) 
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_STONEBLOW, 6000);
                 events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, 20000);
@@ -183,12 +183,12 @@ class npc_shadow_of_obsidius : public CreatureScript
                 DoCast(me, SPELL_SHADOW_OF_OBSIDIUS);
             }   
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CREPUSCULAR_VEIL, 3900);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 & /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->getVictim() != attacker)
                 {

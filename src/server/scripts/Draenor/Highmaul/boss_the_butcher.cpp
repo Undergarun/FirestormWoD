@@ -559,7 +559,7 @@ class boss_the_butcher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void ScheduleEnergy(uint32 const p_Diff)
+            void ScheduleEnergy(uint32 const /*p_Diff*/)
             {
                 /// Bounding Cleave Icon Bounding Cleave is an ability that The Butcher uses when he reaches 100 Energy
                 /// (this happens exactly every 60 seconds before The Butcher reaches 30% health, and every 30 seconds after that).

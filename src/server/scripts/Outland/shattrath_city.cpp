@@ -153,7 +153,7 @@ public:
             me->RestoreFaction();
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (done_by->IsPlayer())
                 if (me->HealthBelowPctDamaged(20, damage))

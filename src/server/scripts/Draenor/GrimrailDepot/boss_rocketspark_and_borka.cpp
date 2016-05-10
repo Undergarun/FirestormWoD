@@ -572,7 +572,7 @@ public:
     {
         PrepareSpellScript(grimrail_depot_rocketspark_spell_mad_dash_SpellScript);
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (GetCaster())
             {

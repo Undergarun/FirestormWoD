@@ -333,7 +333,7 @@ public:
                 EnterCombat(who);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (instance && !inCombat)
             {
@@ -844,7 +844,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 /*value*/)
         {
             if (type == TYPE_NO_RESPAWN)
                 respawn = false;
@@ -864,7 +864,7 @@ public:
             AttackStart(attacker);
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1003,13 +1003,13 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 /*value*/)
         {
             if (type == TYPE_NO_RESPAWN)
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1164,13 +1164,13 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 value)
+        void SetData(uint32 type, uint32 /*value*/)
         {
             if (type == TYPE_NO_RESPAWN)
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1261,7 +1261,7 @@ class npc_wind_bomb_meljarak : public CreatureScript
             EventMap events;
             bool canExplode;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 // Forcing display id, sometimes wrong otherwise
                 me->SetDisplayId(DISPLAYID_WINDBOMB);
@@ -1348,7 +1348,7 @@ public:
             timerChecktarget = 500;
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (attacker->HasAura(SPELL_RESIDUE))
                 damage = 0;
@@ -1556,8 +1556,6 @@ public:
                 break;
             }
         }
-
-        uint32 _targetCount;
     };
 
     SpellScript* GetSpellScript() const

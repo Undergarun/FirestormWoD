@@ -66,7 +66,7 @@ public:
             summons.DespawnAll();
         }
         
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             events.ScheduleEvent(EVENT_SHOCKWAVE, 16000);
             events.ScheduleEvent(EVENT_FURY_OF_THE_SANDS, 9000);
@@ -273,7 +273,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
 
             std::list<Player*> playerList;
@@ -314,7 +314,7 @@ public:
     {
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == 27431)
             creature->AI()->DoAction(ACTION_FIRST_MOVE);
@@ -363,7 +363,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             std::list<Creature*> uldumWatcherList;
             me->GetCreatureListWithEntryInGrid(uldumWatcherList, NPC_ULDUM_WATCHER, 100.0f);

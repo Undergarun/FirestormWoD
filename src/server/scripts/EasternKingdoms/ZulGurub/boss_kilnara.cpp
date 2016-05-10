@@ -182,7 +182,7 @@ class boss_kilnara : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetGUID() == attacker->GetGUID())
                     damage = 0;
@@ -194,7 +194,7 @@ class boss_kilnara : public CreatureScript
                     Talk(bTwoPhase? SAY_KILL_FERAL: SAY_KILL);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spellInfo)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo)
             {
                 if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                 {
@@ -373,13 +373,13 @@ class npc_kilnara_temple_rat : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 if (me->GetEntry() == NPC_TEMPLE_RAT)
                     DoCast(me, SPELL_RAT_LURE, true);
             }
 
-            void OnSpellClick(Unit* clicker)
+            void OnSpellClick(Unit* /*clicker*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -426,7 +426,7 @@ class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
         {
             PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetUnitOwner())
                     return;
@@ -484,7 +484,7 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
                     JadeCore::RandomResizeList(targets, 1);
             }
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;

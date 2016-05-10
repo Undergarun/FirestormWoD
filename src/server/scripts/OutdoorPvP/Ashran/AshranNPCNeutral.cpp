@@ -161,7 +161,7 @@ class npc_faction_boss : public CreatureScript
                     me->setFaction(12); ///< Alliance
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 Talk(eTalk::TalkAggro, 0, TextRange::TEXT_RANGE_MAP);
 
@@ -464,7 +464,7 @@ class npc_ashran_korlok : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_InFight = true;
 
@@ -482,7 +482,7 @@ class npc_ashran_korlok : public CreatureScript
                     Talk(eTalk::TalkSlay, 0, TextRange::TEXT_RANGE_MAP);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/) override
             {
                 if (me->getFaction() == eFactions::KorlokNeutral)
                 {
@@ -522,7 +522,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Target*/, SpellInfo const* p_SpellInfo) override
             {
                 if (p_SpellInfo->Id == eSpells::SpellOgreicLeap)
                 {
@@ -539,7 +539,7 @@ class npc_ashran_korlok : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
             {
                 if (p_ID == 1)
                 {
@@ -705,7 +705,7 @@ class npc_ashran_faction_champions : public CreatureScript
                 me->CastSpell(me, eSpells::AshranLaneMobScalingAura, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventCrushingLeap, 10000);
                 m_Events.ScheduleEvent(eEvents::EventBoomingShout, 5000);
@@ -740,7 +740,7 @@ class npc_ashran_faction_champions : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/) override
             {
                 if (p_Damage < me->GetHealth())
                 {
@@ -873,7 +873,7 @@ class npc_ashran_mandragoraster : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventSplittingBreath, 5000);
                 m_Events.ScheduleEvent(eEvents::EventPiercingChomp, 8000);
@@ -977,7 +977,7 @@ class npc_ashran_panthora : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventShadowClaws, 5000);
             }
@@ -1070,7 +1070,7 @@ class npc_ashran_ancient_inferno : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventLavaBurst, 2000);
                 m_Events.ScheduleEvent(eEvents::EventVolcanicActivity, 8000);
@@ -1168,7 +1168,7 @@ class npc_ashran_volcano : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const /*p_Diff*/) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -1209,7 +1209,7 @@ class npc_ashran_goregore : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventCranky, 1000);
             }
@@ -1293,7 +1293,7 @@ class npc_ashran_ashmaul_magma_caster : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventLavaBurstVolley, 3000);
                 m_Events.ScheduleEvent(eEvents::EventVolcanicGround, 8000);
@@ -1357,7 +1357,7 @@ class npc_ashran_volcanic_ground : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const /*p_Diff*/) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -1407,7 +1407,7 @@ class npc_ashran_elder_darkweaver_kath : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventDarknessWithin, 2000);
                 m_Events.ScheduleEvent(eEvents::EventShadowFigurines, 10000);
@@ -1512,7 +1512,7 @@ class npc_ashran_shadow_figurine : public CreatureScript
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(uint32 const p_Diff) override { }
+            void UpdateAI(uint32 const /*p_Diff*/) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
@@ -1550,7 +1550,7 @@ class npc_ashran_ashmaul_destroyer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* /*p_Attacker*/) override
             {
                 m_Events.ScheduleEvent(eEvents::EventEarthSmash, 1000);
             }

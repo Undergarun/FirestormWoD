@@ -274,7 +274,7 @@ class spell_arcurion_icy_boulder: public SpellScriptLoader
         {
             PrepareSpellScript(spell_arcurion_icy_boulder_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;

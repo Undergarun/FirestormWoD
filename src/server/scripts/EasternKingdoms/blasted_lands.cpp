@@ -138,7 +138,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
+        bool OnGossipHello(Player* p_Player, Creature* /*p_Creature*/)
         {
             if (p_Player->GetTeamId() == TEAM_ALLIANCE)
             {
@@ -198,7 +198,7 @@ class npc_blasted_lands_zidormi : public CreatureScript
         {
             npc_blasted_lands_zidormiAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
-            void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override
+            void sGossipSelect(Player* p_Player, uint32 /*p_Sender*/, uint32 /*p_Action*/) override
             {
                 if (p_Player->HasAura(eSpell::TimeTravelling))
                 {
@@ -255,7 +255,7 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
             BLASTER_LANDS_ZONE_ID       = 4
         };
 
-        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 /*p_NewAreaID*/)
         {
             if (p_Player->GetMapId() == BLASTED_LANDS_DRAENOR_PHASE || p_Player->GetMapId() == EASTERN_KINGDOM_MAP_ID)
             {

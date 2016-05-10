@@ -83,7 +83,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                 memset(_vortexes, 0, sizeof(_vortexes));
             }
     
-            void EnterCombat(Unit* /*pWho*/)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 //for (uint8 i = 0; i < 8; i++)
                     //_vortexes[i] = me->SummonCreature(NPC_ERTAN_VORTEX, ertanvortexPos_1[i]);
@@ -102,12 +102,12 @@ class boss_grand_vizier_ertan : public CreatureScript
                     me->Attack(who, false);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);                
             }
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*p_Who*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);

@@ -138,7 +138,7 @@ class boss_garajal : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 m_Instance->SetBossState(DATA_GARAJAL, DONE);
                 _JustDied();
@@ -244,7 +244,7 @@ class boss_garajal : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance)
                     return;
@@ -493,7 +493,7 @@ class mob_spirit_totem : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 6.0f);
@@ -525,7 +525,7 @@ class mob_spirit_totem : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
@@ -593,7 +593,7 @@ class mob_shadowy_minion : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 if (me->GetEntry() == NPC_SHADOWY_MINION_SPIRIT)
                     if (me->ToTempSummon())
@@ -671,7 +671,7 @@ class mob_soul_cutter : public CreatureScript
                     events.ScheduleEvent(EVENT_SOUL_EXPLOSION, 30000);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 std::list<uint64> playerList;
                 me->GetMustBeVisibleForPlayersList(playerList);
@@ -766,7 +766,7 @@ class mob_spirit_totem_intro : public CreatureScript
                     me->SetDisplayId(11686);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* skull = me->FindNearestCreature(NPC_SPIRIT_TOTEM_SKULL_INTRO, 15))
                     if (!skull->HasAura(SPELL_CHANNEL_SPIRIT_TOTEM))
@@ -827,7 +827,7 @@ class spell_final_destination : public SpellScriptLoader
         {
             PrepareAuraScript(spell_final_destination_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* Garajal = GetCaster())
                 {

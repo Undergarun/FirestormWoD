@@ -80,7 +80,7 @@ class boss_baron_ashbury : public CreatureScript
                 bHeal = false;
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 me->MonsterYell(SAY_AGGRO, 0, 0);
                 events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, urand(8000, 9000));
@@ -91,7 +91,7 @@ class boss_baron_ashbury : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/)
             {
             }
 
@@ -100,18 +100,18 @@ class boss_baron_ashbury : public CreatureScript
                 return !bHeal && IsHeroic();
             }
 
-            void HealReceived(Unit* healer, uint32 &heal)
+            void HealReceived(Unit* healer, uint32 & /*heal*/)
             {
                 if (healer->GetGUID() == me->GetGUID())
                     bHeal = true;
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*who*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
 
@@ -185,7 +185,7 @@ class achievement_pardon_denied : public AchievementCriteriaScript
     public:
         achievement_pardon_denied() : AchievementCriteriaScript("achievement_pardon_denied") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

@@ -82,7 +82,7 @@ public:
                 instance->SetData(TYPE_DISTILLER, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (me->GetHealth() <= damage)
                 if (instance)

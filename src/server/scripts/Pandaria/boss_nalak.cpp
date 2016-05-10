@@ -85,12 +85,12 @@ class boss_nalak : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_DEATH);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->CastSpell(me, SPELL_STATIC_SHIELD, true);
 

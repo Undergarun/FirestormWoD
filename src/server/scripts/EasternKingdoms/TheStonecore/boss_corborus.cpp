@@ -90,7 +90,7 @@ class boss_corborus : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_DUMPENING_WAVE, 5000);
                 events.ScheduleEvent(EVENT_CRYSTAL_BARRAGE, 7000);
@@ -126,7 +126,7 @@ class boss_corborus : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();
@@ -293,7 +293,7 @@ class npc_crystal_shard : public CreatureScript
                 me->SetSpeed(MOVE_RUN, 0.5f);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;

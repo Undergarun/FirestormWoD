@@ -422,7 +422,7 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                         me->DespawnOrUnsummon(500);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_STRIKE_FEAR, urand(5000, 7000));
                 //DoCast(who, SPELL_CRUSHING_LEAP);
@@ -434,7 +434,7 @@ class npc_well_of_eternity_legion_demon : public CreatureScript
                     DoCast(who, SPELL_ARCHIVED_DEMON_2, true);
             }
 
-            void MovementInform(uint32 type, uint32 data)
+            void MovementInform(uint32 /*type*/, uint32 data)
             {
                 if (data == EVENT_JUMP)
                 {
@@ -541,7 +541,7 @@ class npc_well_of_eternity_illidan_1 : public CreatureScript
                         me->DespawnOrUnsummon(500);
             }
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (who->GetGUID() == me->GetGUID())
                     if (damage >= me->GetHealth())
@@ -689,7 +689,7 @@ class npc_well_of_eternity_eternal_champion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_QUEENS_BLADE, urand(2000, 6000));
                 events.ScheduleEvent(EVENT_SHIMMERING_STRIKE, urand(9000, 12000));
@@ -749,7 +749,7 @@ class npc_well_of_eternity_eye_of_legion : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_FEL_FLAMES, urand(2000, 10000));
             }
@@ -807,7 +807,7 @@ class npc_well_of_eternity_enchanted_highmistress : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (me->GetEntry() == NPC_ENCHANTED_HIGHMISTRESS_1)
                 {
@@ -889,7 +889,7 @@ class npc_well_of_eternity_royal_handmaiden : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_SWEET_LULLABY, urand(7000, 12000));
             }
@@ -1044,7 +1044,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
 
             void EnterEvadeMode() {}
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (who->GetGUID() == me->GetGUID())
                     if (damage >= me->GetHealth())

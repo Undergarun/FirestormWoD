@@ -41,7 +41,7 @@ class mob_kor_thik_slicer : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEMS, EQUIP_TRASH_4);
             }
 
-            void DamageTaken(Unit* killer, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Killer*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if(!eventScheduled)
                 {
@@ -1401,13 +1401,13 @@ public:
             inCombat = false;
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (!inCombat)
                 EnterCombat(p_Attacker);
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             if (!inCombat)
             {
@@ -2167,7 +2167,7 @@ class spell_vital_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_vital_strikes_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 

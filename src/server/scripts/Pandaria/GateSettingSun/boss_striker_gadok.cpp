@@ -192,7 +192,7 @@ class boss_striker_gadok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 float nextHealthPct = ((float(me->GetHealth()) - damage)  / float(me->GetMaxHealth())) * 100;
 
@@ -490,7 +490,7 @@ public:
             isAttackerStriker = false;
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 const /*p_Action*/)
         {
             isAttackerStriker = true;
 
@@ -694,7 +694,7 @@ class spell_prey_time: public SpellScriptLoader
                     GetTarget()->CastSpell(GetCaster(), SPELL_RIDE_VEHICLE, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
                     GetCaster()->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);

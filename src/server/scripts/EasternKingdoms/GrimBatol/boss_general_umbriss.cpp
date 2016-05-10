@@ -98,7 +98,7 @@ class boss_general_umbriss : public CreatureScript
                 pInstance->SetData(DATA_GENERAL_UMBRISS, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 if (!pInstance)
                     return;
@@ -111,7 +111,7 @@ class boss_general_umbriss : public CreatureScript
                 pInstance->SetData(DATA_GENERAL_UMBRISS, IN_PROGRESS);
             }
 
-            void JustDied(Unit* pKiller)
+            void JustDied(Unit* /*pKiller*/)
             {
                 if (!pInstance)
                     return;
@@ -240,12 +240,12 @@ class npc_malignant_trogg : public CreatureScript
                 DoCast(me, SPELL_MODGUD_MALICE);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_CLAW_PUNCTURE, 5000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_MODGUD_MALADY, true);
                 if (IsHeroic())
@@ -296,7 +296,7 @@ class npc_umbriss_trogg_dweller : public CreatureScript
             
             EventMap events;
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_CLAW_PUNCTURE, 5000);
             }

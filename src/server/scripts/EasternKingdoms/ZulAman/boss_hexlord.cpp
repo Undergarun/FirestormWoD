@@ -245,7 +245,7 @@ class boss_hex_lord_malacrass : public CreatureScript
                 Talk(SAY_KILL);
             }
             
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* /*summon*/, Unit* /*p_Killer*/)
             {
                 Talk(SAY_PET);
             }

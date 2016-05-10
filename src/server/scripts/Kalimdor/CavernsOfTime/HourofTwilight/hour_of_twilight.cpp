@@ -23,7 +23,7 @@ class npc_hour_of_twilight_life_warden : public CreatureScript
     public:
         npc_hour_of_twilight_life_warden() : CreatureScript("npc_hour_of_twilight_life_warden") { }
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* pPlayer, Creature* /*pCreature*/)
         {
             if (pPlayer->isInCombat())
                 return true;

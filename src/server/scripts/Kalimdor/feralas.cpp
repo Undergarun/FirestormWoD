@@ -43,7 +43,7 @@ class npc_homing_robot_oox_22_fe : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };

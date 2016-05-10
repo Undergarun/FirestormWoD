@@ -373,7 +373,7 @@ class boss_halion : public CreatureScript
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!me->IsInDist2d(3156.67f, 533.8108f, 60.0f))
                 {
@@ -544,7 +544,7 @@ class boss_twilight_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!me->IsInDist2d(3156.67f, 533.8108f, 60.0f))
                 {
@@ -1019,8 +1019,6 @@ class npc_halion_controller : public CreatureScript
 
             uint32 inFightAggroCheck_Timer;
 
-            bool _corporealityCheck;
-
             uint32 _twilightDamageTaken;
             uint32 _materialDamageTaken;
             uint8 _materialCorporealityValue;
@@ -1413,7 +1411,7 @@ class npc_shadow_orb : public CreatureScript
 
             void UpdateAI(uint32 const /*diff*/) { }
 
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
+            void FillCirclePath(Position const& centerPos, float radius, float /*z*/, Movement::PointsArray& path, bool clockwise)
             {
                 float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
                 float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());

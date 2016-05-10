@@ -58,16 +58,11 @@ enum eBoneMawActions
     ActionInhaleDeactivate = 1
 };
 
-Position const l_PositionBoneMaw = { 1851.256f, -558.721f, 199.027f, 1.991077f };
-
 Position const l_PositionAdds[2] =
 {
     { 1801.369f, -521.248f, 196.795f, 0.030723f },
     { 1860.075f, -497.532f, 196.796f, 4.054334f }
 };
-
-Position const g_PositionRespawnAfterDrowning = { 1837.41f, -504.11f, 201.653f, 4.845472f };
-Position const g_PositionRespawnAfterDrowningWhenBossNotInCombat = { 1796.62f, -382.900f, 201.382f, 4.231292f };
 
 /// Bonemaw - 75452
 class boss_bonemaw : public CreatureScript

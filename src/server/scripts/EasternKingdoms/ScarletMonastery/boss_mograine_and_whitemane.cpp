@@ -114,7 +114,7 @@ public:
             DoScriptText(SAY_MO_KILL, me);
         }
 
-        void DamageTaken(Unit* /*doneBy*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*doneBy*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (damage < me->GetHealth() || _bHasDied || _bFakeDeath)
                 return;
@@ -272,7 +272,7 @@ public:
             DoScriptText(SAY_WH_KILL, me);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (!_bCanResurrectCheck && damage >= me->GetHealth())
                 damage = me->GetHealth() - 1;

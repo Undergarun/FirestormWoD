@@ -173,7 +173,7 @@ class boss_perotharn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -211,7 +211,7 @@ class boss_perotharn : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(uint64 guid, int32 /*type*/)
             {
                 targetGUID = guid;
             }
@@ -545,7 +545,7 @@ class achievement_lazy_eye : public AchievementCriteriaScript
     public:
         achievement_lazy_eye() : AchievementCriteriaScript("achievement_lazy_eye") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

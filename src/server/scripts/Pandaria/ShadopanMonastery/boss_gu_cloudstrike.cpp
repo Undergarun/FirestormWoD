@@ -102,7 +102,7 @@ class boss_gu_cloudstrike : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == 1 && me->HealthBelowPctDamaged(50, damage))
                 {
@@ -144,7 +144,7 @@ class boss_gu_cloudstrike : public CreatureScript
                 summons.Summon(summoned);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (Creature* azureSerpent = GetAzureSerpent())
                     if (azureSerpent->AI())
@@ -186,10 +186,10 @@ class boss_gu_cloudstrike : public CreatureScript
 
 Position azureSerpentPositions[4] =
 {
-    {3835.01f, 2906.63f, 753.33f},
-    {3850.37f, 2738.14f, 814.84f},
-    {3758.79f, 2692.08f, 778.60f},
-    {3736.37f, 2680.89f, 778.60f}
+    {3835.01f, 2906.63f, 753.33f, 0.0f },
+    {3850.37f, 2738.14f, 814.84f, 0.0f },
+    {3758.79f, 2692.08f, 778.60f, 0.0f },
+    {3736.37f, 2680.89f, 778.60f, 0.0f }
 };
 
 class npc_azure_serpent : public CreatureScript
@@ -367,7 +367,7 @@ class spell_kill_guardians: public SpellScriptLoader
         {
             PrepareSpellScript(spell_kill_guardians_SpellScript);
 
-            bool Validate(SpellInfo const* spell)
+            bool Validate(SpellInfo const* /*p_Spell*/)
             {
                 return true;
             }
@@ -418,7 +418,7 @@ class spell_overcharged_soul_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_overcharged_soul_damage_SpellScript);
 
-            void ChangeDamage(SpellEffIndex effIndex)
+            void ChangeDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     SetHitDamage(25000 / caster->GetHealthPct());

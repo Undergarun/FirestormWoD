@@ -82,7 +82,7 @@ class boss_lord_valden : public CreatureScript
                 bRed = false;
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 if (IsHeroic())
                 {
@@ -96,14 +96,14 @@ class boss_lord_valden : public CreatureScript
                 DoZoneInCombat();
             }
             
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
 
                 me->MonsterYell(SAY_DEATH, 0, 0);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*pWho*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
@@ -194,7 +194,7 @@ class spell_valden_toxic_coagulant: public SpellScriptLoader
         {
             PrepareAuraScript(spell_valden_toxic_coagulant_AuraScript);
             
-            void HandleTick(AuraEffect const* aurEff)
+            void HandleTick(AuraEffect const* /*aurEff*/)
             {
                 if (!GetTarget())
                     return;

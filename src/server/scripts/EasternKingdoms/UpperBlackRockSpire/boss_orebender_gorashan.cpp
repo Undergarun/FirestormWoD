@@ -134,7 +134,7 @@ class boss_orebender_gorashan : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!m_Active)
                 {
@@ -160,7 +160,7 @@ class boss_orebender_gorashan : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_DEATH);
 
@@ -193,7 +193,7 @@ class boss_orebender_gorashan : public CreatureScript
                 Reset();
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == SPELL_POWER_CONDUIT_VISUAL)
                 {
@@ -395,7 +395,7 @@ class mob_black_iron_apprentice : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (m_Instance)
                 {
@@ -447,7 +447,7 @@ class mob_ubrs_rune_of_power : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
+            void SpellHit(Unit* /*p_Caster*/, SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == SPELL_DISRUPTING_CONDUCTOR)
                 {

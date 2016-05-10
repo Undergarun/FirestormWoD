@@ -312,7 +312,7 @@ class boss_jin_qin_xi : public CreatureScript
                         me->GetInstanceScript()->SetData(ACHIEVE, 1);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 DoZoneInCombat();
 
@@ -954,7 +954,7 @@ class mob_woe_add_generic : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 targetGuid = 0;
                 if (me->GetEntry() != NPC_EMPEROR_COURAGE)
@@ -962,7 +962,7 @@ class mob_woe_add_generic : public CreatureScript
 
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 if (IsHeroic())
                     me->CastSpell(me, SPELL_SUMMON_TITAN_SPARK, true);
@@ -1306,7 +1306,7 @@ class mob_woe_titan_spark : public CreatureScript
                 me->GetMotionMaster()->MoveChase(target);
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 me->CastSpell(me, SPELL_ENERGY_OF_CREATION, false);
                 me->RemoveAura(SPELL_ENERGY_OF_CREATION);
@@ -1474,7 +1474,7 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
                 isCentralMob = false;
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damages, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damages, SpellInfo const*  /*p_SpellInfo*/)
             {
                 p_Damages = 0;
             }

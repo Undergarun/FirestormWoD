@@ -52,7 +52,7 @@ class boss_xin_the_weaponmaster : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_RING_OF_FIRE, 3000);
                 events.ScheduleEvent(EVENT_HEURT, urand(10000, 15000));
@@ -177,7 +177,7 @@ class mob_animated_staff : public CreatureScript
                 me->GetMotionMaster()->MovePoint(0, home);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
             }
 
@@ -288,7 +288,7 @@ class spell_dart: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dart_SpellScript);
 
-            bool Validate(SpellInfo const* spell)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 return true;
             }

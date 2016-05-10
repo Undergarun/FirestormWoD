@@ -118,7 +118,7 @@ class boss_echo_of_baine : public CreatureScript
                 bIntroDone = true;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -210,8 +210,7 @@ class boss_echo_of_baine : public CreatureScript
 
                         return true;
                     }
-                private:
-                    bool _b;
+
             };
         };      
 };

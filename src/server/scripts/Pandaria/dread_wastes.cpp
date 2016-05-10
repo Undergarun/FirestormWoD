@@ -1979,7 +1979,7 @@ class mob_klaxxi_traitor : public CreatureScript
                     player->KilledMonsterCredit(MOB_KLAXXI_TRAITOR);
             }
 
-            void SetGUID(uint64 guid, int32 data = 1)
+            void SetGUID(uint64 guid, int32 /*p_Data*/ = 1)
             {
                 playerGuid = guid;
             }
@@ -2043,7 +2043,7 @@ class mob_discover_amberglow_bunny : public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 10.0f);
@@ -2143,7 +2143,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, const Quest *quest, uint32 /*slot*/)
+        bool OnQuestReward(Player* /*player*/, Creature* creature, const Quest *quest, uint32 /*slot*/)
         {
             if (quest->GetQuestId() == QUEST_REUNITED)
                 creature->DespawnOrUnsummon();
@@ -2173,7 +2173,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
                 SetDespawnAtEnd(false);
             }
 
-            void SetGUID(uint64 guid, int32 data = 2)
+            void SetGUID(uint64 guid, int32 /*p_Data*/ = 2)
             {
                 playerGuid = guid;
             }
@@ -2316,17 +2316,17 @@ class mob_muckscale_ripper : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
             }
 
-            void SetGUID(uint64 guid, int32 data = 2)
+            void SetGUID(uint64 guid, int32 /*p_Data*/ = 2)
             {
                 playerGuid = guid;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 if (Player* player = Player::GetPlayer(*me, playerGuid))
                     AttackStart(player);
@@ -2418,7 +2418,7 @@ class mob_skeer_the_bloodseeker : public CreatureScript
             uint32 secondPhaseTimer;
             uint32 thirdPhaseTimer;
 
-            void SetGUID(uint64 guid, int32 data = 3)
+            void SetGUID(uint64 guid, int32 /*p_Data*/ = 3)
             {
                 playerGuid = guid;
             }
@@ -2570,17 +2570,17 @@ class mob_muckscale_flesheater : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 12000);
             }
 
-            void SetGUID(uint64 guid, int32 data = 3)
+            void SetGUID(uint64 guid, int32 /*p_Data*/ = 3)
             {
                 playerGuid = guid;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 if (Player* player = Player::GetPlayer(*me, playerGuid))
                     AttackStart(player);
@@ -2652,17 +2652,17 @@ class mob_muckscale_serpentus : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
             }
 
-            void SetGUID(uint64 guid, int32 data = 3)
+            void SetGUID(uint64 guid, int32 /*p_Data*/ = 3)
             {
                 playerGuid = guid;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 if (Player* player = Player::GetPlayer(*me, playerGuid))
                     AttackStart(player);

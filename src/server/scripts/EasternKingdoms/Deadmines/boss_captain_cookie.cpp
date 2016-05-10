@@ -96,7 +96,6 @@ const uint32 ThrowFoodSpells[12] =
 
 #define POINT_MOVE  1
 
-const Position cauldronPos = {-64.07f, -820.27f, 41.17f, 0.0f};
 const Position movePos = {-71.292213f, -819.792297f, 40.51f, 0.04f};
 
 class boss_captain_cookie : public CreatureScript
@@ -147,7 +146,7 @@ class boss_captain_cookie : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 me->RemoveAura(SPELL_WHO_IS_THAT);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -167,7 +166,7 @@ class boss_captain_cookie : public CreatureScript
                         events.ScheduleEvent(EVENT_CAULDRON_1, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
 
@@ -270,12 +269,12 @@ class npc_captain_cookie_good_food : public CreatureScript
                 pInstance = pCreature->GetInstanceScript();
             }
     
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!pInstance)
                     return;
@@ -321,12 +320,12 @@ class npc_captain_cookie_bad_food : public CreatureScript
                 pInstance = pCreature->GetInstanceScript();
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!pInstance)
                     return;

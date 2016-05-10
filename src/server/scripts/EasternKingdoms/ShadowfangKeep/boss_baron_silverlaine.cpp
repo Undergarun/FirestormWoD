@@ -75,7 +75,7 @@ class boss_baron_silverlaine : public CreatureScript
                 phase = 0;
             }
 
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 me->MonsterYell(SAY_AGGRO, 0, 0);
                 events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 12000);
@@ -83,12 +83,12 @@ class boss_baron_silverlaine : public CreatureScript
                 instance->SetBossState(DATA_SILVERLAINE, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*who*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
 
-            void JustDied(Unit* pWho)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
                 me->MonsterYell(SAY_DEATH, 0, 0);
@@ -150,14 +150,14 @@ class npc_silverlaine_worgen : public CreatureScript
 
             InstanceScript *pInstance;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 if (Creature* _silverlaine = me->FindNearestCreature(NPC_SILVERLAINE, 200.0f))
                     if (Unit* target = _silverlaine->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                         AttackStart(target);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (pInstance && pInstance->GetBossState(DATA_SILVERLAINE) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -182,7 +182,7 @@ class npc_silverlaine_worgen_spirit : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 switch (me->GetEntry())
                 {
@@ -214,7 +214,7 @@ class spell_silverlaine_summon_worgen_spirit: public SpellScriptLoader
             PrepareSpellScript(spell_silverlaine_summon_worgen_spirit_SpellScript);
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
                     return;

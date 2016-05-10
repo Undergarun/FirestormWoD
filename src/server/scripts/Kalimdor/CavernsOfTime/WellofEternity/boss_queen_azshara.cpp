@@ -151,7 +151,7 @@ class boss_queen_azshara : public CreatureScript
                 addsCount = 0;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -420,7 +420,7 @@ class npc_queen_azshara_hammer_of_divinity : public CreatureScript
                 me->SetDisableGravity(true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (bDespawn)
                     return;
@@ -453,7 +453,7 @@ class spell_queen_azshara_coldflame: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;

@@ -130,7 +130,7 @@ class boss_lady_nazjar : public CreatureScript
                 events.Reset();
             }
 
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
             {
                 switch(summon->GetEntry())
                 {
@@ -146,7 +146,7 @@ class boss_lady_nazjar : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SHOCK_BLAST
@@ -480,7 +480,7 @@ class npc_lady_nazjar_waterspout : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (bHit)
                     return;

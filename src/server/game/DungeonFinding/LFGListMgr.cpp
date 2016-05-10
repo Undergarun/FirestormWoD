@@ -178,7 +178,7 @@ void LFGListMgr::PlayerRemoveFromGroup(Player* p_Player, Group* p_Group)
     SendLFGListStatusUpdate(l_Iter->second, p_Player->GetSession(), false);
 }
 
-std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString, Player* p_Player)
+std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 /*p_ActivitySubCategory*/, std::string p_FilterString, Player* p_Player)
 {
     std::list<LFGListEntry const*> l_LFGFiltered;
 

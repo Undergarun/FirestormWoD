@@ -97,7 +97,7 @@ class boss_commander_ulthok : public CreatureScript
                 instance->SetBossState(DATA_COMMANDER_ULTHOK, IN_PROGRESS);
             }
 
-            void JustDied(Unit* pKiller)
+            void JustDied(Unit* /*pKiller*/)
             {
                 _JustDied();
             }
@@ -166,7 +166,7 @@ class npc_ulthok_dark_fissure : public CreatureScript
                 DoCast(me, IsHeroic()? SPELL_DARK_FISSURE_AURA_H: SPELL_DARK_FISSURE_AURA, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
             }
         };

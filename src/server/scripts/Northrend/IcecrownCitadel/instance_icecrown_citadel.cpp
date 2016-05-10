@@ -1326,7 +1326,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void PrepareGunshipEvent(Player* player)
+            void PrepareGunshipEvent(Player* /*player*/)
             {
                /* Transport* hammerShip;
                 Transport* skybreakerShip;

@@ -3921,7 +3921,7 @@ class spell_pri_dispersion : public SpellScriptLoader
                 l_Caster->CastSpell(l_Caster, eSpells::DispersionImmunity, true);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
 

@@ -122,8 +122,6 @@ const Position halfusdrakePos[13] =
     {-276.26f, -695.36f, 888.08f, 2.65f}
 };
 
-const Position halfusGoPos  = {-339.31f, -717.41f, 888.09f, 5.06f};
-
 Creature* whelps[8];
 
 class boss_halfus_wyrmbreaker : public CreatureScript

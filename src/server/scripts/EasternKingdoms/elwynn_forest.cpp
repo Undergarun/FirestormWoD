@@ -54,14 +54,14 @@ public:
             HasATarget = false;
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (doneBy->ToCreature())
                 if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
                     damage = 0;
         }
 
-        void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+        void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
         {
             if (target->ToCreature())
                 if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
@@ -107,7 +107,7 @@ public:
         void Reset()
         {}
 
-        void OnSpellClick(Unit* Clicker)
+        void OnSpellClick(Unit* /*Clicker*/)
         {
             me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             me->RemoveByteFlag(UNIT_FIELD_ANIM_TIER, 0, UNIT_STAND_STATE_DEAD);
@@ -178,7 +178,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             resetTimer = 5000;
             damage = 0;

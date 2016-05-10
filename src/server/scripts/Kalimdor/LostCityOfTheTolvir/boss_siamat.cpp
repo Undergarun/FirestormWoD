@@ -304,7 +304,7 @@ public:
             events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 5000);
         }
 
-        void DamageTaken(Unit* , uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* , uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!IsHeroic())
                 return;
@@ -421,7 +421,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* , uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* , uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {

@@ -923,7 +923,7 @@ public:
             SPELL_DRU_PRIMAL_TENACITY = 155784
         };
 
-        void OnUpdate(uint32 /*diff*/, AuraEffect* aurEff)
+        void OnUpdate(uint32 /*diff*/, AuraEffect* /*p_AurEff*/)
         {
             if (!GetCaster())
                 return;

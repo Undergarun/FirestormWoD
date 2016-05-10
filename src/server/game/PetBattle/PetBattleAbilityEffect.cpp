@@ -668,7 +668,7 @@ bool PetBattleAbilityEffect::AddTarget(uint32 target)
     return true;
 }
 
-bool PetBattleAbilityEffect::AddTarget(PetBattleAbilityImplicitTarget target)
+bool PetBattleAbilityEffect::AddTarget(PetBattleAbilityImplicitTarget /*target*/)
 {
     PetBattleTeam* l_Team;
     switch (Handlers[EffectInfo->effect].ImplicitTarget)

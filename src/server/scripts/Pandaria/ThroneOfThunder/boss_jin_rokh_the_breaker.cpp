@@ -240,7 +240,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                 Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(TALK_AGGRO);
 
@@ -261,7 +261,7 @@ class boss_jin_rokh_the_breaker : public CreatureScript
                     events.ScheduleEvent(EVENT_IONIZATION, 60000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 Talk(TALK_DEATH);
 
@@ -514,7 +514,7 @@ class mob_focused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_FOCUSED_LIGHTNING_PERIODIC, true);
             }
 
-            void SetGUID(uint64 guid, int32 id /*= 0*/)
+            void SetGUID(uint64 guid, int32 /*id*/ /*= 0*/)
             {
                 focusedGuid = guid;
 
@@ -612,7 +612,7 @@ class mob_lightning_fissure : public CreatureScript
                 me->CastSpell(me, SPELL_LIGHTNING_FISSURE_PERIODIC, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 std::list<Creature*> conductiveWaters;
                 me->GetCreatureListWithEntryInGrid(conductiveWaters, NPC_CONDUCTIVE_WATER, 200.0f);
@@ -671,7 +671,7 @@ class mob_statue : public CreatureScript
                 events.Reset();
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(uint64 guid, int32 /*type*/)
             {
                 returned = false;
                 playerGuid = guid;
@@ -835,7 +835,7 @@ class mob_call_da_storm_stalker : public CreatureScript
         {
             mob_call_da_storm_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 me->CastSpell(me, SPELL_LIGHTNING_STORM_SPAWN_EFFECT, false);
 
@@ -868,7 +868,7 @@ class mob_lightning_spark : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.Reset();
 
@@ -912,7 +912,7 @@ class mob_lightning_pillar_stalker : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.Reset();
 
@@ -972,7 +972,7 @@ class spell_static_burst: public SpellScriptLoader
         {
             PrepareAuraScript(spell_static_burst_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1123,7 +1123,7 @@ class spell_focused_lightning_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_focused_lightning_periodic_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* target = GetTarget())
                     target->CastSpell(target, SPELL_FOCUSED_LIGHTNING_AREA, true);
@@ -1265,7 +1265,7 @@ class spell_lightning_storm_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_lightning_storm_periodic_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* target = GetTarget())
                 {
@@ -1334,7 +1334,7 @@ class spell_ionization: public SpellScriptLoader
         {
             PrepareAuraScript(spell_ionization_AuraScript);
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
                 {

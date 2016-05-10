@@ -260,7 +260,7 @@ public:
             return true;
         }
 
-        void DamageTaken(Unit* attacker, uint32 /*damage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* attacker, uint32 /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!fightInProgress)
             {
@@ -665,7 +665,7 @@ public:
             wipe = false;
         }
 
-        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             // Players cannot actually kill the legs, they damage them enough and they become unselectable etc.
             if (me->GetHealth() <= damage)
@@ -731,7 +731,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff) { }
+        void UpdateAI(const uint32 /*p_Diff*/) { }
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -909,7 +909,7 @@ class spell_garalon_mend_leg: public SpellScriptLoader
                 }
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -970,7 +970,7 @@ class spell_garalon_crush_trigger: public SpellScriptLoader
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 // If there are no hit players, means there are no players underneath Garalon's body, so there's nothing to do.
                 if (!GetCaster() || !GetHitUnit())

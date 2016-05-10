@@ -751,7 +751,7 @@ namespace JadeCore
 
             }
 
-            void operator()(WorldPacket & p_Data, LocaleConstant p_LocalIndex) ///< p_LocalIndex is unused
+            void operator()(WorldPacket & p_Data, LocaleConstant /*p_LocalIndex*/)
             {
                 uint64 l_TargetGUID = m_Target ? m_Target->GetGUID() : 0;
 

@@ -600,7 +600,7 @@ class boss_generic_guardian : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS)
@@ -636,7 +636,7 @@ class boss_generic_guardian : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value)
             {
                 if (!me->isInCombat())
                 {
@@ -650,7 +650,7 @@ class boss_generic_guardian : public CreatureScript
                     value = 0;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->RemoveAllAreasTrigger();
 
@@ -1248,7 +1248,7 @@ class spell_petrification : public SpellScriptLoader
         {
             PrepareAuraScript(spell_petrification_AuraScript);
 
-            void HandleTriggerSpell(AuraEffect const* aurEff)
+            void HandleTriggerSpell(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 
@@ -1316,12 +1316,12 @@ class spell_jasper_chains : public SpellScriptLoader
                 return true;
             }
 
-            void SetGuid(uint32 type, uint64 guid)
+            void SetGuid(uint32 /*type*/, uint64 guid)
             {
                 playerLinkedGuid = guid;
             }
 
-            void HandlePeriodic(AuraEffect const* aurEff)
+            void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* caster = GetCaster();
                 Unit* target = GetTarget();
@@ -1478,7 +1478,7 @@ class at_amethyst_pool : public AreaTriggerEntityScript
     public:
         at_amethyst_pool() : AreaTriggerEntityScript("at_amethyst_pool") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 5.0f;
@@ -1501,7 +1501,7 @@ class at_amethyst_pool : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 5.0f;

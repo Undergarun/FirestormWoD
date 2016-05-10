@@ -232,7 +232,7 @@ class boss_unsok : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!CheckTrash() || (!instance->CheckRequiredBosses(DATA_UNSOK) && !IsLFR()))
                 {
@@ -314,7 +314,7 @@ class boss_unsok : public CreatureScript
                         EnterCombat(who);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (!fightInProgress)
                     EnterCombat(attacker);
@@ -750,7 +750,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, const SpellInfo* p_SpellInfo)
+        void DamageTaken(Unit* /*p_Attacker*/, uint32 &p_Damage, const SpellInfo*  /*p_SpellInfo*/)
         {
             if (me->HasAura(SPELL_TEMP_FEIGN_DEATH) || me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
             {
@@ -1003,7 +1003,7 @@ class mob_amber_globule : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 // Checking if another Amber Globule is in contact - we need a list not to detect only itself
                 std::list<Creature*> globuleList;
@@ -1286,7 +1286,7 @@ class spell_fling : public SpellScriptLoader
         {
             PrepareSpellScript(spell_fling_SpellScript);
 
-            void Handle(SpellEffIndex effIndex)
+            void Handle(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {

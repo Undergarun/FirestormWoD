@@ -51,15 +51,6 @@ enum eCreatures
     CreatureWolf            = 81297
 };
 
-Position const g_ArchersPos[5] =
-{
-    { 6882.93f, -694.61f, 55.554f, 3.14270f },
-    { 6883.21f, -705.07f, 55.922f, 3.13948f },
-    { 6883.21f, -688.00f, 56.686f, 3.16305f },
-    { 6884.02f, -676.18f, 56.483f, 3.34997f },
-    { 6884.07f, -662.27f, 56.541f, 3.09864f }
-};
-
 class basicevent_nokgar_death : public BasicEvent
 {
     public:
@@ -189,7 +180,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
         {
             if (p_Damage && p_Damage > 0)
             {
@@ -206,7 +197,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* /*p_Who*/) override
         {
             _EnterCombat();
             StopArchers();
@@ -420,7 +411,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                     Talk(eTalks::SaySlay);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/) override
             {
                 if (p_Damage && p_Damage > 0)
                 {

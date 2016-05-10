@@ -72,12 +72,7 @@ enum Points
 };
 
 const Position erudaxportalPos = {-641.515f, -827.8f, 235.5f, 3.069f};
-const Position neareggPos[2] = 
-{
-    {-719.67f, -839.64f, 232.43f, 0.0f},
-    //{-731.72f, -787.40f, 232.47f, 2.25f},
-    {-730.63f, -864.46f, 232.44f, 4.71f}
-};
+
 const Position shadowgalePos[3] = 
 {
     {-745.07f, -845.16f, 232.41f, 0.0f},
@@ -169,7 +164,7 @@ class boss_erudax : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
                 FacelessPortalStalker = me->SummonCreature(NPC_FACELESS_PORTAL_STALKER, erudaxportalPos,TEMPSUMMON_MANUAL_DESPAWN);
@@ -180,7 +175,7 @@ class boss_erudax : public CreatureScript
                     pInstance->SetData(DATA_ERUDAX, IN_PROGRESS);
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
                 summons.DespawnAll();
@@ -188,7 +183,7 @@ class boss_erudax : public CreatureScript
                     pInstance->SetData(DATA_ERUDAX, DONE);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);                
             }
@@ -293,13 +288,13 @@ class npc_erudax_faceless_corruptor : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*attacker*/)
             {
                 events.ScheduleEvent(EVENT_UMBRAL_MENDING, urand(15000, 20000));
                 events.ScheduleEvent(EVENT_SIPHON_ESSENSE, urand(5000, 7000));
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -355,7 +350,7 @@ public:
 
         InstanceScript* pInstance;
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me, SPELL_SUMMON_TWILIGHT_HATCHLING, true);
         }
@@ -422,17 +417,17 @@ public:
             me->SetCanFly(true);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon();
         }
 
-        void IsSummonedBy(Unit* owner)
+        void IsSummonedBy(Unit* /*owner*/)
         {
             DoCast(me, SPELL_TWILIGHT_BLAST_TRIGGER);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!pInstance)
                 return;

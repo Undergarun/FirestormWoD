@@ -295,7 +295,7 @@ class boss_sha_of_fear : public CreatureScript
                         pInstance->SetBossState(DATA_SHA_OF_FEAR, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -379,7 +379,7 @@ class boss_sha_of_fear : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 events.Reset();
                 if (pInstance)
@@ -574,7 +574,7 @@ class boss_sha_of_fear : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (!IsHeroic() || isInSecondPhase)
                     return;
@@ -1001,13 +1001,13 @@ class mob_pure_light_terrace : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
                 return;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
@@ -1435,7 +1435,7 @@ class mob_shrine_guardian : public CreatureScript
                 Talk(GUARDIAN_SAY_AGGRO);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (nextGlobePct < 5)
                     return;
@@ -1800,7 +1800,7 @@ class spell_penetrating_bolt : public SpellScriptLoader
                         targetGuid = itr->GetGUID();
             }
 
-            void HandleDummy(SpellEffIndex index)
+            void HandleDummy(SpellEffIndex /*index*/)
             {
                 if (Unit* caster = GetCaster())
                 {

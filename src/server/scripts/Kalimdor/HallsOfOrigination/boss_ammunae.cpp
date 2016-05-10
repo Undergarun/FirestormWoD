@@ -242,7 +242,7 @@ class npc_ammunae_seedling_pod : public CreatureScript
                     DoCast(pAmmunae, SPELL_ENERGIZE);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
             }
 
@@ -288,7 +288,7 @@ class npc_ammunae_spore : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(15.0f);
             }
             
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -302,7 +302,7 @@ class npc_ammunae_spore : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
             }
         };

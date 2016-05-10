@@ -1192,15 +1192,15 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        uint64 addmoney = 0;
+        int64 addmoney = 0;
 
         addmoney = strtoull((char*)args, NULL, 10);
 
-        uint64 moneyuser = target->GetMoney();
+        int64 moneyuser = target->GetMoney();
 
         if (addmoney < 0)
         {
-            uint64 newmoney = uint64(moneyuser) + addmoney;
+            int64 newmoney = int64(moneyuser) + addmoney;
 
             sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_CURRENT_MONEY), moneyuser, addmoney, newmoney);
             if (newmoney <= 0)

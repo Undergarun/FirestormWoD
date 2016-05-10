@@ -166,7 +166,7 @@ class go_strange_gong : public GameObjectScript
     public:
         go_strange_gong() : GameObjectScript("go_strange_gong") {}
         
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             if (InstanceScript* pInstance = pGo->GetInstanceScript())
             {
@@ -200,7 +200,7 @@ class npc_amanishi_tempest : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_THUNDERCLAP, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(6000, 12000));

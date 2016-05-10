@@ -195,7 +195,7 @@ public:
             me->setFaction(14);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (uiDamage > me->GetHealth() && pDoneBy->IsPlayer())
             {
@@ -395,7 +395,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
@@ -508,7 +508,7 @@ class npc_hakmund_of_argus : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };

@@ -139,7 +139,7 @@ struct npc_mounted_championAI : ScriptedAI
         return 0;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const* p_SpellInfo)
+    void DamageTaken(Unit* /*attacker*/, uint32 & damage, SpellInfo const*  /*p_SpellInfo*/)
     {
         if (!isGrandChampion())
             return;
@@ -1211,9 +1211,6 @@ class player_hex_mendingAI : public PlayerAI
         }
 
         void UpdateAI(const uint32 /*diff*/) { }
-
-    private:
-        uint64 casterGUID;
 };
 
 class spell_toc5_hex_mending: public SpellScriptLoader

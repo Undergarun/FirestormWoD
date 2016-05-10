@@ -582,7 +582,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth() && done_by != me)
                 damage = 0;
@@ -1189,7 +1189,7 @@ public:
             IllidanGUID = guid;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (done_by->GetGUID() != IllidanGUID)
                 damage = 0;
@@ -1473,7 +1473,7 @@ public:
                 Timer = 1;
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* done_by, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage > me->GetHealth() || done_by->GetGUID() != IllidanGUID)
                 damage = 0;

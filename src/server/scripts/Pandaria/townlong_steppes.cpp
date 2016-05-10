@@ -400,7 +400,7 @@ class mob_restless_leng : public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 std::list<Player*> playerList;
                 playerList.clear();

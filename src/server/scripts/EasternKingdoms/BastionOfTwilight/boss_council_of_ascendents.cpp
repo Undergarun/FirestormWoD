@@ -2078,7 +2078,7 @@ class spell_elemental_statis: public SpellScriptLoader
         {
             PrepareAuraScript(spell_elemental_statis_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;

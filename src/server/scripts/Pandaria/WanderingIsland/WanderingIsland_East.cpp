@@ -75,7 +75,7 @@ class vehicle_balance_pole : public VehicleScript
     public:
         vehicle_balance_pole() : VehicleScript("vehicle_balance_pole") {}
 
-        void OnAddPassenger(Vehicle* veh, Unit* passenger, int8 /*seatId*/)
+        void OnAddPassenger(Vehicle* /*veh*/, Unit* passenger, int8 /*seatId*/)
         {
             if (passenger->HasAura(102938))
                 passenger->ExitVehicle();
@@ -141,7 +141,7 @@ class spell_rock_jump: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rock_jump_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -395,7 +395,7 @@ class spell_grab_carriage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_grab_carriage_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
 
@@ -564,7 +564,7 @@ public:
             playerGuid      = 0;
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(const int32 /*actionId*/)
         {
             eventTimer = 2500;
         }
@@ -663,7 +663,7 @@ class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
     public:
         AreaTrigger_at_middle_temple_from_east() : AreaTriggerScript("AreaTrigger_at_middle_temple_from_east") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (Creature* shu = GetClosestCreatureWithEntry(player, 55558, 25.0f))
                 shu->DespawnOrUnsummon();
@@ -712,7 +712,7 @@ public:
                 }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             std::list<Player*> playerList;
             GetPlayerListInGrid(playerList, me, 15.0f);

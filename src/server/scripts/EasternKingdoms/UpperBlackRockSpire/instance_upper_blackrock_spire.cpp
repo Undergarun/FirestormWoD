@@ -224,7 +224,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 p_Type, uint32 p_Data) override
+            void SetData(uint32 p_Type, uint32 /*p_Data*/) override
             {
                 switch (p_Type)
                 {
@@ -301,7 +301,7 @@ class instance_upper_blackrock_spire : public InstanceMapScript
                 }
             }
 
-            void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
+            void OnCreatureKilled(Creature* p_Creature, Player* /*p_Player*/) override
             {
                 if (instance->IsHeroic())
                 {

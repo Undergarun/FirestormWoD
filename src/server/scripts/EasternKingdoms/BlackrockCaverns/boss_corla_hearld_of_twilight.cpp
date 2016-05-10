@@ -82,7 +82,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                     if ((me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DARK_COMMAND) ||
@@ -141,7 +141,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
                     pInstance->SetData(DATA_CORLA, DONE);
             }
      
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }

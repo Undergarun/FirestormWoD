@@ -483,7 +483,7 @@ class npc_janalai_hatchling : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAMEBUFFET, urand(7000, 15000));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!pInstance || !(pInstance->GetBossState(DATA_JANALAI) == IN_PROGRESS))
                 {
@@ -524,7 +524,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
                 return true;
             }
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;

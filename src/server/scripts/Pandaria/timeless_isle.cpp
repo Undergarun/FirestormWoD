@@ -49,7 +49,7 @@ class npc_prince_anduin : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
@@ -63,7 +63,7 @@ class npc_kairoz : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
         {
             if (quest->GetQuestId() == QUEST_TIME_KEEPER_KAIROZ_H || quest->GetQuestId() == QUEST_TIME_KEEPER_KAIROZ_A)
             {
@@ -97,7 +97,7 @@ class npc_kairoz : public CreatureScript
                 conversationEngaged = false;
             }
 
-            void SetGUID(uint64 guid, int32 bab /*= 0*/)
+            void SetGUID(uint64 guid, int32 /*p_Id*/ /*= 0*/)
             {
                 playerGuid = guid;
             }

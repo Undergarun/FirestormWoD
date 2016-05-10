@@ -124,7 +124,7 @@ class boss_forgemaster_throngus : public CreatureScript
                     pInstance->SetData(DATA_FORGEMASTER_THRONGUS, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_PICK_WEAPON, 10000);
@@ -132,14 +132,14 @@ class boss_forgemaster_throngus : public CreatureScript
                     pInstance->SetData(DATA_FORGEMASTER_THRONGUS, IN_PROGRESS);
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_DEATH);
                 if (pInstance)
                     pInstance->SetData(DATA_FORGEMASTER_THRONGUS, DONE);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -238,7 +238,7 @@ class npc_throngus_fire_patch : public CreatureScript
                 DoCast(me, SPELL_FIRE_PATCH_AURA);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 /*uiDiff*/)
             {
                 
             }

@@ -86,7 +86,7 @@ class boss_anraphet : public CreatureScript
                 spells = 0;
             }
 
-            void EnterCombat(Unit * who)
+            void EnterCombat(Unit * /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -104,7 +104,7 @@ class boss_anraphet : public CreatureScript
                 Talk(SAY_DEATH);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);
             }
@@ -190,7 +190,7 @@ class npc_alpha_beam : public CreatureScript
                 DoCast(me, SPELL_ALPHA_BEAM);
             }
             
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };

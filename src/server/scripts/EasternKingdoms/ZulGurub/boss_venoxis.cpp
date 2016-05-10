@@ -153,7 +153,7 @@ class boss_venoxis : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void MovementInform (uint32 type, uint32 id)
+            void MovementInform (uint32 /*type*/, uint32 id)
             {
                 if (id == POINT_DOWN && phase == 2)
                 {
@@ -279,7 +279,7 @@ class npc_venoxis_bloodvenom : public CreatureScript
                 moveTimer = 1000;
             }
             
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 if (Creature* pVenoxis = me->FindNearestCreature(NPC_VENOXIS, 120.0f))
                     DoCast(pVenoxis, SPELL_VENOM_TOTEM_BEAM_CENTER);
@@ -341,7 +341,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
                 moveTimer = 1;
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 /*id*/)
             {
                 if (waypoint == 18)
                     me->DespawnOrUnsummon();
@@ -349,7 +349,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
                     moveTimer = 1;
             }
             
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -360,7 +360,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
                     DoZoneInCombat(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
@@ -402,7 +402,7 @@ class npc_venoxis_venomous_effusion : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
@@ -511,7 +511,7 @@ class spell_venoxis_toxic_link_aura: public SpellScriptLoader
                     GetCaster()->CastSpell(GetCaster(), SPELL_TOXIC_EXPLOSION, true);
             }
             
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;

@@ -750,7 +750,7 @@ class auchindon_kaathar_areatrigger_fissure : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             for (auto l_Guid : m_Targets)
             {
@@ -1078,7 +1078,7 @@ class auchindon_spell_fate : public SpellScriptLoader
         {
             PrepareSpellScript(auchindon_spells);
 
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {

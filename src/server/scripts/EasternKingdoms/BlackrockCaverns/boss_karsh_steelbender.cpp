@@ -132,7 +132,7 @@ class boss_karsh_steelbender : public CreatureScript
                     pInstance->SetData(DATA_KARSH, DONE);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }

@@ -159,7 +159,7 @@ public:
             SetData_xin_the_weaponmaster(type, data);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 /*type*/)
         {
             return 0;
         }

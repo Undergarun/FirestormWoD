@@ -230,7 +230,7 @@ class boss_megaera : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -641,7 +641,7 @@ class boss_megaera_head : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHECK_MELEE, 1000);
 
@@ -682,7 +682,7 @@ class boss_megaera_head : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -975,7 +975,7 @@ class boss_megaera_back_head : public CreatureScript
                 me->CastSpell(me, SPELL_SUBMERGED, true);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 switch (me->GetEntry())
                 {
@@ -1355,7 +1355,7 @@ class mob_nether_wyrm : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_NETHER_SPIKE, 5000);
                 events.ScheduleEvent(EVENT_SUPPRESSION, 10000);
@@ -1526,7 +1526,7 @@ class spell_diffusion: public SpellScriptLoader
         {
             PrepareAuraScript(spell_diffusion_AuraScript);
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1597,7 +1597,7 @@ class spell_nether_tear: public SpellScriptLoader
         {
             PrepareAuraScript(spell_nether_tear_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;
@@ -1628,7 +1628,7 @@ class spell_rampage_periodic: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rampage_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetTarget() || !GetTarget()->ToCreature())
                     return;

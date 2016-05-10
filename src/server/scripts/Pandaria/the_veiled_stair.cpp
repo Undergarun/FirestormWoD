@@ -13,7 +13,7 @@ class npc_wrathion : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == QUEST_A_LEGEND_IN_THE_MAKING)
             {
@@ -43,7 +43,7 @@ class npc_wrathion_mason : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
         {
             if (quest->GetQuestId() == 31482)
             {

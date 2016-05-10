@@ -53,7 +53,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT itemid, ItemBonus, count, transaction FROM webshop_delivery_item WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -132,7 +132,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT gold, transaction FROM webshop_delivery_gold WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -202,7 +202,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT currency, amount, transaction FROM webshop_delivery_currency WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -266,7 +266,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT level, transaction FROM webshop_delivery_level WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -327,7 +327,7 @@ namespace WebShop
                 l_Callback = CharacterDatabase.AsyncPQuery("SELECT skill, recipe, transaction FROM webshop_delivery_profession WHERE guid = '%u' and delivery = 0", l_LowGuid);
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 uint32 l_LowGuid = p_Player->GetGUIDLow();
 
@@ -430,7 +430,7 @@ namespace WebShop
             {
             }
 
-            void OnUpdate(Player* p_Player, uint32 p_Diff) override
+            void OnUpdate(Player* p_Player, uint32 /*p_Diff*/) override
             {
                 if (p_Player->IsStoreDeliverySaved())
                     return;

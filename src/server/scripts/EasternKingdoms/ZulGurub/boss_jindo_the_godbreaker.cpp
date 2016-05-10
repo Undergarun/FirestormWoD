@@ -162,7 +162,7 @@ class boss_jindo_the_godbreaker : public CreatureScript
                     summon->SetPhaseMask(2, true);
             }
 
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* summon, Unit* /*p_Killer*/)
             {
                 if (summon->GetEntry() == NPC_HAKKAR_CHAINS)
                 {
@@ -329,7 +329,7 @@ class npc_jindo_gurubashi_spirit : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_BODY_SLAM, 12000);
                 events.ScheduleEvent(EVENT_FRENZY, 7000);
@@ -342,7 +342,7 @@ class npc_jindo_gurubashi_spirit : public CreatureScript
                     static_cast<boss_jindo_the_godbreaker::boss_jindo_the_godbreakerAI*>(pJindo->GetAI())->JustSummoned(summon);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id == EVENT_JUMP)
                     if (Creature* pChain = me->FindNearestCreature(NPC_HAKKAR_CHAINS, 5.0f))
@@ -408,7 +408,7 @@ class npc_jindo_spirit_of_hakkar : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -444,7 +444,7 @@ class npc_jindo_chains_of_hakkar : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 DoZoneInCombat(me, 300.0f);
             }
@@ -486,7 +486,7 @@ class spell_jindo_shadow_spike_target: public SpellScriptLoader
         {
             PrepareSpellScript(spell_jindo_shadow_spike_target_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -536,7 +536,7 @@ class spell_jindo_summon_spirit_target: public SpellScriptLoader
                     JadeCore::RandomResizeList(targets, 1);
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;
@@ -566,7 +566,7 @@ class spell_jindo_spirit_warrior_gaze_target: public SpellScriptLoader
         {
             PrepareSpellScript(spell_jindo_spirit_warrior_gaze_target_SpellScript);
 
-            void HandleApplyAura(SpellEffIndex effIndex)
+            void HandleApplyAura(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;

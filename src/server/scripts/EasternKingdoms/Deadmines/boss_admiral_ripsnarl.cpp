@@ -151,7 +151,7 @@ class boss_admiral_ripsnarl : public CreatureScript
                 stage = 0;
             }
 
-            void EnterCombat(Unit* who) 
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -172,7 +172,7 @@ class boss_admiral_ripsnarl : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);

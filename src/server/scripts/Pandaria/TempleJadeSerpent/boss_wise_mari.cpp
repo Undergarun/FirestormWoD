@@ -182,7 +182,7 @@ class boss_wase_mari : public CreatureScript
                 _EnterCombat();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 /*p_Action*/)
             {
             }
 
@@ -197,7 +197,7 @@ class boss_wase_mari : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
 
             }
@@ -416,7 +416,7 @@ class mob_corrupt_living_water : public CreatureScript
                 me->CastSpell(me, SPELL_SHA_RESIDUE, true);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;

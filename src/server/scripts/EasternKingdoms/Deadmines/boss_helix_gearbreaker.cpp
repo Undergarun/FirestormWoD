@@ -126,7 +126,7 @@ class boss_helix_gearbreaker : public CreatureScript
                 instance->SetBossState(DATA_HELIX, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }
@@ -238,7 +238,7 @@ class npc_lumbering_oaf : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_CHARGE_OAF0, 10000);
             }
@@ -248,7 +248,7 @@ class npc_lumbering_oaf : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (me->GetHealth() <= damage)
                     me->GetVehicleKit()->RemoveAllPassengers();
@@ -355,13 +355,13 @@ class npc_sticky_bomb : public CreatureScript
                 events.Reset();
             }
      
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_BOMB_READY, 6000);
                 events.ScheduleEvent(EVENT_BOMB_EXPLODE, 18000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -446,12 +446,12 @@ class npc_helix_crew : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 events.ScheduleEvent(EVENT_STICKY_BOMB, 8000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 if (!pInstance)
                     return;

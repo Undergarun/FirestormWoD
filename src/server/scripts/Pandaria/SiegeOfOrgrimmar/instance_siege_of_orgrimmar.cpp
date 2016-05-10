@@ -182,7 +182,7 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* /*go*/)
             {
             }
 
@@ -194,11 +194,11 @@ class instance_siege_of_orgrimmar : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 /*type*/, uint32 /*p_Data*/)
             {
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 /*type*/)
             {
                 return 0;
             }

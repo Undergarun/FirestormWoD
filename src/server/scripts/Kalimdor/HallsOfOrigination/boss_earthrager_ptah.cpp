@@ -106,7 +106,7 @@ class boss_earthrager_ptah : public CreatureScript
                 phase = 0;
             }
 
-            void EnterCombat(Unit * who)
+            void EnterCombat(Unit * /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -123,7 +123,7 @@ class boss_earthrager_ptah : public CreatureScript
                 Talk(SAY_DEATH);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);
             }
@@ -221,7 +221,7 @@ class npc_ptah_dustbone_horror : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_SMASH, urand(2000, 8000));
             }

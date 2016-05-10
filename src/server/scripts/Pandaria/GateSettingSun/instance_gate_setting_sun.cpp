@@ -89,7 +89,7 @@ public:
             secondaryDoorGUIDs.clear();
         }
 
-        void OnDestroy(InstanceMap* pMap)
+        void OnDestroy(InstanceMap* /*pMap*/)
         {
             if (Creature* weakSpot = instance->GetCreature(GetData64(NPC_WEAK_SPOT)))
                 weakSpot->_ExitVehicle();

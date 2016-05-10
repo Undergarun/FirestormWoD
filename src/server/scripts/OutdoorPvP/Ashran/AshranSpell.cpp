@@ -318,7 +318,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                 }
             }
 
-            void SetMaxCount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void SetMaxCount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (GetCaster() == nullptr)
                     return;
@@ -377,7 +377,7 @@ class spell_ashran_stone_empowerment : public SpellScriptLoader
         {
             PrepareAuraScript(spell_ashran_stone_empowerment_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 

@@ -328,7 +328,7 @@ class boss_steelbreaker : public CreatureScript
                 isInEnterCombat = false;
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (isInEnterCombat)
                     return;
@@ -631,7 +631,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 isInEnterCombat = false;
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (isInEnterCombat)
                     return;

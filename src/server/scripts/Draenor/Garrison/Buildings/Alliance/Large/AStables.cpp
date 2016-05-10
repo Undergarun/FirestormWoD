@@ -300,7 +300,7 @@ namespace MS { namespace Garrison
 
     }
 
-    bool npc_KeeganFirebeard::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option)
+    bool npc_KeeganFirebeard::OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/)
     {
         using namespace StablesData::Alliance::KeeganQuestGiver;
         uint32 l_QuestID = p_Quest->GetQuestId();

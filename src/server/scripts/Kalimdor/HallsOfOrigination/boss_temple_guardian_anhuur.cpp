@@ -173,7 +173,7 @@ class boss_temple_guardian_anhuur : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (me->HasAura(SPELL_SHIELD_OF_LIGHT))
                     return;
@@ -291,7 +291,7 @@ class npc_pit_snake : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_POISON_TIPPED_FANGS, urand(2000, 8000));
             }
@@ -324,7 +324,7 @@ class go_beacon_of_light : public GameObjectScript
 public:
     go_beacon_of_light() : GameObjectScript("go_beacon_of_light") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGO)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGO)
     {
         if (Creature* pAnhuur = pGO->FindNearestCreature(NPC_TEMPLE_GUARDIAN_ANHUUR, 100.0f))
             pAnhuur->GetAI()->DoAction(ACTION_ACTIVATE);
@@ -340,7 +340,7 @@ class achievement_i_hate_that_song : public AchievementCriteriaScript
     public:
         achievement_i_hate_that_song() : AchievementCriteriaScript("achievement_i_hate_that_song") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

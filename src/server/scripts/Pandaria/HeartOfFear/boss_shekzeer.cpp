@@ -440,7 +440,7 @@ class boss_shekzeer : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (phase == 3)
                     return;
@@ -1343,7 +1343,7 @@ class mob_amber_trap : public CreatureScript
                         target->RemoveAura(SPELL_TRAPPED);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Unit* target = ObjectAccessor::FindUnit(targetGuid))
                 {
@@ -1396,7 +1396,7 @@ class mob_dissonance_field : public CreatureScript
             }
 
             // Can't be wounded directly by player attacks
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (attacker->IsPlayer() || attacker->GetEntry() == me->GetEntry())
                     damage = 0;
@@ -1483,7 +1483,7 @@ class mob_sha_of_fear : public CreatureScript
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }

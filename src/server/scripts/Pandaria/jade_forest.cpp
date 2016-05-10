@@ -171,7 +171,7 @@ class mob_krax_ik : public CreatureScript
                 events.ScheduleEvent(EVENT_WINDSONG, 30000);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_STEALTH);
             }
@@ -471,7 +471,7 @@ class mob_bamboo_python : public CreatureScript
                 events.ScheduleEvent(EVENT_SWAMP_FEVER, 7000);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->RemoveAurasDueToSpell(SPELL_STEALTH);
             }
@@ -805,7 +805,7 @@ class mob_pandriarch_windfur : public CreatureScript
 //                events.ScheduleEvent(EVENT_WINDFUR_PUNCH, urand (13000, 17000));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -944,7 +944,7 @@ class mob_pandriarch_bramblestaff : public CreatureScript
 //                events.ScheduleEvent(EVENT_WHIRLWIND_2, urand (24000, 27000));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1087,7 +1087,7 @@ class mob_pandriarch_goldendraft : public CreatureScript
                 events.ScheduleEvent(EVENT_FIRE_ALE, urand (8000, 10000));
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1228,7 +1228,7 @@ class mob_big_bao : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1380,14 +1380,14 @@ class npc_elder_anli : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* /*p_Creature*/, uint32 /*p_Sender*/, uint32 /*p_Action*/)
         {
             player->PlayerTalkClass->GetQuestMenu();
 
             return true;
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == 31717)
                 player->SummonCreature(66025, 1559.40f, -2558.67f, 151.244f, 4.83016f);
@@ -1539,7 +1539,7 @@ class mob_pearlfin_situation : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*p_Sender*/, uint32 /*p_Action*/)
         {
             if (creature->GetEntry() == 59058 || creature->GetEntry() == 54960)
                 player->PlayerTalkClass->GetQuestMenu();
@@ -1634,7 +1634,7 @@ class mob_freed_sri_la_villager : public CreatureScript
 
             uint32 timer;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 timer = 3000;
             }
@@ -1855,14 +1855,14 @@ class mob_instructor_windblade : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* /*p_Creature*/, uint32 /*p_Sender*/, uint32 /*p_Action*/)
         {
             player->PlayerTalkClass->GetQuestMenu();
 
             return true;
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == 30144) // This quests needs the player to complete it on a mount, but vehicleId is unfindable, so he can complete the quest with any flying mount he already gets.
             {
@@ -1917,7 +1917,7 @@ class npc_cloud_ring : public CreatureScript
                     playerGuid = player->GetGUID();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (Player* player = Player::GetPlayer(*me, playerGuid))
                 {
@@ -1945,7 +1945,7 @@ class npc_instructor_skythorn : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestAccept(Player* player, Creature* /*p_Creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == 30142)  // Quest "It's A..."
             {
@@ -2031,7 +2031,7 @@ class mob_second_big_bao : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2055,7 +2055,7 @@ class mob_second_big_bao : public CreatureScript
                     playerGuid = guid;
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.ScheduleEvent(EVENT_DESPAWN, 600000);
             }
@@ -2172,7 +2172,7 @@ class mob_ace_longpaw : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2196,7 +2196,7 @@ class mob_ace_longpaw : public CreatureScript
                     playerGuid = guid;
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.ScheduleEvent(EVENT_DESPAWN, 600000);
             }
@@ -2313,7 +2313,7 @@ class mob_ningha_darkwheel : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2337,7 +2337,7 @@ class mob_ningha_darkwheel : public CreatureScript
                     playerGuid = guid;
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.ScheduleEvent(EVENT_DESPAWN, 600000);
             }
@@ -2454,7 +2454,7 @@ class mob_qua_row_whitebrow : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2478,7 +2478,7 @@ class mob_qua_row_whitebrow : public CreatureScript
                     playerGuid = guid;
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.ScheduleEvent(EVENT_DESPAWN, 600000);
             }
@@ -2595,7 +2595,7 @@ class mob_suchi_the_sweet : public CreatureScript
                 events.Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2619,7 +2619,7 @@ class mob_suchi_the_sweet : public CreatureScript
                     playerGuid = guid;
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 events.ScheduleEvent(EVENT_DESPAWN, 600000);
             }
@@ -2754,7 +2754,7 @@ class mob_chi_ji_student : public CreatureScript
                     playerGuid = CAST_PLR(attacker)->GetGUID();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Player* player = attacker->ToPlayer())
                 {

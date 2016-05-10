@@ -54,7 +54,7 @@ namespace MS { namespace Garrison
     {
     }
 
-    void npc_FarmerLokLub::OnShipmentCreated(Player* p_Player, Creature* p_Creature, uint32 p_BuildingID)
+    void npc_FarmerLokLub::OnShipmentCreated(Player* p_Player, Creature* /*p_Creature*/, uint32 p_BuildingID)
     {
         switch (p_BuildingID)
         {

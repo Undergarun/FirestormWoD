@@ -284,7 +284,7 @@ class npc_archbishop_benedictus_purifying_light : public CreatureScript
             {
             }
 
-            void MovementInform(uint32 type, uint32 data)
+            void MovementInform(uint32 /*type*/, uint32 data)
             {
                 if (data == EVENT_JUMP_2)
                 {
@@ -330,7 +330,7 @@ class spell_archbishop_benedictus_purifying_light_targeting: public SpellScriptL
         {
             PrepareSpellScript(spell_archbishop_benedictus_purifying_light_targeting_SpellScript);
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
                     return;
@@ -376,7 +376,7 @@ class spell_archbishop_benedictus_righteous_snear_aoe: public SpellScriptLoader
                     JadeCore::Containers::RandomResizeList(targets, 1);
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;

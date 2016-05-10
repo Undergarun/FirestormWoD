@@ -275,7 +275,7 @@ class boss_elegon : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (!pInstance->CheckRequiredBosses(DATA_ELEGON))
                 {
@@ -557,7 +557,7 @@ class boss_elegon : public CreatureScript
                     caster->SendSpellMiss(me, spell->Id, SPELL_MISS_MISS);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_1 && me->HealthBelowPctDamaged(nextPhase1EndingHealthPct, damage))
                 {
@@ -581,7 +581,7 @@ class boss_elegon : public CreatureScript
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY|MOVEMENTFLAG_FLYING|MOVEMENTFLAG_CAN_FLY);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (pInstance)
                     pInstance->SetBossState(DATA_ELEGON, DONE);
@@ -975,7 +975,7 @@ class mob_empyreal_focus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->GetHealth() < damage)
                 {
@@ -1062,7 +1062,7 @@ class mob_celestial_protector : public CreatureScript
                     AttackStart(player);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!stabilityFluxCasted)
                 {
@@ -1285,12 +1285,12 @@ class mob_energy_charge : public CreatureScript
                 me->AddAura(SPELL_CORE_CHECKER, me);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->CastSpell(me, SPELL_DISCHARGE, true);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 switch (id)
                 {
@@ -1333,7 +1333,7 @@ class mob_energy_charge : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
@@ -1581,7 +1581,7 @@ class go_celestial_control_console : public GameObjectScript
     public:
         go_celestial_control_console() : GameObjectScript("go_celestial_control_console") { }
 
-        void OnGameObjectStateChanged(const GameObject* go, uint32 state)
+        void OnGameObjectStateChanged(const GameObject* go, uint32 /*state*/)
         {
             std::list<Player*> playerList;
             playerList.clear();
@@ -1709,7 +1709,7 @@ class spell_touch_of_titans : public SpellScriptLoader
         {
             PrepareAuraScript(spell_touch_of_titans_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetTarget())
                     return;
@@ -1829,7 +1829,7 @@ class spell_core_checker : public SpellScriptLoader
         {
             PrepareAuraScript(spell_core_checker_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* energyCharge = GetTarget())
                 {
@@ -1994,7 +1994,7 @@ class spell_unstable_energy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_unstable_energy_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* elegon = GetTarget())
                     elegon->CastSpell(elegon, SPELL_UNSTABLE_ENERGY_DAMAGE, true);
@@ -2018,7 +2018,7 @@ class at_draw_power : public AreaTriggerEntityScript
     public:
         at_draw_power() : AreaTriggerEntityScript("at_draw_power") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 30.0f;

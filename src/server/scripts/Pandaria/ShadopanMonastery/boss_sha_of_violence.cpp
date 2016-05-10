@@ -71,7 +71,7 @@ class boss_sha_of_violence : public CreatureScript
                 summon->CastSpell(summon, SPELL_ICE_TRAP, true);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!enrageDone && me->HealthBelowPctDamaged(20, damage))
                     me->CastSpell(me, SPELL_ENRAGE, true);

@@ -204,7 +204,7 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
                 DoCast(me, SPELL_SLIPSTREAM_AURA);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
      };
@@ -235,13 +235,13 @@ class npc_skyfall_star : public CreatureScript
                 events.Reset();
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*p_Who*/)
             {
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(5000, 6000));
             }
@@ -293,7 +293,7 @@ class npc_cloud_prince : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_TYPHOON, urand(5000, 7000));
                 events.ScheduleEvent(EVENT_STARFALL, urand(7000, 15000));
@@ -352,7 +352,7 @@ class npc_whipping_wind : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_WHW_LIGHTNING_BOLT, 2000);
             }
@@ -417,7 +417,7 @@ class npc_young_storm_dragon : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 DoCast(me, SPELL_HEALING_WELL);
                 events.ScheduleEvent(EVENT_CHILLING_BLAST, urand(12000, 15000));
@@ -471,7 +471,7 @@ class npc_armored_mistral : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 DoCast(me, SPELL_RISING_WINDS);
                 events.ScheduleEvent(EVENT_GALE_STRIKE, urand(2000, 4000));
@@ -531,7 +531,7 @@ class npc_empyrean_assassin : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_VAPOR_FORM, urand(15000, 20000));    
             }
@@ -584,7 +584,7 @@ class npc_executor_of_the_caliph : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_RALLY, urand(5000, 20000));
                 events.ScheduleEvent(EVENT_DEVASTATE, urand(2000, 8000));
@@ -703,12 +703,12 @@ class npc_lurking_tempest : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
 
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -757,7 +757,7 @@ class npc_howling_gale : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Who*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 bCombat = true;
                 events.CancelEvent(EVENT_HOWLING_GALE);
@@ -826,7 +826,7 @@ class npc_minister_of_air : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_LIGHTNING_LASH, urand(4000, 8000));
                 events.ScheduleEvent(EVENT_LIGHTNING_NOVA, urand(7000, 10000));
@@ -886,7 +886,7 @@ class npc_servant_of_asaad : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CRUSADER_STRIKE, urand(3000, 6000));
                 events.ScheduleEvent(EVENT_HAND_OF_PROTECTION, urand(10000, 15000));
@@ -945,7 +945,7 @@ class npc_temple_adept : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_HOLY_SMITE, urand(5000, 6000));
                 events.ScheduleEvent(EVENT_GREATER_HEAL, urand(5000, 6000));
@@ -1018,7 +1018,7 @@ class npc_turbulent_squall : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_ASPHYXIATE, urand(3000, 10000));
                 events.ScheduleEvent(EVENT_HURRICANE, urand(10000, 20000));
@@ -1084,7 +1084,7 @@ class npc_wild_vortex : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_WIND_SHOCK, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_WV_LIGHTNING_BOLT, 3000);
@@ -1165,7 +1165,7 @@ class spell_howling_gale_howling_gale: public SpellScriptLoader
         {
             PrepareAuraScript(spell_howling_gale_howling_gale_AuraScript)
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
                     return;

@@ -162,7 +162,7 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*p_AurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 if (dmgInfo.GetDamage() < (uint32)GetSpellInfo()->Effects[EFFECT_0].BasePoints)
                     absorbAmount = dmgInfo.GetDamage() - 1;

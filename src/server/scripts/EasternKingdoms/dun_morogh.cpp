@@ -117,7 +117,7 @@ public:
             SetEscortPaused(true);
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 /*waypointId*/)
         {
             /*if (waypointId == 10)
                 Playemote garde a vous*/
@@ -178,14 +178,14 @@ public:
             me->SetWalk(true);
         }
 
-        void PassengerBoarded(Unit* who, int8 seatId, bool apply)
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool /*apply*/)
         {
             timer = 3000;
             phase = 1;
             PassengerGUID = who->GetGUID();
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             switch (id)
             {
@@ -278,7 +278,7 @@ public:
             hasPassenger = false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             if (hasPassenger)
                 return;
@@ -314,7 +314,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
@@ -351,21 +351,21 @@ public:
             hasTarget = false;
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (doneBy->ToCreature())
                 if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)
                     damage = 0;
         }
 
-        void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+        void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
         {
             if (target->ToCreature())
                 if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
                     damage = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             if (hasTarget)
             {

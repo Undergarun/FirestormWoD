@@ -246,7 +246,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (damage > me->GetHealth() && Phase == 1)
             {

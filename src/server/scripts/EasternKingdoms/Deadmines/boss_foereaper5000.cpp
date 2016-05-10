@@ -51,20 +51,6 @@ enum Events
 
 };
 
-const Position defiasreaperPos[3] =
-{
-    { -182.742f, -565.968f, 19.389f, 3.35f},
-    { -228.675f, -565.752f, 19.389f, 5.98f},
-    { -201.526f, -548.737f, 51.229f, 4.43f}
-};
-
-const Position moltenslagPos[4] =
-{
-    { -205.582f, -572.034f, 20.97f, 1.59f},
-    { -199.143f, -579.843f, 20.97f, 6.16f},
-    { -206.385f, -585.898f, 20.97f, 5.17f},
-    { -212.704f, -579.072f, 20.97f, 3.09f}
-};
 
 class boss_foereaper5000 : public CreatureScript
 {
@@ -177,7 +163,7 @@ class boss_foereaper5000 : public CreatureScript
                 instance->SetBossState(DATA_FOEREAPER, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }

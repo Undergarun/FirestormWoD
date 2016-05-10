@@ -66,7 +66,7 @@ class boss_taran_zhu : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+            void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/)
             {
                 if (Player* player = target->ToPlayer())
                 {
@@ -75,7 +75,7 @@ class boss_taran_zhu : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -145,7 +145,7 @@ public:
             me->CastSpell(me, SPELL_POOL_OF_SHADOWS, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             if (!me->HasUnitState(UNIT_STATE_CASTING))
                 me->CastSpell(me, SPELL_GRIP_OF_HATE, false);

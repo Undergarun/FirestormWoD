@@ -124,7 +124,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!Enraged && !ghost && me->HealthBelowPctDamaged(15, damage))
             {

@@ -219,7 +219,7 @@ class boss_murozond : public CreatureScript
                 BossAI::JustReachedHome();
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                     damage = 0;
@@ -439,7 +439,7 @@ class npc_murozond_mirror_image : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*p_Diff*/)
             {
                 if (!pInstance || pInstance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
                 {
@@ -532,7 +532,7 @@ class go_murozond_hourglass_of_time : public GameObjectScript
     public:
         go_murozond_hourglass_of_time() : GameObjectScript("go_murozond_hourglass_of_time") { }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
             if (!pInstance || pInstance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)

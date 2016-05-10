@@ -2080,7 +2080,7 @@ class spell_dk_necrotic_plague_aura: public SpellScriptLoader
                 NecroticPlagueEnergize = 155165
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetTarget();
@@ -2384,7 +2384,7 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
                 HowlingBlast = 49184
             };
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
             }
@@ -2417,7 +2417,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
                 RuneTap     = 171049
             };
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2466,7 +2466,7 @@ class spell_dk_dark_succor : public SpellScriptLoader
                 FrostPresence  = 48266
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -2546,7 +2546,7 @@ class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_glyph_of_deaths_embrace_AuraScript);
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -2657,7 +2657,7 @@ class spell_dk_enhanced_death_coil : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_enhanced_death_coil_AuraScript);
 
-            void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2698,7 +2698,7 @@ class spell_dk_enhanced_death_coil : public SpellScriptLoader
                 p_AurEff->SetAmount(l_Stack->GetTotalAmount());
             }
 
-            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -2897,7 +2897,7 @@ public:
     {
         PrepareSpellScript(spell_dk_gargoyle_strike_SpellScript);
 
-        void HandleDamage(SpellEffIndex effIndex)
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             if (Unit* l_Caster = GetCaster())
             {
@@ -2942,7 +2942,7 @@ class spell_dk_blood_rites : public SpellScriptLoader
                 BloodRitesEnergize = 163948
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcInfos)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcInfos)
             {
                 PreventDefaultAction();
 
@@ -3135,7 +3135,7 @@ class spell_dk_item_t17_blood_2p_bonus : public SpellScriptLoader
                 VampiricBlood   = 55233
             };
 
-            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -3177,7 +3177,7 @@ class spell_dk_blood_shield : public SpellScriptLoader
                 T17Blood4P = 165571
             };
 
-            void AfterAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void AfterAbsorb(AuraEffect* p_AurEff, DamageInfo& /*p_DmgInfo*/, uint32& p_AbsorbAmount)
             {
                 if (Unit* l_Target = GetTarget())
                 {
@@ -3224,7 +3224,7 @@ class spell_dk_item_t17_frost_4p_driver : public SpellScriptLoader
                 FrozenRuneblade = 170202
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3273,7 +3273,7 @@ class spell_dk_item_t17_frost_4p_driver_periodic : public SpellScriptLoader
                 FrozenRunebladeStacks   = 170202
             };
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 Unit* l_Caster = GetCaster();
                 if (l_Caster == nullptr)
@@ -3377,7 +3377,7 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
                 return false;
             }
 
-            void OnAbsorb(AuraEffect* p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void OnAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
             {
                 Unit* l_Victim = p_DmgInfo.GetVictim();
                 Unit* l_Attacker = p_DmgInfo.GetAttacker();
@@ -3389,7 +3389,7 @@ class spell_dk_defile_absorb_effect : public SpellScriptLoader
                     p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_3].BasePoints);
             }
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -3480,7 +3480,7 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                 DarkTranformationAura   = 63560
             };
 
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+            void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
@@ -3538,7 +3538,7 @@ class spell_dk_might_of_the_frozen_wastes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_might_of_the_frozen_wastes_AuraScript);
 
-            void CalculateEffect(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateEffect(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (!GetCaster())
                     return;

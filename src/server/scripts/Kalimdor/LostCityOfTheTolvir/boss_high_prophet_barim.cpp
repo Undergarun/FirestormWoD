@@ -203,7 +203,7 @@ public:
                 DoScriptText(RAND(SAY_KILL_PLAYER_1, SAY_KILL_PLAYER_2), me);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (!Repentance && me->GetHealthPct() <= 50.0f)
             {
@@ -451,7 +451,7 @@ public:
                 }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -665,7 +665,7 @@ public:
                 barim->AI()->EnterEvadeMode();
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage >= me->GetHealth())
             {
@@ -932,7 +932,7 @@ public:
                 }
         }*/
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*p_Diff*/)
         {
             //DoUpdate(diff);
         }

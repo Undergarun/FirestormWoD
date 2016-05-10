@@ -58,15 +58,15 @@ class boss_xuen : public CreatureScript
                         return;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 /*p_Action*/)
             {
             }
 

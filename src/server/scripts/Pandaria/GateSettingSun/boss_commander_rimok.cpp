@@ -65,7 +65,7 @@ class boss_commander_rimok : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {}
 
             void JustSummoned(Creature* summoned)

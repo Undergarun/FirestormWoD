@@ -492,7 +492,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 /*p_Data*/)
             {
                 if (type == ACHIEVEMENT_SHOWMOVES)
                     SetAchievementValid(ACHIEVEMENT_SHOWMOVES);

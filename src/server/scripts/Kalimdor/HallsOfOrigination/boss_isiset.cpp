@@ -102,7 +102,7 @@ class boss_isiset : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void EnterCombat(Unit *who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 Talk(SAY_AGGRO);
 
@@ -114,12 +114,12 @@ class boss_isiset : public CreatureScript
                 instance->SetBossState(DATA_ISISET, IN_PROGRESS);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -282,13 +282,13 @@ class npc_isiset_astral_rain : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_ASTRAL_RAIN, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -360,13 +360,13 @@ class npc_isiset_celestial_call : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_CELESTIAL_CALL, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -438,13 +438,13 @@ class npc_isiset_veil_of_sky : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_VEIL_OF_SKY, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }
@@ -514,12 +514,12 @@ class npc_isiset_astral_familiar : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3000, 7000));
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->DespawnOrUnsummon();
             }

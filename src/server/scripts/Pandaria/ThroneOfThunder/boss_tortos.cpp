@@ -150,7 +150,7 @@ class boss_tortos : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -193,7 +193,7 @@ class boss_tortos : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -386,7 +386,7 @@ class mob_vampiric_cave_bat_summon : public CreatureScript
                 me->ReenableEvadeMode();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -429,13 +429,13 @@ class mob_whirl_turtle : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 events.ScheduleEvent(EVENT_CHECK_NEAR_PLAYERS, 1500);
                 events.ScheduleEvent(EVENT_SWITCH_TARGET, 3000);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 switch (id)
                 {
@@ -461,7 +461,7 @@ class mob_whirl_turtle : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (shellBlocked)
                     return;
@@ -560,7 +560,7 @@ class spell_quake_stomp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_quake_stomp_SpellScript);
 
-            void HandleDamage(SpellEffIndex effIndex)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -837,7 +837,7 @@ class spell_crystal_shell_damage_absorption: public SpellScriptLoader
                     amount = target->CountPctFromMaxHealth(15);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->RemoveAura(SPELL_CRYSTAL_SHELL_HEAL);
@@ -871,7 +871,7 @@ class spell_crystal_shell_heal_absorption: public SpellScriptLoader
                 amount = -1;
             }
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            void OnAbsorb(AuraEffect* /*p_AurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 if (Unit* target = GetTarget())
                 {

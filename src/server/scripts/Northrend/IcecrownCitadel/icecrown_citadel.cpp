@@ -1441,7 +1441,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // check wipe
                 if (!_wipeCheckTimer)

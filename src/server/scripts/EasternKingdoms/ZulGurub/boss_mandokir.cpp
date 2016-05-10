@@ -143,7 +143,7 @@ class boss_mandokir : public CreatureScript
                 return bAchieve;
             }
             
-            void SummonedCreatureDies(Creature* summon, Unit* killer)
+            void SummonedCreatureDies(Creature* summon, Unit* /*p_Killer*/)
             {
                 if (summon->GetEntry() == NPC_OHGAN)
                 {
@@ -251,7 +251,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
                 despawnTimer = 5000;
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 guid, int32 /*p_Data*/)
             {
                 if (playerGUID)
                     return;
@@ -260,7 +260,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
                     me->GetMotionMaster()->MovePoint(POINT_RES, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 id)
             {
                 if (id == POINT_RES)
                 {
@@ -314,15 +314,15 @@ class npc_mandokir_ohgan : public CreatureScript
             {
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(uint64 /*guid*/, int32 /*p_Data*/)
             {
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 /*type*/, uint32 /*id*/)
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
 
@@ -338,7 +338,7 @@ class spell_mandokir_bloodletting: public SpellScriptLoader
         {
             PrepareAuraScript(spell_mandokir_bloodletting_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster() || !GetTarget())
                     return;
@@ -368,7 +368,7 @@ class achievement_ohganot_so_fast : public AchievementCriteriaScript
     public:
         achievement_ohganot_so_fast() : AchievementCriteriaScript("achievement_ohganot_so_fast") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

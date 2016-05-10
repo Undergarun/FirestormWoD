@@ -131,7 +131,7 @@ class boss_sun_tenderheart : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
 
@@ -158,7 +158,7 @@ class boss_sun_tenderheart : public CreatureScript
                 Talk(TALK_SUN_WIPE);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -179,11 +179,11 @@ class boss_sun_tenderheart : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_COMBAT && me->HealthBelowPctDamaged(nextPhaseHealthPct, damage) && nextPhaseHealthPct > 33.33f)
                 {
@@ -228,7 +228,7 @@ class boss_sun_tenderheart : public CreatureScript
                 }
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -326,7 +326,7 @@ class boss_he_softfoot : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
 
@@ -351,7 +351,7 @@ class boss_he_softfoot : public CreatureScript
                     pInstance->SetBossState(DATA_FALLEN_PROTECTORS, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -371,11 +371,11 @@ class boss_he_softfoot : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_COMBAT && me->HealthBelowPctDamaged(nextPhaseHealthPct, damage) && nextPhaseHealthPct > 33.33f)
                 {
@@ -419,7 +419,7 @@ class boss_he_softfoot : public CreatureScript
                 }
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -521,7 +521,7 @@ class boss_rook_stonetoe : public CreatureScript
             
             void Reset()
             {
-                Reset();
+                _Reset();
                 
                 events.Reset();
 
@@ -546,7 +546,7 @@ class boss_rook_stonetoe : public CreatureScript
                     pInstance->SetBossState(DATA_FALLEN_PROTECTORS, FAIL);
             }
             
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // @TODO: Set in combat for other protectors
                 if (pInstance)
@@ -566,11 +566,11 @@ class boss_rook_stonetoe : public CreatureScript
                 summons.Despawn(summon);
             }
             
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
             
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_COMBAT && me->HealthBelowPctDamaged(nextPhaseHealthPct, damage) && nextPhaseHealthPct > 33.33f)
                 {
@@ -614,7 +614,7 @@ class boss_rook_stonetoe : public CreatureScript
                 }
             }
             
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 

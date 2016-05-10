@@ -333,7 +333,7 @@ public:
                 DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
         {
             if (damage > me->GetHealth() && uiPhase <= PHASE_SKELETON)
             {
@@ -451,7 +451,7 @@ public:
         Vehicle* _vehicleKit;
         InstanceScript* instance;
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 /*p_Data*/)
         {
             if (type == 1)
                 Start(false, true, 0, NULL);

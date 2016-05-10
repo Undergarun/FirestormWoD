@@ -134,7 +134,7 @@ class boss_echo_of_sylvanas : public CreatureScript
                 deadghouls = 0;
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -311,7 +311,7 @@ class npc_echo_of_sylvanas_ghoul : public CreatureScript
                 events.Reset();
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* /*owner*/)
             {
                 DoCast(me, SPELL_CALL_OF_THE_HIGHBORNE_1, true);
             }
@@ -556,7 +556,7 @@ class achievement_several_ties : public AchievementCriteriaScript
     public:
         achievement_several_ties() : AchievementCriteriaScript("achievement_several_ties") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

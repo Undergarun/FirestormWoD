@@ -272,7 +272,7 @@ class boss_feng : public CreatureScript
                     cancelGob->Respawn();
             }
 
-            void JustDied(Unit* attacker)
+            void JustDied(Unit* /*p_Attacker*/)
             {
                 _JustDied();
                 Talk(TALK_DEATH);
@@ -508,7 +508,7 @@ class boss_feng : public CreatureScript
                     fThreat = 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!pInstance->CheckRequiredBosses(DATA_FENG) || attacker->GetPositionX() < 4009.0f || attacker->GetPositionX() > 4076.0f)
                 {
@@ -1136,7 +1136,7 @@ class mob_wild_spark : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_FENG) != IN_PROGRESS)
@@ -1585,7 +1585,7 @@ class go_inversion : public GameObjectScript
         {
             go_inversionAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player)
+            bool GossipHello(Player* /*player*/)
             {
                 return false;
             }
@@ -1607,7 +1607,7 @@ class go_cancel : public GameObjectScript
         {
             go_cancelAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player)
+            bool GossipHello(Player* /*player*/)
             {
                 return false;
             }
@@ -1625,7 +1625,7 @@ class at_nullification_barrier : public AreaTriggerEntityScript
     public:
         at_nullification_barrier() : AreaTriggerEntityScript("at_nullification_barrier") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 6.0f;
@@ -1643,7 +1643,7 @@ class at_nullification_barrier : public AreaTriggerEntityScript
                 l_Target->CastSpell(l_Target, SPELL_NULLIFICATION_BARRIER, true);
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 60.0f;

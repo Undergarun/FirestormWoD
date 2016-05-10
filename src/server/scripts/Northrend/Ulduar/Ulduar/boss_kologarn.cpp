@@ -526,7 +526,7 @@ class npc_focused_eyebeam : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_10 || spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_25)
                     if (Creature* kologarn = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_KOLOGARN)))
@@ -810,7 +810,7 @@ class spell_ulduar_stone_grip: public SpellScriptLoader
                     caster->ClearUnitState(UNIT_STATE_ONVEHICLE);
             }
 
-            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();

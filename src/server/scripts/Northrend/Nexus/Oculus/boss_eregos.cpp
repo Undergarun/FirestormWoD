@@ -160,7 +160,7 @@ class boss_eregos : public CreatureScript
                 summon->CastSpell(summon, SPELL_PLANAR_BLAST, true);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!IsHeroic())
                     return;

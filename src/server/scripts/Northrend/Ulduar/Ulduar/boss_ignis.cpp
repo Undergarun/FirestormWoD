@@ -167,7 +167,7 @@ class boss_ignis : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
-            void JustDied(Unit* victim)
+            void JustDied(Unit* /*victim*/)
             {
                 if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
                 {
@@ -343,7 +343,7 @@ class npc_iron_construct : public CreatureScript
                 _brittled = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HasAura(SPELL_BRITTLE) && damage >= needDamage && !shattered)
                 {

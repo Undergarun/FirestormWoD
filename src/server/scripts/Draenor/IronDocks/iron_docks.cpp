@@ -1795,7 +1795,7 @@ class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
                 SpellBarbedArrowAura = 164370
             };
             
-            void HandleDummy(SpellEffIndex p_EffIndex)
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, eBarbedArrowSpells::SpellBarbedArrowAura);

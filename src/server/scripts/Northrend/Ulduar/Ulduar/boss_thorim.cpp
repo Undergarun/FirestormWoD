@@ -742,7 +742,7 @@ class boss_thorim : public CreatureScript
                 summon->RemoveCorpse(false);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -785,7 +785,6 @@ class boss_thorim : public CreatureScript
 
             private:
                 Phases phase;
-                uint8 PreAddsCount;
                 uint32 EncounterTime;
                 uint32 checkTargetTimer;
                 bool gotAddsWiped;
@@ -1150,7 +1149,7 @@ class npc_thorim_arena_phase_add : public CreatureScript
                 return (IsInArena == ArenaAreaCheck(false)(who));
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!isOnSameSide(attacker))
                     damage = 0;
@@ -1856,9 +1855,6 @@ class spell_thorim_berserk: public SpellScriptLoader
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_berserk_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
             }
-
-            private:
-                WorldObject* _target;
         };
 
         SpellScript* GetSpellScript() const

@@ -207,7 +207,7 @@ class boss_mannoroth : public CreatureScript
                 me->Attack(who, false);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (Creature* pVarothen = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROTHEN)))
                     if (!pVarothen->isInCombat())
@@ -265,7 +265,7 @@ class boss_mannoroth : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!bDebilitating)
                     if (me->HealthBelowPctDamaged(88, damage))
@@ -513,7 +513,7 @@ class npc_mannoroth_varothen : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 Talk(SAY_VAROTHEN_AGGRO);
                 events.ScheduleEvent(EVENT_MAGNISTRIKE, urand(3000, 7000));
@@ -680,7 +680,7 @@ class achievement_thats_not_cannon : public AchievementCriteriaScript
     public:
         achievement_thats_not_cannon() : AchievementCriteriaScript("achievement_thats_not_cannon") { }
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (!target)
                 return false;

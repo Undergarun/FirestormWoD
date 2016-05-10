@@ -80,7 +80,7 @@ class boss_lord_godfrey : public CreatureScript
                 _Reset();
             }
             
-            void EnterCombat(Unit* pWho)
+            void EnterCombat(Unit* /*pWho*/)
             {
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 10000);
                 events.ScheduleEvent(EVENT_CURSED_BULLET, 15000);
@@ -94,7 +94,7 @@ class boss_lord_godfrey : public CreatureScript
                 DoZoneInCombat();
             }
             
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->HasEffect(SPELL_EFFECT_INTERRUPT_CAST))
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
@@ -103,12 +103,12 @@ class boss_lord_godfrey : public CreatureScript
                                 me->InterruptSpell(CURRENT_GENERIC_SPELL, false);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*pWho*/)
             {
                 me->MonsterYell(urand(0, 1)? SAY_KILL1: SAY_KILL2, 0, 0);
             }
 
-            void JustDied(Unit* who)
+            void JustDied(Unit* /*pWho*/)
             {
                 _JustDied();
                 me->MonsterYell(SAY_DEATH, 0, 0);
@@ -173,7 +173,7 @@ class npc_godfrey_pistol_barrage : public CreatureScript
             }
             
             
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(const uint32 /*uiDiff*/)
             {
             }
      };
@@ -188,7 +188,7 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
         {
             PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript);
 
-            void HandleDummyTick(AuraEffect const* aurEff)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_BLOODTHIRSTY_GHOULS_M, true);
             }

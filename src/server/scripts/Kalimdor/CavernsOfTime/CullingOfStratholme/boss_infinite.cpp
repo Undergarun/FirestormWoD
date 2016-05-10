@@ -67,7 +67,7 @@ public:
             me->Yell(SAY_CORRUPTOR_AGGRO, LANG_UNIVERSAL, 0);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*p_Killer*/)
         {
             me->Yell(SAY_CORRUPTOR_DEAD, LANG_UNIVERSAL, 0);
             if (instance)

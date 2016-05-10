@@ -135,7 +135,7 @@ class boss_setesh : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
                 Talk(SAY_KILL);
             }
@@ -384,7 +384,7 @@ class npc_setesh_void_seeker : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 if (urand(0, 1))
                     events.ScheduleEvent(EVENT_ANTI_MAGIC_PRISON, urand(3000, 5000));

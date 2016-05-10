@@ -353,7 +353,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             if (!m_Phase)
             {
@@ -801,7 +801,7 @@ class mob_roshak : public CreatureScript
                 return true;
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damages, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damages, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!m_Instance || !TrashDone())
                 {
@@ -855,7 +855,7 @@ class mob_roshak : public CreatureScript
                 m_PowerTimer = 1000;
             }
 
-            uint32 GetData(uint32 id /* = 0 */)
+            uint32 GetData(uint32 /*id*/ /* = 0 */)
             {
                 return m_UnleashedCount;
             }
@@ -1714,7 +1714,7 @@ class mob_iron_qon_invisible_man : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_WINDSTORM_LINGER, 19500);
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 // Make players jump to the room center
                 std::list<Player*> l_PlayerList;
@@ -2293,7 +2293,7 @@ class at_quilen_spear : public AreaTriggerEntityScript
     public:
         at_quilen_spear() : AreaTriggerEntityScript("at_quilen_spear") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2333,7 +2333,7 @@ class at_rushing_winds : public AreaTriggerEntityScript
     public:
         at_rushing_winds() : AreaTriggerEntityScript("at_rushing_winds") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)

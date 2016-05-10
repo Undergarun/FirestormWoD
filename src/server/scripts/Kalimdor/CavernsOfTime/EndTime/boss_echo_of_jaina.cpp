@@ -142,7 +142,7 @@ class boss_echo_of_jaina : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -351,7 +351,7 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
     public:
         go_echo_of_jaina_jaina_staff_fragment() : GameObjectScript("go_echo_of_jaina_jaina_staff_fragment") { }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+        bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
             if (!pInstance)

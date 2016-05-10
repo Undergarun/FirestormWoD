@@ -82,7 +82,7 @@ class mob_mandori_escort : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(uint64 guid, int32 /*type*/)
         {
             playerGuid = guid;
 
@@ -409,7 +409,7 @@ class boss_vordraka : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 6000);
                 m_Events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 10000);

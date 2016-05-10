@@ -210,12 +210,12 @@ enum ScriptTexts
     SAY_DEATH    = 4
 };
 
-const Position millhousemanastormscPos[3] = 
+/*const Position millhousemanastormscPos[3] =
 {
     {987.67f, 882.45f, 303.37f, 2.07f},
     {1075.72f, 862.74f, 291.48f, 2.86f},
     {1151.45f, 885.74f, 284.96f, 3.36f}
-};
+};*/
 
 class mob_millhouse_manastorm : public CreatureScript
 {
@@ -261,7 +261,7 @@ public:
             }
         }*/
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             Talk(SAY_DEATH);
         }

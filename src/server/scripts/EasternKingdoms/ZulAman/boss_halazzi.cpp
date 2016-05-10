@@ -281,7 +281,7 @@ class npc_halazzi_lynx : public CreatureScript
                 bDespawn = false;
             }
             
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_SHRED_ARMOR, urand(3000, 10000));
                 events.ScheduleEvent(EVENT_LYNX_FLURRY, urand(5000, 8000));
@@ -376,7 +376,7 @@ class npc_halazzi_lightning_totem : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*p_Who*/)
             {
                 events.ScheduleEvent(EVENT_LIGHTNING, 1000);
             }

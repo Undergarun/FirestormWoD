@@ -233,7 +233,7 @@ class instance_ulduar : public InstanceMapScript
                     TeamInInstance = player->GetTeam();
             }
 
-            void OnPlayerEnter(Player* player)
+            void OnPlayerEnter(Player* /*player*/)
             {
                 if (_summonAlgalon)
                 {
@@ -1123,7 +1123,7 @@ class instance_ulduar : public InstanceMapScript
                 return false;
             }
             
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            bool CheckRequiredBosses(uint32 bossId, Player const* /*player*/ = NULL) const
             {
                 switch (bossId)
                 {

@@ -464,7 +464,7 @@ class boss_zorlok : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -537,7 +537,7 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 // Check if trashes are done
                 if (pInstance && !isEcho)
@@ -1469,7 +1469,7 @@ class spell_zorlok_exhale : public SpellScriptLoader
                     caster->RemoveAurasDueToSpell(SPELL_INHALE);
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1639,7 +1639,7 @@ class at_cancelling_noise : public AreaTriggerEntityScript
     public:
         at_cancelling_noise() : AreaTriggerEntityScript("at_cancelling_noise") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 10.0f;

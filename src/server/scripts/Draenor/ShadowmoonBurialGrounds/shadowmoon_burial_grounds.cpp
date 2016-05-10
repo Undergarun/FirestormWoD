@@ -1,4 +1,3 @@
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////
 ////  MILLENIUM-STUDIO
@@ -15,8 +14,6 @@ Position const g_PositionDisturbedSpirits[2] =
     {1699.829f, -243.255f, 250.065f, 1.164130f},
     {1699.862f, -242.144f, 250.318f, 0.891596f}
 };
-
-Position const g_PositionNerzulFightLocation = {1712.679f, -797.858f, 73.736f, 4.6856f};
 
 /// Restless Wanderer - 980004
 /// Restless Wanderer - 980005

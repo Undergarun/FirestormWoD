@@ -227,7 +227,7 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
         }
 
-        void DamageTaken(Unit*, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit*, uint32 &damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (phase != PHASE_GROUND && damage >= me->GetHealth())
                 damage = 0;

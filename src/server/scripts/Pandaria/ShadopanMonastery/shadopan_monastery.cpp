@@ -227,7 +227,7 @@ class npc_shadopan_hatred : public CreatureScript
                 DoZoneInCombat();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (me->HasAura(SPELL_APPARITIONS_AURA))
                     damage = 0;
@@ -363,7 +363,7 @@ class spell_shadopan_apparitions: public SpellScriptLoader
         {
             PrepareAuraScript(spell_shadopan_apparitions_AuraScript);
 
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*p_AurEff*/)
             {
                 PreventDefaultAction();
 

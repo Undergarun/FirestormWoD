@@ -1478,7 +1478,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
         {
             PrepareAuraScript(spell_chogall_worshipping_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;
@@ -1487,7 +1487,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
                     GetTarget()->ToPlayer()->SetClientControl(GetTarget(), 0);
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetTarget())
                     return;

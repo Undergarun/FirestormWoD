@@ -528,7 +528,7 @@ class mob_durumu_second_phase_add : public CreatureScript
                 }
             }
 
-            void JustDied (Unit* p_Killer)
+            void JustDied (Unit* /*p_Killer*/)
             {
                 bool l_AddsAllDead = true;
 

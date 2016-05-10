@@ -159,7 +159,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                 _JustDied();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
             }
 
@@ -306,7 +306,7 @@ class mob_sun : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 me->GetInstanceScript()->SetData(TYPE_NUMBER_SUN_DEFEATED, 1);
             }
@@ -352,7 +352,7 @@ class mob_zao : public CreatureScript
 
             bool isCorrupted;
 
-            void DamageTaken(Unit* attacker, uint32&, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32&, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (attacker->ToCreature()
                     && (attacker->ToCreature()->GetEntry() == CREATURE_HAUNTING_SHA_1
@@ -468,7 +468,7 @@ class mob_haunting_sha : public CreatureScript
                 me->CastSpell(me, SPELL_EXTRACT_SHA, false);
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 1000);
             }
@@ -554,13 +554,13 @@ class mob_strife : public CreatureScript
             int32 countIntensity;
             bool hasBeenHit;
 
-            void DamageTaken(Unit* unit, uint32&, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Unit*/, uint32&, SpellInfo const*  /*p_SpellInfo*/)
             {
                 timer_dissipation = TIMER_DISSIPATION;
                 hasBeenHit = true;
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 1000);
             }
@@ -651,13 +651,13 @@ class mob_peril : public CreatureScript
             int32 countIntensity;
             bool hasBeenHit;
 
-            void DamageTaken(Unit* unit, uint32&, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Unit*/, uint32&, SpellInfo const*  /*p_SpellInfo*/)
             {
                 timer_dissipation = TIMER_DISSIPATION;
                 hasBeenHit = true;
             }
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 1000);
             }
@@ -740,7 +740,7 @@ class mob_nodding_tiger : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -784,7 +784,7 @@ class mob_golden_beetle : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -838,7 +838,7 @@ class mob_jiang_xiang : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
                 events.ScheduleEvent(2, 4000);
@@ -887,7 +887,7 @@ class mob_songbird_queen : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 events.ScheduleEvent(1, 2000);
             }
@@ -939,7 +939,7 @@ class mob_talking_fish : public CreatureScript
             }
             EventMap events;
 
-            void EnterCombat(Unit* unit)
+            void EnterCombat(Unit* /*p_Unit*/)
             {
                 Talk(TALK_0 + urand(0, 3));
                 events.ScheduleEvent(1, 2000);

@@ -215,7 +215,7 @@ namespace MS { namespace Garrison
         return true;
     }
 
-    bool npc_AncientWaygateProtector::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool npc_AncientWaygateProtector::OnGossipSelect(Player* p_Player, Creature* /*p_Creature*/, uint32 /*p_Sender*/, uint32 p_Action)
     {
             p_Player->PlayerTalkClass->ClearMenus();
 

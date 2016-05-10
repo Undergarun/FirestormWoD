@@ -690,7 +690,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
         {
             boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) {}
 
-            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32 &damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (!CanAIAttack(who))
                     damage = 0;
@@ -863,7 +863,7 @@ class npc_liquid_pyrite : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }
@@ -904,7 +904,7 @@ class npc_pool_of_tar : public CreatureScript
                 me->CastSpell(me, SPELL_TAR_PASSIVE, true);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 damage = 0;
             }

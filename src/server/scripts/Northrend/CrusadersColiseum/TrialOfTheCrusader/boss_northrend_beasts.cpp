@@ -215,7 +215,7 @@ class boss_gormok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 // despawn the remaining passengers on death
                 if (damage >= me->GetHealth())
@@ -324,7 +324,7 @@ class mob_snobold_vassal : public CreatureScript
                 DoCast(who, SPELL_SNOBOLLED);
             }
 
-            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (pDoneBy->GetGUID() == _targetGUID)
                     uiDamage = 0;
@@ -1122,7 +1122,6 @@ class boss_icehowl : public CreatureScript
                 bool   _movementFinish;
                 bool   _trampleCasted;
                 uint8  _stage;
-                Unit*  _target;
         };
 
         CreatureAI* GetAI(Creature* creature) const

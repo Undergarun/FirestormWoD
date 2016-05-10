@@ -235,7 +235,7 @@ class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
     public:
         npc_vanessa_vancleef_a_note_from_vanessa() : CreatureScript("npc_vanessa_vancleef_a_note_from_vanessa") { }
      
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* /*pPlayer*/, Creature* pCreature)
         {
             InstanceScript* pInstance = pCreature->GetInstanceScript();
             if (!pInstance)
@@ -408,7 +408,7 @@ class spell_vanessa_vancleef_backslash_targeting: public SpellScriptLoader
             PrepareSpellScript(spell_vanessa_vancleef_backslash_targeting_SpellScript);
 
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster() || !GetHitUnit())
                     return;

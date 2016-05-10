@@ -56,7 +56,7 @@ class npc_PetBattleTrainer : public CreatureScript
 
             /// Update AI
             /// @p_Diff : Time since last update
-            void UpdateAI(uint32 const p_Diff) override
+            void UpdateAI(uint32 const /*p_Diff*/) override
             {
 
             }
@@ -90,7 +90,7 @@ class npc_PetBattleTrainer : public CreatureScript
         /// @p_Player : Dialog requester
         /// @p_Sender : Sender entry
         /// @p_Action : Selected action ID
-        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override
+        bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
         {
             p_Player->PlayerTalkClass->ClearMenus();
 

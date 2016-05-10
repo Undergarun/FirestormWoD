@@ -280,7 +280,7 @@ namespace MS { namespace Garrison
             m_ProductionChosen = p_Value;
     }
 
-    int npc_HomerStonefieldAI::OnShipmentIDRequest(Player* p_Player)
+    int npc_HomerStonefieldAI::OnShipmentIDRequest(Player* /*p_Player*/)
     {
         return m_ProductionChosen ? m_ProductionChosen : -1;
     }

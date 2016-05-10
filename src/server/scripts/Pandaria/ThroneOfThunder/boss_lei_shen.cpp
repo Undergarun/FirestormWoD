@@ -569,7 +569,7 @@ class boss_lei_shen : public CreatureScript
                 Talk(TALK_SLAY);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (m_Instance)
                 {
@@ -603,7 +603,7 @@ class boss_lei_shen : public CreatureScript
                 }
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (m_Phase != PHASE_3 || p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -708,7 +708,7 @@ class boss_lei_shen : public CreatureScript
                 Reset();
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
                 m_Events.Reset();
@@ -1657,7 +1657,7 @@ class mob_thunderous_throw : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 if (!m_Instance)
                     return;
@@ -1694,7 +1694,7 @@ class mob_lesser_diffused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_CHAIN_LIGHTNING_SUMMON_1, true);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -1724,7 +1724,7 @@ class mob_diffused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_CHAIN_LIGHTNING_SUMMON_2, true);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -1754,7 +1754,7 @@ class mob_greater_diffused_lightning : public CreatureScript
                 me->CastSpell(me, SPELL_CHAIN_LIGHTNING_SUMMON_3, true);
             }
 
-            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType)
+            void DamageDealt(Unit* p_Victim, uint32& /*p_Damage*/, DamageEffectType p_DamageType)
             {
                 if (p_DamageType != DIRECT_DAMAGE)
                     return;
@@ -1849,7 +1849,7 @@ class spell_discharged_energy : public SpellScriptLoader
         {
             PrepareAuraScript(spell_discharged_energy_AuraScript);
 
-            void OnUpdate(uint32 p_Diff, AuraEffect* p_AurEff)
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffect* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1883,7 +1883,7 @@ class spell_decapitate : public SpellScriptLoader
         {
             PrepareAuraScript(spell_decapitate_AuraScript);
 
-            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1918,7 +1918,7 @@ class spell_damage_by_distance : public SpellScriptLoader
         {
             PrepareSpellScript(spell_damage_by_distance_SpellScript);
 
-            void HandleOnHit(SpellEffIndex p_EffIndex)
+            void HandleOnHit(SpellEffIndex /*p_EffIndex*/)
             {
                 if (GetSpellInfo()->Id == SPELL_DECAPITATE_DAMAGE)
                 {
@@ -1968,7 +1968,7 @@ class spell_crashing_thunder_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_crashing_thunder_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* p_AurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2002,7 +2002,7 @@ class spell_diffusion_chain : public SpellScriptLoader
         {
             PrepareSpellScript(spell_diffusion_chain_SpellScript);
 
-            void HandleOnHit(SpellEffIndex p_EffIndex)
+            void HandleOnHit(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2043,7 +2043,7 @@ class spell_overcharged_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_overcharged_dummy_SpellScript);
 
-            void HandleOnHit(SpellEffIndex p_EffIndex)
+            void HandleOnHit(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2084,7 +2084,7 @@ class spell_bouncing_bolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_bouncing_bolt_SpellScript);
 
-            void HandleMissile(SpellEffIndex p_EffIndex)
+            void HandleMissile(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Position const* l_Pos = GetExplTargetDest())
                 {
@@ -2222,7 +2222,7 @@ class areatrigger_thunder_trap_activator : public AreaTriggerScript
     public:
         areatrigger_thunder_trap_activator() : AreaTriggerScript("areatrigger_thunder_trap_activator") { }
 
-        bool OnTrigger(Player* p_Player, AreaTriggerEntry const* p_Trigger, bool p_Enter)
+        bool OnTrigger(Player* p_Player, AreaTriggerEntry const* /*p_Trigger*/, bool /*p_Enter*/)
         {
             if (!p_Player)
                 return false;
@@ -2398,7 +2398,7 @@ class areatrigger_violent_gale_winds : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Map::PlayerList const& l_PlayerList = p_AreaTrigger->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
@@ -2442,7 +2442,7 @@ class go_displacement_pad : public GameObjectScript
     public:
         go_displacement_pad() : GameObjectScript("go_displacement_pad") { }
 
-        bool OnGossipHello(Player* p_Player, GameObject* p_GameObject)
+        bool OnGossipHello(Player* p_Player, GameObject* /*p_GameObject*/)
         {
             if (p_Player)
             {
@@ -2462,7 +2462,7 @@ class at_crashing_thunder : public AreaTriggerEntityScript
     public:
         at_crashing_thunder() : AreaTriggerEntityScript("at_crashing_thunder") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)
@@ -2502,7 +2502,7 @@ class at_lightning_whip : public AreaTriggerEntityScript
     public:
         at_lightning_whip() : AreaTriggerEntityScript("at_lightning_whip") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Unit* l_Caster = p_AreaTrigger->GetCaster();
             if (!l_Caster)

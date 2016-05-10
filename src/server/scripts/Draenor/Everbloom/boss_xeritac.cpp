@@ -1076,7 +1076,7 @@ class the_everbloom_xertiac_gameobject_eggs : public GameObjectScript
 public:
     the_everbloom_xertiac_gameobject_eggs() : GameObjectScript("the_everbloom_xertiac_gameobject_eggs") {}
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    bool OnGossipHello(Player* /*p_Player*/, GameObject* p_Gobject)
     {
         p_Gobject->SummonCreature(eEverbloomCreature::CreatureToxicSpiderling, *p_Gobject, TEMPSUMMON_DEAD_DESPAWN);
         p_Gobject->Delete();

@@ -238,7 +238,7 @@ class boss_commander_tharbek : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void EnterCombat(Unit* p_Attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 _EnterCombat();
 
@@ -252,7 +252,7 @@ class boss_commander_tharbek : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* p_Killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 _JustDied();
 
@@ -312,7 +312,7 @@ class boss_commander_tharbek : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!me->HasAura(SPELL_IRON_RAGE) && me->HealthBelowPctDamaged(50, p_Damage))
                     me->CastSpell(me, SPELL_IRON_RAGE, true);
@@ -542,7 +542,7 @@ class boss_commander_tharbek : public CreatureScript
                     m_SeventhTalkTimer -= p_Diff;
             }
 
-            bool IsWaveCompleted(const uint32 p_Diff)
+            bool IsWaveCompleted(const uint32 /*p_Diff*/)
             {
                 for (uint64 l_Guid : m_WaveGuidsContainer)
                 {
@@ -742,7 +742,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* /*p_Summoner*/)
             {
                 m_MoveTimer  = 1000;
                 m_ActualMove = MOVE_NONE;
@@ -806,7 +806,7 @@ class mob_ironbarb_skyreaver : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
             {
                 if (!m_BossOut && me->HealthBelowPctDamaged(50, p_Damage))
                 {
@@ -1055,7 +1055,7 @@ class areatrigger_noxious_spit : public AreaTriggerEntityScript
             SpellNoxiousSpitDot = 161833
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.0f;

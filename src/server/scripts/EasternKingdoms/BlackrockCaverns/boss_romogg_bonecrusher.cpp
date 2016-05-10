@@ -173,7 +173,7 @@ class boss_romogg_bonecrusher : public CreatureScript
                     pInstance->SetData(DATA_ROMOGG, DONE);
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit * /*victim*/)
             {
                 Talk(SAY_KILL);
             }

@@ -115,7 +115,7 @@ class boss_high_priestess_azil : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SHIELD, 35000);
@@ -125,7 +125,7 @@ class boss_high_priestess_azil : public CreatureScript
                 instance->SetBossState(DATA_HIGH_PRIESTESS_AZIL, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 summons.DespawnAll();

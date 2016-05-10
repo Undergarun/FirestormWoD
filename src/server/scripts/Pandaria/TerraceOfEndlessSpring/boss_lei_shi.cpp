@@ -209,7 +209,7 @@ class boss_lei_shi : public CreatureScript
                     pInstance->SetBossState(DATA_LEI_SHI, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (leiShiFreed)
                     return;
@@ -250,7 +250,7 @@ class boss_lei_shi : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, const SpellInfo*  /*p_SpellInfo*/)
             {
                 if (!pInstance)
                     return;
@@ -650,13 +650,13 @@ class mob_animated_protector : public CreatureScript
 
             InstanceScript* pInstance;
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (Creature* leiShi = me->GetMap()->GetCreature(pInstance->GetData64(NPC_LEI_SHI)))
                     leiShi->AI()->DoAction(ACTION_ANIMATED_PROTECTOR_DIED);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
                 DoMeleeAttackIfReady();
             }
@@ -1024,7 +1024,7 @@ class at_get_away : public AreaTriggerEntityScript
     public:
         at_get_away() : AreaTriggerEntityScript("at_get_away") { }
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);
@@ -1049,7 +1049,7 @@ class at_get_away : public AreaTriggerEntityScript
             }
         }
 
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
         {
             Position l_Pos;
             p_AreaTrigger->GetPosition(&l_Pos);

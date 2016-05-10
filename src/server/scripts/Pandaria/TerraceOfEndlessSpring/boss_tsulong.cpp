@@ -229,7 +229,7 @@ class boss_tsulong : public CreatureScript
                     pInstance->SetBossState(DATA_TSULONG, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -312,12 +312,12 @@ class boss_tsulong : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value)
             {
                 value = 0;
             }
 
-            void DamageTaken(Unit* doneBy, uint32 &damage, const SpellInfo* /*p_SpellInfo*/)
+            void DamageTaken(Unit* /*doneBy*/, uint32 &damage, const SpellInfo* /*p_SpellInfo*/)
             {
                 if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
                 {
@@ -722,7 +722,7 @@ class npc_sunbeam : public CreatureScript
                 me->DespawnOrUnsummon(1000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 if (IsHeroic())
                     DespawnDark();
@@ -904,7 +904,7 @@ class npc_embodied_terror : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_EMBODIED_TERROR_MOVE, 500);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 for (int i = 0; i < 5; i++)
                     me->CastSpell(me, SPELL_SUMMON_TINY_TERROR, false);

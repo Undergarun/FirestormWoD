@@ -158,7 +158,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -205,7 +205,7 @@ class npc_prince_liam_greymane_phase2 : public CreatureScript
 public:
     npc_prince_liam_greymane_phase2() : CreatureScript("npc_prince_liam_greymane_phase2") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_SOMETHINGS_AMISS || quest->GetQuestId() == QUEST_ALL_HELL_BREAKS_LOOSE || quest->GetQuestId() == QUEST_EVAC_MERC_SQUA)
         {
@@ -239,7 +239,7 @@ public:
         }
 
         //There is NO phase shift here!!!!
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -312,7 +312,7 @@ class npc_gwen_armstead_p2 : public CreatureScript
 public:
     npc_gwen_armstead_p2() : CreatureScript("npc_gwen_armstead_p2") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_ROYAL_ORDERS)
         {
@@ -354,7 +354,7 @@ public:
             willCastEnrage = urand(0, 1);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -765,7 +765,7 @@ public:
             tSeek             = 100; // On initial loading, we should find our target rather quickly
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -837,7 +837,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -900,7 +900,7 @@ public:
             tSeek      = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -963,7 +963,7 @@ public:
             tSeek = urand(1000, 2000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (me->HealthBelowPct(AI_MIN_HP) && who->GetEntry() == NPC_BLOODFANG_WORGEN)
                 damage = 0;
@@ -1786,7 +1786,7 @@ class npc_josiah_avery_p2 : public CreatureScript
 public:
     npc_josiah_avery_p2() : CreatureScript("npc_josiah_avery_p2") {}
 
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_THE_REBEL_LORDS_ARSENAL)
         {
@@ -2100,7 +2100,7 @@ public:
             tYell       = urand(10000, 20000);
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->GetEntry() == NPC_AFFLICTED_GILNEAN_P8 && me->GetHealthPct() <= AI_MIN_HP)
             {
@@ -2156,7 +2156,7 @@ public:
             tSeek             = 100; // On initial loading, we should find our target rather quickly
         }
 
-        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* who, uint32& damage, SpellInfo const* /*p_SpellInfo*/)
         {
             if (who->IsPlayer())
             {
@@ -2538,7 +2538,7 @@ class npc_lord_godfrey_p4_8 : public CreatureScript
 public:
     npc_lord_godfrey_p4_8() : CreatureScript("npc_lord_godfrey_p4_8") { }
 
-    bool OnQuestReward(Player* player, Creature* godfrey, Quest const* quest, uint32 opt)
+    bool OnQuestReward(Player* player, Creature* godfrey, Quest const* quest, uint32 /*opt*/)
     {
         if (quest->GetQuestId() == QUEST_SAVE_KRENNAN_ARANAS)
         {

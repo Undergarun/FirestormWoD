@@ -936,7 +936,7 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
     }
 }
 
-void OutdoorPvPAshran::HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID)
+void OutdoorPvPAshran::HandlePlayerResurrects(Player* p_Player, uint32 /*p_ZoneID*/)
 {
     if (m_PlayerCurrencyLoots.find(p_Player->GetGUID()) == m_PlayerCurrencyLoots.end())
         return;

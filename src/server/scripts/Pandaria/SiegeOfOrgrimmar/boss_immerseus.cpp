@@ -105,7 +105,7 @@ class boss_immerseus : public CreatureScript
                     pInstance->SetBossState(DATA_IMMERSEUS, FAIL);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 if (pInstance)
                 {
@@ -114,13 +114,13 @@ class boss_immerseus : public CreatureScript
                 }
             }
 
-            void RegeneratePower(Powers power, int32& value)
+            void RegeneratePower(Powers /*power*/, int32& value)
             {
                 value = 0;
                 return;
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 /*p_Action*/)
             {
             }
 
@@ -134,11 +134,11 @@ class boss_immerseus : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void KilledUnit(Unit* who)
+            void KilledUnit(Unit* /*p_Who*/)
             {
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (phase == PHASE_IMMERSEUS_BOSS && damage > me->GetHealth())
                 {
@@ -234,7 +234,7 @@ class mob_contaminated_puddle : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };
@@ -265,7 +265,7 @@ class mob_sha_puddle : public CreatureScript
                 events.Reset();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*p_Diff*/)
             {
             }
         };

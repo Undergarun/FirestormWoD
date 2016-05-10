@@ -286,7 +286,7 @@ class npc_ice_block : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* who, uint32& /*damage*/, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
@@ -408,7 +408,7 @@ class boss_hodir : public CreatureScript
                 return 0;
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const*  /*p_SpellInfo*/)
             {
                 if (damage >= me->GetHealth())
                 {

@@ -31,7 +31,7 @@ class npc_springtender_ashani : public CreatureScript
         {
             npc_springtender_ashaniAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void sGossipSelect(Player* player, uint32 sender, uint32 action)
+            void sGossipSelect(Player* /*player*/, uint32 sender, uint32 action)
             {
                 if (sender == ASHANI_LAST_GOSSIP && action == ASHANI_LAST_OPTION)
                 {
@@ -112,7 +112,7 @@ class npc_apparition_of_fear : public CreatureScript
                     pInstance->SetData(INTRO_DONE, 0);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // Schedule Combat event here
                 events.Reset();
@@ -131,7 +131,7 @@ class npc_apparition_of_fear : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 std::list<Creature*> fear;
                 me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_FEAR, 100.0f);
@@ -263,7 +263,7 @@ class npc_apparition_of_terror : public CreatureScript
                     pInstance->SetData(INTRO_DONE, 0);
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 // Schedule Combat event here
                 events.Reset();
@@ -281,7 +281,7 @@ class npc_apparition_of_terror : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*p_Killer*/)
             {
                 std::list<Creature*> fear;
                 me->GetCreatureListWithEntryInGrid(fear, NPC_APPARITION_OF_FEAR, 100.0f);
@@ -399,7 +399,7 @@ class mob_night_terrors : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void UpdateAI(const uint32 diff) { }
+            void UpdateAI(const uint32 /*p_Diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -476,7 +476,7 @@ class spell_night_terrors_missile : public SpellScriptLoader
         {
             PrepareSpellScript(spell_night_terrors_missile_SpellScript);
 
-            void SummonNightTerrors(SpellEffIndex effIndex)
+            void SummonNightTerrors(SpellEffIndex /*effIndex*/)
             {
                 PreventHitDefaultEffect(EFFECT_0);
 
@@ -509,7 +509,7 @@ class spell_night_terrors_periodic : public SpellScriptLoader
         {
             PrepareAuraScript(spell_night_terrors_periodic_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (Unit* caster = GetCaster())
                 {

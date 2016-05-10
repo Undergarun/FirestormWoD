@@ -195,7 +195,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 360000);
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/, SpellInfo const*  /*p_SpellInfo*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
         }

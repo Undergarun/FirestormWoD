@@ -121,7 +121,7 @@ class spell_warl_fire_and_brimstone : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_fire_and_brimstone_AuraScript);
 
-            void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2317,7 +2317,7 @@ public:
     {
         PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
 
-        void CalculateAmount(AuraEffect const* p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+        void CalculateAmount(AuraEffect const* /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
         {
             Unit* l_Caster = GetCaster();
             SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
@@ -2695,7 +2695,7 @@ class spell_warl_burning_embers_regen : public PlayerScript
         }
 
         /// Override
-        void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool /*p_Regen*/)
+        void OnModifyPower(Player* p_Player, Powers p_Power, int32 /*p_OldValue*/, int32& p_NewValue, bool /*p_Regen*/)
         {
             if (!CanUseBuringEmbers(p_Player, p_Power))
                 return;
