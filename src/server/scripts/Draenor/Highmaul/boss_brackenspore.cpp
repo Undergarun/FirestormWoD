@@ -1773,6 +1773,17 @@ class areatrigger_highmaul_creeping_moss : public AreaTriggerEntityScript
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_SearcherEnnemy(p_AreaTrigger, l_TargetList, l_CheckEnnemy);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_SearcherEnnemy);
 
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr || (!p_Unit->IsPlayer() && !p_Unit->GetOwner()))
+                            return true;
+
+                        return false;
+                    });
+                }
+
                 for (Unit* l_Unit : l_TargetList)
                     l_Unit->CastSpell(l_Unit, eSpell::CreepingMossDamage, true);
 
@@ -1781,6 +1792,21 @@ class areatrigger_highmaul_creeping_moss : public AreaTriggerEntityScript
                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr)
+                            return true;
+
+                        if (p_Unit->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC) ||
+                            p_Unit->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC))
+                            return true;
+
+                        return false;
+                    });
+                }
 
                 for (Unit* l_Unit : l_TargetList)
                     l_Unit->CastSpell(l_Unit, eSpell::CreepingMossHealing, true);
