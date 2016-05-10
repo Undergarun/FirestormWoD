@@ -622,8 +622,9 @@ enum PlayerFieldBytesOffsets
 
 enum PlayerFieldBytes2Offsets
 {
-    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION         = 1,
-    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
+    PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK  = 0,
+    PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION                         = 1,
+    PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID                  = 2  ///< uint16!
 };
 
 enum PlayerAvgItemLevelOffsets
@@ -2366,6 +2367,9 @@ class Player : public Unit, public GridObject<Player>
 
         void ResurectUsingRequestData();
 
+        void SendForcedDeathUpdate();
+        void SendGameError(GameError::Type p_Error, uint32 p_Data1 = 0xF0F0F0F0, uint32 p_Data2 = 0xF0F0F0F0);
+
         uint8 getCinematic()
         {
             return m_cinematic;
@@ -2659,7 +2663,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
-        void RepopAtGraveyard();
+        void RepopAtGraveyard(bool p_ForceGraveYard = false);
         void TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, uint32 p_MapId);
         void TeleportToClosestGrave(WorldSafeLocsEntry const* p_WorldSafeLoc) { TeleportToClosestGrave(p_WorldSafeLoc->x, p_WorldSafeLoc->y, p_WorldSafeLoc->z, p_WorldSafeLoc->o, p_WorldSafeLoc->map_id);  }
         void SendCemeteryList(bool onMap);
@@ -2711,6 +2715,7 @@ class Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
+        bool m_IsOutdoors;
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }

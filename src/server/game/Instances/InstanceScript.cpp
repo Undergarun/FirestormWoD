@@ -760,6 +760,22 @@ void InstanceScript::DoCombatStopOnPlayers()
     }
 }
 
+void InstanceScript::SetCriteriaProgressOnPlayers(CriteriaEntry const* p_Criteria, uint64 p_ChangeValue, ProgressType p_Type)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            l_Player->GetAchievementMgr().SetCriteriaProgress(p_Criteria, p_ChangeValue, l_Player, p_Type);
+            l_Player->GetAchievementMgr().SetCompletedAchievementsIfNeeded(p_Criteria, l_Player);
+        }
+    }
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint64 /*miscvalue1*/ /*= 0*/)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
@@ -1154,27 +1170,16 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    /// New best record for a classic group
-    if (l_GroupChallenge == nullptr)
-    {
-        /// No previous record, just grant the titles
-        RewardChallengersTitles();
+    SaveNewGroupChallenge();
 
-        SaveNewGroupChallenge();
-    }
-    /// Check if update is needed
-    else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
+    /// Delete old group record if it's a new realm-best time (or if it's the first), and reward titles/achievements
+    if (l_GuildChallenge == nullptr || (l_GroupChallenge != nullptr && l_GroupChallenge->m_CompletionTime > m_ChallengeTime))
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
-
         l_Statement->setUInt32(0, l_MapID);
         CharacterDatabase.Execute(l_Statement);
 
-        /// Previous record, we must check if it's a new group, delete the title to the old one
-        /// And add it to the new players
-        RewardChallengersTitles(l_GroupChallenge);
-
-        SaveNewGroupChallenge();
+        RewardNewRealmRecord(l_GroupChallenge);
     }
 
     bool l_GuildGroup = false;
@@ -1195,18 +1200,19 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
         }
     }
 
-    /// New best record for the guild
-    if (l_GuildChallenge == nullptr && l_GuildGroup)
-        SaveNewGroupChallenge(l_GuildID);
-    /// Check if update is needed
-    else if (l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime && l_GuildGroup)
+    /// New best time for the guild
+    if (l_GuildGroup)
     {
-        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
-        l_Statement->setUInt32(0, l_MapID);
-        l_Statement->setUInt32(1, l_GuildID);
-        CharacterDatabase.Execute(l_Statement);
-
         SaveNewGroupChallenge(l_GuildID);
+
+        /// Delete old guild record if it's a new realm-best time
+        if (l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
+        {
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
+            l_Statement->setUInt32(0, l_MapID);
+            l_Statement->setUInt32(1, l_GuildID);
+            CharacterDatabase.Execute(l_Statement);
+        }
     }
 }
 
@@ -1278,18 +1284,21 @@ uint32 InstanceScript::RewardChallengers()
     return 0;
 }
 
-void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChallenge /*= nullptr*/)
+void InstanceScript::RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge /*= nullptr*/)
 {
     ChallengeReward* l_Reward = sObjectMgr->GetChallengeRewardsForMap(instance->GetId());
     if (l_Reward == nullptr)
         return;
 
-    uint32 l_TitleID = l_Reward->TitleID;
-    CharTitlesEntry const* l_Title = sCharTitlesStore.LookupEntry(l_TitleID);
+    CharTitlesEntry const* l_Title = sCharTitlesStore.LookupEntry(l_Reward->TitleID);
     if (l_Title == nullptr)
         return;
 
-    /// Remove title to previous challengers
+    AchievementEntry const* l_Achievement = sAchievementStore.LookupEntry(l_Reward->AchievementID);
+    if (l_Achievement == nullptr)
+        return;
+
+    /// Remove title to previous challengers - Achievement will stay
     if (p_OldChallenge != nullptr)
     {
         for (uint8 l_I = 0; l_I < 5; ++l_I)
@@ -1323,11 +1332,15 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
                         uint32 l_KnownTitles[l_TitleSize];
                         Tokenizer l_Tokens(l_KnownTitlesStr, ' ', l_TitleSize);
 
-                        if (l_Tokens.size() != l_TitleSize)
-                            return;
+                        uint32 l_ActualSize = l_Tokens.size();
 
                         for (uint32 l_J = 0; l_J < l_TitleSize; ++l_J)
-                            l_KnownTitles[l_J] = atol(l_Tokens[l_J]);
+                        {
+                            if (l_J < l_ActualSize)
+                                l_KnownTitles[l_J] = atol(l_Tokens[l_J]);
+                            else
+                                l_KnownTitles[l_J] = 0;
+                        }
 
                         l_KnownTitles[l_Index] &= ~l_Flag;
 
@@ -1356,7 +1369,10 @@ void InstanceScript::RewardChallengersTitles(RealmCompletedChallenge* p_OldChall
     for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
     {
         if (Player* l_Player = l_Iter->getSource())
+        {
             l_Player->SetTitle(l_Title);
+            l_Player->CompletedAchievement(l_Achievement);
+        }
     }
 }
 //////////////////////////////////////////////////////////////////////////

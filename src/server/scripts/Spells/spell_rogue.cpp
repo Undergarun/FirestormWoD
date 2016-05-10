@@ -2168,11 +2168,12 @@ class spell_rog_internal_bleeding: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
+                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA) || (l_Owner && l_Owner->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA)))
                     l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
             }
 
@@ -2447,7 +2448,8 @@ class spell_rog_evicerate : public SpellScriptLoader
 
             enum eSpells
             {
-                Tier5Bonus2P = 37169
+                Tier5Bonus2P        = 37169,
+                MasteryExecutioner  = 76808
             };
 
             void HandleDamage(SpellEffIndex effIndex)
@@ -2464,12 +2466,18 @@ class spell_rog_evicerate : public SpellScriptLoader
 
                 if (l_ComboPoint)
                 {
-                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * 0.88f * l_ComboPoint);
+                    float l_Mult = 1.0f; ///< Mastery is apply in MeleeDamageBonusDone, so we let this to 1
+                    if (!l_Caster->HasAura(eSpells::MasteryExecutioner))
+                        l_Mult = 0.88f;
+
+                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
 
                     /// Tier 5 Bonus 2 pieces
                     if (AuraEffect* l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
+
+                l_Damage *= l_Caster->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
 
                 l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
                 l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
@@ -3216,7 +3224,7 @@ class spell_rog_item_t17_subtlety_4p_bonus : public SpellScriptLoader
         }
 };
 
-/// Called by Kidney Shot 408, Eviscerate 2098, Recuperate 73651, Slice and Dice 5171, Deadly Throw 26679, Rupture 1943, Envenom 32645, Crimson Tempest 121411
+/// Called by Envenom 32645
 /// Ruthlessness - 14161 and Relentless Strikes - 58423
 class spell_rog_ruthlessness_and_relentless_strikes : public SpellScriptLoader
 {

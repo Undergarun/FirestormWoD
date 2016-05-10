@@ -191,7 +191,7 @@ namespace MS { namespace Garrison
                 if (p_Player->GetTeamId() == TEAM_HORDE && CheckRequirements(p_Player))
                     return;
                 break;
-            case 1731: ///< Exarch council, Alliance rep
+            case 1710: ///< Sha'tari, Alliance rep
                 if (p_Player->GetTeamId() == TEAM_ALLIANCE && CheckRequirements(p_Player))
                     return;
                 break;

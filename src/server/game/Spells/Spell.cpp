@@ -1518,7 +1518,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                         break;
                     /// Tranquility
                     case 157982:
-                        l_MaxSize = 5;
                         l_Power = POWER_HEALTH;
                         break;
 
@@ -6077,7 +6076,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (InstanceScript* l_InstanceScript = m_caster->GetInstanceScript())
         {
             if (!l_InstanceScript->CanUseCombatResurrection())
-                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+                return SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED;
         }
 
         if (m_targets.GetUnitTarget() != nullptr)
@@ -6203,8 +6202,10 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         if (checkForm)
         {
+            SpellCastResult shapeError = SPELL_CAST_OK;
             // Cannot be used in this stance/form
-            SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
+            if (!IsDarkSimulacrum())
+                SpellCastResult shapeError = m_spellInfo->CheckShapeshift(m_caster->GetShapeshiftForm());
             if (shapeError != SPELL_CAST_OK)
                 return shapeError;
 
@@ -6637,7 +6638,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
-                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 4.0f);
 
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
@@ -8587,7 +8588,9 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         unit = m_caster->GetGUID() == targetInfo.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, targetInfo.targetGUID);
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.missCondition == SPELL_MISS_REFLECT && targetInfo.reflectResult == SPELL_MISS_NONE)
+    {
         unit = m_caster;
+    }
     if (!unit)
         return;
 

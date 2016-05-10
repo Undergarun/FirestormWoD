@@ -166,10 +166,10 @@ namespace MS { namespace Garrison
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, p_Action);
             p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
         }
-        else if (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_NONE)
-            p_Player->PlayerTalkClass->SendQuestGiverQuestDetails(l_Quest, p_Creature->GetGUID());
-        else if (p_Player->GetQuestStatus(p_QuestID) == QUEST_STATUS_COMPLETE)
-            p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
+        else
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(l_Quest->GetQuestId(), 4);
+
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
         return true;
     }

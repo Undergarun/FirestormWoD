@@ -319,7 +319,15 @@ class spell_at_druid_solar_beam : public AreaTriggerEntityScript
                     l_It = m_TargetList.erase(l_It);
                 }
                 else
+                {
+                    if (!l_Target->HasAura(eSpells::solarBeamSilence, l_Caster->GetGUID()))
+                    {
+                        l_Caster->CastSpell(l_Target, eSpells::solarBeamSilence, true);
+                        if (Aura* l_SolarBeamSilence = l_Caster->GetAura(eSpells::solarBeamSilence))
+                            l_SolarBeamSilence->SetDuration(p_AreaTrigger->GetDuration());
+                    }
                     ++l_It;
+                }
             }
         }
 
@@ -425,7 +433,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
 
             if (l_Caster && l_CreateSpell)
             {
-                float l_Radius = MELEE_RANGE;
+                float l_Radius = MELEE_RANGE * 2;
 
                 std::list<Unit*> l_NewTargetList;
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
@@ -435,7 +443,7 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue() && p_AreaTrigger->IsInWorld())
                     {
                         l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
@@ -477,7 +485,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
 
             if (l_Caster && l_CreateSpell)
             {
-                float l_Radius = MELEE_RANGE;
+                float l_Radius = MELEE_RANGE * 2;
 
                 std::list<Unit*> l_NewTargetList;
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
@@ -487,7 +495,7 @@ class spell_at_hun_snake_trap : public AreaTriggerEntityScript
                 l_NewTargetList.sort(JadeCore::DistanceCompareOrderPred(p_AreaTrigger));
                 for (Unit* l_Target : l_NewTargetList)
                 {
-                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue())
+                    if (l_Target != nullptr && l_Caster->IsValidAttackTarget(l_Target) && !l_Target->isTotem() && !l_Target->isStatue() && p_AreaTrigger->IsInWorld())
                     {
                         l_Target->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                         l_Caster->CastSpell(l_Target, eSpells::SummonSnakes, true);
@@ -584,7 +592,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = MELEE_RANGE;
+                float l_Radius = MELEE_RANGE * 2;
 
                 std::list<Unit*> l_NewTargetList;
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
@@ -636,7 +644,7 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = MELEE_RANGE;
+                float l_Radius = MELEE_RANGE * 2;
 
                 std::list<Unit*> l_NewTargetList;
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);

@@ -23,6 +23,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "Reporter.hpp"
 #include <EasyJSon.hpp>
 //#include "GameObject.h"
@@ -353,6 +354,9 @@ class InstanceScript : public ZoneScript
         /// Do combat stop on all players in instance
         void DoCombatStopOnPlayers();
 
+        /// Set progress on a criteria for all players
+        void SetCriteriaProgressOnPlayers(CriteriaEntry const* p_Criteria, uint64 p_ChangeValue, ProgressType p_Type);
+
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 
@@ -548,7 +552,7 @@ class InstanceScript : public ZoneScript
         void SaveChallengeDatasIfNeeded();
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
-        void RewardChallengersTitles(RealmCompletedChallenge* p_OldChallenge = nullptr);
+        void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;

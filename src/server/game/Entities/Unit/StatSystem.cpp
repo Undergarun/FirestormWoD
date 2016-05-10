@@ -408,7 +408,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
     float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+
+    float attPowerMultiplier = 1.0f;
+    if (ranged)
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT) - 1.0f;
+    else
+        attPowerMultiplier = GetTotalAuraMultiplier(SPELL_AURA_MOD_ATTACK_POWER_PCT) - 1.0f;
 
     //add dynamic flat mods
     if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR))
@@ -823,21 +828,6 @@ void Player::UpdateParryPercentage()
 
 void Player::UpdateDodgePercentage()
 {
-    const float dodgeCap[MAX_CLASSES] =
-    {
-        90.6425f,     // Warrior
-        66.5675f,     // Paladin
-        145.5604f,    // Hunter
-        145.5604f,    // Rogue
-        150.3759f,    // Priest
-        90.6425f,     // DK
-        145.5604f,    // Shaman
-        150.3759f,    // Mage
-        150.3759f,    // Warlock
-        501.2531f,    // Monk
-        150.3759f     // Druid
-    };
-
     /*
         3.36 + 1.25 (3.36 + 1.25 from 221 agi) on offi -- enhancement shaman -- ask sovak if you dont understand
 
@@ -1144,13 +1134,8 @@ void Player::UpdateManaRegen()
         if (Powers((*i)->GetMiscValue()) == POWER_MANA)
             l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
 
-    /// Increase mana from SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT
-    Unit::AuraEffectList const& ModRegenPctUnk = GetAuraEffectsByType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT);
-    for (AuraEffectList::const_iterator i = ModRegenPctUnk.begin(); i != ModRegenPctUnk.end(); ++i)
-        l_IncreaseManaRegen += l_IncreaseManaRegen * ((*i)->GetAmount() / 100.0f);
-
     /// If IncreaseManaRegen is bigger then combat_regen we have increased mana regen by auras, so we should add it
-    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) || HasAuraType(SPELL_AURA_MODIFY_MANA_REGEN_FROM_MANA_PCT) && l_IncreaseManaRegen > l_Combat_regen)
+    if (HasAuraType(SPELL_AURA_MOD_POWER_REGEN_PERCENT) || HasAuraType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT) && l_IncreaseManaRegen > l_Combat_regen)
     {
         l_IncreaseManaRegen -= l_Combat_regen;
         l_BaseRegenFromAurPct = l_IncreaseManaRegen;

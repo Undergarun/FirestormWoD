@@ -620,7 +620,8 @@ class spell_dk_soul_reaper: public SpellScriptLoader
             enum eSpells
             {
                 ImprovedSoulReaper  = 157342,
-                T17Unholy2P         = 165575
+                T17Unholy2P         = 165575,
+                DarkTransformation  = 93426
             };
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -644,10 +645,17 @@ class spell_dk_soul_reaper: public SpellScriptLoader
                     {
                         if (Player* l_Player = l_Caster->ToPlayer())
                         {
-                            for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                            if (Pet* l_Pet = l_Player->GetPet())
                             {
-                                if (Pet* l_Pet = l_Player->GetPet())
+                                for (uint8 l_I = 0; l_I < (uint8)l_AurEff->GetAmount(); ++l_I)
+                                {
                                     l_Caster->CastSpell(l_Pet, DK_SPELL_DARK_INFUSION_STACKS, true);
+                                }
+                                if (Aura* l_Aura = l_Pet->GetAura(DK_SPELL_DARK_INFUSION_STACKS))
+                                {
+                                    if (l_Aura->GetStackAmount() > 4) /// Apply Dark Transformation
+                                        l_Player->CastSpell(l_Player, eSpells::DarkTransformation, true);
+                                }
                             }
                         }
                     }
@@ -1454,7 +1462,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                if (!l_Caster || m_AmountAbsorb == 0 || m_Absorbed == 0)
+                if (!l_Caster || m_AmountAbsorb == 0)
                     return;
 
                 if (Aura* l_Aura = l_Caster->GetAura(eSpells::GlyphOfRegenerativeMagic))
@@ -1468,7 +1476,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                     if (m_Absorbed > m_AmountAbsorb)
                         m_Absorbed = m_AmountAbsorb;
 
-                    float l_AbsorbedPct = m_Absorbed / (m_AmountAbsorb / 100);  ///< Absorbed damage in pct
+                    float l_AbsorbedPct = 100.0f - (m_Absorbed / (m_AmountAbsorb / 100));  ///< Absorbed damage in pct
                     int32 l_Amount = l_Aura->GetEffect(EFFECT_0)->GetAmount();  ///< Maximum absorbed damage is 50%
 
                     l_RemainingPct = CalculatePct(l_Amount, l_AbsorbedPct);
@@ -1786,7 +1794,7 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             enum ImprovedDeathGrip
             {
-                Spell = 157367,
+                SpellId = 157367,
                 ChainsOfIce = 45524
             };
 
@@ -3475,10 +3483,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
 
             enum eSpells
             {
-                DeathCoilDamage     = 47632,
-                DeathCoilHeal       = 47633,
-                ShadowInfusion      = 91342,
-                DarkTransformation  = 93426
+                DeathCoilDamage         = 47632,
+                DeathCoilHeal           = 47633,
+                ShadowInfusion          = 91342,
+                DarkTransformation      = 93426,
+                DarkTranformationAura   = 63560
             };
 
             void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
@@ -3497,6 +3506,11 @@ class spell_dk_shadow_infusion : public SpellScriptLoader
                     return;
 
                 if (l_Player->HasAura(eSpells::DarkTransformation))
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet != nullptr && l_Pet->HasAura(eSpells::DarkTranformationAura))
                     return;
 
                 l_Player->CastSpell(l_Player, eSpells::ShadowInfusion, true);

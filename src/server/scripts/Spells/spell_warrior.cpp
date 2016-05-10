@@ -184,6 +184,7 @@ class spell_warr_glyph_of_hindering_strikes: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Shield Block - 2565
 class spell_warr_shield_block: public SpellScriptLoader
 {
@@ -194,10 +195,26 @@ class spell_warr_shield_block: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_block_SpellScript);
 
+            enum eSpells
+            {
+                ShieldBlockTriggered = 132404
+            };
+
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED, true);
+                Unit* l_Caster = GetCaster();
+                int32 l_PreviousDuration = 0;
+
+                if (Aura* l_Previous = l_Caster->GetAura(eSpells::ShieldBlockTriggered))
+                    l_PreviousDuration = l_Previous->GetDuration();
+
+                l_Caster->CastSpell(l_Caster, eSpells::ShieldBlockTriggered, true);
+
+                if (l_PreviousDuration)
+                {
+                    if (Aura* l_Aura = l_Caster->GetAura(eSpells::ShieldBlockTriggered))
+                        l_Aura->SetDuration(l_Aura->GetDuration() + l_PreviousDuration);
+                }
             }
 
             void Register()
@@ -2403,10 +2420,10 @@ class spell_warr_shield_slam : public SpellScriptLoader
 
             enum eSpells
             {
-                T17Protection2P = 165338,
-                GladiatorStance = 156291,
-                ShieldBlock     = 2562,
-                ShieldCharge    = 156321
+                T17Protection2P     = 165338,
+                GladiatorStance     = 156291,
+                ShieldBlockTrigger  = 132404,
+                ShieldCharge        = 156321
             };
 
             static float gte(int32 p_Level, int32 p_MinLevel)
@@ -2465,7 +2482,7 @@ class spell_warr_shield_slam : public SpellScriptLoader
                             }
                         }
                         else
-                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlock, true);
+                            l_Caster->CastSpell(l_Target, eSpells::ShieldBlockTrigger, true);
                     }
                 }
             }

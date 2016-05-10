@@ -3345,7 +3345,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         SpellInfo const* l_Frenzy = sSpellMgr->GetSpellInfo(HUNTER_SPELL_FRENZY);
 
                         /// Increases the damage done by your pet's Basic Attacks by 10%
-                        if (l_Hunter->HasAura(HUNTER_SPELL_SPIKED_COLLAR) && l_SpikedCollar != nullptr)
+                        if (l_Pet->HasAura(HUNTER_SPELL_SPIKED_COLLAR) && l_SpikedCollar != nullptr)
                             AddPct(l_Damage, l_SpikedCollar->Effects[EFFECT_0].BasePoints);
 
                         bool l_FreeCostSpell = l_Pet->HasAura(eSpells::EnhancedBasicAttacksProc);
@@ -3686,17 +3686,63 @@ class spell_hun_explosive_shot : public SpellScriptLoader
                 HeavyShot       = 167165
             };
 
+            uint32 l_ReminingAmount = 0;
+
+            void HandleBeforeHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, l_Caster->GetGUID()))
+                {
+                    if (l_AuraEffect->GetAmplitude() && l_AuraEffect->GetBase()->GetMaxDuration())
+                        l_ReminingAmount = (l_AuraEffect->GetAmount() * (l_AuraEffect->GetBase()->GetDuration() / l_AuraEffect->GetAmplitude()) / (l_AuraEffect->GetBase()->GetMaxDuration() / l_AuraEffect->GetAmplitude()));
+                }
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
                 if (l_Caster->HasAura(eSpells::T17Survival4P))
                     l_Caster->CastSpell(l_Caster, eSpells::HeavyShot, true);
             }
 
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffect* l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, l_Caster->GetGUID()))
+                {
+                    int32 l_Damage = int32(0.47f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
+                    l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, DOT, l_AuraEffect->GetBase()->GetStackAmount());
+                    l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, DOT, l_AuraEffect->GetBase()->GetStackAmount());
+
+                    l_AuraEffect->SetAmount(l_Damage + l_ReminingAmount);
+                }
+            }
+
             void Register()
             {
+                BeforeHit += SpellHitFn(spell_hun_explosive_shot_SpellScript::HandleBeforeHit);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                AfterHit += SpellHitFn(spell_hun_explosive_shot_SpellScript::HandleAfterHit);
             }
         };
 
@@ -3791,9 +3837,11 @@ class spell_hun_adaptation : public SpellScriptLoader
                 {
                     if (Pet* l_Pet = l_Player->GetPet())
                     {
-                        if (l_Pet->HasAura(eSpells::CombatExperience))
+                        if (l_Pet->HasSpell(eSpells::CombatExperience))
+                        {
                             l_Pet->RemoveAura(eSpells::CombatExperience);
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                            l_Pet->CastSpell(l_Pet, eSpells::CombatExperienceAdaptation, true);
+                        }
                     }
                 }
             }
@@ -3810,7 +3858,8 @@ class spell_hun_adaptation : public SpellScriptLoader
                     if (Pet* l_Pet = l_Player->GetPet())
                     {
                         l_Pet->RemoveAura(eSpells::CombatExperienceAdaptation);
-                        l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
+                        if (l_Pet->HasSpell(eSpells::CombatExperience))
+                            l_Pet->CastSpell(l_Pet, eSpells::CombatExperience, true);
                     }
                 }
             }

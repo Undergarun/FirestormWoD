@@ -3396,6 +3396,28 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Scribe Quarters
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 176513:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
+            break;
+            case 176791:
+                spellInfo->Effects[1].Effect = 0;
+            case 176482:
+            case 176483:
+            case 176484:
+            case 176485:
+            case 176486:
+            case 176487:
+            case 176488:
+            case 176489:
+            case 176490:
+            case 176491:
+            case 176934:
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
             case 179244:    ///< Summon Chauffeur (Horde)
             case 179245:    ///< Summon Chauffeur (Alliance)
                 spellInfo->Effects[EFFECT_0].MiscValueB = 284;  ///< This will allow level 1 mounting at 160% normal speed
@@ -4468,6 +4490,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
             case 152150:///< Death from Above (periodic dummy)
+                spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                 spellInfo->Effects[5].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->PreventionType = SpellPreventionMask::Pacify;
                 break;
@@ -4486,11 +4509,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137641: ///< Soul Fragment
                 spellInfo->Effects[1].BasePoints = spellInfo->Effects[1].BasePoints * 2.7;
-                break;
-            case 14161: ///< Ruthlessness
-                spellInfo->Effects[1].ApplyAuraName = 0;
-                spellInfo->Effects[1].Effect = 0;
-                spellInfo->ProcChance = 20;
                 break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
@@ -5188,6 +5206,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 17076: ///< Glyph of Rejuvenation
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
+            case 77495: ///< Mastery : Harmony
+                spellInfo->Effects[0].SpellClassMask[0] |= 0x80;
+                break;
             case 118047: ///< Pillage
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CHARGE;
                 spellInfo->Effects[0].TriggerSpell = 0;
@@ -5235,6 +5256,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
+                break;
+            case 114925: ///< Demonic Calling
+                spellInfo->ProcFlags = 0;
+                break;
+            case 104317: ///< Wild Imp
+                spellInfo->CasterAuraState = 0;
                 break;
             case 51699:  ///< Honor Among Thieves (triggered)
             case 57934:  ///< Tricks of the Trade
@@ -5551,9 +5578,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 104316: ///< Imp Swarm
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 114736: ///< Disrupted Nether
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
                 break;
             case 126309: ///< Still Water
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;

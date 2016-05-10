@@ -1531,30 +1531,12 @@ class spell_warl_hand_of_guldan: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_hand_of_guldan_SpellScript);
 
-            enum eSpells
-            {
-                T17Demonology2P = 165450,
-                InnerDemon      = 166862
-            };
-
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                         l_Caster->CastSpell(l_Target, WARLOCK_HAND_OF_GULDAN_DAMAGE, true);
-
-                    /// Hand of Gul'dan has a 50% chance empower your inner demon, temporarily bringing your Metamorphosis form out even while you are not transformed.
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                    {
-                        if (!l_Player->HasSpellCooldown(eSpells::InnerDemon) && l_Player->HasAura(eSpells::T17Demonology2P) && roll_chance_i(50))
-                        {
-                            l_Player->CastSpell(l_Player, eSpells::InnerDemon, true);
-
-                            /// 45 seconds of internal cooldown
-                            l_Player->AddSpellCooldown(eSpells::InnerDemon, 0, 45 * TimeConstants::IN_MILLISECONDS);
-                        }
-                    }
                 }
             }
 
@@ -1596,6 +1578,52 @@ class spell_warl_hand_of_guldan_damage: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_hand_of_guldan_damage_SpellScript();
+        }
+};
+
+/// last Update 6.2.3
+/// Call by Hand of Gul'Dan - 143381, Chaos Wave - 124915
+class spell_warl_t17_Demonology_2p : public SpellScriptLoader
+{
+    public:
+        spell_warl_t17_Demonology_2p() : SpellScriptLoader("spell_warl_t17_Demonology_2p") { }
+
+        class  spell_warl_t17_Demonology_2p_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_t17_Demonology_2p_SpellScript);
+
+            enum eSpells
+            {
+                T17Demonology2P = 165450,
+                InnerDemon = 166862
+            };
+
+            void HandleOnHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Hand of Gul'dan has a 50% chance empower your inner demon, temporarily bringing your Metamorphosis form out even while you are not transformed.
+                if (!l_Player->HasSpellCooldown(eSpells::InnerDemon) && l_Player->HasAura(eSpells::T17Demonology2P) && roll_chance_i(50))
+                {
+                    l_Player->CastSpell(l_Player, eSpells::InnerDemon, true);
+
+                    /// 45 seconds of internal cooldown
+                    l_Player->AddSpellCooldown(eSpells::InnerDemon, 0, 45 * TimeConstants::IN_MILLISECONDS);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_t17_Demonology_2p_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new  spell_warl_t17_Demonology_2p_SpellScript();
         }
 };
 
@@ -2379,6 +2407,7 @@ public:
         {
             Player* l_Caster = GetCaster()->ToPlayer();
             SpellInfo const* l_SpellInfo = GetSpellInfo();
+            SpellInfo const* l_GlyphSpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfEmberTap);
             if (!l_Caster || !l_SpellInfo)
                 return;
 
@@ -2386,22 +2415,17 @@ public:
             if (!l_Aura)
                 return;
 
-            if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap))
+            if (!l_Caster->HasAura(eSpells::GlyphOfEmberTap) || l_GlyphSpellInfo == nullptr)
                 return;
 
             uint8 l_AdditionalTick = 0;
-            int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints + l_SpellInfo->Effects[EFFECT_2].BasePoints);
-
-            if (m_PreviousTotalHeal > 0)
-                l_AdditionalTick = 1;
-
-            if (AuraEffect* l_MasteryEmberstorm = l_Caster->GetAuraEffect(eSpells::MasteryEmberstorm, EFFECT_0))
-            {
-                float l_MasteryPct = l_MasteryEmberstorm->GetSpellEffectInfo()->BonusMultiplier * l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY);
-                l_TotalHeal += CalculatePct(l_TotalHeal, l_MasteryPct);
-            }
+            float l_Pct = l_SpellInfo->Effects[EFFECT_0].BasePoints + l_GlyphSpellInfo->Effects[EFFECT_2].BasePoints;
             if (AuraEffect* l_SearingFlames = l_Caster->GetAuraEffect(eSpells::SearingFlames, EFFECT_0))
-                l_TotalHeal += CalculatePct(l_TotalHeal, l_SearingFlames->GetAmount());
+            {
+                l_Pct += CalculatePct(l_Pct, l_SearingFlames->GetAmount());
+            }
+
+            int32 l_TotalHeal = CalculatePct(l_Caster->GetMaxHealth(), l_Pct);
 
             l_TotalHeal += m_PreviousTotalHeal;
 
@@ -4488,6 +4512,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_t17_Demonology_2p();
     new spell_warl_grimoire_of_supremacy_bonus();
     new spell_warl_molten_core();
     new spell_warl_demonbolt();

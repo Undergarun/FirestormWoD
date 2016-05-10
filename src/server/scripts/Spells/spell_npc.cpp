@@ -820,13 +820,9 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                         me->CastSpell(me, eSpells::FeralSpiritWindfuryDriver, true);
                 }
 
-                me->CastSpell(me, eSpells::SpiritWalk, true);
                 me->CastSpell(me, eSpells::SpiritHunt, true);
-            }
-
-            void EnterCombat(Unit* p_Attacker) override
-            {
-                me->CastSpell(p_Attacker, eSpells::SpiritLeap, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
             }
 
             void DoAction(int32 const p_Action) override
@@ -852,21 +848,27 @@ class spell_npc_sha_feral_spirit : public CreatureScript
                 else if (m_WindFuryCooldown > 0 && p_Diff > m_WindFuryCooldown)
                     m_WindFuryCooldown = 0;
 
-                if (!UpdateVictim())
-                {
-                    if (Unit* l_Owner = me->GetOwner())
-                    {
-                        Unit* l_OwnerTarget = nullptr;
-                        if (Player* l_Player = l_Owner->ToPlayer())
-                            l_OwnerTarget = l_Player->GetSelectedUnit();
-                        else
-                            l_OwnerTarget = l_Owner->getVictim();
-
-                        if (l_OwnerTarget)
-                            AttackStart(l_OwnerTarget);
-                    }
-
+                Unit* l_Owner = me->GetOwner();
+                if (l_Owner == nullptr)
                     return;
+
+                Player* l_Player = l_Owner->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->isInCombat())
+                {
+                    me->CombatStop();
+                    return;
+                }
+
+                if (!UpdateVictim() || (l_Player->GetSelectedUnit() && me->getVictim() && l_Player->GetSelectedUnit() != me->getVictim()))
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    l_OwnerTarget = l_Player->getVictim();
+
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && !l_Owner->IsFriendlyTo(l_OwnerTarget) && me->IsValidAttackTarget(l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
                 }
 
                 DoMeleeAttackIfReady();
