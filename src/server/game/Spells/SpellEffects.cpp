@@ -5660,8 +5660,8 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
         health = target->CountPctFromMaxHealth(60);
 
     /// Raise Ally
-    if (m_spellInfo->Id == 61999)
-        mana = target->CountPctFromMaxMana(60);
+	if (m_spellInfo->Id == 61999)
+		health = target->CountPctFromMaxHealth(60);
 
     ExecuteLogEffectResurrect(effIndex, target);
 
