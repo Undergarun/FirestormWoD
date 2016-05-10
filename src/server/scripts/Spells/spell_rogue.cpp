@@ -3402,8 +3402,58 @@ class spell_rog_distract : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Kick 1766
+class spell_rog_kick : public SpellScriptLoader
+{
+public:
+	spell_rog_kick() : SpellScriptLoader("spell_rog_kick") { }
+
+	class spell_rog_kick_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_rog_kick_SpellScript);
+
+		enum eDatas
+		{
+			kick = 1766,
+			GlyphOfKick = 56805
+		};
+
+		void HandleAfterHit()
+		{
+			Player* l_Player = GetCaster()->ToPlayer();
+			if (!l_Player)
+				return;
+
+			if (l_Player->HasAura(GlyphOfKick))
+			{
+				AuraEffect* l_AuraEffect = l_Player->GetAuraEffect(GlyphOfKick, EFFECT_2);
+				if (!l_AuraEffect)
+					return;
+				
+				if (l_AuraEffect->GetAmount() == 1)
+				{
+					l_AuraEffect->SetAmount(0);
+					l_Player->ReduceSpellCooldown(kick, 6000);
+				}
+			}
+		}
+
+		void Register()
+		{
+			AfterHit += SpellHitFn(spell_rog_kick_SpellScript::HandleAfterHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_rog_kick_SpellScript();
+	}
+};
+
 void AddSC_rogue_spell_scripts()
 {
+	new spell_rog_kick();
     new spell_rog_instant_poison();
     new spell_rog_distract();
     new spell_rog_main_gauche();

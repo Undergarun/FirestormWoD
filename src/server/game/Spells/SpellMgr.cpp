@@ -7223,6 +7223,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+			case 56805:
+				spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
+				spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+				spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[2].BasePoints = 0;
+				break;
             default:
                 break;
         }
