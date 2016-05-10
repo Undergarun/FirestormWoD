@@ -1651,6 +1651,8 @@ class spell_dru_cat_form: public SpellScriptLoader
 
                 if (l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm) && !l_Target->HasAura(eSpells::GlyphOfCatForm))
                     l_Target->AddAura(eSpells::GlyphOfCatForm, l_Target);
+                else if (!l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm))
+                    l_Target->RemoveAura(eSpells::GlyphOfCatForm);
             }
 
             void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
