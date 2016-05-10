@@ -18960,7 +18960,6 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
                                 if (l_Level1 || l_Level2 || l_Level3)
                                     l_Coeff *= 2.0f;
-
                             }
 
                             //bool  l_SendDisplayToast = false;

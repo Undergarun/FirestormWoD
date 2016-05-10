@@ -68,6 +68,13 @@
 	(77377, 0, 117411, 0, 0, 5289, 1), 
 	(77377, 0, 117412, 0, 0, 5285, 1), 
 	(77377, 0, 117413, 0, 0, 5289, 1);
+	
+	-- work orders gobs
+	replace into `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `data24`, `data25`, `data26`, `data27`, `data28`, `data29`, `data30`, `data31`, `data32`, `unkInt32`, `AIName`, `ScriptName`, `BuildVerified`) values('239066','45','15585','Dwarven Bunker Work Order','','','','0','0','1','0','0','0','0','0','0','78','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','go_garrison_shipment_container','19342');
+	replace into `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `data24`, `data25`, `data26`, `data27`, `data28`, `data29`, `data30`, `data31`, `data32`, `unkInt32`, `AIName`, `ScriptName`, `BuildVerified`) values('239067','45','20508','War Mill Work Order','','','','0','0','1','0','0','0','0','0','0','77','-1','0','0','0','0','-1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','go_garrison_shipment_container','1');
+
+	
+	-- Dalana Clarke (work orders)
 
 	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-8 AND faction_index = 1;
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-8','1','-237604','-15.2561','5.52443','3.22334','6.09455');
@@ -89,5 +96,12 @@
 	INSERT INTO quest_poi_points (`questId`, `id`, `idx`, `x`, `y`) VALUES(37092, 2, 0, 1867, 247) ON DUPLICATE KEY UPDATE `questId` = VALUES(`questId`), `id` = VALUES(`id`), `idx` = VALUES(`idx`), `x` = VALUES(`x`), `y` = VALUES(`y`);
 
 -- LEVEL 2
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building=-9 AND faction_index = 1;
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','1','77377','-6.10242','-0.833977','2.72787','2.927');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','1','84594','0.350983','-9.33844','0.830627','5.98613');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','1','84594','-5.52924','6.78704','0.825264','2.24371');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','1','89065','-6.67357','2.50423','0.823967','3.9166');
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','1','-239066','24.7636','-5.29904','0.003624','6.15499');
 
 -- LEVEL 3
