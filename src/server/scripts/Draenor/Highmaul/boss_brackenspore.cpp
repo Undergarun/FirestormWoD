@@ -518,11 +518,13 @@ class boss_brackenspore : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
-                /// Update moves here, avoid some movements problems after Infesting Spores
+                /// Update moves here, avoid some movements problems during Infesting Spores
                 if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()) && me->HasAura(eSpells::SpellInfestingSpores))
                 {
                     Position l_Pos;
                     me->getVictim()->GetPosition(&l_Pos);
+
+                    me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(0, l_Pos);
                 }
 
@@ -532,53 +534,77 @@ class boss_brackenspore : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventNecroticBreath:
+                    {
                         me->CastSpell(me, eSpells::SpellNecroticBreath, false);
                         m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 32 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventBerserker:
+                    {
                         me->CastSpell(me, eHighmaulSpells::Berserker, true);
                         break;
+                    }
                     case eEvents::EventInfestingSpores:
+                    {
                         Talk(eTalk::WarnInfestingSpores);
                         me->RemoveAura(eSpells::EnergyRegen);
                         me->CastSpell(me, eSpells::SpellInfestingSpores, false);
                         m_Events.ScheduleEvent(eEvents::EventScheduleEnergy, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventMindFungus:
+                    {
                         me->CastSpell(me, eSpells::SummonMindFungus, true);
                         m_Events.ScheduleEvent(eEvents::EventMindFungus, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventLivingMushroom:
+                    {
                         me->CastSpell(me, eSpells::SummonLivingMushroom, true);
                         m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 55 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventSporeShooter:
+                    {
                         me->CastSpell(me, eSpells::SporeShooterDummy, true);
                         m_Events.ScheduleEvent(eEvents::EventSporeShooter, 57 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventFungalFleshEater:
+                    {
                         me->CastSpell(me, eSpells::SummonFungalFleshEater, true);
                         m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 120 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventRejuvenatingMushroom:
+                    {
                         me->CastSpell(me, eSpells::RejuvenatingMushDummy, true);
                         m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 130 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventSpecialAbility:
+                    {
                         DoSpecialAbility();
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventScheduleEnergy:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            AttackStart(l_Target);
-                        me->CastSpell(me, eSpells::EnergyRegen, true);
+                    {
                         me->GetMotionMaster()->Clear();
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->GetMotionMaster()->MoveChase(l_Target);
+
+                        me->CastSpell(me, eSpells::EnergyRegen, true);
                         break;
+                    }
                     case eEvents::EventRot:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::RotDot, true);
                         m_Events.ScheduleEvent(eEvents::EventRot, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     default:
                         break;
                 }
