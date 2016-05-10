@@ -1410,10 +1410,9 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Radius = 10.0f;
                     std::list<AreaTrigger*> l_CreepingMoss;
 
-                    l_Caster->GetAreatriggerListInRange(l_CreepingMoss, l_Radius);
+                    l_Caster->GetAreaTriggerListWithSpellIDInRange(l_CreepingMoss, eSpells::CreepingMoss, 15.0f);
 
                     if (l_CreepingMoss.empty())
                         return;
@@ -1423,7 +1422,8 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
                         if (p_AreaTrigger == nullptr)
                             return true;
 
-                        if (p_AreaTrigger->GetSpellId() != eSpells::CreepingMoss)
+                        Position l_Pos = *p_AreaTrigger;
+                        if (l_Pos.GetExactDist(l_Caster) > 12.0f)
                             return true;
 
                         if (!l_Caster->isInFront(p_AreaTrigger))
