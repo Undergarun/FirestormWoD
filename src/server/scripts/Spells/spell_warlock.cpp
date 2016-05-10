@@ -4466,7 +4466,7 @@ class spell_warl_demonbolt : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                /* Wainting fot more information */
+                /* Wainting for more information */
                 /*float l_HastePct = 2.0f - l_Caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
                 p_Amount *= l_HastePct;*/
@@ -4510,8 +4510,64 @@ class spell_warl_demonbolt : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Glyph of soul consumption
+class spell_warl_glyph_of_soul_consumption : public SpellScriptLoader
+{
+public:
+    spell_warl_glyph_of_soul_consumption() : SpellScriptLoader("spell_warl_glyph_of_soul_consumption") { }
+
+    class spell_warl_glyph_of_soul_consumption_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_glyph_of_soul_consumption_AuraScript);
+
+        enum eSpells
+        {
+            ChaosBolt = 116858,
+            DrainSoul = 103103,
+            Metamorphosis = 103958,
+            GlyphOfSoulConsumption = 58068
+        };
+
+        void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
+        {
+            PreventDefaultAction();
+
+            Unit* l_Caster = GetCaster();
+            if (!l_Caster)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+            if (!l_Player)
+                return;
+
+            uint32 l_Spec = l_Player->GetSpecializationId(l_Player->GetActiveSpec());
+            SpellInfo const* l_Spell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+
+            if ((l_Spec == SPEC_WARLOCK_DEMONOLOGY && l_Player->HasAura(Metamorphosis)) ||
+                ( l_Spell != nullptr && ((l_Spec == SPEC_WARLOCK_DESTRUCTION && l_Spell->Id == ChaosBolt) ||
+                                        (l_Spec == SPEC_WARLOCK_AFFLICTION && l_Spell->Id == DrainSoul))))
+            {
+                l_Caster->CastSpell(l_Caster, GlyphOfSoulConsumption, true);
+            }
+            /// lol
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_soul_consumption_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warl_glyph_of_soul_consumption_AuraScript();
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_glyph_of_soul_consumption();
     new spell_warl_t17_Demonology_2p();
     new spell_warl_grimoire_of_supremacy_bonus();
     new spell_warl_molten_core();
