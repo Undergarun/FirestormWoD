@@ -5071,6 +5071,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
+            case 114093: ///< Windlash Off-Hand
+            case 114089: ///< Windlash
             case 18500:  ///< Wing Buffet
             case 33086:  ///< Wild Bite
             case 49749:  ///< Piercing Blow
