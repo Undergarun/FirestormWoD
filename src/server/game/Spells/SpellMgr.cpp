@@ -7217,7 +7217,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
                 break;
-			case 47180:
+			case 47180:///< Glyph Of Cat Form
 				spellInfo->Stances = 0;
 				break;
             case 108415: ///< Soul Link
@@ -7226,7 +7226,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
-			case 56805:
+			case 56805: ///< Glyph Of Kick
 				spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
 				spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
 				spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
