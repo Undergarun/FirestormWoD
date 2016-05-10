@@ -7257,6 +7257,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[2].BasePoints = 0;
                 break;
+            case 172944:
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].Effect = SPELL_EFFECT_DUMMY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetA = Targets::TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[SpellEffIndex::EFFECT_3].TargetB = Targets::TARGET_UNIT_TARGET_ANY;
+                break;
             default:
                 break;
         }

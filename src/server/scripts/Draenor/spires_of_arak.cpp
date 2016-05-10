@@ -632,6 +632,49 @@ class spell_quest_spires_of_arak_free_prisoners : public SpellScriptLoader
         }
 };
 
+/// Detonate Iron Grenade - 172944
+class spell_quest_spires_of_arak_detonate_iron_grenade : public SpellScriptLoader
+{
+    public:
+        /// Constructor
+        spell_quest_spires_of_arak_detonate_iron_grenade()
+            : SpellScriptLoader("spell_quest_spires_of_arak_detonate_iron_grenade")
+        {
+
+        }
+
+        class spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == SpiresOfArakCreatures::IronGrenad)
+                    {
+                        l_Target->ToCreature()->DespawnOrUnsummon(0);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_spires_of_arak_detonate_iron_grenade_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_spires_of_arak()
 {
@@ -641,5 +684,6 @@ void AddSC_spires_of_arak()
     new spell_rukhmar_loose_quills();
     new spell_aura_pierced_armor();
     new spell_quest_spires_of_arak_free_prisoners();
+    new spell_quest_spires_of_arak_detonate_iron_grenade();
 }
 #endif

@@ -82,7 +82,8 @@ namespace SpiresOfArakCreatures
         CreaturePileOfAsh        = 83768,
         CreatureDepletedPhoenix  = 83783, ///< Seems to be used, but didn't find anything about its abilities, needs reports/precisions
         RavenspeakerInitiate     = 86161,
-        PrisonerPost             = 86159
+        PrisonerPost             = 86159,
+        IronGrenad               = 86524
     };
 }
 
