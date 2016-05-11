@@ -682,6 +682,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_SESSION_ADD_DELAY] = ConfigMgr::GetIntDefault("SessionAddDelay", 10000);
 
     m_float_configs[CONFIG_GROUP_XP_DISTANCE] = ConfigMgr::GetFloatDefault("MaxGroupXPDistance", 74.0f);
+    m_float_configs[CONFIG_INSTANCE_GROUP_XP_DISTANCE] = ConfigMgr::GetFloatDefault("MaxInstanceGroupXPDistance", 150.0f);
     m_float_configs[CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE] = ConfigMgr::GetFloatDefault("MaxRecruitAFriendBonusDistance", 100.0f);
 
     /// \todo Add MonsterSight and GuarderSight (with meaning) in worldserver.conf or put them as define
