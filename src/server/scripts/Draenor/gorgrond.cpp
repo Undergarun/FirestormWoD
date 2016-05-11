@@ -11,6 +11,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "GameObjectAI.h"
 #include "Language.h"
 
 /// Tarlna the Ageless - 81535
@@ -967,6 +968,49 @@ class npc_gorgrond_goren_egg : public CreatureScript
         }
 };
 
+<<<<<<< HEAD
+=======
+/// Ancient Ogre Hoard Jar
+class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
+{
+    public:
+        /// Constructor
+        go_gorgrond_ancient_ogre_hoard_jar()
+            : GameObjectScript("go_gorgrond_ancient_ogre_hoard_jar")
+        {
+
+        }
+
+        struct go_gorgrond_ancient_ogre_hoard_jarAI : public GameObjectAI
+        {
+            /// Constructor
+            go_gorgrond_ancient_ogre_hoard_jarAI(GameObject * p_GameObject)
+                : GameObjectAI(p_GameObject)
+            {
+
+            }
+
+            /// Called when a player opens a gossip dialog with the GameObject.
+            /// @p_Player     : Source player instance
+            bool GossipHello(Player * p_Player) override
+            {
+                if (p_Player)
+                    p_Player->KilledMonsterCredit(83467);
+
+                return false;
+            }
+        };
+
+
+        /// Called when a GameObjectAI object is needed for the GameObject.
+        /// @p_GameObject : GameObject instance
+        GameObjectAI* GetAI(GameObject * p_GameObject) const override
+        {
+            return new go_gorgrond_ancient_ogre_hoard_jarAI(p_GameObject);
+        }
+
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -989,5 +1033,8 @@ void AddSC_gorgrond()
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
+
+    /// GameObjects
+    new go_gorgrond_ancient_ogre_hoard_jar();
 }
 #endif
