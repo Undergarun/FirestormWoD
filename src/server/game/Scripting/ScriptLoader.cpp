@@ -1009,6 +1009,7 @@ void AddSC_spires_of_arak();
 void AddSC_frostfire_ridge();
 void AddSC_draenor_shadowmoon_valley();
 void AddSC_gorgrond();
+void AddSC_talador();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
@@ -1990,6 +1991,7 @@ void AddDraenorScripts()
     AddSC_frostfire_ridge();
     AddSC_draenor_shadowmoon_valley();
     AddSC_gorgrond();
+    AddSC_talador();
 
     /// Garrison
     AddSC_Garrison_GO();

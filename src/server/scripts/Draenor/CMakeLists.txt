@@ -40,6 +40,7 @@ set(scripts_STAT_SRCS
   Draenor/spires_of_arak.h
   Draenor/gorgrond.cpp
   Draenor/item_strongboxes.cpp
+  Draenor/talador.cpp
 )
 
 message("  -> Prepared: Draenor")
