@@ -2369,7 +2369,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
-        ResetGarrisonDatas();
+        ResetDailyGarrisonDatas();
         m_NextDailyQuestReset += DAY;
     }
 
@@ -3444,7 +3444,7 @@ void World::ResetDailyQuests()
     sAnticheatMgr->ResetDailyReportStates();
 }
 
-void World::ResetGarrisonDatas()
+void World::ResetDailyGarrisonDatas()
 {
     for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
     {
@@ -3458,8 +3458,19 @@ void World::ResetGarrisonDatas()
             if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
                 l_GarrisonMgr->CleanGarrisonTavernData();
 
-            l_Player->ResetGarrisonDatas();
+            l_Player->ResetDailyGarrisonDatas();
         }
+    }
+}
+
+void World::ResetWeeklyGarrisonDatas()
+{
+    for (SessionMap::const_iterator l_Itr = m_sessions.begin(); l_Itr != m_sessions.end(); ++l_Itr)
+    {
+        Player* l_Player = l_Itr->second->GetPlayer();
+
+        if (l_Player != nullptr)
+            l_Player->ResetWeeklyGarrisonDatas();
     }
 }
 

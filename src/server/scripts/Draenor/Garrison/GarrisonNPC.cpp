@@ -305,7 +305,7 @@ namespace MS { namespace Garrison
     }
 
     /// When the daily garrison datas are reset
-    void GarrisonNPCAI::OnDataReset()
+    void GarrisonNPCAI::OnDailyDataReset()
     {
 
     }
@@ -363,8 +363,8 @@ namespace MS { namespace Garrison
                 break;
             }
             case CreatureAIDataIDs::DailyReset:
-                OnDataReset();
-///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
+                OnDailyDataReset();
+///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID()); ///< Disabled cause it causes troubles, m_Owner is not always available
                 break;
             case CreatureAIDataIDs::DespawnData:
                 OnPlotInstanceUnload();
@@ -1730,11 +1730,60 @@ namespace MS { namespace Garrison
         DoMeleeAttackIfReady();
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a player opens a gossip dialog with the creature.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    bool npc_GarrisonWalter::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_AI == nullptr)
+            return true;
+
+        if (p_Player->GetGUID() == l_AI->GetGUID(eData::DataOwnerGUID))
+            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Access to my bank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want to browse your goods.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+    /// Called when a player selects a gossip item in the creature's gossip menu.
+    /// @p_Player   : Source player instance
+    /// @p_Creature : Target creature instance
+    /// @p_Sender   : Sender menu
+    /// @p_Action   : Action
+    bool npc_GarrisonWalter::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (!p_Player->GetSession())
+            return false;
+
+        if (p_Action == GOSSIP_ACTION_INFO_DEF)
+            p_Player->GetSession()->SendShowBank(p_Creature->GetGUID());
+        else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
+            p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
+
+        return true;
+    }
+
+    void npc_GarrisonWalter::npc_GarrisonWalterAI::IsSummonedBy(Unit* p_Summoner)
+    {
+        m_SummonerGUID = p_Summoner->GetGUID();
+    }
+
+    uint64 npc_GarrisonWalter::npc_GarrisonWalterAI::GetGUID(int32 p_ID)
+    {
+        return p_ID == eData::DataOwnerGUID ? m_SummonerGUID : 0;
+    }
+
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI* npc_robot_rooster::GetAI(Creature* p_Creature) const
+    CreatureAI* npc_GarrisonWalter::GetAI(Creature* p_Creature) const
     {
-        return new npc_robot_roosterAI(p_Creature);
+        return new npc_GarrisonWalterAI(p_Creature);
     }
 
 }   ///< namespace Garrison
@@ -1753,6 +1802,7 @@ void AddSC_Garrison_NPC()
     new MS::Garrison::npc_LeatherWorkingTent_Garr;
     new MS::Garrison::npc_InspiringBattleStandard;
     new MS::Garrison::npc_FearsomeBattleStandard;
+    new MS::Garrison::npc_GarrisonWalter;
 
     /// Alliance
     {
@@ -1854,6 +1904,7 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_GrunLek;
         new MS::Garrison::npc_FrostWallGrunt;
         new MS::Garrison::npc_FrostWallSmith;
+        new MS::Garrison::npc_Magrish_Garr;
 
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;

@@ -193,5 +193,80 @@ namespace MS { namespace Garrison
         char gScriptName[] = "npc_KristenStoneforge_Garr";
     }
 
+    //////////////////////////////////////////////////////////////////////////
+    /// 89065 - Dalana Clarke
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_DalanaClarke_Garr::npc_DalanaClarke_Garr()
+        : CreatureScript("npc_DalanaClarke_Garr")
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Called when a CreatureAI object is needed for the creature.
+    /// @p_Creature : Target creature instance
+    CreatureAI* npc_DalanaClarke_Garr::GetAI(Creature* p_Creature) const
+    {
+        return new npc_DalanaClarke_GarrAI(p_Creature);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Constructor
+    npc_DalanaClarke_Garr::npc_DalanaClarke_GarrAI::npc_DalanaClarke_GarrAI(Creature* p_Creature)
+        : GarrisonNPCAI(p_Creature)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    bool npc_DalanaClarke_Garr::OnGossipHello(Player* p_Player, Creature* p_Creature)
+    {
+        Manager* l_GarrisonMgr = p_Player->GetGarrison();
+        CreatureAI* l_AI = p_Creature->AI();
+
+        if (l_GarrisonMgr && l_AI)
+        {
+            if (l_GarrisonMgr->GetBuildingLevel(l_GarrisonMgr->GetBuilding(static_cast<GarrisonNPCAI*>(l_AI)->GetPlotInstanceID())) >= 2)
+            {
+                if (!p_Player->GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain))
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'd like to requisition my seal for the week.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            }
+        }
+
+        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+
+        return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    bool npc_DalanaClarke_Garr::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
+    {
+        if (p_Action == GOSSIP_ACTION_INFO_DEF)
+        {
+            if (p_Creature->AI())
+                static_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
+        }
+        else if (p_Action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE, 1, 1);
+            p_Player->SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 1);
+            p_Creature->SendPlaySpellVisualKit(179, 0); /// 53 SpellCastDirected
+            p_Player->SendPlaySpellVisualKit(362, 1);   /// 113 EmoteSalute
+        }
+
+        return true;
+    }
+
 }   ///< namespace Garrison
 }   ///< namespace MS

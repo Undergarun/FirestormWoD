@@ -994,8 +994,9 @@ class World
         void InitGuildChallengesResetTime();
         void InitBossLootedResetTime();
         void ResetDailyQuests();
-        void ResetGarrisonDatas();
+        void ResetDailyGarrisonDatas();
         void ResetWeeklyQuests();
+        void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuests();
         void ResetRandomBG();
         //void AutoRestartServer();

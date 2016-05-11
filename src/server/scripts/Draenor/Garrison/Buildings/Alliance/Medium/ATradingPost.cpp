@@ -160,7 +160,7 @@ namespace MS { namespace Garrison
         l_Owner->SaveToDB();
     }
 
-    void npc_TraderJoseph::npc_TraderJosephAI::OnDataReset()
+    void npc_TraderJoseph::npc_TraderJosephAI::OnDailyDataReset()
     {
         if (GetOwner() != nullptr)
         {

@@ -162,7 +162,7 @@ namespace MS { namespace Garrison
         l_Owner->SaveToDB();
     }
 
-    void npc_FaylaFairfeather::npc_FaylaFairfeatherAI::OnDataReset()
+    void npc_FaylaFairfeather::npc_FaylaFairfeatherAI::OnDailyDataReset()
     {
         if (GetOwner() != nullptr)
         {
