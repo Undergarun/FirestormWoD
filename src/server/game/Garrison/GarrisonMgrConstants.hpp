@@ -322,7 +322,10 @@ namespace MS { namespace Garrison
             MageTower_SpiritLodge_Level3                = 39,
             Stables_Stables_Level1                      = 65,
             Stables_Stables_Level2                      = 66,
-            Stables_Stables_Level3                      = 67
+            Stables_Stables_Level3                      = 67,
+            GladiatorsSanctum_GladiatorsSanctum_Level1  = 159,
+            GladiatorsSanctum_GladiatorsSanctum_Level2  = 160,
+            GladiatorsSanctum_GladiatorsSanctum_Level3  = 161
         };
     }
 

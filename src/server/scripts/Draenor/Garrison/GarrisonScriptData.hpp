@@ -105,6 +105,8 @@ namespace MS { namespace Garrison
             Alliance_ThingsAreNotGorenOurWay            = 34192,
             /// Mage Tower
             Alliance_PortablePortals                    = 38354,
+            /// Gladiator's Sanctum
+            Alliance_WarlordOfDraenor                   = 36876,
 
             /// Horde
             QUEST_ETABLISH_YOUR_GARRISON_H              = 34378,
@@ -132,7 +134,11 @@ namespace MS { namespace Garrison
             Horde_ThingsAreNotGorenOurWay               = 35154,
             Horde_MissionProbable                       = 34775,
             /// Spirit Lodge
-            Horde_PortablePortals                       = 38351
+            Horde_PortablePortals                       = 38351,
+            /// Gladiator's Sanctum
+            Horde_WarlordOfDraenor                      = 36874,
+
+            None                                        = 0
         };
     }   ///< namespace Quests
 

@@ -22,6 +22,7 @@
 #include "Buildings/Alliance/Medium/ALunarfallInn.hpp"
 #include "Buildings/Alliance/Medium/ABarn.hpp"
 #include "Buildings/Alliance/Medium/ALumberMill.hpp"
+#include "Buildings/Alliance/Medium/AGladiatorsSanctum.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -911,6 +912,10 @@ void AddSC_Garrison_NPC()
         /// Stables
         new MS::Garrison::npc_FannyFirebeard;
         new MS::Garrison::npc_KeeganFirebeard;
+
+        /// Gladiator's Sanctum
+        new MS::Garrison::npc_AltarOfBones;
+        new MS::Garrison::npc_Kuros_Garr();
     }
 
     /// Horde

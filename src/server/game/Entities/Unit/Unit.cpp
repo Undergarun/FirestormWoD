@@ -67,6 +67,8 @@
 #include "BattlegroundDG.h"
 #include "Guild.h"
 #include "DB2Stores.h"
+#include "GarrisonMgr.hpp"
+
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -13760,7 +13762,7 @@ void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 
     if (Creature* l_Creature = p_Enemy->ToCreature())
     {
-        if (l_Creature->GetEntry() == 900000) ///< Sovaks training dummy
+        if (l_Creature->GetEntry() == 900000 || l_Creature->GetScriptName() == "npc_pvp_training_dummy") ///< Sovaks training dummy
             p_IsPVP = true;
     }
 
@@ -18291,9 +18293,31 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         l_Data.appendPackGUID(p_KilledVictim->GetGUID());
 
         Player* l_Looter = l_KillerPlayer;
-
         if (Group* l_Group = l_KillerPlayer->GetGroup())
         {
+            if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191)) ///< Gladiator's Sanctum
+            {
+                if (p_KilledVictim->ToPlayer())
+                {
+                    for (GroupReference* l_Ref = l_Group->GetFirstMember(); l_Ref != nullptr; l_Ref = l_Ref->next())
+                    {
+                        Player* l_RefPlayer = l_Ref->getSource();
+
+                        if (!l_RefPlayer)
+                            continue;
+
+                        if (l_RefPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                        {
+                            if (MS::Garrison::Manager* l_Garr = l_RefPlayer->GetGarrison())
+                            {
+                                if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                                    l_RefPlayer->CastSpell(l_RefPlayer, 173417, true);
+                            }
+                        }
+                    }
+                }
+            }
+
             l_Group->BroadcastPacket(&l_Data, l_Group->GetMemberGroup(l_KillerPlayer->GetGUID()));
 
             if (l_KilledCreature)
@@ -18319,6 +18343,18 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         else
         {
             l_KillerPlayer->SendDirectMessage(&l_Data);
+
+            if (p_KilledVictim->ToPlayer() && (l_KillerPlayer->GetMapId() == 1116 || l_KillerPlayer->GetMapId() == 1191))
+            {
+                if (l_KillerPlayer->GetDistance2d(p_KilledVictim) < 100.f)
+                {
+                    if (MS::Garrison::Manager* l_Garr = l_KillerPlayer->GetGarrison())
+                    {
+                        if (l_Garr->HasBuildingType(MS::Garrison::BuildingType::SparringArena))
+                            l_KillerPlayer->CastSpell(l_KillerPlayer, 173417, true);
+                    }
+                }
+            }
 
             if (l_KilledCreature)
             {

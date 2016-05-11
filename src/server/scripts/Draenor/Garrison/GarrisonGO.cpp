@@ -128,9 +128,13 @@ namespace MS { namespace Garrison
         std::vector<GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
 
         uint32 l_ThisGobPlotInstanceID = l_Garrison->GetGameObjectPlotInstanceID(go->GetGUID());
+        uint32 l_FirstShipmentID = 0;
+        bool l_AnyRewardGiven = false;
 
         if (!l_ThisGobPlotInstanceID)
             return false;
+
+        std::map<CurrencyTypes, uint32> l_RewardedCurrencies;
 
         std::map<uint32, bool> l_ToastStatus;
         for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
@@ -147,6 +151,7 @@ namespace MS { namespace Garrison
                 continue;
 
             uint32 l_RewardItemID = l_ShipmentEntry->ResultItemID;
+            l_FirstShipmentID = l_ShipmentEntry->ID;
 
             if (l_ShipmentEntry->ID == 109) ///< Herb Garden
                 l_RewardItemID = g_HerbEntries[urand(0, 5)];
@@ -156,6 +161,87 @@ namespace MS { namespace Garrison
             {
                 l_RewardItemID = 122514;
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_APEXIS_CRYSTAL, urand(1, 5));
+            }
+
+            if (l_ShipmentEntry->ID == 137) ///< Gladiator's Sanctum
+            {
+                if (roll_chance_i(50))
+                {
+                    uint32 l_Count = urand(100, 150) * CURRENCY_PRECISION  ;
+                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_Count);
+                    l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
+
+                    auto l_Itr = l_RewardedCurrencies.find(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS);
+                    if (l_Itr != l_RewardedCurrencies.end())
+                        l_Itr->second += l_Count;
+                    else
+                        l_RewardedCurrencies.insert({CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_Count});
+
+                    l_AnyRewardGiven = true;
+                    continue;
+                }
+                else if (roll_chance_i(30))
+                {
+                    if (p_Player->GetCurrencyWeekCap(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false) <= p_Player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false))
+                    {
+                        uint32 l_Count = urand(100, 150) * CURRENCY_PRECISION;
+                        p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_Count);
+                        l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
+
+                        auto l_Itr = l_RewardedCurrencies.find(CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS);
+                        if (l_Itr != l_RewardedCurrencies.end())
+                            l_Itr->second += l_Count;
+                        else
+                            l_RewardedCurrencies.insert({CurrencyTypes::CURRENCY_TYPE_HONOR_POINTS, l_Count});
+
+                        l_AnyRewardGiven = true;
+                        continue;
+                    }
+
+                    uint32 l_Count = urand(75, 150) * CURRENCY_PRECISION;
+                    p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, l_Count);
+                    l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
+
+                    auto l_Itr = l_RewardedCurrencies.find(CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG);
+                    if (l_Itr != l_RewardedCurrencies.end())
+                        l_Itr->second += l_Count;
+                    else
+                        l_RewardedCurrencies.insert({CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG, l_Count});
+
+                    l_AnyRewardGiven = true;
+                    continue;
+                }
+                else
+                {
+                    LootTemplate const* l_LootTemplate = LootTemplates_Item.GetLootFor(p_Player->GetTeam() == ALLIANCE ? 120354 : 111598); //< Golden Strongbox Loot
+
+                    std::list<ItemTemplate const*> l_LootTable;
+                    std::vector<uint32> l_Items;
+                    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+                    uint32 l_SpecID = p_Player->GetLootSpecId() ? p_Player->GetLootSpecId() : p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+
+                    if (!l_SpecID)
+                        l_SpecID = p_Player->GetDefaultSpecId();
+
+                    for (ItemTemplate const* l_Template : l_LootTable)
+                    {
+                        if ((l_Template->AllowableClass && !(l_Template->AllowableClass & p_Player->getClassMask())) ||
+                            (l_Template->AllowableRace && !(l_Template->AllowableRace & p_Player->getRaceMask())))
+                            continue;
+
+                        for (SpecIndex l_ItemSpecID : l_Template->specs[1])
+                        {
+                            if (l_ItemSpecID == l_SpecID)
+                                l_Items.push_back(l_Template->ItemId);
+                        }
+                    }
+
+                    if (l_Items.size())
+                    {
+                        std::random_shuffle(l_Items.begin(), l_Items.end());
+                        l_RewardItemID = l_Items[0];
+                    }
+                }
             }
 
             /// Adding items
@@ -184,13 +270,26 @@ namespace MS { namespace Garrison
                     p_Player->SendDisplayToast(l_RewardItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
                     l_ToastStatus[l_RewardItemID] = true;
                 }
-
+                
+                l_AnyRewardGiven = true;
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }
             else
                 p_Player->SendEquipError(l_Message, nullptr, nullptr, l_RewardItemID);
         }
 
+        for (auto& l_Reward : l_RewardedCurrencies)
+        {
+            p_Player->SendDisplayToast(l_Reward.first, l_Reward.second, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_CURRENCY, false, false);
+        }
+        
+        if (l_AnyRewardGiven && l_FirstShipmentID == 137) ///< Gladiator's Sanctum
+        {
+            uint32 l_Quest = p_Player->GetTeam() == ALLIANCE ? Quests::Alliance_WarlordOfDraenor : Quests::Horde_WarlordOfDraenor;
+
+            if (p_Player->GetQuestStatus(l_Quest) == QUEST_STATUS_INCOMPLETE)
+                p_Player->CompleteQuest(l_Quest);
+        }
         return true;
     }
 
