@@ -7107,7 +7107,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->IsWarlockPet())
             summon->CastSpell(summon, 32233, true);  ///< Avoidance Warlock
-        else if (summon->isHunterPet())
+        else if (summon->isHunterPet() || summon->IsControlledByPlayer())
             summon->CastSpell(summon, 65220, true); ///< Avoidance Hunter
     }
 }
