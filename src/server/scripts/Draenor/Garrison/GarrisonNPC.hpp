@@ -107,7 +107,7 @@ namespace MS { namespace Garrison
             /// @p_BuildingID : Set plot instance ID
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID);
             /// When the daily garrison datas are reset
-            virtual void OnDataReset();
+            virtual void OnDailyDataReset();
             ///
             virtual void OnPlotInstanceUnload();
 

@@ -615,3 +615,34 @@ CALL `Test`();
 	
 DROP PROCEDURE `Test`;
 DROP PROCEDURE `FillConditionTable`;
+
+-- Fix all work order NPCs
+
+	UPDATE 
+	  creature_template 
+	SET
+	  minlevel = 90,
+	  maxlevel = 90,
+	  iconname = "workorders",
+	  EXP= 5,
+	  faction = 35,
+	  npcflag = npcflag | 1,
+	  npcflag2 = 32,
+	  unit_flags = 0,
+	  type_flags = 4096 
+	WHERE subname LIKE "%work order%" ;
+
+-- Fix architect tables (lvl 3)
+
+UPDATE 
+  creature_template 
+SET
+  unit_flags2 = 0x4008000,
+  unit_flags = 768,
+  minlevel = 100,
+  maxlevel = 100,
+  faction = 190,
+  type_flags = 0,
+  type_flags2 = 0 ,
+  npcflag2 = 2
+WHERE NAME LIKE "architect table" ;

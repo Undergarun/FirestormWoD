@@ -305,7 +305,7 @@ namespace MS { namespace Garrison
     }
 
     /// When the daily garrison datas are reset
-    void GarrisonNPCAI::OnDataReset()
+    void GarrisonNPCAI::OnDailyDataReset()
     {
 
     }
@@ -363,8 +363,8 @@ namespace MS { namespace Garrison
                 break;
             }
             case CreatureAIDataIDs::DailyReset:
-                OnDataReset();
-///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID());
+                OnDailyDataReset();
+///                l_GarrisonMgr->UpdatePlot(GetPlotInstanceID()); ///< Disabled cause it causes troubles, m_Owner is not always available
                 break;
             case CreatureAIDataIDs::DespawnData:
                 OnPlotInstanceUnload();
@@ -1904,6 +1904,7 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_GrunLek;
         new MS::Garrison::npc_FrostWallGrunt;
         new MS::Garrison::npc_FrostWallSmith;
+        new MS::Garrison::npc_Magrish_Garr;
 
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;

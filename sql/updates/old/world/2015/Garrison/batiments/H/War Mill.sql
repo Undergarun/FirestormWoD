@@ -39,6 +39,7 @@
 	REPLACE INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `BuildVerified`) VALUES(87551, "What am I needed for?", 0, 100, 19342);
 
 	UPDATE `creature_template` SET `npcflag`=`npcflag`|4227, gossip_menu_id = 17014 WHERE `entry`=79815;
+	UPDATE creature_template SET scriptname = "npc_Magrish_Garr" WHERE entry = 89066;
 
 	DELETE FROM `npc_vendor` WHERE `entry` = 79815 AND `type` = 1;
 	INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
@@ -77,6 +78,37 @@
 	(79815, 0, 118370, 0, 0, 5289, 1), 
 	(79815, 0, 118371, 0, 0, 5285, 1), 
 	(79815, 0, 118400, 0, 0, 5289, 1);
+	
+	-- Building lvl 2 condition to sell some items
+	REPLACE INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, conditionvalue1, conditionvalue2, COMMENT) VALUES
+	(23, 79815, 113789, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113790, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113791, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113792, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113793, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113794, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113795, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113797, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113798, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113799, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113800, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113801, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113802, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113803, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113805, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113806, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113807, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113808, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113809, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113810, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113811, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113813, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113814, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113815, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113816, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113817, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113818, 39, 10, 2, "Item buyable with War Mill lvl 2"),
+	(23, 79815, 113819, 39, 10, 2, "Item buyable with War Mill lvl 2");
 
 	DELETE FROM quest_poi  WHERE QuestID=37043;
 	DELETE FROM quest_poi_points  WHERE questId=37043;
@@ -94,8 +126,7 @@
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','87630','0.258751','-5.58133','4.59961','5.43153');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','87630','2.1545','7.38113','2.69255','1.27678');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','89066','-7.21411','2.03261','2.69672','6.07163');
-	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','79815','-3.2092','-0.517353','4.29445','2.77689');
 	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','-239067','20.8257','-7.89707','-0.000076','6.15801');
-
+	insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-9','0','79815','-1.52759','1.4172','2.69266','3.06667');
 
 -- LEVEL 3

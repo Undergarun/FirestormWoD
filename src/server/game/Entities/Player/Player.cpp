@@ -28204,7 +28204,7 @@ void Player::ResetDailyQuestStatus()
     GetSession()->SendPacket(&data);
 }
 
-void Player::ResetGarrisonDatas()
+void Player::ResetDailyGarrisonDatas()
 {
     using namespace MS::Garrison;
     if (Manager* l_Garrison = GetGarrison())
@@ -28261,6 +28261,22 @@ void Player::ResetGarrisonDatas()
                         l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
                 }
             }
+        }
+    }
+}
+
+void Player::ResetWeeklyGarrisonDatas()
+{
+    using namespace MS::Garrison;
+
+    if (Manager* l_Garrison = GetGarrison())
+    {
+        GarrisonBuilding l_Building = l_Garrison->GetBuildingWithType(BuildingType::Armory);
+
+        if (l_Building.DatabaseID)
+        {
+            if (GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain) == 1)
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 0);
         }
     }
 }
