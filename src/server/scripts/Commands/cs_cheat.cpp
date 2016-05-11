@@ -84,7 +84,7 @@ class cheat_commandscript: public CommandScript
             return false;
         }
 
-        static bool HandleNodrModeCheatCommand(ChatHandler* handler, const char* args)
+        static bool HandleNodrCheatCommand(ChatHandler* handler, const char* args)
         {
             if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
                 return false;
@@ -97,13 +97,13 @@ class cheat_commandscript: public CommandScript
             if (argstr == "off")
             {
                 handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_NO_DR);
-                handler->SendSysMessage("Godmode is OFF. You can take damage.");
+                handler->SendSysMessage("NoDR mode is OFF. You will have DR.");
                 return true;
             }
             else if (argstr == "on")
             {
                 handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_NO_DR);
-                handler->SendSysMessage("Godmode is ON. You won't take damage.");
+                handler->SendSysMessage("NoDR mode is ON. You won't have DR.");
                 return true;
             }
 
