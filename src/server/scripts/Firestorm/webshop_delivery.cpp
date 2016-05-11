@@ -18,7 +18,7 @@ namespace WebShop
         GoldAdded           = 3002,
         DontHaveEnoughSpace = 3003
     };
-    
+
     /// ...of Draenor Spell
     enum ProfessionBookSpells
     {
@@ -114,7 +114,7 @@ namespace WebShop
                         l_Item->SetState(ItemUpdateState::ITEM_CHANGED, p_Player);
                         CharacterDatabase.PExecute("UPDATE webshop_delivery_item SET delivery = 1 WHERE transaction = %u", l_Transaction);
                     }
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -181,7 +181,7 @@ namespace WebShop
                     p_Player->ModifyMoney(l_Gold);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_gold SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 if (l_GoldCount != 0)
@@ -248,7 +248,7 @@ namespace WebShop
                     p_Player->ModifyCurrency(l_Currency, l_Amount, true, true, true);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_currency SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -306,7 +306,7 @@ namespace WebShop
                     p_Player->GiveLevel(l_Level);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_level SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();
@@ -422,7 +422,7 @@ namespace WebShop
                         p_Player->learnSpell(l_SpellID, false);
 
                     CharacterDatabase.PExecute("UPDATE webshop_delivery_profession SET delivery = 1 WHERE transaction = %u", l_Transaction);
-                } 
+                }
                 while (l_Result->NextRow());
 
                 l_Callback.cancel();

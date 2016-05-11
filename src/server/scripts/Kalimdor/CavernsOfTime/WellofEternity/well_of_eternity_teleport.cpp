@@ -12,8 +12,8 @@
 
 enum Spells
 {
-    SPELL_TELEPORT_TO_START                 = 107934, 
-    SPELL_TELEPORT_TO_AZSHARA_PALACE        = 107979, 
+    SPELL_TELEPORT_TO_START                 = 107934,
+    SPELL_TELEPORT_TO_AZSHARA_PALACE        = 107979,
     SPELL_TELEPORT_TO_WELL_OF_ETERNITY      = 107691
 };
 
@@ -51,7 +51,7 @@ class go_well_of_eternity_teleport : public GameObjectScript
                         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Well of Eternity.", GOSSIP_SENDER_MAIN, WOE_TELEPORT);
                 }
             }
-        
+
             pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pGo), pGo->GetGUID());
             return true;
         }
@@ -65,8 +65,8 @@ class go_well_of_eternity_teleport : public GameObjectScript
             InstanceScript* pInstance = player->GetInstanceScript();
             if (!pInstance)
                 return true;
-            
-            switch (action) 
+
+            switch (action)
             {
                 case START_TELEPORT:
                     player->CastSpell(player, SPELL_TELEPORT_TO_START, true);
@@ -81,9 +81,9 @@ class go_well_of_eternity_teleport : public GameObjectScript
                     player->CLOSE_GOSSIP_MENU();
                     break;
             }
-            
+
             return true;
-        }    
+        }
 };
 
 #ifndef __clang_analyzer__

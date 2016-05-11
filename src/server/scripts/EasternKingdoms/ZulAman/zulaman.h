@@ -66,7 +66,7 @@ enum GameObjectsIds
     GO_MALACRASS_ENTRANCE   = 186305,
     GO_MALACRASS_EXIT       = 186306,
     GO_DAAKARA_EXIT         = 186859,
-    
+
     GO_HAZLEK_CAGE          = 187377,
     GO_HAZLEK_TRUNK         = 186648,
 

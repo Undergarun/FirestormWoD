@@ -358,7 +358,7 @@ enum Enums
     SPELL_LIGHTNING     = 126006
 };
 
-Position ZhaoPos[] = 
+Position ZhaoPos[] =
 {
     {719.36f, 4164.60f, 216.06f, 0.0f}, // Center
     {745.91f, 4154.35f, 223.48f, 0.0f},
@@ -603,7 +603,7 @@ public:
     mob_master_shang_xi_after_zhao_escort() : CreatureScript("mob_master_shang_xi_after_zhao_escort") { }
 
     struct mob_master_shang_xi_after_zhao_escortAI : public npc_escortAI
-    {        
+    {
         mob_master_shang_xi_after_zhao_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -695,7 +695,7 @@ public:
     mob_master_shang_xi_thousand_staff_escort() : CreatureScript("mob_master_shang_xi_thousand_staff_escort") { }
 
     struct mob_master_shang_xi_thousand_staff_escortAI : public npc_escortAI
-    {        
+    {
         mob_master_shang_xi_thousand_staff_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -862,7 +862,7 @@ public:
     }
 
     struct mob_shang_xi_air_balloonAI : public npc_escortAI
-    {        
+    {
         mob_shang_xi_air_balloonAI(Creature* creature) : npc_escortAI(creature)
         {}
 
@@ -1032,7 +1032,7 @@ public:
                 return;
             }
 
-            if ((summoner->GetQuestStatus(29780) == QUEST_STATUS_COMPLETE || summoner->GetQuestStatus(29780) == QUEST_STATUS_REWARDED) && (summoner->GetQuestStatus(29779) == QUEST_STATUS_COMPLETE 
+            if ((summoner->GetQuestStatus(29780) == QUEST_STATUS_COMPLETE || summoner->GetQuestStatus(29780) == QUEST_STATUS_REWARDED) && (summoner->GetQuestStatus(29779) == QUEST_STATUS_COMPLETE
                 || summoner->GetQuestStatus(29779) == QUEST_STATUS_REWARDED) && (summoner->GetQuestStatus(29781) == QUEST_STATUS_COMPLETE || summoner->GetQuestStatus(29781) == QUEST_STATUS_REWARDED))
                 me->DespawnOrUnsummon();
         }

@@ -78,7 +78,7 @@ class WildBattlePetMgr
 
         bool IsWildPet(Creature* p_Creature);
         std::shared_ptr<BattlePetInstance> GetWildBattlePet(Creature* p_Creature);
-        
+
         void EnterInBattle(Creature* p_Creature);
         void LeaveBattle(Creature* p_Creature, bool p_Defeated);
 

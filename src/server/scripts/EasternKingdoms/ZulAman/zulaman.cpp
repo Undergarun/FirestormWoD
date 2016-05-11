@@ -71,7 +71,7 @@ const Position posUpPoint   = {280.12f, 1380.63f, 49.35f, 3.46f};
 class npc_zulaman_forest_frog : public CreatureScript
 {
     public:
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_zulaman_forest_frogAI(pCreature);
@@ -117,12 +117,12 @@ class npc_zulaman_forest_frog : public CreatureScript
                     if (cEntry == NPC_EULINDA && pInstance->GetData(DATA_VENDOR_2))
                         cEntry = NPC_ARINOTH;
 
-                    if (cEntry) 
+                    if (cEntry)
                         me->UpdateEntry(cEntry);
 
                     if (spellId)
                         DoCastAOE(spellId, true);
-                    
+
                     // There must be only one vendor per instance
                     if (cEntry == NPC_HARALD)
                         pInstance->SetData(DATA_VENDOR_1, DONE);
@@ -165,7 +165,7 @@ class go_strange_gong : public GameObjectScript
 {
     public:
         go_strange_gong() : GameObjectScript("go_strange_gong") {}
-        
+
         bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
         {
             if (InstanceScript* pInstance = pGo->GetInstanceScript())
@@ -180,7 +180,7 @@ class npc_amanishi_tempest : public CreatureScript
 {
     public:
         npc_amanishi_tempest() : CreatureScript("npc_amanishi_tempest") { }
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_amanishi_tempestAI(pCreature);

@@ -1219,7 +1219,7 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_IsRestrictedAccount);                         ///< Is restricted account
     l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
     l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
-    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface 
+    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface
     l_Data.WriteBit(l_CommerceSystemEnabled);                       ///< Commerce System Enabled (WoWToken)
     l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
     l_Data.WriteBit(1);                                             ///< WillKickFromWorld
@@ -1286,9 +1286,9 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 {
     /// This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
     uint32 l_Count = 0;
-    
+
     p_Packet >> l_Count;
-    
+
     if (l_Count > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
         /// if we have hit the softcap (64) nothing should be filtered

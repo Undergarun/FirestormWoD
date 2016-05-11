@@ -78,7 +78,7 @@ void WildBattlePetZonePools::Populate()
                     l_AvailableForReplacement.push_back(l_Unit->ToCreature());
             }
         }
-        
+
         if (!l_AvailableForReplacement.size())
             continue;
 

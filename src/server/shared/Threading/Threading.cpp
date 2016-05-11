@@ -167,6 +167,7 @@ void Thread::resume()
     ACE_Thread::resume(m_hThreadHandle);
 }
 
+#ifndef __clang_analyzer__
 ACE_THR_FUNC_RETURN Thread::ThreadTask(void * param)
 {
     std::pair<Runnable*, std::string> * l_Params = reinterpret_cast<std::pair<Runnable*, std::string>*>(param);
@@ -182,6 +183,7 @@ ACE_THR_FUNC_RETURN Thread::ThreadTask(void * param)
 
     return (ACE_THR_FUNC_RETURN)0;
 }
+#endif
 
 ACE_thread_t Thread::currentId()
 {

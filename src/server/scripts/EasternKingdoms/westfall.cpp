@@ -254,8 +254,8 @@ public:
     };
 };
 
-enum clodoEnum { 
-
+enum clodoEnum
+{
     NPC_HOMELESS_STORMWIND_CITIZEN      = 42384,
     NPC_HOMELESS_STORMWIND_CITIZEN2     = 42386,
     NPC_WEST_PLAINS_DRIFTER             = 42391,
@@ -272,7 +272,7 @@ class npc_westfall_stew : public CreatureScript
         {
             return new npc_westfall_stewAI (creature);
         }
-    
+
         struct npc_westfall_stewAI : public ScriptedAI
         {
             npc_westfall_stewAI(Creature* creature) : ScriptedAI(creature) {}

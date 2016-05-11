@@ -642,7 +642,7 @@ bool Group::RemoveMember(uint64 p_Guid, RemoveMethod const& p_Method /*= GROUP_R
             uint64 l_LeaderGUID = GetLeaderGUID();
 
             uint32 l_MemberCount = 0;
- 
+
             bool l_HasJamCliPartyLFGInfo = isLFGGroup(); ///< l_HasJamCliPartyLFGInfo is never read 01/18/16
 
             l_Data.Initialize(SMSG_PARTY_UPDATE, 200);

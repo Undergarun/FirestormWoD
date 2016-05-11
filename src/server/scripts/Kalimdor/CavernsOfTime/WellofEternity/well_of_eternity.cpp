@@ -200,7 +200,7 @@ enum Adds
 {
     NPC_NOZDORMU                    = 55624,
     NPC_LEGION_DEMON                = 55503,
-    
+
     // legion demon 54500
     // guardian demon 54927
     // stalker after illidan's shadowcloak (visual) 55154 with 102951 aura
@@ -269,11 +269,11 @@ enum Actions
 /*
 {3294.199951f, -4981.970215f, 181.160004f, 0.8f} // illidan near 1 portal
 {3444.979980f, -4886.339844f, 181.160004f, 4.0f} // illidan near 2 portal
-{3471.120117f, -4839.830078f, 194.214996f, 2.0f} // illidan near 3 portal 
+{3471.120117f, -4839.830078f, 194.214996f, 2.0f} // illidan near 3 portal
 
 */
 
-const Position illidan1Pos[6] = 
+const Position illidan1Pos[6] =
 {
     {3191.901123f, -4890.239258f, 194.357269f, 0.0f},
     {3217.059814f, -4902.321777f, 194.179321f, 0.0f},
@@ -283,7 +283,7 @@ const Position illidan1Pos[6] =
     {3362.441162f, -4934.355957f, 181.077682f, 0.0f}
 };
 
-const Position illidan2Pos[10] = 
+const Position illidan2Pos[10] =
 {
     {3159.834961f, -5572.989746f, 18.292067f, 0.0f},
     {3168.384766f, -5581.995605f, 18.055605f, 0.0f},
@@ -346,7 +346,7 @@ class npc_well_of_eternity_nozdormu : public CreatureScript
                 bTalk = true;
 
                 events.ScheduleEvent(EVENT_NOZDORMU_TALK_1, 5000);
-                
+
                 pInstance->SetData(DATA_EVENT_NOZDORMU, IN_PROGRESS);
             }
 
@@ -1075,7 +1075,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
 
                 if (pInstance)
                     TrashEvaded(me);
-                
+
                 bTalk = true;
 
                 Talk(SAY_ILLIDAN_2_INTRO_1);
@@ -1137,7 +1137,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                 if (action == ACTION_DOOMGUARD_DIED)
                 {
                     doomguards++;
-                    
+
                     if (doomguards >= MAX_DOOMGUARDS && !bMove)
                     {
                         bMove = true;
@@ -1198,7 +1198,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                             events.ScheduleEvent(EVENT_ILLIDAN_INTRO_2_3, 9000);
                             break;
                         case EVENT_ILLIDAN_INTRO_2_3:
-                            Talk(SAY_ILLIDAN_2_INTRO_3); 
+                            Talk(SAY_ILLIDAN_2_INTRO_3);
                             events.ScheduleEvent(EVENT_TYRANDE_INTRO_2, 5000);
                             break;
                         case EVENT_TYRANDE_INTRO_2:
@@ -1214,7 +1214,7 @@ class npc_well_of_eternity_illidan_2 : public CreatureScript
                             Talk(SAY_ILLIDAN_2_DEMONS);
                             me->GetMotionMaster()->MovePoint(POINT_ILLIDAN_2_1, illidan2Pos[curPoint]);
                             break;
-                        case EVENT_ILLIDAN_MOVE_2_2: 
+                        case EVENT_ILLIDAN_MOVE_2_2:
                             if (Creature* pTyrande = me->FindNearestCreature(NPC_TYRANDE, 100.0f))
                                 pTyrande->AI()->DoAction(ACTION_TYRANDE_MOVE_1);
                             me->GetMotionMaster()->MovePoint(POINT_ILLIDAN_2_2, illidan2Pos[curPoint]);
@@ -1548,7 +1548,7 @@ class npc_well_of_eternity_abyssal_doombringer : public CreatureScript
                     {
                         DoCastAOE(SPELL_ABYSSAL_FLAMES);
                         events.ScheduleEvent(EVENT_ABYSSAL_FLAMES, 3000);
-                    }  
+                    }
                 }
 
                 DoMeleeAttackIfReady();

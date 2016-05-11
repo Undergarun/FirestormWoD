@@ -39,7 +39,7 @@ namespace MS { namespace Utilities
     {
         WowTime l_Time;
         l_Time.SetUTCTimeFromPosixTime(p_Time);
-    
+
         return l_Time.Encode();
     }
 
@@ -191,7 +191,7 @@ namespace MS { namespace Utilities
 
             l_RemainMinutes += Globals::InMinutes::Day;
         }
-    
+
         this->Hour      = l_RemainMinutes / Globals::InMinutes::Hour;
         this->Minute    = l_RemainMinutes % Globals::InMinutes::Hour;
     }

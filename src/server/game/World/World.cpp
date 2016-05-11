@@ -2331,10 +2331,10 @@ void World::Update(uint32 diff)
     if (m_serverDelayTimer > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
     {
         uint32 delay = m_serverUpdateCount ? (m_serverDelaySum / m_serverUpdateCount) : 1;
-        
+
         m_serverDelaySum = 0;
         m_serverUpdateCount = 0;
-        
+
         LoginDatabase.PExecute("UPDATE realmlist set delay=%u, lastupdate=%u where id=%u", delay, std::time(nullptr), g_RealmID);
         m_serverDelayTimer -= m_int_configs[CONFIG_INTERVAL_LOG_UPDATE];
     }
