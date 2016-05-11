@@ -70,9 +70,49 @@ class npc_talador_warlock_soulstealer : public CreatureScript
         }
 };
 
+/// Zorka's Void Gate - 79520
+class npc_talador_zorkas_void_gate : public CreatureScript
+{
+    enum
+    {
+        BonusObjectiveZorkraFall = 34660,
+        ZorkaVoidGate = 79520
+    };
+
+    public:
+        npc_talador_zorkas_void_gate() : CreatureScript("npc_talador_zorkas_void_gate") { }
+
+        struct npc_talador_zorkas_void_gateAI : public CreatureAI
+        {
+            npc_talador_zorkas_void_gateAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+
+            virtual void OnSpellClick(Unit* p_Unit) override
+            {
+                if (p_Unit->IsPlayer() && p_Unit->ToPlayer()->HasQuest(BonusObjectiveZorkraFall))
+                {
+                    p_Unit->ToPlayer()->KilledMonsterCredit(ZorkaVoidGate);
+                    me->DespawnOrUnsummon(0);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_talador_zorkas_void_gateAI(p_Creature);
+        }
+};
 
 void AddSC_talador()
 {
     /// Npcs
     new npc_talador_warlock_soulstealer();
+    new npc_talador_zorkas_void_gate();
 }
