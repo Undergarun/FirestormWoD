@@ -64,7 +64,7 @@ class Vehicle : public TransportBase
         {
             STATUS_NONE,
             STATUS_INSTALLED,
-            STATUS_UNINSTALLING,
+            STATUS_UNINSTALLING
         };
 
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);

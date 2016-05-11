@@ -48,7 +48,7 @@ enum WeatherState
     WEATHER_STATE_HEAVY_SANDSTORM   = 42,
     WEATHER_STATE_THUNDERS          = 86,
     WEATHER_STATE_BLACKRAIN         = 90,
-    WEATHER_STATE_BLACKSNOW         = 106,
+    WEATHER_STATE_BLACKSNOW         = 106
 };
 
 /// Weather for one zone
@@ -57,7 +57,7 @@ class Weather
     public:
 
         Weather(uint32 zone, WeatherData const* weatherChances);
-        ~Weather() { };
+        ~Weather() { }
 
         bool Update(uint32 diff);
         bool ReGenerate();
@@ -67,10 +67,10 @@ class Weather
         void SetWeather(WeatherType type, float grade);
 
         /// For which zone is this weather?
-        uint32 GetZone() const { return m_zone; };
+        uint32 GetZone() const { return m_zone; }
         uint32 GetScriptId() const { return m_weatherChances->ScriptId; }
 
-        uint32 GetType() const { return m_type; };
+        uint32 GetType() const { return m_type; }
 
     private:
 

@@ -100,7 +100,7 @@ namespace Battlepay
     {
         enum
         {
-            SavePurchase,
+            SavePurchase
         };
     }
 
@@ -203,7 +203,7 @@ namespace Battlepay
                 m_PurchaseIDCount = 0;
             }
 
-            ~Manager() {};
+            ~Manager() {}
 
             /*
             * Load all battlepay data from database
