@@ -94,7 +94,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_ENTER_COMBAT                = 0x10000000,   // 28   removed by entering pvp
     AURA_INTERRUPT_FLAG_UNK29                       = 0x20000000,   // 29
     AURA_INTERRUPT_FLAG_UNK30                       = 0x40000000,   // 30
-    AURA_INTERRUPT_FLAG_UNK31                       = 0x80000000,   // 31
+    AURA_INTERRUPT_FLAG_LEAVE_COMBAT                = 0x80000000,   // 31   removed by leaving combat
 
     AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
 };
