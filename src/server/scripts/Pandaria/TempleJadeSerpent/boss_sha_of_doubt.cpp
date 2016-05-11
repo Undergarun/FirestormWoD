@@ -1,8 +1,10 @@
-/*
-    Dungeon : Template of the Jade Serpent 85-87
-    Sha of doubt fourth boss
-    Jade servers
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"

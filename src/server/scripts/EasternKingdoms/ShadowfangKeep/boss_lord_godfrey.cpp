@@ -1,8 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include"ScriptPCH.h"
 #include"Spell.h"
 #include"shadowfang_keep.h"
-
-
 
 #define SAY_AGGRO_ALLIANCE "Ivar's pack failed horribly, so now he sends mercenaries. No matter, your journey ends in agony."
 #define SAY_AGGRO_HORDE "That bitch Sylvanas sent you too, did she? No matter, your journey ends in agony."

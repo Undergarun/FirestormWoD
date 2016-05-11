@@ -31,7 +31,7 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
     if (!i_path)
     {
         // No path id found for entry
-        sLog->outError(LOG_FILTER_SQL, "WaypointMovementGenerator::LoadPath: creature %s (%llu DB GUID: " UI64FMTD ") doesn't have waypoint path id: %u", creature->GetName(), creature->GetGUID(), creature->GetDBTableGUIDLow(), path_id);
+        sLog->outError(LOG_FILTER_SQL, "WaypointMovementGenerator::LoadPath: creature %s (%lu DB GUID: " UI64FMTD ") doesn't have waypoint path id: %u", creature->GetName(), creature->GetGUID(), creature->GetDBTableGUIDLow(), path_id);
         return;
     }
 

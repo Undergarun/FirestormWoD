@@ -5,13 +5,14 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
-#define GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
 
-#include "../../GarrisonScriptData.hpp"
-#include "../../GarrisonNPC.hpp"
-#include "../GatheringBuilding.hpp"
-#include "GarrisonMgr.hpp"
+#ifndef GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
+# define GARRISON_LUNARFALL_EXCAVATION_ALLIANCE_HPP_GARRISON
+
+# include "../../GarrisonScriptData.hpp"
+# include "../../GarrisonNPC.hpp"
+# include "../GatheringBuilding.hpp"
+# include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison
 {

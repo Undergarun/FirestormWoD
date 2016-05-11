@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "Spell.h"
 #include "halls_of_origination.h"
@@ -7,7 +15,7 @@ enum ScriptTexts
     SAY_DEATH       = 0,
     SAY_AGGRO       = 1,
     SAY_EVENT       = 2,
-    SAY_KILL        = 3, 
+    SAY_KILL        = 3
 };
 
 enum Spells
@@ -18,8 +26,8 @@ enum Spells
     SPELL_SEARING_FLAME_SUM     = 75114,
     SPELL_SEARING_FLAME_DMG     = 75116,
     SPELL_SHIELD_OF_LIGHT       = 74938,
-    SPELL_BEAM_LEFT             = 83697, 
-    SPELL_BEAM_RIGHT            = 83698, 
+    SPELL_BEAM_LEFT             = 83697,
+    SPELL_BEAM_RIGHT            = 83698,
     SPELL_POISON_TIPPED_FANGS   = 74538
 };
 

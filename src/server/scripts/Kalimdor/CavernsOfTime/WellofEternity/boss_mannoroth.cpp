@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "well_of_eternity.h"
 #include "Group.h"
@@ -13,6 +21,7 @@ enum ScriptedTextMannoroth
     SAY_MANNOROTH_KILL      = 7,
     SAY_MANNOROTH_SPELL     = 8
 };
+
 enum ScriptedTextVarothen
 {
     SAY_VAROTHEN_AGGRO  = 0,

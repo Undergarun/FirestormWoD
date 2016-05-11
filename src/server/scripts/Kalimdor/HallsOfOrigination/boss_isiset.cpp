@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2016 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include "ScriptPCH.h"
 #include "halls_of_origination.h"
 
@@ -6,7 +14,7 @@ enum ScriptTexts
     SAY_DEATH       = 0,
     SAY_AGGRO       = 1,
     SAY_SUPERNOVA   = 2,
-    SAY_KILL        = 3, 
+    SAY_KILL        = 3
 };
 
 enum Spells

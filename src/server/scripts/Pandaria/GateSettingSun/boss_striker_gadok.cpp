@@ -58,7 +58,7 @@ StrafPointStruct StrafPoints[4] =
     { POINT_EAST_OUTSIDE,  {1195.4f, 2243.441f, 438.0f, 0.0f}, POINT_EAST_START,  {1195.392f, 2263.441f, 435.0f, 0.0f}, POINT_EAST_END,  {1195.299f, 2348.941f, 435.0f, 0.0f}, POINT_WEST_OUTSIDE,  {1195.3f, 2366.941f, 438.0f, 0.0f} }  // East  -> West
 };
 
-Position CenterPos = {1195.0f, 2304.0f, 438.0f};
+Position CenterPos = {1195.0f, 2304.0f, 438.0f, 0.0f};
 
 enum eSpells
 {
