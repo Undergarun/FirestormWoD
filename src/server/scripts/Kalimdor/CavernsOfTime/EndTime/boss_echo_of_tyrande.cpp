@@ -535,7 +535,7 @@ class spell_echo_of_tyrande_tears_of_elune_script: public SpellScriptLoader
 
         class spell_echo_of_tyrande_tears_of_elune_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_tyrande_tears_of_elune_script_SpellScript);
+            PrepareSpellScript(spell_echo_of_tyrande_tears_of_elune_script_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {

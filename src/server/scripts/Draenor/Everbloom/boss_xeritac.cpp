@@ -898,7 +898,7 @@ public:
 
     class the_everbloom_xeritac_spell_gaseous_volley_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_xeritac_spell_gaseous_volley_SpellScript);
+        PrepareSpellScript(the_everbloom_xeritac_spell_gaseous_volley_SpellScript)
 
         enum eGasouesVolleySpells
         {
@@ -1031,7 +1031,7 @@ public:
 
     class the_everbloom_xeritac_spell_descend_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_xeritac_spell_descend_SpellScript);
+        PrepareSpellScript(the_everbloom_xeritac_spell_descend_SpellScript)
 
 
         void HandlCastSpell()

@@ -710,7 +710,7 @@ class spell_highmaul_heavy_handed : public SpellScriptLoader
 
         class spell_highmaul_heavy_handed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript);
+            PrepareAuraScript(spell_highmaul_heavy_handed_AuraScript)
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
@@ -747,7 +747,7 @@ class spell_highmaul_heavy_handed_proc : public SpellScriptLoader
 
         class spell_highmaul_heavy_handed_proc_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_heavy_handed_proc_SpellScript);
+            PrepareSpellScript(spell_highmaul_heavy_handed_proc_SpellScript)
 
             uint64 m_Target;
 
@@ -827,7 +827,7 @@ class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
 
         class spell_highmaul_bounding_cleave_dummy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript);
+            PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -868,7 +868,7 @@ class spell_highmaul_gushing_wounds : public SpellScriptLoader
 
         class spell_highmaul_gushing_wounds_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_gushing_wounds_AuraScript);
+            PrepareAuraScript(spell_highmaul_gushing_wounds_AuraScript)
 
             enum eSpell
             {

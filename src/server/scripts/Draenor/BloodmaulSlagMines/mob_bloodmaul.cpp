@@ -1499,7 +1499,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_bloodmaul_channel_flames_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_bloodmaul_channel_flames_AuraScript);
+                PrepareAuraScript(spell_bloodmaul_channel_flames_AuraScript)
 
                 enum eSpells
                 {

@@ -1505,7 +1505,7 @@ class spell_highmaul_meteoric_earthspire : public SpellScriptLoader
 
         class spell_highmaul_meteoric_earthspire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_meteoric_earthspire_SpellScript);
+            PrepareSpellScript(spell_highmaul_meteoric_earthspire_SpellScript)
 
             enum eSpell
             {
@@ -1544,7 +1544,7 @@ class spell_highmaul_stonebolt_volley : public SpellScriptLoader
 
         class spell_highmaul_stonebolt_volley_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_stonebolt_volley_SpellScript);
+            PrepareSpellScript(spell_highmaul_stonebolt_volley_SpellScript)
 
             enum eSpell
             {
@@ -1594,7 +1594,7 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
 
         class spell_highmaul_tectus_energy_gain_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_tectus_energy_gain_AuraScript);
+            PrepareAuraScript(spell_highmaul_tectus_energy_gain_AuraScript)
 
             enum eActions
             {
@@ -1657,7 +1657,7 @@ class spell_highmaul_earthen_pillar_timer : public SpellScriptLoader
 
         class spell_highmaul_earthen_pillar_timer_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript);
+            PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -1688,7 +1688,7 @@ class spell_highmaul_accretion : public SpellScriptLoader
 
         class spell_highmaul_accretion_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_accretion_AuraScript);
+            PrepareAuraScript(spell_highmaul_accretion_AuraScript)
 
             uint32 m_DamageTaken;
 
@@ -1734,7 +1734,7 @@ class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
 
         class spell_highmaul_tectonic_upheaval_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_tectonic_upheaval_AuraScript);
+            PrepareAuraScript(spell_highmaul_tectonic_upheaval_AuraScript)
 
             enum eSpell
             {
@@ -1780,7 +1780,7 @@ class spell_highmaul_spawn_dust_cloud : public SpellScriptLoader
 
         class spell_highmaul_spawn_dust_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript);
+            PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -1814,7 +1814,7 @@ class spell_highmaul_earthen_flechettes : public SpellScriptLoader
 
         class spell_highmaul_earthen_flechettes_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_earthen_flechettes_SpellScript);
+            PrepareSpellScript(spell_highmaul_earthen_flechettes_SpellScript)
 
             enum eSpell
             {
@@ -1867,7 +1867,7 @@ class spell_highmaul_petrification : public SpellScriptLoader
 
         class spell_highmaul_petrification_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_petrification_AuraScript);
+            PrepareAuraScript(spell_highmaul_petrification_AuraScript)
 
             enum eSpell
             {
@@ -1910,7 +1910,7 @@ class spell_highmaul_raving_assault : public SpellScriptLoader
 
         class spell_highmaul_raving_assault_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_raving_assault_AuraScript);
+            PrepareAuraScript(spell_highmaul_raving_assault_AuraScript)
 
             enum eSpell
             {

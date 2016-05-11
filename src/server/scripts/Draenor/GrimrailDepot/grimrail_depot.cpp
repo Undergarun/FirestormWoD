@@ -951,7 +951,7 @@ public:
 
     class grimrail_depot_spell_dash_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(grimrail_depot_spell_dash_dummy_SpellScript);
+        PrepareSpellScript(grimrail_depot_spell_dash_dummy_SpellScript)
 
         void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {

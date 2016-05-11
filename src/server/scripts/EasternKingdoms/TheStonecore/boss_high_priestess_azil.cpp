@@ -262,7 +262,7 @@ class spell_high_priestess_azil_gravity_well_script: public SpellScriptLoader
 
         class spell_high_priestess_azil_gravity_well_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_high_priestess_azil_gravity_well_script_SpellScript);
+            PrepareSpellScript(spell_high_priestess_azil_gravity_well_script_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)

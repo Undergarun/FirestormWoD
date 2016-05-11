@@ -192,7 +192,7 @@ class spell_godfrey_summon_bloodthirsty_ghouls: public SpellScriptLoader
 
         class spell_godfrey_summon_bloodthirsty_ghouls_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript);
+            PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls_AuraScript)
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {

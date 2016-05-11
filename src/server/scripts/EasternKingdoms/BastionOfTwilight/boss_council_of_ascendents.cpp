@@ -1715,7 +1715,7 @@ class spell_feludius_glaciate: public SpellScriptLoader
 
         class spell_feludius_glaciate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_feludius_glaciate_SpellScript);
+            PrepareSpellScript(spell_feludius_glaciate_SpellScript)
 
 
             void HandleScript()
@@ -1783,7 +1783,7 @@ class spell_ignacious_inferno_rush: public SpellScriptLoader
 
         class spell_ignacious_inferno_rush_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_ignacious_inferno_rush_SpellScript);
+            PrepareSpellScript(spell_ignacious_inferno_rush_SpellScript)
 
 
             void HandleScript()
@@ -1814,7 +1814,7 @@ class spell_arion_lashing_winds: public SpellScriptLoader
 
         class spell_arion_lashing_winds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arion_lashing_winds_SpellScript);
+            PrepareSpellScript(spell_arion_lashing_winds_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1843,7 +1843,7 @@ class spell_arion_chain_lightning: public SpellScriptLoader
 
         class spell_arion_chain_lightning_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arion_chain_lightning_SpellScript);
+            PrepareSpellScript(spell_arion_chain_lightning_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1876,7 +1876,7 @@ class spell_arion_disperse: public SpellScriptLoader
 
         class spell_arion_disperse_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arion_disperse_SpellScript);
+            PrepareSpellScript(spell_arion_disperse_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1907,7 +1907,7 @@ class spell_terrastra_eruption: public SpellScriptLoader
 
         class spell_terrastra_eruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_terrastra_eruption_SpellScript);
+            PrepareSpellScript(spell_terrastra_eruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1937,7 +1937,7 @@ class spell_arion_thundershock: public SpellScriptLoader
 
         class spell_arion_thundershock_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arion_thundershock_SpellScript);
+            PrepareSpellScript(spell_arion_thundershock_SpellScript)
 
 
             void HandleScript()
@@ -1970,7 +1970,7 @@ class spell_terrastra_quake: public SpellScriptLoader
 
         class spell_terrastra_quake_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_terrastra_quake_SpellScript);
+            PrepareSpellScript(spell_terrastra_quake_SpellScript)
 
 
             void HandleScript()
@@ -2001,7 +2001,7 @@ class spell_terrastra_harden_skin: public SpellScriptLoader
 
         class spell_terrastra_harden_skin_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_terrastra_harden_skin_AuraScript);
+            PrepareAuraScript(spell_terrastra_harden_skin_AuraScript)
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
@@ -2076,7 +2076,7 @@ class spell_elemental_statis: public SpellScriptLoader
 
         class spell_elemental_statis_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_elemental_statis_AuraScript);
+            PrepareAuraScript(spell_elemental_statis_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

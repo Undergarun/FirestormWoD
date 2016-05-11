@@ -1581,7 +1581,7 @@ class iron_docks_spell_flurry_periodic : public SpellScriptLoader
 
         class iron_docks_auras : public AuraScript
         {
-            PrepareAuraScript(iron_docks_auras);
+            PrepareAuraScript(iron_docks_auras)
 
             enum eOrgonSpells
             {
@@ -1628,7 +1628,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
 
         class iron_docks_spell_charge_forward_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_spell_charge_forward_SpellScript);
+            PrepareSpellScript(iron_docks_spell_charge_forward_SpellScript)
 
             SpellCastResult CheckTarget()
             {
@@ -1665,7 +1665,7 @@ class iron_docks_spell_charge_forward : public SpellScriptLoader
                     if (l_Caster->GetVehicleKit())
                     {
                         if (Unit* l_Unit = l_Caster->GetVehicleKit()->GetPassenger(0))
-                        {                                                   
+                        {
                             if (l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                             {
                                 if (Unit* l_UnitSelection = l_Unit->ToPlayer()->GetSelectedUnit())
@@ -1704,7 +1704,7 @@ class iron_docks_spell_lava_blast : public SpellScriptLoader
 
         class iron_docks_spell_lava_blast_AuraScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_spell_lava_blast_AuraScript);
+            PrepareAuraScript(iron_docks_spell_lava_blast_AuraScript)
 
             enum eLavaBlastSpells
             {
@@ -1746,7 +1746,7 @@ class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
 
         class iron_docks_auraScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_auraScript);
+            PrepareAuraScript(iron_docks_auraScript)
 
             enum eBarbedarrowSpells
             {
@@ -1788,7 +1788,7 @@ class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
 
         class iron_docks_spell_barbed_arrow_dummy_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_spell_barbed_arrow_dummy_SpellScript);
+            PrepareSpellScript(iron_docks_spell_barbed_arrow_dummy_SpellScript)
 
             enum eBarbedArrowSpells
             {
@@ -1822,7 +1822,7 @@ public:
 
     class iron_docks_spell_trampling_stampede_SpellScript : public SpellScript
     {
-        PrepareSpellScript(iron_docks_spell_trampling_stampede_SpellScript);
+        PrepareSpellScript(iron_docks_spell_trampling_stampede_SpellScript)
 
         enum eTramplingStampedeSpells
         {
@@ -1874,7 +1874,7 @@ class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 
         class iron_docks_Spells : public AuraScript
         {
-            PrepareAuraScript(iron_docks_Spells);
+            PrepareAuraScript(iron_docks_Spells)
 
             enum eBurningArrowSpells
             {
@@ -1920,7 +1920,7 @@ class iron_docks_spell_charging_slash_effect : public SpellScriptLoader
 
         class spells_iron_docks_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spells_iron_docks_SpellScript);
+            PrepareSpellScript(spells_iron_docks_SpellScript)
 
             enum eChargingSlashSpells
             {
@@ -1958,7 +1958,7 @@ class iron_docks_spell_lava_barrage_dummy : public SpellScriptLoader
 
         class iron_docks_spells : public SpellScript
         {
-            PrepareSpellScript(iron_docks_spells);
+            PrepareSpellScript(iron_docks_spells)
 
             enum eLavaBarrageSpells
             {

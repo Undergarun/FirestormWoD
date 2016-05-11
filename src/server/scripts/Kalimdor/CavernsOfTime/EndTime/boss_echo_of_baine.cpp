@@ -253,7 +253,7 @@ class spell_echo_of_baine_pulverize_aoe: public SpellScriptLoader
 
         class spell_echo_of_baine_pulverize_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_baine_pulverize_aoe_SpellScript);
+            PrepareSpellScript(spell_echo_of_baine_pulverize_aoe_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

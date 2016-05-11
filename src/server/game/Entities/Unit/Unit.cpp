@@ -18489,7 +18489,9 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
     if (l_KilledCreature)
     {
         l_IsRewardAllowed = l_KilledCreature->IsDamageEnoughForLootingAndReward();
-        if (!l_IsRewardAllowed)
+
+        /// In Challenge mode difficulty, loots are disabled
+        if (!l_IsRewardAllowed || l_KilledCreature->GetMap()->IsChallengeMode())
             l_KilledCreature->SetLootRecipient(NULL);
     }
 

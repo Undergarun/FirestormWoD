@@ -782,7 +782,7 @@ public:
 
     class the_everbloom_spell_bounding_whirl_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spell_bounding_whirl_dummy_SpellScript);
+        PrepareSpellScript(the_everbloom_spell_bounding_whirl_dummy_SpellScript)
 
         enum eBoundingWhirlSpells
         {
@@ -828,7 +828,7 @@ public:
 
     class the_everbloom_spell_poisonous_claws_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spell_poisonous_claws_SpellScript);
+        PrepareSpellScript(the_everbloom_spell_poisonous_claws_SpellScript)
 
         enum eInfectedWoundsSpells
         {

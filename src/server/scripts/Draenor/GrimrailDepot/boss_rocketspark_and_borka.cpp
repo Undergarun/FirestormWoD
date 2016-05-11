@@ -570,7 +570,7 @@ public:
 
     class grimrail_depot_rocketspark_spell_mad_dash_SpellScript : public SpellScript
     {
-        PrepareSpellScript(grimrail_depot_rocketspark_spell_mad_dash_SpellScript);
+        PrepareSpellScript(grimrail_depot_rocketspark_spell_mad_dash_SpellScript)
 
         void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
@@ -602,7 +602,7 @@ public:
 
     class grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript : public SpellScript
     {
-        PrepareSpellScript(grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript);
+        PrepareSpellScript(grimrail_depot_rocketspark_spell_vx18_target_eliminator_SpellScript)
 
         void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
@@ -633,7 +633,7 @@ public:
 
     class grimrail_depot_rocketspark_spell_x21_01a_missile_barrage_AuraScript : public AuraScript
     {
-        PrepareAuraScript(grimrail_depot_rocketspark_spell_x21_01a_missile_barrage_AuraScript);
+        PrepareAuraScript(grimrail_depot_rocketspark_spell_x21_01a_missile_barrage_AuraScript)
 
         enum eSpells
         {
@@ -684,7 +684,7 @@ public:
 
     class grimrail_depot_rocketspark_spell_new_plan_AuraScript : public AuraScript
     {
-        PrepareAuraScript(grimrail_depot_rocketspark_spell_new_plan_AuraScript);
+        PrepareAuraScript(grimrail_depot_rocketspark_spell_new_plan_AuraScript)
 
         enum eSpells
         {

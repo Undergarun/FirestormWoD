@@ -163,7 +163,7 @@ class spell_asira_dawnslayer_blade_barrier: public SpellScriptLoader
 
         class spell_asira_dawnslayer_blade_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_asira_dawnslayer_blade_barrier_AuraScript);
+            PrepareAuraScript(spell_asira_dawnslayer_blade_barrier_AuraScript)
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool& /*canBeRecalculated*/)
             {
@@ -206,7 +206,7 @@ class spell_asira_dawnslayer_throw_knife: public SpellScriptLoader
 
         class spell_asira_dawnslayer_throw_knife_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_asira_dawnslayer_throw_knife_SpellScript);
+            PrepareSpellScript(spell_asira_dawnslayer_throw_knife_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -262,7 +262,7 @@ class spell_asira_dawnslayer_mark_of_silence: public SpellScriptLoader
 
         class spell_asira_dawnslayer_mark_of_silence_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_asira_dawnslayer_mark_of_silence_SpellScript);
+            PrepareSpellScript(spell_asira_dawnslayer_mark_of_silence_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

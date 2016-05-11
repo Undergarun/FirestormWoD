@@ -519,7 +519,7 @@ class spell_daakara_claw_rage_charge: public SpellScriptLoader
 
         class spell_daakara_claw_rage_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_daakara_claw_rage_charge_SpellScript);
+            PrepareSpellScript(spell_daakara_claw_rage_charge_SpellScript)
 
             void HandleCharge(SpellEffIndex /*effIndex*/)
             {
@@ -550,7 +550,7 @@ class spell_daakara_sweeping_winds: public SpellScriptLoader
 
         class spell_daakara_sweeping_winds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_daakara_sweeping_winds_SpellScript);
+            PrepareSpellScript(spell_daakara_sweeping_winds_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {

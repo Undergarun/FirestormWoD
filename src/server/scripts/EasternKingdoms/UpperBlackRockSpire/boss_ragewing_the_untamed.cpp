@@ -729,7 +729,7 @@ class spell_fire_storm_missile: public SpellScriptLoader
 
         class spell_fire_storm_missile_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_fire_storm_missile_SpellScript);
+            PrepareSpellScript(spell_fire_storm_missile_SpellScript)
 
             void HandleOnHit()
             {

@@ -712,7 +712,7 @@ class iron_docks_nokgar_spell_intimidated : public SpellScriptLoader
 
         class iron_docks_nokgar_spell_intimidated_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_nokgar_spell_intimidated_SpellScript);
+            PrepareSpellScript(iron_docks_nokgar_spell_intimidated_SpellScript)
 
             SpellCastResult CheckTarget()
             {

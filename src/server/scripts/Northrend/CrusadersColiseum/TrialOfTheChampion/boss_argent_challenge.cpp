@@ -105,7 +105,7 @@ class spell_eadric_radiance: public SpellScriptLoader
         spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_eadric_radiance_SpellScript);
+            PrepareSpellScript(spell_eadric_radiance_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -322,7 +322,7 @@ class spell_paletress_shield: public SpellScriptLoader
 
         class spell_paletress_shieldAuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_paletress_shieldAuraScript);
+            PrepareAuraScript(spell_paletress_shieldAuraScript)
 
             void HandleOnEffectAbsorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {

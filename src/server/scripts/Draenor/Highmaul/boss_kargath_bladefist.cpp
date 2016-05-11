@@ -2802,7 +2802,7 @@ class spell_highmaul_earth_breaker : public SpellScriptLoader
 
         class spell_highmaul_earth_breaker_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_earth_breaker_SpellScript);
+            PrepareSpellScript(spell_highmaul_earth_breaker_SpellScript)
 
             enum eDatas
             {
@@ -2883,7 +2883,7 @@ class spell_highmaul_impale : public SpellScriptLoader
 
         class spell_highmaul_impale_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_impale_AuraScript);
+            PrepareAuraScript(spell_highmaul_impale_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2939,7 +2939,7 @@ class spell_highmaul_fire_pillar_steam_timer : public SpellScriptLoader
 
         class spell_highmaul_fire_pillar_steam_timer_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript);
+            PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2970,7 +2970,7 @@ class spell_highmaul_fire_pillar_activated : public SpellScriptLoader
 
         class spell_highmaul_fire_pillar_activated_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript);
+            PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3015,7 +3015,7 @@ class spell_highmaul_berserker_rush : public SpellScriptLoader
 
         class spell_highmaul_berserker_rush_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_berserker_rush_AuraScript);
+            PrepareAuraScript(spell_highmaul_berserker_rush_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3072,7 +3072,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
         class spell_highmaul_chain_hurl_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript);
+            PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript)
 
             uint8 m_Count;
             uint64 m_Targets[eDatas::MaxAffectedTargets];
@@ -3279,7 +3279,7 @@ class spell_highmaul_vile_breath : public SpellScriptLoader
 
         class spell_highmaul_vile_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_vile_breath_SpellScript);
+            PrepareSpellScript(spell_highmaul_vile_breath_SpellScript)
 
             enum eSpell
             {
@@ -3332,7 +3332,7 @@ class spell_highmaul_obscured : public SpellScriptLoader
 
         class spell_highmaul_obscured_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_obscured_AuraScript);
+            PrepareAuraScript(spell_highmaul_obscured_AuraScript)
 
             uint32 m_UpdateTimer;
 
@@ -3383,7 +3383,7 @@ class spell_highmaul_crowd_minion_killed : public SpellScriptLoader
 
         class spell_highmaul_crowd_minion_killed_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_crowd_minion_killed_SpellScript);
+            PrepareSpellScript(spell_highmaul_crowd_minion_killed_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -3427,7 +3427,7 @@ class spell_highmaul_roar_of_the_crowd : public SpellScriptLoader
 
         class spell_highmaul_roar_of_the_crowd_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript);
+            PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -3483,7 +3483,7 @@ class spell_highmaul_inflamed : public SpellScriptLoader
 
         class spell_highmaul_inflamed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_inflamed_AuraScript);
+            PrepareAuraScript(spell_highmaul_inflamed_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3518,7 +3518,7 @@ class spell_highmaul_heckle : public SpellScriptLoader
 
         class spell_highmaul_heckle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_heckle_SpellScript);
+            PrepareSpellScript(spell_highmaul_heckle_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -3546,7 +3546,7 @@ class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
 
         class spell_highmaul_berserker_rush_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript);
+            PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -3586,7 +3586,7 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
 
         class spell_highmaul_blade_dance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_blade_dance_SpellScript);
+            PrepareSpellScript(spell_highmaul_blade_dance_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -3665,7 +3665,7 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
 
         class spell_highmaul_correct_searchers_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_correct_searchers_SpellScript);
+            PrepareSpellScript(spell_highmaul_correct_searchers_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {

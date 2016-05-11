@@ -462,6 +462,9 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             /// Faerie Swarm - 8 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x100)
                 return 8 * IN_MILLISECONDS;
+            /// Faerie Swarm (Decrease Speed) - 8 seconds in Pvp
+            if (spellproto->Id == 102354)
+                return 8 * IN_MILLISECONDS;
             /// Faerie Fire - 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return 20 * IN_MILLISECONDS;
@@ -5059,6 +5062,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
+            case 114093: ///< Windlash Off-Hand
+            case 114089: ///< Windlash
             case 18500:  ///< Wing Buffet
             case 33086:  ///< Wild Bite
             case 49749:  ///< Piercing Blow
@@ -7203,12 +7208,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
                 break;
+			case 47180:///< Glyph Of Cat Form
+				spellInfo->Stances = 0;
+				break;
             case 108415: ///< Soul Link
             case 108446:
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
+			case 56805: ///< Glyph Of Kick
+				spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
+				spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+				spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+				spellInfo->Effects[2].BasePoints = 0;
+				break;
             default:
                 break;
         }

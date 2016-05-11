@@ -596,7 +596,7 @@ class spell_lodestone_spike: public SpellScriptLoader
 
         class spell_lodestone_spike_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_lodestone_spike_SpellScript);
+            PrepareSpellScript(spell_lodestone_spike_SpellScript)
 
             void HandleOnHit()
             {
@@ -627,7 +627,7 @@ class spell_power_conduit_hangover: public SpellScriptLoader
 
         class spell_power_conduit_hangover_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_power_conduit_hangover_AuraScript);
+            PrepareAuraScript(spell_power_conduit_hangover_AuraScript)
 
             void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -655,7 +655,7 @@ class spell_seal_conduit: public SpellScriptLoader
 
         class spell_seal_conduit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_seal_conduit_SpellScript);
+            PrepareSpellScript(spell_seal_conduit_SpellScript)
 
             void HandleOnHit()
             {
@@ -686,7 +686,7 @@ class spell_electric_pulse: public SpellScriptLoader
 
         class spell_electric_pulse_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_electric_pulse_SpellScript);
+            PrepareSpellScript(spell_electric_pulse_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& p_Targets)
             {

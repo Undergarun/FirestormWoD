@@ -1045,7 +1045,7 @@ class auchindon_teronogor_spell_chaos_wave : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -1075,7 +1075,7 @@ class auchindon_teronogor_spell_demonic_leap : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void HandleAfterHit()
             {
@@ -1306,7 +1306,7 @@ class auchindon_teronogor_seed_of_malevolence : public SpellScriptLoader
 
         class auchindon_auras : public AuraScript
         {
-            PrepareAuraScript(auchindon_auras);
+            PrepareAuraScript(auchindon_auras)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {

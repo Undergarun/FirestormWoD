@@ -463,7 +463,7 @@ class spell_rotface_ooze_flood: public SpellScriptLoader
 
         class spell_rotface_ooze_flood_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_ooze_flood_SpellScript);
+            PrepareSpellScript(spell_rotface_ooze_flood_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -513,7 +513,7 @@ class spell_rotface_mutated_infection: public SpellScriptLoader
 
         class spell_rotface_mutated_infection_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_mutated_infection_SpellScript);
+            PrepareSpellScript(spell_rotface_mutated_infection_SpellScript)
 
             bool Load()
             {
@@ -573,7 +573,7 @@ class spell_rotface_little_ooze_combine: public SpellScriptLoader
 
         class spell_rotface_little_ooze_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_little_ooze_combine_SpellScript);
+            PrepareSpellScript(spell_rotface_little_ooze_combine_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -605,7 +605,7 @@ class spell_rotface_large_ooze_combine: public SpellScriptLoader
 
         class spell_rotface_large_ooze_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_large_ooze_combine_SpellScript);
+            PrepareSpellScript(spell_rotface_large_ooze_combine_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -665,7 +665,7 @@ class spell_rotface_large_ooze_buff_combine: public SpellScriptLoader
 
         class spell_rotface_large_ooze_buff_combine_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript);
+            PrepareSpellScript(spell_rotface_large_ooze_buff_combine_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -720,7 +720,7 @@ class spell_rotface_unstable_ooze_explosion_init: public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_init_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init_SpellScript);
+            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_init_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -760,7 +760,7 @@ class spell_rotface_unstable_ooze_explosion: public SpellScriptLoader
 
         class spell_rotface_unstable_ooze_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_SpellScript);
+            PrepareSpellScript(spell_rotface_unstable_ooze_explosion_SpellScript)
 
             void CheckTarget(SpellEffIndex effIndex)
             {
@@ -830,7 +830,7 @@ class spell_rotface_slime_spray: public SpellScriptLoader
 
         class spell_rotface_slime_spray_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
+            PrepareSpellScript(spell_rotface_slime_spray_SpellScript)
 
             void ChangeOrientation()
             {

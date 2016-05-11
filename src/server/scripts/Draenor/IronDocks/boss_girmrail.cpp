@@ -831,7 +831,7 @@ class iron_docks_grimrail_spell_sanguine_sphere : public SpellScriptLoader
 
         class iron_docks_grimrail_spell_sanguine_sphere_AuraScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_grimrail_spell_sanguine_sphere_AuraScript);
+            PrepareAuraScript(iron_docks_grimrail_spell_sanguine_sphere_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -889,7 +889,7 @@ public:
 
     class iron_docks_grimrail_spell_big_boom_SpellScript : public SpellScript
     {
-        PrepareSpellScript(iron_docks_grimrail_spell_big_boom_SpellScript);
+        PrepareSpellScript(iron_docks_grimrail_spell_big_boom_SpellScript)
 
         enum eSpells
         {

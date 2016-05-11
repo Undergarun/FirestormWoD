@@ -2429,7 +2429,7 @@ class spell_highmaul_mark_of_chaos : public SpellScriptLoader
 
         class spell_highmaul_mark_of_chaos_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_mark_of_chaos_AuraScript);
+            PrepareAuraScript(spell_highmaul_mark_of_chaos_AuraScript)
 
             void AfterAuraRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2464,7 +2464,7 @@ class spell_highmaul_destructive_resonance : public SpellScriptLoader
 
         class spell_highmaul_destructive_resonance_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_destructive_resonance_AuraScript);
+            PrepareAuraScript(spell_highmaul_destructive_resonance_AuraScript)
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
@@ -2520,7 +2520,7 @@ class spell_highmaul_branded : public SpellScriptLoader
 
         class spell_highmaul_branded_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_branded_AuraScript);
+            PrepareAuraScript(spell_highmaul_branded_AuraScript)
 
             void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2618,7 +2618,7 @@ class spell_highmaul_branded_displacement : public SpellScriptLoader
 
         class spell_highmaul_branded_displacement_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_branded_displacement_AuraScript);
+            PrepareAuraScript(spell_highmaul_branded_displacement_AuraScript)
 
             Position m_MarkPos;
 
@@ -2739,7 +2739,7 @@ class spell_highmaul_branded_fortification : public SpellScriptLoader
 
         class spell_highmaul_branded_fortification_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_branded_fortification_AuraScript);
+            PrepareAuraScript(spell_highmaul_branded_fortification_AuraScript)
 
             void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2835,7 +2835,7 @@ class spell_highmaul_branded_replication : public SpellScriptLoader
 
         class spell_highmaul_branded_replication_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_branded_replication_AuraScript);
+            PrepareAuraScript(spell_highmaul_branded_replication_AuraScript)
 
             void AfterAuraRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2955,7 +2955,7 @@ class spell_highmaul_arcane_wrath_damage : public SpellScriptLoader
 
         class spell_highmaul_arcane_wrath_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_arcane_wrath_damage_SpellScript);
+            PrepareSpellScript(spell_highmaul_arcane_wrath_damage_SpellScript)
 
             void HandleDamage()
             {
@@ -3014,7 +3014,7 @@ class spell_highmaul_transition_visuals : public SpellScriptLoader
 
         class spell_highmaul_transition_visuals_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_transition_visuals_AuraScript);
+            PrepareAuraScript(spell_highmaul_transition_visuals_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -3077,7 +3077,7 @@ class spell_highmaul_dominance_aura : public SpellScriptLoader
 
         class spell_highmaul_dominance_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_dominance_aura_AuraScript);
+            PrepareAuraScript(spell_highmaul_dominance_aura_AuraScript)
 
             enum eSpell
             {
@@ -3164,7 +3164,7 @@ class spell_highmaul_force_nova_fortified : public SpellScriptLoader
 
         class spell_highmaul_force_nova_fortified_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_force_nova_fortified_AuraScript);
+            PrepareAuraScript(spell_highmaul_force_nova_fortified_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -3192,7 +3192,7 @@ class spell_highmaul_devastating_shockwave : public SpellScriptLoader
 
         class spell_highmaul_devastating_shockwave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_devastating_shockwave_SpellScript);
+            PrepareSpellScript(spell_highmaul_devastating_shockwave_SpellScript)
 
             enum eSpell
             {
@@ -3260,7 +3260,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
 
         class spell_highmaul_force_nova_dot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_force_nova_dot_AuraScript);
+            PrepareAuraScript(spell_highmaul_force_nova_dot_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -3315,7 +3315,7 @@ class spell_highmaul_orbs_of_chaos_aura : public SpellScriptLoader
 
         class spell_highmaul_orbs_of_chaos_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_orbs_of_chaos_aura_AuraScript);
+            PrepareAuraScript(spell_highmaul_orbs_of_chaos_aura_AuraScript)
 
             void AfterAuraRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -3386,7 +3386,7 @@ class spell_highmaul_volatile_anomalies : public SpellScriptLoader
 
         class spell_highmaul_volatile_anomalies_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_volatile_anomalies_AuraScript);
+            PrepareAuraScript(spell_highmaul_volatile_anomalies_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {

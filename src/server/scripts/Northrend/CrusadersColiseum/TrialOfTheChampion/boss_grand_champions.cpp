@@ -1141,7 +1141,7 @@ class spell_toc5_ride_mount: public SpellScriptLoader
 
         class spell_toc5_ride_mount_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc5_ride_mount_SpellScript);
+            PrepareSpellScript(spell_toc5_ride_mount_SpellScript)
 
             SpellCastResult CheckRequirement()
             {
@@ -1167,7 +1167,7 @@ class spell_toc5_ride_mount: public SpellScriptLoader
 
         class spell_toc5_ride_mount_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_toc5_ride_mount_AuraScript);
+            PrepareAuraScript(spell_toc5_ride_mount_AuraScript)
 
             void HandleOnEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1220,7 +1220,7 @@ class spell_toc5_hex_mending: public SpellScriptLoader
 
         class spell_toc5_hex_mending_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_toc5_hex_mending_AuraScript);
+            PrepareAuraScript(spell_toc5_hex_mending_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

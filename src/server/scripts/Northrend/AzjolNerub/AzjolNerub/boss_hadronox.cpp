@@ -464,7 +464,7 @@ class spell_hadronox_leech_poison: public SpellScriptLoader
 
         class spell_hadronox_leech_poison_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_hadronox_leech_poison_AuraScript);
+            PrepareAuraScript(spell_hadronox_leech_poison_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

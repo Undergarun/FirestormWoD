@@ -1168,7 +1168,7 @@ class spell_chogall_conversion: public SpellScriptLoader
 
         class spell_chogall_conversion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_conversion_SpellScript);
+            PrepareSpellScript(spell_chogall_conversion_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1199,7 +1199,7 @@ class spell_chogall_summon_corrupting_adherent: public SpellScriptLoader
 
         class spell_chogall_summon_corrupting_adherent_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_summon_corrupting_adherent_SpellScript);
+            PrepareSpellScript(spell_chogall_summon_corrupting_adherent_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1228,7 +1228,7 @@ class spell_chogall_fester_blood_script: public SpellScriptLoader
 
         class spell_chogall_fester_blood_script_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_fester_blood_script_SpellScript);
+            PrepareSpellScript(spell_chogall_fester_blood_script_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1258,7 +1258,7 @@ class spell_chogall_corruption_accelerated_corruption: public SpellScriptLoader
 
         class spell_chogall_corruption_accelerated_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corruption_accelerated_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corruption_accelerated_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1287,7 +1287,7 @@ class spell_chogall_corruption_sickness_corruption: public SpellScriptLoader
 
         class spell_chogall_corruption_sickness_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corruption_sickness_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corruption_sickness_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1317,7 +1317,7 @@ class spell_chogall_corrupting_crash_corruption: public SpellScriptLoader
 
         class spell_chogall_corrupting_crash_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corrupting_crash_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corrupting_crash_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1346,7 +1346,7 @@ class spell_chogall_depravity_corruption: public SpellScriptLoader
 
         class spell_chogall_depravity_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_depravity_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_depravity_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1375,7 +1375,7 @@ class spell_chogall_sprayed_corruption_corruption: public SpellScriptLoader
 
         class spell_chogall_sprayed_corruption_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_sprayed_corruption_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_sprayed_corruption_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1404,7 +1404,7 @@ class spell_chogall_spilled_blood_of_the_old_god_corruption: public SpellScriptL
 
         class spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_spilled_blood_of_the_old_god_corruption_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -1433,7 +1433,7 @@ class spell_chogall_corruption_of_the_old_god_corruption: public SpellScriptLoad
 
         class spell_chogall_corruption_of_the_old_god_corruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chogall_corruption_of_the_old_god_corruption_SpellScript);
+            PrepareSpellScript(spell_chogall_corruption_of_the_old_god_corruption_SpellScript)
 
             void OnCast()
             {
@@ -1476,7 +1476,7 @@ class spell_chogall_worshipping: public SpellScriptLoader
 
         class spell_chogall_worshipping_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_chogall_worshipping_AuraScript);
+            PrepareAuraScript(spell_chogall_worshipping_AuraScript)
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1518,7 +1518,7 @@ class spell_chogall_festering_blood : public SpellScriptLoader
 
         class spell_chogall_festering_blood_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_chogall_festering_blood_AuraScript);
+            PrepareAuraScript(spell_chogall_festering_blood_AuraScript)
 
             enum eData
             {

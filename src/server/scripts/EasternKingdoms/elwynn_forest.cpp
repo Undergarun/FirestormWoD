@@ -252,7 +252,7 @@ class spell_quest_fear_no_evil: public SpellScriptLoader
 
         class spell_quest_fear_no_evil_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_quest_fear_no_evil_SpellScript);
+            PrepareSpellScript(spell_quest_fear_no_evil_SpellScript)
 
             void OnDummy(SpellEffIndex /*effIndex*/)
             {
@@ -286,7 +286,7 @@ class spell_quest_extincteur: public SpellScriptLoader
 
         class spell_quest_extincteur_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_quest_extincteur_AuraScript);
+            PrepareAuraScript(spell_quest_extincteur_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

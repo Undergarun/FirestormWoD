@@ -848,7 +848,7 @@ public:
 
     class the_everbloom_witherbark_aura_brittle_bark_AuraScript : public AuraScript
     {
-        PrepareAuraScript(the_everbloom_witherbark_aura_brittle_bark_AuraScript);
+        PrepareAuraScript(the_everbloom_witherbark_aura_brittle_bark_AuraScript)
 
         void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
@@ -890,7 +890,7 @@ public:
 
     class the_everbloom_witherbark_spell_agitated_waters_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_witherbark_spell_agitated_waters_SpellScript);
+        PrepareSpellScript(the_everbloom_witherbark_spell_agitated_waters_SpellScript)
 
         SpellCastResult CheckCast()
         {
@@ -933,7 +933,7 @@ public:
 
     class the_everbloom_spell_living_leaves_dummy_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_spell_living_leaves_dummy_SpellScript);
+        PrepareSpellScript(the_everbloom_spell_living_leaves_dummy_SpellScript)
 
         void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {

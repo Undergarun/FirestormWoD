@@ -273,7 +273,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_stables_lasso_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_garrison_stables_lasso_AuraScript);
+                PrepareAuraScript(spell_garrison_stables_lasso_AuraScript)
 
                 void OnTick(AuraEffect const* /*p_AurEff*/)
                 {
@@ -315,7 +315,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_stables_lasso_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_stables_lasso_SpellScript);
+                PrepareSpellScript(spell_garrison_stables_lasso_SpellScript)
 
                 enum eEntries
                 {
@@ -371,7 +371,7 @@ namespace MS { namespace Garrison
 
             class spell_aura_sticky_grenade_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_aura_sticky_grenade_AuraScript);
+                PrepareAuraScript(spell_aura_sticky_grenade_AuraScript)
 
                 enum eDatas
                 {
@@ -404,7 +404,7 @@ namespace MS { namespace Garrison
 
             class spell_pneumatic_power_gauntlet_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_pneumatic_power_gauntlet_SpellScript);
+                PrepareSpellScript(spell_pneumatic_power_gauntlet_SpellScript)
 
                 void OnSpellHit(SpellEffIndex)
                 {
@@ -436,7 +436,7 @@ namespace MS { namespace Garrison
 
             class spell_GarrisonRouseTrader_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript);
+                PrepareSpellScript(spell_GarrisonRouseTrader_SpellScript)
 
                 SpellCastResult CheckCast()
                 {
@@ -482,7 +482,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_well_rested_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_garrison_well_rested_AuraScript);
+                PrepareAuraScript(spell_garrison_well_rested_AuraScript)
 
                 enum eSpells
                 {
@@ -519,7 +519,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_tent_spawn_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_tent_spawn_SpellScript);
+                PrepareSpellScript(spell_garrison_tent_spawn_SpellScript)
 
                 SpellCastResult CheckCast()
                 {
@@ -552,7 +552,7 @@ namespace MS { namespace Garrison
 
             class spell_aura_garrison_skyterror_falling_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript);
+                PrepareAuraScript(spell_aura_garrison_skyterror_falling_AuraScript)
 
                 void OnUpdate(uint32 /*p_Diff*/)
                 {
@@ -586,7 +586,7 @@ namespace MS { namespace Garrison
 
             class spell_garrison_combine_scribe_items_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript);
+                PrepareSpellScript(spell_garrison_combine_scribe_items_SpellScript)
 
                 void OnSpellHit(SpellEffIndex)
                 {

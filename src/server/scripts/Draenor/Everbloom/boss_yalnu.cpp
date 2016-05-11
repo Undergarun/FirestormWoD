@@ -992,7 +992,7 @@ public:
 
     class the_everbloom_yalnu_spell_genesis_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_yalnu_spell_genesis_SpellScript);
+        PrepareSpellScript(the_everbloom_yalnu_spell_genesis_SpellScript)
 
         enum eGenesisSpells
         {
@@ -1029,7 +1029,7 @@ public:
 
     class the_everbloom_yalnu_spell_font_of_life_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_yalnu_spell_font_of_life_SpellScript);
+        PrepareSpellScript(the_everbloom_yalnu_spell_font_of_life_SpellScript)
 
         enum eFontOfLifeSpells
         {
@@ -1090,7 +1090,7 @@ public:
 
     class the_everbloom_yalnu_spell_colossal_blow_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_yalnu_spell_colossal_blow_SpellScript);
+        PrepareSpellScript(the_everbloom_yalnu_spell_colossal_blow_SpellScript)
 
         void HandleOnHit()
         {

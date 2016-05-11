@@ -346,7 +346,7 @@ class spell_captain_cookie_setiated: public SpellScriptLoader
 
         class spell_captain_cookie_setiated_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_captain_cookie_setiated_SpellScript);
+            PrepareSpellScript(spell_captain_cookie_setiated_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -377,7 +377,7 @@ class spell_captain_cookie_nauseated: public SpellScriptLoader
 
         class spell_captain_cookie_nauseated_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_captain_cookie_nauseated_SpellScript);
+            PrepareSpellScript(spell_captain_cookie_nauseated_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -407,7 +407,7 @@ class spell_captain_cookie_throw_food_targeting: public SpellScriptLoader
 
         class spell_captain_cookie_throw_food_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_captain_cookie_throw_food_targeting_SpellScript);
+            PrepareSpellScript(spell_captain_cookie_throw_food_targeting_SpellScript)
 
             void HandleAfterHit()
             {

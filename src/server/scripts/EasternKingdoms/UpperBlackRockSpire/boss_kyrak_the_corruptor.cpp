@@ -261,7 +261,7 @@ class spell_vilebloom_serum: public SpellScriptLoader
 
         class spell_vilebloom_serum_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vilebloom_serum_SpellScript);
+            PrepareSpellScript(spell_vilebloom_serum_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {

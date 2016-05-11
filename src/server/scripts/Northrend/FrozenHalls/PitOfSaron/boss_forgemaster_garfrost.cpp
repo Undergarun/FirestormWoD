@@ -257,7 +257,7 @@ class spell_garfrost_permafrost: public SpellScriptLoader
 
         class spell_garfrost_permafrost_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_garfrost_permafrost_SpellScript);
+            PrepareSpellScript(spell_garfrost_permafrost_SpellScript)
 
             bool Load()
             {

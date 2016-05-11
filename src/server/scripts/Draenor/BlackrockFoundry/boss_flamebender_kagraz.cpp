@@ -1402,6 +1402,8 @@ class npc_foundry_cinder_wolf : public CreatureScript
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
 
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
+
                 m_Events.Reset();
 
                 me->CastSpell(me, eSpells::ReduceCriticalChance, true);
@@ -1692,7 +1694,7 @@ class spell_foundry_drop_the_hammer_aura : public SpellScriptLoader
 
         class spell_foundry_drop_the_hammer_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_drop_the_hammer_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_drop_the_hammer_aura_AuraScript)
 
             enum eSpell
             {
@@ -1737,7 +1739,7 @@ class spell_foundry_molten_torrent_aura : public SpellScriptLoader
 
         class spell_foundry_molten_torrent_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_molten_torrent_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_molten_torrent_aura_AuraScript)
 
             enum eSpell
             {
@@ -1777,7 +1779,7 @@ class spell_foundry_allow_molten_torrent_cast : public SpellScriptLoader
 
         class spell_foundry_allow_molten_torrent_cast_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_allow_molten_torrent_cast_AuraScript);
+            PrepareAuraScript(spell_foundry_allow_molten_torrent_cast_AuraScript)
 
             void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -1820,7 +1822,7 @@ class spell_foundry_fiery_link : public SpellScriptLoader
 
         class spell_foundry_fiery_link_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_fiery_link_AuraScript);
+            PrepareAuraScript(spell_foundry_fiery_link_AuraScript)
 
             enum eSpell
             {
@@ -1869,7 +1871,7 @@ class spell_foundry_overheated : public SpellScriptLoader
 
         class spell_foundry_overheated_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_overheated_AuraScript);
+            PrepareAuraScript(spell_foundry_overheated_AuraScript)
 
             enum eActions
             {
@@ -1922,7 +1924,7 @@ class spell_foundry_fixate : public SpellScriptLoader
 
         class spell_foundry_fixate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_fixate_SpellScript);
+            PrepareSpellScript(spell_foundry_fixate_SpellScript)
 
             enum eSpell
             {
@@ -1956,7 +1958,7 @@ class spell_foundry_fixate : public SpellScriptLoader
 
         class spell_foundry_fixate_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_fixate_AuraScript);
+            PrepareAuraScript(spell_foundry_fixate_AuraScript)
 
             enum eAction
             {
@@ -1996,7 +1998,7 @@ class spell_foundry_firestorm_aura : public SpellScriptLoader
 
         class spell_foundry_firestorm_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_firestorm_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_firestorm_aura_AuraScript)
 
             enum eAction
             {
@@ -2041,7 +2043,7 @@ class spell_foundry_firestorm_v2_periodic_lava_stalker : public SpellScriptLoade
 
         class spell_foundry_firestorm_v2_periodic_lava_stalker_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_firestorm_v2_periodic_lava_stalker_AuraScript);
+            PrepareAuraScript(spell_foundry_firestorm_v2_periodic_lava_stalker_AuraScript)
 
             enum eSpell
             {
@@ -2104,7 +2106,7 @@ class spell_foundry_firestorm_v2_pick_stalker_to_fire : public SpellScriptLoader
 
         class spell_foundry_firestorm_v2_pick_stalker_to_fire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_firestorm_v2_pick_stalker_to_fire_SpellScript);
+            PrepareSpellScript(spell_foundry_firestorm_v2_pick_stalker_to_fire_SpellScript)
 
             enum eSpell
             {
@@ -2148,7 +2150,7 @@ class spell_foundry_unquenchable_flame_periodic : public SpellScriptLoader
 
         class spell_foundry_unquenchable_flame_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_unquenchable_flame_periodic_AuraScript);
+            PrepareAuraScript(spell_foundry_unquenchable_flame_periodic_AuraScript)
 
             enum eSpell
             {
@@ -2181,7 +2183,7 @@ class spell_foundry_blazing_radiance : public SpellScriptLoader
 
         class spell_foundry_blazing_radiance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_blazing_radiance_SpellScript);
+            PrepareSpellScript(spell_foundry_blazing_radiance_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {

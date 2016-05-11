@@ -345,7 +345,7 @@ class spell_festergut_pungent_blight: public SpellScriptLoader
 
         class spell_festergut_pungent_blight_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript);
+            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript)
 
             bool Load()
             {
@@ -378,7 +378,7 @@ class spell_festergut_gastric_bloat: public SpellScriptLoader
 
         class spell_festergut_gastric_bloat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript);
+            PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -416,7 +416,7 @@ class spell_festergut_blighted_spores: public SpellScriptLoader
 
         class spell_festergut_blighted_spores_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_festergut_blighted_spores_AuraScript);
+            PrepareAuraScript(spell_festergut_blighted_spores_AuraScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {

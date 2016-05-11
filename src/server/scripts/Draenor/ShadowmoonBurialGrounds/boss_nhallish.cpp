@@ -662,7 +662,7 @@ public:
 
     class shadowmoon_burial_grounds_nhalish_spell_void_devestation_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nhalish_spell_void_devestation_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nhalish_spell_void_devestation_SpellScript)
 
         enum eVoidDevestationSpells
         {
@@ -702,7 +702,7 @@ public:
 
     class shadowmoon_burial_grounds_nhalish_spell_void_blast_SpellScript : public AuraScript
     {
-        PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_blast_SpellScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_blast_SpellScript)
 
         enum eVoidBlastSpells
         {
@@ -755,7 +755,7 @@ public:
 
     class shadowmoon_burial_grounds_nhalish_spell_void_vortex_SpellScript : public AuraScript
     {
-        PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_vortex_SpellScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_nhalish_spell_void_vortex_SpellScript)
 
         void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
@@ -803,7 +803,7 @@ public:
 
     class shadowmoon_burial_grounds_nhalish_spell_soul_steal_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nhalish_spell_soul_steal_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nhalish_spell_soul_steal_SpellScript)
 
         enum eSoulStealSpells
         {
@@ -888,7 +888,7 @@ public:
 
     class shadowmoon_burial_grounds_nhalish_spell_planar_shift_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nhalish_spell_planar_shift_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nhalish_spell_planar_shift_SpellScript)
 
         enum ePlanarShiftSpells
         {

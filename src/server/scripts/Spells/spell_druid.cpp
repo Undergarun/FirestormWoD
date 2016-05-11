@@ -852,6 +852,41 @@ enum LifebloomSpells
 };
 
 /// last update : 6.2.3
+/// Germination - 155777
+class spell_dru_germination : public SpellScriptLoader
+{
+    public:
+        spell_dru_germination() : SpellScriptLoader("spell_dru_germination") { }
+
+        class spell_dru_germination_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_germination_AuraScript);
+            void HandleCalculateAmount(AuraEffect const* p_AurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    ///If soul of the forest is activated we increase the heal by 100%
+                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                    {
+                        amount *= 2;
+                        l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_germination_AuraScript::HandleCalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_germination_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
 /// Rejuvenation - 774 (germination effect)
 class spell_dru_rejuvenation : public SpellScriptLoader
 {
@@ -879,6 +914,15 @@ public:
 
             if (l_RejuvenationAura && m_RejuvenationAura > 0)
                 l_RejuvenationAura->SetDuration(m_RejuvenationAura);
+
+            if (AuraEffect* l_NewRejuvenationAuraEffect = l_Target->GetAuraEffect(SPELL_DRUID_REJUVENATION, EFFECT_0))
+            {
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                {
+                    l_NewRejuvenationAuraEffect->SetAmount(l_NewRejuvenationAuraEffect->GetAmount() * 2);
+                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                }
+            }
         }
 
         void HandleBeforeHit()
@@ -900,10 +944,8 @@ public:
 
                 if (!l_Target->HasAura(SPELL_DRUID_GERMINATION))
                 {
-                    l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
+                    l_Caster->CastSpell(l_Target, SPELL_DRUID_GERMINATION, true);
                     m_RejuvenationAura = l_RejuvenationAura->GetDuration();
-                    if (AuraEffect const* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
-                        m_RejuvenationAuraAmount = l_AuraEffect->GetAmount();
                 }
                 else
                 {
@@ -914,13 +956,13 @@ public:
                         int32 l_GerminationDuration = l_GerminationAura->GetDuration();
                         int32 l_RejuvenationDuration = l_RejuvenationAura->GetDuration();
                         if (l_GerminationDuration > l_RejuvenationDuration)
+                        {
                             l_Caster->AddAura(SPELL_DRUID_REJUVENATION, l_Target);
+                        }
                         else
                         {
-                            l_Caster->AddAura(SPELL_DRUID_GERMINATION, l_Target);
+                            l_Caster->CastSpell(l_Target, SPELL_DRUID_GERMINATION, true);
                             m_RejuvenationAura = l_RejuvenationDuration;
-                            if (AuraEffect const* l_AuraEffect = l_RejuvenationAura->GetEffect(EFFECT_0))
-                                m_RejuvenationAuraAmount = l_AuraEffect->GetAmount();
                         }
                     }
                 }
@@ -949,7 +991,7 @@ public:
             if (Unit* l_Caster = GetCaster())
             {
                 ///If soul of the forest is activated we increase the heal by 100%
-                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO) && !l_Caster->HasAura(SPELL_DRUID_REJUVENATION))
                 {
                     amount *= 2;
                     l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
@@ -1598,6 +1640,8 @@ class spell_dru_cat_form: public SpellScriptLoader
 
                 if (l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm) && !l_Target->HasAura(eSpells::GlyphOfCatForm))
                     l_Target->AddAura(eSpells::GlyphOfCatForm, l_Target);
+                else if (!l_Target->ToPlayer()->HasGlyph(eSpells::GlyphOfCatForm))
+                    l_Target->RemoveAura(eSpells::GlyphOfCatForm);
             }
 
             void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
@@ -5978,9 +6022,51 @@ public:
     }
 };
 
+class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
+{
+public:
+	spell_dru_glyph_of_charm_woodland_creature() : SpellScriptLoader("spell_dru_glyph_of_charm_woodland_creature") { }
+
+	class spell_dru_glyph_of_charm_woodland_creature_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_dru_glyph_of_charm_woodland_creature_AuraScript);
+
+		enum eSpells
+		{
+			GlyphOfCharmWoodlandCreature = 57855,
+			CharmWoodlandCreature = 127757
+		};
+
+		void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
+				l_Player->learnSpell(CharmWoodlandCreature, true);
+		}
+
+		void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+		{
+			if (Player* l_Player = GetCaster()->ToPlayer())
+				l_Player->removeSpell(CharmWoodlandCreature);
+		}
+
+		void Register()
+		{
+			AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+			AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
+	}
+};
+
 #ifndef __clang_analyzer__
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_germination();
+	new spell_dru_glyph_of_charm_woodland_creature();
     new spell_dru_one_with_nature_glyph();
     new spell_dru_one_with_nature();
     new spell_dru_living_seed();

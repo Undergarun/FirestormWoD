@@ -110,7 +110,7 @@ class spell_voodoo: public SpellScriptLoader
 
         class spell_voodoo_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_voodoo_SpellScript);
+            PrepareSpellScript(spell_voodoo_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {

@@ -1885,7 +1885,7 @@ class spell_twilight_enforcer_meat_grinder: public SpellScriptLoader
 
         class spell_twilight_enforcer_meat_grinder_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_twilight_enforcer_meat_grinder_AuraScript);
+            PrepareAuraScript(spell_twilight_enforcer_meat_grinder_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1915,7 +1915,7 @@ class spell_twilight_shadow_weaver_shadow_weave: public SpellScriptLoader
 
         class spell_twilight_shadow_weaver_shadow_weave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_twilight_shadow_weaver_shadow_weave_SpellScript);
+            PrepareSpellScript(spell_twilight_shadow_weaver_shadow_weave_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1947,7 +1947,7 @@ class spell_twilight_thundercaller_electric_blast: public SpellScriptLoader
 
         class spell_twilight_thundercaller_electric_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_twilight_thundercaller_electric_blast_SpellScript);
+            PrepareSpellScript(spell_twilight_thundercaller_electric_blast_SpellScript)
 
 
             void HandleScript()

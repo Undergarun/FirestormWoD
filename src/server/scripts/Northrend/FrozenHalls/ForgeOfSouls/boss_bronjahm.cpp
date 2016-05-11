@@ -269,7 +269,7 @@ class spell_bronjahm_magic_bane: public SpellScriptLoader
 
         class spell_bronjahm_magic_bane_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
+            PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript)
 
             void RecalculateDamage()
             {
@@ -303,7 +303,7 @@ class spell_bronjahm_consume_soul: public SpellScriptLoader
 
         class spell_bronjahm_consume_soul_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_consume_soul_SpellScript);
+            PrepareSpellScript(spell_bronjahm_consume_soul_SpellScript)
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -330,7 +330,7 @@ class spell_bronjahm_soulstorm_channel: public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_channel_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_bronjahm_soulstorm_channel_AuraScript);
+            PrepareAuraScript(spell_bronjahm_soulstorm_channel_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -358,7 +358,7 @@ class spell_bronjahm_soulstorm_visual: public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_visual_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript);
+            PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
@@ -404,7 +404,7 @@ class spell_bronjahm_soulstorm_targeting: public SpellScriptLoader
 
         class spell_bronjahm_soulstorm_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript);
+            PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript)
 
             void FilterTargetsInitial(std::list<WorldObject*>& targets)
             {

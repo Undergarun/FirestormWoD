@@ -219,7 +219,7 @@ class spell_silverlaine_summon_worgen_spirit: public SpellScriptLoader
 
         class spell_silverlaine_summon_worgen_spirit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_silverlaine_summon_worgen_spirit_SpellScript);
+            PrepareSpellScript(spell_silverlaine_summon_worgen_spirit_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)

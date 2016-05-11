@@ -74,7 +74,7 @@ class spell_groog_rampage : public SpellScriptLoader
 
         class spell_groog_rampage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_groog_rampage_AuraScript);
+            PrepareAuraScript(spell_groog_rampage_AuraScript)
 
             void OnTick(AuraEffect const* /*aurEff*/)
             {

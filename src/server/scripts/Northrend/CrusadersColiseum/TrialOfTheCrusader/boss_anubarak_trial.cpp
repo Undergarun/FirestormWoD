@@ -827,7 +827,7 @@ class spell_impale: public SpellScriptLoader
 
         class spell_impale_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_impale_SpellScript);
+            PrepareSpellScript(spell_impale_SpellScript)
 
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {

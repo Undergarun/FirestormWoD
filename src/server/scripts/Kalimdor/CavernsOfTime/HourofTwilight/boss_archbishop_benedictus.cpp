@@ -336,7 +336,7 @@ class spell_archbishop_benedictus_purifying_light_targeting: public SpellScriptL
 
         class spell_archbishop_benedictus_purifying_light_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_archbishop_benedictus_purifying_light_targeting_SpellScript);
+            PrepareSpellScript(spell_archbishop_benedictus_purifying_light_targeting_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -366,7 +366,7 @@ class spell_archbishop_benedictus_righteous_snear_aoe: public SpellScriptLoader
 
         class spell_archbishop_benedictus_righteous_snear_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_archbishop_benedictus_righteous_snear_aoe_SpellScript);
+            PrepareSpellScript(spell_archbishop_benedictus_righteous_snear_aoe_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

@@ -280,7 +280,7 @@ class spell_arcurion_icy_boulder: public SpellScriptLoader
 
         class spell_arcurion_icy_boulder_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_arcurion_icy_boulder_SpellScript);
+            PrepareSpellScript(spell_arcurion_icy_boulder_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {

@@ -740,7 +740,7 @@ public:
 
     class the_everbloom_ancient_protectors_spell_rending_charge_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_ancient_protectors_spell_rending_charge_SpellScript);
+        PrepareSpellScript(the_everbloom_ancient_protectors_spell_rending_charge_SpellScript)
 
         enum eSpellRendingCharge
         {
@@ -776,7 +776,7 @@ public:
 
     class the_everbloom_ancient_protectors_spell_rapid_tides_AuraScript : public AuraScript
     {
-        PrepareAuraScript(the_everbloom_ancient_protectors_spell_rapid_tides_AuraScript);
+        PrepareAuraScript(the_everbloom_ancient_protectors_spell_rapid_tides_AuraScript)
 
         void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {

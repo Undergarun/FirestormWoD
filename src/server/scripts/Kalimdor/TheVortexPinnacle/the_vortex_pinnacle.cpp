@@ -1141,7 +1141,7 @@ class spell_minister_of_air_lightning_lash: public SpellScriptLoader
 
         class spell_minister_of_air_lightning_lash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_minister_of_air_lightning_lash_SpellScript);
+            PrepareSpellScript(spell_minister_of_air_lightning_lash_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)

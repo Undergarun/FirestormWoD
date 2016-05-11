@@ -22,7 +22,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -62,7 +62,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -102,7 +102,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -134,7 +134,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void CheckTarget(std::list<WorldObject*>& unitList)
                     {
@@ -174,7 +174,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {
@@ -215,7 +215,7 @@ namespace MS
 
                 class spell_SpellScript : public SpellScript
                 {
-                    PrepareSpellScript(spell_SpellScript);
+                    PrepareSpellScript(spell_SpellScript)
 
                     void HandleDummy(SpellEffIndex /*effIndex*/)
                     {

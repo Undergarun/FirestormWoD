@@ -220,7 +220,7 @@ class boss_hansgar : public CreatureScript
                 RespawnBrothers(me, m_Instance);
             }
 
-            void JustDied(Unit* /*p_Killer*/) override
+            void JustDied(Unit* p_Killer) override
             {
                 me->RemoveAllAreasTrigger();
 
@@ -234,6 +234,12 @@ class boss_hansgar : public CreatureScript
 
                 if (m_Instance != nullptr)
                 {
+                    if (Creature* l_Brother = GetBrother(me, m_Instance))
+                    {
+                        if (l_Brother->isAlive())
+                            p_Killer->Kill(l_Brother);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ShatteredVertebrae);
@@ -1192,7 +1198,7 @@ class boss_franzok : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void JustDied(Unit* /*p_Killer*/) override
+            void JustDied(Unit* p_Killer) override
             {
                 me->RemoveAllAreasTrigger();
 
@@ -1205,7 +1211,15 @@ class boss_franzok : public CreatureScript
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 if (m_Instance != nullptr)
+                {
+                    if (Creature* l_Brother = GetBrother(me, m_Instance))
+                    {
+                        if (l_Brother->isAlive())
+                            p_Killer->Kill(l_Brother);
+                    }
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+                }
             }
 
             void OnSpellCasted(SpellInfo const* p_SpellInfo) override
@@ -2223,7 +2237,7 @@ class spell_foundry_pumped_up : public SpellScriptLoader
 
         class spell_foundry_pumped_up_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_pumped_up_AuraScript);
+            PrepareAuraScript(spell_foundry_pumped_up_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -2265,7 +2279,7 @@ class spell_foundry_crippling_suplex : public SpellScriptLoader
 
         class spell_foundry_crippling_suplex_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_crippling_suplex_SpellScript);
+            PrepareSpellScript(spell_foundry_crippling_suplex_SpellScript)
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2312,7 +2326,7 @@ class spell_foundry_body_slam_red_arrow : public SpellScriptLoader
 
         class spell_foundry_body_slam_red_arrow_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_body_slam_red_arrow_AuraScript);
+            PrepareAuraScript(spell_foundry_body_slam_red_arrow_AuraScript)
 
             enum eSpell
             {

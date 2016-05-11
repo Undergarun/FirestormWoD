@@ -1301,7 +1301,7 @@ class spell_valiona_blackout: public SpellScriptLoader
 
         class spell_valiona_blackout_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_blackout_AuraScript);
+            PrepareAuraScript(spell_valiona_blackout_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1331,7 +1331,7 @@ class spell_valiona_twilight_meteorite: public SpellScriptLoader
 
         class spell_valiona_twilight_meteorite_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_valiona_twilight_meteorite_AuraScript);
+            PrepareAuraScript(spell_valiona_twilight_meteorite_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1361,7 +1361,7 @@ class spell_valiona_twilight_flame_dmg_1: public SpellScriptLoader
 
         class spell_valiona_twilight_flame_dmg_1_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_flame_dmg_1_SpellScript);
+            PrepareSpellScript(spell_valiona_twilight_flame_dmg_1_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1396,7 +1396,7 @@ class spell_valiona_twilight_flame_dmg_2: public SpellScriptLoader
 
         class spell_valiona_twilight_flame_dmg_2_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_twilight_flame_dmg_2_SpellScript);
+            PrepareSpellScript(spell_valiona_twilight_flame_dmg_2_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1435,7 +1435,7 @@ class spell_theralion_dazzling_destruction: public SpellScriptLoader
 
         class spell_theralion_dazzling_destruction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_SpellScript);
+            PrepareSpellScript(spell_theralion_dazzling_destruction_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1466,7 +1466,7 @@ class spell_theralion_dazzling_destruction_dmg: public SpellScriptLoader
 
         class spell_theralion_dazzling_destruction_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_theralion_dazzling_destruction_dmg_SpellScript);
+            PrepareSpellScript(spell_theralion_dazzling_destruction_dmg_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1500,7 +1500,7 @@ class spell_valiona_devouring_flames_dmg: public SpellScriptLoader
 
         class spell_valiona_devouring_flames_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_valiona_devouring_flames_dmg_SpellScript);
+            PrepareSpellScript(spell_valiona_devouring_flames_dmg_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1534,7 +1534,7 @@ class spell_twilight_shift_stack: public SpellScriptLoader
 
         class spell_twilight_shift_stack_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_twilight_shift_stack_SpellScript);
+            PrepareSpellScript(spell_twilight_shift_stack_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1575,7 +1575,7 @@ class spell_shifting_reality: public SpellScriptLoader
 
         class spell_shifting_reality_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shifting_reality_SpellScript);
+            PrepareSpellScript(spell_shifting_reality_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)

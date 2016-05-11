@@ -448,7 +448,7 @@ class spell_venoxis_toxic_link: public SpellScriptLoader
 
         class spell_venoxis_toxic_link_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_venoxis_toxic_link_SpellScript);
+            PrepareSpellScript(spell_venoxis_toxic_link_SpellScript)
             
             bool Load()
             {
@@ -510,7 +510,7 @@ class spell_venoxis_toxic_link_aura: public SpellScriptLoader
 
         class spell_venoxis_toxic_link_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_venoxis_toxic_link_aura_AuraScript);
+            PrepareAuraScript(spell_venoxis_toxic_link_aura_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -580,7 +580,7 @@ class spell_venoxis_pool_of_acid_tears_dmg: public SpellScriptLoader
 
         class spell_venoxis_pool_of_acid_tears_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_venoxis_pool_of_acid_tears_dmg_SpellScript);
+            PrepareSpellScript(spell_venoxis_pool_of_acid_tears_dmg_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {

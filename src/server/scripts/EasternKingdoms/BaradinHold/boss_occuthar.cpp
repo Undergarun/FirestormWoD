@@ -221,7 +221,7 @@ class spell_occuthar_eye_of_occuthar: public SpellScriptLoader
 
         class spell_occuthar_eye_of_occuthar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_occuthar_eye_of_occuthar_SpellScript);
+            PrepareSpellScript(spell_occuthar_eye_of_occuthar_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {

@@ -856,7 +856,7 @@ class spell_burning_breath: public SpellScriptLoader
 
         class spell_burning_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_burning_breath_SpellScript);
+            PrepareSpellScript(spell_burning_breath_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {

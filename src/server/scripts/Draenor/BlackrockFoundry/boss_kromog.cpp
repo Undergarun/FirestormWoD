@@ -1025,7 +1025,7 @@ class spell_foundry_slam : public SpellScriptLoader
 
         class spell_foundry_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_slam_SpellScript);
+            PrepareSpellScript(spell_foundry_slam_SpellScript)
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -1078,7 +1078,7 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
 
         class spell_foundry_fists_of_stone_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript);
+            PrepareAuraScript(spell_foundry_fists_of_stone_AuraScript)
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
             {
@@ -1120,7 +1120,7 @@ class spell_foundry_rune_of_grasping_earth : public SpellScriptLoader
 
         class spell_foundry_rune_of_grasping_earth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_rune_of_grasping_earth_SpellScript);
+            PrepareSpellScript(spell_foundry_rune_of_grasping_earth_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1169,7 +1169,7 @@ class spell_foundry_rune_of_crushing_earth : public SpellScriptLoader
 
         class spell_foundry_rune_of_crushing_earth_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_rune_of_crushing_earth_SpellScript);
+            PrepareSpellScript(spell_foundry_rune_of_crushing_earth_SpellScript)
 
             enum eSpell
             {
@@ -1227,7 +1227,7 @@ class spell_foundry_rune_of_grasping_earth_dot : public SpellScriptLoader
 
         class spell_foundry_rune_of_grasping_earth_dot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript);
+            PrepareAuraScript(spell_foundry_rune_of_grasping_earth_dot_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {

@@ -446,7 +446,7 @@ class spell_erudax_shadow_gale: public SpellScriptLoader
 
         class spell_erudax_shadow_gale_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_erudax_shadow_gale_SpellScript);
+            PrepareSpellScript(spell_erudax_shadow_gale_SpellScript)
 
 
             void HandleScript()

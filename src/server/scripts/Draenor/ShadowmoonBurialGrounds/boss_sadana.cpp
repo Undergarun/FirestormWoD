@@ -1051,7 +1051,7 @@ class shadowmoon_burial_grounds_sadana_spell_shadow_burn : public SpellScriptLoa
 
     class shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_shadow_burn_SpellScript)
 
         SpellCastResult CheckCaster()
         {
@@ -1085,7 +1085,7 @@ class shadowmoon_burial_grounds_sadana_spell_dark_communion : public SpellScript
 
     class shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript : public AuraScript
     {
-        PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_communion_AuraScript)
 
         void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
@@ -1149,7 +1149,7 @@ class shadowmoon_burial_grounds_sadana_spell_dark_eclipse : public SpellScriptLo
 
     class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript : public AuraScript
     {
-        PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_AuraScript)
 
         void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
@@ -1193,7 +1193,7 @@ class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damage : public SpellS
 
     class shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_sadana_spell_dark_eclipse_damageSpellScript)
 
         enum eEclipseSpells
         {

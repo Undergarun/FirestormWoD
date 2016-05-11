@@ -806,7 +806,7 @@ public:
 
     class shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_omen_of_death_SpellScript)
 
         void HandleSummon(SpellEffIndex p_EffIndex)
         {
@@ -856,7 +856,7 @@ public:
 
     class shadowmoon_burial_grounds_nerzul_spell_omen_of_death_damage_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_omen_of_death_damage_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_omen_of_death_damage_SpellScript)
 
         enum eEclipseSpells
         {
@@ -902,7 +902,7 @@ public:
 
     class shadowmoon_burial_grounds_nerzul_spell_maleovlence_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_maleovlence_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_maleovlence_SpellScript)
 
         std::list<WorldObject*> m_RealList;
 
@@ -961,7 +961,7 @@ public:
 
     class shadowmoon_burial_grounds_nerzul_spell_purple_beam_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_purple_beam_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_nerzul_spell_purple_beam_SpellScript)
         
         std::list<WorldObject*> m_RealList;
 

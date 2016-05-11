@@ -203,7 +203,7 @@ class spell_trash_mob_glacial_strike: public SpellScriptLoader
 
         class spell_trash_mob_glacial_strike_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript);
+            PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript)
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {

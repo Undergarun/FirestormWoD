@@ -252,7 +252,7 @@ class spell_throngus_pick_weapon: public SpellScriptLoader
 
         class spell_throngus_pick_weapon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_throngus_pick_weapon_SpellScript);
+            PrepareSpellScript(spell_throngus_pick_weapon_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {

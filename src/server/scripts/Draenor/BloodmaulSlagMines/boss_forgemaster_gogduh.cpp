@@ -718,7 +718,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_rough_smash_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_rough_smash_SpellScript);
+                PrepareSpellScript(spell_rough_smash_SpellScript)
 
                 class RoughSmashTargetFilter
                 {
@@ -777,7 +777,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_shatter_earth_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_shatter_earth_SpellScript);
+                PrepareSpellScript(spell_shatter_earth_SpellScript)
 
                 void OnSpellHit()
                 {
@@ -825,7 +825,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_dancing_flames_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_dancing_flames_AuraScript);
+                PrepareAuraScript(spell_dancing_flames_AuraScript)
 
                 void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
                 {
@@ -910,7 +910,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_molten_impact_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_molten_impact_SpellScript);
+                PrepareSpellScript(spell_molten_impact_SpellScript)
 
                 void HandleScript(SpellEffIndex)
                 {
@@ -942,7 +942,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_magma_barrage_trigger_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_magma_barrage_trigger_SpellScript);
+                PrepareSpellScript(spell_magma_barrage_trigger_SpellScript)
 
                 void OnSpellHit(SpellEffIndex)
                 {

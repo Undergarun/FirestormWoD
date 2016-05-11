@@ -492,7 +492,7 @@ class spell_jindo_shadow_spike_target: public SpellScriptLoader
 
         class spell_jindo_shadow_spike_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jindo_shadow_spike_target_SpellScript);
+            PrepareSpellScript(spell_jindo_shadow_spike_target_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -535,7 +535,7 @@ class spell_jindo_summon_spirit_target: public SpellScriptLoader
 
         class spell_jindo_summon_spirit_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jindo_summon_spirit_target_SpellScript);
+            PrepareSpellScript(spell_jindo_summon_spirit_target_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             { 
@@ -572,7 +572,7 @@ class spell_jindo_spirit_warrior_gaze_target: public SpellScriptLoader
 
         class spell_jindo_spirit_warrior_gaze_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_jindo_spirit_warrior_gaze_target_SpellScript);
+            PrepareSpellScript(spell_jindo_spirit_warrior_gaze_target_SpellScript)
 
             void HandleApplyAura(SpellEffIndex /*effIndex*/)
             {

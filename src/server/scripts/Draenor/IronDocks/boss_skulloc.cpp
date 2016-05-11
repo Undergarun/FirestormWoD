@@ -832,7 +832,7 @@ class iron_docks_skulloc_spell_back_draft : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_back_draft_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_skulloc_spell_back_draft_SpellScript);
+            PrepareSpellScript(iron_docks_skulloc_spell_back_draft_SpellScript)
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -867,7 +867,7 @@ class iron_docks_skulloc_spell_gronn_smash : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_gronn_smash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(iron_docks_skulloc_spell_gronn_smash_SpellScript);
+            PrepareSpellScript(iron_docks_skulloc_spell_gronn_smash_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex /*p_EffIndex*/)
             {
@@ -905,7 +905,7 @@ class iron_docks_skulloc_spell_cannon_barrage : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_cannon_barrage_SpellScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_skulloc_spell_cannon_barrage_SpellScript);
+            PrepareAuraScript(iron_docks_skulloc_spell_cannon_barrage_SpellScript)
 
             enum eCannonBarrageSpells
             {
@@ -1022,7 +1022,7 @@ class iron_docks_skulloc_spell_berserker_jump : public SpellScriptLoader
 
         class iron_docks_skulloc_spell_berserker_jump_AuraScript : public AuraScript
         {
-            PrepareAuraScript(iron_docks_skulloc_spell_berserker_jump_AuraScript);
+            PrepareAuraScript(iron_docks_skulloc_spell_berserker_jump_AuraScript)
 
             void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {

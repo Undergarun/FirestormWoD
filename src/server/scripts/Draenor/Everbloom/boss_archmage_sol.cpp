@@ -629,7 +629,7 @@ public:
 
     class the_everbloom_archmage_sol_spell_parasite_change_SpellScript : public SpellScript
     {
-        PrepareSpellScript(the_everbloom_archmage_sol_spell_parasite_change_SpellScript);
+        PrepareSpellScript(the_everbloom_archmage_sol_spell_parasite_change_SpellScript)
 
         void HandleSpecChange()
         {

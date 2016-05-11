@@ -575,7 +575,7 @@ class spell_isiset_supernova_dis: public SpellScriptLoader
         spell_isiset_supernova_dis() : SpellScriptLoader("spell_isiset_supernova_dis") { }
         class spell_isiset_supernova_dis_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_isiset_supernova_dis_SpellScript);
+            PrepareSpellScript(spell_isiset_supernova_dis_SpellScript)
             
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
@@ -600,7 +600,7 @@ class spell_isiset_supernova_dmg: public SpellScriptLoader
         spell_isiset_supernova_dmg() : SpellScriptLoader("spell_isiset_supernova_dmg") { }
         class spell_isiset_supernova_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_isiset_supernova_dmg_SpellScript);
+            PrepareSpellScript(spell_isiset_supernova_dmg_SpellScript)
             
             void FilterTargets(std::list<WorldObject*>& unitList)
             {

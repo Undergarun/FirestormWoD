@@ -273,7 +273,7 @@ class spell_zanzil_pursuit: public SpellScriptLoader
 
         class spell_zanzil_pursuit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_zanzil_pursuit_SpellScript);
+            PrepareSpellScript(spell_zanzil_pursuit_SpellScript)
             
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -308,7 +308,7 @@ class spell_zanzil_fire: public SpellScriptLoader
 
         class spell_zanzil_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_zanzil_fire_AuraScript);
+            PrepareAuraScript(spell_zanzil_fire_AuraScript)
             
             bool Load()
             {
@@ -356,7 +356,7 @@ class spell_frostburn_formula: public SpellScriptLoader
 
         class spell_frostburn_formula_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_frostburn_formula_SpellScript);
+            PrepareSpellScript(spell_frostburn_formula_SpellScript)
             
 
             void HandleScript(SpellEffIndex /*effIndex*/)

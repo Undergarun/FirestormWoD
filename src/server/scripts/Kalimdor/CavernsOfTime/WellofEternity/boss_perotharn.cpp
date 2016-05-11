@@ -448,7 +448,7 @@ class spell_perotharn_drain_essence: public SpellScriptLoader
 
         class spell_perotharn_drain_essence_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_perotharn_drain_essence_AuraScript);
+            PrepareAuraScript(spell_perotharn_drain_essence_AuraScript)
 
             void OnApply(AuraEffect const*, AuraEffectHandleModes /*mode*/)
             {
@@ -482,7 +482,7 @@ class spell_perotharn_drain_essence_dmg: public SpellScriptLoader
 
         class spell_perotharn_drain_essence_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_perotharn_drain_essence_dmg_SpellScript);
+            PrepareSpellScript(spell_perotharn_drain_essence_dmg_SpellScript)
 
             void RecalculateDamage()
             {
@@ -508,7 +508,7 @@ class spell_perotharn_punishing_flames_dmg: public SpellScriptLoader
 
         class spell_perotharn_punishing_flames_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_perotharn_punishing_flames_dmg_SpellScript);
+            PrepareSpellScript(spell_perotharn_punishing_flames_dmg_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {

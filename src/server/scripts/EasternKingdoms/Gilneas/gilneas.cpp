@@ -2564,7 +2564,7 @@ class spell_keg_placed: public SpellScriptLoader
 
         class spell_keg_placed_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_keg_placed_AuraScript);
+            PrepareAuraScript(spell_keg_placed_AuraScript)
 
             uint32 tick, tickcount;
 

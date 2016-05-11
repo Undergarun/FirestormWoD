@@ -447,7 +447,7 @@ class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
 
         class spell_rukhmar_blaze_of_glory_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript);
+            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript)
 
             void HandleOnCast()
             {
@@ -505,7 +505,7 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
 
         class spell_rukhmar_loose_quills_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript);
+            PrepareAuraScript(spell_rukhmar_loose_quills_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -541,7 +541,7 @@ class spell_aura_pierced_armor : public SpellScriptLoader
 
         class spell_aura_pierced_armor_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
+            PrepareAuraScript(spell_aura_pierced_armor_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {

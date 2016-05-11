@@ -516,7 +516,7 @@ class spell_janalai_flame_breath: public SpellScriptLoader
 
         class spell_janalai_flame_breath_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_janalai_flame_breath_AuraScript);
+            PrepareAuraScript(spell_janalai_flame_breath_AuraScript)
             
             bool Load()
             {

@@ -27,7 +27,7 @@ namespace MS
 
         class spell_QuillsSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_QuillsSpellScript);
+            PrepareSpellScript(spell_QuillsSpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -106,7 +106,7 @@ namespace MS
 
         class spell_CastDownSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_CastDownSpellScript);
+            PrepareSpellScript(spell_CastDownSpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -344,7 +344,7 @@ namespace MS
 
         class spell_VisualEnergize2SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_VisualEnergize2SpellScript);
+            PrepareSpellScript(spell_VisualEnergize2SpellScript)
 
             void CheckTarget(std::list<WorldObject*>& unitList)
             {
@@ -383,7 +383,7 @@ namespace MS
 
         class spell_VisualEnergizeSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_VisualEnergizeSpellScript);
+            PrepareSpellScript(spell_VisualEnergizeSpellScript)
 
             void CheckTarget(std::list<WorldObject*>& unitList)
             {
@@ -422,7 +422,7 @@ namespace MS
 
         class spell_FlashBangSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_FlashBangSpellScript);
+            PrepareSpellScript(spell_FlashBangSpellScript)
 
             void CheckTarget(std::list<WorldObject*>& unitList)
             {
@@ -461,7 +461,7 @@ namespace MS
 
         class spell_SunstrikeSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_SunstrikeSpellScript);
+            PrepareSpellScript(spell_SunstrikeSpellScript)
 
             void CheckTargetIn(std::list<WorldObject*>& unitList)
             {
@@ -507,7 +507,7 @@ namespace MS
 
         class spell_SummonSolarFlareSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_SummonSolarFlareSpellScript);
+            PrepareSpellScript(spell_SummonSolarFlareSpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -550,7 +550,7 @@ namespace MS
 
         class spell_EnergizeSpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_EnergizeSpellScript);
+            PrepareSpellScript(spell_EnergizeSpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -661,7 +661,7 @@ namespace MS
 
         class spell_SolarStorm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_SolarStorm_SpellScript);
+            PrepareSpellScript(spell_SolarStorm_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -856,7 +856,7 @@ namespace MS
 
         class spell_FourWind_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_FourWind_SpellScript);
+            PrepareSpellScript(spell_FourWind_SpellScript)
 
             void HandleTriggerMissible(SpellEffIndex /*effIndex*/)
             {
@@ -1062,7 +1062,7 @@ namespace MS
 
         class spell_Windwall_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_Windwall_SpellScript);
+            PrepareSpellScript(spell_Windwall_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1440,7 +1440,7 @@ namespace MS
 
         class spell_SpinningBlade_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_SpinningBlade_SpellScript);
+            PrepareSpellScript(spell_SpinningBlade_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1494,7 +1494,7 @@ namespace MS
 
         class spell_BladeDance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_BladeDance_SpellScript);
+            PrepareSpellScript(spell_BladeDance_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1541,7 +1541,7 @@ namespace MS
 
         class spell_Storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_Storm_SpellScript);
+            PrepareSpellScript(spell_Storm_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {

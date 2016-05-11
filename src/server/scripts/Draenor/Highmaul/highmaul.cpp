@@ -3731,7 +3731,7 @@ class spell_highmaul_chain_grip : public SpellScriptLoader
 
         class spell_highmaul_chain_grip_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_chain_grip_SpellScript);
+            PrepareSpellScript(spell_highmaul_chain_grip_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -3765,7 +3765,7 @@ class spell_highmaul_chain_grip_aura : public SpellScriptLoader
 
         class spell_highmaul_chain_grip_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_chain_grip_aura_AuraScript);
+            PrepareAuraScript(spell_highmaul_chain_grip_aura_AuraScript)
 
             enum eSpell
             {
@@ -3801,7 +3801,7 @@ class spell_highmaul_boars_rush : public SpellScriptLoader
 
         class spell_highmaul_boars_rush_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_boars_rush_SpellScript);
+            PrepareSpellScript(spell_highmaul_boars_rush_SpellScript)
 
             enum eSpell
             {
@@ -3855,7 +3855,7 @@ class spell_highmaul_unstoppable_charge : public SpellScriptLoader
 
         class spell_highmaul_unstoppable_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_unstoppable_charge_SpellScript);
+            PrepareSpellScript(spell_highmaul_unstoppable_charge_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -3907,7 +3907,7 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
 
         class spell_highmaul_corrupted_blood_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_corrupted_blood_shield_AuraScript);
+            PrepareAuraScript(spell_highmaul_corrupted_blood_shield_AuraScript)
 
             enum eSpell
             {
@@ -3947,7 +3947,7 @@ class spell_highmaul_rending_slash : public SpellScriptLoader
 
         class spell_highmaul_rending_slash_SpellScript: public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_rending_slash_SpellScript);
+            PrepareSpellScript(spell_highmaul_rending_slash_SpellScript)
 
             enum eSpell
             {
@@ -4000,7 +4000,7 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
 
         class spell_highmaul_shield_charge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_shield_charge_AuraScript);
+            PrepareAuraScript(spell_highmaul_shield_charge_AuraScript)
 
             enum eSpells
             {
@@ -4065,7 +4065,7 @@ class spell_highmaul_earthdevastating_slam : public SpellScriptLoader
 
         class spell_highmaul_earthdevastating_slam_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_earthdevastating_slam_AuraScript);
+            PrepareAuraScript(spell_highmaul_earthdevastating_slam_AuraScript)
 
             enum eAction
             {
@@ -4104,7 +4104,7 @@ class spell_highmaul_earthdevastating_slam_dmg : public SpellScriptLoader
 
         class spell_highmaul_earthdevastating_slam_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_earthdevastating_slam_dmg_SpellScript);
+            PrepareSpellScript(spell_highmaul_earthdevastating_slam_dmg_SpellScript)
 
             enum eSpell
             {
@@ -4167,7 +4167,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
 
         class spell_highmaul_arcane_barrage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_arcane_barrage_SpellScript);
+            PrepareSpellScript(spell_highmaul_arcane_barrage_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -4188,7 +4188,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
 
         class spell_highmaul_arcane_barrage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_arcane_barrage_AuraScript);
+            PrepareAuraScript(spell_highmaul_arcane_barrage_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -4221,7 +4221,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
 
         class spell_highmaul_decimate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_decimate_SpellScript);
+            PrepareSpellScript(spell_highmaul_decimate_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -4245,7 +4245,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
 
         class spell_highmaul_decimate_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_decimate_AuraScript);
+            PrepareAuraScript(spell_highmaul_decimate_AuraScript)
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -4276,7 +4276,7 @@ class spell_highmaul_unstable_tempest : public SpellScriptLoader
 
         class spell_highmaul_unstable_tempest_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_unstable_tempest_SpellScript);
+            PrepareSpellScript(spell_highmaul_unstable_tempest_SpellScript)
 
             enum eSpell
             {
@@ -4314,7 +4314,7 @@ class spell_highmaul_time_stop : public SpellScriptLoader
 
         class spell_highmaul_time_stop_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_time_stop_AuraScript);
+            PrepareAuraScript(spell_highmaul_time_stop_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {

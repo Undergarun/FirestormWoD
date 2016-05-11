@@ -1065,7 +1065,7 @@ class spell_highmaul_warming_up : public SpellScriptLoader
 
         class spell_highmaul_warming_up_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_warming_up_AuraScript);
+            PrepareAuraScript(spell_highmaul_warming_up_AuraScript)
 
             enum eSpell
             {
@@ -1098,7 +1098,7 @@ class spell_highmaul_disposition : public SpellScriptLoader
 
         class spell_highmaul_disposition_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_disposition_AuraScript);
+            PrepareAuraScript(spell_highmaul_disposition_AuraScript)
 
             uint8 m_TickCount;
 
@@ -1203,7 +1203,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
 
         class spell_highmaul_enfeebling_roar_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_enfeebling_roar_AuraScript);
+            PrepareAuraScript(spell_highmaul_enfeebling_roar_AuraScript)
 
             void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -1246,7 +1246,7 @@ class spell_highmaul_enfeebling_roar : public SpellScriptLoader
 
         class spell_highmaul_enfeebling_roar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_enfeebling_roar_SpellScript);
+            PrepareSpellScript(spell_highmaul_enfeebling_roar_SpellScript)
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -1287,7 +1287,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
         class spell_highmaul_pol_shield_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_pol_shield_charge_SpellScript);
+            PrepareSpellScript(spell_highmaul_pol_shield_charge_SpellScript)
 
             WorldLocation m_Location;
 
@@ -1317,7 +1317,7 @@ class spell_highmaul_pol_shield_charge : public SpellScriptLoader
 
         class spell_highmaul_pol_shield_charge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_pol_shield_charge_AuraScript);
+            PrepareAuraScript(spell_highmaul_pol_shield_charge_AuraScript)
 
             enum eSpell
             {
@@ -1380,7 +1380,7 @@ class spell_highmaul_twin_ogron_dispositions : public SpellScriptLoader
 
         class spell_highmaul_twin_ogron_dispositions_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_twin_ogron_dispositions_AuraScript);
+            PrepareAuraScript(spell_highmaul_twin_ogron_dispositions_AuraScript)
 
             enum eSpells
             {
@@ -1480,7 +1480,7 @@ class spell_highmaul_pulverize_third_wave : public SpellScriptLoader
 
         class spell_highmaul_pulverize_third_wave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_pulverize_third_wave_SpellScript);
+            PrepareSpellScript(spell_highmaul_pulverize_third_wave_SpellScript)
 
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -1515,7 +1515,7 @@ class spell_highmaul_phemos_whirlwind : public SpellScriptLoader
 
         class spell_highmaul_phemos_whirlwind_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_phemos_whirlwind_AuraScript);
+            PrepareAuraScript(spell_highmaul_phemos_whirlwind_AuraScript)
 
             enum eSpell
             {
@@ -1548,7 +1548,7 @@ class spell_highmaul_blaze_dot : public SpellScriptLoader
 
         class spell_highmaul_blaze_dot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_blaze_dot_AuraScript);
+            PrepareAuraScript(spell_highmaul_blaze_dot_AuraScript)
 
             enum eSpells
             {

@@ -956,7 +956,7 @@ class auchindon_spell_consecrated_light : public SpellScriptLoader
 
         class auchindon_spells : public AuraScript
         {
-            PrepareAuraScript(auchindon_spells);
+            PrepareAuraScript(auchindon_spells)
 
             void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
@@ -1003,7 +1003,7 @@ class auchindon_spell_conscreated_damage : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void RecalculateDamage(SpellEffIndex /*p_EffIndex*/)
             {
@@ -1044,7 +1044,7 @@ class auchindon_spell_sanctified_ground_periodic_dummy : public SpellScriptLoade
 
         class auchindon_spells : public AuraScript
         {
-            PrepareAuraScript(auchindon_spells);
+            PrepareAuraScript(auchindon_spells)
 
             void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
@@ -1076,7 +1076,7 @@ class auchindon_spell_fate : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {

@@ -402,7 +402,7 @@ class spell_kilnara_wave_of_agony_target: public SpellScriptLoader
 
         class spell_kilnara_wave_of_agony_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kilnara_wave_of_agony_target_SpellScript);
+            PrepareSpellScript(spell_kilnara_wave_of_agony_target_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -432,7 +432,7 @@ class spell_kilnara_wave_of_agony_start: public SpellScriptLoader
 
         class spell_kilnara_wave_of_agony_start_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript);
+            PrepareAuraScript(spell_kilnara_wave_of_agony_start_AuraScript)
 
             void PeriodicTick(AuraEffect const* /*p_AurEff*/)
             {
@@ -483,7 +483,7 @@ class spell_kilnara_rat_lure: public SpellScriptLoader
 
         class spell_kilnara_rat_lure_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_kilnara_rat_lure_SpellScript);
+            PrepareSpellScript(spell_kilnara_rat_lure_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             { 

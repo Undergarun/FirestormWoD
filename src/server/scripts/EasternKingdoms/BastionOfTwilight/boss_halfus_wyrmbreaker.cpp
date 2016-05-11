@@ -742,7 +742,7 @@ class spell_halfus_fireball_barrage: public SpellScriptLoader
 
         class spell_halfus_fireball_barrage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halfus_fireball_barrage_SpellScript);
+            PrepareSpellScript(spell_halfus_fireball_barrage_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {

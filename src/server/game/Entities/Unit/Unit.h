@@ -1070,6 +1070,10 @@ public:
         m_heal -= amount;
     }
 
+    SpellInfo const* GetSpellInfo() const { return m_spellInfo; };
+    Unit* GetTarget() const { return m_target; };
+    Unit* GetHealer() const { return m_healer; };
+    SpellSchoolMask GetSchoolMask() const { return m_schoolMask; };
     uint32 GetHeal() const { return m_heal; };
 };
 

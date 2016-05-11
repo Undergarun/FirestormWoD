@@ -415,7 +415,7 @@ class spell_tyrannus_overlord_brand: public SpellScriptLoader
 
         class spell_tyrannus_overlord_brand_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
+            PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -461,7 +461,7 @@ class spell_tyrannus_mark_of_rimefang: public SpellScriptLoader
 
         class spell_tyrannus_mark_of_rimefang_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_tyrannus_mark_of_rimefang_AuraScript);
+            PrepareAuraScript(spell_tyrannus_mark_of_rimefang_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

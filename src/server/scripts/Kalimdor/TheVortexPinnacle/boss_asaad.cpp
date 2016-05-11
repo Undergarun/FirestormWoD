@@ -296,7 +296,7 @@ class spell_asaad_supremacy_of_the_storm: public SpellScriptLoader
 
         class spell_asaad_supremacy_of_the_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_asaad_supremacy_of_the_storm_SpellScript);
+            PrepareSpellScript(spell_asaad_supremacy_of_the_storm_SpellScript)
 
 
             void HandleScript()

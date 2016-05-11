@@ -2194,6 +2194,8 @@ class npc_foundry_slag_elemental : public CreatureScript
                 m_Target = 0;
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
+                me->AddUnitState(UnitState::UNIT_STATE_IGNORE_PATHFINDING);
             }
 
             void EnterCombat(Unit* /*p_Attacker*/) override
@@ -2378,14 +2380,12 @@ class npc_foundry_slag_elemental : public CreatureScript
                         if (Player* l_Target = Player::GetPlayer(*me, m_Target))
                             me->CastSpell(l_Target, eSpells::Burn, TriggerCastFlags::TRIGGERED_IGNORE_CAST_IN_PROGRESS);
 
-                        m_Events.ScheduleEvent(eEvent::EventBurn, 10 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventBurn, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -2518,7 +2518,7 @@ class spell_foundry_defense_aura : public SpellScriptLoader
 
         class spell_foundry_defense_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_defense_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_defense_aura_AuraScript)
 
             enum eSpells
             {
@@ -2585,7 +2585,7 @@ class spell_foundry_bomb_overrider : public SpellScriptLoader
 
         class spell_foundry_bomb_overrider_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_bomb_overrider_AuraScript);
+            PrepareAuraScript(spell_foundry_bomb_overrider_AuraScript)
 
             enum eSpell
             {
@@ -2637,7 +2637,7 @@ class spell_foundry_rupture_aura : public SpellScriptLoader
 
         class spell_foundry_rupture_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rupture_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_rupture_aura_AuraScript)
 
             enum eSpell
             {
@@ -2673,7 +2673,7 @@ class spell_foundry_hot_blooded_aura : public SpellScriptLoader
 
         class spell_foundry_hot_blooded_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_hot_blooded_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_hot_blooded_aura_AuraScript)
 
             enum eSpells
             {
@@ -2734,7 +2734,7 @@ class spell_foundry_damage_shield : public SpellScriptLoader
 
         class spell_foundry_damage_shield_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_damage_shield_AuraScript);
+            PrepareAuraScript(spell_foundry_damage_shield_AuraScript)
 
             enum eSpell
             {
@@ -2783,7 +2783,7 @@ class spell_foundry_shields_down : public SpellScriptLoader
 
         class spell_foundry_shields_down_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_shields_down_AuraScript);
+            PrepareAuraScript(spell_foundry_shields_down_AuraScript)
 
             enum eSpell
             {
@@ -2856,7 +2856,7 @@ class spell_foundry_volatile_fire : public SpellScriptLoader
 
         class spell_foundry_volatile_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_volatile_fire_AuraScript);
+            PrepareAuraScript(spell_foundry_volatile_fire_AuraScript)
 
             void OnApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {
@@ -2902,7 +2902,7 @@ class spell_foundry_melt_aura : public SpellScriptLoader
 
         class spell_foundry_melt_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_melt_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_melt_aura_AuraScript)
 
             enum eSpell
             {
@@ -2938,7 +2938,7 @@ class spell_foundry_heart_of_the_furnace : public SpellScriptLoader
 
         class spell_foundry_heart_of_the_furnace_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_heart_of_the_furnace_AuraScript);
+            PrepareAuraScript(spell_foundry_heart_of_the_furnace_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -2972,7 +2972,7 @@ class spell_foundry_deafening_roar : public SpellScriptLoader
 
         class spell_foundry_deafening_roar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_deafening_roar_SpellScript);
+            PrepareSpellScript(spell_foundry_deafening_roar_SpellScript)
 
             enum eSpells
             {
@@ -3040,7 +3040,7 @@ class spell_foundry_slag_pool_periodic : public SpellScriptLoader
 
         class spell_foundry_slag_pool_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_slag_pool_periodic_AuraScript);
+            PrepareAuraScript(spell_foundry_slag_pool_periodic_AuraScript)
 
             void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes /*p_Mode*/)
             {

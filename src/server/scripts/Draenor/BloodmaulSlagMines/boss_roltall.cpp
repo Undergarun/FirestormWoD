@@ -404,7 +404,7 @@ namespace MS { namespace Instances { namespace Bloodmaul
 
             class spell_roltall_scorching_aura_AuraScript : public AuraScript
             {
-                PrepareAuraScript(spell_roltall_scorching_aura_AuraScript);
+                PrepareAuraScript(spell_roltall_scorching_aura_AuraScript)
 
                 enum eSpells
                 {

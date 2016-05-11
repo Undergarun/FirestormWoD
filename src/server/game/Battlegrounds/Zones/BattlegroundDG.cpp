@@ -1067,7 +1067,7 @@ class spell_mine_cart : public SpellScriptLoader
 
         class spell_mine_cart_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mine_cart_AuraScript);
+            PrepareAuraScript(spell_mine_cart_AuraScript)
 
             void HandleOnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {

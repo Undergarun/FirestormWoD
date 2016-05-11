@@ -1190,7 +1190,7 @@ class spell_foundry_acid_torrent : public SpellScriptLoader
 
         class spell_foundry_acid_torrent_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_acid_torrent_SpellScript);
+            PrepareSpellScript(spell_foundry_acid_torrent_SpellScript)
 
             enum eData
             {
@@ -1251,7 +1251,7 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
 
         class spell_foundry_acid_torrent_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_acid_torrent_aoe_SpellScript);
+            PrepareSpellScript(spell_foundry_acid_torrent_aoe_SpellScript)
 
             enum eData
             {
@@ -1293,7 +1293,7 @@ class spell_foundry_acid_torrent_searcher : public SpellScriptLoader
 
         class spell_foundry_acid_torrent_searcher_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_acid_torrent_searcher_SpellScript);
+            PrepareSpellScript(spell_foundry_acid_torrent_searcher_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1330,7 +1330,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
 
         class spell_foundry_rolling_fury_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rolling_fury_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_rolling_fury_aura_AuraScript)
 
             enum eSpell
             {
@@ -1417,7 +1417,7 @@ class spell_foundry_harvest_volatile_blackrock : public SpellScriptLoader
 
         class spell_foundry_harvest_volatile_blackrock_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_harvest_volatile_blackrock_SpellScript);
+            PrepareSpellScript(spell_foundry_harvest_volatile_blackrock_SpellScript)
 
             enum eSpell
             {
@@ -1450,7 +1450,7 @@ class spell_foundry_throw_volatile_ore : public SpellScriptLoader
 
         class spell_foundry_throw_volatile_ore_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_throw_volatile_ore_SpellScript);
+            PrepareSpellScript(spell_foundry_throw_volatile_ore_SpellScript)
 
             enum eSpell
             {

@@ -515,7 +515,7 @@ class spell_wailing_winds: public SpellScriptLoader
 
         class spell_wailing_winds_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_wailing_winds_SpellScript);
+            PrepareSpellScript(spell_wailing_winds_SpellScript)
 
             void RandomJump(SpellEffIndex effIndex)
             {
@@ -564,7 +564,7 @@ class spell_gathered_storms: public SpellScriptLoader
 
         class spell_gathered_storms_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gathered_storms_SpellScript);
+            PrepareSpellScript(spell_gathered_storms_SpellScript)
 
             void ApplyAura(SpellEffIndex effIndex)
             {

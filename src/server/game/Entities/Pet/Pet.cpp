@@ -725,7 +725,6 @@ void Creature::Regenerate(Powers power)
         return;
 
     float addvalue = 0.0f;
-    float rangedHaste = (isHunterPet() && GetOwner()) ? GetOwner()->ToPlayer()->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN) : 0.0f; ///< rangedHaste is never read 01/18/16
 
     switch (power)
     {

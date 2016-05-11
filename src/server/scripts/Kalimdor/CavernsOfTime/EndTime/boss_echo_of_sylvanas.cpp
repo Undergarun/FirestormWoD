@@ -429,7 +429,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg: public SpellScriptLoader
 
         class spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript);
+            PrepareSpellScript(spell_echo_of_sylvanas_wracking_pain_dmg_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -494,7 +494,7 @@ class spell_echo_of_sylvanas_death_grip_aoe: public SpellScriptLoader
 
         class spell_echo_of_sylvanas_death_grip_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript);
+            PrepareSpellScript(spell_echo_of_sylvanas_death_grip_aoe_SpellScript)
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
@@ -523,7 +523,7 @@ class spell_echo_of_sylvanas_seeping_shadows: public SpellScriptLoader
 
         class spell_echo_of_sylvanas_seeping_shadows_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_echo_of_sylvanas_seeping_shadows_AuraScript);
+            PrepareAuraScript(spell_echo_of_sylvanas_seeping_shadows_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {

@@ -1113,7 +1113,7 @@ class spell_highmaul_frozen_core : public SpellScriptLoader
 
         class spell_highmaul_frozen_core_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_highmaul_frozen_core_SpellScript);
+            PrepareSpellScript(spell_highmaul_frozen_core_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1139,7 +1139,7 @@ class spell_highmaul_frozen_core : public SpellScriptLoader
 
         class spell_highmaul_frozen_core_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_frozen_core_AuraScript);
+            PrepareAuraScript(spell_highmaul_frozen_core_AuraScript)
 
             enum eSpell
             {
@@ -1198,7 +1198,7 @@ class spell_highmaul_wild_flames_areatrigger : public SpellScriptLoader
 
         class spell_highmaul_wild_flames_areatrigger_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_wild_flames_areatrigger_AuraScript);
+            PrepareAuraScript(spell_highmaul_wild_flames_areatrigger_AuraScript)
 
             enum eSpells
             {
@@ -1272,7 +1272,7 @@ class spell_highmaul_nullification_barrier : public SpellScriptLoader
 
         class spell_highmaul_nullification_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_nullification_barrier_AuraScript);
+            PrepareAuraScript(spell_highmaul_nullification_barrier_AuraScript)
 
             enum eSpell
             {
@@ -1349,7 +1349,7 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
 
         class spell_highmaul_caustic_energy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_caustic_energy_AuraScript);
+            PrepareAuraScript(spell_highmaul_caustic_energy_AuraScript)
 
             enum eSpell
             {
@@ -1499,7 +1499,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
 
         class spell_highmaul_caustic_energy_dot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_caustic_energy_dot_AuraScript);
+            PrepareAuraScript(spell_highmaul_caustic_energy_dot_AuraScript)
 
             enum eSpells
             {
@@ -1581,7 +1581,7 @@ class spell_highmaul_expel_magic_fire : public SpellScriptLoader
 
         class spell_highmaul_expel_magic_fire_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_expel_magic_fire_AuraScript);
+            PrepareAuraScript(spell_highmaul_expel_magic_fire_AuraScript)
 
             enum eSpell
             {
@@ -1614,7 +1614,7 @@ class spell_highmaul_expel_magic_arcane : public SpellScriptLoader
 
         class spell_highmaul_expel_magic_arcane_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_expel_magic_arcane_AuraScript);
+            PrepareAuraScript(spell_highmaul_expel_magic_arcane_AuraScript)
 
             enum eSpell
             {
@@ -1647,7 +1647,7 @@ class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
 
         class spell_highmaul_nullification_barrier_player_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_nullification_barrier_player_AuraScript);
+            PrepareAuraScript(spell_highmaul_nullification_barrier_player_AuraScript)
 
             enum eSpell
             {
@@ -1693,7 +1693,7 @@ class spell_highmaul_expel_magic_frost_aura : public SpellScriptLoader
 
         class spell_highmaul_expel_magic_frost_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_expel_magic_frost_aura_AuraScript);
+            PrepareAuraScript(spell_highmaul_expel_magic_frost_aura_AuraScript)
 
             enum eSpell
             {
@@ -1749,7 +1749,7 @@ class spell_highmaul_suppression_field_aura : public SpellScriptLoader
 
         class spell_highmaul_suppression_field_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_highmaul_suppression_field_aura_AuraScript);
+            PrepareAuraScript(spell_highmaul_suppression_field_aura_AuraScript)
 
             enum eAction
             {

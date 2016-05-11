@@ -745,5 +745,5 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(CHAR_UPD_XP_RATE, "UPDATE characters SET xpRate = ? WHERE guid = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(CHAR_REP_STATS, "REPLACE INTO `character_stats_wod` (`guid`, `strength`, `agility`, `stamina`, `intellect`, `critPct`, `haste`, `mastery`, `spirit`, `armorBonus`, `multistrike`, `leech`, `versatility`, `avoidance`, `attackDamage`, `attackPower`, `attackSpeed`, `spellPower`, `manaRegen`, `armor`, `dodgePct`, `parryPct`, `blockPct`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_REP_STATS, "REPLACE INTO `character_stats_wod` (`guid`, `strength`, `agility`, `stamina`, `intellect`, `critPct`, `haste`, `mastery`, `spirit`, `armorBonus`, `multistrike`, `leech`, `versatility`, `avoidance`, `attackDamage`, `attackPower`, `attackSpeed`, `spellPower`, `manaRegen`, `armor`, `dodgePct`, `parryPct`, `blockPct`, `ilvl`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }

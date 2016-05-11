@@ -53,7 +53,7 @@ public:
 
     class spell_deepholm_kill_all_constructs_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_deepholm_kill_all_constructs_SpellScript);
+        PrepareSpellScript(spell_deepholm_kill_all_constructs_SpellScript)
 
         void HandleDummy()
         {

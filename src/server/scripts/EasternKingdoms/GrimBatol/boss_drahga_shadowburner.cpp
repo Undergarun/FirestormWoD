@@ -464,7 +464,7 @@ class spell_drahga_supernova: public SpellScriptLoader
 
         class spell_drahga_supernova_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drahga_supernova_SpellScript);
+            PrepareSpellScript(spell_drahga_supernova_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {

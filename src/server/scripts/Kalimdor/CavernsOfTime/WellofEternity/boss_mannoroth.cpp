@@ -660,7 +660,7 @@ class spell_mannoroth_gift_of_sargeras: public SpellScriptLoader
 
         class spell_mannoroth_gift_of_sargeras_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mannoroth_gift_of_sargeras_SpellScript);
+            PrepareSpellScript(spell_mannoroth_gift_of_sargeras_SpellScript)
 
             void HandleAfterHit()
             {

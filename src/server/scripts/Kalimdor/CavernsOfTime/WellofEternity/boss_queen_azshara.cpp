@@ -453,7 +453,7 @@ class spell_queen_azshara_coldflame: public SpellScriptLoader
 
         class spell_queen_azshara_coldflame_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_queen_azshara_coldflame_AuraScript);
+            PrepareAuraScript(spell_queen_azshara_coldflame_AuraScript)
             
             bool Load()
             {
@@ -501,7 +501,7 @@ class spell_queen_azshara_arcane_bomb: public SpellScriptLoader
 
         class spell_queen_azshara_arcane_bomb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_queen_azshara_arcane_bomb_SpellScript);
+            PrepareSpellScript(spell_queen_azshara_arcane_bomb_SpellScript)
 
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
             {

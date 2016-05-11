@@ -973,7 +973,7 @@ class spell_deathwhisper_mana_barrier: public SpellScriptLoader
 
         class spell_deathwhisper_mana_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_deathwhisper_mana_barrier_AuraScript);
+            PrepareAuraScript(spell_deathwhisper_mana_barrier_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -1005,7 +1005,7 @@ class spell_cultist_dark_martyrdom: public SpellScriptLoader
 
         class spell_cultist_dark_martyrdom_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_cultist_dark_martyrdom_SpellScript);
+            PrepareSpellScript(spell_cultist_dark_martyrdom_SpellScript)
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {

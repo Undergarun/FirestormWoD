@@ -985,7 +985,7 @@ class npc_muradin_gunship : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if ((pointId == 1))
+                if (pointId == 1)
                     me->DespawnOrUnsummon(1000);
             }
 
@@ -2191,7 +2191,7 @@ class npc_saurfang_gunship : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if ((pointId == 1))
+                if (pointId == 1)
                     me->DespawnOrUnsummon(1000);
             }
 
@@ -3129,7 +3129,7 @@ class spell_icc_remove_rocket_pack: public SpellScriptLoader
 
         class spell_icc_remove_rocket_pack_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_icc_remove_rocket_pack_SpellScript);
+            PrepareSpellScript(spell_icc_remove_rocket_pack_SpellScript)
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
@@ -3162,7 +3162,7 @@ class spell_gb_heat_drain: public SpellScriptLoader
 
         class spell_gb_heat_drain_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_heat_drain_SpellScript);
+            PrepareSpellScript(spell_gb_heat_drain_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -3195,7 +3195,7 @@ class spell_gb_overheat_drain: public SpellScriptLoader
 
         class spell_gb_overheat_drain_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_overheat_drain_SpellScript);
+            PrepareSpellScript(spell_gb_overheat_drain_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -3225,7 +3225,7 @@ class spell_gb_incinerating_blast: public SpellScriptLoader
 
         class spell_gb_incinerating_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_incinerating_blast_SpellScript);
+            PrepareSpellScript(spell_gb_incinerating_blast_SpellScript)
 
             void AddExtraDamage()
             {
@@ -3257,7 +3257,7 @@ class spell_gb_burning_pitch: public SpellScriptLoader
 
         class spell_gb_burning_pitch_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gb_burning_pitch_SpellScript);
+            PrepareSpellScript(spell_gb_burning_pitch_SpellScript)
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
@@ -3306,7 +3306,7 @@ class spell_rocket_pack: public SpellScriptLoader
 
         class spell_rocket_pack_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rocket_pack_AuraScript);
+            PrepareAuraScript(spell_rocket_pack_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

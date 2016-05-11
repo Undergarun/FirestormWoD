@@ -2219,7 +2219,7 @@ class spell_faction_champion_death_grip: public SpellScriptLoader
 
         class spell_faction_champion_death_grip_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_faction_champion_death_grip_SpellScript);
+            PrepareSpellScript(spell_faction_champion_death_grip_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -2257,7 +2257,7 @@ class spell_toc_bloodlust: public SpellScriptLoader
 
         class spell_toc_bloodlust_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc_bloodlust_SpellScript);
+            PrepareSpellScript(spell_toc_bloodlust_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -2298,7 +2298,7 @@ class spell_toc_heroism: public SpellScriptLoader
 
         class spell_toc_heroism_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_toc_heroism_SpellScript);
+            PrepareSpellScript(spell_toc_heroism_SpellScript)
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {

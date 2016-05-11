@@ -1142,7 +1142,7 @@ class spell_sinestra_wrack: public SpellScriptLoader
 
         class spell_sinestra_wrack_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_wrack_AuraScript);
+            PrepareAuraScript(spell_sinestra_wrack_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1195,7 +1195,7 @@ class spell_sinestra_twilight_extinction: public SpellScriptLoader
 
         class spell_sinestra_twilight_extinction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_twilight_extinction_AuraScript);
+            PrepareAuraScript(spell_sinestra_twilight_extinction_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1224,7 +1224,7 @@ class spell_sinestra_indomitable: public SpellScriptLoader
 
         class spell_sinestra_indomitable_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_indomitable_AuraScript);
+            PrepareAuraScript(spell_sinestra_indomitable_AuraScript)
 
             void HandleScript(AuraEffect const* /*aurEff*/)
             {
@@ -1267,7 +1267,7 @@ class spell_sinestra_indomitable_aura: public SpellScriptLoader
 
         class spell_sinestra_indomitable_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_indomitable_aura_AuraScript);
+            PrepareAuraScript(spell_sinestra_indomitable_aura_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1305,7 +1305,7 @@ class spell_sinestra_mana_barrier: public SpellScriptLoader
 
         class spell_sinestra_mana_barrier_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_mana_barrier_AuraScript);
+            PrepareAuraScript(spell_sinestra_mana_barrier_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -1340,7 +1340,7 @@ class spell_sinestra_pyrrhic_focus: public SpellScriptLoader
 
         class spell_sinestra_pyrrhic_focus_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_pyrrhic_focus_AuraScript);
+            PrepareAuraScript(spell_sinestra_pyrrhic_focus_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -1374,7 +1374,7 @@ class spell_sinestra_twilight_slicer: public SpellScriptLoader
 
         class spell_sinestra_twilight_slicer_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sinestra_twilight_slicer_SpellScript);
+            PrepareSpellScript(spell_sinestra_twilight_slicer_SpellScript)
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
@@ -1412,7 +1412,7 @@ class spell_sinestra_twilight_essence: public SpellScriptLoader
 
         class spell_sinestra_twilight_essence_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_sinestra_twilight_essence_SpellScript);
+            PrepareSpellScript(spell_sinestra_twilight_essence_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
@@ -1428,7 +1428,7 @@ class spell_sinestra_twilight_essence: public SpellScriptLoader
 
         class spell_sinestra_twilight_essence_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_sinestra_twilight_essence_AuraScript);
+            PrepareAuraScript(spell_sinestra_twilight_essence_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

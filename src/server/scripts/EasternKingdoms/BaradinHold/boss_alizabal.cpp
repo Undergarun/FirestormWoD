@@ -218,7 +218,7 @@ class spell_alizabal_seething_hate: public SpellScriptLoader
 
         class spell_alizabal_seething_hate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alizabal_seething_hate_SpellScript);
+            PrepareSpellScript(spell_alizabal_seething_hate_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -247,7 +247,7 @@ class spell_alizabal_blade_dance: public SpellScriptLoader
 
         class spell_alizabal_blade_dance_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alizabal_blade_dance_SpellScript);
+            PrepareSpellScript(spell_alizabal_blade_dance_SpellScript)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -277,7 +277,7 @@ class spell_alizabal_blade_dance_dmg: public SpellScriptLoader
 
         class spell_alizabal_blade_dance_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_alizabal_blade_dance_dmg_SpellScript);
+            PrepareSpellScript(spell_alizabal_blade_dance_dmg_SpellScript)
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {

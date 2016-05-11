@@ -2348,32 +2348,38 @@ class spell_pri_halo: public SpellScriptLoader
             {
                 if (Unit* l_Player = GetCaster())
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    std::list<Creature*> l_TempListCreature;
+                    std::list<Player*> l_TempListPlayer;
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    uint32 l_SpellID = l_SpellInfo->Id;
+
+                    if (AreaTrigger* l_Area = l_Player->GetAreaTrigger(l_SpellID))
                     {
-                        std::list<Creature*> l_TempListCreature;
-                        std::list<Player*> l_TempListPlayer;
+                        l_Area->GetCreatureListInGrid(l_TempListCreature, l_SpellInfo->RangeEntry->maxRangeHostile);
 
-                        AreaTrigger* l_Area = l_Player->GetAreaTrigger(GetSpellInfo()->Id);
-
-                        if (l_Area)
+                        for (Creature* l_Creature : l_TempListCreature)
                         {
-                            l_Area->GetCreatureListInGrid(l_TempListCreature, GetSpellInfo()->RangeEntry->maxRangeHostile);
-                            for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
-                            {
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAttackTarget(l_Player))
-                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAssistTarget(l_Player))
-                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
-                            }
+                            if (!l_Creature->IsWithinLOSInMap(l_Player))
+                                continue;
 
-                            l_Area->GetPlayerListInGrid(l_TempListPlayer, GetSpellInfo()->RangeEntry->maxRangeHostile);
-                            for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
-                            {
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_DAMAGE && !(*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAttackTarget(l_Player))
-                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_DAMAGE, true);
-                                if (GetSpellInfo()->Id == PRIEST_SPELL_HALO_AREA_HEAL && (*i)->IsFriendlyTo(l_Player) && (*i)->IsValidAssistTarget(l_Player))
-                                    l_Player->CastSpell((*i), PRIEST_SPELL_HALO_HEAL_HOLY, true);
-                            }
+                            if (l_SpellID == PRIEST_SPELL_HALO_AREA_DAMAGE && !l_Creature->IsFriendlyTo(l_Player) && l_Player->IsValidAttackTarget(l_Creature))
+                                l_Player->CastSpell(l_Creature, PRIEST_SPELL_HALO_DAMAGE, true);
+                            else if (l_SpellID == PRIEST_SPELL_HALO_AREA_HEAL && l_Creature->IsFriendlyTo(l_Player) && l_Player->IsValidAssistTarget(l_Creature))
+                                l_Player->CastSpell(l_Creature, PRIEST_SPELL_HALO_HEAL_HOLY, true);
+                        }
+
+                        l_Area->GetPlayerListInGrid(l_TempListPlayer, l_SpellInfo->RangeEntry->maxRangeHostile);
+
+                        for (Player* l_PlayerIter : l_TempListPlayer)
+                        {
+                            if (!l_PlayerIter->IsWithinLOSInMap(l_Player))
+                                continue;
+
+                            if (l_SpellID == PRIEST_SPELL_HALO_AREA_DAMAGE && !l_PlayerIter->IsFriendlyTo(l_Player) && l_Player->IsValidAttackTarget(l_PlayerIter))
+                                l_Player->CastSpell(l_PlayerIter, PRIEST_SPELL_HALO_DAMAGE, true);
+                            else if (l_SpellID == PRIEST_SPELL_HALO_AREA_HEAL && l_PlayerIter->IsFriendlyTo(l_Player) && l_Player->IsValidAssistTarget(l_PlayerIter))
+                                l_Player->CastSpell(l_PlayerIter, PRIEST_SPELL_HALO_HEAL_HOLY, true);
                         }
                     }
                 }

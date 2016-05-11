@@ -1989,7 +1989,7 @@ class spell_shrapnel_storm: public SpellScriptLoader
 
         class spell_shrapnel_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_shrapnel_storm_SpellScript);
+            PrepareSpellScript(spell_shrapnel_storm_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2020,7 +2020,7 @@ class spell_eruption: public SpellScriptLoader
 
         class spell_eruption_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_eruption_SpellScript);
+            PrepareSpellScript(spell_eruption_SpellScript)
 
             enum eSpell
             {
@@ -2083,7 +2083,7 @@ class spell_class_specific_res: public SpellScriptLoader
 
         class spell_class_specific_res_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_class_specific_res_SpellScript);
+            PrepareSpellScript(spell_class_specific_res_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {

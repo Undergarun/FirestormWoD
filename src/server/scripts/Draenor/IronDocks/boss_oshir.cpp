@@ -1257,7 +1257,7 @@ public:
 
     class iron_docks_oshir_spell_acid_spit_SpellScript : public SpellScript
     {
-        PrepareSpellScript(iron_docks_oshir_spell_acid_spit_SpellScript);
+        PrepareSpellScript(iron_docks_oshir_spell_acid_spit_SpellScript)
 
         enum eAcidSpitSpells
         {
@@ -1301,7 +1301,7 @@ public:
 
     class iron_docks_oshir_spell_acid_spit_trigger_missile_SpellScript : public SpellScript
     {
-        PrepareSpellScript(iron_docks_oshir_spell_acid_spit_trigger_missile_SpellScript);
+        PrepareSpellScript(iron_docks_oshir_spell_acid_spit_trigger_missile_SpellScript)
 
         void OnSpellHit(SpellEffIndex)
         {

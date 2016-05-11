@@ -513,7 +513,7 @@ class auchindon_azzakel_spell_claws_of_argus : public SpellScriptLoader
 
         class auchindon_auras : public AuraScript
         {
-            PrepareAuraScript(auchindon_auras);
+            PrepareAuraScript(auchindon_auras)
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {

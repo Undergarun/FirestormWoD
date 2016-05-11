@@ -413,7 +413,7 @@ class spell_vanessa_vancleef_backslash_targeting: public SpellScriptLoader
 
         class spell_vanessa_vancleef_backslash_targeting_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_vanessa_vancleef_backslash_targeting_SpellScript);
+            PrepareSpellScript(spell_vanessa_vancleef_backslash_targeting_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)

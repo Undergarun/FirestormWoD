@@ -4225,7 +4225,7 @@ class spell_tanaan_inferno : public SpellScriptLoader
 
         class spell_tanaan_inferno_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_tanaan_inferno_SpellScript);
+            PrepareSpellScript(spell_tanaan_inferno_SpellScript)
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {

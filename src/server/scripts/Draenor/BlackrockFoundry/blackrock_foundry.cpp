@@ -617,7 +617,7 @@ class npc_foundry_slagshop_worker : public CreatureScript
             {
                 m_Events.Reset();
 
-                if (Creature* l_Brute = me->FindNearestCreature(eCreature::SlagshopBrute, 10.0f))
+                if (me->FindNearestCreature(eCreature::SlagshopBrute, 10.0f) != nullptr)
                 {
                     AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
                     {
@@ -3242,7 +3242,7 @@ class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 
         class spell_foundry_grievous_mortal_wounds_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_grievous_mortal_wounds_AuraScript);
+            PrepareAuraScript(spell_foundry_grievous_mortal_wounds_AuraScript)
 
             void OnTick(AuraEffect const* p_AurEff)
             {
@@ -3274,7 +3274,7 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
 
         class spell_foundry_spinning_blade_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_spinning_blade_AuraScript);
+            PrepareAuraScript(spell_foundry_spinning_blade_AuraScript)
 
             enum eSpell
             {
@@ -3348,7 +3348,7 @@ class spell_foundry_slag_breath : public SpellScriptLoader
 
         class spell_foundry_slag_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_slag_breath_SpellScript);
+            PrepareSpellScript(spell_foundry_slag_breath_SpellScript)
 
             enum eSpell
             {
@@ -3401,7 +3401,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
 
         class spell_foundry_animate_slag_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_animate_slag_AuraScript);
+            PrepareAuraScript(spell_foundry_animate_slag_AuraScript)
 
             enum eSpell
             {
@@ -3458,7 +3458,7 @@ class spell_foundry_gronnling_smash : public SpellScriptLoader
 
         class spell_foundry_gronnling_smash_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_gronnling_smash_AuraScript);
+            PrepareAuraScript(spell_foundry_gronnling_smash_AuraScript)
 
             enum eSpell
             {
@@ -3491,7 +3491,7 @@ class spell_foundry_shattering_charge : public SpellScriptLoader
 
         class spell_foundry_shattering_charge_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_shattering_charge_AuraScript);
+            PrepareAuraScript(spell_foundry_shattering_charge_AuraScript)
 
             enum eSpell
             {
@@ -3557,7 +3557,7 @@ class spell_foundry_ignite_aura : public SpellScriptLoader
 
         class spell_foundry_ignite_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_ignite_aura_AuraScript);
+            PrepareAuraScript(spell_foundry_ignite_aura_AuraScript)
 
             enum eSpell
             {
@@ -3593,7 +3593,7 @@ class spell_foundry_blast_wave : public SpellScriptLoader
 
         class spell_foundry_blast_wave_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_blast_wave_SpellScript);
+            PrepareSpellScript(spell_foundry_blast_wave_SpellScript)
 
             enum eGameObjects
             {
@@ -3647,7 +3647,7 @@ class spell_foundry_rending_slash : public SpellScriptLoader
 
         class spell_foundry_rending_slash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_rending_slash_SpellScript);
+            PrepareSpellScript(spell_foundry_rending_slash_SpellScript)
 
             enum eSpell
             {
@@ -3700,7 +3700,7 @@ class spell_foundry_crushing_slam : public SpellScriptLoader
 
         class spell_foundry_crushing_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_crushing_slam_SpellScript);
+            PrepareSpellScript(spell_foundry_crushing_slam_SpellScript)
 
             enum eSpell
             {
@@ -3753,7 +3753,7 @@ class spell_foundry_ember_in_the_wind_damage : public SpellScriptLoader
 
         class spell_foundry_ember_in_the_wind_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_ember_in_the_wind_damage_SpellScript);
+            PrepareSpellScript(spell_foundry_ember_in_the_wind_damage_SpellScript)
 
             void HandleDamage()
             {
@@ -3787,7 +3787,7 @@ class spell_foundry_electrical_storm : public SpellScriptLoader
 
         class spell_foundry_electrical_storm_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_electrical_storm_SpellScript);
+            PrepareSpellScript(spell_foundry_electrical_storm_SpellScript)
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {

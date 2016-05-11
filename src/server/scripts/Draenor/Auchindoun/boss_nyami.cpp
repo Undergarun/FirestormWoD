@@ -770,7 +770,7 @@ class auchindon_nyami_torn_spirits : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -810,7 +810,7 @@ class auchindon_nyami_spell_soul_vessel_damage : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void RecalculateDamage(SpellEffIndex /*l_EffIndex*/)
             {
@@ -838,7 +838,7 @@ class auchindon_nyami_spell_soul_vessel_dummy : public SpellScriptLoader
 
         class auchindon_spells : public AuraScript
         {
-            PrepareAuraScript(auchindon_spells);
+            PrepareAuraScript(auchindon_spells)
 
             void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {

@@ -1509,7 +1509,7 @@ class auchindon_spell_void_mending : public SpellScriptLoader
 
         class everbloom_spells : public SpellScript
         {
-            PrepareSpellScript(everbloom_spells);
+            PrepareSpellScript(everbloom_spells)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1542,7 +1542,7 @@ class auchindon_spell_psychic_terror : public SpellScriptLoader
 
         class everbloom_spells : public SpellScript
         {
-            PrepareSpellScript(everbloom_spells);
+            PrepareSpellScript(everbloom_spells)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1584,7 +1584,7 @@ class auchindon_spell_warden_chain : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1618,7 +1618,7 @@ class auchindon_warden_chain_aura : public SpellScriptLoader
 
         class auchindon_auras : public AuraScript
         {
-            PrepareAuraScript(auchindon_auras);
+            PrepareAuraScript(auchindon_auras)
 
             void HandlePeriodic(AuraEffect const* /*p_AurEff*/)
             {
@@ -1648,7 +1648,7 @@ class auchindoun_void_shift : public SpellScriptLoader
 
         class auchindoun_spells : public SpellScript
         {
-            PrepareSpellScript(auchindoun_spells);
+            PrepareSpellScript(auchindoun_spells)
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -1702,7 +1702,7 @@ class auchindon_spell_arcane_bomb_dummy : public SpellScriptLoader
 
         class auchindon_spells : public AuraScript
         {
-            PrepareAuraScript(auchindon_spells);
+            PrepareAuraScript(auchindon_spells)
 
             bool Load()
             {
@@ -1736,7 +1736,7 @@ class auchindon_spell_void_shell_filter : public SpellScriptLoader
 
         class spells_auchindon : public SpellScript
         {
-            PrepareSpellScript(spells_auchindon);
+            PrepareSpellScript(spells_auchindon)
 
             void CorrectTargets(std::list<WorldObject*>& targets)
             {
@@ -1785,7 +1785,7 @@ class auchindon_spell_fixate : public SpellScriptLoader
 
         class spell_auchindons : public AuraScript
         {
-            PrepareAuraScript(spell_auchindons);
+            PrepareAuraScript(spell_auchindons)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1838,7 +1838,7 @@ class auchindon_spell_tuulani_unlock : public SpellScriptLoader
 
         class auchindon_spells : public SpellScript
         {
-            PrepareSpellScript(auchindon_spells);
+            PrepareSpellScript(auchindon_spells)
 
             void CorrectTargets(std::list<WorldObject*>& targets)
             {
@@ -1880,7 +1880,7 @@ class auchindon_spell_beam_cosmetic : public SpellScriptLoader
 
         class spells_auchindon : public SpellScript
         {
-            PrepareSpellScript(spells_auchindon);
+            PrepareSpellScript(spells_auchindon)
 
             bool Load()
             {

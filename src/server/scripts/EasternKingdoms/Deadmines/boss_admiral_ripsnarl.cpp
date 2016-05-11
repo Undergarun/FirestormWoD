@@ -379,7 +379,7 @@ class spell_admiral_ripsnarl_coalesce : public SpellScriptLoader
 
         class spell_admiral_ripsnarl_coalesce_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_admiral_ripsnarl_coalesce_SpellScript);
+            PrepareSpellScript(spell_admiral_ripsnarl_coalesce_SpellScript)
 
             void HandleAfterCast()
             {

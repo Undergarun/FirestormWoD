@@ -653,7 +653,7 @@ class spell_foundry_rage_regeneration : public SpellScriptLoader
 
         class spell_foundry_rage_regeneration_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_rage_regeneration_AuraScript);
+            PrepareAuraScript(spell_foundry_rage_regeneration_AuraScript)
 
             enum eAction
             {
@@ -697,7 +697,7 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
 
         class spell_foundry_inferno_slice_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_inferno_slice_SpellScript);
+            PrepareSpellScript(spell_foundry_inferno_slice_SpellScript)
 
             uint8 m_TargetCount;
 
@@ -709,6 +709,22 @@ class spell_foundry_inferno_slice : public SpellScriptLoader
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
+                if (p_Targets.empty())
+                    return;
+
+                /// Main tank (hit by Inferno Strike) isn't affected by Inferno Slice AoE
+                Unit* l_Target = GetCaster()->getVictim();
+                p_Targets.remove_if([this, l_Target](WorldObject* p_Object) -> bool
+                {
+                    if (l_Target != nullptr && p_Object != nullptr)
+                    {
+                        if (p_Object->GetGUID() == l_Target->GetGUID())
+                            return true;
+                    }
+
+                    return false;
+                });
+
                 m_TargetCount = (uint8)p_Targets.size();
             }
 
@@ -752,7 +768,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
 
         class spell_foundry_cave_in_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_cave_in_AuraScript);
+            PrepareAuraScript(spell_foundry_cave_in_AuraScript)
 
             enum eSpell
             {
@@ -839,7 +855,7 @@ class spell_foundry_petrifying_slam_aoe : public SpellScriptLoader
 
         class spell_foundry_petrifying_slam_aoe_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_petrifying_slam_aoe_SpellScript);
+            PrepareSpellScript(spell_foundry_petrifying_slam_aoe_SpellScript)
 
             bool Load() override
             {
@@ -907,7 +923,7 @@ class spell_foundry_petrifying_slam : public SpellScriptLoader
 
         class spell_foundry_petrifying_slam_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_foundry_petrifying_slam_AuraScript);
+            PrepareAuraScript(spell_foundry_petrifying_slam_AuraScript)
 
             enum eSpell
             {
@@ -945,7 +961,7 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
 
         class spell_foundry_overhead_smash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_foundry_overhead_smash_SpellScript);
+            PrepareSpellScript(spell_foundry_overhead_smash_SpellScript)
 
             enum eSpell
             {

@@ -531,7 +531,7 @@ class spell_helix_force_player_to_ride_oaf: public SpellScriptLoader
 
         class spell_helix_force_player_to_ride_oaf_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_helix_force_player_to_ride_oaf_SpellScript);
+            PrepareSpellScript(spell_helix_force_player_to_ride_oaf_SpellScript)
 
 
             void HandleScript(SpellEffIndex /*effIndex*/)

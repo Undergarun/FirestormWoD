@@ -513,7 +513,7 @@ class spell_krick_explosive_barrage: public SpellScriptLoader
 
         class spell_krick_explosive_barrage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_krick_explosive_barrage_AuraScript);
+            PrepareAuraScript(spell_krick_explosive_barrage_AuraScript)
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
@@ -548,7 +548,7 @@ class spell_ick_explosive_barrage: public SpellScriptLoader
 
         class spell_ick_explosive_barrage_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_ick_explosive_barrage_AuraScript);
+            PrepareAuraScript(spell_ick_explosive_barrage_AuraScript)
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -587,7 +587,7 @@ class spell_exploding_orb_hasty_grow: public SpellScriptLoader
 
         class spell_exploding_orb_hasty_grow_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_exploding_orb_hasty_grow_AuraScript);
+            PrepareAuraScript(spell_exploding_orb_hasty_grow_AuraScript)
 
             void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -622,7 +622,7 @@ class spell_krick_pursuit: public SpellScriptLoader
 
         class spell_krick_pursuit_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_krick_pursuit_SpellScript);
+            PrepareSpellScript(spell_krick_pursuit_SpellScript)
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
@@ -649,7 +649,7 @@ class spell_krick_pursuit: public SpellScriptLoader
 
         class spell_krick_pursuit_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_krick_pursuit_AuraScript);
+            PrepareAuraScript(spell_krick_pursuit_AuraScript)
 
             void HandleExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -682,7 +682,7 @@ class spell_krick_pursuit_confusion: public SpellScriptLoader
 
         class spell_krick_pursuit_confusion_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_krick_pursuit_confusion_AuraScript);
+            PrepareAuraScript(spell_krick_pursuit_confusion_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

@@ -1508,7 +1508,7 @@ class spell_halion_meteor_strike_marker: public SpellScriptLoader
 
         class spell_halion_meteor_strike_marker_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_meteor_strike_marker_AuraScript);
+            PrepareAuraScript(spell_halion_meteor_strike_marker_AuraScript)
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1539,7 +1539,7 @@ class spell_halion_combustion_consumption: public SpellScriptLoader
 
         class spell_halion_combustion_consumption_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_combustion_consumption_AuraScript);
+            PrepareAuraScript(spell_halion_combustion_consumption_AuraScript)
 
         public:
             spell_halion_combustion_consumption_AuraScript(uint32 spellID) : AuraScript(), _markSpell(spellID) { }
@@ -1597,7 +1597,7 @@ class spell_halion_marks: public SpellScriptLoader
 
         class spell_halion_marks_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_marks_AuraScript);
+            PrepareAuraScript(spell_halion_marks_AuraScript)
 
         public:
             spell_halion_marks_AuraScript(uint32 summonSpell, uint32 removeSpell) : AuraScript(),
@@ -1657,7 +1657,7 @@ class spell_halion_damage_aoe_summon: public SpellScriptLoader
 
         class spell_halion_damage_aoe_summon_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_damage_aoe_summon_SpellScript);
+            PrepareSpellScript(spell_halion_damage_aoe_summon_SpellScript)
 
             void HandleSummon(SpellEffIndex effIndex)
             {
@@ -1695,7 +1695,7 @@ class spell_halion_twilight_realm_handlers: public SpellScriptLoader
 
         class spell_halion_twilight_realm_handlers_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_halion_twilight_realm_handlers_AuraScript);
+            PrepareAuraScript(spell_halion_twilight_realm_handlers_AuraScript)
 
         public:
             spell_halion_twilight_realm_handlers_AuraScript(uint32 beforeHitSpell, bool isApplyHandler) : AuraScript(),
@@ -1759,7 +1759,7 @@ class spell_halion_clear_debuffs: public SpellScriptLoader
 
         class spell_halion_clear_debuffs_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_clear_debuffs_SpellScript);
+            PrepareSpellScript(spell_halion_clear_debuffs_SpellScript)
 
             bool Validate(SpellInfo const* /*spell*/)
             {
@@ -1810,7 +1810,7 @@ class spell_halion_twilight_cutter: public SpellScriptLoader
 
         class spell_halion_twilight_cutter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
+            PrepareSpellScript(spell_halion_twilight_cutter_SpellScript)
 
             void RemoveNotBetween(std::list<WorldObject*>& unitList)
             {
@@ -1850,7 +1850,7 @@ class spell_halion_twilight_phasing: public SpellScriptLoader
 
         class spell_halion_twilight_phasing_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_phasing_SpellScript);
+            PrepareSpellScript(spell_halion_twilight_phasing_SpellScript)
 
             void Phase()
             {
@@ -1898,7 +1898,7 @@ class spell_halion_summon_exit_portals: public SpellScriptLoader
 
         class spell_halion_summon_exit_portals_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript);
+            PrepareSpellScript(spell_halion_summon_exit_portals_SpellScript)
 
             void OnSummon(SpellEffIndex effIndex)
             {
@@ -1958,7 +1958,7 @@ class spell_halion_mark_damage_aura: public SpellScriptLoader
 
         class spell_halion_mark_damage_aura_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_mark_damage_aura_SpellScript);
+            PrepareSpellScript(spell_halion_mark_damage_aura_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
@@ -1984,7 +1984,7 @@ class spell_halion_mark_damage_aura_heroic: public SpellScriptLoader
 
         class spell_halion_mark_damage_aura_heroic_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_mark_damage_aura_heroic_SpellScript);
+            PrepareSpellScript(spell_halion_mark_damage_aura_heroic_SpellScript)
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {

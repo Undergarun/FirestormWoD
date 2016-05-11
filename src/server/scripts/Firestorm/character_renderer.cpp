@@ -43,13 +43,14 @@ class CharacterRenderer : public PlayerScript
             l_Stmt->setUInt32(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_AVOIDANCE));
             l_Stmt->setString(l_Idx++, l_Damage.str().c_str());
             l_Stmt->setUInt32(l_Idx++, p_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
-            l_Stmt->setFloat(l_Idx++, p_Player->GetAttackTime(WeaponAttackType::BaseAttack)/1000.f);
+            l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME + WeaponAttackType::BaseAttack) / 1000.f);
             l_Stmt->setUInt32(l_Idx++, p_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NONE));
             l_Stmt->setUInt32(l_Idx++, p_Player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) * 5.0f);
             l_Stmt->setUInt32(l_Idx++, p_Player->GetArmor());
             l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE));
             l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE));
             l_Stmt->setFloat(l_Idx++, p_Player->GetFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE));
+            l_Stmt->setUInt32(l_Idx++, p_Player->GetAverageItemLevelEquipped());
 
             CharacterDatabase.Execute(l_Stmt);
         }

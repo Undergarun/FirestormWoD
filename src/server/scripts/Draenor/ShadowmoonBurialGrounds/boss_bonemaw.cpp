@@ -645,7 +645,7 @@ public:
 
     class shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript : public AuraScript
     {
-        PrepareAuraScript(shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_bonemaw_spell_inhale_AuraScript)
 
         void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
         {
@@ -683,7 +683,7 @@ public:
 
     class shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript : public SpellScript
     {
-        PrepareSpellScript(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript);
+        PrepareSpellScript(shadowmoon_burial_grounds_bonemaw_spell_body_slam_SpellScript)
 
         
         enum eBodySlamSpells
@@ -750,7 +750,7 @@ public:
 
     class shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript : public AuraScript
     {
-        PrepareAuraScript(shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript);
+        PrepareAuraScript(shadowmoon_burial_grounds_bonemaw_spell_corpse_breath_AuraScript)
 
         enum eCorpseBreathSpells
         {

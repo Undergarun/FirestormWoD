@@ -277,7 +277,7 @@ class spell_akilzon_electrical_storm: public SpellScriptLoader
 
         class spell_akilzon_electrical_storm_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_akilzon_electrical_storm_AuraScript);
+            PrepareAuraScript(spell_akilzon_electrical_storm_AuraScript)
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -338,7 +338,7 @@ class spell_akilzon_electrical_storm_dmg: public SpellScriptLoader
 
         class spell_akilzon_electrical_storm_dmg_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_akilzon_electrical_storm_dmg_SpellScript);
+            PrepareSpellScript(spell_akilzon_electrical_storm_dmg_SpellScript)
 
             void CheckTarget(std::list<WorldObject*>& unitList)
             {

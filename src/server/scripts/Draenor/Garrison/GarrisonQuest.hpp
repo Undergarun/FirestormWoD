@@ -36,7 +36,7 @@ namespace MS { namespace Garrison
 
             class spell_learning_blueprint_SpellScript : public SpellScript
             {
-                PrepareSpellScript(spell_learning_blueprint_SpellScript);
+                PrepareSpellScript(spell_learning_blueprint_SpellScript)
 
                 /// After cast
                 void HandleAfterCast();

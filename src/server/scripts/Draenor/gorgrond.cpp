@@ -666,7 +666,7 @@ class spell_drov_call_of_earth : public SpellScriptLoader
 
         class spell_drov_call_of_earth_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_drov_call_of_earth_AuraScript);
+            PrepareAuraScript(spell_drov_call_of_earth_AuraScript)
 
             enum eAction
             {
@@ -716,7 +716,7 @@ class spell_drov_colossal_slam : public SpellScriptLoader
 
         class spell_drov_colossal_slam_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drov_colossal_slam_SpellScript);
+            PrepareSpellScript(spell_drov_colossal_slam_SpellScript)
 
             enum eSpell
             {
@@ -778,7 +778,7 @@ class spell_drov_acid_breath : public SpellScriptLoader
 
         class spell_drov_acid_breath_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_drov_acid_breath_SpellScript);
+            PrepareSpellScript(spell_drov_acid_breath_SpellScript)
 
             enum eSpell
             {
