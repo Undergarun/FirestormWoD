@@ -1057,6 +1057,45 @@ class spell_quest_gorgrond_burn_ancient_corpse : public SpellScriptLoader
         }
 };
 
+/// Toxic Slimemold - 85732
+class npc_gorgrond_toxic_slimemold : public CreatureScript
+{
+    public:
+        npc_gorgrond_toxic_slimemold() : CreatureScript("npc_gorgrond_toxic_slimemold") { }
+
+        struct npc_gorgrond_toxic_slimemoldAI : public CreatureAI
+        {
+            uint32 m_Timer;
+
+            npc_gorgrond_toxic_slimemoldAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Timer(0) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Timer += p_Diff;
+
+                if (m_Timer >= 500)
+                {
+                    Player* l_Player = me->FindNearestPlayer(MIN_MELEE_REACH, true);
+
+                    if (l_Player)
+                    {
+                        l_Player->KilledMonsterCredit(me->GetEntry());
+                        me->DespawnOrUnsummon(0);
+                    }
+
+                    m_Timer = 0;
+                }
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_gorgrond_toxic_slimemoldAI(p_Creature);
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1070,6 +1109,7 @@ void AddSC_gorgrond()
     new npc_drov_rumbling_goren();
     new npc_drov_frenzied_rumbler();
     new npc_gorgrond_goren_egg();
+    new npc_gorgrond_toxic_slimemold();
 
     /// Spells
     new spell_drov_call_of_earth();
