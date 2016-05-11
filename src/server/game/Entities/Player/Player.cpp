@@ -7678,7 +7678,8 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
                 l_AreaTrigger->target_mapId);
 
             /// Since WoD, you are resurrected in Dungeon with 100% life.
-            m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
+            if (!isAlive())
+                m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
         }
     }
     else

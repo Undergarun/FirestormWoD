@@ -3746,6 +3746,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 167630: ///< Blaze of Glory (Rukhmar)
                 spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_5_YARDS); ///< 5yd
                 break;
+            case 178851: ///< Rukhmar Bonus
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
             case 128254: ///< Brew Finale Wheat Effect (Yan-Zhu - Stormstout Brewery)
             case 128256: ///< Brew Finale Medium Effect (Yan-Zhu - Stormstout Brewery)
             case 128258: ///< Brew Finale Dark Effect (Yan-Zhu - Stormstout Brewery)
