@@ -15449,6 +15449,9 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 
 void Unit::IncrDiminishing(DiminishingGroup group)
 {
+    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_NO_DR))
+        return;
+
     // Checking for existing in the table
     for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
     {

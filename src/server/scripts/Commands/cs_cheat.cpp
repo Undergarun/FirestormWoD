@@ -45,6 +45,7 @@ class cheat_commandscript: public CommandScript
                 { "taxi",       SEC_GAMEMASTER, false, &HandleTaxiCheatCommand,         "", NULL },
                 { "explore",    SEC_GAMEMASTER, false, &HandleExploreCheatCommand,      "", NULL },
                 { "all",        SEC_GAMEMASTER, false, &HandleAllSpellCheatCommand,     "", NULL },
+                { "nodr",       SEC_GAMEMASTER, false, &HandleNodrCheatCommand,         "", NULL },
                 { NULL,         0,              false, NULL,                            "", NULL }
 
             };
@@ -76,6 +77,32 @@ class cheat_commandscript: public CommandScript
             else if (argstr == "on")
             {
                 handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_GOD);
+                handler->SendSysMessage("Godmode is ON. You won't take damage.");
+                return true;
+            }
+
+            return false;
+        }
+
+        static bool HandleNodrModeCheatCommand(ChatHandler* handler, const char* args)
+        {
+            if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
+                return false;
+
+            std::string argstr = (char*)args;
+
+            if (!*args)
+                argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_NO_DR)) ? "off" : "on";
+
+            if (argstr == "off")
+            {
+                handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_NO_DR);
+                handler->SendSysMessage("Godmode is OFF. You can take damage.");
+                return true;
+            }
+            else if (argstr == "on")
+            {
+                handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_NO_DR);
                 handler->SendSysMessage("Godmode is ON. You won't take damage.");
                 return true;
             }
