@@ -923,6 +923,50 @@ class spell_quest_gorgrond_punt_podling : public SpellScriptLoader
         }
 };
 
+/// Frenzied Rumbler - 88119
+class npc_gorgrond_goren_egg : public CreatureScript
+{
+    public:
+        npc_gorgrond_goren_egg() : CreatureScript("npc_gorgrond_goren_egg") { }
+
+        struct npc_gorgrond_goren_eggAI : public CreatureAI
+        {
+            uint32 m_Timer;
+
+            npc_gorgrond_goren_eggAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Timer(0) { }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Timer += p_Diff;
+
+                if (m_Timer >= 500)
+                {
+                    Player* l_Player = me->FindNearestPlayer(MIN_MELEE_REACH, true);
+
+                    if (l_Player)
+                    {
+                        l_Player->KilledMonsterCredit(me->GetEntry());
+
+                        TempSummon * l_Summon = me->SummonCreature(0, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * TimeConstants::IN_MILLISECONDS);
+
+                        if (l_Summon)
+                            l_Summon->Attack(l_Player, true);
+
+                        me->DespawnOrUnsummon(0);
+                    }
+
+                    m_Timer = 0;
+                }
+
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_gorgrond_goren_eggAI(p_Creature);
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -935,6 +979,7 @@ void AddSC_gorgrond()
     new npc_giant_lasher();
     new npc_drov_rumbling_goren();
     new npc_drov_frenzied_rumbler();
+    new npc_gorgrond_goren_egg();
 
     /// Spells
     new spell_drov_call_of_earth();
