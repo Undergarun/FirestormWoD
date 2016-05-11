@@ -3408,22 +3408,23 @@ void SpellMgr::LoadSpellCustomAttr()
             ///////////////////////////////////////////////////////////////////////////////////
             /// Scribe Quarters
             ///////////////////////////////////////////////////////////////////////////////////
-            case 176513:
+            case 176513:    ///< Draenor Merchant Order
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_CREATE_RANDOM_ITEM;
-            break;
-            case 176791:
+                break;
+            case 176791:    ///< Combine
                 spellInfo->Effects[1].Effect = 0;
-            case 176482:
-            case 176483:
-            case 176484:
-            case 176485:
-            case 176486:
-            case 176487:
-            case 176488:
-            case 176489:
-            case 176490:
-            case 176491:
-            case 176934:
+                /// No break needed here
+            case 176482:    ///< Combine
+            case 176483:    ///< Combine
+            case 176484:    ///< Combine
+            case 176485:    ///< Combine
+            case 176486:    ///< Combine
+            case 176487:    ///< Combine
+            case 176488:    ///< Combine
+            case 176489:    ///< Combine
+            case 176490:    ///< Combine
+            case 176491:    ///< Combine
+            case 176934:    ///< Combine
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3452,12 +3453,12 @@ void SpellMgr::LoadSpellCustomAttr()
             ///////////////////////////////////////////////////////////////////////////////////
             /// Stables
             ///////////////////////////////////////////////////////////////////////////////////
-            case 174216:
-            case 174218: ///< potentially fixed, but causes player stuck
-            case 174219:
-            case 174220:
-            case 174221:
-            case 174222:
+            case 174216:    ///< Summon Snarler-In-Training
+            case 174218:    ///< Summon Icehoof-In-Training - Potentially fixed, but causes player stuck
+            case 174219:    ///< Summon Meadowstomper-In-Training
+            case 174220:    ///< Summon Riverwallow-In-Training
+            case 174221:    ///< Summon Rocktusk-In-Training
+            case 174222:    ///< Summon Snarler-In-Training
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOUNTED;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
