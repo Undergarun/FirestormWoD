@@ -836,6 +836,10 @@ bool InstanceScript::CheckRequiredBosses(uint32 p_ID, Player const* p_Player) co
     if (m_DisabledMask & (1 << p_ID))
         return false;
 
+    /// Disable boss until challenge mode starts
+    if (instance->IsChallengeMode() && !IsChallengeModeStarted())
+        return false;
+
     if (p_Player && p_Player->isGameMaster())
         return true;
 
