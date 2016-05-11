@@ -8,6 +8,7 @@ This program is released under the GPL with the additional exemption that
 compiling, linking, and/or using OpenSSL is allowed.
 */
 
+#ifndef __clang_analyzer__
 #if defined(__BORLANDC__)
 #pragma option push -w-8060
 #pragma option push -w-8004
@@ -1697,4 +1698,5 @@ SOAP_FMAC3 char ** SOAP_FMAC4 soap_get_string(struct soap *soap, char **p, const
 #pragma option pop
 #endif
 
+#endif
 /* End of soapC.cpp */
