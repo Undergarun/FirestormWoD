@@ -4550,7 +4550,6 @@ public:
             {
                 l_Caster->CastSpell(l_Caster, GlyphOfSoulConsumption, true);
             }
-            /// lol
         }
 
         void Register()
