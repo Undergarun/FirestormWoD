@@ -2662,6 +2662,11 @@ class Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
+        /// Helpre for Glaive of Toss
+        uint64 GetGlaiveOfTossTargetGUID() { return m_GlaiveOfTossTargetGUID;  }
+        void SetGlaiveTossTarget(uint64 guid) { m_GlaiveOfTossTargetGUID = guid; }
+        void removeGlaiveTossTarget() { m_GlaiveOfTossTargetGUID = 0; }
+
         // helper for dark simulacrum spell
         Unit* GetSimulacrumTarget();
         void setSimulacrumTarget(uint64 guid) { simulacrumTargetGUID = guid; }
@@ -2892,6 +2897,7 @@ class Unit : public WorldObject
         TimeTrackerSmall m_FlightSplineSyncTimer;
 
         uint64 simulacrumTargetGUID;
+        uint64 m_GlaiveOfTossTargetGUID;
         uint64 iciclesTargetGUID;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;
