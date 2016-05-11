@@ -238,7 +238,8 @@ class spell_warl_haunt_dispel: public SpellScriptLoader
         }
 };
 
-// Haunt - 48181
+/// Last Update 6.2.3
+/// Haunt - 48181
 class spell_warl_haunt : public SpellScriptLoader
 {
     public:
@@ -248,7 +249,7 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -262,7 +263,7 @@ class spell_warl_haunt : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warl_haunt_SpellScript::HandleOnCast);
             }
         };
 
