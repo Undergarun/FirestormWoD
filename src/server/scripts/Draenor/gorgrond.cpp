@@ -968,8 +968,6 @@ class npc_gorgrond_goren_egg : public CreatureScript
         }
 };
 
-<<<<<<< HEAD
-=======
 /// Ancient Ogre Hoard Jar
 class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
 {
@@ -1011,6 +1009,54 @@ class go_gorgrond_ancient_ogre_hoard_jar : public GameObjectScript
 
 };
 
+/// Burn Ancient Corpse - 170769
+class spell_quest_gorgrond_burn_ancient_corpse : public SpellScriptLoader
+{
+    enum
+    {
+        AncientSeedbearer = 85524,
+    };
+
+    public:
+        /// Constructor
+        spell_quest_gorgrond_burn_ancient_corpse()
+            : SpellScriptLoader("spell_quest_gorgrond_burn_ancient_corpse")
+        {
+
+        }
+
+        class spell_quest_gorgrond_burn_ancient_corpse_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_quest_gorgrond_burn_ancient_corpse_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster && l_Target && l_Caster->IsPlayer())
+                {
+                    if (l_Target->GetEntry() == AncientSeedbearer)
+                    {
+                        l_Target->ToCreature()->DespawnOrUnsummon(0 * TimeConstants::IN_MILLISECONDS);
+                    }
+                }
+            }
+
+            /// Register all effect
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_quest_gorgrond_burn_ancient_corpse_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        /// Get spell script
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_quest_gorgrond_burn_ancient_corpse_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_gorgrond()
 {
@@ -1030,6 +1076,7 @@ void AddSC_gorgrond()
     new spell_drov_colossal_slam();
     new spell_drov_acid_breath();
     new spell_quest_gorgrond_punt_podling();
+    new spell_quest_gorgrond_burn_ancient_corpse();
 
     /// Areatriggers
     new areatrigger_tarlna_noxious_spit();
