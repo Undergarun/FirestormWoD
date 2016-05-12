@@ -5507,9 +5507,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Speed = 100.0f;
                 break;
             case 117050: ///< Glaive Toss (talent)
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
-                spellInfo->Effects[4].Effect = SPELL_EFFECT_NONE;
-                spellInfo->Effects[1].Effect = SPELL_EFFECT_NONE;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
             case 120755: ///< Glaive Toss (Glaive right)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -6160,7 +6158,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 153596:///< Comet Storm
-                spellInfo->Speed = 0.05f;
+                spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
+                spellInfo->ExplicitTargetMask |= TARGET_FLAG_DEST_LOCATION;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->Speed = 0.50f;
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
