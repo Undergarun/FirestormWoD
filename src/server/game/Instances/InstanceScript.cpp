@@ -1427,7 +1427,7 @@ void InstanceScript::RewardNewRealmRecord(RealmCompletedChallenge* p_OldChalleng
     }
 }
 
-void InstanceScript::ResetChallengeMode(Player* p_Source)
+void InstanceScript::ResetChallengeMode()
 {
     /// Reset internal datas
     m_ChallengeStarted      = false;

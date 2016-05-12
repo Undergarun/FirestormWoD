@@ -561,7 +561,7 @@ class InstanceScript : public ZoneScript
         void SaveNewGroupChallenge(uint32 p_GuildID = 0);
         uint32 RewardChallengers();
         void RewardNewRealmRecord(RealmCompletedChallenge* p_OldChallenge = nullptr);
-        void ResetChallengeMode(Player* p_Source);
+        void ResetChallengeMode();
 
         bool   m_ChallengeStarted;
         bool   m_ConditionCompleted;
