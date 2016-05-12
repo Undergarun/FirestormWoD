@@ -6036,47 +6036,47 @@ public:
 class spell_dru_glyph_of_charm_woodland_creature : public SpellScriptLoader
 {
 public:
-	spell_dru_glyph_of_charm_woodland_creature() : SpellScriptLoader("spell_dru_glyph_of_charm_woodland_creature") { }
+    spell_dru_glyph_of_charm_woodland_creature() : SpellScriptLoader("spell_dru_glyph_of_charm_woodland_creature") { }
 
-	class spell_dru_glyph_of_charm_woodland_creature_AuraScript : public AuraScript
-	{
-		PrepareAuraScript(spell_dru_glyph_of_charm_woodland_creature_AuraScript);
+    class spell_dru_glyph_of_charm_woodland_creature_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_glyph_of_charm_woodland_creature_AuraScript);
 
-		enum eSpells
-		{
-			GlyphOfCharmWoodlandCreature = 57855,
-			CharmWoodlandCreature = 127757
-		};
+        enum eSpells
+        {
+            GlyphOfCharmWoodlandCreature = 57855,
+            CharmWoodlandCreature = 127757
+        };
 
-		void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
-		{
-			if (Player* l_Player = GetCaster()->ToPlayer())
-				l_Player->learnSpell(CharmWoodlandCreature, true);
-		}
+        void AfterApply(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->learnSpell(CharmWoodlandCreature, true);
+        }
 
-		void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
-		{
-			if (Player* l_Player = GetCaster()->ToPlayer())
-				l_Player->removeSpell(CharmWoodlandCreature);
-		}
+        void AfterRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes p_Mode)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+                l_Player->removeSpell(CharmWoodlandCreature);
+        }
 
-		void Register()
-		{
-			AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-			AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-		}
-	};
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_dru_glyph_of_charm_woodland_creature_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
 
-	AuraScript* GetAuraScript() const
-	{
-		return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
-	}
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_glyph_of_charm_woodland_creature_AuraScript();
+    }
 };
 
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_germination();
-	new spell_dru_glyph_of_charm_woodland_creature();
+    new spell_dru_glyph_of_charm_woodland_creature();
     new spell_dru_one_with_nature_glyph();
     new spell_dru_one_with_nature();
     new spell_dru_living_seed();

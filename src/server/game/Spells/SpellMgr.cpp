@@ -3843,64 +3843,64 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcFlags = 0;
                 spellInfo->ProcChance = 0;
                 break;
-				/// Shadowmoon Burial Grounds
-			case 153068: ///< Void Devestation
-				spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
-				spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RADIUS;
-				spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
-				break;
-			case 152962: ///< Soul Steal
-				spellInfo->Effects[0].TriggerSpell = 0;
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-				spellInfo->Effects[0].TargetB = NULL;
-				break;
-			case 152979: ///< Soul Shreads
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-				spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
-				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
-				break;
-			case 164693: ///< Lunar Runes
-			case 164695:
-			case 164696:
-				spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
-				break;
-			case 154327: ///< Domination
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-				break;
-			case 153164: ///< Dark Communion
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-				spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-				spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-				spellInfo->Effects[0].TargetB = NULL;
-				spellInfo->Effects[1].TargetB = NULL;
-				spellInfo->Effects[2].TargetB = NULL;
-				break;
-			case 153153: ///< Dark Communion
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
-				spellInfo->Effects[0].TargetB = NULL;
-				break;
-			case 153501: ///< Void Blast
-			case 153070: ///< Void Devestation
-				spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
-				spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
-				break;
-			case 173073: ///< Ground Marker
-				sSpellDurationStore.LookupEntry(1); ///< 10s
-				break;
-			case 153686: ///< Body Slam
-				spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-				break;
-			case 154469: ///< Ritaul Of Bones - Darkness
-			case 153692: ///< Necrotic Pitch Debuff
-				spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
-				break;
-			case 153236: ///< DaggerFall
-				spellInfo->Effects[0].TargetA = 0;
-				spellInfo->Effects[0].TargetB = 0;
-				break;
-			case 164685: ///< Dark Eclipse
-				spellInfo->Effects[0].Amplitude = 600;
-				break;
+                /// Shadowmoon Burial Grounds
+            case 153068: ///< Void Devestation
+                spellInfo->Effects[0].TargetA = TARGET_DEST_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_DEST_RADIUS;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
+                break;
+            case 152962: ///< Soul Steal
+                spellInfo->Effects[0].TriggerSpell = 0;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = NULL;
+                break;
+            case 152979: ///< Soul Shreads
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 164693: ///< Lunar Runes
+            case 164695:
+            case 164696:
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); ///< 120s
+                break;
+            case 154327: ///< Domination
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 153164: ///< Dark Communion
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = NULL;
+                spellInfo->Effects[1].TargetB = NULL;
+                spellInfo->Effects[2].TargetB = NULL;
+                break;
+            case 153153: ///< Dark Communion
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[0].TargetB = NULL;
+                break;
+            case 153501: ///< Void Blast
+            case 153070: ///< Void Devestation
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 173073: ///< Ground Marker
+                sSpellDurationStore.LookupEntry(1); ///< 10s
+                break;
+            case 153686: ///< Body Slam
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 154469: ///< Ritaul Of Bones - Darkness
+            case 153692: ///< Necrotic Pitch Debuff
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 153236: ///< DaggerFall
+                spellInfo->Effects[0].TargetA = 0;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 164685: ///< Dark Eclipse
+                spellInfo->Effects[0].Amplitude = 600;
+                break;
                 /// Everbloom
             case 164643: ///< Rending Charge
             case 164886: ///< Dreadpetal Toxin
@@ -3941,10 +3941,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
                 /// Iron Docks 
-			case 163705:  ///< Abrupt Restoration
-				spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-				spellInfo->Effects[0].TargetB = 0;
-				break;
+            case 163705:  ///< Abrupt Restoration
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = 0;
+                break;
             case 178154:  ///< Acid Spit
             case 178155:  ///< Acid Spit Trigger Missile
             case 163689:  ///< Sanguine Sphere
@@ -4000,9 +4000,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
                 /// Auchindoun
-			case 157505: ///< Arcane Bolt
-				spellInfo->Effects[0].Amplitude = 1500;
-				break;
+            case 157505: ///< Arcane Bolt
+                spellInfo->Effects[0].Amplitude = 1500;
+                break;
             case 154340: ///< Sanctified Ground
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
                 break;
@@ -7214,7 +7214,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 143333: ///< Water walking aura
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_NOT_MOUNTED;
-				break;
+                break;
             case 157698: ///< Haunting Spirits
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
                 break;
@@ -7229,21 +7229,21 @@ void SpellMgr::LoadSpellCustomAttr()
             case 110310: ///< Dampening
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Amplitude = 10000;  ///< 10 secs
                 break;
-			case 47180:///< Glyph Of Cat Form
-				spellInfo->Stances = 0;
-				break;
+            case 47180:///< Glyph Of Cat Form
+                spellInfo->Stances = 0;
+                break;
             case 108415: ///< Soul Link
             case 108446:
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
-			case 56805: ///< Glyph Of Kick
-				spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
-				spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
-				spellInfo->Effects[2].BasePoints = 0;
-				break;
+            case 56805: ///< Glyph Of Kick
+                spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[2].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[2].BasePoints = 0;
+                break;
             default:
                 break;
         }
