@@ -744,6 +744,19 @@ void InstanceScript::DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID)
     }
 }
 
+void InstanceScript::DoRemoveSpellCooldownWithTimeOnPlayers(uint32 p_MinRecoveryTime)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->RemoveSpellCooldownsWithTime(p_MinRecoveryTime);
+    }
+}
+
 void InstanceScript::DoCombatStopOnPlayers()
 {
     Map::PlayerList const& l_PlayerList = instance->GetPlayers();
@@ -1455,6 +1468,9 @@ void InstanceScript::ResetChallengeMode()
 
     /// Reset scenario datas
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep));
+
+    /// Reset all cooldowns of 3min or more
+    DoRemoveSpellCooldownWithTimeOnPlayers(TimeConstants::MINUTE * 3 * TimeConstants::IN_MILLISECONDS);
 
     /// Teleport players to entrance
     RepopPlayersAtGraveyard();

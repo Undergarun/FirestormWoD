@@ -2332,6 +2332,7 @@ class Player : public Unit, public GridObject<Player>
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
+        void RemoveSpellCooldownsWithTime(uint32 p_MinRecoveryTime);
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _LoadChargesCooldowns(PreparedQueryResult p_Result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
@@ -3482,7 +3483,27 @@ class Player : public Unit, public GridObject<Player>
         bool ConsumeCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
         void ReduceChargeCooldown(SpellCategoryEntry const* p_ChargeCategoryEntry, uint64 p_Reductiontime);
         void RestoreCharge(SpellCategoryEntry const* p_ChargeCategoryEntry);
-        void ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry);
+
+        auto ResetCharges(SpellCategoryEntry const* p_ChargeCategoryEntry)
+        {
+            if (!p_ChargeCategoryEntry)
+                return m_CategoryCharges.begin();
+
+            auto l_Itr = m_CategoryCharges.find(p_ChargeCategoryEntry->Id);
+            if (l_Itr != m_CategoryCharges.end())
+            {
+                WorldPacket l_Data(Opcodes::SMSG_CLEAR_SPELL_CHARGES);
+                l_Data << int32(p_ChargeCategoryEntry->Id);
+                l_Data.WriteBit(false); ///< IsPet
+                l_Data.FlushBits();
+                SendDirectMessage(&l_Data);
+
+                return m_CategoryCharges.erase(l_Itr);
+            }
+
+            return m_CategoryCharges.begin();
+        }
+
         void ResetAllCharges();
         bool HasCharge(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
         uint32 GetMaxCharges(SpellCategoryEntry const* p_ChargeCategoryEntry) const;
