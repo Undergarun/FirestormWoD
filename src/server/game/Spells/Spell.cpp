@@ -5000,6 +5000,9 @@ void Spell::SendSpellGo()
         && !l_IsHealthPowerSpell)
         l_CastFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
+    if (m_caster->IsPlayer() && _triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+        l_CastFlags |= CAST_FLAG_NO_COOLDOWN;
+
     if ((m_caster->IsPlayer())
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
