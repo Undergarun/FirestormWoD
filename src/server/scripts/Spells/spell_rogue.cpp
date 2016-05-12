@@ -1396,8 +1396,9 @@ class spell_rog_envenom: public SpellScriptLoader
 
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
                 int32 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
@@ -1415,8 +1416,8 @@ class spell_rog_envenom: public SpellScriptLoader
                         l_SliceAndDice->RefreshDuration();
                 }
 
-                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Owner->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Owner, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
 
@@ -1425,13 +1426,13 @@ class spell_rog_envenom: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, eSpells::EnvenomComboPoint, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_rog_envenom_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_envenom_SpellScript();
         }
@@ -2458,10 +2459,11 @@ class spell_rog_evicerate : public SpellScriptLoader
 
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
                 uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || l_Owner == nullptr)
                     return;
 
                 if (l_ComboPoint)
@@ -2477,21 +2479,22 @@ class spell_rog_evicerate : public SpellScriptLoader
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
-                l_Damage *= l_Caster->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
 
-                l_Damage = l_Caster->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
-                l_Damage = l_Target->MeleeDamageBonusTaken(l_Caster, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage *= l_Owner->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
+
+                l_Damage = l_Owner->MeleeDamageBonusDone(l_Target, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
+                l_Damage = l_Target->MeleeDamageBonusTaken(l_Owner, l_Damage, WeaponAttackType::BaseAttack, GetSpellInfo());
 
                 SetHitDamage(l_Damage);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_rog_evicerate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_evicerate_SpellScript();
         }
