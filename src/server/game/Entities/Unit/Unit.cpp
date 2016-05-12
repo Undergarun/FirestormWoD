@@ -15937,10 +15937,6 @@ void Unit::SetHealth(uint32 val)
             {
                 if (l_Pet->GetHealthPct() < 20.0f && !owner->HasAura(171397))
                     owner->CastSpell(owner, 171397, true);
-
-                /// Remove aura if pet has more than 20% life
-                if (l_Pet->GetHealthPct() >= 20.0f)
-                    owner->RemoveAura(171397);
             }
         }
     }
