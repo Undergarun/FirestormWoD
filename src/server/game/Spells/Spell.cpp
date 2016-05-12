@@ -6574,6 +6574,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyphId))
                     if (m_caster->HasAura(gp->SpellId))
                         return SPELL_FAILED_UNIQUE_GLYPH;
+
+                /// It's impossible to change talents during challenge mode
+                if (m_caster->GetMap()->IsChallengeMode())
+                {
+                    m_customError = SpellCustomErrors::SPELL_CUSTOM_ERROR_CANT_DO_THAT_IN_CHALLENGE_MODE;
+                    return SpellCastResult::SPELL_FAILED_CUSTOM_ERROR;
+                }
+
                 break;
             }
             case SPELL_EFFECT_FEED_PET:
