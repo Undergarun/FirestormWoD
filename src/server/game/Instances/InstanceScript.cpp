@@ -31,30 +31,30 @@
 
 InstanceScript::InstanceScript(Map* p_Map)
 {
-    instance = p_Map;
-    m_CompletedEncounters = 0;
-    m_ChallengeStarted = false;
-    m_ConditionCompleted = false;
-    m_CreatureKilled = 0;
-    m_StartChallengeTime = 0;
-    m_ChallengeDoorGuid = 0;
-    m_ChallengeOrbGuid = 0;
-    m_ChallengeTime = 0;
-    m_MedalType = eChallengeMedals::MedalTypeNone;
+    instance                    = p_Map;
+    m_CompletedEncounters       = 0;
+    m_ChallengeStarted          = false;
+    m_ConditionCompleted        = false;
+    m_CreatureKilled            = 0;
+    m_StartChallengeTime        = 0;
+    m_ChallengeDoorGuid         = 0;
+    m_ChallengeOrbGuid          = 0;
+    m_ChallengeTime             = 0;
+    m_MedalType                 = eChallengeMedals::MedalTypeNone;
 
-    m_InstanceGuid = MAKE_NEW_GUID(p_Map->GetId(), 0, HIGHGUID_INSTANCE_SAVE);
-    m_BeginningTime = 0;
-    m_ScenarioID = 0;
-    m_ScenarioStep = 0;
-    m_EncounterTime = 0;
-    m_DisabledMask = 0;
+    m_InstanceGuid              = MAKE_NEW_GUID(p_Map->GetId(), 0, HIGHGUID_INSTANCE_SAVE);
+    m_BeginningTime             = 0;
+    m_ScenarioID                = 0;
+    m_ScenarioStep              = 0;
+    m_EncounterTime             = 0;
+    m_DisabledMask              = 0;
 
-    m_InCombatResCount = 0;
-    m_MaxInCombatResCount = 0;
-    m_CombatResChargeTime = 0;
-    m_NextCombatResChargeTime = 0;
+    m_InCombatResCount          = 0;
+    m_MaxInCombatResCount       = 0;
+    m_CombatResChargeTime       = 0;
+    m_NextCombatResChargeTime   = 0;
 
-    m_EncounterDatas = EncounterDatas();
+    m_EncounterDatas            = EncounterDatas();
 }
 
 void InstanceScript::SaveToDB()
