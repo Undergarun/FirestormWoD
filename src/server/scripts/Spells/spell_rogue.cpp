@@ -1406,7 +1406,7 @@ class spell_rog_envenom: public SpellScriptLoader
 
                 if (l_ComboPoint)
                 {
-                    l_Damage += int32(1.05 * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+                    l_Damage += int32(1.05 * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.417 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
 
                     /// Tier 5 Bonus 2 pieces
                     if (AuraEffect* l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
