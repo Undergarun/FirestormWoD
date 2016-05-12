@@ -129,11 +129,25 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
+
+    /// In challenge mode, item set bonuses and gem bonuses are disabled
+    /// Disable them
+    if (instance->IsChallengeMode())
+    {
+        HandleItemSetBonusesOnPlayers(false);
+    }
 }
 
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
     p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
+
+    /// In challenge mode, item set bonuses and gem bonuses are disabled
+    /// Re enable them
+    if (instance->IsChallengeMode())
+    {
+        HandleItemSetBonusesOnPlayers(true);
+    }
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -754,6 +768,19 @@ void InstanceScript::DoRemoveSpellCooldownWithTimeOnPlayers(uint32 p_MinRecovery
     {
         if (Player* l_Player = l_Iter->getSource())
             l_Player->RemoveSpellCooldownsWithTime(p_MinRecoveryTime);
+    }
+}
+
+void InstanceScript::HandleItemSetBonusesOnPlayers(bool p_Apply)
+{
+    Map::PlayerList const& l_PlayerList = instance->GetPlayers();
+    if (l_PlayerList.isEmpty())
+        return;
+
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->HandleItemSetBonuses(p_Apply);
     }
 }
 

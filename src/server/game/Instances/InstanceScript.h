@@ -353,8 +353,11 @@ class InstanceScript : public ZoneScript
         /// Remove cooldown for spell on all players in instance
         void DoRemoveSpellCooldownOnPlayers(uint32 p_SpellID);
 
-        /// Remove cooldowns equal or less than specified time to all palyers in instance
+        /// Remove cooldowns equal or less than specified time to all players in instance
         void DoRemoveSpellCooldownWithTimeOnPlayers(uint32 p_MinRecoveryTime);
+
+        /// Used to apply or unapply item set bonuses on all players in instance
+        void HandleItemSetBonusesOnPlayers(bool p_Apply);
 
         /// Do combat stop on all players in instance
         void DoCombatStopOnPlayers();

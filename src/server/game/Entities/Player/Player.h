@@ -1822,6 +1822,8 @@ class Player : public Unit, public GridObject<Player>
         int32 ModifyCurrency(uint32 id, int32 count, bool supressLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
 
+        void HandleItemSetBonuses(bool p_Apply);
+
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
         void VisualizeItem(uint8 slot, Item* pItem);

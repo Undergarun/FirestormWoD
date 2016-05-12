@@ -27910,6 +27910,27 @@ void Player::SendInstanceGroupSizeChanged(uint32 p_Size)
     GetSession()->SendPacket(&l_Data);
 }
 
+void Player::HandleItemSetBonuses(bool p_Apply)
+{
+    for (uint8 l_I = 0; l_I < InventorySlots::INVENTORY_SLOT_BAG_END; ++l_I)
+    {
+        if (m_items[l_I])
+        {
+            ItemTemplate const* l_Proto = m_items[l_I]->GetTemplate();
+            if (!l_Proto)
+                continue;
+
+            if (l_Proto->ItemSet)
+            {
+                if (p_Apply)
+                    AddItemsSetItem(this, m_items[l_I]);
+                else
+                    RemoveItemsSetItem(this, l_Proto);
+            }
+        }
+    }
+}
+
 void Player::ApplyEquipCooldown(Item* p_Item)
 {
     if (p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_NO_EQUIP_COOLDOWN))
