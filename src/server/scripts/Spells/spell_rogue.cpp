@@ -1793,6 +1793,7 @@ class spell_rog_deadly_poison_instant_damage: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Shiv - 5938
 class spell_rog_shiv: public SpellScriptLoader
 {
@@ -1805,25 +1806,26 @@ class spell_rog_shiv: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
-                            caster->CastSpell(target, ROGUE_SPELL_DEBILITATING_POISON, true);
-                        else if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
-                            caster->CastSpell(caster, ROGUE_SPELL_LEECH_VITALITY, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_DEBILITATING_POISON, true);
+                else if (l_Owner->HasAura(ROGUE_SPELL_LEECHING_POISON))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_LEECH_VITALITY, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_rog_shiv_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_shiv_SpellScript();
         }
