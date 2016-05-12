@@ -18825,7 +18825,8 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
                 if (InstanceScript* l_InstanceScript = l_KilledCreature->GetInstanceScript())
                     l_InstanceScript->OnCreatureKilled(l_KilledCreature, l_KillerPlayer);
 
-                if (l_InstanceMap->IsRaidOrHeroicDungeon())
+                /// There is no lockout scheduled in challenge mode
+                if (l_InstanceMap->IsRaidOrHeroicDungeon() && !l_InstanceMap->IsChallengeMode())
                 {
                     if (l_KilledCreature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap*)l_InstanceMap)->PermBindAllPlayers(l_KillerPlayer);
