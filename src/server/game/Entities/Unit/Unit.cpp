@@ -18733,6 +18733,10 @@ void Unit::Kill(Unit* p_KilledVictim, bool p_DurabilityLoss, SpellInfo const* p_
         /// at original death (not at SpiritOfRedemtionTalent timeout)
         l_PlayerVictim->SetPvPDeath(l_KillerPlayer != NULL);
 
+        /// There is no durability loss in challenge dungeons
+        if (l_PlayerVictim->GetMap()->IsChallengeMode())
+            p_DurabilityLoss = false;
+
         /// Only if not player and not controlled by player pet. And not at BG
         if ((p_DurabilityLoss && !l_KillerPlayer && !p_KilledVictim->ToPlayer()->InBattleground()) || (l_KillerPlayer && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
