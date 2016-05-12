@@ -398,7 +398,7 @@ namespace MS { namespace Garrison
             PetMenagerie        = 7,
             Barracks            = 8,
             Orchard             = 9,    ///< Unused 2
-            Armory              = 10,
+            Armory              = 10,   ///< War mill/Dwarven Bunker
             Stable              = 11,
             Academy             = 12,
             MageTower           = 13,

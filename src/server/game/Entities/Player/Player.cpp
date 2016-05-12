@@ -7667,7 +7667,8 @@ void Player::RepopAtGraveyard(bool p_ForceGraveyard /*= false*/)
                 l_AreaTrigger->target_mapId);
 
             /// Since WoD, you are resurrected in Dungeon with 100% life.
-            m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
+            if (!isAlive())
+                m_Events.AddEvent(new DelayedResurrection(GetGUID()), 1 * TimeConstants::IN_MILLISECONDS);
         }
     }
     else
@@ -18954,7 +18955,6 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
                                 if (l_Level1 || l_Level2 || l_Level3)
                                     l_Coeff *= 2.0f;
-
                             }
 
                             //bool  l_SendDisplayToast = false;
@@ -28199,7 +28199,7 @@ void Player::ResetDailyQuestStatus()
     GetSession()->SendPacket(&data);
 }
 
-void Player::ResetGarrisonDatas()
+void Player::ResetDailyGarrisonDatas()
 {
     using namespace MS::Garrison;
     if (Manager* l_Garrison = GetGarrison())
@@ -28256,6 +28256,22 @@ void Player::ResetGarrisonDatas()
                         l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
                 }
             }
+        }
+    }
+}
+
+void Player::ResetWeeklyGarrisonDatas()
+{
+    using namespace MS::Garrison;
+
+    if (Manager* l_Garrison = GetGarrison())
+    {
+        GarrisonBuilding l_Building = l_Garrison->GetBuildingWithType(BuildingType::Armory);
+
+        if (l_Building.DatabaseID)
+        {
+            if (GetCharacterWorldStateValue(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain) == 1)
+                SetCharacterWorldState(CharacterWorldStates::CharWorldStateGarrisonArmoryWeeklyCurrencyGain, 0);
         }
     }
 }
@@ -28889,6 +28905,12 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 
     if (player->GetMapId() != pRewardSource->GetMapId() || player->GetInstanceId() != pRewardSource->GetInstanceId())
         return false;
+
+    if (Map* l_Map = pRewardSource->GetMap())
+    {
+        if (l_Map->IsDungeon() || l_Map->IsRaid())
+            return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_INSTANCE_GROUP_XP_DISTANCE);
+    }
 
     return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
 }

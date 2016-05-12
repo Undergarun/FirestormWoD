@@ -186,6 +186,7 @@ class debug_commandscript: public CommandScript
                 { "haste",                       SEC_ADMINISTRATOR,  false, &HandleDebugHasteCommand,                "", NULL },
                 { "mastery",                     SEC_ADMINISTRATOR,  false, &HandleDebugMasteryCommand,              "", NULL },
                 { "setaura",                     SEC_ADMINISTRATOR,  false, &HandleDebugAuraCommand,                 "", NULL },
+                { "cleardr",                     SEC_ADMINISTRATOR,  false, &HandleDebugCancelDiminishingReturn,     "", NULL },
                 { NULL,                          SEC_PLAYER,         false, NULL,                                    "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -196,6 +197,22 @@ class debug_commandscript: public CommandScript
             };
             return commandTable;
         }
+
+        static bool HandleDebugCancelDiminishingReturn(ChatHandler* handler, char const* args)
+        {
+            Unit* unit = handler->getSelectedUnit();
+            if (!unit)
+            {
+                handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            unit->ClearDiminishings();
+            return true;
+        }
+
+
 
         static bool HandleDebugAuraCommand(ChatHandler* handler, char const* args)
         {

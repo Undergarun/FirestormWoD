@@ -1759,6 +1759,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_LEADERS,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleChallengeModeRequestLeaders );
     DEFINE_OPCODE_HANDLER(CMSG_GET_CHALLENGE_MODE_REWARDS,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleGetChallengeModeRewards     );
     DEFINE_OPCODE_HANDLER(CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleChallengeModeRequestMapStats);
+    DEFINE_OPCODE_HANDLER(CMSG_RESET_CHALLENGE_MODE,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE, &WorldSession::HandleResetChallengeModeOpcode    );
 
     //////////////////////////////////////////////////////////////////////////
     /// Blackmarket
@@ -1815,7 +1816,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_BATTLEPET_JOURNAL,               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestBattlePetJournal   );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCategoryCooldownOpcode    );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode);
-    //DEFINE_OPCODE_HANDLER(CMSG_RESET_CHALLENGE_MODE,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleResetChallengeModeOpcode  );
     //DEFINE_OPCODE_HANDLER(CMSG_RESET_FACTION_CHEAT,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_ADDRESS,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_BNET_ACCOUNT_ID,    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

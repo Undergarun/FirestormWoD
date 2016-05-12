@@ -186,7 +186,8 @@ enum CharacterWorldStates
     CharWorldStateGarrisonWorkshopGearworksInvention            = 3,
     CharWorldStateGarrisonWorkshopGearworksInventionCharges     = 4,
     CharWorldStateGarrisonTradingPostDailyRandomTrader          = 5,
-    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6
+    CharWorldStateGarrisonTradingPostDailyRandomShipment        = 6,
+    CharWorldStateGarrisonArmoryWeeklyCurrencyGain              = 7
 };
 
 // Spell modifier (used for modify other spells)
@@ -1175,6 +1176,7 @@ enum PlayerCommandStates
     CHEAT_POWER         = 0x08,
     CHEAT_WATERWALK     = 0x10,
     CHEAT_ALL_SPELLS    = 0x20,
+    CHEAT_NO_DR         = 0x40
 };
 
 enum AttackSwingError
@@ -1804,7 +1806,7 @@ class Player : public Unit, public GridObject<Player>
         * @param ignore gain multipliers
         */
 
-        int32 ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
+        int32 ModifyCurrency(uint32 id, int32 count, bool supressLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false, MS::Battlegrounds::RewardCurrencyType::Type p_RewardCurrencyType = MS::Battlegrounds::RewardCurrencyType::Type::None);
         void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
 
         void ApplyEquipCooldown(Item* pItem);
@@ -1957,8 +1959,9 @@ class Player : public Unit, public GridObject<Player>
         void SetMonthlyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
-        void ResetGarrisonDatas();
+        void ResetDailyGarrisonDatas();
         void ResetWeeklyQuestStatus();
+        void ResetWeeklyGarrisonDatas();
         void ResetMonthlyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
 

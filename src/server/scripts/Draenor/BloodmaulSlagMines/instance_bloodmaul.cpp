@@ -43,9 +43,6 @@ namespace MS
 
                     struct instance_BloodmaulInstanceMapScript : public InstanceScript
                     {
-                        /// Scenario handling.
-                        uint32 m_CreatureKilled;
-
                         /// Slave Watcher Crushto.
                         std::vector<uint64> m_NeutralMinerSpawnGuids;
                         std::list<uint64> m_CapturedMinerGuids;
@@ -68,7 +65,6 @@ namespace MS
 
                         instance_BloodmaulInstanceMapScript(Map* p_Map)
                             : InstanceScript(p_Map),
-                            m_CreatureKilled(0),
                             m_NeutralMinerSpawnGuids(),
                             m_CapturedMinerGuids(),
                             m_OgreMageDeads(0),
@@ -145,6 +141,9 @@ namespace MS
                                     break;
                                 case GameObjects::ChallengeDoor:
                                     m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                                    break;
+                                case CHALLENGE_MOD_ORB:
+                                    m_ChallengeOrbGuid = p_GameObject->GetGUID();
                                     break;
                                 case GameObjects::SteelSword:
                                     m_SteelSwordGuid = p_GameObject->GetGUID();

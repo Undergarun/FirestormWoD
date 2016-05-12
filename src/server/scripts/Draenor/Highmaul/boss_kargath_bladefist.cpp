@@ -2004,9 +2004,11 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
                     m_ClassicEvent.Reset();
+
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
                     m_FightEvent.ScheduleEvent(eEvents::EventVileBreath, 3000);
-                    m_FightEvent.ScheduleEvent(eEvents::EventHeckle, 6000);
+                    m_ClassicEvent.ScheduleEvent(eEvents::EventHeckle, 6000);
                 }
             }
 
@@ -2029,10 +2031,22 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
             {
                 m_ClassicEvent.Update(p_Diff);
 
-                if (m_ClassicEvent.ExecuteEvent() == eEvents::EventMaulingBrew)
+                switch (m_ClassicEvent.ExecuteEvent())
                 {
-                    me->CastSpell(me, eSpells::MaulingBrewSearch, false);
-                    m_ClassicEvent.ScheduleEvent(eEvents::EventMaulingBrew, urand(15000, 25000));
+                    case eEvents::EventMaulingBrew:
+                    {
+                        me->CastSpell(me, eSpells::MaulingBrewSearch, false);
+                        m_ClassicEvent.ScheduleEvent(eEvents::EventMaulingBrew, urand(15000, 25000));
+                        break;
+                    }
+                    case eEvents::EventHeckle:
+                    {
+                        me->CastSpell(me, eSpells::Heckle, false);
+                        m_ClassicEvent.ScheduleEvent(eEvents::EventHeckle, 10000);
+                        break;
+                    }
+                    default:
+                        break;
                 }
 
                 if (!UpdateVictim())
@@ -2043,18 +2057,10 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                switch (m_FightEvent.ExecuteEvent())
+                if (m_FightEvent.ExecuteEvent() == eEvents::EventVileBreath)
                 {
-                    case eEvents::EventVileBreath:
-                        me->CastSpell(me, eSpells::VileBreath, false);
-                        m_FightEvent.ScheduleEvent(eEvents::EventVileBreath, 10000);
-                        break;
-                    case eEvents::EventHeckle:
-                        me->CastSpell(me, eSpells::Heckle, false);
-                        m_FightEvent.ScheduleEvent(eEvents::EventHeckle, 10000);
-                        break;
-                    default:
-                        break;
+                    me->CastSpell(me, eSpells::VileBreath, false);
+                    m_FightEvent.ScheduleEvent(eEvents::EventVileBreath, 10000);
                 }
 
                 DoMeleeAttackIfReady();
@@ -2110,8 +2116,8 @@ class npc_highmaul_iron_bomber : public CreatureScript
             npc_highmaul_iron_bomberAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             bool m_HasBomb;
+
             EventMap m_Events;
-            EventMap m_FightEvents;
 
             void Reset() override
             {
@@ -2130,8 +2136,10 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
                     m_Events.Reset();
+
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    m_FightEvents.ScheduleEvent(eEvents::EventHeckle, 6000);
+
+                    m_Events.ScheduleEvent(eEvents::EventHeckle, 6000);
                 }
 
                 if (m_HasBomb)
@@ -2171,20 +2179,26 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 /// Iron Bombs are out of combat
                 m_Events.Update(p_Diff);
 
-                if (m_Events.ExecuteEvent() == eEvents::EventIronBomb)
+                switch (m_Events.ExecuteEvent())
                 {
-                    me->CastSpell(me, eSpells::SpellIronBomb, false);
-                    m_Events.ScheduleEvent(eEvents::EventIronBomb, urand(5000, 9000));
+                    case eEvents::EventIronBomb:
+                    {
+                        me->CastSpell(me, eSpells::SpellIronBomb, false);
+                        m_Events.ScheduleEvent(eEvents::EventIronBomb, urand(5000, 9000));
+                        break;
+                    }
+                    case eEvents::EventHeckle:
+                    {
+                        me->CastSpell(me, eSpells::Heckle, false);
+                        m_Events.ScheduleEvent(eEvents::EventHeckle, 6000);
+                        break;
+                    }
+                    default:
+                        break;
                 }
 
                 if (!UpdateVictim())
                     return;
-
-                if (m_FightEvents.ExecuteEvent() == eEvents::EventHeckle)
-                {
-                    me->CastSpell(me, eSpells::Heckle, false);
-                    m_FightEvents.ScheduleEvent(eEvents::EventHeckle, 6000);
-                }
 
                 DoMeleeAttackIfReady();
 

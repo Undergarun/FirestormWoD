@@ -740,7 +740,7 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
             DamageDelay = 1 * IN_MILLISECONDS ///< Delay between damage cast (and self-snare check)
         };
 
-        int32 m_Delay = 0;
+        int32 m_Delay = 700;
 
         void OnCreate(AreaTrigger* p_AreaTrigger)
         {

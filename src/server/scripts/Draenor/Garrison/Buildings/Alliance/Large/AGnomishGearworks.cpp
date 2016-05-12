@@ -140,7 +140,7 @@ namespace MS {
             l_Owner->SaveToDB();
         }
 
-        void npc_Zee_GarrisonAI::OnDataReset()
+        void npc_Zee_GarrisonAI::OnDailyDataReset()
         {
             if (Player* l_Owner = ObjectAccessor::GetPlayer(*me, m_OwnerGUID))
             {

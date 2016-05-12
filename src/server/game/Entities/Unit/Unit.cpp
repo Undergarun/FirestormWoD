@@ -257,6 +257,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_CombatTimer = 0;
 
     simulacrumTargetGUID = 0;
+    m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -14067,6 +14068,7 @@ void Unit::ClearInCombat()
     }
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool checkFakeDeath) const
@@ -15435,6 +15437,9 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
 
 void Unit::IncrDiminishing(DiminishingGroup group)
 {
+    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_NO_DR))
+        return;
+
     // Checking for existing in the table
     for (Diminishing::iterator i = m_Diminishing.begin(); i != m_Diminishing.end(); ++i)
     {

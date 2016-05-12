@@ -36,7 +36,7 @@ namespace MS { namespace Garrison
 
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
-            virtual void OnDataReset() override;
+            virtual void OnDailyDataReset() override;
     };
 
     class npc_MadisonClark : public CreatureScript

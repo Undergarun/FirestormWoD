@@ -3646,7 +3646,8 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleBeforeCast()
             {
-                Aura* aur = GetCaster()->AddAura(SPELL_MONK_ROLL_TRIGGER, GetCaster());
+                GetCaster()->CastSpell(GetCaster(), SPELL_MONK_ROLL_TRIGGER);
+                Aura* aur = GetCaster()->GetAura(SPELL_MONK_ROLL_TRIGGER);
                 if (!aur)
                     return;
 
@@ -5459,7 +5460,7 @@ class spell_monk_detonate_chi : public SpellScriptLoader
 };
 
 /// Glyph of Freedom Roll - 159534
-/// Call by Roll - 109132, Chi Torpedo - 115008 and Flying Serpent Kick - 115057
+/// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008 
 class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
 {
     public:

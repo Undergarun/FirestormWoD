@@ -62,7 +62,7 @@ namespace MS { namespace Garrison
 
             virtual void OnSetPlotInstanceID(uint32 p_PlotInstanceID) override;
 
-            virtual void OnDataReset() override;
+            virtual void OnDailyDataReset() override;
 
             virtual void SetGUID(uint64 p_Guid, int32 p_Id) override;
     };

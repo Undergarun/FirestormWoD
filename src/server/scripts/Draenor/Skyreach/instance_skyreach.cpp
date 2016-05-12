@@ -67,9 +67,6 @@ namespace MS
                 std::map<uint64, uint32> m_ReadyForRaidingIVAchievements;
                 bool m_HasFailedMonomaniaAchievement;
 
-                // Scenario handling.
-                uint32 m_CreatureKilled;
-
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
                     m_AraknathGuid(0),
@@ -87,8 +84,7 @@ namespace MS
                     m_WindMazeBlockGuids(),
                     m_MagnifyingGlassFocusGuids(),
                     m_ReshadOutroGuid(0),
-                    m_HasFailedMonomaniaAchievement(false),
-                    m_CreatureKilled(0)
+                    m_HasFailedMonomaniaAchievement(false)
                 {
                     SetBossNumber(MaxEncounter::Number);
                     LoadDoorData(k_DoorData); 
@@ -255,6 +251,9 @@ namespace MS
                             break;
                         case GameObjectEntries::DOOR_CHALLENGE_ENTRANCE:
                             m_ChallengeDoorGuid = p_Gameobject->GetGUID();
+                            break;
+                        case CHALLENGE_MOD_ORB:
+                            m_ChallengeOrbGuid = p_Gameobject->GetGUID();
                             break;
                         default:
                             break;
